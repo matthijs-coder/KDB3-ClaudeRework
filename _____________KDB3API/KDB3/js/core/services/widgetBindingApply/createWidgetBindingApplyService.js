@@ -1,21 +1,11 @@
 define([
-  "./config/defaults.js",
-  "./effects/applyBindingPlan.js",
-  "./effects/createCognosBindingFacade.js",
-  "./runtime/manageBindingApplyTimers.js",
-], function (_defaults, _applyBindingPlan, _createCognosBindingFacade, _manageBindingApplyTimers) {
+  "./applyBindingPlan.js",
+  "../../utils/kit/runtime.js",
+], function (_applyBindingPlan, _rt) {
   "use strict";
 
   function createWidgetBindingApplyService(_deps) {
     var _KDB = _deps._KDB;
-    var defaults = _deps.defaults || _defaults();
-    var runtime = _KDB.runtime && _KDB.runtime.widgetBindingApply ? _KDB.runtime.widgetBindingApply : {};
-    var cognosBinding = _createCognosBindingFacade({
-      visualizationFacet: runtime.visualizationFacet,
-      widgetsFacet: runtime.widgetsFacet,
-      canvasFacet: runtime.canvasFacet
-    });
-    var serviceDeps = { _KDB: _KDB, defaults: defaults, cognosBinding: cognosBinding };
     var _isDisposed = false;
 
     function applyBinding(_plan, _options) {
@@ -23,7 +13,7 @@ define([
         return Promise.reject(new Error("widgetBindingApply disposed"));
       }
       try {
-        return Promise.resolve(_applyBindingPlan(serviceDeps, _plan, _options));
+        return Promise.resolve(_applyBindingPlan(_KDB, _plan, _options));
       } catch (err) {
         console.error("[widgetBindingApply.applyBinding] failed", err);
         return Promise.reject(err);
@@ -49,7 +39,10 @@ define([
         delete abortControllers[key];
       });
       runtime.pendingPromises = {};
-      _manageBindingApplyTimers.clearAllBindingApplyTimers(_KDB);
+      var timers = runtime.timers || {};
+      Object.keys(timers).forEach(function (key) {
+        _rt.clearTimer(timers, key);
+      });
     }
 
     return {

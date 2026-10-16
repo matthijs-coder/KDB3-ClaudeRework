@@ -1,8 +1,7 @@
 define([
   "./createWidgetBindingApplyService.js",
-  "./config/defaults.js",
   "./runtime/ensureWidgetBindingApplyRuntime.js",
-], function (_createWidgetBindingApplyService, _defaults, _ensureWidgetBindingApplyRuntime) {
+], function (_createWidgetBindingApplyService, _ensureWidgetBindingApplyRuntime) {
   "use strict";
 
   function readCognosHostService(_KDB) {
@@ -24,7 +23,6 @@ define([
       stampHostFacets(_KDB);
       var service = _createWidgetBindingApplyService({
         _KDB: _KDB,
-        defaults: _defaults(),
         options: _options || {},
       });
       _KDB.services.widgetBindingApply = service;
