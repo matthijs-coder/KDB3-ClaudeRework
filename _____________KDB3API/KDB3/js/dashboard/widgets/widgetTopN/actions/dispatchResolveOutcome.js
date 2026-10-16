@@ -57,7 +57,7 @@ define([
       return { ok: true, status: "skipped", diagnostics: { skippedCleanup: true, reason: "inspectionMode" } };
     }
     var resolveController = ownerRuntime.abortControllers ? ownerRuntime.abortControllers.resolve : null;
-    return _cleanupTopNHelper({ _KDB: _context._KDB }, {
+    var cleanup = await _cleanupTopNHelper({ _KDB: _context._KDB }, {
       ownerVisId: request.ownerVisId,
       helperWidgetId: ownerRuntime.helperWidgetId,
       ownerRuntime: ownerRuntime,
@@ -69,6 +69,16 @@ define([
       helperDataConfig: spec.dataConfig,
       config: request.config
     });
+    if (cleanup && cleanup.ok !== true && cleanup.status !== "aborted") {
+      console.warn("[widgetTopN.postResolutionCleanup] cleanup failed", {
+        ownerVisId: request.ownerVisId,
+        helperWidgetId: ownerRuntime.helperWidgetId,
+        opSeq: opSeq,
+        errorCode: cleanup.errorCode || null,
+        errorMessage: cleanup.errorMessage || null
+      });
+    }
+    return cleanup;
   }
 
   function buildTerminalPayload(request, opSeq, status, resultValues, excludeItemId, errorCode, errorMessage) {
