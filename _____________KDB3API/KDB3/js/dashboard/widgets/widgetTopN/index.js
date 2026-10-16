@@ -1,12 +1,12 @@
 define([
   "./state.js",
+  "./selectors.js",
   "./results.js",
   "./resolve.js",
   "./cleanup.js",
-  "../../../core/utils/kit/data.js",
   "../../../core/utils/kit/errors.js",
   "../../../core/utils/kit/runtime.js"
-], function (_state, _results, _resolve, _cleanup, _data, _errors, _rt) {
+], function (_state, _selectors, _results, _resolve, _cleanup, _errors, _rt) {
   "use strict";
 
   // Lifecycle terms: idle, initializing, ready, error, disposed.
@@ -155,22 +155,40 @@ define([
       if (guard.blocked("dispatch")) {
         return Promise.resolve(_results.normalizeDispatchResult({ ok: false, outcome: "aborted", reason: "disposed", status: "aborted" }));
       }
-      ensureState();
-      var action = _state.validateAction(_action);
-      var route = !action.errorCode && Object.prototype.hasOwnProperty.call(ROUTES, action.type) ? ROUTES[action.type] : null;
-      if (!route) {
+      try {
+        ensureState();
+        var action = _state.validateAction(_action);
+        var route = !action.errorCode && Object.prototype.hasOwnProperty.call(ROUTES, action.type) ? ROUTES[action.type] : null;
+        if (route) {
+          return runRoute(route, action);
+        }
         return Promise.resolve(_results.normalizeDispatchResult({
           ok: false,
           status: "error",
           errorCode: action.errorCode || "WIDGET_TOPN_INVALID_REQUEST",
           errorMessage: action.errorCode ? action.errorMessage : "Unknown widgetTopN action."
         }));
+      } catch (err) {
+        console.error("[widgetTopN.dispatch] failed", err);
+        return Promise.resolve(_results.normalizeDispatchResult({
+          ok: false,
+          status: "error",
+          errorCode: "WIDGET_TOPN_INVALID_REQUEST",
+          errorMessage: _results.messageFromError(err)
+        }));
       }
-      return runRoute(route, action);
     }
 
     function getState() {
-      return guard.isDisposed() ? undefined : _data.cloneJson(_KDB.state.widgets.topN);
+      if (guard.isDisposed()) {
+        return undefined;
+      }
+      try {
+        return _selectors.readWidgetTopNState(_KDB);
+      } catch (err) {
+        console.error("[widgetTopN.getState] failed", err);
+        return undefined;
+      }
     }
 
     function destroy() {

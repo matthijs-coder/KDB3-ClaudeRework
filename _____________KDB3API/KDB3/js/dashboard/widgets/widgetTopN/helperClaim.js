@@ -240,17 +240,16 @@ define([
     return runCleanup(signal);
   }
 
-  // Resolves true when no cleanup runs on the helper (any more), false when
-  // _signal aborted the wait. A cleanup that does not settle in time is logged
-  // and the caller proceeds, as before this gate existed.
+  // Aborts the cleanup running on the helper and waits until it settled or the
+  // caller's signal aborted. A cleanup that does not settle in time is logged and
+  // the caller proceeds, as before this gate existed.
   async function settleHelperCleanup(_KDB, helperWidgetId, _signal) {
     var rt = _rt.ensureRuntime(_KDB, "widgetTopN");
     var record = helperWidgetId ? rt.pendingPromises[_config.CLEANUP_KEY_PREFIX + helperWidgetId] : null;
-    if (!record) {
-      return true;
+    if (record) {
+      record.controller.abort();
+      await waitForSettle(record, _signal, helperWidgetId);
     }
-    record.controller.abort();
-    return (await waitForSettle(record, _signal, helperWidgetId)) !== "aborted";
   }
 
   function waitForSettle(record, signal, helperWidgetId) {
@@ -294,7 +293,6 @@ define([
   return {
     claimTopNHelper: claimTopNHelper,
     releaseTopNClaim: releaseTopNClaim,
-    runExclusiveHelperCleanup: runExclusiveHelperCleanup,
-    settleHelperCleanup: settleHelperCleanup
+    runExclusiveHelperCleanup: runExclusiveHelperCleanup
   };
 });

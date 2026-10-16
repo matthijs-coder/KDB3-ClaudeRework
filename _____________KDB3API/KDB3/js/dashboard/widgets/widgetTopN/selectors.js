@@ -9,24 +9,6 @@ define(["../../../core/utils/kit/data.js"], function (_data) {
     return _data.cloneJson(readTopNState(_KDB));
   }
 
-  function readTopNResolution(_KDB, _ownerVisId) {
-    var state = readTopNState(_KDB);
-    if (!state || !_ownerVisId || !state.byOwner[_ownerVisId]) {
-      return undefined;
-    }
-    return _data.cloneJson(state.byOwner[_ownerVisId]);
-  }
-
-  function readTopNHelperWidgetId(_KDB, _ownerVisId) {
-    var resolution = readTopNResolution(_KDB, _ownerVisId);
-    return resolution && resolution.helperWidgetId ? resolution.helperWidgetId : null;
-  }
-
-  function readTopNStatus(_KDB, _ownerVisId) {
-    var resolution = readTopNResolution(_KDB, _ownerVisId);
-    return resolution ? resolution.resolutionStatus : undefined;
-  }
-
   function readOwnerClaim(_KDB, _ownerVisId) {
     var state = readTopNState(_KDB);
     var record = state && state.byOwner ? state.byOwner[_ownerVisId] : null;
@@ -47,9 +29,6 @@ define(["../../../core/utils/kit/data.js"], function (_data) {
 
   return {
     readWidgetTopNState: readWidgetTopNState,
-    readTopNResolution: readTopNResolution,
-    readTopNHelperWidgetId: readTopNHelperWidgetId,
-    readTopNStatus: readTopNStatus,
     readOwnerClaim: readOwnerClaim,
     isHelperClaimedByOtherOwner: isHelperClaimedByOtherOwner
   };

@@ -12,44 +12,39 @@ define([
   // widgetTopN/cleanup: abort the owner's resolve, then clear the helper
   // binding and/or release the claim.
   async function handleCleanup(_context, _action) {
-    try {
-      var request = _state.validateCleanupRequest(_action);
-      if (request.ok !== true) {
-        return request;
-      }
-      var ownerRuntime = _context.readOwnerRuntime(request.ownerVisId);
-      _context.abortOwnerOperation(ownerRuntime);
-      if (request.clearHelperBinding === true || request.releaseClaim === true) {
-        var cleanup = await runRequestedCleanup(_context._KDB, buildCleanupContext(request, ownerRuntime));
-        if (cleanup.ok !== true && cleanup.status !== "aborted") {
-          _context.dispatchInternal({
-            type: _state.ACTION_TYPES.ERROR_RECORDED,
-            widgetId: request.ownerVisId,
-            payload: { errorCode: cleanup.errorCode || "WIDGET_TOPN_CLEANUP_FAILED", errorMessage: cleanup.errorMessage || null }
-          });
-          return cleanupFailure(request, cleanup);
-        }
-      }
-      resetOwnerRuntime(ownerRuntime, request.releaseClaim);
-      _context.dispatchInternal({
-        type: _state.ACTION_TYPES.CLEANUP_SUCCEEDED,
-        widgetId: request.ownerVisId,
-        payload: { releaseClaim: request.releaseClaim }
-      });
-      var result = {
-        ok: true,
-        ownerVisId: request.ownerVisId,
-        helperWidgetId: request.releaseClaim ? null : ownerRuntime.helperWidgetId,
-        status: "success"
-      };
-      if (request.releaseClaim === true && !_widgetBaseSelectors.readFrame(_context._KDB, request.ownerVisId)) {
-        _context.removeOwner(request.ownerVisId, ownerRuntime);
-      }
-      return result;
-    } catch (err) {
-      console.error("[widgetTopN.handleCleanup] failed", { widgetId: _action && _action.widgetId }, err);
-      return { ok: false, status: "error", errorCode: "WIDGET_TOPN_CLEANUP_FAILED", errorMessage: _results.messageFromError(err) };
+    var request = _state.validateCleanupRequest(_action);
+    if (request.ok !== true) {
+      return request;
     }
+    var ownerRuntime = _context.readOwnerRuntime(request.ownerVisId);
+    _context.abortOwnerOperation(ownerRuntime);
+    if (request.clearHelperBinding === true || request.releaseClaim === true) {
+      var cleanup = await runRequestedCleanup(_context._KDB, buildCleanupContext(request, ownerRuntime));
+      if (cleanup.ok !== true && cleanup.status !== "aborted") {
+        _context.dispatchInternal({
+          type: _state.ACTION_TYPES.ERROR_RECORDED,
+          widgetId: request.ownerVisId,
+          payload: { errorCode: cleanup.errorCode || "WIDGET_TOPN_CLEANUP_FAILED", errorMessage: cleanup.errorMessage || null }
+        });
+        return cleanupFailure(request, cleanup);
+      }
+    }
+    resetOwnerRuntime(ownerRuntime, request.releaseClaim);
+    _context.dispatchInternal({
+      type: _state.ACTION_TYPES.CLEANUP_SUCCEEDED,
+      widgetId: request.ownerVisId,
+      payload: { releaseClaim: request.releaseClaim }
+    });
+    var result = {
+      ok: true,
+      ownerVisId: request.ownerVisId,
+      helperWidgetId: request.releaseClaim ? null : ownerRuntime.helperWidgetId,
+      status: "success"
+    };
+    if (request.releaseClaim === true && !_widgetBaseSelectors.readFrame(_context._KDB, request.ownerVisId)) {
+      _context.removeOwner(request.ownerVisId, ownerRuntime);
+    }
+    return result;
   }
 
   // A release-only cleanup (Jahr wave) does no helper work and must not abort a
@@ -159,7 +154,8 @@ define([
     try {
       if (_context.clearHelperBinding === true) {
         var cleared = await applyCleanupPlan(_KDB, _context);
-        if (cleared.ok !== true) {
+        // An aborted clear still releases the claim, or the claim attributes stay on the helper.
+        if (cleared.ok !== true && !(cleared.status === "aborted" && _context.releaseClaim === true)) {
           return cleared;
         }
       }
@@ -220,11 +216,11 @@ define([
   }
 
   function isStaleCleanup(_context) {
-    var ownerRuntime = _context.ownerRuntime;
-    if (!ownerRuntime || typeof _context.opSeq !== "number") {
-      return false;
+    if (_results.isAborted(_context.signal)) {
+      return true;
     }
-    return ownerRuntime.opSeq !== _context.opSeq || _results.isAborted(_context.signal);
+    var ownerRuntime = _context.ownerRuntime;
+    return !!ownerRuntime && typeof _context.opSeq === "number" && ownerRuntime.opSeq !== _context.opSeq;
   }
 
   return {

@@ -83,7 +83,10 @@ function delay(ms, signal) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs = 300, readMs = 10 } = {}) {
+const pick = (value, index) => (typeof value === "function" ? value(index) : value);
+
+// applyMs / readMs may be functions of the 1-based call number (cleanup applies are counted separately).
+function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs = 300, readMs = 10, cleanupIgnoresAbort = false } = {}) {
   const t0 = Date.now();
   const now = () => Date.now() - t0;
   const doc = new FakeDocument();
@@ -94,6 +97,10 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
   helpers.forEach((id) => doc.create(id, {}, slot));
 
   const log = [];
+  const misplaced = [];
+  const signalViolations = [];
+  const cleanupStarts = [];
+  const counters = { apply: 0, read: 0 };
   const terminals = [];
   const overlaps = [];
   const active = {};
@@ -139,17 +146,28 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
         async applyBinding(plan, options) {
           const helperId = options.target.widgetId;
           const kind = plan.reason === "cleanup" ? "cleanup" : "apply";
+          if (!(options.signal instanceof AbortSignal)) signalViolations.push({ kind, helperId });
+          const callNumber = kind === "apply" ? (counters.apply += 1) : 0;
+          if (kind === "cleanup") {
+            const runtimeRecord = _KDB.runtime.widgetTopN.byOwner[options.target.ownerWidgetId];
+            cleanupStarts.push({ owner: options.target.ownerWidgetId, helperId, lastHelperPlan: runtimeRecord ? runtimeRecord.lastHelperPlan : undefined });
+          }
           log.push({ ev: kind + "Start", helperId, owner: options.target.ownerWidgetId, opSeq: options.target.opSeq, t: now() });
           mark(helperId, kind, 1);
-          const done = await delay(kind === "cleanup" ? cleanupMs : applyMs, options.signal);
+          const ignoresAbort = kind === "cleanup" && cleanupIgnoresAbort;
+          const done = await delay(kind === "cleanup" ? cleanupMs : pick(applyMs, callNumber), ignoresAbort ? null : options.signal);
           mark(helperId, kind, -1);
+          if (kind === "apply" && doc.getElementById(helperId).parentNode === slot) {
+            misplaced.push({ helperId, owner: options.target.ownerWidgetId, opSeq: options.target.opSeq, t: now() });
+          }
           log.push({ ev: kind + (done ? "End" : "Aborted"), helperId, owner: options.target.ownerWidgetId, opSeq: options.target.opSeq, t: now() });
           return done ? { status: "success", diagnostics: {} } : { status: "aborted" };
         }
       },
       tableData: {
         reloadTable: async () => {
-          await delay(readMs);
+          counters.read += 1;
+          await delay(pick(readMs, counters.read));
           return [{ c: { d: "A", u: "A" } }, { c: { d: "B", u: "B" } }, { c: { d: "C", u: "C" } }];
         }
       }
@@ -172,7 +190,7 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
 
   const api = _KDB.api.widgetTopN;
   return {
-    _KDB, api, doc, slot, canvas, log, terminals, overlaps, now, removedOwners,
+    _KDB, api, doc, slot, canvas, log, terminals, overlaps, now, removedOwners, misplaced, signalViolations, cleanupStarts,
     resolve(owner, opSeq, topNChoice) {
       return api.dispatch({
         type: "widgetTopN/resolveRequested",
@@ -215,6 +233,7 @@ async function withEnv(options, body) {
   try {
     const env = createEnv(options);
     await body(env, capture.messages);
+    assert.deepEqual(env.signalViolations, [], "every applyBinding call gets a real AbortSignal");
   } finally {
     capture.restore();
   }
@@ -411,5 +430,136 @@ test("remove of an owner while its post-resolution cleanup runs: cleanup settles
     await waitUntil(() => env.idle());
     assert.equal(env.helperInSlot("h1"), true);
     assert.deepEqual(widgetTopNWarnings(messages), []);
+  });
+});
+
+test("lease, same owner: an aborted op in a long non-abortable read does not pull the helper away from the newer op's apply", async () => {
+  await withEnv({ readMs: (n) => (n === 1 ? 400 : 10), applyMs: (n) => (n === 2 ? 350 : 20), cleanupMs: 50 }, async (env, messages) => {
+    const first = env.resolve("o1", 1, "5");
+    await sleep(150);
+    const second = env.resolve("o1", 2, "3");
+    const results = await Promise.all([first, second]);
+    assert.equal(results[0].stale, true);
+    assert.equal(results[1].status, "success");
+    assert.deepEqual(env.misplaced, [], "helper stayed beside the owner during the newer op's apply");
+    await waitUntil(() => env.idle());
+    assert.equal(env.helperInSlot("h1"), true);
+    assert.equal(env.ownerRuntime("o1").helperPlacement, null);
+    assert.deepEqual(env.terminals.map((t) => t.opSeq), [2]);
+    assert.deepEqual(widgetTopNWarnings(messages), []);
+  });
+});
+
+test("lease, two owners: an aborted op of the first owner does not pull the helper away from the second owner", async () => {
+  await withEnv({
+    owners: ["o1", "o2"],
+    readMs: (n) => (n === 1 ? 500 : 10),
+    applyMs: (n) => (n === 3 ? 700 : 20),
+    cleanupMs: 300
+  }, async (env, messages) => {
+    const stuck = env.resolve("o1", 1, "5");
+    await sleep(150);
+    const redone = await env.resolve("o1", 2, "3");
+    assert.equal(redone.status, "success");
+    await env.release("o1");
+    const second = await env.resolve("o2", 1, "2");
+    const stuckResult = await stuck;
+    assert.equal(stuckResult.stale, true);
+    assert.equal(second.status, "success");
+    assert.deepEqual(env.misplaced, [], "helper stayed beside o2 while its apply ran");
+    assert.equal(env.ownerRuntime("o1").helperPlacement, null);
+    await waitUntil(() => env.idle());
+    assert.equal(env.helperInSlot("h1"), true);
+    assert.deepEqual(env.overlaps, []);
+    assert.deepEqual(widgetTopNWarnings(messages), []);
+  });
+});
+
+test("a cleanup that finishes late after an explicit clear aborted it does not write the owner runtime", async () => {
+  await withEnv({ cleanupMs: 250, cleanupIgnoresAbort: true }, async (env, messages) => {
+    await env.resolve("o1", 1);
+    await waitUntil(() => env.cleanupStarts.length === 1);
+    assert.notEqual(env.ownerRuntime("o1").lastHelperPlan, null, "the apply plan is kept until a cleanup succeeded");
+    const cleared = env.clear("o1", DATA_CONFIG);
+    await waitUntil(() => env.cleanupStarts.length === 2, 2000);
+    assert.notEqual(env.cleanupStarts[1].lastHelperPlan, null, "the aborted first cleanup left the owner runtime alone");
+    await cleared;
+    await waitUntil(() => env.idle());
+    assert.equal(env.ownerRuntime("o1").lastHelperPlan, null, "the replacing clear wrote it");
+    assert.deepEqual(widgetTopNWarnings(messages), []);
+  });
+});
+
+test("a cleanup that finishes after the owner released the helper does not write the owner runtime", async () => {
+  await withEnv({ cleanupMs: 200 }, async (env, messages) => {
+    await env.resolve("o1", 1);
+    await waitUntil(() => env.cleanupStarts.length === 1);
+    await env.release("o1");
+    const record = env.ownerRuntime("o1");
+    record.lastHelperPlan = { marker: "owner moved on" };
+    await waitUntil(() => env.idle());
+    assert.deepEqual(record.lastHelperPlan, { marker: "owner moved on" });
+    assert.deepEqual(widgetTopNWarnings(messages), []);
+  });
+});
+
+test("an aborted clear+release cleanup still releases the claim: no claim attributes stay on the helper", async () => {
+  await withEnv({ cleanupMs: 200 }, async (env, messages) => {
+    await env.resolve("o1", 1);
+    await waitUntil(() => env.cleanupStarts.length === 1);
+    const helper = env.doc.getElementById("h1");
+    assert.notEqual(helper.getAttribute("data-kdb-topn-claim-token"), null);
+    const removed = env.api.dispatch({
+      type: "widgetTopN/cleanup",
+      widgetId: "o1",
+      payload: { ownerVisId: "o1", reason: "remove", clearHelperBinding: true, releaseClaim: true }
+    });
+    const cleared = env.clear("o1");
+    await Promise.all([removed, cleared]);
+    await waitUntil(() => env.idle());
+    assert.equal(helper.getAttribute("data-kdb-topn-claim-token"), null);
+    assert.equal(helper.getAttribute("data-connected-vis-widget-id"), null);
+    assert.equal(env.api.getState().byOwner.o1.helperWidgetId, null);
+    assert.deepEqual(widgetTopNWarnings(messages), []);
+  });
+});
+
+test("an aborted queued cleanup does not start its apply, also when the owner has no op sequence yet", async () => {
+  await withEnv({ cleanupMs: 200 }, async (env, messages) => {
+    env._KDB.runtime.widgetTopN.byOwner.o9 = {
+      abortControllers: {},
+      opSeq: 0,
+      helperWidgetId: "h1",
+      claimToken: null,
+      helperManagedFilterItemIds: [],
+      lastHelperPlan: null,
+      lastHelperDataConfig: null,
+      helperPlacement: null
+    };
+    const first = env.clear("o9", DATA_CONFIG);
+    await waitUntil(() => env.cleanupStarts.length === 1);
+    const second = env.clear("o9", DATA_CONFIG);
+    const third = env.clear("o9", DATA_CONFIG);
+    await Promise.all([first, second, third]);
+    await waitUntil(() => env.idle());
+    assert.equal(env.cleanupStarts.length, 2, "the replaced middle cleanup never applied");
+    assert.deepEqual(env.overlaps, []);
+    assert.deepEqual(widgetTopNWarnings(messages), []);
+  });
+});
+
+test("dispatch and getState have a boundary: a broken state root gives an error result and undefined", async () => {
+  await withEnv({}, async (env) => {
+    assert.deepEqual(Object.keys(env.api.getState()).sort(), ["byOwner", "errorCode", "errorMessage", "lifecycle"]);
+    const savedState = env._KDB.state;
+    Object.defineProperty(env._KDB, "state", { configurable: true, get() { throw new Error("state unavailable"); } });
+    const result = await env.api.dispatch({ type: "widgetTopN/cleanup", widgetId: "o1", payload: { ownerVisId: "o1" } });
+    assert.equal(result.ok, false);
+    assert.equal(result.status, "error");
+    assert.equal(result.errorCode, "WIDGET_TOPN_INVALID_REQUEST");
+    assert.equal(env.api.getState(), undefined);
+    Object.defineProperty(env._KDB, "state", { configurable: true, writable: true, value: savedState });
+    const unknown = await env.api.dispatch({ type: "constructor" });
+    assert.equal(unknown.errorCode, "WIDGET_TOPN_INVALID_REQUEST");
   });
 });
