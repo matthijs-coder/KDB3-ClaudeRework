@@ -45,3 +45,13 @@ test("run guard: a numeric 0 stamp (dienststelle/NMS defaults) rejects negative 
   assert.strictEqual(kit.claimParameterSetRun(runtime, 0), null);
   assert.strictEqual(kit.claimParameterSetRun(runtime, 1), null);
 });
+
+test("run guard: a null runtime (dienststelle before mount) is never stale and accepts a valid id without a stamp", () => {
+  const kit = loadKit("parameterSetRun.js");
+  assert.equal(kit.isStaleParameterSetRun(null, 1), false);
+  assert.equal(kit.isStaleParameterSetRun(undefined, 1), false);
+  assert.strictEqual(kit.claimParameterSetRun(null, 4), null);
+  assert.strictEqual(kit.claimParameterSetRun(undefined, 0, { onAdvance() { throw new Error("no previous stamp"); } }), null);
+  const rejection = kit.claimParameterSetRun(null, "4", { invalidMessage: "needs a number" });
+  assert.deepEqual(rejection, { reason: "invalid", runId: "4", current: undefined, message: "needs a number" });
+});
