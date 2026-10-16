@@ -10,7 +10,7 @@ define([
   "./view/optionMarking.js",
   "./view/resolveWidgetPlacementContext.js",
   "../widgetVis/config/visTypes/resolveVisTypeIdentity.js",
-  "../widgetVis/config/visTypeRules.js"
+  "../../../core/config/visualizations/visTypeRules.js"
 ], function (
   _dropdownDefaults,
   _runtime,

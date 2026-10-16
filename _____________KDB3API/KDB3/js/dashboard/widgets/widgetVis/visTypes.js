@@ -1,7 +1,7 @@
 define([
-  "./config/visTypeRules.js",
+  "../../../core/config/visualizations/visTypeRules.js",
   "../../../core/utils/kit/data.js",
-  "../../../core/utils/kennzahlAggregationFilter.js"
+  "../../../core/config/visualizations/buildKennzahlAggregationFilter.js"
 ], function (_rules, _data, _kennzahlAggregationFilter) {
   "use strict";
 

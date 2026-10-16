@@ -1,4 +1,4 @@
-define(["./config/visTypeRules.js"], function (_rules) {
+define(["../../../core/config/visualizations/visTypeRules.js"], function (_rules) {
   "use strict";
 
   return {

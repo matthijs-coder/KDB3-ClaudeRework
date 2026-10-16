@@ -2,7 +2,7 @@ define([
   "../runtime.js",
   "../years.js",
   "../../../tabs/state/selectors.js",
-  "../config/visualizations/topNHelper.js"
+  "../../../../core/config/visualizations/topNHelper.js"
 ], function (_visRuntime, _years, _tabsSelectors, _topNHelper) {
   "use strict";
 

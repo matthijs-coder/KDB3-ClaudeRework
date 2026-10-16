@@ -1,5 +1,5 @@
 define([
-  "./visualizations/bindingSpecsVisTypes.js"
+  "./bindingSpecsVisTypes.js"
 ], function (_visTypeSpecs) {
   "use strict";
 

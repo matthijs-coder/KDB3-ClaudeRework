@@ -1,7 +1,7 @@
 define([
   "./config.js",
   "../../../core/utils/kit/data.js",
-  "../widgetVis/config/visTypeRules.js"
+  "../../../core/config/visualizations/visTypeRules.js"
 ], function (_config, _kitData, _visTypeRules) {
   "use strict";
 

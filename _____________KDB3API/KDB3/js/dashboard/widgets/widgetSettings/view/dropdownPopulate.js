@@ -1,6 +1,6 @@
 define([
   "../../../../core/config/colorPalette.js",
-  "../../widgetVis/config/visualizations/dimensions.js",
+  "../../../../core/config/dimensions.js",
   "../config.js",
   "../../../../core/config/dropdownDefaults.js",
   "../config/selectors.js"

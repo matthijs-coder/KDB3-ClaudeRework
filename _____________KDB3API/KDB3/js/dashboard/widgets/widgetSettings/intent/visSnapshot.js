@@ -2,7 +2,7 @@ define([
   "../../../../core/config/dropdownDefaults.js",
   "../config.js",
   "../state.js",
-  "../../widgetVis/config/visTypeRules.js"
+  "../../../../core/config/visualizations/visTypeRules.js"
 ], function (_dropdownDefaults, _config, _state, _visTypeRules) {
   "use strict";
 

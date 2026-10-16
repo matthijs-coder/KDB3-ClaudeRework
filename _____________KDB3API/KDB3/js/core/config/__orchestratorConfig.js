@@ -2,13 +2,13 @@ define([
   "./dashboardSettings.js",
   "./tables.js",
   "./colorPalette.js",
-  "../../dashboard/widgets/widgetVis/config/visualizations/definitions.js",
-  "../../dashboard/widgets/widgetVis/config/visualizations/bindingSpecsVisTypes.js",
-  "../../dashboard/widgets/widgetVis/config/visualizations/bindingSpecsGrain.js",
-  "../../dashboard/widgets/widgetVis/config/visualizations/dimensions.js",
-  "../../dashboard/widgets/widgetVis/config/visualizations/kennzahlDefaults.js",
-  "../../dashboard/widgets/widgetVis/config/visualizations/sorting.js",
-  "../../dashboard/widgets/widgetVis/config/visualizations/topNHelper.js"
+  "./visualizations/definitions.js",
+  "./visualizations/bindingSpecsVisTypes.js",
+  "./visualizations/bindingSpecsGrain.js",
+  "./visualizations/dimensions.js",
+  "./visualizations/kennzahlDefaults.js",
+  "./visualizations/sorting.js",
+  "./visualizations/topNHelper.js"
 ], function (
   _dashboardSettings,
   _tables,

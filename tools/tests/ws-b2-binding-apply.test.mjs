@@ -22,7 +22,7 @@ const registerApply = load(`${APPLY_DIR}/__orchestratorWidgetBindingApply.js`);
 const buildPlan = load("core/services/widgetBindingPlan/buildPlan.js");
 const buildFilterBodyModule = load(FILTER_BODY_PATH);
 const buildKeepexclude = load(KEEPEXCLUDE_PATH);
-const visTypes = load("dashboard/widgets/widgetVis/config/visualizations/bindingSpecsVisTypes.js");
+const visTypes = load("core/config/visualizations/bindingSpecsVisTypes.js");
 
 // The keepexclude builder is the optional second argument of buildFilterBody.
 function callFilterBody(descriptor, withBuilder) {

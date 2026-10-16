@@ -242,9 +242,9 @@ test("W8 characterisation: saved v3 widgets validate and every allowed grain sur
 });
 
 test("W8 rules: aliases, buckets, default grains and allowed grains describe the same set of types", () => {
-  const rules = load("dashboard/widgets/widgetVis/config/visTypeRules.js");
-  const specs = load("dashboard/widgets/widgetVis/config/visualizations/bindingSpecsVisTypes.js");
-  const grainSpecs = load("dashboard/widgets/widgetVis/config/visualizations/bindingSpecsGrain.js");
+  const rules = load("core/config/visualizations/visTypeRules.js");
+  const specs = load("core/config/visualizations/bindingSpecsVisTypes.js");
+  const grainSpecs = load("core/config/visualizations/bindingSpecsGrain.js");
   const canonicalTypes = new Set(["line", "pie", "stackedbar", "stackedcolumn", "list", "prognose",
     "com.ibm.vis.custom.prognoseyear", "com.ibm.vis.custom.prognoseyearlinechart"].map((alias) => rules.normalizeVisType(alias)));
   assert.deepStrictEqual([...canonicalTypes].sort(), ["Line", "List", "Pie", "Prognose", "StackedBar", "StackedColumn"]);
@@ -265,7 +265,7 @@ test("W8 rules: aliases, buckets, default grains and allowed grains describe the
 });
 
 test("W8 rules: padded and mixed-case types resolve like their canonical spelling", () => {
-  const rules = load("dashboard/widgets/widgetVis/config/visTypeRules.js");
+  const rules = load("core/config/visualizations/visTypeRules.js");
   assert.equal(rules.resolveBucket(" PIE "), "pie");
   assert.equal(rules.settingsKey(" Com.IBM.Vis.Custom.PrognoseYear "), "prognose");
   assert.equal(rules.settingsKey("Foo"), "Foo");

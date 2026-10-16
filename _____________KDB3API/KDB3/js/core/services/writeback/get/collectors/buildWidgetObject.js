@@ -1,7 +1,7 @@
 define([
   "../../schema/errorCodes.js",
   "../../../../config/dropdownDefaults.js",
-  "../../../../../dashboard/widgets/widgetVis/config/visTypeRules.js",
+  "../../../../config/visualizations/visTypeRules.js",
   "./collectorSupport.js",
 ], function (_errorCodes, _dropdownDefaults, _visTypeRules, _support) {
   "use strict";

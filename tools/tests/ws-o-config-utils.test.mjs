@@ -125,10 +125,10 @@ test("config: running the orchestrator twice is stable", () => {
 test("config: externally imported paths keep their export shape", () => {
   const load = createLoader();
   assert.equal(typeof load("core/config/visualizations/topNHelper.js").resolveTableEntry, "function");
-  assert.ok(load("core/utils/kennzahlAggregationFilter.js"));
-  assert.ok(load("dashboard/widgets/widgetVis/config/visualizations/sorting.js").sortingByProfile);
+  assert.ok(load("core/config/visualizations/buildKennzahlAggregationFilter.js"));
+  assert.ok(load("core/config/visualizations/sorting.js").sortingByProfile);
   assert.ok(load("core/config/colorPalette.js").color);
-  assert.ok(load("dashboard/widgets/widgetVis/config/visualizations/dimensions.js").dimensions);
+  assert.ok(load("core/config/dimensions.js").dimensions);
   assert.ok(load("core/config/mapping/parameterMap.js"));
   assert.ok(load("core/config/mapping/kidIndex.js"));
   assert.ok(load("core/config/mapping/bwOldToNewMap.js"));

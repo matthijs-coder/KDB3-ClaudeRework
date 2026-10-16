@@ -1,6 +1,6 @@
 define([
   "./validatePrimitives.js",
-  "../../../../../dashboard/widgets/widgetVis/config/visTypeRules.js",
+  "../../../../config/visualizations/visTypeRules.js",
 ], function (_primitives, _visTypeRules) {
   "use strict";
 

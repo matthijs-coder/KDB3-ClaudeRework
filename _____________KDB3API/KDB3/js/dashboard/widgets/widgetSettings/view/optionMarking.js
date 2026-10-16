@@ -3,7 +3,7 @@ define([
   "../../../../core/config/dropdownDefaults.js",
   "../state.js",
   "../../widgetVis/config/resolveVisualizationBindingConfig.js",
-  "../../widgetVis/config/visTypeRules.js",
+  "../../../../core/config/visualizations/visTypeRules.js",
   "./dropdownOptionSelection.js",
   "./resolveWidgetPlacementContext.js"
 ], function (_selectors, _dropdownDefaults, _state, _resolveVisualizationBindingConfig, _visTypeRules, _dropdownOptionSelection, _placementContext) {
