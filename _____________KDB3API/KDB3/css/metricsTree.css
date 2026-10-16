@@ -1,14 +1,7 @@
 /* custom-jstree.css */
 
-.kdb-control_metrics_subcontainer,
 .kdb-metrics-tree__source {
   display: contents;
-}
-
-.kdb-control_metrics_source-title {
-  font-weight: bold;
-  padding-top: 10px;
-  padding-bottom: 5px;
 }
 
 .metricsTree {
@@ -132,16 +125,6 @@
 
 .jstree-clicked {
   background-color: transparent !important;
-}
-
-.custom-drag-preview {
-  background-color: lightskyblue;
-  color: white;
-  padding: 5px;
-  border-radius: 5px;
-  border: 2px solid darkblue;
-  width: 200px;
-  height: 200px;
 }
 
 /*hide the default dnd avatar*/

@@ -1,6 +1,6 @@
 # Service Contract: `widgetBindingPlan`
 
-> Full CP-1 contract for the shared binding-planning service in the widgets composed-port path. Design authority lives in `_____________KDB3API/architecture/widgets-domain-blueprint.md`; this contract expands the original stub with the §12 execution-readiness details.
+> Full CP-1 contract for the shared binding-planning service in the widgets composed-port path. Design authority lives in `_____________KDB3API/architecture/_archive/widgets-domain-blueprint.md`; this contract expands the original stub with the §12 execution-readiness details.
 
 ---
 
@@ -31,10 +31,10 @@ No production behavior code may be generated until this CP-1 contract is approve
 
 | Evidence | Use in this contract |
 |---|---|
-| `architecture/widgets-domain-blueprint.md` | Authority for shared-service boundary, named-method API, no state writes, no Cognos touchpoints and §12 detail requirements. |
+| `architecture/_archive/widgets-domain-blueprint.md` | Authority for shared-service boundary, named-method API, no state writes, no Cognos touchpoints and §12 detail requirements. |
 | `contracts/widgetBindingApply.md` | Consumer boundary: apply consumes the plan and owns Cognos mutation, render wait, timeout, abort and apply diagnostics. |
 | `contracts/widgetVis.md` / `widgetTopN.md` | Upstream callers prepare the spec, own per-widget state/runtime/history and pass helper results into the planner. |
-| `architecture/widgets-legacy-survey-redesign2.md` RUN 4 | Legacy compute/apply split, binding-plan fields, slot/filter/mirror responsibilities and legacy failure strings. |
+| `architecture/_archive/widgets-legacy-survey-redesign2.md` RUN 4 | Legacy compute/apply split, binding-plan fields, slot/filter/mirror responsibilities and legacy failure strings. |
 | Read-only legacy JS investigation report | Confirms the planner composition: `buildBindingPlan` wraps `buildSlotPlan`, `buildFilterDescriptors`, `buildMirrorPatch` and `parseTopNOption`; all are sync and have no DOM/Cognos/state writes. |
 
 Deliberate deltas versus legacy:
@@ -182,11 +182,11 @@ Relevant nested fields:
   - `hierarchy.mode: "insertBeforeSelectedDimensionOrBeforeLast"` — dedupe the hierarchy id, insert before the selected dimension column when present, otherwise before the last column (List `grid_cols` legacy parity: hierarchy before Kennzahl, or before Dimension when selected).
   - `hierarchy.mode: "insertAfterSelectedDimensionOrAt"` with `targetIndex` — dedupe the hierarchy id, then insert immediately after the selected dimension column when that id is present in the slot array, otherwise insert at clamped `targetIndex` (same clamp as `moveElement`: min `0`, max current length; default `0`). Line `series` declares this mode in `bindingSpecs` (`targetIndex: 0`) so series order is `[Dienststelle, Jahr]` with no extra dimension and `[dim, Dienststelle, Jahr]` when a dimension is already on the slot. Prognose `series` (`com.ibm.vis.custom.prognoseyearlinechart`) declares the same mode (`targetIndex: 0`) so order is `[Dienststelle, Jahr, Stichtag]` with no extra dimension and `[dim, Dienststelle, Jahr, Stichtag]` when a dimension is already on the slot. Defaults remain `[Jahr, Stichtag]`; Dienststelle is not hardcoded into defaults. Walkthrough: DST inserts at 0 after optional dim prepend.
   - `hierarchy.mode: "moveToIndex"` with `targetIndex` — dedupe the hierarchy id, then insert at clamped `targetIndex` (same clamp as `moveElement`: min `0`, max current length). Implemented for compatibility; current vis buckets do not declare this mode. Unknown or absent hierarchy mode on non-`grid_cols` remains append.
-- **Pie carve** (`contracts/widgetVis-grouping-jahr-stichtag-contractdelta.md` §14): confirmed Dienststelle is **not** appended to `categories` (no-policy append fallback is skipped for pie). Segment stays the selected Dimension (pie force-single). DST is **prepended** on one Repeat via `insertBeforeSelectedDimensionOrBeforeLast` (no dim on Repeat → before last; empty → `[DST]`): `jahr` / `jahrStichtag` / V → Repeat-V; H → Repeat-H. Do **not** replace Repeat-V wholesale with `[DST]` for every grain (that would steal Monat on H). Empty Repeat-V is still collected when it declares a hierarchy policy (otherwise DST falls to the local hierarchy filter only).
+- **Pie carve** (`contracts/_archive/widgetVis-grouping-jahr-stichtag-contractdelta.md` §14): confirmed Dienststelle is **not** appended to `categories` (no-policy append fallback is skipped for pie). Segment stays the selected Dimension (pie force-single). DST is **prepended** on one Repeat via `insertBeforeSelectedDimensionOrBeforeLast` (no dim on Repeat → before last; empty → `[DST]`): `jahr` / `jahrStichtag` / V → Repeat-V; H → Repeat-H. Do **not** replace Repeat-V wholesale with `[DST]` for every grain (that would steal Monat on H). Empty Repeat-V is still collected when it declares a hierarchy policy (otherwise DST falls to the local hierarchy filter only).
 - When `slotComposition` is absent for a slot, `grid_cols` still falls back to the List legacy composition rules above (that List hierarchy fallback stays `grid_cols` only; it is not lifted to `series`). Other slots keep append-after-defaults hierarchy merge (`Dimension | defaults | Dienststelle` for Prognose/StackedColumn-style configs) unless that slot declares its own `hierarchy` policy. Pie is the exception in the bullet above.
 - `dataTableConfig.dimensions[dimension]` may contain `itemId`, `include`, `exclude` and `reverse`.
 - `dataTableConfig.sorting[columnId]` may define sort order as a custom Cognos member-order `string[]` or `string`, a direction object `{ order: "ascending" | "descending", priority?: number }`, or a raw direction/custom-order value. Vis Jahr and Monat member order is ascending: years 2017→2030, months JAN→DEZ with Gesamt last. Those arrays live only in `js/core/config/visualizations/sorting.js` (`YEAR_ASC` / `MONTH_ASC` are reverses of the DESC seeds). `LINE_PROGNOSE_SORTING` is also the default `sorting` export and is shared by line, prognose, and the stacked/pie fallback. List uses the same ascending arrays with Jahr priority 1 and Monat priority 2. A chosen dimension is not a key in that map. Its member order is the extra `captionAscending` spec in §6.1, appended after these Jahr/Monat specs.
-- `kennzahlDefaults` may define default local filters. **Grouping-A Implemented** (`contracts/widgetVis-grouping-jahr-stichtag-contractdelta.md`): packs are `stichtag` \| `jahr` \| `list` via the shared caption factory, not `visPropBucketKey` / the retired `branchKey` ternary.
+- `kennzahlDefaults` may define default local filters. **Grouping-A Implemented** (`contracts/_archive/widgetVis-grouping-jahr-stichtag-contractdelta.md`): packs are `stichtag` \| `jahr` \| `list` via the shared caption factory, not `visPropBucketKey` / the retired `branchKey` ternary.
 
 ### 5.2 `HierarchySnapshot`
 
@@ -322,7 +322,7 @@ Rules:
 - `sortSpecs` is preferred for new code. `sortByColumn` may be included only as legacy compatibility material when one sort column is sufficient.
 - Slot limits or "first item only" semantics are declarative `options` and are in scope for v1. `widgetBindingApply` must consume `options.limit` / `options.keepOnlyFirst` or explicitly fail with an apply error when the current Cognos wrapper surface cannot enforce them. The planner does not test Cognos enforcement.
 - For `targetKind:"topNHelper"` and count-style TopN, the helper `grid_cols` slot emits `options.topBottom` so `widgetBindingApply` can apply Cognos `topcount` to the helper metric/value item.
-- `options.customLabel` is emitted only when `dataConfig.dimension` is a real dimension-dropdown key (not `null` / `""` / `default` / `none`). `columnId` is that dimension’s catalog `itemId`; `label` is that key (same string as the dropdown option). Empty `label` is forbidden. TopN helper and absent dimension omit the field. Apply consumes it via `setCustomLabelInSlot` after add (`contracts/visualization-dimension-custom-label-contractdelta.md`).
+- `options.customLabel` is emitted only when `dataConfig.dimension` is a real dimension-dropdown key (not `null` / `""` / `default` / `none`). `columnId` is that dimension’s catalog `itemId`; `label` is that key (same string as the dropdown option). Empty `label` is forbidden. TopN helper and absent dimension omit the field. Apply consumes it via `setCustomLabelInSlot` after add (`contracts/_archive/visualization-dimension-custom-label-contractdelta.md`).
 - When `options.customLabel.columnId` is a non-empty string, the planner appends one `sortSpecs` entry after the Jahr/Monat specs taken from `dataTableConfig.sorting`: `{ columnId, order: "captionAscending", priority }` where `priority` is one higher than the last emitted spec (or `1` when none were emitted). The List `grid_cols` cap of two specs applies only to that `sorting.js` slice; this dimension spec sits outside the cap. If that `columnId` is already among the emitted specs, do not append a second sort for it. When this caption spec is emitted, `sortByColumn` is null. `captionAscending` is not `"ascending"`: the visualization facet sends `{ by: "caption", type: "asc" }` with no `custom.top`, and matches the column with `getColumnId()` then `getId()`. This path does not sort Dienststelle, Kennzahl, or Stichtag. Jahr and Monat stay on the §5.1 arrays in `sorting.js`.
 - Empty optional slots are skipped with a warning. Empty required slots fail with `WIDGET_BINDING_PLAN_SLOT_REQUIRED_EMPTY`.
 
@@ -380,7 +380,7 @@ Rules:
 - The planner does not commit it to `_KDB.state.widgets.*`.
 - The planner always attaches `mirrorPatch` to `BindingPlan` as caller-owned proposal material. `widgetBindingApply` echoes `plan.mirrorPatch` in `ApplyBindingResult` only when `status === "success"`; the caller decides whether and where to commit it.
 - When `dimension` is default or TopN is default/none, `topN` is normalized to `"default"` and TopN result fields are omitted.
-- **Absent tokens:** `normalizeDefaultValue` and `parseTopNOption` are the canonical normalizers at the plan boundary. Inputs `"none"`, `"default"`, and `""` are equivalent absent markers; they are never dimension keys or TopN ids. Mirror output uses `"default"` per host convention. See `contracts/widgetVis.md` §7.1.1 and `architecture/widgets-domain-blueprint.md` §7.1.
+- **Absent tokens:** `normalizeDefaultValue` and `parseTopNOption` are the canonical normalizers at the plan boundary. Inputs `"none"`, `"default"`, and `""` are equivalent absent markers; they are never dimension keys or TopN ids. Mirror output uses `"default"` per host convention. See `contracts/widgetVis.md` §7.1.1 and `architecture/_archive/widgets-domain-blueprint.md` §7.1.
 - `mirrorPatch` remains valid proposal material even on a successful force-empty plan, but the caller decides which fields to commit after `widgetBindingApply` returns `status: "success"`.
 
 ### 6.4 `BindingPlanDiagnostics`
@@ -736,7 +736,7 @@ Cleanup rules:
 - Reading helper rows or extracting TopN result values (`tableDataService` / `widgetTopN`).
 - Committing settings, derived widget state, managed-filter state, last-confirmed plans or history (`widgetSettings`, `widgetVis`, `widgetTopN`).
 - Inline rollback/replay of last-good plans.
-- Title, legend, tooltip, drillthrough, focus mode and list-summary cosmetic writebacks. Instance `setCustomLabel` on a slot data item is **not** this bucket: the planner only emits `options.customLabel`; apply performs the host write (`contracts/visualization-dimension-custom-label-contractdelta.md`).
+- Title, legend, tooltip, drillthrough, focus mode and list-summary cosmetic writebacks. Instance `setCustomLabel` on a slot data item is **not** this bucket: the planner only emits `options.customLabel`; apply performs the host write (`contracts/_archive/visualization-dimension-custom-label-contractdelta.md`).
 - Launchpad, canvas placement, widget cleanup ownership and DOM movement.
 - Cross-module integration tests.
 - Editing `.cursor/rules/`, templates, authority docs or legacy trees.
@@ -823,6 +823,6 @@ CP-1 is acceptable when:
 | 2026-06-06 | `Stub` | Planner (Claude Opus 4.8) | Initial outline from widgets-domain blueprint. |
 | 2026-06-07 | `Stub -> Draft CP-1` | `<pending>` | Full composed-port contract expanded: plan-only named service API, explicit spec/plan schemas, slot/filter/mirror boundaries, no Cognos/state/runtime/history ownership. |
 | 2026-06-07 | `Draft CP-1 -> Contract freeze draft` | `<pending>` | Sequential alignment pass: `emptyIntent` canonicalized, previous managed filters moved to apply options, slot options marked apply-consumed, `widgetVis` mapping and downstream deltas recorded. |
-| 2026-09-11 | Grouping-A pending pointer | captain; PO A-shape lock | `kennzahlDefaults` packs become `stichtag` \| `jahr` \| `list` via factory. Live JS still vis-type packs. Delta: `contracts/widgetVis-grouping-jahr-stichtag-contractdelta.md`. |
+| 2026-09-11 | Grouping-A pending pointer | captain; PO A-shape lock | `kennzahlDefaults` packs become `stichtag` \| `jahr` \| `list` via factory. Live JS still vis-type packs. Delta: `contracts/_archive/widgetVis-grouping-jahr-stichtag-contractdelta.md`. |
 | 2026-09-11 evening | Grouping-A Implemented | PO vastenburg | Inherit titelhaakjes green. Factory packs live. Chrome is grouping-delta Step B. |
 | 2026-09-30 | Chosen-dimension caption sort | PO vastenburg | Extra `captionAscending` spec after Jahr/Monat, outside the List cap of two. Facet `{ by: "caption", type: "asc" }`, no `custom.top`. `sorting.js` unchanged. |

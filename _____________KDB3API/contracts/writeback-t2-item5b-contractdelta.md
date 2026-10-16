@@ -14,7 +14,7 @@
 `ensureSlotReadyForMutation.restoreOriginalActiveTab` (tabs-internal reuse)
 **Type:** `feature module + shared-service contract delta`
 **Authoring AI:** planner (Grok 4.6), 2026-08-16
-**Related:** `contracts/futureTodo/t2-parameterSet-gaps-launch-prompt.md` item 5
+**Related:** `contracts/_archive/t2-parameterSet-gaps-launch-prompt.md` item 5
 (slice **5b** only)
 
 ---

@@ -34,7 +34,7 @@ Context-only legacy sources:
 
 | Legacy file | Reason |
 |---|---|
-| `_______KDB3/architecture/eventSubscribe.md` | Documents `properties:reloaded` as emitted by the loader with no subscribers yet, and `properties:hideWidgetsToggled` as part of the separate property-subscription workflow. |
+| `architecture/eventSubscribe.md` | Documents `properties:reloaded` as emitted by the loader with no subscribers yet, and `properties:hideWidgetsToggled` as part of the separate property-subscription workflow. |
 | `_______KDB3/KDB3/js/dashboard/launchpad/subscribeHideWidgetsToggle.js` | Legacy consumer of `properties:hideWidgetsToggled`; used to understand the downstream behavior, not copied as-is unless CP-1 chooses event fanout. |
 | `_______KDB3/KDB3/js/KDB.js` | Shows setup ordering and downstream reads of `_KDB.properties.KDBReadyToggle`, `KDBPlayLoadingImageToggle`, and `KDBLoadingImageTransparentToggle`. |
 
@@ -113,7 +113,7 @@ _KDB.properties = {
 Ownership rules:
 
 - `_KDB.properties` is not `_KDB.state`; it holds Cognos property-panel configuration values per `kdb-object.mdc`.
-- KID / package mapping is **not** a loaded object property. SSOT is `core/config/mapping/parameterMap.js` (`contracts/mapping-config-ssot-contractdelta.md`). `filterPropObj` remains a loaded object property.
+- KID / package mapping is **not** a loaded object property. SSOT is `core/config/mapping/parameterMap.js` (`contracts/_archive/mapping-config-ssot-contractdelta.md`). `filterPropObj` remains a loaded object property.
 - The loader may replace `_KDB.properties` during bootstrap before consumers read it.
 - Other modules read `_KDB.properties` but do not write it.
 - `KDBPlayLoadingImageToggle` gates **boot** overlay only (`loadingService-overlay-coverage-contractdelta.md`). SET / GET persist / tree / slot / PDF / vis overlays ignore it.

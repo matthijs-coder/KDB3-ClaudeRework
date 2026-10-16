@@ -62,14 +62,14 @@ define([
     if (specResult.ok !== true) {
       return await _outcome.dispatchError(_context, request, opSeq, specResult.errorCode, specResult.errorMessage, specResult.diagnostics, false, null);
     }
-    helperPlacement = _placeHelper.appendHelperAfterOwner(_context._KDB, request.ownerVisId, helperWidgetId);
+    helperPlacement = _placeHelper.appendHelperAfterOwner(_context._KDB, request.ownerVisId, helperWidgetId, ownerRuntime, opSeq);
     var applyResult = await _runHelperBinding({ _KDB: _context._KDB }, buildApplyContext(request, opSeq, ownerRuntime, helperWidgetId, specResult.spec));
     if (isStale(_context, request.ownerVisId, opSeq, ownerRuntime) || applyResult.status === "aborted") {
-      _placeHelper.restoreHelperPlacement(_context._KDB, helperWidgetId, helperPlacement);
+      _placeHelper.restoreHelperPlacement(_context._KDB, helperWidgetId, helperPlacement, ownerRuntime);
       return _outcome.stale(request.ownerVisId, opSeq);
     }
     if (applyResult.ok !== true) {
-      _placeHelper.restoreHelperPlacement(_context._KDB, helperWidgetId, helperPlacement);
+      _placeHelper.restoreHelperPlacement(_context._KDB, helperWidgetId, helperPlacement, ownerRuntime);
       return await _outcome.dispatchError(_context, request, opSeq, applyResult.errorCode, applyResult.errorMessage, applyResult.diagnostics, false, null);
     }
     writeHelperApplyRuntime(ownerRuntime, helperWidgetId, applyResult, specResult.spec);
@@ -78,7 +78,7 @@ define([
 
   async function runReadAndExtract(_context, request, opSeq, ownerRuntime, helperWidgetId, spec, helperPlacement) {
     var readResult = await _readHelperTableRows({ _KDB: _context._KDB }, buildReadContext(request, opSeq, ownerRuntime, helperWidgetId));
-    _placeHelper.restoreHelperPlacement(_context._KDB, helperWidgetId, helperPlacement);
+    _placeHelper.restoreHelperPlacement(_context._KDB, helperWidgetId, helperPlacement, ownerRuntime);
     if (isStale(_context, request.ownerVisId, opSeq, ownerRuntime) || readResult.status === "aborted") {
       return _outcome.stale(request.ownerVisId, opSeq);
     }

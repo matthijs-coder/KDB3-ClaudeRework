@@ -1,8 +1,7 @@
 /* ^KDB_DRAGANDDROP*/
 
 .visAvatar,
-.textAvatar,
-.headerAvatar {
+.textAvatar {
   display: flex;
   position: relative;
   z-index: 9999;

@@ -46,7 +46,7 @@ Read-only boundary evidence:
 _______REDESIGN2/KDB3/js/dashboard/filters/__filtersOrchestrator.js
 _______REDESIGN2/KDB3/js/dashboard/filters/filterDock/
 _____________KDB3API/contracts/filterDock.md
-_____________KDB3API/contracts/filterDock-downstream-handoff-contractdelta.md
+_____________KDB3API/contracts/_archive/filterDock-downstream-handoff-contractdelta.md
 ```
 
 | Legacy file | Evidence used |

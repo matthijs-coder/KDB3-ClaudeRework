@@ -1,7 +1,7 @@
 define([], function () {
   "use strict";
 
-  async function entryWaitForElObserver(_selector, _root, _opts) {
+  async function waitForElObserver(_selector, _root, _opts) {
     const selector = _selector;
     const root = _root || document;
     const opts = _opts || {};
@@ -29,14 +29,10 @@ define([], function () {
       function cleanup() {
         if (done) return;
         done = true;
-        try {
-          observer.disconnect();
-        } catch (e) {}
+        observer.disconnect();
         if (timeoutHandle) clearTimeout(timeoutHandle);
         if (signal && typeof signal.removeEventListener === "function") {
-          try {
-            signal.removeEventListener("abort", onAbort);
-          } catch (e) {}
+          signal.removeEventListener("abort", onAbort);
         }
       }
 
@@ -57,9 +53,7 @@ define([], function () {
       observer.observe(root, { childList: true, subtree: true });
 
       if (signal && typeof signal.addEventListener === "function") {
-        try {
-          signal.addEventListener("abort", onAbort, { once: true });
-        } catch (e) {}
+        signal.addEventListener("abort", onAbort, { once: true });
       }
 
       if (timeoutMs > 0) {
@@ -71,5 +65,5 @@ define([], function () {
     });
   }
 
-  return entryWaitForElObserver;
+  return waitForElObserver;
 });

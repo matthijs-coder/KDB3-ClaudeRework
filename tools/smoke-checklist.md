@@ -58,8 +58,10 @@ Legend: **[CORE]** = part of the quick Core smoke (section 1, about 10 min, run 
 
 - [ ] **2.1 No Sicht/Jahr debug output**: filter the console by `TEMP` and by `[sicht-jahr]`, then switch Sicht (BW <-> DEZPV), change Jahr, change Dienststelle, add/rebind a vis widget, set and clear a TopN. Expected: **zero** console lines containing `TEMP` (any prefix, for example `[widgetTopN.helperPlan]`, `[widgetTopN.helperApply]`, `[widgetTopN.helperRead]`, `[widgetTopN.helperSpec]`, `[widgetTopN.extractTopNResult]`, `[widgetVis.NewestStichtag]`) and **zero** lines containing `[sicht-jahr]`. On the pre-Phase-0 baseline these are non-zero, so do not use the old build as "same as baseline" for this item.
 - [ ] **2.2 No traverse log noise**: click through all tabs and reload/restore a set (tab traversal). Expected: count of `console.log` lines during tab traversal is <= baseline (expected: 0 traverse logs).
-- [ ] **2.3 TopN helper widget not outlined**: set a TopN (for example "Top-5") on a vis widget that supports it. Find the TopN helper widget (the helper stays **on the canvas**, this is expected for now - it is not moved to a helper tab and not restored). Expected: it has **no red 3px outline** any more.
-- [ ] **2.4 TopN behaves exactly as before**: with TopN set, the owner chart shows the top N entries; change N, set "Ohne" (clear TopN), change the grouping dimension. Expected: identical to baseline. The helper widget still stays on the canvas, in the same place as before, and is still not restorable. Undo/redo TopN steps: same result as baseline.
+- [ ] **2.3 TopN helper is restored (behaviour change, intended)**: on a tab with a vis widget and a spare LIST in the `topN` pad (`#KDB_topNPad`, not dataTables), set a dimension and "Top 5". When the chart shows the top 5, first record the helper per chart: `const getKDB = window.top.getKDB; Object.entries(getKDB().runtime.widgetTopN.byOwner).map(([visId, r]) => [visId, r.helperWidgetId, r.lastHelperPlan === null, r.helperPlacement])` and note every `helperWidgetId`. Then check those ids by id (later releases strip the claim attributes, so do not rely on `[data-kdb-topn-claim-token]`): `['<helperId1>', '<helperId2>'].map(id => [id, !!document.getElementById(id).closest('#KDB_topNPad')])`. Expected: every entry is `true`, `lastHelperPlan === null` is `true` (post-resolution cleanup succeeded) and `helperPlacement` is `null` (no op holds the helper out). No extra table stays on the canvas next to the chart, no red outline anywhere. On the pre-Phase-0 baseline the helper stayed on the canvas with a red outline, so baseline does not apply to this item.
+- [ ] **2.4 TopN rapid changes**: change Top 5 -> Top 10 -> Top 3 quickly (each click before the chart settles), then set "Ohne" (clear TopN) and change the grouping dimension. Expected: the final chart shows Top 3 (no `WIDGET_TOPN_NO_HELPER_AVAILABLE`), the recorded helper ids are inside `#KDB_topNPad` (check from 2.3), and the console shows no `[widgetTopN.placeHelperAfterOwner] restore failed` and no `[widgetTopN.postResolutionCleanup] cleanup failed` warning. Undo/redo TopN steps give the same chart result as baseline.
+- [ ] **2.4a Several TopN widgets on one tab**: open or reload a tab with at least two TopN vis widgets (each with its own helper; the `topN` pad needs one spare LIST per chart). Expected: each chart is correct; the 2.3 snippet shows `lastHelperPlan === null` `true` for every chart (cleanup succeeded) and all recorded helper ids inside `#KDB_topNPad`; no `restore failed` and no `[widgetTopN.postResolutionCleanup] cleanup failed` warning (that warning means the helper reset failed, for example because it cannot render while hidden; report it with its `errorCode`). The owner charts should not appear noticeably slower (about 5 s) than baseline.
+- [ ] **2.4b TopN after a Jahr change**: confirm a different global Jahr. Expected: all TopN charts on the tab rebind, the helper ids recorded in 2.3 are inside `#KDB_topNPad` (check by id; the wave releases the claims, so `helperWidgetId` is `null` afterwards and `lastHelperPlan === null` proves nothing here), no `[widgetTopN.postResolutionCleanup] cleanup failed` warning, the charts do not appear noticeably slower (about 5 s per chart) than baseline, and dragging a metric from the metrics tree onto the canvas still works.
 - [ ] **2.5 Nothing else changed**: compare against the baseline for header/footer/tabs/filters/save/load (run section 1 fully, not only the CORE subset). Expected: no visual difference, same console warnings count.
 - [ ] **2.6 No missing modules after orphan removal**: Network tab, filter `KDB3`. Expected: no 404, no `requirejs` "Script error" (removed orphans were never loaded, so a 404 means a real broken reference).
 - [ ] **2.7 Drag and resize still work**: drag a widget by its handle and resize it. Expected: as baseline (relevant if `core/libraries/jquery-ui.min.js` is removed later).
@@ -82,7 +84,7 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 ### WS-B Binding plan/apply + tableData
 - [ ] For each chart type (`Line`, `Pie`, `StackedBar`, `StackedColumn`, `List`, and the Prognose line chart): add, then change dimension, then change Kennzahl. Expected: renders identically to baseline. Console check, if you want to compare: `window.top.getKDB().services.widgetBindingPlan` is present.
 - [ ] Rapid toggling: switch chart type / dimension 5 times in quick succession. Expected: ends with the last choice, no stale render, no error.
-- [ ] TopN: set TopN, then "Ohne" (clear-only path). Expected: same as baseline (see 2.3/2.4).
+- [ ] TopN: set TopN, then "Ohne" (clear-only path). Expected: chart same as baseline; helper restored (see 2.3/2.4).
 - [ ] Forced timeout: while a widget renders, switch to another tab. Expected: no hang; same message (if any) as baseline.
 - [ ] All tables load on boot (same table count as baseline; `getKDB().state.tableData` shows all `lifecycle` = `ready` and the same `rowCount` per table, see 1.7); Dienststelle/Sicht popups and the metrics tree are populated.
 
@@ -171,9 +173,24 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] TopN widget flows (see 2.3/2.4) unchanged.
 
 ### WS-O Core foundation (authoring, config, events, homeDialog, utils)
-- [ ] Authoring mode toggle (developer mode / hide widgets toggle `KDBHideWidgetsToggle` in the Cognos widget properties): turning it on/off shows/hides the KDB widgets as baseline.
-- [ ] Cubes-unavailable dialog: simulate a failing data source (block the table query in DevTools Network via "Block request URL") and reload. Expected: same dialog and text as baseline.
-- [ ] Full Core smoke (section 1) passes.
+- [ ] **Authoring mode** (Cognos Edit ↔ View, the pencil/"Bearbeiten" button):
+  - Each switch flips `getKDB().state.authoring.isAuthoring`, and `#kdb-control-root` gains or loses the class `kdb-control--authoring`. The tab bar behaves as on baseline.
+  - Toggle 3×, then close/reopen and toggle again. Expected: one flip per toggle, no console errors.
+  - After boot, `getKDB().runtime.authoring.dashboardFacet` is non-null and `getKDB().runtime.authoring.pendingDashboardFacetStamp` is `null`.
+- [ ] **Hide-widgets property** (`KDBHideWidgetsToggle` in the widget properties; a properties feature, kept here as a regression check): on/off shows/hides the KDB widgets as on baseline.
+- [ ] **Cubes-unavailable dialog:** block the table query (DevTools "Block request URL") and reload. Expected:
+  - The same title and text as baseline, and only the buttons "Dashboard schließen" / "Dashboard minimalisieren".
+  - Each button navigates as on baseline (close goes to the BI home perspective, minimize opens the home app view).
+- [ ] **Config spot check (console):** `Object.keys(getKDB().config.tables).length === 24`; `Object.keys(getKDB().config.visualizations.kennzahlDefaults).length === 113`; `getKDB().config.links.wienKiUrl` is set; `Object.keys(getKDB().utils)` lists exactly `convertUnitToPx, getTableConfigObject, readCurrentTab, waitFor, waitForElObserver, readableTextColorForHex`.
+- [ ] **Kennzahl defaults:** a Line widget with a percent Kennzahl (e.g. `P_L_Q_01`) and one with `P_ABS_K_KF_02` (Jahr 2025 excluded). Expected: the same format, aggregation caption and year filter as baseline. The Line/List month and year sort order is unchanged.
+- [ ] **Links:** the WienKi button opens WienKi; the kdbControl handbook icon opens the handbook; a drillthrough opens the PKZ Analysetool URL (same as baseline).
+- [ ] **Waits** (`waitFor` callers):
+  - Load Set A from the Parameterset dropdown and through the share URL.
+  - Switch Sicht BW↔DEZPV, then confirm Dienststelle.
+  - Expected: the set and the Dienststelle apply as on baseline, with no new fallback toasts or warnings (the callers handle `WAITFOR_TIMEOUT` silently, so a timeout shows only as a missing or late update).
+- [ ] **Readable text colour:** the kdbControl colour palette and the widget-settings colour dropdown show black/white text on light/dark swatches as on baseline.
+- [ ] **Replay keys (collector):** undo/redo once each for header text, a tab rename, a single-select filter change, a widget move and a widget-settings option. Expected: as on baseline.
+- [ ] **Full Core smoke (section 1) passes.**
 
 ### WS-P Docs, CSS, vendor, spec (non-JS)
 - [ ] Boot and look: header, footer, tabs, filter dock, toolbar, popups, settings panel, launchpad look the same as baseline (screenshot compare at 100% zoom).
@@ -181,6 +198,14 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Console: no `jstree`, jQuery or font-awesome related errors. Metrics tree renders (jstree) and the widget settings panel icons are visible.
 - [ ] `spec.json`: the KDB3 widget is still offered in the Cognos dashboard widget menu; the properties panel ("My options") shows the same fields; an existing dashboard still loads its saved property values (incl. the header property).
 - [ ] No CSS regression: open each popup and the PDF export dialog once.
+- [ ] CSS links: `[...document.querySelectorAll('link[rel=stylesheet][href*="ext/KDB3/css"]')].map(l=>l.getAttribute('href'))` returns exactly the 20 entries of `core/css/config/cssHrefList.js`, in the same order; no 404 and no request for `libraries/all.min.css` (Font Awesome removed).
+- [ ] `.sr-only` still hides: `[...document.querySelectorAll('.sr-only')].map(e=>getComputedStyle(e).position)` is all `absolute` (or empty); no stray screen-reader text visible in Cognos toolbars or dialogs.
+- [ ] kdbControl panel (merged `kdb-control/shell.css` + `controls.css`): collapse/expand arrow, every section, text-input focus outline, toggles, radios, action buttons; authoring mode shows the orange border.
+- [ ] Toolbar buttons (merged `customButtons/toolbarControls.css`): Undo/Redo/Teilen/PDF/Wien-KI look and hover as baseline.
+- [ ] Filters (merged `filters/filters.css`): Jahr filter shows no "Gesamt"; Sicht popup hides duplicates and "Alle" as before; Dienststelle and special single-select look as baseline.
+- [ ] Widgets: outside developer mode non-KDB Cognos widgets stay hidden (`widgets/hostWidgets.css`); list widget columns 0/1 are 65px wide; during PDF export the widget chrome is hidden (`widgets/widgetHiding.css`); the launchpad hide spot is invisible.
+- [ ] Vendor re-encoding (UTF-16 -> UTF-8): PDF export with an attachment page succeeds and umlauts render; no `SyntaxError` from `jspdf.umd.min.js` / `html2canvas.min.js`; metrics tree shows the jstree icons (`32px.png` sprites), drag and search work.
+- [ ] Header shows the default Stadt Wien icon (`images/Stadt-wien.png`, status 200).
 
 ---
 
