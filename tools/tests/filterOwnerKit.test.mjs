@@ -341,3 +341,63 @@ test("watchTableData: no event bus -> null stored, previous subscription still r
   assert.strictEqual(kit.watchTableData({ events: {} }, spec), null);
   assert.strictEqual(kit.watchTableData(null, spec), null);
 });
+
+test("controller (dienststelle style): default logging, disposed table, tableData watch in mount, extra public method", async () => {
+  const con = makeConsole();
+  const quiet = con;
+  const controllerKit = loadKit("ownerController.js", quiet);
+  const watcherKit = loadKit("tableDataWatcher.js", quiet);
+  const kitErrors = loadGuardKit(quiet);
+  const bus = makeBus();
+  const KDB = {
+    events: bus,
+    state: { filters: { dienststelle: { lifecycle: "idle" } } },
+    runtime: { dienststelle: { subscriptions: {}, tabMutationRunId: 4, historyReplayHandlerContribution: {} } }
+  };
+  const runtime = KDB.runtime.dienststelle;
+  const guard = kitErrors.createDisposedGuard("dienststelle");
+  const reduce = controllerKit.createStateWriter(KDB, "dienststelle", (state, action) => Object.assign({}, state, { last: action.type }));
+  const dispatched = [];
+  let api;
+  const base = controllerKit.createOwnerController({
+    _KDB: KDB,
+    name: "dienststelle",
+    guard,
+    reduce,
+    mount() {
+      reduce({ type: "dienststelle/mountReady", payload: {} });
+      watcherKit.watchTableData(KDB, {
+        runtime,
+        isRelevant: () => true,
+        dispatch: (action) => api.dispatch(action),
+        actionType: "dienststelle/tableDataChanged",
+        buildPayload: (tableName, event) => ({ tableName, rowCount: event.rowCount, source: "tableData" })
+      });
+    },
+    teardown() { runtime.tabMutationRunId = 0; },
+    route(action) { dispatched.push(action); return action.type === "dienststelle/historyReplayRequested" ? Promise.resolve(true) : { state: true }; },
+    readState() { return KDB.state.filters.dienststelle; },
+    destroyAction: "dienststelle/destroy",
+    clearsReplayContribution: true,
+    disposedResults: {
+      "dienststelle/parameterSetRestoreRequested": () => Promise.resolve({ ok: false, appliedScopes: [] }),
+      "dienststelle/prepareTabMutation": (action) => Promise.resolve({ ok: false, operationId: (action.payload || {}).operationId || null })
+    }
+  });
+  api = Object.assign({}, base, { getCurrentHierarchySnapshot: () => (guard.isDisposed() ? undefined : "snapshot") });
+  assert.equal(api.mount(), true);
+  assert.equal(api.mount(), true);
+  assert.equal(bus.unsubscribed, 1);
+  bus.handlers[1].handler({ tableName: "t", rowCount: 3 });
+  assert.deepEqual(dispatched, [{ type: "dienststelle/tableDataChanged", payload: { tableName: "t", rowCount: 3, source: "tableData" } }]);
+  assert.equal(api.getCurrentHierarchySnapshot(), "snapshot");
+  api.destroy();
+  assert.equal(runtime.tabMutationRunId, 0);
+  assert.strictEqual(runtime.historyReplayHandlerContribution, null);
+  assert.equal(KDB.state.filters.dienststelle.last, "dienststelle/destroy");
+  assert.deepEqual(await api.dispatch({ type: "dienststelle/prepareTabMutation", payload: { operationId: "o" } }), { ok: false, operationId: "o" });
+  assert.deepEqual(await api.dispatch({ type: "dienststelle/parameterSetRestoreRequested" }), { ok: false, appliedScopes: [] });
+  assert.strictEqual(api.dispatch({ type: "dienststelle/syncRequested" }), undefined);
+  assert.strictEqual(api.getCurrentHierarchySnapshot(), undefined);
+  assert.deepEqual(con.logged.warn.map((a) => a[0]), ["[dienststelle.dispatch] called after destroy"]);
+});
