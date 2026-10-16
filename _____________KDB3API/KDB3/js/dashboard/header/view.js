@@ -25,6 +25,12 @@ define(["./config.js"], function (_config) {
     return override || _config.IMAGES_BASE_PATH;
   }
 
+  // The link targets are owned by core config (config.links), not by the header.
+  function readConfiguredLink(_KDB, _key) {
+    var links = _KDB && _KDB.config && _KDB.config.links;
+    return links && typeof links[_key] === "string" ? links[_key] : "";
+  }
+
   function buildLinkIcon(_wrapClass, _label, _href, _imgId, _imgSrc) {
     var wrap = createElement("div", _wrapClass, { title: _label });
     var link = createElement("a", null, { href: _href, target: "_blank", rel: "noopener noreferrer" });
@@ -65,7 +71,7 @@ define(["./config.js"], function (_config) {
       buildLinkIcon(
         "KDB_topHeader_userManualIconContainer",
         _config.LABELS.userManual,
-        _config.LINKS.userManual,
+        readConfiguredLink(_KDB, "userManualUrl"),
         "KDB_userManual",
         imagesBase + "benutzerHandbuch.png"
       )
@@ -74,7 +80,7 @@ define(["./config.js"], function (_config) {
       buildLinkIcon(
         "KDB_topHeader_dataSpotIconContainer",
         _config.LABELS.dataspot,
-        _config.LINKS.dataspot,
+        readConfiguredLink(_KDB, "dataSpotUrl"),
         "KDB_dataSpotIcon",
         imagesBase + "dataspot.png"
       )
