@@ -6,7 +6,7 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
-import { createEnv } from "./ws-d1-fake-dom.mjs";
+import { createEnv, createFakeDocument } from "./ws-d1-fake-dom.mjs";
 
 const ENTRY = path.join(JS_ROOT, "core/services/messageService/__orchestratorMessageService.js");
 
@@ -432,5 +432,52 @@ test("a rejecting facet toast is logged once and not left unhandled", async () =
   facet.showToast = () => Promise.reject(new Error("facet down"));
   service.notify({ message: "x", severity: "error" });
   await flushMicrotasks();
+  assert.equal(env.console.calls.error.length, 1);
+});
+
+test("one observer per anchor document; each goes when its last anchored toast closes", () => {
+  const { env, service } = setup();
+  const otherDocument = createFakeDocument();
+  const anchorA = createAnchor(env);
+  const anchorB = otherDocument.createElement("button");
+  otherDocument.body.appendChild(anchorB);
+  const connected = () => env.FakeMutationObserver.instances.filter((o) => o.connected);
+  service.notifyAnchored({ anchor: anchorA, message: "a", durationMs: 100 });
+  service.notifyAnchored({ anchor: anchorB, message: "b", durationMs: 300 });
+  service.notifyAnchored({ anchor: anchorB, message: "b2", durationMs: 300 });
+  assert.equal(connected().length, 2);
+  assert.deepEqual(connected().map((o) => o.targets[0].target.ownerDocument).sort(), [env.document, otherDocument].sort());
+  env.clock.advance(100);
+  assert.equal(connected().length, 1);
+  assert.equal(connected()[0].targets[0].target.ownerDocument, otherDocument);
+  env.clock.advance(200);
+  assert.equal(connected().length, 0);
+  assert.equal(env.window.countListeners("scroll"), 0);
+});
+
+test("anchor leaving a second document is detected by that document's observer", () => {
+  const { env, service } = setup();
+  const otherDocument = createFakeDocument();
+  const anchor = otherDocument.createElement("button");
+  otherDocument.body.appendChild(anchor);
+  service.notifyAnchored({ anchor, message: "weg" });
+  otherDocument.body.removeChild(anchor);
+  triggerObservers(env);
+  const list = notifications(env);
+  assert.equal(list.length, 1);
+  assert.equal(list[0].style.top, "8px");
+});
+
+test("dialog toggle handler failure is logged and not thrown", () => {
+  const { env, service } = setup();
+  service.showCopyable({
+    message: "m",
+    copyText: "u",
+    toggle: { label: "L", title: "t", isChecked: false, copyTextChecked: "c", copyTextUnchecked: "u" }
+  });
+  const textarea = env.document.querySelector(".kdb-message-dialog__copy-text");
+  Object.defineProperty(textarea, "value", { get: () => "", set: () => { throw new Error("boom"); } });
+  const input = env.document.querySelector(".kdb-control_switch-input");
+  assert.doesNotThrow(() => input.dispatch({ type: "change" }));
   assert.equal(env.console.calls.error.length, 1);
 });

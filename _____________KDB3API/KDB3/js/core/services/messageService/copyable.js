@@ -56,10 +56,16 @@ define([], function () {
   }
 
   function syncCopyTextFromToggle(handle, request) {
-    var toggle = request.options.toggle;
-    var text = handle.toggleInputEl.checked === true ? toggle.copyTextChecked : toggle.copyTextUnchecked;
-    request.options.copyText = text;
-    handle.copyTextEl.value = text;
+    var toggle;
+    var text;
+    try {
+      toggle = request.options.toggle;
+      text = handle.toggleInputEl.checked === true ? toggle.copyTextChecked : toggle.copyTextUnchecked;
+      request.options.copyText = text;
+      handle.copyTextEl.value = text;
+    } catch (error) {
+      console.error("[messageService.syncCopyTextFromToggle] failed", error);
+    }
   }
 
   function bindCopyableToggle(addDialogListener, handle, request) {
