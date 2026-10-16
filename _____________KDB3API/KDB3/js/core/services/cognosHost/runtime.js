@@ -30,14 +30,16 @@ define([], function () {
     return runtime;
   }
 
+  // Iterates a copy: an unsubscribe may prune itself from the live array while we loop.
   function releaseSubscriptions(_subscriptions) {
+    var pending = _subscriptions.slice();
     var index;
-    for (index = 0; index < _subscriptions.length; index += 1) {
-      if (typeof _subscriptions[index] !== "function") {
+    for (index = 0; index < pending.length; index += 1) {
+      if (typeof pending[index] !== "function") {
         continue;
       }
       try {
-        _subscriptions[index]();
+        pending[index]();
       } catch (error) {
         console.error("[cognosHost.clearRuntime] unsubscribe failed", error);
       }
