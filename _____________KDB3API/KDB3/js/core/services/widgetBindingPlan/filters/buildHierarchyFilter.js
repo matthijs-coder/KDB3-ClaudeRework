@@ -72,7 +72,6 @@ define([
       return {
         ok: false,
         errorCode: "WIDGET_BINDING_PLAN_HIERARCHY_VALUES",
-        legacyError: "missingHierarchyValues",
       };
     }
 
@@ -83,14 +82,12 @@ define([
       return {
         ok: false,
         errorCode: "WIDGET_BINDING_PLAN_HIERARCHY_SOURCE",
-        legacyError: "missingHierarchySourceConfig",
       };
     }
     if (!matched.entry.itemId) {
       return {
         ok: false,
         errorCode: "WIDGET_BINDING_PLAN_HIERARCHY_ITEM",
-        legacyError: "missingHierarchyItemId",
       };
     }
 
@@ -103,7 +100,6 @@ define([
       return {
         ok: false,
         errorCode: "WIDGET_BINDING_PLAN_HIERARCHY_VALUES",
-        legacyError: "missingHierarchyValues",
       };
     }
 

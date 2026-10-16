@@ -44,7 +44,6 @@ define([
         return {
           ok: false,
           errorCode: resolved.errorCode || "WIDGET_BINDING_PLAN_SLOT_FAILED",
-          legacyError: resolved.legacyError || "buildSlotPlanFailed",
           slotName: slotName,
         };
       }
@@ -55,7 +54,6 @@ define([
           return {
             ok: false,
             errorCode: "WIDGET_BINDING_PLAN_SLOT_REQUIRED_EMPTY",
-            legacyError: "requiredSlotEmpty",
             slotName: slotName,
           };
         }

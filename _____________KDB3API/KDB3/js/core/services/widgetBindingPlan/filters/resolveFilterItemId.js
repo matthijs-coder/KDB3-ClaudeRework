@@ -4,7 +4,7 @@ define([], function () {
   function __controller(_key, _parameterMappingObj) {
     var key = typeof _key === "string" ? _key.trim() : "";
     if (!key) {
-      return { ok: false, errorCode: "WIDGET_BINDING_PLAN_FILTER_PARAM_MAP", legacyError: "missingParameterMapping", key: key };
+      return { ok: false, errorCode: "WIDGET_BINDING_PLAN_FILTER_PARAM_MAP", key: key };
     }
     if (key.charAt(0) === "[") {
       return { ok: true, itemId: key };
@@ -18,7 +18,6 @@ define([], function () {
     return {
       ok: false,
       errorCode: "WIDGET_BINDING_PLAN_FILTER_PARAM_MAP",
-      legacyError: "missingParameterMapping",
       key: key,
       mapKey: mapKey,
     };

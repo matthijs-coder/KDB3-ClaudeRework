@@ -51,13 +51,13 @@ define([
     try {
       var validation = _validateSpec(_spec);
       if (!validation.ok) {
-        return _planFailureContext.createPlanFailure(_spec, diagnostics, "validateSpec", validation.code, validation.message, validation.legacy);
+        return _planFailureContext.createPlanFailure(_spec, diagnostics, "validateSpec", validation.code, validation.message);
       }
       var dataConfig = validation.dataConfig;
       var base = buildBaseIdentity(dataConfig);
       var emptyIntentResult = _resolveEmptyIntent(_spec);
       if (!emptyIntentResult.ok) {
-        return _planFailureContext.createPlanFailure(_spec, diagnostics, "buildFilters", emptyIntentResult.code, emptyIntentResult.message, null, base);
+        return _planFailureContext.createPlanFailure(_spec, diagnostics, "buildFilters", emptyIntentResult.code, emptyIntentResult.message, base);
       }
       diagnostics.emptyIntent = emptyIntentResult.emptyIntent;
       var resetIntent = _resolveResetIntent(_spec);
@@ -71,11 +71,11 @@ define([
       }
       var slotResult = _buildSlotPlan(_spec, parsedTopN, diagnostics);
       if (!slotResult.ok) {
-        return _planFailureContext.createPlanFailure(_spec, diagnostics, "buildSlots", slotResult.errorCode || "WIDGET_BINDING_PLAN_SLOT_FAILED", "Slot planning failed.", slotResult.legacyError || "buildSlotPlanFailed", base);
+        return _planFailureContext.createPlanFailure(_spec, diagnostics, "buildSlots", slotResult.errorCode || "WIDGET_BINDING_PLAN_SLOT_FAILED", "Slot planning failed.", base);
       }
       var filterResult = _buildLocalFilters(_spec, parsedTopN, emptyIntentResult.emptyIntent, diagnostics);
       if (!filterResult.ok) {
-        return _planFailureContext.createPlanFailure(_spec, diagnostics, "buildFilters", filterResult.errorCode || "WIDGET_BINDING_PLAN_FILTER_FAILED", "Filter planning failed.", filterResult.legacyError || "buildFilterDescriptorsFailed", base);
+        return _planFailureContext.createPlanFailure(_spec, diagnostics, "buildFilters", filterResult.errorCode || "WIDGET_BINDING_PLAN_FILTER_FAILED", "Filter planning failed.", base);
       }
       var resetOnlyCleanup = _slotsChangedPolicy.isResetOnlyCleanup(_spec, resetIntent);
       var effectiveSlots = resetOnlyCleanup ? [] : slotResult.slots;
@@ -100,7 +100,7 @@ define([
       });
     } catch (error) {
       console.error("[widgetBindingPlan.buildPlan] unexpected planning error", { reason: _spec && _spec.reason, targetKind: _spec && _spec.targetKind, widgetId: _spec && _spec.widgetId, error: error && error.message });
-      return _planFailureContext.createPlanFailure(_spec, diagnostics, null, "WIDGET_BINDING_PLAN_INTERNAL", "Unexpected binding plan failure.", "buildBindingPlanFailed");
+      return _planFailureContext.createPlanFailure(_spec, diagnostics, null, "WIDGET_BINDING_PLAN_INTERNAL", "Unexpected binding plan failure.");
     }
   }
 

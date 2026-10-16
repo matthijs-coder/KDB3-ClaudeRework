@@ -4,7 +4,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -130,7 +129,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -168,7 +166,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -313,7 +310,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -351,7 +347,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -477,7 +472,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -515,7 +509,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -641,7 +634,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -679,7 +671,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -814,7 +805,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -852,7 +842,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -949,7 +938,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -977,7 +965,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -1093,7 +1080,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -1121,7 +1107,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -1254,7 +1239,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -1282,7 +1266,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -1398,7 +1381,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -1426,7 +1408,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_ITEM",
     "errorMessage": "Slot planning failed.",
-    "legacyError": "missingSelectedDimensionItemId",
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -1474,7 +1455,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "missingSelectedDimensionItemId",
       "failedStage": "buildSlots",
       "warnings": [
         {
@@ -1502,7 +1482,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -1617,7 +1596,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -1645,7 +1623,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -1779,7 +1756,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -1817,7 +1793,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_FILTER_PARAM_MAP",
     "errorMessage": "Filter planning failed.",
-    "legacyError": "missingParameterMapping",
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -1865,7 +1840,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "missingParameterMapping",
       "failedStage": "buildFilters",
       "warnings": [
         {
@@ -1903,7 +1877,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -2037,7 +2010,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -2070,7 +2042,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -2175,7 +2146,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -2213,7 +2183,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -2369,7 +2338,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -2407,7 +2375,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "topn",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -2572,7 +2539,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -2605,7 +2571,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "topn",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -2741,7 +2706,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [],
       "counts": {
@@ -2763,7 +2727,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_TOPN_HELPER_FAILED",
     "errorMessage": "Filter planning failed.",
-    "legacyError": "x",
     "reason": "topn",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -2811,7 +2774,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "x",
       "failedStage": "buildFilters",
       "warnings": [
         {
@@ -2844,7 +2806,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_TOPN_HELPER_MISSING",
     "errorMessage": "Filter planning failed.",
-    "legacyError": "missingTopNHelperResult",
     "reason": "topn",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -2892,7 +2853,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "missingTopNHelperResult",
       "failedStage": "buildFilters",
       "warnings": [
         {
@@ -2925,7 +2885,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_TOPN_HELPER_MISSING",
     "errorMessage": "Filter planning failed.",
-    "legacyError": "missingTopNHelperResult",
     "reason": "topn",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -2973,7 +2932,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "missingTopNHelperResult",
       "failedStage": "buildFilters",
       "warnings": [
         {
@@ -3006,7 +2964,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_TOPN_UNKNOWN",
     "errorMessage": "Filter planning failed.",
-    "legacyError": "unknownTopNValue",
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -3054,7 +3011,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "unknownTopNValue",
       "failedStage": "buildFilters",
       "warnings": [
         {
@@ -3087,7 +3043,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -3233,7 +3188,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -3266,7 +3220,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -3411,7 +3364,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -3449,7 +3401,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "hierarchy",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -3580,7 +3531,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -3608,7 +3558,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "hierarchyfilter",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -3749,7 +3698,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -3787,7 +3735,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -3884,7 +3831,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -3916,7 +3862,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_HIERARCHY_VALUES",
     "errorMessage": "Filter planning failed.",
-    "legacyError": "missingHierarchyValues",
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -3964,7 +3909,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "missingHierarchyValues",
       "failedStage": "buildFilters",
       "warnings": [
         {
@@ -3992,7 +3936,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_HIERARCHY_SOURCE",
     "errorMessage": "Filter planning failed.",
-    "legacyError": "missingHierarchySourceConfig",
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -4040,7 +3983,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "missingHierarchySourceConfig",
       "failedStage": "buildFilters",
       "warnings": [
         {
@@ -4068,7 +4010,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -4229,7 +4170,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -4267,7 +4207,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -4399,7 +4338,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -4437,7 +4375,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "cleanup",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -4571,7 +4508,6 @@
         "itemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]",
         "value": "1"
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -4609,7 +4545,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -4716,7 +4651,6 @@
         "itemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]",
         "value": "1"
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -4744,7 +4678,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_EMPTY_DATA_FILTER_MISSING",
     "errorMessage": "Stop-filter item id is missing for intentional emptying.",
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -4792,7 +4725,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": "buildFilters",
       "warnings": [],
       "counts": {
@@ -4807,7 +4739,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_EMPTY_DATA_FILTER_INVALID",
     "errorMessage": "Stop-filter force-empty value is missing or invalid.",
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -4855,7 +4786,6 @@
         "itemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]",
         "value": null
       },
-      "legacyError": null,
       "failedStage": "buildFilters",
       "warnings": [],
       "counts": {
@@ -4870,7 +4800,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "cleanup",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -4921,7 +4850,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [],
       "counts": {
@@ -4944,7 +4872,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "parameterSetReset",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -5071,7 +4998,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -5110,7 +5036,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "cleanup",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -5208,7 +5133,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -5237,7 +5161,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "topN",
     "targetKind": "topNHelper",
     "widgetId": "helper1",
@@ -5350,7 +5273,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [],
       "counts": {
@@ -5373,7 +5295,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "topN",
     "targetKind": "topNHelper",
     "widgetId": "helper1",
@@ -5508,7 +5429,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [],
       "counts": {
@@ -5531,7 +5451,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_TOPN_UNKNOWN",
     "errorMessage": "Filter planning failed.",
-    "legacyError": "unknownTopNValue",
     "reason": "topN",
     "targetKind": "topNHelper",
     "widgetId": "helper1",
@@ -5579,7 +5498,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "unknownTopNValue",
       "failedStage": "buildFilters",
       "warnings": [],
       "counts": {
@@ -5602,7 +5520,6 @@
     "status": "success",
     "errorCode": null,
     "errorMessage": null,
-    "legacyError": null,
     "reason": "cleanup",
     "targetKind": "topNHelper",
     "widgetId": "helper1",
@@ -5653,7 +5570,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": null,
       "warnings": [
         {
@@ -5682,7 +5598,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_INVALID_TARGET",
     "errorMessage": "targetKind is missing or unsupported.",
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "nope",
     "widgetId": "w1",
@@ -5723,7 +5638,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": "validateSpec",
       "warnings": [],
       "counts": {
@@ -5738,7 +5652,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_MISSING_SPEC",
     "errorMessage": "dataConfig is required.",
-    "legacyError": "missingDataConfig",
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -5779,7 +5692,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "missingDataConfig",
       "failedStage": "validateSpec",
       "warnings": [],
       "counts": {
@@ -5794,7 +5706,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_MISSING_DATASOURCE",
     "errorMessage": "dataConfig.datasourceId is required.",
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -5835,7 +5746,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": "validateSpec",
       "warnings": [],
       "counts": {
@@ -5850,7 +5760,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_MISSING_VISUALIZATION",
     "errorMessage": "visualizationType and visTypeConfig are required.",
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -5891,7 +5800,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": "validateSpec",
       "warnings": [],
       "counts": {
@@ -5906,7 +5814,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_MISSING_SPEC",
     "errorMessage": "config snapshots are required.",
-    "legacyError": null,
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -5947,7 +5854,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": null,
       "failedStage": "validateSpec",
       "warnings": [],
       "counts": {
@@ -5962,7 +5868,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_SLOT_REQUIRED_EMPTY",
     "errorMessage": "Slot planning failed.",
-    "legacyError": "requiredSlotEmpty",
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -6010,7 +5915,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "requiredSlotEmpty",
       "failedStage": "buildSlots",
       "warnings": [
         {
@@ -6048,7 +5952,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_AFFECTS",
     "errorMessage": "Slot planning failed.",
-    "legacyError": "missingDimensionSelectionAffects",
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -6096,7 +5999,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "missingDimensionSelectionAffects",
       "failedStage": "buildSlots",
       "warnings": [
         {
@@ -6124,7 +6026,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_MISSING_SPEC",
     "errorMessage": "Binding plan spec is required.",
-    "legacyError": "missingDataConfig",
     "reason": null,
     "targetKind": "vis",
     "widgetId": null,
@@ -6165,7 +6066,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "missingDataConfig",
       "failedStage": "validateSpec",
       "warnings": [],
       "counts": {
@@ -6180,7 +6080,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_MISSING_SPEC",
     "errorMessage": "Binding plan spec is required.",
-    "legacyError": "missingDataConfig",
     "reason": null,
     "targetKind": "vis",
     "widgetId": null,
@@ -6221,7 +6120,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "missingDataConfig",
       "failedStage": "validateSpec",
       "warnings": [],
       "counts": {
@@ -6236,7 +6134,6 @@
     "status": "error",
     "errorCode": "WIDGET_BINDING_PLAN_INTERNAL",
     "errorMessage": "Unexpected binding plan failure.",
-    "legacyError": "buildBindingPlanFailed",
     "reason": "contentCreate",
     "targetKind": "vis",
     "widgetId": "w1",
@@ -6277,7 +6174,6 @@
         "itemId": null,
         "value": null
       },
-      "legacyError": "buildBindingPlanFailed",
       "failedStage": null,
       "warnings": [
         {
