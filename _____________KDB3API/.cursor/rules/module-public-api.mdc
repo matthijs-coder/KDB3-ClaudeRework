@@ -1,6 +1,6 @@
 ---
-description: KDB3 public API shapes for _KDB.api modules and _KDB.services services. Dispatch vs named methods, getState, register*, disposed-state guards, cross-module calls.
-globs: KDB3/js/dashboard/**/*.js, KDB3/js/core/services/**/*.js
+description: KDB3 public API shapes for _KDB.api modules and _KDB.services services. Dispatch vs named methods, getState, disposed-state guards, tableData read contract, cross-module calls.
+globs: **/KDB3/js/dashboard/**/*.js, **/KDB3/js/core/services/**/*.js
 alwaysApply: false
 ---
 
@@ -8,18 +8,18 @@ alwaysApply: false
 
 Each feature module publishes exactly one `_KDB.api.<module>` object; each service publishes exactly one `_KDB.services.<service>` object. A module does not also publish under `_KDB.services`, and the reverse. The event bus is `_KDB.events`, not a service.
 
-Other modules use only: the public object, the owner's `selectors.js` (today often `state/selectors.js`) for granular reads, and the emitter's event-name constants. They never import the owner's state, view, effects or config files, and never touch `_KDB.runtime.<owner>`.
+Other modules use only: the public object, the owner's `selectors.js` (today often `state/selectors.js`) for granular reads, and the emitter's event-name constants. They never touch `_KDB.runtime.<owner>`. Existing deep imports of other files are kept working through shims until Phase 2 (see `feature-structure.mdc`); do not add new ones.
 
 ## Two shapes, never mixed
 
 | Category | Shape | Examples |
 |---|---|---|
-| Feature / UI module (`dashboard/`) | `{ mount, destroy, dispatch, getState, register*? }` | header, tabs, kdbControl, widgetVis, singleSelect |
+| Feature / UI module (`dashboard/`) | `{ mount, destroy, dispatch, getState }` (+ optional `register*`) | header, tabs, kdbControl, widgetVis, singleSelect |
 | Service (`core/services/`) | named methods (verb or verb + noun) | `tableData.readRows`, `history.undo`, `message.notify` |
 
 - `dispatch(action)` is the single entry point for state changes: `{ type: "<module>/<action>", payload }`. It returns a result object (`{ ok: true, ... }` / `{ ok: false, errorCode }`). Cross-module dispatch, such as `"<owner>/parameterSetRestoreRequested"` from the writeback restore, is the app's command bus; treat used action types as public.
 - `getState()` returns the module's read-only snapshot. It is the only read method on `_KDB.api.<module>`. Granular reads go through selectors, never through `read*` methods on the API.
-- `register*` methods are allowed extension points (for example `kdbControl.registerControl`).
+- `register*(...)` methods are the only allowed additions, for modules that accept plug-in items. No `_KDB.api` module has one today.
 - No named commands next to `dispatch` on a feature API, and no `dispatch` on a service. If a call site wants a nicer name, write a small helper in the caller.
 - A service may use a reducer internally (historyService does) and still expose named methods.
 - A small feature module with fewer than 3 state-changing actions, no undo/redo and a single caller may use named methods; say why in one comment in `index.js`.
@@ -30,16 +30,25 @@ _KDB.api.launchpad.dispatch({ type: "launchpad/sendWidget", payload: { widgetId:
 _KDB.services.tableData.readRows("pkz");                                        // service read
 ```
 
+## tableData read contract
+
+Consumers rely on these semantics; keep them:
+
+- `readRows(tableName)`: pure cache read, never starts a load.
+- `waitForRows(tableName)`: waits only for a load already in flight.
+- `reloadTable(tableName, options)`: explicit reload from Cognos.
+- `ensureFreshRows(tableName)`: reloads when not ready or stale, otherwise reads.
+
 ## Disposed-state guard
 
-`destroy()` puts the instance into lifecycle `disposed`. The controller keeps an `isDisposed` flag in its closure (not in `_KDB.state`) and sets it **before** cleaning runtime, so callbacks already in flight see it.
+`destroy()` puts the instance into lifecycle `disposed`. Use the kit's `createDisposedGuard(label)`: the controller calls `guard.dispose()` **before** cleaning runtime, so callbacks already in flight see it, and `guard.blocked(method)` warns once per method. The flag lives in the controller closure, not in `_KDB.state`.
 
 | Method after destroy | Behaviour |
 |---|---|
 | sync read (`getState`, service reads) | return `undefined` or an empty value; no throw |
-| async method | return a rejected promise (`Error("<service> disposed")`) |
-| `dispatch` | no-op; `console.warn` once; no throw |
-| `mount` | no-op; `console.warn` once; a disposed instance is not revived |
+| async service method | return a rejected promise (`Error("<service> disposed")`); cognosHost facets instead return the disposed Outcome `{ ok: false, outcome: "aborted", reason: "disposed" }` |
+| `dispatch` | no-op; warn once; return `{ ok: false, errorCode: "<MODULE>_DISPOSED" }` |
+| `mount` | no-op; warn once; a disposed instance is not revived |
 | `destroy` | idempotent |
 
 To get a working module again, the registering code calls the factory again and assigns the new instance. Callers do not need to check for disposal themselves.

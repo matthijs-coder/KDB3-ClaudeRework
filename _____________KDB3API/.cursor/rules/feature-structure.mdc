@@ -1,6 +1,6 @@
 ---
-description: KDB3 module template, file-size guideline and folder rules. Use when creating, splitting, merging, moving or restructuring files and folders under KDB3/js, or when refactoring a module.
-globs: KDB3/js/dashboard/**/*.js, KDB3/js/core/services/**/*.js, KDB3/js/KDB.js
+description: KDB3 module template, file-size guideline, folder rules and Phase 1 path-preserving shims. Use when creating, splitting, merging, moving or restructuring files and folders under KDB3/js, or when refactoring a module.
+globs: **/KDB3/js/dashboard/**/*.js, **/KDB3/js/core/services/**/*.js, **/KDB3/js/KDB.js
 alwaysApply: false
 ---
 
@@ -17,10 +17,10 @@ New modules, and modules being refactored, use this one shape:
   selectors.js    read functions; the only file other modules import
   view.js         DOM build, place and sync (or view/ by screen area when large)
   effects.js      Cognos calls, event emits, history commits, async work
-  config.js       constants, defaults, labels keys, selector strings, error codes
-  history.js      optional: undo/redo step building and replay handler
+  config.js       constants, defaults, label keys, selector strings, error codes
+  history.js      optional: undo/redo steps (kit pushHistoryStep) and replay handler (kit createReplayHandler)
   restore.js      optional: parameter-set restore handler
-  tabMutation.js  optional: participation in tab move/duplicate/delete
+  tabMutation.js  optional: tab move/duplicate/delete participation (uses core/utils/filters/tabMutationRun)
   events.js       optional: names of events this module emits to others
 ```
 
@@ -29,34 +29,35 @@ New modules, and modules being refactored, use this one shape:
 - At most 3 folder levels below the module folder.
 - Services use the same idea: `index.js` builds the named-method service object; pipeline services (writeback `get/` and `set/`, widgetBindingPlan) keep their sub-domain folders.
 - `selectors.js` and `events.js` are the only cross-module import targets. Everything else is private to the module.
+- `core/utils/` holds pure helpers only. Code with run ids, snapshots or cancellation is not a util (`core/utils/filters/tabMutationRun/` is saga machinery and is not published on `_KDB.utils`).
 - No magic entry names in new or refactored code: no `__controller`, no new `__orchestrator*`. Name functions after what they do (`createHeaderController`, `registerHeader`, `applyHeaderRestore`).
 
 ### `index.js` skeleton
 
 ```js
 define([
-  "./state.js",
-  "./view.js",
-  "./effects.js",
-  "../tabs/events/eventNames.js"
-], function (_state, _view, _effects, _tabsEvents) {
+  "./state.js", "./view.js", "./effects.js", "../tabs/events/eventNames.js",
+  "../../core/utils/kit/runtime.js", "../../core/utils/kit/errors.js"
+], function (_state, _view, _effects, _tabsEvents, _rt, _errors) {
+  "use strict";
   // Lifecycle terms: idle, mounted, disposed.
 
   function createHeaderController(_KDB) {
-    var isDisposed = false;
-    var scope = null;
+    var guard = _errors.createDisposedGuard("header");   // warns once per method after destroy
+    var rt = _rt.ensureRuntime(_KDB, "header");          // get-or-create: keeps the facet stamps
 
-    function mount() {
-      if (isDisposed) { console.warn("[header.mount] called after destroy"); return; }
-      scope = new AbortController();
-      _KDB.runtime.header = { abortControllers: { scope: scope }, domRefs: {} };
-      _view.renderHeader(_KDB, getState(), { signal: scope.signal });
+    function mount(options) {
+      if (guard.blocked("mount")) return;
+      var scope = new AbortController();
+      rt.abortControllers.mount = scope;
+      _view.renderHeader(_KDB, getState(), options || {});
+      _rt.addListener(rt.listeners, "windowResize", window, "resize", onWindowResize);
       _KDB.events.subscribe(_tabsEvents.CHANGED, onTabsChanged, { signal: scope.signal });
     }
 
     function dispatch(action) {
-      if (isDisposed) { console.warn("[header.dispatch] called after destroy"); return { ok: false }; }
-      try {                         // public entry point = boundary: log once, convert
+      if (guard.blocked("dispatch")) return { ok: false, errorCode: "HEADER_DISPOSED" };
+      try {                                              // public entry point = boundary
         _KDB.state.header = _state.reduceHeader(_KDB.state.header, action);
         return _effects.runHeaderEffects(_KDB, action);
       } catch (err) {
@@ -65,16 +66,17 @@ define([
       }
     }
 
-    function getState() { return isDisposed ? undefined : _KDB.state.header; }
+    function getState() { return guard.isDisposed() ? undefined : _KDB.state.header; }
 
     function destroy() {
-      if (isDisposed) return;
-      isDisposed = true;            // set first so in-flight callbacks stop
-      if (scope) scope.abort();     // removes every listener and subscription bound to the signal
+      if (guard.isDisposed()) return;
+      guard.dispose();                                   // first, so in-flight callbacks stop
+      var errors = _rt.disposeRuntimeBuckets(rt);        // aborts, unbinds, clears timers; keeps stamps
+      if (errors.length) console.error("[header.destroy] cleanup errors", errors);
       _view.removeHeader(_KDB);
-      _KDB.runtime.header = {};
     }
 
+    function onWindowResize() { dispatch({ type: "header/syncLayout" }); }
     function onTabsChanged(payload) { dispatch({ type: "header/syncActiveTab", payload: payload }); }
 
     return { mount: mount, destroy: destroy, dispatch: dispatch, getState: getState };
@@ -82,6 +84,7 @@ define([
 
   function registerHeader(_KDB) {
     _KDB.state.header = _KDB.state.header || _state.createInitialHeaderState();
+    _rt.ensureRuntime(_KDB, "header").dashboardFacet = _KDB.services.cognosHost.dashboard;
     _KDB.api.header = createHeaderController(_KDB);
   }
 
@@ -89,28 +92,43 @@ define([
 });
 ```
 
-For runtime buckets beyond one AbortController (timers, observers, pending promises), use the kit's `disposeRuntimeBuckets` in `destroy`.
+Never replace `_KDB.runtime.<owner>` wholesale; stamps and owner fields live next to the buckets. Timer id maps nested in `timers` are named `<thing>By<Key>` (for example `watchdogsByMountKey`) so `disposeRuntimeBuckets` cancels them; use `scheduleTimeout` / `scheduleFrame` for single timers. Until Phase 2 adds central replay registration, `history.js` still publishes its handler as `rt.historyReplayHandlerContribution`.
 
 ### Mapping from the current layout
 
 | Today | Template |
 |---|---|
-| `__orchestrator<M>.js` + `create<M>Controller.js` + `runtime/ensure*`, `cleanup*` | `index.js` |
-| `config/actionTypes.js` + `state/initialState.js` + `state/create*Reducer.js` + reducer helpers | `state.js` |
+| `__orchestrator<M>.js` + `create<M>Controller.js` + `runtime/ensure*`, `cleanup*` + `lifecycle/` | `index.js` (kit `ensureRuntime`, `disposeRuntimeBuckets`, `createDisposedGuard`) |
+| nested sub-orchestrators (`kdbControl/{framework,settings,authoringMode,effects}/__orchestrator*.js`, `header` / `footer` `effects/__orchestrator*Effects.js`) | `index.js` or the sub-domain file they set up |
+| `config/actionTypes.js`, `ACTION_*` constants in `events/eventNames.js`, `state/initialState.js`, `state/create*Reducer.js`, reducer helpers | `state.js` |
 | `state/selectors.js` | `selectors.js` |
-| other `config/*` | `config.js` |
-| `history/*` (create handler, apply, build, push, read snapshot) | `history.js` |
+| other `config/*`, `compat/` config readers | `config.js` |
+| `history/*` (create handler, apply, build, push, read snapshot) | `history.js` with kit `pushHistoryStep` and `createReplayHandler` |
 | `actions/handleParameterSetRestore.js` + `actions/parameterSet/*` | `restore.js` (or `restore/` if large) |
-| `actions/tabMutation/*` | `tabMutation.js` |
+| `actions/tabMutation/*` | `tabMutation.js` using `core/utils/filters/tabMutationRun` |
+| `observation/` | `observation.js` (or a sub-domain file) |
+| `adapters/` | `effects.js` or a sub-domain file; keep the folder only if it holds about 4+ files (writeback `map/adapters/`) |
 | `view/build*`, `sync*`, `place*` | `view.js` (or `view/` by screen area) |
 | `effects/*`, `actions/*` | `effects.js` or sub-domain files |
 | `effects/read*Facet.js` | delete; read the stamp `_KDB.runtime.<owner>.<x>Facet` where it is used |
 
-### Transition rules (until Phase 2)
+## Phase 1 transition: path-preserving shims
 
-- `KDB.js` imports `__orchestrator<M>.js` for every module. These files stay at their paths until the Phase 2 bootstrap rework. In a refactored module the code moves to `index.js`, and `__orchestrator<M>.js` becomes a one-line shim (`define(["./index.js"], function (_register) { return _register; });`). These entry shims are the only allowed forward-only files.
-- Files other modules import today (`state/selectors.js`, `events/eventNames.js`, `core/events/<region>.js`, and any deep import listed in the module's audit) keep their path until Phase 2 updates the importers.
-- Modules not yet refactored keep their current layout (`config/ state/ view/ effects/ actions/ history/ runtime/ observation/ adapters/`). Do not add new files in that style to a module you are converting.
+Phase 1 workstreams change only their own folders. Two kinds of files are imported from outside a module, and their paths must not move yet:
+
+- **Entry files.** `KDB.js` imports every feature `__orchestrator<M>.js`; `core/services/__orchestratorServices.js` imports every service `__orchestrator<S>.js`. Neither `KDB.js` nor `__orchestratorServices.js` is edited in Phase 1.
+- **Deep imports.** Any other file of your module that another module imports (published selectors, event names, and about 30 deep imports of `config/`, `view/`, `effects/`, `actions/` files).
+
+When you move such a file's code, leave a one-line shim at the old path that only re-exports the new location, marked for removal:
+
+```js
+// shim: path kept for imports from outside this module; remove in Phase 2
+define(["../view.js"], function (_view) { return _view.buildSettingsIcon; });
+```
+
+These shims are the **only** allowed forwarding files. Phase 2 rewrites the importers and deletes the shims. To find the imports into your module, run from the repo root `node tools/check-imports.mjs --json` (the `crossModule` and `coreToDashboard` lists) and list the files with a search from outside the folder, for example `rg -n "widgetSettings/" _____________KDB3API/KDB3/js --glob '!**/widgetSettings/**'`.
+
+Modules not yet refactored keep their current layout (`config/ state/ view/ effects/ actions/ history/ runtime/ observation/ adapters/`). Do not add new files in that style to a module you are converting.
 
 ## File size guideline
 
@@ -124,10 +142,10 @@ Split by cohesion, not by count. A file holds one concept: a reducer and its act
 | function over about 60 lines | split into named steps |
 
 - Lines over 180 characters count as packing; un-pack them. Never compress code to meet a size target.
-- Do not create a file that only forwards to another file, re-exports it, or wraps it in try/catch.
+- Do not create a file that only forwards to another file, re-exports it, or wraps it in try/catch (except the Phase 1 shims above).
 - Merge tiny files (under about 30 lines with one importer) into their caller or their concept's file.
 - Do not create a folder for fewer than about 4 files unless it is a named sub-domain.
 - No vague names for files or folders: `helpers`, `common`, `misc`, `manager`, `shared`, `stuff`, nor overflow suffixes (`Support`, `Helpers`, `Internals`).
-- Measure with `node tools/line-report.mjs` (repo root).
+- Measure with `node tools/line-report.mjs --module <path>` (repo root).
 
 `KDB.js` holds bootstrap wiring only: AMD imports, core setup, module registration, mount and destroy order, root namespaces. Changes to render/destroy semantics, the `_KDB` root shape or the renderer API need a written note and review (see `core.mdc` section 9).

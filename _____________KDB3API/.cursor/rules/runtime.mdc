@@ -1,6 +1,6 @@
 ---
 description: KDB3 _KDB.runtime discipline. Owner-private technical resources, standard bucket names, cleanup in destroy, AbortController and { signal } listener hygiene, no serialisation.
-globs: KDB3/js/**/runtime/**/*.js, KDB3/js/**/index.js, KDB3/js/**/__orchestrator*.js, KDB3/js/**/create*Controller.js, KDB3/js/**/create*Service.js
+globs: **/KDB3/js/**/runtime/**/*.js, **/KDB3/js/**/index.js, **/KDB3/js/**/__orchestrator*.js, **/KDB3/js/**/create*Controller.js, **/KDB3/js/**/create*Service.js
 alwaysApply: false
 ---
 
@@ -18,12 +18,12 @@ Use these names; do not invent synonyms.
 | `listeners` | DOM listener records when `{ signal }` cannot be used |
 | `subscriptions` | `_KDB.events` unsubscribe functions when `{ signal }` is not used |
 | `observers` | MutationObserver, ResizeObserver, IntersectionObserver |
-| `timers` | timeout, interval and rAF ids; store the kind with the id so cleanup calls the matching clear function |
+| `timers` | timeout, interval and rAF ids as `{ kind, id }` (kit `scheduleTimeout` / `scheduleFrame`); nested id maps are named `<thing>By<Key>` (`watchdogsByMountKey`) |
 | `domRefs` | DOM nodes the module mounted or resolved |
 | `pendingPromises` | in-flight work; cleanup aborts it and ignores late results |
 | `adapters`, `customControls` | live instances created at mount |
 
-The kit's `disposeRuntimeBuckets` cleans all of these. Use it instead of a per-module cleanup loop.
+Use the kit (`core/utils/kit/runtime.js`) instead of per-module `ensure*Runtime` / `cleanup*Runtime` files: `ensureRuntime(_KDB, owner)` gets or creates the owner object and its buckets without replacing it (facet stamps and owner fields survive); `disposeRuntimeBuckets(rt)` releases recognised entries and resets the buckets, and returns errors instead of throwing; `addListener(rt.listeners, key, target, type, handler)` stores a canonical listener record. Store only shapes the kit recognises (release functions, listener records, `{ unsubscribe }`, AbortControllers, observers, timer entries); anything else is skipped silently. Never assign `_KDB.runtime.<owner> = {...}` wholesale.
 
 ## Cleanup
 
