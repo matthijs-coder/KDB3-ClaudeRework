@@ -36,7 +36,8 @@
  *     hooks.rejected(guardResult, payload)    default: restore result with the guard diagnostics and errorCode
  * createResync(base, hooks) -> async (ctx, payload) -> result
  *     run guard -> hooks.run(ctx, payload, diagnostics); run returning false means failure (diagnostics already added).
- *     A thrown error becomes { ok:false, operationId, diagnostics: [APPLY_FAILED] } and is logged once.
+ *     A thrown error becomes { ok:false, operationId, diagnostics: [APPLY_FAILED] } and is logged once;
+ *     hooks.diagnostic(code, message) builds that entry (default { code, message }).
  *
  * Result builders: prepareFailure, applyFailure, applySuccess, restoreResult, supersededResult, readRunSnapshot,
  * createDisposedResult(message) -> (action) -> Promise of the disposed tab-mutation answer.
@@ -239,7 +240,9 @@ define([
         return { ok: true, operationId: payload.operationId, diagnostics: diagnostics };
       } catch (error) {
         console.error("[" + _base.name + ".resyncTabMutationHost] failed", { operationId: payload.operationId }, error);
-        diagnostics.push({ code: CODES.APPLY_FAILED, message: errorMessage(error) });
+        diagnostics.push(_hooks.diagnostic
+          ? _hooks.diagnostic(CODES.APPLY_FAILED, errorMessage(error))
+          : { code: CODES.APPLY_FAILED, message: errorMessage(error) });
         return { ok: false, operationId: payload.operationId, diagnostics: diagnostics };
       }
     };

@@ -100,7 +100,7 @@ define([
     return true;
   }
 
-  var resync = _tabMutation.createResync(_support.tabMutationBase, { run: run });
+  var resync = _tabMutation.createResync(_support.tabMutationBase, { run: run, diagnostic: _support.diagnostic });
 
   function resyncTabMutationHost(_KDB, _runtime, _payload) {
     return resync({ _KDB: _KDB, runtime: _runtime }, _payload);
