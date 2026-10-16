@@ -33,14 +33,18 @@ define([
           preProperties.diagnostics
         );
       }
-      var plan = services.plan.buildPlan(_context.spec);
-      if (!plan || plan.ok !== true || plan.status !== "success") {
+      var outcome = await _KDB.services.widgetBinding.run(_context.spec, {
+        beforeApply: function () { return !_results.isAborted(_context.signal); },
+        applyOptions: function (plan) { return buildHelperApplyOptions(_context, plan); }
+      });
+      var plan = outcome.plan;
+      if (outcome.stage === "plan") {
         return _results.failure("WIDGET_TOPN_HELPER_PLAN_FAILED", readPlanError(plan), { plan: plan, preProperties: preProperties });
       }
-      if (_results.isAborted(_context.signal)) {
+      if (outcome.stage === "cancelled") {
         return abortedApply(plan, null);
       }
-      var applyResult = await services.apply.applyBinding(plan, buildHelperApplyOptions(_context, plan));
+      var applyResult = outcome.applyResult;
       if (_results.isAborted(_context.signal) || (applyResult && applyResult.status === "aborted")) {
         return abortedApply(plan, applyResult);
       }

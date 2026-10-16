@@ -162,6 +162,7 @@ function createEnv({ applyMs = 20, cleanupMs = 20, launchpadMs = 0 } = {}) {
   const registerBase = loadAmd(WIDGET_BASE);
   const registerTopN = loadAmd(WIDGET_TOPN, { modules: { "../widgetVis/effects/applyVisualizationProperties.js": visProps } });
   registerBase(_KDB, { autoRouteAll: false });
+  loadAmd(resolve(JS_DIR, "core/services/widgetBinding/index.js"))(_KDB);
   registerTopN(_KDB, {});
   _KDB.api.widgetTopN.mount({});
   const frames = _KDB.state.widgets.base.byId;

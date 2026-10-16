@@ -194,6 +194,7 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
     modules[prefix + "widgetVis/effects/applyVisualizationProperties.js"] = visProps;
   }
   const register = loadAmd(ENTRY, { modules });
+  loadAmd(resolve(JS_DIR, "core/services/widgetBinding/index.js"))(_KDB);
   register(_KDB, {});
   _KDB.api.widgetTopN.mount({});
 
