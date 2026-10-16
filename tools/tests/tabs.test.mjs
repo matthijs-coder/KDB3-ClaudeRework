@@ -79,6 +79,23 @@ test("parameterSet router: unknown types and disposed acknowledgements", async (
   assert.equal(scope.diagnostics[0].code, "TABS_FILTER_SCOPE_TARGETS_NOT_READY");
 });
 
+test("destroy restores the original _KDB.utils.readCurrentTab, re-orchestration binds it again", () => {
+  const orchestrate = load("__orchestratorTabs.js");
+  const original = function readCurrentTab() { return "original"; };
+  const _KDB = { utils: { readCurrentTab: original }, config: {}, services: {} };
+  const first = orchestrate(_KDB, {});
+  assert.notEqual(_KDB.utils.readCurrentTab, original);
+  first.destroy();
+  assert.equal(_KDB.utils.readCurrentTab, original);
+
+  const second = orchestrate(_KDB, {});
+  assert.notEqual(_KDB.utils.readCurrentTab, original);
+  const foreign = function foreignReadCurrentTab() { return "foreign"; };
+  _KDB.utils.readCurrentTab = foreign;
+  second.destroy();
+  assert.equal(_KDB.utils.readCurrentTab, foreign);
+});
+
 test("traverse options: key and target indexes", () => {
   const options = load("traverse/traverseOptions.js");
   const normalized = options.normalizeTraverseOptions({ source: "mount" });

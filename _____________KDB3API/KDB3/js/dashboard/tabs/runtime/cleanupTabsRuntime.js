@@ -17,6 +17,17 @@ define([], function () {
     runtime.adapters = {};
     runtime.lastTabMutationError = null;
     runtime.historyReplayHandlerContribution = null;
+    restoreReadCurrentTab(_KDB, runtime);
+  }
+
+  // Only when the tabs binding is still installed, so a later override by another owner survives.
+  function restoreReadCurrentTab(_KDB, runtime) {
+    const utils = _KDB.utils;
+    if (utils && runtime.readCurrentTabUnbound && utils.readCurrentTab === runtime.readCurrentTabBound) {
+      utils.readCurrentTab = runtime.readCurrentTabUnbound;
+    }
+    runtime.readCurrentTabUnbound = null;
+    runtime.readCurrentTabBound = null;
   }
 
   function cleanupSubscriptions(subscriptions) { Object.keys(subscriptions || {}).forEach(function (key) { if (typeof subscriptions[key] === "function") { subscriptions[key](); } }); }

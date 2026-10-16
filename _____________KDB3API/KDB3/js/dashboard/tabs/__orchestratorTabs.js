@@ -80,27 +80,21 @@ define(["./createTabsController.js", "./state/createInitialTabsState.js", "./sta
     runtime.canvasFacet = service && service.canvas ? service.canvas : null;
   }
 
+  // Swaps in a tabs-aware _KDB.utils.readCurrentTab; destroy puts the saved original back.
   function bindReadCurrentTab(_KDB, runtime) {
-    try {
-      const utils = _KDB && _KDB.utils;
-      if (!utils || typeof utils.readCurrentTab !== "function") {
-        return;
-      }
-      if (!runtime.readCurrentTabUnbound) {
-        runtime.readCurrentTabUnbound = utils.readCurrentTab;
-      }
-      const helper = runtime.readCurrentTabUnbound;
-      const chromeReaders = { readSelectedTabIndex: _chrome.readSelectedTabIndexFromChrome };
-      utils.readCurrentTab = function boundReadCurrentTab(_root) {
-        return helper({
-          tabsFacet: runtime.tabsFacet,
-          chromeReaders: chromeReaders
-        }, _root);
-      };
-    } catch (err) {
-      console.error("[tabs.bindReadCurrentTab] failed", err);
-      throw err;
+    const utils = _KDB.utils;
+    if (!utils || typeof utils.readCurrentTab !== "function") {
+      return;
     }
+    if (!runtime.readCurrentTabUnbound) {
+      runtime.readCurrentTabUnbound = utils.readCurrentTab;
+    }
+    const helper = runtime.readCurrentTabUnbound;
+    const chromeReaders = { readSelectedTabIndex: _chrome.readSelectedTabIndexFromChrome };
+    utils.readCurrentTab = function boundReadCurrentTab(_root) {
+      return helper({ tabsFacet: runtime.tabsFacet, chromeReaders: chromeReaders }, _root);
+    };
+    runtime.readCurrentTabBound = utils.readCurrentTab;
   }
 
   function stageTabsHistoryReplayHandler(_KDB) {
