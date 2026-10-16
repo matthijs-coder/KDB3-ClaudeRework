@@ -13,6 +13,54 @@ define([], function () {
     return "";
   }
 
+  function extractUseValues(_values) {
+    var out = [];
+    var idx;
+    var entry;
+    if (!Array.isArray(_values)) {
+      return out;
+    }
+    for (idx = 0; idx < _values.length; idx += 1) {
+      entry = _values[idx];
+      if (entry == null) {
+        continue;
+      }
+      if (typeof entry === "string" && entry !== "") {
+        out.push(entry);
+        continue;
+      }
+      if (entry.useValue != null && String(entry.useValue) !== "") {
+        out.push(String(entry.useValue));
+      }
+    }
+    return out;
+  }
+
+  function extractDisplayValues(_values) {
+    var out = [];
+    var idx;
+    var entry;
+    if (!Array.isArray(_values)) {
+      return out;
+    }
+    for (idx = 0; idx < _values.length; idx += 1) {
+      entry = _values[idx];
+      if (entry == null) {
+        continue;
+      }
+      if (typeof entry === "string" && entry !== "") {
+        out.push(entry);
+        continue;
+      }
+      if (entry.displayValue != null && String(entry.displayValue) !== "") {
+        out.push(String(entry.displayValue));
+      } else if (entry.useValue != null && String(entry.useValue) !== "") {
+        out.push(String(entry.useValue));
+      }
+    }
+    return out;
+  }
+
   function collectFromEntries(_values) {
     var out = [];
     var idx;
@@ -33,29 +81,6 @@ define([], function () {
         out.push(hostCaption(entry));
       } else if (entry.useValue != null && String(entry.useValue) !== "") {
         out.push(hostCaption(entry));
-      }
-    }
-    return out;
-  }
-
-  function extractUseValues(_values) {
-    var out = [];
-    var idx;
-    var entry;
-    if (!Array.isArray(_values)) {
-      return out;
-    }
-    for (idx = 0; idx < _values.length; idx += 1) {
-      entry = _values[idx];
-      if (entry == null) {
-        continue;
-      }
-      if (typeof entry === "string" && entry !== "") {
-        out.push(entry);
-        continue;
-      }
-      if (entry.useValue != null && String(entry.useValue) !== "") {
-        out.push(String(entry.useValue));
       }
     }
     return out;
@@ -109,17 +134,46 @@ define([], function () {
     return keepHostDisplays(useOut, hostOut);
   }
 
-  function __controller(_values) {
-    try {
-      if (Array.isArray(_values)) {
-        return collectFromEntries(_values);
-      }
-      return collectFromScopeMap(_values);
-    } catch (error) {
-      console.error("[dienststelle.collectAlignedHostDisplays] failed", error);
-      throw error;
+  function collectAlignedHostDisplays(_values) {
+    if (Array.isArray(_values)) {
+      return collectFromEntries(_values);
     }
+    return collectFromScopeMap(_values);
   }
 
-  return __controller;
+  function uniqueAlignedUseDisplayValues(_useValues, _displayValues) {
+    var useIn = Array.isArray(_useValues) ? _useValues : [];
+    var displayIn = Array.isArray(_displayValues) ? _displayValues : [];
+    var useValues = [];
+    var displayValues = [];
+    var seen = {};
+    var idx;
+    var entry;
+    var token;
+    var display;
+    var trimmedDisplay;
+    for (idx = 0; idx < useIn.length; idx += 1) {
+      entry = useIn[idx];
+      if (entry == null) {
+        continue;
+      }
+      token = String(entry).trim();
+      if (token === "" || seen[token]) {
+        continue;
+      }
+      seen[token] = true;
+      useValues.push(token);
+      display = displayIn[idx];
+      trimmedDisplay = display == null ? "" : String(display).trim();
+      displayValues.push(trimmedDisplay !== "" ? trimmedDisplay : token);
+    }
+    return { useValues: useValues, displayValues: displayValues };
+  }
+
+  return {
+    extractUseValues: extractUseValues,
+    extractDisplayValues: extractDisplayValues,
+    collectAlignedHostDisplays: collectAlignedHostDisplays,
+    uniqueAlignedUseDisplayValues: uniqueAlignedUseDisplayValues
+  };
 });
