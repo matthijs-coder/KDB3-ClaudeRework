@@ -41,10 +41,16 @@ define([
       helperWidgetId: request.releaseClaim ? null : ownerRuntime.helperWidgetId,
       status: "success"
     };
-    if (request.releaseClaim === true && !_widgetBaseSelectors.readFrame(_context._KDB, request.ownerVisId)) {
+    if (request.releaseClaim === true && isOwnerGone(_context._KDB, request.ownerVisId)) {
       _context.removeOwner(request.ownerVisId, ownerRuntime);
     }
     return result;
+  }
+
+  // widgetBase keeps the frame of a removed widget with placement "removed".
+  function isOwnerGone(_KDB, ownerVisId) {
+    var frame = _widgetBaseSelectors.readFrame(_KDB, ownerVisId);
+    return !frame || frame.placement === "removed";
   }
 
   // A release-only cleanup (Jahr wave) does no helper work and must not abort a

@@ -279,7 +279,7 @@ test("remove twice: widgetVis dispose and history steps", async () => {
   });
 });
 
-test("a release for an owner whose frame is removed: its records", async () => {
+test("a release for an owner whose frame is removed prunes its records", async () => {
   await withEnv({}, async (env) => {
     await env.resolve("o1", 1);
     await env.settle();
@@ -290,9 +290,8 @@ test("a release for an owner whose frame is removed: its records", async () => {
       payload: { ownerVisId: "o1", reason: "remove", clearHelperBinding: true, releaseClaim: true }
     });
     assert.equal(released.ok, true);
-    assert.equal(env.ownerState("o1").helperWidgetId, null, "claim released");
-    assert.ok(env.ownerState("o1"), "state record is kept");
-    assert.ok(env.ownerRuntime("o1"), "runtime record is kept");
+    assert.equal(env.ownerState("o1"), undefined, "state record pruned");
+    assert.equal(env.ownerRuntime("o1"), undefined, "runtime record pruned");
     assert.deepEqual(env.helperAttrs("h1"), [null, null]);
     const second = await env.resolve("o2", 1);
     assert.equal(second.status, "success");
