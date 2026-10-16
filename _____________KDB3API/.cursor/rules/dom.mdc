@@ -1,162 +1,43 @@
 ---
-description: KDB3 DOM discipline: selectors in _KDB.elements, live refs in _KDB.runtime, scoped queries, builder/placer/mutator
-globs:
-  - KDB3/js/**/*.js
-  - KDB3/css/**/*.css
-alwaysApply: true
+description: KDB3 DOM and CSS rules. Selectors in _KDB.elements.selectors, live refs in runtime, scoped queries, build/place/sync views, listeners and observers, safe HTML, CSS naming.
+globs: **/KDB3/js/**/view/**/*.js, **/KDB3/js/**/view.js, **/KDB3/js/core/cognosHost/**/*.js, **/KDB3/css/**/*.css
+alwaysApply: false
 ---
 
-# DOM Rules
+# DOM and CSS
 
-DOM access in KDB3 splits into three concerns and three storage locations:
+## Where DOM things live
 
-- **selectors** (strings) live under `_KDB.elements.selectors.<module>`;
-- **live DOM nodes and jQuery references** live in `_KDB.runtime.<owner>.domRefs`;
-- **listener and observer cleanup records** live in `_KDB.runtime.<owner>.listeners` / `.observers` / `.abortControllers` per `runtime.mdc`.
+| Thing | Place |
+|---|---|
+| Selector strings and class-name constants | the module's `config.js`, published as `_KDB.elements.selectors.<module>` when other code needs them |
+| Cognos chrome selectors and "miss" checks | `core/cognosHost/` catalog, in `_KDB.elements.selectors.<group>` |
+| Live DOM nodes and jQuery objects | `_KDB.runtime.<owner>.domRefs` or local variables for one render |
+| Listener, observer and AbortController records | `_KDB.runtime.<owner>` buckets (see `runtime.mdc`) |
 
-`_KDB.state` never holds DOM or jQuery objects. `_KDB.elements` never holds live nodes. `_KDB.runtime.<owner>` is owner-private and is torn down on `destroy`.
+`_KDB.elements` holds selectors only. The keys `_KDB.elements.kdbWidget`, `kdbControl`, `dropboxById`, `dashboardDropboxes`, `closestBoundDropbox` and `launchpadHideSpot` are never assigned anywhere: code that reads them is a dead branch. Remove such reads when you refactor; never add new ones. The extension's own host element is `_KDB.runtime.core.domRefs.renderParentEl` (owned by `KDB.js`).
 
-## Selectors
+## Queries
 
-Selector strings, selector configuration and class-name constants live under a dedicated sub-namespace `_KDB.elements.selectors.<module>`:
+- Query from the smallest known root (the module's mounted root, the widget element). `document.querySelector` or global `$(...)` only for the module's mount root or a documented case (modal portal, drag layer, body class, Cognos chrome lookups through the chrome selectors).
+- DOM refs are valid for one render cycle; after a rebuild, resolve them again.
 
-```js
-_KDB.elements.selectors.kdbControl = {
-  rootSelector: ".kdb-control",
-  launchpadToggleSelector: ".kdb-control__launchpad-toggle",
-  topNSelectSelector: ".kdb-control__top-n-select"
-};
-```
+## Views
 
-The `selectors` sub-namespace exists to keep selector-configs cleanly separated from the two legacy top-level keys (`_KDB.elements.kdbControl`, `_KDB.elements.kdbWidget`) that hold live host references in older code. See "Legacy Host References" below.
+- Build (detached subtree from a state snapshot), place (attach at the mount point), sync (apply minimal changes on state change). These can be functions in one `view.js`; they do not need separate files.
+- Views read state and never write it. Listener bodies are thin: they call `dispatch(...)` or a controller function.
+- Bind listeners at mount or first build with `{ signal }` from the owner's AbortController.
+- Observers: one shared observer per concern rather than one per instance; observe the narrowest root; debounce work on bursts; disconnect in `destroy`.
+- Batch DOM reads before DOM writes in loops to avoid layout thrashing.
 
-Selectors are CSS strings or jQuery selector strings. They are stable enough to be used by multiple consumers in the same module and by the renderer. They never include runtime state in their key; if a selector depends on a runtime value, it is computed locally, not stored.
+## Safety
 
-CSS class names follow `naming.mdc`: `kebab-case` with `kdb-` prefix (`.kdb-control`, `.kdb-widget-title`, `.kdb-launchpad__item`).
+- Put user and data text in with `textContent` or attributes. `innerHTML` / `insertAdjacentHTML` only with static strings or closed enums.
+- `window.open` for generated URLs uses `noopener`; external URLs come from config (`core/config/baseLinks.js`), not inline literals.
 
-## Live DOM And jQuery References
+## CSS
 
-Live DOM nodes and jQuery wrappers live under `_KDB.runtime.<owner>.domRefs` per `runtime.mdc`:
-
-```js
-_KDB.runtime.kdbControl.domRefs = {
-  root: $(".kdb-control"),
-  launchpadToggle: rootEl.querySelector(".kdb-control__launchpad-toggle"),
-  topNSelect: rootEl.querySelector(".kdb-control__top-n-select")
-};
-```
-
-A live reference is valid only for the render cycle that created it. After a re-render or DOM rebuild, the old reference is stale and must be re-resolved from the selector. Long-lived caches of volatile DOM are forbidden.
-
-Other modules never read or write into `_KDB.runtime.<other>.domRefs`. Cross-module DOM coordination goes through the owner's public API.
-
-## Scoped Queries
-
-Queries are scoped to the smallest known root that contains the target. Top-level `document.querySelector` / global `$(...)` is forbidden inside a feature module except at its mount root.
-
-```js
-const rootEl = _KDB.runtime.kdbControl.domRefs.root[0];
-const toggleEl = rootEl.querySelector(
-  _KDB.elements.selectors.kdbControl.launchpadToggleSelector
-);
-```
-
-Scoping prevents accidental cross-module DOM clashes (two modules competing for the same generic selector) and keeps tests/harnesses deterministic.
-
-When a module legitimately needs to query the document root (modal portal, body class, drag preview layer), this is documented as an explicit exception in the module's contract per `feature-structure.mdc`.
-
-## Builder, Placer, Mutator
-
-View code splits into three responsibilities; one file per responsibility is preferred over one big render:
-
-| Responsibility | What it does | What it does not do |
-|---|---|---|
-| **Builder** | constructs a detached DOM subtree from a state snapshot | does not attach to the live tree, does not bind listeners, does not mutate state |
-| **Placer** | inserts (or removes) the built subtree at the correct mount point | does not build markup, does not mutate state |
-| **Mutator** (`syncViewFromState`) | applies minimal diffs to the already-placed DOM in response to state changes | does not rebuild from scratch, does not write back to state |
-
-Renderers are pure with respect to state: they read state, they do not write state. Effects that change state (commit, dispatch, emit) are called from controllers and effects, not from view code.
-
-Event listener binding happens at `mount` or at first build, with cleanup records stored under `_KDB.runtime.<owner>.listeners` (or via an `AbortController` per `runtime.mdc`).
-
-## Render And Rebuild
-
-A module that mounts:
-
-1. resolves the root from `_KDB.elements.selectors.<owner>.rootSelector` and stores it in `_KDB.runtime.<owner>.domRefs.root`;
-2. calls the builder with the current state snapshot;
-3. calls the placer to attach the result;
-4. binds listeners; stores cleanup records in `_KDB.runtime.<owner>.listeners`;
-5. subscribes to bus events; stores unsubscribe handles in `_KDB.runtime.<owner>.subscriptions`.
-
-A module that re-renders:
-
-- prefers calling the mutator (`syncViewFromState`) with the new snapshot;
-- rebuilds via builder + placer only when the structural change is large enough that diffing is worse than rebuild;
-- on rebuild, runs cleanup for old listeners/refs before installing new ones.
-
-A module that destroys:
-
-- aborts all `AbortController`s under `_KDB.runtime.<owner>.abortControllers`;
-- removes listeners not covered by the abort controller;
-- detaches placed DOM from the parent;
-- clears `_KDB.runtime.<owner>` entries for this module.
-
-Stale refs after re-render that are not cleared are a leak; treat them as a bug.
-
-## Event Listeners And Observers
-
-Per `runtime.mdc`:
-
-- DOM listeners are registered with cleanup records under `_KDB.runtime.<owner>.listeners`, or with `{ signal: controller.signal }` and an `AbortController` under `_KDB.runtime.<owner>.abortControllers`;
-- observers (`MutationObserver`, `ResizeObserver`, `IntersectionObserver`) live under `_KDB.runtime.<owner>.observers`;
-- event bus subscriptions live under `_KDB.runtime.<owner>.subscriptions` per `events.mdc`.
-
-DOM listener bodies are short and delegate to controller methods. Inline state mutation inside a listener body is forbidden; the listener calls `dispatch(...)` (dispatch-style) or a named controller method (named-method service).
-
-## Legacy Host References
-
-Two legacy top-level keys exist under `_KDB.elements`, each holding a live host element:
-
-- `_KDB.elements.kdbControl` — host control element
-- `_KDB.elements.kdbWidget` — host widget element
-
-These keys are documented exceptions retained for existing code only. They must not be reused as selector-config namespaces in new code; new selector configuration lives under `_KDB.elements.selectors.<module>` per "Selectors" above.
-
-New code does not introduce live host references anywhere under `_KDB.elements.*`. Host element references in new code go to `_KDB.runtime.<owner>.domRefs.host` (or a similarly named entry under runtime).
-
-When porting legacy code, migrate the host reference to `_KDB.runtime.<owner>` unless the port contract explicitly carries the legacy reference forward.
-
-## When AI Must Ask
-
-The AI must explicitly ask the user when at least one of these triggers applies:
-
-- a planned selector would live somewhere other than `_KDB.elements.selectors.<owner>.*`;
-- a planned live DOM ref would live somewhere other than `_KDB.runtime.<owner>.domRefs`;
-- a feature module legitimately needs a `document`-scoped query (modal portal, drag layer, body class);
-- a render path needs to write state or perform an effect;
-- a legacy `_KDB.elements.<owner>` live-reference would be reused in new code;
-- a listener body grows beyond a thin call into a controller method (inline business logic);
-- jQuery and vanilla DOM patterns are mixed inside one module in a way that requires a style decision.
-
-Do not ask when:
-
-- selectors and live refs follow the canonical placement above;
-- the renderer reads state and never writes it;
-- listener cleanup uses an `AbortController` already registered under `_KDB.runtime.<owner>.abortControllers`.
-
-Ask-template: *"For `<DOM thing>` I propose `<placement | scope | builder/placer/mutator split>` because `<reason>`. Acceptable?"*
-
-## Anti-Goals
-
-- No DOM or jQuery objects in `_KDB.state`.
-- No new live DOM nodes in `_KDB.elements`; selectors and class-name constants only under `_KDB.elements.selectors.*`. Legacy `_KDB.elements.kdbControl` / `_KDB.elements.kdbWidget` are documented exceptions only.
-- No global `document.querySelector` or `$(...)` calls inside feature code beyond the documented mount root.
-- No long-lived caches of volatile DOM nodes across re-renders; resolve from selectors each render cycle.
-- No state mutation inside a renderer or DOM listener body; route through `dispatch` or a named controller method.
-- No new live host references anywhere under `_KDB.elements.*`; the legacy `kdbControl` / `kdbWidget` keys are not copied or extended, and new code uses `_KDB.runtime.<owner>.domRefs`.
-- No new selector configuration under the bare `_KDB.elements.<module>` namespace; new selectors live under `_KDB.elements.selectors.<module>`.
-- No listeners, observers or subscriptions created without a registered cleanup path per `runtime.mdc`.
-- No mixing of builder, placer and mutator responsibilities in one function; split per `feature-structure.mdc`.
-
-See also: `_____________KDB3API/architecture/projectStructureRules.md`, `_____________KDB3API/architecture/stateOwnership.md`, `runtime.mdc`, `state.mdc`, `events.mdc`, `naming.mdc`, `feature-structure.mdc`.
+- Stylesheets live in `KDB3/css/` and load through the ordered list in `core/css/config/cssHrefList.js` (order matters for specificity).
+- New classes use kebab-case with the `kdb-` prefix (`kdb-control__header`). Existing `KDB_*` classes stay until a CSS workstream renames them together with their JS uses.
+- No new `<style>` injection from feature code; the per-widget scoped text styles in widgetText are the existing exception.
+- Avoid `!important` except to override Cognos host styles.

@@ -1,210 +1,66 @@
 ---
-description: KDB3 _KDB.state discipline: serializable dashboard/session state, canonical writers, grey ownership
-globs:
-  - KDB3/js/dashboard/**/*.js
-  - KDB3/js/core/bootstrap/**/*.js
-  - KDB3/js/core/services/**/*.js
-  - KDB3/js/core/cognosAPI/**/*.js
-alwaysApply: true
+description: KDB3 _KDB namespaces and _KDB.state discipline. What goes where, canonical writers, selectors vs commands, lifecycle and freshness, Cognos mirror, ownership decisions.
+globs: **/KDB3/js/**/state/**/*.js, **/KDB3/js/**/state.js, **/KDB3/js/**/selectors.js, **/KDB3/js/core/services/writeback/**/*.js
+alwaysApply: false
 ---
 
-# State Rules
+# `_KDB` namespaces and state
 
-`_KDB.state` is the central, inspectable, JSON-serializable dashboard/session state.
+## What goes where
 
-Centralised storage does not mean public write access. Every subtree has one owner and one canonical writer. Other modules read through readers/selectors or public APIs, and request changes through module APIs, dispatch/actions or events.
-
-## What Belongs In `_KDB.state`
-
-- selected filter values;
-- selected widget id and confirmed widget settings;
-- active tab or active UI region;
-- header/footer visibility;
-- table load status, modelled as separate `lifecycle` and `freshness` fields owned by `tableDataService`;
-- durable, serializable drag session state (for example source widget id and target slot id during an in-progress drag);
-- undo/redo history under `_KDB.state.history`.
-
-Transient drag implementation details such as pointer position, mouse offsets, drag-image nodes and DOM hover targets belong in `_KDB.runtime`, not in `_KDB.state`.
-
-## What Does Not Belong In `_KDB.state`
-
-- DOM nodes, jQuery objects, host element references;
-- event listeners, AbortControllers, observers;
-- timeout or interval ids;
-- Promise objects, including transient coordination Promises;
-- Cognos API objects or adapter instances;
-- functions of any kind;
-- temporary mouse, hover or drag implementation details;
-- hardcoded constants or dropdown option lists (use `_KDB.dropdownOptions.*` or `_KDB.config`);
-- Cognos dashboard spec values (use `_KDB.properties.*`);
-- Cognos API wrappers (inner ring `_KDB.cognosAPI.<theme>.<function>`; do not store them in state. Feature modules call injected `_KDB.services.cognosHost` facets, not `_KDB.cognosAPI`).
-
-Use `_KDB.runtime.<owner>` for technical runtime objects. See `runtime.mdc`.
-
-## Canonical Writers
-
-Every `_KDB.state` subtree has exactly one canonical writer. The full ownership map lives in `_____________KDB3API/architecture/stateOwnership.md`. Examples:
-
-| State subtree | Canonical writer |
+| Namespace | Holds |
 |---|---|
-| `_KDB.state.kdbControl` | kdbControl module |
-| `_KDB.state.widgets` | widgets module |
-| `_KDB.state.filters` | family container — nested writers in `stateOwnership.md` Filter sub-owners |
-| `_KDB.state.launchpad` | launchpad module |
-| `_KDB.state.tabs` | tabs module |
-| `_KDB.state.header` | header module |
-| `_KDB.state.footer` | footer module |
-| `_KDB.state.tableData` | tableDataService |
-| `_KDB.state.history` | historyService |
+| `_KDB.state.<subtree>` | JSON-serialisable dashboard/session state: selections, confirmed settings, active tab, visibility/presence status, load lifecycle, history stack |
+| `_KDB.runtime.<owner>` | technical, non-serialisable resources (see `runtime.mdc`) |
+| `_KDB.api.<module>` / `_KDB.services.<service>` | public APIs (see `module-public-api.mdc`) |
+| `_KDB.events` | the event bus and nothing else |
+| `_KDB.config` | declarative project config, labels, option lists (`_KDB.config.options`, built in `core/config`) |
+| `_KDB.properties` | values read from the Cognos property panel (`spec.json`); read-only, not state |
+| `_KDB.elements.selectors.<module>` | selector strings only (see `dom.mdc`) |
+| `_KDB.utils` | pure helpers published by `core/utils` (the kit in `core/utils/kit/` is imported via AMD instead) |
+| `_KDB.cognosAPI` | inner Cognos ring only (see `cognos-adapter.mdc`) |
+| `_KDB.data` | reserved, unused |
 
-Other modules read through readers/selectors and request changes through `_KDB.api.<owner>.<method>(...)` or dispatch/actions. Direct writes from outside the owner are forbidden:
+- No other top-level keys (`_KDB.cache`, `_KDB.tmp`, ...). `_KDB.dropdownOptions`, `_KDB.utilities` and `_KDB.generalFunctions` do not exist; do not reintroduce them. Options live in `_KDB.config.options`.
+- Do not use `_KDB` to avoid an AMD import of code. Do not replace a whole namespace from feature code. Never serialise `_KDB` as a whole.
 
-```js
-// Forbidden: foreign write.
-_KDB.state.launchpad.items.push(widget);
+`_KDB.state` never holds DOM or jQuery objects, listeners, AbortControllers, timers, observers, promises, Cognos objects, functions, pointer/hover/drag mechanics, option lists or property values.
 
-// Forbidden: named command on a dispatch-style API (see module-public-api.mdc).
-_KDB.api.launchpad.sendWidget(widgetId);
+## One canonical writer per subtree
 
-// Good: request through the owner's public API in its canonical shape.
-_KDB.api.launchpad.dispatch({ type: "launchpad/sendWidget", payload: { widgetId } });
-```
+| Subtree | Writer |
+|---|---|
+| `state.header`, `footer`, `tabs`, `launchpad`, `kdbControl`, `dragDrop`, `metricsTree`, `authoring` | the module of the same name |
+| `state.widgets.<sub>` (`base`, `settings`, `vis`, `text`, `topN`, `dataTable`) | the matching widget module |
+| `state.filters.<sub>` | the filter owner module (singleSelect, dienststelle, sicht, ...) |
+| `state.tableData`, `state.history`, `state.loading` | the service of the same name |
+| `state.rootLifecycle` | `KDB.js` |
 
-## Readers vs Commands
-
-Cross-module access splits cleanly into two patterns:
-
-- **Reads** go through named readers/selectors. They never live on `_KDB.api.<module>` as `read*` methods. Selector names referenced from declarative definitions live in a selector registry. See `module-public-api.mdc`.
-- **Commands and mutations** go through `_KDB.api.<owner>.<action>(...)` or a dispatched action.
+The full map is `architecture/stateOwnership.md`. Any other code reads through the owner's selectors and changes the subtree only by `_KDB.api.<owner>.dispatch(...)` or a service method. This applies to event subscribers, Cognos event bridges and the writeback restore as well: no "just one field" foreign writes.
 
 ```js
-const widgetId = readSelectedWidgetId(_KDB);
-const activeTabId = readActiveTabId(_KDB);
-_KDB.api.launchpad.dispatch({ type: "launchpad/sendWidget", payload: { widgetId } });
+_KDB.state.launchpad.items.push(widget);                                                   // forbidden
+_KDB.api.launchpad.dispatch({ type: "launchpad/sendWidget", payload: { widgetId: id } });  // correct
 ```
 
-Mixing patterns is only allowed when a shared service publishes a deliberate read-method as part of its service API. `tableDataService` is the canonical example, and its read contract is fixed:
+Inside the owner, reducers (`state.js`) produce the next state. Selectors are plain functions `readX(_KDB, ...)`; they return the stored value or a cheap derived value and do not deep-clone the whole subtree per call.
 
-- `readRows(tableName)` — pure cache read, no implicit loads;
-- `waitForRows(tableName)` — waits only for an in-flight reload/read operation;
-- `reloadTable(tableName, options)` — explicit reload from the source;
-- `ensureFreshRows(tableName)` — optional convenience; reloads when not ready or stale, otherwise reads.
+## Lifecycle and freshness
 
-Other modules must not invent ad hoc `read*` methods on their public API to bypass selectors.
+- `lifecycle` is a string from `.cursor/lifecycleVocabulary.md`, never `null` or a boolean. The owner lists the terms it uses in a header comment of `index.js`.
+- `freshness` (`fresh` / `stale`) is a separate field. No hybrid terms like `stale-error`.
+- Error payload fields: `errorCode`, `errorMessage` (see `error-handling.mdc`).
 
-Dispatch-style module APIs may expose a single `getState()` method that returns the module's full read-only state snapshot, alongside `mount`, `destroy`, `dispatch` and any `register*` methods. This is part of the dispatch convention defined in `module-public-api.mdc`, not an ad hoc `read*` shortcut. Granular reads still go through selectors.
+## Cognos mirror
 
-## Lifecycle Status
+Some values exist both in `_KDB.state` and in Cognos (filter selections, active tab, widget visualisation). `_KDB.state` is authoritative for our logic, Cognos for its engine. The owner that writes the mirrored value also performs the matching cognosHost facet call. After Cognos-driven changes the owner re-syncs; it does not assume every change came through our code. Mirror a multi-step Cognos update only once it is complete, never its intermediate states (see `cognos-adapter.mdc`).
 
-Lifecycle status is always an explicit string from the canonical lifecycle vocabulary. Do not use `null`, `undefined` or boolean as lifecycle status. The authoritative term list lives in:
+## Ids
 
-```txt
-_____________KDB3API/.cursor/lifecycleVocabulary.md
-```
+Ids used by restore or writeback (widget ids, tab ids) stay stable across save and restore. Tab-bound state carries the tab id, not only a position. Rebuild state on restore before handlers read it.
 
-If a needed term is missing, stop and ask the user before adding it. Do not introduce synonyms for existing terms.
+## New state and unclear ownership
 
-An orchestrator that manages lifecycle declares the allowed terms in a header comment on the orchestrator file.
+A new subtree needs: a named owner, an initial shape, selectors, and an entry in `architecture/stateOwnership.md`.
 
-Some subtrees model both lifecycle and a separate freshness dimension. Keep them as two independent fields rather than overloading one term. For example a table-data entry can have `lifecycle: "active"` and `freshness: "stale"` at the same time; do not invent a hybrid `stale` lifecycle term.
-
-## State vs Options vs Config
-
-- selected value → `_KDB.state`;
-- available options → `_KDB.dropdownOptions.*` or `_KDB.config`;
-- Cognos dashboard spec → `_KDB.properties.*`.
-
-```js
-const dimension = _KDB.state.widgets[widgetId].settings.dimension;
-const dimensionOptions = _KDB.dropdownOptions.hardcoded.dimension;
-```
-
-Mutations of `_KDB.state.widgets[...]` happen only inside the canonical writer of the widgets subtree, never inline from a consumer.
-
-## Page Context And Tabs
-
-Tab-bound state always carries both a tab handle and a tab id. Position-only references break under reorder or restore.
-
-```js
-{
-  tabHandle: 0,
-  tabId: "sales-tab",
-  filters: {}
-}
-```
-
-Do not use `pageContext` as a generic bucket for filters, widgets or tab-bound choices. The exact set of active tabs is project context and lives in the tabs module contract, not in this rule.
-
-## Cognos Mirror Sync
-
-Some values live in both `_KDB.state.*` and in Cognos itself (filter context, parameter sets, page context items, widget visualisation choices). `_KDB.state.*` is the authoritative mirror for our own logic; Cognos remains authoritative for the Cognos engine.
-
-The owner that writes a mirrored value to `_KDB.state.*` is also responsible for the corresponding injected `_KDB.services.cognosHost.<facet>` operation when Cognos must be updated. Modules do not call `_KDB.cognosAPI.*`. After Cognos-driven events that can change state, the relevant region re-synchronises rather than assuming all changes came through our setters.
-
-Cognos host event bridges may not write foreign state directly. A bridge that observes a Cognos change calls the owning module through its public API or dispatches an action; ownership applies to bridge code just as it applies to feature code. Mirror writes outside the owner-flow are forbidden even when they "would only update one field".
-
-## Stable Ids
-
-Ids needed for restore or write-back stay stable. Document the chosen id source and do not change it without an explicit reason. Widget ids must survive write-back / restore; rebuild state at restore time before handlers or subscribers read widget state.
-
-## Grey Ownership
-
-When introducing new state or moving existing state, two or more modules sometimes look like natural writers for the same subtree (for example active tab, authoring mode, selected widget id). Resolve as follows.
-
-### Default — Option C: one canonical owner
-
-Pick one canonical owner based on who initialises the value and who owns the lifecycle (cleanup, restore, validation). Other modules mutate through `_KDB.api.<owner>.<method>(...)`.
-
-### Backup — Option D: decompose
-
-If no owner clearly wins, ask whether the "shared" state is in fact two semantically different states under one name. Often it is. Split them and apply Option C to each part.
-
-Example: "active tab" may actually be (a) the Cognos engine's active tab → owned by Cognos with a mirror in `_KDB.state` written by the bridge that listens to Cognos, and (b) our internal restore/routing tab → owned by `tabs`. Two states, two owners.
-
-### Forbidden — Option B: router service
-
-Do not introduce a new service whose only purpose is to be a "neutral" owner of contested state. Services exist for genuine infrastructure (event bus, table data, history, Cognos wrappers), not as ownership escape hatches.
-
-### Limited — Option A: state at a higher level
-
-State may live at a parent level only for genuinely dashboard-wide bootstrap concerns such as `_KDB.config.language` or a dashboard-level lifecycle status. Feature state does not move up to a parent module to dodge an ownership decision.
-
-### When AI Must Ask
-
-The AI must explicitly ask the user when at least one of these triggers applies:
-
-- more than one existing module already writes something similar;
-- the value crosses multiple regions (filters + tabs + widgets, or kdbControl + widgets, etc.);
-- the value mirrors Cognos-owned state and it is unclear who triggers the sync;
-- the value is a new cross-region flag such as authoring, edit or preview mode;
-- the choice between Options C and D requires a semantic judgement ("one state or two?").
-
-Do not ask when:
-
-- the owner is already documented in `stateOwnership.md` or in an existing module's `state/` folder;
-- the state is clearly internal to one module with no cross-module reads or writes expected;
-- the change extends an already-existing subtree whose owner writes it today.
-
-Ask-template: *"This state could live at `<X>` (Option C owner) or as two separate states at `<X>` and `<Y>` (Option D decomposition). I propose `<choice>` because `<reason>`. Acceptable?"*
-
-## New Subtree Requirements
-
-A new top-level subtree under `_KDB.state` requires all of the following before it is introduced:
-
-- a named canonical writer (module or service);
-- a documented initial state shape;
-- a read/write contract (which readers/selectors expose the data, which API methods or actions mutate it);
-- an entry in `_____________KDB3API/architecture/stateOwnership.md` linking the subtree to its owner.
-
-A subtree introduced without these four elements is not accepted, even when it "obviously" belongs somewhere.
-
-## Anti-Goals
-
-- No foreign writes to another module's state subtree.
-- No use of `_KDB.state` to carry runtime resources (DOM, listeners, Promises).
-- No lifecycle status as boolean or null; no hybrid lifecycle/freshness terms.
-- No new top-level subtree under `_KDB.state` without canonical writer, initial state shape, read/write contract and ownership-map entry (see above).
-- No router services created to avoid an ownership decision.
-- No ad hoc `read*` methods on `_KDB.api.<module>` that bypass selectors.
-
-See also: `_____________KDB3API/architecture/stateOwnership.md`, `_____________KDB3API/architecture/projectStructureRules.md`.
+When two modules look like natural writers: pick the one that initialises the value and owns its lifecycle; the other calls its API. If none clearly wins, check whether it is really two different values and split them (for example Cognos' active tab mirror versus our restore target tab). Do not create a "neutral" router service just to own contested state.

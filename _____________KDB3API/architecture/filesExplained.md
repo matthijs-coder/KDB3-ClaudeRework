@@ -10,20 +10,21 @@ Project root for the canonical 2026 redesign artifacts: rules, architecture docu
 
 ## `_____________KDB3API/.cursor/rules/`
 
-The 10 MUST rules that govern all new KDB3 code:
+The rules for all KDB3 code. `core.mdc` is always applied; the topic rules load for matching files or on request:
 
 | File | Purpose |
 |---|---|
-| `kdb-object.mdc` | Allowed top-level `_KDB.*` namespaces, ownership map, access discipline; option lists live under `_KDB.config.options`. |
-| `state.mdc` | `_KDB.state` discipline, canonical writers, grey-ownership decision. |
+| `core.mdc` | Always applied. Frozen external contract, layers, namespaces, ownership, Cognos rings, API shapes, events, file size, change workflow. |
+| `state.mdc` | `_KDB` namespaces, `_KDB.state` discipline, canonical writers, unclear-ownership decisions. |
 | `runtime.mdc` | `_KDB.runtime.<owner>` per-owner technical resources and cleanup. |
-| `naming.mdc` | Identifiers, files, folders, controllers, events, actions, English-only policy. |
-| `module-public-api.mdc` | Single API surface, dispatch vs named methods, two-surfaces rule for features. |
+| `naming.mdc` | Identifiers, files, folders, events, actions, error codes; English with German domain nouns. |
+| `module-public-api.mdc` | Single API surface, dispatch vs named methods, disposed guard, tableData read contract. |
 | `events.mdc` | Event bus at `_KDB.events`, direct API vs request-events vs fact-events. |
-| `feature-structure.mdc` | Module folder layout, orchestrator/controller roles, Module Contract First workflow. |
-| `error-handling.mdc` | mandatory try/catch on named executables; reducer vs effect, error state, cross-module propagation. |
+| `feature-structure.mdc` | Module template, `index.js` skeleton, old-to-new file mapping, Phase 1 path-preserving shims. |
+| `error-handling.mdc` | try/catch only at boundaries, no log-and-rethrow, error codes, result objects. |
 | `dom.mdc` | Selectors under `_KDB.elements.selectors.<module>`, live refs under `_KDB.runtime.<owner>.domRefs`, scoped queries, builder/placer/mutator. |
-| `amd.mdc` | AMD module shape, full-compact form, no ES modules in production. |
+| `cognos-adapter.mdc` | The three Cognos rings, facet stamps, Outcome objects. |
+| `amd.mdc` | AMD module shape, no ES modules in production. |
 
 ## `_____________KDB3API/.cursor/lifecycleVocabulary.md`
 
@@ -35,10 +36,10 @@ Long-lived architecture documents that govern the project at a higher level than
 
 | File | Purpose |
 |---|---|
-| `projectStructureRules.md` | Authority document for project structure: folder layout, file size, orchestrator/controller, services vs APIs. The 10 MUST rules operationalise this. |
+| `projectStructureRules.md` | Authority document for project structure: folder layout, file size, orchestrator/controller, services vs APIs. The rules in `.cursor/rules/` operationalise this. |
 | `stateOwnership.md` | Authority document for state ownership: one canonical writer per subtree, the full ownership map referenced from `state.mdc`. |
 | `migrationContext.md` | Historical context for the redesign: what was wrong with earlier KDB versions, why the new structure exists. |
-| `openDesignCandidates.md` | Architectural ideas not yet adopted as canonical rules (e.g. `widgetBindingService`, `authoringMode` dashboard-level split, `controlDefinitions[]` data layer). Promotion requires an explicit decision and a module contract. |
+| `openDesignCandidates.md` | Architectural ideas not yet adopted as canonical rules (e.g. `widgetBindingService`, `authoringMode` dashboard-level split, `controlDefinitions[]` data layer). Promotion requires an explicit decision. |
 | `eventSubscribe.md` | Canonical catalog of all events on `_KDB.events`. An event without a catalog entry is not considered published. |
 | `kdbControl-litmustest-report.md` | Empirical outcome of the kdbControl litmustest (2026-05-12): which rules and template sections worked, where the executing AI deviated, recommended follow-ups R1–R8. |
 | `tableDataService-litmustest-report.md` | Empirical outcome of the tableDataService litmustest (2026-05-12): validation of the shared-service path (named methods on `_KDB.services.tableData`), empirical confirmation of R5+R6, new gaps G1–G4 and follow-ups R9–R13. |
@@ -50,18 +51,11 @@ Long-lived architecture documents that govern the project at a higher level than
 
 ## `_____________KDB3API/contracts/`
 
-Module contracts produced under the Module Contract First workflow per `feature-structure.mdc`. One file per module:
-
-- `_template.md` — the contract template; every new contract starts as a copy of this file.
-- `_executionSpecTemplate.md` — execution-spec template for delegated execution; required when Phase 2 (skeleton or port) is handed to a less-capable executing AI. Carries pre-flight rule-read enforcement and per-file `Rules to apply` checklists.
-- `<moduleName>.md` — one contract per planned module / service / adapter / subsystem.
-- `<moduleName>-<phase>-execution-spec.md` — execution spec for a specific phase, derived from `_executionSpecTemplate.md`.
-
-A contract precedes implementation. Bugfixes that do not change public API, ownership, state shape or events do not require a contract update.
+Reference contracts: one living contract per module, listed in `contracts/README.md`; finished work orders and deltas are in `contracts/_archive/`. The contract-per-change workflow (contracts and execution specs before implementation) is retired. Refactors and bug fixes need no contract or execution spec; changes to the frozen external contract need a short written note in the PR and explicit review (`core.mdc`).
 
 ## `KDB3/`
 
-The production code tree. AMD modules per `amd.mdc`. New code follows the 10 MUST rules; legacy code is migrated module-by-module via the Module Contract First workflow.
+The production code tree. AMD modules per `amd.mdc`. All code follows the rules in `.cursor/rules/`; modules are refactored to the module template one at a time.
 
 **JS-on-ramp = `architecture/jsModuleMap.md`.** Boot is `KDB3/js/KDB.js`. There is **no** `core/bootstrap/` folder.
 
@@ -86,21 +80,20 @@ KDB3/js/
     utils/
   dashboard/
     <feature-module>/
-      config/
-      state/
-      view/
-      effects/
-      adapters/
-      events/
-      create<Module>Controller.js
-      __orchestrator<Module>.js
+      index.js
+      state.js
+      selectors.js
+      view.js
+      effects.js
+      config.js
+      __orchestrator<Module>.js   one-line shim to index.js until Phase 2
 ```
 
-Feature `adapters/` is optional (today: tabs wrapping a cognosHost facet) and is not required for Cognos isolation. The living module list is `jsModuleMap.md`, not this sketch.
+This is the target module template (`feature-structure.mdc`); many modules still use the older `config/ state/ view/ effects/ adapters/ events/` folders plus `create<Module>Controller.js` until they are refactored. The living module list is `jsModuleMap.md`, not this sketch.
 
 ## `_______REDESIGN2/`, `_______LAATSTEORIGINAL/`, `_______KDB3/`
 
-Legacy reference trees for older redesign attempts and the original code base. Treated as reference, not as a blueprint per `migrationContext.md`. Ports always go through the Module Contract First flow; legacy code is rewritten against the new rules, not copy-pasted.
+Legacy reference trees for older redesign attempts and the original code base. Treated as reference, not as a blueprint per `migrationContext.md`. Legacy code is rewritten against the current rules, not copy-pasted.
 
 ## Adding A New Entry
 
