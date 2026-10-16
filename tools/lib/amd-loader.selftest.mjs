@@ -18,7 +18,7 @@ const buildPlan = loadAmd(at('core/services/widgetBindingPlan/buildPlan.js'));
 assert.equal(typeof buildPlan, 'function');
 
 const timers = [];
-const sleep = loadAmd(at('core/utils/sleep.js'), { stubs: { setTimeout: (fn, ms) => timers.push(ms) } });
+const { sleep } = loadAmd(at('core/utils/kit/async.js'), { stubs: { setTimeout: (fn, ms) => timers.push(ms) } });
 sleep(25);
 assert.deepEqual(timers, [25]);
 

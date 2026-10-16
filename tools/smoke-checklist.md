@@ -187,7 +187,7 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] **Waits** (`waitFor` callers):
   - Load Set A from the Parameterset dropdown and through the share URL.
   - Switch Sicht BW↔DEZPV, then confirm Dienststelle.
-  - Expected: no new fallback toasts or warnings compared with baseline, and no `WAITFOR_TIMEOUT` in the console.
+  - Expected: the set and the Dienststelle apply as on baseline, with no new fallback toasts or warnings (the callers handle `WAITFOR_TIMEOUT` silently, so a timeout shows only as a missing or late update).
 - [ ] **Readable text colour:** the kdbControl colour palette and the widget-settings colour dropdown show black/white text on light/dark swatches as on baseline.
 - [ ] **Replay keys (collector):** undo/redo once each for header text, a tab rename, a single-select filter change, a widget move and a widget-settings option. Expected: as on baseline.
 - [ ] **Full Core smoke (section 1) passes.**

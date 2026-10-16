@@ -33,7 +33,7 @@ alwaysApply: false
 ## Safety
 
 - Put user and data text in with `textContent` or attributes. `innerHTML` / `insertAdjacentHTML` only with static strings or closed enums.
-- `window.open` for generated URLs uses `noopener`; external URLs come from config (`core/config/baseLinks.js`), not inline literals.
+- `window.open` for generated URLs uses `noopener`; external URLs come from config (`links` in `core/config/dashboardSettings.js`), not inline literals.
 
 ## CSS
 

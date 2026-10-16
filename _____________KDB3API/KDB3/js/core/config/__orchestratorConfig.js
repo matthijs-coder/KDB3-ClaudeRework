@@ -40,7 +40,6 @@ define([
       visualizations: config.visualizations || {}
     };
 
-    config.options = existing.options;
     config.links = withDefaults(_dashboardSettings.links, existing.links);
     config.tables = withDefaults(_tables, existing.tables);
     config.tabs = withDefaults(_dashboardSettings.tabs, existing.tabs);
