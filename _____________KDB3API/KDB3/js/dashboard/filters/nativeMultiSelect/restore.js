@@ -3,8 +3,9 @@ define([
   "./state.js",
   "./inventory.js",
   "./hostFilterIo.js",
+  "../_core/parameterSetRun.js",
   "../../../core/utils/kit/data.js"
-], function (_config, _state, _inventory, _hostFilterIo, _data) {
+], function (_config, _state, _inventory, _hostFilterIo, _runGuard, _data) {
   "use strict";
 
   var actions = _config.actions;
@@ -14,22 +15,14 @@ define([
 
   // Rejects runs without a numeric runId and runs older than the newest one seen; stamps the accepted runId.
   function guardRun(_ctx, _payload) {
-    var payload = _payload || {};
-    var runId = payload.runId;
-    var runtime = _ctx.runtime;
-    if (typeof runId !== "number" || !isFinite(runId)) {
-      return { ok: false, diagnostics: [{ code: codes.CANCELLED, message: "NativeMultiSelect parameterSet action requires a numeric runId" }] };
-    }
-    if (typeof runtime.parameterSetRunId === "number" && runId < runtime.parameterSetRunId) {
-      return { ok: false, diagnostics: [{ code: codes.CANCELLED, message: "stale parameterSet runId " + runId + " superseded by " + runtime.parameterSetRunId }] };
-    }
-    runtime.parameterSetRunId = runId;
-    return null;
+    var rejection = _runGuard.claimParameterSetRun(_ctx.runtime, (_payload || {}).runId, {
+      invalidMessage: "NativeMultiSelect parameterSet action requires a numeric runId"
+    });
+    return rejection ? cancelledResult(rejection.message) : null;
   }
 
   function isStale(_ctx, _runId) {
-    var runtime = _ctx.runtime;
-    return typeof runtime.parameterSetRunId === "number" && _runId < runtime.parameterSetRunId;
+    return _runGuard.isStaleParameterSetRun(_ctx.runtime, _runId);
   }
 
   function cancelledResult(_message) {

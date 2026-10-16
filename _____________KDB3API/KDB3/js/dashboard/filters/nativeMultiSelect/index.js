@@ -7,9 +7,10 @@ define([
   "./tabMutation/snapshot.js",
   "./tabMutation/apply.js",
   "./tabMutation/hostScopes.js",
+  "../_core/ownerController.js",
   "../../../core/utils/kit/runtime.js",
   "../../../core/utils/kit/errors.js"
-], function (_config, _state, _commit, _history, _restore, _snapshot, _apply, _hostScopes, _runtime, _errors) {
+], function (_config, _state, _commit, _history, _restore, _snapshot, _apply, _hostScopes, _ownerController, _runtime, _errors) {
   "use strict";
 
   // Lifecycle terms for NativeMultiSelect: idle, ready, error, disposed.
@@ -36,8 +37,8 @@ define([
     });
   }
 
-  function disposedTabMutationResult(_payload) {
-    var payload = _payload || {};
+  function disposedTabMutationResult(_action) {
+    var payload = _action.payload || {};
     return Promise.resolve({
       ok: false,
       operationId: payload.operationId || null,
@@ -68,86 +69,56 @@ define([
 
   function createNativeMultiSelectController(_KDB, _filtersFacet) {
     var guard = _errors.createDisposedGuard("nativeMultiSelect");
-    var reducer = _state.createReducer();
     var runtime = _KDB.runtime.nativeMultiSelect;
+    var dispatchInternal = _ownerController.createStateWriter(_KDB, "nativeMultiSelect", _state.createReducer());
     var ctx = { _KDB: _KDB, filtersFacet: _filtersFacet, runtime: runtime, dispatchInternal: dispatchInternal };
-
-    function dispatchInternal(_action) {
-      var filtersState = _KDB.state && _KDB.state.filters;
-      if (filtersState) {
-        filtersState.nativeMultiSelect = reducer(filtersState.nativeMultiSelect, _action);
-      }
-    }
 
     function reportError(_code, _err) {
       dispatchInternal({ type: actions.ERROR, payload: { errorCode: _code, errorMessage: errorMessage(_err) } });
     }
 
-    function getState() {
+    function readState() {
       var filtersState = _KDB.state && _KDB.state.filters;
-      if (guard.isDisposed()) { return undefined; }
       return filtersState ? filtersState.nativeMultiSelect : undefined;
     }
 
-    function mount() {
-      if (guard.blocked("mount")) {
-        return false;
+    function teardown() {
+      var errors = _runtime.disposeRuntimeBuckets(runtime);
+      if (errors.length > 0) {
+        console.error("[nativeMultiSelect.destroy] runtime cleanup failed", errors);
       }
-      try {
-        dispatchInternal({ type: actions.MOUNT_READY, payload: {} });
-        return true;
-      } catch (err) {
-        console.error("[nativeMultiSelect.mount]", err);
-        reportError("NATIVE_MULTI_SELECT_MOUNT_FAILED", err);
-        return false;
-      }
+      runtime.tabMutationRunId = 0;
+      runtime.parameterSetRunId = 0;
+      runtime.tabMutationSnapshots = {};
     }
 
-    function destroy() {
-      if (guard.isDisposed()) {
-        return;
+    function route(_action) {
+      var handler = lookup(HANDLERS, _action.type);
+      if (handler) {
+        return handler(ctx, _action.payload || {});
       }
-      guard.dispose();
-      try {
-        var errors = _runtime.disposeRuntimeBuckets(runtime);
-        if (errors.length > 0) {
-          console.error("[nativeMultiSelect.destroy] runtime cleanup failed", errors);
-        }
-        runtime.tabMutationRunId = 0;
-        runtime.parameterSetRunId = 0;
-        runtime.tabMutationSnapshots = {};
-        runtime.historyReplayHandlerContribution = null;
-        dispatchInternal({ type: actions.DESTROY, payload: {} });
-      } catch (err) {
-        console.error("[nativeMultiSelect.destroy]", err);
-        reportError("NATIVE_MULTI_SELECT_DESTROY_FAILED", err);
-      }
+      dispatchInternal(_action);
+      return readState();
     }
 
-    function dispatch(_action) {
-      var action = _action || {};
-      var handler;
-      if (guard.isDisposed()) {
-        var disposed = lookup(DISPOSED_RESULTS, action.type);
-        if (disposed) { return disposed(action.payload); }
-        guard.blocked("dispatch");
-        return undefined;
-      }
-      try {
-        handler = lookup(HANDLERS, action.type);
-        if (handler) {
-          return handler(ctx, action.payload || {});
-        }
-        dispatchInternal(action);
-        return getState();
-      } catch (err) {
-        console.error("[nativeMultiSelect.dispatch]", err);
-        reportError("NATIVE_MULTI_SELECT_DISPATCH_FAILED", err);
-        return undefined;
-      }
-    }
-
-    return { mount: mount, destroy: destroy, dispatch: dispatch, getState: getState };
+    return _ownerController.createOwnerController({
+      _KDB: _KDB,
+      name: "nativeMultiSelect",
+      guard: guard,
+      reduce: dispatchInternal,
+      mount: function () { dispatchInternal({ type: actions.MOUNT_READY, payload: {} }); },
+      teardown: teardown,
+      route: route,
+      readState: readState,
+      destroyAction: actions.DESTROY,
+      clearsReplayContribution: true,
+      disposedResults: DISPOSED_RESULTS,
+      warnOnDisposedResult: false,
+      logFailure: function (_phase, _error) { console.error("[nativeMultiSelect." + _phase + "]", _error); },
+      onMountError: function (_error) { reportError("NATIVE_MULTI_SELECT_MOUNT_FAILED", _error); },
+      onDispatchError: function (_error) { reportError("NATIVE_MULTI_SELECT_DISPATCH_FAILED", _error); },
+      onDestroyError: function (_error) { reportError("NATIVE_MULTI_SELECT_DESTROY_FAILED", _error); }
+    });
   }
 
   function readHostFacet(_KDB, _name) {
@@ -156,12 +127,7 @@ define([
   }
 
   function registerNativeMultiSelect(_KDB) {
-    _KDB.state = _KDB.state || {};
-    _KDB.state.filters = _KDB.state.filters || {};
-    _KDB.api = _KDB.api || {};
-    if (!_KDB.state.filters.nativeMultiSelect) {
-      _KDB.state.filters.nativeMultiSelect = _state.initialState();
-    }
+    _ownerController.prepareOwnerNamespaces(_KDB, "nativeMultiSelect", { createInitialState: _state.initialState });
     var runtime = _runtime.ensureRuntime(_KDB, "nativeMultiSelect", {
       tabMutationRunId: 0,
       parameterSetRunId: 0,
