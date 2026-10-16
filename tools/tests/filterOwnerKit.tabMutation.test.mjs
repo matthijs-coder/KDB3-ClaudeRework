@@ -401,3 +401,22 @@ test("for plans built by tabs the owner variants differ only by the duplicate so
     }
   });
 });
+
+test("core tabMutationRun utils throw on a null runtime without logging themselves (the owner boundary logs once)", () => {
+  const utils = load("core/utils/filters/tabMutationRun/guardTabMutationRun.js");
+  const ledger = load("core/utils/filters/tabMutationRun/tabMutationSnapshots.js");
+  logged.length = 0;
+  assert.throws(() => utils.guardRun(null, { runId: 1, operationId: "o" }, { ensureRunIdDefault0: true }), TypeError);
+  assert.throws(() => utils.isStale(undefined, { runId: 1 }, { staleMode: "pinned" }), TypeError);
+  assert.throws(() => ledger.readSnapshot(null, "o"), TypeError);
+  assert.throws(() => ledger.writeSnapshot(null, "o", {}), TypeError);
+  assert.throws(() => ledger.deleteSnapshot(null, "o"), TypeError);
+  assert.equal(logged.length, 0);
+  const runtime = {};
+  ledger.writeSnapshot(runtime, 7, { runId: 1 });
+  assert.deepEqual(runtime, { tabMutationRunId: 0, tabMutationSnapshots: { 7: { runId: 1 } } });
+  assert.deepEqual(ledger.readSnapshot(runtime, "7"), { runId: 1 });
+  assert.equal(ledger.readSnapshot(runtime, "8"), null);
+  ledger.deleteSnapshot(runtime, 7);
+  assert.deepEqual(runtime.tabMutationSnapshots, {});
+});
