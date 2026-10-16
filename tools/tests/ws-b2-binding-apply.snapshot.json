@@ -1851,6 +1851,118 @@
    "timers": [],
    "timerScopeId": "applyBinding:w1:7"
   },
+  "lineRenderDeferredPlainSignal": {
+   "status": "success",
+   "mirrorPatch": {"visualizationType":"Line","dimension":"default","datasourceId":"ds1","datasourceName":"Personal_KDB","topN":"default"},
+   "diagnostics": {
+    "service": "widgetBindingApply",
+    "operation": "applyBinding",
+    "targetWidgetId": "w1",
+    "targetKind": "vis",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "reason": "contentCreate",
+    "completedSteps": [
+     "validateInputs",
+     "readCurrentVisType",
+     "setDatasourceInitial",
+     "setVisType",
+     "clearSlotsAndFilters",
+     "setDatasourceAfterClear",
+     "applySlots",
+     "removeManagedFilters",
+     "applyLocalFilters",
+     "renderWidget",
+     "buildSuccessResult"
+    ],
+    "failedStep": null,
+    "skippedSteps": ["applyTopBottom","waitRenderComplete"],
+    "errorCode": null,
+    "errorMessage": null,
+    "emptyMode": null,
+    "emptyReason": null,
+    "timedOut": false,
+    "aborted": false,
+    "warnings": [],
+    "cognos": {"currentVisType":"Bar","datasourceId":"ds1","desiredVisType":"Line","appliedSlotCount":3,"appliedFilterCount":3}
+   },
+   "calls": [
+    ["getVisType","w1"],
+    ["setDataSource","w1","ds1",{"signal":"[signal]"}],
+    ["setVisType","w1","Line",{"signal":"[signal]"}],
+    ["clearAllSlots","w1",{"signal":"[signal]"}],
+    ["clearAllLocalFilters","w1",{"signal":"[signal]"}],
+    ["setDataSource","w1","ds1",{"signal":"[signal]"}],
+    ["addDataItemsToSlot","w1","values",["[Personal_KDB_TM1].[KDB Kennzahlen].[K1]"],{"signal":"[signal]"}],
+    ["sortDataItemInSlot","w1","values","[Personal_KDB_TM1].[KDB Kennzahlen].[K1]","ascending",{"signal":"[signal]","priority":1}],
+    ["addDataItemsToSlot","w1","categories",["[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"],{"signal":"[signal]"}],
+    ["sortDataItemInSlot","w1","categories","[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]","ascending",{"signal":"[signal]","priority":1}],
+    ["addDataItemsToSlot","w1","series",["[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"],{"signal":"[signal]"}],
+    ["sortDataItemInSlot","w1","series","[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]","ascending",{"signal":"[signal]","priority":1}],
+    ["removeLocalFilter","w1",{"itemId":"[old].[managed]"},{"signal":"[signal]"}],
+    [
+     "addOrReplaceLocalFilter",
+     "w1",
+     "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+     {"values":["Stichtag"]},
+     null,
+     {"signal":"[signal]"}
+    ],
+    [
+     "addOrReplaceLocalFilter",
+     "w1",
+     "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+     {
+      "exclude": false,
+      "values": [],
+      "conditionsInfo": {
+       "excludedValues": [],
+       "conditions": {
+        "and": [
+         {
+          "not": {"operator":"endswith","itemId":"[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]","ignoreCase":true,"values":["Gesamt"],"valueType":"display"}
+         },
+         {
+          "not": {"operator":"endswith","itemId":"[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]","ignoreCase":true,"values":["ALLE"],"valueType":"display"}
+         }
+        ]
+       }
+      },
+      "action": "keepexclude"
+     },
+     null,
+     {"signal":"[signal]"}
+    ],
+    [
+     "addOrReplaceLocalFilter",
+     "w1",
+     "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+     {
+      "exclude": false,
+      "values": [],
+      "conditionsInfo": {
+       "excludedValues": [],
+       "conditions": {
+        "and": [
+         {
+          "not": {"operator":"endswith","itemId":"[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]","ignoreCase":true,"values":["Gesamt"],"valueType":"display"}
+         },
+         {
+          "not": {"operator":"endswith","itemId":"[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]","ignoreCase":true,"values":["ALLE"],"valueType":"display"}
+         }
+        ]
+       }
+      },
+      "action": "keepexclude"
+     },
+     null,
+     {"signal":"[signal]"}
+    ],
+    ["renderWidget","w1",{"signal":"[signal]"}]
+   ],
+   "timers": [],
+   "timerScopeId": "applyBinding:w1:7"
+  },
   "lineRenderNoStart": {
    "status": "success",
    "mirrorPatch": {"visualizationType":"Line","dimension":"default","datasourceId":"ds1","datasourceName":"Personal_KDB","topN":"default"},

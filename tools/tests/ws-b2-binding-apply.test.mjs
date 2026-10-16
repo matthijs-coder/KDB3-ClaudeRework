@@ -365,6 +365,11 @@ const PATH_CASES = {
     plan: "line",
     options: (plan, ctx) => baseOptions(plan, ctx, { renderWait: { waitForStart: false, waitForComplete: false } }),
   },
+  lineRenderDeferredPlainSignal: {
+    plan: "line",
+    host: { signal: { aborted: false } },
+    options: (plan, ctx) => baseOptions(plan, ctx, { renderWait: { waitForStart: false, waitForComplete: false } }),
+  },
   lineRenderNoStart: {
     plan: "line",
     options: (plan, ctx) => baseOptions(plan, ctx, { renderWait: { waitForStart: false, intervalMs: 25 } }),
