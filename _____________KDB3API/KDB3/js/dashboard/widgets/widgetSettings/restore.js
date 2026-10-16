@@ -1,5 +1,5 @@
 define([
-  "./config/dropdownDefaults.js",
+  "../../../core/config/dropdownDefaults.js",
   "./runtime.js",
   "./state.js",
   "./seed.js",
@@ -9,7 +9,8 @@ define([
   "./view/controls.js",
   "./view/optionMarking.js",
   "./view/resolveWidgetPlacementContext.js",
-  "../widgetVis/config/visTypes/resolveVisTypeIdentity.js"
+  "../widgetVis/config/visTypes/resolveVisTypeIdentity.js",
+  "../../../core/config/visualizations/visTypeRules.js"
 ], function (
   _dropdownDefaults,
   _runtime,
@@ -21,7 +22,8 @@ define([
   _controls,
   _optionMarking,
   _placementContext,
-  _resolveVisTypeIdentity
+  _resolveVisTypeIdentity,
+  _visTypeRules
 ) {
   "use strict";
 
@@ -41,7 +43,6 @@ define([
     backgroundColor: _dropdownDefaults.backgroundColor.useValue
   };
   const VIS_FLAG_FIELDS = [["vals", "showValues"], ["iter", "iterator"], ["wzbar", "zoom"], ["vcap", "valueCaption"]];
-  const ALL_GRAINS = ["stichtag", "jahr", "jahrStichtag", "stichtagProJahrH", "stichtagProJahrV"];
 
   function hasField(entry, field) {
     return Object.prototype.hasOwnProperty.call(entry || {}, field);
@@ -192,7 +193,7 @@ define([
         commitDirect(_KDB, _widgetId, pair[1], _entry[pair[0]] === 1);
       }
     });
-    if (hasField(_entry, "grp") && isAllowedGrain(_resolveVisTypeIdentity.resolveVisPropBucketKey(_entry.type, _KDB), _entry.grp)) {
+    if (hasField(_entry, "grp") && _visTypeRules.isAllowedGrain(_resolveVisTypeIdentity.resolveVisPropBucketKey(_entry.type, _KDB), _entry.grp)) {
       commitDirect(_KDB, _widgetId, "grouping", _entry.grp);
     }
     stampPanelIfMounted(_KDB, _widgetId);
@@ -243,19 +244,6 @@ define([
 
   function commitDirect(_KDB, _widgetId, _kind, _value) {
     _state.commitWidgetSettingValue(_KDB, _widgetId, _kind, _value, { nextValue: _value });
-  }
-
-  function isAllowedGrain(_bucket, _grain) {
-    if (_bucket === "List") {
-      return _grain === "jahr" || _grain === "jahrStichtag";
-    }
-    if (_bucket === "com.ibm.vis.custom.prognoseyearlinechart") {
-      return false;
-    }
-    if (_bucket === "pie" || _bucket === "StackedBar" || _bucket === "StackedColumn") {
-      return _grain === "jahr" || _grain === "jahrStichtag" || _grain === "stichtagProJahrH" || _grain === "stichtagProJahrV";
-    }
-    return ALL_GRAINS.indexOf(_grain) >= 0;
   }
 
   function stampPanelIfMounted(_KDB, _widgetId) {

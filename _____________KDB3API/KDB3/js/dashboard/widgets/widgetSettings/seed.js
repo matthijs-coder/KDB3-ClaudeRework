@@ -1,7 +1,7 @@
 define([
   "./config.js",
   "./config/selectors.js",
-  "./config/dropdownDefaults.js",
+  "../../../core/config/dropdownDefaults.js",
   "./runtime.js",
   "./state.js",
   "./seedApply.js",

@@ -1,4 +1,4 @@
-define([], function () {
+define(["../config.js"], function (_config) {
   "use strict";
 
   function isNonEmptyStringArray(_value) {
@@ -111,7 +111,8 @@ define([], function () {
     var customLabel = options.customLabel;
     var customLabelColumnId = customLabel && typeof customLabel.columnId === "string" ? customLabel.columnId : "";
     var sorting = dataTableConfig.sorting || {};
-    var maxSpecs = _slotName === "grid_cols" ? 2 : columnIds.length;
+    var maxSortSpecs = _config.slotRule(_slotName).maxSortSpecs;
+    var maxSpecs = typeof maxSortSpecs === "number" ? maxSortSpecs : columnIds.length;
     var sortSpecs = buildSpecsFromSorting(columnIds, sorting, maxSpecs);
     var sortByColumn = sortSpecs.length === 0 && columnIds.length === 1 ? columnIds[0] : null;
 

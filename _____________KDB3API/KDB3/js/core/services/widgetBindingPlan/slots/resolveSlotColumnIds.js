@@ -1,11 +1,10 @@
 define([
+  "../config.js",
   "../filters/filterItemIds.js",
   "../defaults/normalizeDefaultValue.js",
   "./slotComposition.js",
-], function (_filterItemIds, _normalizeDefaultValue, _slotComposition) {
+], function (_config, _filterItemIds, _normalizeDefaultValue, _slotComposition) {
   "use strict";
-
-  var PIE = { pie: 1, donut: 1, doughnut: 1, treemap: 1 };
 
   function shouldInjectHierarchyIntoSlot(_context) {
     return _context.targetKind !== "topNHelper";
@@ -44,8 +43,8 @@ define([
     var dimKey = _normalizeDefaultValue(dataConfig.dimension);
     var selectedDimensionId = null;
     var source = "default";
-    var visTypeKey = (dataConfig.visualizationType || "").toLowerCase();
-    var isPieVis = !!PIE[visTypeKey];
+    var dimensionOnlySlot = _config.dimensionOnlySlot(dataConfig.visualizationType);
+    var isPieVis = dimensionOnlySlot !== null;
 
     if (catalogDimensionMissing(dim, dimKey, dimAffects, slotName)) {
       return { ok: false, errorCode: "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_ITEM" };
@@ -67,7 +66,7 @@ define([
         }
       }
     }
-    if (isPieVis && slotName === "categories" && dim && dim.entry.itemId) {
+    if (isPieVis && slotName === dimensionOnlySlot && dim && dim.entry.itemId) {
       columnIds = [String(dim.entry.itemId)];
       source = "dimension";
     }
@@ -76,7 +75,7 @@ define([
       var hierarchyPolicy = _slotComposition.resolveHierarchyPolicy(slotPolicy, slotName);
       if (hierarchyPolicy) {
         columnIds = _slotComposition.insertHierarchyId(columnIds, hierarchyId, hierarchyPolicy, selectedDimensionId);
-        source = slotName === "grid_cols" ? "mixed" : (source === "default" ? "hierarchy" : "mixed");
+        source = _config.slotRule(slotName).hierarchyMakesSourceMixed ? "mixed" : (source === "default" ? "hierarchy" : "mixed");
       } else if (!isPieVis && (dimAffects === slotName || !dimAffects || dimAffects === "default")) {
         if (columnIds.indexOf(hierarchyId) < 0) {
           columnIds.push(hierarchyId);

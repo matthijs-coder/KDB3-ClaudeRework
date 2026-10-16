@@ -1,10 +1,14 @@
-define(["./config.js", "./visTypes.js"], function (_config, _visTypes) {
+define([
+  "./config.js",
+  "./visTypes.js",
+  "../../../core/config/dropdownDefaults.js"
+], function (_config, _visTypes, _dropdownDefaults) {
   "use strict";
 
   var VIS_CONTROL_DEFAULTS = {
-    dimension: "none",
-    visType: "line",
-    topNChoice: "none"
+    dimension: _dropdownDefaults.dimension.useValue,
+    visType: _dropdownDefaults.visualization.useValue,
+    topNChoice: _dropdownDefaults.topN.useValue
   };
 
   function copyOptionalVisOverrides(_source, _target) {

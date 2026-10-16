@@ -1,6 +1,7 @@
 define([
+  "../config.js",
   "../defaults/normalizeDefaultValue.js",
-], function (_normalizeDefaultValue) {
+], function (_config, _normalizeDefaultValue) {
   "use strict";
 
   function moveElement(_ids, _fromIndex, _toIndex) {
@@ -20,18 +21,17 @@ define([
 
   function resolveDimensionPolicy(_slotPolicy, _slotName, _dimAffects) {
     if (_slotPolicy && _slotPolicy.dimension) { return _slotPolicy.dimension; }
-    if (_slotName === "grid_cols" && _dimAffects === "grid_cols") {
-      return { mode: "prependThenMoveFirstToIndex", targetIndex: 2 };
+    var rule = _config.slotRule(_slotName);
+    if (rule.defaultDimensionPolicy && _dimAffects === _slotName) {
+      return Object.assign({}, rule.defaultDimensionPolicy);
     }
     return null;
   }
 
   function resolveHierarchyPolicy(_slotPolicy, _slotName) {
     if (_slotPolicy && _slotPolicy.hierarchy) { return _slotPolicy.hierarchy; }
-    if (_slotName === "grid_cols") {
-      return { mode: "insertBeforeSelectedDimensionOrBeforeLast" };
-    }
-    return null;
+    var rule = _config.slotRule(_slotName);
+    return rule.defaultHierarchyPolicy ? Object.assign({}, rule.defaultHierarchyPolicy) : null;
   }
 
   function applyDimensionComposition(_columnIds, _policy) {

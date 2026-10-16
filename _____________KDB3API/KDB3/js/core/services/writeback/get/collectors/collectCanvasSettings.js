@@ -1,14 +1,41 @@
 define([
   "../../../../utils/convertUnitToPx.js",
   "../../../../../dashboard/canvas/kdbControl/state/initialState.js",
-], function (_convertUnitToPx, _kdbControlInitialState) {
+  "../../schema/v3Defaults.js",
+], function (_convertUnitToPx, _kdbControlInitialState, _v3Defaults) {
   "use strict";
 
-  const PANEL_COLOUR_KEYS = {
-    bg: "backgroundColor",
-    btn: "buttonColor",
-    act: "actionButtonColor",
-    inBg: "innerBackgroundColor",
+  // Owner state names come from SETT_KEY_CATALOG.ownerStatePath ("settings.<section>[.<group>].<field>"),
+  // so the v3 catalog is the only place that spells them.
+  const CATALOG = _v3Defaults.SETT_KEY_CATALOG;
+
+  function ownerPathParts(spec) {
+    return spec.ownerStatePath.split(".");
+  }
+
+  function ownerFields(group) {
+    const fields = {};
+    Object.keys(group).forEach(function (v3Key) {
+      const parts = ownerPathParts(group[v3Key]);
+      fields[v3Key] = parts[parts.length - 1];
+    });
+    return fields;
+  }
+
+  function sectionOf(group) {
+    return ownerPathParts(group[Object.keys(group)[0]])[1];
+  }
+
+  function newwgOwnerGroup(group) {
+    return ownerPathParts(group[Object.keys(group)[0]])[2];
+  }
+
+  const SECTION = { dash: sectionOf(CATALOG.dash), panel: sectionOf(CATALOG.panel), newwg: sectionOf(CATALOG.newwg.vis) };
+  const DASH = ownerFields(CATALOG.dash);
+  const PANEL_COLOUR_KEYS = ownerFields(CATALOG.panel);
+  const NEWWG = {
+    vis: { group: newwgOwnerGroup(CATALOG.newwg.vis), fields: ownerFields(CATALOG.newwg.vis) },
+    txt: { group: newwgOwnerGroup(CATALOG.newwg.txt), fields: ownerFields(CATALOG.newwg.txt) },
   };
 
   // GET collector for v3 `canv`/`sett` per contracts/writeback.md §4.1/§4.1.1.
@@ -32,20 +59,20 @@ define([
     const defaults = _kdbControlInitialState().settings;
     const result = {};
 
-    const canv = collectCanv(settings.dashboard, defaults.dashboard);
+    const canv = collectCanv(settings[SECTION.dash], defaults[SECTION.dash]);
     if (canv) {
       result.canv = canv;
     }
     const sett = {};
-    const dash = collectDash(settings.dashboard, defaults.dashboard);
+    const dash = collectDash(settings[SECTION.dash], defaults[SECTION.dash]);
     if (dash) {
       sett.dash = dash;
     }
-    const panel = collectColourGroup(settings.controlPanel, defaults.controlPanel, PANEL_COLOUR_KEYS);
+    const panel = collectColourGroup(settings[SECTION.panel], defaults[SECTION.panel], PANEL_COLOUR_KEYS);
     if (panel) {
       sett.panel = panel;
     }
-    const newwg = collectNewwg(settings.defaultsNew, defaults.defaultsNew);
+    const newwg = collectNewwg(settings[SECTION.newwg], defaults[SECTION.newwg]);
     if (newwg) {
       sett.newwg = newwg;
     }
@@ -59,10 +86,10 @@ define([
     if (!dashboard) {
       return null;
     }
-    const width = _convertUnitToPx(dashboard.width);
-    const height = _convertUnitToPx(dashboard.height);
-    const defaultWidth = _convertUnitToPx(dashboardDefaults.width);
-    const defaultHeight = _convertUnitToPx(dashboardDefaults.height);
+    const width = _convertUnitToPx(dashboard[DASH.w]);
+    const height = _convertUnitToPx(dashboard[DASH.h]);
+    const defaultWidth = _convertUnitToPx(dashboardDefaults[DASH.w]);
+    const defaultHeight = _convertUnitToPx(dashboardDefaults[DASH.h]);
     if (width === null || height === null) {
       return null;
     }
@@ -77,13 +104,13 @@ define([
       return null;
     }
     const dash = {};
-    if (!coloursEqual(dashboard.backgroundColor, dashboardDefaults.backgroundColor)) {
-      dash.bg = dashboard.backgroundColor;
+    if (!coloursEqual(dashboard[DASH.bg], dashboardDefaults[DASH.bg])) {
+      dash.bg = dashboard[DASH.bg];
     }
-    if (dashboard.hideWidgetSettingsButtons === false) {
+    if (dashboard[DASH.hidWs] === false) {
       dash.hidWs = 0;
     }
-    if (dashboard.isDeveloperMode === true) {
+    if (dashboard[DASH.devOn] === true) {
       dash.devOn = 1;
     }
     return Object.keys(dash).length > 0 ? dash : null;
@@ -108,34 +135,34 @@ define([
       return null;
     }
     const newwg = {};
-    const vis = collectNewwgEntry(defaultsNew.visualization, defaultsNewDefaults.visualization);
+    const vis = collectNewwgEntry(defaultsNew[NEWWG.vis.group], defaultsNewDefaults[NEWWG.vis.group], NEWWG.vis.fields);
     if (vis) {
       newwg.vis = vis;
     }
-    const txt = collectNewwgEntry(defaultsNew.comment, defaultsNewDefaults.comment);
+    const txt = collectNewwgEntry(defaultsNew[NEWWG.txt.group], defaultsNewDefaults[NEWWG.txt.group], NEWWG.txt.fields);
     if (txt) {
       newwg.txt = txt;
     }
     return Object.keys(newwg).length > 0 ? newwg : null;
   }
 
-  function collectNewwgEntry(entry, entryDefaults) {
+  function collectNewwgEntry(entry, entryDefaults, fields) {
     if (!entry) {
       return null;
     }
     const result = {};
-    const width = _convertUnitToPx(entry.width);
-    const defaultWidth = _convertUnitToPx(entryDefaults.width);
+    const width = _convertUnitToPx(entry[fields.w]);
+    const defaultWidth = _convertUnitToPx(entryDefaults[fields.w]);
     if (width !== null && width !== defaultWidth) {
       result.w = width;
     }
-    const height = _convertUnitToPx(entry.height);
-    const defaultHeight = _convertUnitToPx(entryDefaults.height);
+    const height = _convertUnitToPx(entry[fields.h]);
+    const defaultHeight = _convertUnitToPx(entryDefaults[fields.h]);
     if (height !== null && height !== defaultHeight) {
       result.h = height;
     }
-    if (!coloursEqual(entry.backgroundColor, entryDefaults.backgroundColor)) {
-      result.bg = entry.backgroundColor;
+    if (!coloursEqual(entry[fields.bg], entryDefaults[fields.bg])) {
+      result.bg = entry[fields.bg];
     }
     return Object.keys(result).length > 0 ? result : null;
   }
