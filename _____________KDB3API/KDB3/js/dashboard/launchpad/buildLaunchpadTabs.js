@@ -45,6 +45,7 @@ define([], function () {
   function readTabsSnapshotFromApi(_KDB) {
     const tabsApi = _KDB && _KDB.api ? _KDB.api.tabs : null;
     if (!tabsApi || typeof tabsApi.getState !== "function") { return undefined; }
+    // Intentionally keeps the old log-and-continue behaviour (no snapshot on failure).
     try {
       return tabsApi.getState();
     } catch (err) {
@@ -59,6 +60,7 @@ define([], function () {
     }
     const tabsFacet = readFacet(_KDB, "tabsFacet");
     if (!tabsFacet || typeof tabsFacet.listTabs !== "function") { return []; }
+    // Facet reads intentionally keep the old log-and-continue behaviour (empty result on failure).
     try {
       const outcome = tabsFacet.listTabs();
       return outcome && outcome.ok === true && Array.isArray(outcome.data) ? layoutItemsFromTabs(outcome.data) : [];
@@ -70,12 +72,13 @@ define([], function () {
 
   function layoutItemsFromTabs(descriptors) {
     const items = [];
-    descriptors.forEach(function (descriptor) {
+    for (let i = 0; i < descriptors.length; i += 1) {
+      const descriptor = descriptors[i];
       const id = descriptor ? descriptor.id || descriptor.tabId || null : null;
-      if (!id) { return; }
+      if (!id) { continue; }
       const slot = Number.isFinite(Number(descriptor.index)) ? Number(descriptor.index) : items.length;
       items[slot] = { id: id, tabId: descriptor.tabId || id, pageId: descriptor.pageId || id };
-    });
+    }
     return items;
   }
 
@@ -101,9 +104,9 @@ define([], function () {
     };
 
     if (Array.isArray(tabsConfig)) {
-      tabsConfig.forEach(function (tabConfig, index) { collect(tabConfig, index, true); });
+      for (let i = 0; i < tabsConfig.length; i += 1) { collect(tabsConfig[i], i, true); }
     } else if (tabsConfig && Array.isArray(tabsConfig.tabs)) {
-      tabsConfig.tabs.forEach(function (tabConfig, index) { collect(tabConfig, index, true); });
+      for (let i = 0; i < tabsConfig.tabs.length; i += 1) { collect(tabsConfig.tabs[i], i, true); }
     } else if (tabsConfig && typeof tabsConfig === "object") {
       Object.keys(tabsConfig).forEach(function (key) { collect(tabsConfig[key], Number(key), false); });
     }
@@ -163,12 +166,12 @@ define([], function () {
       : Object.keys(byIndex).sort(compareNumbers);
     const tabs = [];
 
-    order.forEach(function (key) {
-      const tabState = byIndex[key] || {};
+    for (let i = 0; i < order.length; i += 1) {
+      const tabState = byIndex[order[i]] || {};
       if (helperTabIds.indexOf(tabState.tabId || tabState.id) === -1) {
         tabs.push(buildTabDescriptor(tabState, tabs.length));
       }
-    });
+    }
     return tabs;
   }
 
@@ -195,18 +198,19 @@ define([], function () {
     const descriptors = readCanvasDescriptors(_KDB);
     const tabs = [];
     const seen = {};
-    descriptors.forEach(function (descriptor) {
-      const tabId = descriptor && descriptor.tabId ? descriptor.tabId : null;
-      if (!tabId || seen[tabId]) { return; }
+    for (let i = 0; i < descriptors.length; i += 1) {
+      const tabId = descriptors[i] && descriptors[i].tabId ? descriptors[i].tabId : null;
+      if (!tabId || seen[tabId]) { continue; }
       seen[tabId] = true;
       tabs.push({ aliases: [tabId], childIndex: tabs.length, corTabIndex: tabs.length, pageId: tabId, tabId: tabId });
-    });
+    }
     return tabs;
   }
 
   function readCanvasDescriptors(_KDB) {
     const canvasFacet = readFacet(_KDB, "canvasFacet");
     if (!canvasFacet || typeof canvasFacet.listCanvasWidgets !== "function") { return []; }
+    // Facet reads intentionally keep the old log-and-continue behaviour (empty result on failure).
     try {
       const outcome = canvasFacet.listCanvasWidgets();
       return outcome && outcome.ok === true && Array.isArray(outcome.data) ? outcome.data : [];

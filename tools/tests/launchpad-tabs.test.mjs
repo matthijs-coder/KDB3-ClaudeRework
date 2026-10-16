@@ -153,6 +153,43 @@ test("helper tab: snapshot helperTab wins over config helper roles", () => {
   assert.equal(result.helperTabPageId, "snap-page");
 });
 
+test("helper tab: truthy snapshot helperTab without an id falls through to config helper roles", () => {
+  const tabsConfig = [{ role: "dashboard" }, { role: "helper", tabId: "cfg-h" }];
+  for (const helperTab of [{}, { pageId: "only-page" }, { page: "p" }]) {
+    assert.deepStrictEqual(run({ tabsConfig, tabsSnapshot: { helperTab }, layoutItems: layout("L0", "L1") }), {
+      helperTabIds: ["cfg-h"],
+      helperTabPageId: "cfg-h",
+      tabs: [tab("L0", 0, 0)]
+    });
+  }
+});
+
+test("sparse arrays: holes in config arrays, presentationOrder and canvas data behave like index loops", () => {
+  const sparseConfig = [{ role: "dashboard" }, , { role: "dashboard" }]; // eslint-disable-line no-sparse-arrays
+  assert.deepStrictEqual(run({ tabsConfig: sparseConfig, layoutItems: layout("L0", "L1", "L2") }).tabs, [
+    tab("L0", 0, 0), tab("L1", 1, 1), tab("L2", 2, 2)
+  ]);
+  const wrapped = { tabs: [, { role: "helper" }] }; // eslint-disable-line no-sparse-arrays
+  assert.deepStrictEqual(run({ tabsConfig: wrapped, layoutItems: layout("L0", "L1") }), {
+    helperTabIds: ["tab-1"],
+    helperTabPageId: "tab-1",
+    tabs: [tab("L0", 0, 0)]
+  });
+  const presentationOrder = ["0", , "1"]; // eslint-disable-line no-sparse-arrays
+  const byIndex = { 0: { tabId: "a" }, 1: { tabId: "b" } };
+  assert.deepStrictEqual(run({ tabsSnapshot: { presentationOrder, byIndex } }).tabs, [
+    tab("a", 0, 0), tab("tab-1", 1, 1), tab("b", 2, 2)
+  ]);
+  const data = [{ tabId: "c1" }, , { tabId: "c2" }]; // eslint-disable-line no-sparse-arrays
+  const canvas = { listCanvasWidgets: () => ({ ok: true, data }) };
+  assert.deepStrictEqual(run({}, facetsKDB({ canvas })).tabs, [tab("c1", 0), tab("c2", 1)]);
+  const tabsFacet = { listTabs: () => ({ ok: true, data: [{ id: "x0", index: 0 }, , { id: "x2", index: 2 }] }) }; // eslint-disable-line no-sparse-arrays
+  assert.deepStrictEqual(
+    run({ tabsConfig: [{ role: "dashboard" }, { role: "dashboard" }, { role: "dashboard" }] }, facetsKDB({ tabs: tabsFacet })).tabs,
+    [tab("x0", 0, 0), tab("x2", 2, 1)]
+  );
+});
+
 test("config array form: dashboard/main/undefined roles map to layout items, helper role is skipped", () => {
   const tabsConfig = [
     { role: "main" },
