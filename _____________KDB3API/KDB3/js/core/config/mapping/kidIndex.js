@@ -113,15 +113,10 @@ define(["./parameterMap.js"], function (_parameterMap) {
   }
 
   function findMissingRequiredKeys() {
-    try {
-      const raw = _parameterMap && typeof _parameterMap === "object" ? _parameterMap : {};
-      return REQUIRED_KEYS.filter(function (key) {
-        return typeof raw[key] !== "string" || raw[key].trim() === "";
-      });
-    } catch (error) {
-      console.error("[kidIndex.findMissingRequiredKeys] failed", error);
-      throw error;
-    }
+    const raw = _parameterMap && typeof _parameterMap === "object" ? _parameterMap : {};
+    return REQUIRED_KEYS.filter(function (key) {
+      return typeof raw[key] !== "string" || raw[key].trim() === "";
+    });
   }
 
   function getParameterMappingIndex(_KDB) {
@@ -129,13 +124,8 @@ define(["./parameterMap.js"], function (_parameterMap) {
   }
 
   function resolveRuntimePackageKey(_KDB) {
-    try {
-      const index = getParameterMappingIndex(_KDB);
-      return index && index.package ? index.package.pkg : null;
-    } catch (error) {
-      console.error("[kidIndex.resolveRuntimePackageKey] failed", error);
-      throw error;
-    }
+    const index = getParameterMappingIndex(_KDB);
+    return index && index.package ? index.package.pkg : null;
   }
 
   return Object.freeze({

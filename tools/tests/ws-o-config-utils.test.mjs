@@ -134,6 +134,13 @@ test("config: externally imported paths keep their export shape", () => {
   assert.ok(load("core/config/mapping/bwOldToNewMap.js"));
 });
 
+test("kidIndex: required keys present, package key resolved", () => {
+  const kid = createLoader()("core/config/mapping/kidIndex.js");
+  assert.deepEqual(kid.findMissingRequiredKeys(), []);
+  assert.equal(typeof kid.resolveRuntimePackageKey({}), "string");
+  assert.equal(kid.getParameterMappingIndex({}).package.pkg, kid.resolveRuntimePackageKey({}));
+});
+
 // ------------------------------------------------------------------- utils
 
 test("waitFor: resolves the value, honours the predicate", async () => {
