@@ -48,8 +48,8 @@ define([
     dispatchToWidgetVis(_KDB, "widgetVis/disposeWidgetRuntime", _request);
   }
 
-  // A removed owner gives up its TopN helper claim. Not awaited: the helper clear can render for seconds and the next
-  // claimant of the helper aborts and awaits it.
+  // A removed owner gives up its TopN helper claim. Not awaited: remove does not wait for the helper clear (up to the 5 s
+  // render wait). The claim is held until that clear finishes, so another owner resolving in that window finds no free helper.
   function dispatchWidgetTopNCleanup(_KDB, _request) {
     const widgetId = _request && _request.widgetId;
     dispatchFireAndForget("dispatchWidgetTopNCleanup", _KDB, "widgetTopN", {
