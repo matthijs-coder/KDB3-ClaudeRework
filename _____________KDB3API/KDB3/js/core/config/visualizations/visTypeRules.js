@@ -6,8 +6,8 @@ define([
   // Single source for vis-type identity and grain rules (aliases, grains, allowed grains per bucket).
   // The type -> bucket table stays in bindingSpecsVisTypes.visualizationTypeToBucket (also served through
   // _KDB.config.visualizations); this module adds no keys to that config because its hash is pinned by goldens.
-  var GRAINS = ["stichtag", "jahr", "jahrStichtag", "stichtagProJahrH", "stichtagProJahrV"];
-  var ALIASES = {
+  var GRAINS = Object.freeze(["stichtag", "jahr", "jahrStichtag", "stichtagProJahrH", "stichtagProJahrV"]);
+  var ALIASES = Object.freeze({
     line: "Line",
     pie: "Pie",
     stackedbar: "StackedBar",
@@ -16,16 +16,16 @@ define([
     prognose: "Prognose",
     "com.ibm.vis.custom.prognoseyear": "Prognose",
     "com.ibm.vis.custom.prognoseyearlinechart": "Prognose"
-  };
-  var PIE_STACKED_GRAINS = ["jahr", "jahrStichtag", "stichtagProJahrH", "stichtagProJahrV"];
+  });
+  var PIE_STACKED_GRAINS = Object.freeze(["jahr", "jahrStichtag", "stichtagProJahrH", "stichtagProJahrV"]);
   // A bucket that is not listed accepts every grain; an empty list accepts none.
-  var ALLOWED_GRAINS_BY_BUCKET = {
+  var ALLOWED_GRAINS_BY_BUCKET = Object.freeze({
     pie: PIE_STACKED_GRAINS,
     StackedBar: PIE_STACKED_GRAINS,
     StackedColumn: PIE_STACKED_GRAINS,
-    List: ["jahr", "jahrStichtag"],
-    "com.ibm.vis.custom.prognoseyearlinechart": []
-  };
+    List: Object.freeze(["jahr", "jahrStichtag"]),
+    "com.ibm.vis.custom.prognoseyearlinechart": Object.freeze([])
+  });
   var TYPE_TO_BUCKET = _visTypeSpecs.visualizationTypeToBucket;
 
   function hasOwn(_object, _key) {
@@ -79,15 +79,16 @@ define([
 
   // Dropdown option key of a vis type: lower-case canonical type; an unknown type keeps its own spelling.
   function settingsKey(_rawType) {
+    if (_rawType == null) {
+      return "";
+    }
     var canonical = canonicalTypeOf(_rawType);
     return canonical ? canonical.toLowerCase() : String(_rawType).trim();
   }
 
   return {
     GRAINS: GRAINS,
-    TYPE_TO_BUCKET: TYPE_TO_BUCKET,
     isGrain: isGrain,
-    canonicalTypeOf: canonicalTypeOf,
     normalizeVisType: normalizeVisType,
     resolveBucket: resolveBucket,
     isAllowedGrain: isAllowedGrain,

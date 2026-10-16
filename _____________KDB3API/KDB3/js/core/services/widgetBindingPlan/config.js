@@ -8,17 +8,17 @@ define([], function () {
 
   // Slot-kind rules: the Cognos list slot (grid_cols) and the vis types that show only the chosen dimension
   // in one slot. Kept here, not in the slot modules, so every special case has one home.
-  var SLOT_RULES = {
-    grid_cols: {
+  var SLOT_RULES = Object.freeze({
+    grid_cols: Object.freeze({
       maxSortSpecs: 2,
       carriesTopBottom: true,
       hierarchyMakesSourceMixed: true,
-      defaultDimensionPolicy: { mode: "prependThenMoveFirstToIndex", targetIndex: 2 },
-      defaultHierarchyPolicy: { mode: "insertBeforeSelectedDimensionOrBeforeLast" }
-    }
-  };
-  var DIMENSION_ONLY_SLOT_BY_VIS_TYPE = { pie: "categories", donut: "categories", doughnut: "categories", treemap: "categories" };
-  var NO_RULE = {};
+      defaultDimensionPolicy: Object.freeze({ mode: "prependThenMoveFirstToIndex", targetIndex: 2 }),
+      defaultHierarchyPolicy: Object.freeze({ mode: "insertBeforeSelectedDimensionOrBeforeLast" })
+    })
+  });
+  var DIMENSION_ONLY_SLOT_BY_VIS_TYPE = Object.freeze({ pie: "categories", donut: "categories", doughnut: "categories", treemap: "categories" });
+  var NO_RULE = Object.freeze({});
 
   function hasOwn(_object, _key) {
     return Object.prototype.hasOwnProperty.call(_object, _key);

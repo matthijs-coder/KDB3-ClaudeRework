@@ -275,3 +275,18 @@ test("W8 rules: padded and mixed-case types resolve like their canonical spellin
   assert.equal(rules.isAllowedGrain("List", "stichtagProJahrH"), false);
   assert.equal(rules.isGrain("constructor"), false);
 });
+
+test("W8 rules: the shared tables cannot be mutated by a consumer", () => {
+  const rules = load("core/config/visualizations/visTypeRules.js");
+  const grainCount = rules.GRAINS.length;
+  assert.throws(() => { "use strict"; rules.GRAINS.push("bogus"); }, TypeError);
+  assert.equal(rules.GRAINS.length, grainCount);
+  assert.equal(Object.isFrozen(rules.GRAINS), true);
+  assert.equal(rules.isGrain("bogus"), false);
+  assert.equal(rules.canonicalTypeOf, undefined);
+  assert.equal(rules.TYPE_TO_BUCKET, undefined);
+  assert.equal(rules.settingsKey(null), "");
+  const pack = load("core/config/visualizations/buildKennzahlAggregationFilter.js");
+  assert.equal(pack.resolveKennzahlPack("Line", "jahr"), "jahr");
+  assert.equal(load("dashboard/widgets/widgetVis/config.js").GROUPINGS, undefined);
+});

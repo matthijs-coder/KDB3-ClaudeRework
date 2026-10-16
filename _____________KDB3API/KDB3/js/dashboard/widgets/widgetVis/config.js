@@ -12,7 +12,6 @@ define(["../../../core/config/visualizations/visTypeRules.js"], function (_rules
     expandDrillthroughColumnClass: "kdb-expand-drillthrough-column",
     focusModePollMs: 50,
     focusModeWaitMs: 1200,
-    GROUPINGS: _rules.GRAINS,
     isGroupingValue: _rules.isGrain
   };
 });
