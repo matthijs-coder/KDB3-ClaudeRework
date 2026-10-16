@@ -55,7 +55,12 @@ define([
       pageHeight - FOOTER_MARGIN_BOTTOM_PT - FOOTER_LINE_GAP_PT,
       { align: "right" }
     );
-    doc.text(labels.pageFooterPrefix + String(tabNumber) + ": " + String(tabName || "-"), pageWidth - FOOTER_MARGIN_RIGHT_PT, pageHeight - FOOTER_MARGIN_BOTTOM_PT, { align: "right" });
+    doc.text(
+      labels.pageFooterPrefix + String(tabNumber) + ": " + String(tabName || "-"),
+      pageWidth - FOOTER_MARGIN_RIGHT_PT,
+      pageHeight - FOOTER_MARGIN_BOTTOM_PT,
+      { align: "right" }
+    );
   }
 
   // ---- export run --------------------------------------------------------------------------------------------------
