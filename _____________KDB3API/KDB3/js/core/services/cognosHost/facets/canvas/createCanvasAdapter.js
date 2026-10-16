@@ -1,15 +1,11 @@
 define([
-  "./read/listCanvasWidgets.js",
-  "./write/setCanvasPageSize.js",
-  "./buildCanvasWaitSurface.js"
-], function (_listCanvasWidgets, _setCanvasPageSize, _buildCanvasWaitSurface) {
+  "./listCanvasWidgets.js",
+  "./setCanvasPageSize.js",
+  "./waits.js"
+], function (_listCanvasWidgets, _setCanvasPageSize, _createWaitOps) {
   "use strict";
 
-  // The canvas facet of the cognosHost service. Named with the Adapter suffix
-  // that naming.mdc prescribes for host adapters.
-  //
-  // Slice-5 wait ops (whenCanvasReady / whenWidgetReady) attach through the
-  // wait surface. No extra compose factory.
+  // The canvas facet of the cognosHost service: widget inventory, page size and the four host waits.
   function createCanvasAdapter(_deps) {
     var ctx = {
       _KDB: _deps._KDB,
@@ -21,7 +17,7 @@ define([
         listCanvasWidgets: _listCanvasWidgets.bind(null, ctx),
         setCanvasPageSize: _setCanvasPageSize.bind(null, ctx)
       },
-      _buildCanvasWaitSurface(ctx)
+      _createWaitOps(ctx)
     );
   }
 

@@ -1,4 +1,4 @@
-define(["../../header/state/selectors", "../../tabs/state/selectors"], function (_headerSelectors, _tabsSelectors) {
+define(["../../header/state/selectors.js", "../../tabs/state/selectors.js"], function (_headerSelectors, _tabsSelectors) {
   "use strict";
   function readFooterStatus(_KDB) {
     var f = _KDB && _KDB.state && _KDB.state.footer;

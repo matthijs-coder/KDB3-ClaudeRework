@@ -1,5 +1,5 @@
 define([
-  "./selectionState.js",
+  "./selection.js",
   "./hydrateInitialSelectionFromHandoff.js"
 ], function (_selectionState, _hydrateInitialSelectionFromHandoff) {
   "use strict";

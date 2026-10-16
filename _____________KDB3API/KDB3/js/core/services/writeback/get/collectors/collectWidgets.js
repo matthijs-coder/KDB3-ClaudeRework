@@ -1,9 +1,9 @@
 define([
   "../../schema/errorCodes.js",
   "../../../../../dashboard/tabs/config/actionTypes.js",
-  "../../../../../dashboard/tabs/config/defaults.js",
   "./buildWidgetObject.js",
-], function (_errorCodes, _actionTypes, _defaults, _buildWidgetObject) {
+  "./collectorSupport.js",
+], function (_errorCodes, _actionTypes, _buildWidgetObject, _support) {
   "use strict";
 
   const TRAVERSE_PAYLOAD = {
@@ -16,44 +16,39 @@ define([
   };
 
   async function collectWidgets(_KDB, _diagnostics) {
-    try {
-      const tabsState = readApiState(_KDB, "tabs");
-      const orderedTabs = readOrderedDashboardTabs(tabsState);
-      await ensureDashboardTabsTraversed(_KDB, _diagnostics, orderedTabs, tabsState);
+    const tabsState = _support.readApiState(_KDB, "tabs");
+    const orderedTabs = readOrderedDashboardTabs(tabsState);
+    await ensureDashboardTabsTraversed(_KDB, _diagnostics, orderedTabs, tabsState);
 
-      const baseState = readApiState(_KDB, "widgetBase");
-      if (!baseState || !baseState.byId) return {};
-      const tabIdToIdx = buildTabIdToIdx(orderedTabs);
-      const settingsByWidget = (readApiState(_KDB, "widgetSettings") || {}).byWidget || {};
-      const visById = (readApiState(_KDB, "widgetVis") || {}).byId || {};
-      const textById = (readApiState(_KDB, "widgetText") || {}).byId || {};
+    const baseState = _support.readApiState(_KDB, "widgetBase");
+    if (!baseState || !baseState.byId) return {};
+    const tabIdToIdx = buildTabIdToIdx(orderedTabs);
+    const settingsByWidget = (_support.readApiState(_KDB, "widgetSettings") || {}).byWidget || {};
+    const visById = (_support.readApiState(_KDB, "widgetVis") || {}).byId || {};
+    const textById = (_support.readApiState(_KDB, "widgetText") || {}).byId || {};
 
-      const widgets = [];
-      const widgetIds = Object.keys(baseState.byId);
-      for (let index = 0; index < widgetIds.length; index += 1) {
-        const widgetId = widgetIds[index];
-        const frame = baseState.byId[widgetId];
-        if (!shouldCollectFrame(frame, widgetId)) continue;
-        const tabIdx = tabIdToIdx[frame.tabId];
-        if (tabIdx === undefined) {
-          _diagnostics.push(_errorCodes.makeDiagnostic(
-            _errorCodes.codes.WRITEBACK_TABS_TARGET_MISSING, "get",
-            "widget tabId is not mapped to a dashboard tab index", { widgetId: widgetId }
-          ));
-          continue;
-        }
-        if (!orderedTabs[tabIdx] || orderedTabs[tabIdx].visible !== true) continue;
-        const widget = _buildWidgetObject(
-          stampOwnerLayout(frame), tabIdx, settingsByWidget[widgetId], visById[widgetId], textById[widgetId], _diagnostics
-        );
-        if (widget === null) continue;
-        widgets.push(widget);
+    const widgets = [];
+    const widgetIds = Object.keys(baseState.byId);
+    for (let index = 0; index < widgetIds.length; index += 1) {
+      const widgetId = widgetIds[index];
+      const frame = baseState.byId[widgetId];
+      if (!shouldCollectFrame(frame, widgetId)) continue;
+      const tabIdx = tabIdToIdx[frame.tabId];
+      if (tabIdx === undefined) {
+        _diagnostics.push(_errorCodes.makeDiagnostic(
+          _errorCodes.codes.WRITEBACK_TABS_TARGET_MISSING, "get",
+          "widget tabId is not mapped to a dashboard tab index", { widgetId: widgetId }
+        ));
+        continue;
       }
-      return widgets.length === 0 ? {} : { wgts: widgets };
-    } catch (error) {
-      console.error("[collectWidgets] failed", error);
-      throw error;
+      if (!orderedTabs[tabIdx] || orderedTabs[tabIdx].visible !== true) continue;
+      const widget = _buildWidgetObject(
+        stampOwnerLayout(frame), tabIdx, settingsByWidget[widgetId], visById[widgetId], textById[widgetId], _diagnostics
+      );
+      if (widget === null) continue;
+      widgets.push(widget);
     }
+    return widgets.length === 0 ? {} : { wgts: widgets };
   }
 
   async function ensureDashboardTabsTraversed(_KDB, _diagnostics, orderedTabs, tabsState) {
@@ -118,15 +113,7 @@ define([
     const order = Array.isArray(state.order) ? state.order : [];
     return order
       .map(function (index) { return state.byIndex && state.byIndex[String(index)]; })
-      .filter(function (tab) { return isDashboardTab(tab, state); });
-  }
-
-  function isDashboardTab(tab, state) {
-    if (!tab) return false;
-    if (tab.role) return tab.role === "dashboard";
-    const maxUserTabs = state.limits && typeof state.limits.maxUserTabs === "number"
-      ? state.limits.maxUserTabs : _defaults.MAX_USER_TABS;
-    return tab.isHelper !== true && tab.index < maxUserTabs;
+      .filter(function (tab) { return _support.isDashboardTab(tab, state); });
   }
 
   function buildTabIdToIdx(orderedTabs) {
@@ -136,11 +123,6 @@ define([
       if (tab && tab.tabId) map[tab.tabId] = index;
     }
     return map;
-  }
-
-  function readApiState(_KDB, owner) {
-    const api = _KDB && _KDB.api ? _KDB.api[owner] : null;
-    return api && typeof api.getState === "function" ? api.getState() : null;
   }
 
   return collectWidgets;

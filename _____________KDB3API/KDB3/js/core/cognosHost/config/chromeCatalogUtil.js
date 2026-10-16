@@ -13,19 +13,14 @@ define([], function () {
     var out = {};
     var key;
     var entry;
-    try {
-      for (key in entries) {
-        if (!Object.prototype.hasOwnProperty.call(entries, key)) continue;
-        entry = entries[key];
-        if (entry && entry.selector != null) {
-          out[key] = entry.selector;
-        }
+    for (key in entries) {
+      if (!Object.prototype.hasOwnProperty.call(entries, key)) continue;
+      entry = entries[key];
+      if (entry && entry.selector != null) {
+        out[key] = entry.selector;
       }
-      return out;
-    } catch (error) {
-      console.error("[cognosHost.chromeCatalogUtil] stringsFromEntries failed", error);
-      throw error;
     }
+    return out;
   }
 
   return {

@@ -55,21 +55,13 @@ define(["../set/state/ensureWritebackRuntime.js"], function (_ensureWritebackRun
   }
 
   function armWaiter(_KDB, _changeTime, _timeoutMs, _signal) {
-    var runtime;
-    var waiter;
-    var budget;
-    try {
-      runtime = _ensureWritebackRuntime(_KDB);
-      if (runtime.urlShareRestoreWaiter) {
-        settleWaiter(runtime, runtime.urlShareRestoreWaiter, { aborted: true });
-      }
-      waiter = { changeTime: _changeTime, didSettle: false, resolve: null };
-      budget = typeof _timeoutMs === "number" ? Math.max(0, _timeoutMs) : 0;
-      return new Promise(armWaiterTimer.bind(null, runtime, waiter, budget, _signal));
-    } catch (error) {
-      console.error("[writebackBridge.armWaiter] failed", error);
-      throw error;
+    var runtime = _ensureWritebackRuntime(_KDB);
+    var waiter = { changeTime: _changeTime, didSettle: false, resolve: null };
+    var budget = typeof _timeoutMs === "number" ? Math.max(0, _timeoutMs) : 0;
+    if (runtime.urlShareRestoreWaiter) {
+      settleWaiter(runtime, runtime.urlShareRestoreWaiter, { aborted: true });
     }
+    return new Promise(armWaiterTimer.bind(null, runtime, waiter, budget, _signal));
   }
 
   function notifyBridgeSetSettled(_KDB, _result, _meta) {

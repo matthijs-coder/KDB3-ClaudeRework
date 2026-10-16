@@ -1,11 +1,9 @@
 define([
-  "../effects/resolveFilterRef.js",
-  "../effects/writeVerifiedSelection.js",
-  "../effects/readFiltersFacet.js",
-  "../effects/hostFilterWrite.js",
-  "../config/errorCodes.js",
+  "../hostFilterIo.js",
+  "../runtime.js",
+  "../config.js",
   "./ownerSelectionSupport.js"
-], function (_resolveFilterRef, _writeVerifiedSelection, _readFiltersFacet, _hostWrite, _codes, _support) {
+], function (_hostFilterIo, _singleSelectRuntime, _config, _support) {
   "use strict";
 
   async function applyOwnerSelection(_KDB, _runtime, _payload) {
@@ -15,14 +13,14 @@ define([
       var operationId = payload.operationId ? String(payload.operationId) : "";
       var seenOps = _runtime.delegatedOperationIds = _runtime.delegatedOperationIds || {};
       if (!operationId || payload.notifyOwner !== "sicht" || payload.skipHistory !== true) {
-        return _support.failure(id, _codes.OWNER_SELECTION_INVALID, "operationId, notifyOwner sicht and skipHistory true are required");
+        return _support.failure(id, _config.errorCodes.OWNER_SELECTION_INVALID, "operationId, notifyOwner sicht and skipHistory true are required");
       }
       if (!payload.selection || payload.selection.displayValue == null ||
         payload.selection.useValue == null) {
-        return _support.failure(id, _codes.OWNER_SELECTION_INVALID, "selection requires independent display/use values");
+        return _support.failure(id, _config.errorCodes.OWNER_SELECTION_INVALID, "selection requires independent display/use values");
       }
       if (seenOps[operationId] && seenOps[operationId] !== id) {
-        return _support.failure(id, _codes.OWNER_SELECTION_INVALID, "operationId was reused for another filter instance");
+        return _support.failure(id, _config.errorCodes.OWNER_SELECTION_INVALID, "operationId was reused for another filter instance");
       }
       if (seenOps[operationId] === id) {
         return _support.success(id);
@@ -31,35 +29,35 @@ define([
       var record = root.instancesById ? root.instancesById[id] : null;
       if (!record || record.selectionOwner !== "sicht" ||
         record.status !== "active" || record.hostStatus !== "present") {
-        return _support.failure(id, _codes.INSTANCE_NOT_FOUND, "writable delegated Sicht descriptor missing");
+        return _support.failure(id, _config.errorCodes.INSTANCE_NOT_FOUND, "writable delegated Sicht descriptor missing");
       }
-      var filtersFacet = _readFiltersFacet(_KDB, _runtime);
-      var filterRef = _resolveFilterRef.resolveFilterRef(_KDB, _runtime, { filterInstanceId: id });
-      if (!filterRef || !_hostWrite.isWriteReady(filtersFacet)) {
-        return _support.failure(id, _codes.HOST_WRITE_FAILED, "host filter API unavailable");
+      var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
+      var filterRef = _hostFilterIo.resolveFilterRef(_KDB, _runtime, { filterInstanceId: id });
+      if (!filterRef || !_hostFilterIo.isWriteReady(filtersFacet)) {
+        return _support.failure(id, _config.errorCodes.HOST_WRITE_FAILED, "host filter API unavailable");
       }
-      var previousValues = _hostWrite.readValues(filtersFacet, filterRef);
+      var previousValues = _hostFilterIo.readValues(filtersFacet, filterRef);
       var selection = payload.selection || {};
       var values = selection.displayValue === "Alle"
         ? [] : [{ d: selection.displayValue, u: selection.useValue }];
-      var writeResult = await _writeVerifiedSelection(filtersFacet, filterRef, values, {
+      var writeResult = await _hostFilterIo.writeVerified(filtersFacet, filterRef, values, {
         expected: selection,
         verifyRollback: true
       });
       if (!writeResult.ok) {
-        if (writeResult.errorCode === _codes.COMMIT_VERIFICATION_MISMATCH ||
-          writeResult.errorCode === _codes.HOST_ROLLBACK_UNVERIFIED) {
+        if (writeResult.errorCode === _config.errorCodes.COMMIT_VERIFICATION_MISMATCH ||
+          writeResult.errorCode === _config.errorCodes.HOST_ROLLBACK_UNVERIFIED) {
           return _support.failure(
             id,
             writeResult.errorCode,
             "delegated host reread mismatch; rollback " +
               (writeResult.rollbackVerified === true ? "confirmed" : "verification failed"),
-            writeResult.errorCode === _codes.HOST_ROLLBACK_UNVERIFIED
+            writeResult.errorCode === _config.errorCodes.HOST_ROLLBACK_UNVERIFIED
           );
         }
         return _support.failure(
           id,
-          _codes.HOST_WRITE_FAILED,
+          _config.errorCodes.HOST_WRITE_FAILED,
           "host write failed"
         );
       }
@@ -78,10 +76,10 @@ define([
         displaySource: "cognos"
       });
       if (!ownerResult.ok) {
-        var ownerRollbackOk = await _support.rollbackToPreviousValues(filtersFacet, filterRef, previousValues);
+        var ownerRollbackOk = await _hostFilterIo.rollbackVerified(filtersFacet, filterRef, previousValues);
         return _support.failure(
           id,
-          ownerRollbackOk ? ownerResult.code : _codes.HOST_ROLLBACK_UNVERIFIED,
+          ownerRollbackOk ? ownerResult.code : _config.errorCodes.HOST_ROLLBACK_UNVERIFIED,
           "owner notification failed; host rollback " +
             (ownerRollbackOk ? "confirmed" : "verification failed") + ": " + ownerResult.message,
           !ownerRollbackOk
@@ -95,7 +93,7 @@ define([
       console.error("[singleSelect.applyOwnerSelection] failed", { filterInstanceId: id }, error);
       return _support.failure(
         id,
-        _codes.HOST_WRITE_FAILED,
+        _config.errorCodes.HOST_WRITE_FAILED,
         String(error && error.message ? error.message : error)
       );
     }

@@ -1,4 +1,4 @@
-define(["../state/selectionState.js"], function (_selectionState) {
+define(["../state/selection.js"], function (_selectionState) {
   "use strict";
 
   function __controller(_filterState) {

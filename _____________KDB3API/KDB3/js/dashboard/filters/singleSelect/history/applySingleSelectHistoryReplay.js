@@ -1,12 +1,12 @@
 define([
   "./normalizeSingleSelectHistoryStepValue.js",
   "./resolveSingleSelectHistoryTarget.js",
-  "./historyReplayCodes.js",
+  "../config.js",
   "./recordHistoryReplayDiagnostic.js",
   "../effects/replayCommittedSelection.js",
   "../../../widgets/widgetVis/actions/runTopNFilterConfirmWave.js",
   "../../../../core/config/visualizations/topNHelper.js"
-], function (_stepValue, _resolveTarget, _codes, _recordDiagnostic, _replayCommittedSelection, _runTopNFilterConfirmWave, _topNHelper) {
+], function (_stepValue, _resolveTarget, _config, _recordDiagnostic, _replayCommittedSelection, _runTopNFilterConfirmWave, _topNHelper) {
   "use strict";
 
   // Entry point invoked by createSingleSelectHistoryReplayHandler.js through
@@ -42,17 +42,17 @@ define([
     target = _stepValue.normalize(payload.targetValue);
     other = otherValue != null ? _stepValue.normalize(otherValue) : null;
     if (!target || target.invalid === true || (other && other.invalid === true)) {
-      return reportFailure(_KDB, null, _codes.STEP_INVALID, "history step failed identity/shape validation");
+      return reportFailure(_KDB, null, _config.historyReplayCodes.STEP_INVALID, "history step failed identity/shape validation");
     }
     if (other && !_stepValue.sameInstance(target, other)) {
       return reportFailure(
-        _KDB, target.filterInstanceId, _codes.STEP_INVALID,
+        _KDB, target.filterInstanceId, _config.historyReplayCodes.STEP_INVALID,
         "old/new step values reference different instances"
       );
     }
     if (target.displayValue === null && target.displaySource !== "unavailable") {
       return reportFailure(
-        _KDB, target.filterInstanceId, _codes.STEP_INVALID,
+        _KDB, target.filterInstanceId, _config.historyReplayCodes.STEP_INVALID,
         "history step failed identity/shape validation"
       );
     }
@@ -70,11 +70,11 @@ define([
     if (!result || result.ok !== true) {
       if (result && result.rollbackFailed) {
         _recordDiagnostic(
-          _KDB, _codes.ROLLBACK_FAILED, "replay rollback could not be verified", resolved.record.filterInstanceId
+          _KDB, _config.historyReplayCodes.ROLLBACK_FAILED, "replay rollback could not be verified", resolved.record.filterInstanceId
         );
       }
       return reportFailure(
-        _KDB, resolved.record.filterInstanceId, (result && result.errorCode) || _codes.REPLAY_FAILED,
+        _KDB, resolved.record.filterInstanceId, (result && result.errorCode) || _config.historyReplayCodes.REPLAY_FAILED,
         "replay apply failed"
       );
     }

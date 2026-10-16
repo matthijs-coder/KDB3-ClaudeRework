@@ -1,17 +1,14 @@
 define([
-  "./buildVisualizationReadSurface.js",
-  "./buildVisualizationWriteSurface.js",
-  "./buildVisualizationBindingSurface.js"
-], function (
-  _buildVisualizationReadSurface,
-  _buildVisualizationWriteSurface,
-  _buildVisualizationBindingSurface
-) {
+  "./read.js",
+  "./selections.js",
+  "./properties.js",
+  "./slots.js",
+  "./localFilters.js"
+], function (_createReadOps, _selections, _createPropertyOps, _createSlotOps, _createLocalFilterOps) {
   "use strict";
 
-  // The visualization facet of the cognosHost service. Named with the Adapter
-  // suffix that naming.mdc prescribes for host adapters; "facet" is the
-  // architectural term for a domain-scoped part of the ring-1 adapter.
+  // The visualization facet of the cognosHost service (16 ops): reads, selections, vis properties,
+  // slot writes and local filters. Built once; every op closes over the same ctx.
   function createVisualizationAdapter(_deps) {
     var ctx = {
       _KDB: _deps._KDB,
@@ -20,9 +17,11 @@ define([
     };
     return Object.assign(
       {},
-      _buildVisualizationReadSurface(ctx),
-      _buildVisualizationWriteSurface(ctx),
-      _buildVisualizationBindingSurface(ctx)
+      _createReadOps(ctx),
+      _selections.createSelectionOps(ctx),
+      _createPropertyOps(ctx),
+      _createSlotOps(ctx),
+      _createLocalFilterOps(ctx)
     );
   }
 

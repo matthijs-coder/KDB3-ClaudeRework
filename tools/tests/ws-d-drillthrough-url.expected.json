@@ -1,0 +1,1095 @@
+{
+  "I1 icon line BW single level-2 node": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=MA05&p_p_range_DrillFromGDB=ja_bisMaxStichtag&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2024%20-%201&p_p_aufspannen_1=F_TST_SID&p_p_dummy_aufrissPrompt_v2=0&p_p_aufspannen_2=GESCHLECHT&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "MA05",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "ja_bisMaxStichtag",
+      "p_aktmon_DrillFromGDB": "2024 - 1",
+      "p_aufspannen_1": "F_TST_SID",
+      "p_aufspannen_2": "GESCHLECHT",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "I1b icon line BW filter year only": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=MA05&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2023%20-%201&p_p_aufspannen_1=F_TST_SID&p_p_dummy_aufrissPrompt_v2=0&p_p_aufspannen_2=GESCHLECHT&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "MA05",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2023 - 1",
+      "p_aufspannen_1": "F_TST_SID",
+      "p_aufspannen_2": "GESCHLECHT",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "I2 icon table (list) BW level-1 group": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_gruppe_DrillFromGDB=---&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2023%20-%201&p_p_aufspannen_1=F_TST_SID&p_p_dummy_aufrissPrompt_v2=0&p_p_aufspannen_2=ALTERSGRUPPE_SID&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "---",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2023 - 1",
+      "p_aufspannen_1": "F_TST_SID",
+      "p_aufspannen_2": "ALTERSGRUPPE_SID",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "I3 icon pie BW all children of group": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_gruppe_DrillFromGDB=---&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2022%20-%201&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "---",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2022 - 1",
+      "p_aufspannen_1": "GESCHLECHT",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "I3b icon pie BW with dimension": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_gruppe_DrillFromGDB=---&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2021%20-%201&p_p_aufspannen_1=BERUFSFAMILIE_LANGTEXT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "---",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2021 - 1",
+      "p_aufspannen_1": "BERUFSFAMILIE_LANGTEXT",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "I4 icon bar BW Magistrat level 0 dienststelle": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2022%20-%201&p_p_aufspannen_1=DIENSTSTELLE_LANG_SID&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2022 - 1",
+      "p_aufspannen_1": "DIENSTSTELLE_LANG_SID",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "I5 icon line DEZPV root ALLE": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=DEZPV&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_gruppe_DrillFromGDB=KAV&p_p_dezpv_DrillFromGDB=%23ALLE_GG%23&p_p_art_DrillFromGDB=DEZPV&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aufspannen_1=F_TST_SID&p_p_dummy_aufrissPrompt_v2=0&p_p_aufspannen_2=BEAMTER_VB&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "DEZPV",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "KAV",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "#ALLE_GG#",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "F_TST_SID",
+      "p_aufspannen_2": "BEAMTER_VB",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "I6 icon bar DEZPV child + root, lehrlinge": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=DEZPV&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_gruppe_DrillFromGDB=KAV%3BWSTW&p_p_dezpv_DrillFromGDB=%23ALLE_GG%23%3BWSTW%20Werk%201&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=DEZPV&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2023%20-%201&p_p_aufspannen_1=LEHRLINGE&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "DEZPV",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "KAV;WSTW",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "#ALLE_GG#;WSTW Werk 1",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2023 - 1",
+      "p_aufspannen_1": "LEHRLINGE",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "I6b icon bar DEZPV dienststelle dim": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=DEZPV&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_gruppe_DrillFromGDB=WSTW&p_p_dezpv_DrillFromGDB=WSTW%20Werk%201&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=DEZPV&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2023%20-%201&p_p_aufspannen_1=DIENSTSTELLE_KURZ_TEXT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "DEZPV",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "WSTW",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "WSTW Werk 1",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2023 - 1",
+      "p_aufspannen_1": "DIENSTSTELLE_KURZ_TEXT",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "I6c icon bar unmapped dimension": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=DEZPV&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_gruppe_DrillFromGDB=WSTW&p_p_dezpv_DrillFromGDB=WSTW%20Werk%201&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=DEZPV&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2023%20-%201&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "DEZPV",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "WSTW",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "WSTW Werk 1",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2023 - 1",
+      "p_aufspannen_1": "",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_AUFRISS_UNMAPPED",
+          "message": "dimension did not map"
+        }
+      ]
+    }
+  },
+  "I7 icon without kennzahl and sicht, hostEnv dev": {
+    "ok": true,
+    "status": "success",
+    "url": "https://dev.example/pkz?run=1&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_noBlock_alleKZ=0&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2020%20-%201&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "",
+      "p_art": "",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2020 - 1",
+      "p_aufspannen_1": "GESCHLECHT",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "dev",
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_KENNZAHL_OMITTED",
+          "message": "kennzahlCode empty"
+        },
+        {
+          "code": "DRILLTHROUGH_SICHT_OMITTED",
+          "message": "sicht empty"
+        }
+      ]
+    }
+  },
+  "I7b icon hostEnv from href -dev": {
+    "ok": true,
+    "status": "success",
+    "url": "https://dev.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=MA05&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2020%20-%201&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "MA05",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2020 - 1",
+      "p_aufspannen_1": "GESCHLECHT",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "dev",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "I7c icon hostEnv prod via plain href": {
+    "ok": true,
+    "status": "success",
+    "url": "https://prod.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=MA05&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2020%20-%201&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "MA05",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2020 - 1",
+      "p_aufspannen_1": "GESCHLECHT",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "prod",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "D1 datapoint BW year+month names": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=MA05&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_200&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_200&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2023%20-%203&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "datapoint",
+    "widgetId": "w2",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_200",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "MA05",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "2023 - 3",
+      "p_aufspannen_1": "GESCHLECHT",
+      "p_aufspannen_2": "",
+      "source": "datapoint"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "D2 datapoint BW Magistrat + dienststelle category, year only": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_200&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_200&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2022%20-%201&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "datapoint",
+    "widgetId": "w2",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_200",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2022 - 1",
+      "p_aufspannen_1": "",
+      "p_aufspannen_2": "",
+      "source": "datapoint"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "D2b datapoint BW non-mag dienststelle category": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=MA05&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_200&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_200&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aufspannen_1=DIENSTSTELLE_LANG_SID&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "datapoint",
+    "widgetId": "w2",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_200",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "MA05",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "DIENSTSTELLE_LANG_SID",
+      "p_aufspannen_2": "",
+      "source": "datapoint"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "D3 datapoint DEZPV name category, month as value": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=DEZPV&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_gruppe_DrillFromGDB=KAV&p_p_dezpv_DrillFromGDB=%23ALLE_GG%23&p_p_art_DrillFromGDB=DEZPV&p_p_kz_1=KZ_200&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_200&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aufspannen_1=BERUFSFAMILIE_LANGTEXT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "datapoint",
+    "widgetId": "w2",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_200",
+      "p_art": "DEZPV",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "KAV",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "#ALLE_GG#",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "BERUFSFAMILIE_LANGTEXT",
+      "p_aufspannen_2": "",
+      "source": "datapoint"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "D4 datapoint category Lehrlinge unmatched": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=MA05&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_200&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_200&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2024%20-%201&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "datapoint",
+    "widgetId": "w2",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_200",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "MA05",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "ja_kalenderJahr",
+      "p_aktmon_DrillFromGDB": "2024 - 1",
+      "p_aufspannen_1": "",
+      "p_aufspannen_2": "",
+      "source": "datapoint"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "D4b datapoint first category wins": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=MA05&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_200&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_200&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aufspannen_1=ALTERSGRUPPE_SID&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "datapoint",
+    "widgetId": "w2",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_200",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "MA05",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "ALTERSGRUPPE_SID",
+      "p_aufspannen_2": "",
+      "source": "datapoint"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "D4c datapoint without kennzahl and sicht": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_noBlock_alleKZ=0&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "datapoint",
+    "widgetId": "w2",
+    "drillConfig": {
+      "Kennzahl_Code": "",
+      "p_art": "",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "",
+      "p_aufspannen_2": "",
+      "source": "datapoint"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_KENNZAHL_OMITTED",
+          "message": "kennzahlCode empty"
+        },
+        {
+          "code": "DRILLTHROUGH_SICHT_OMITTED",
+          "message": "sicht empty"
+        }
+      ]
+    }
+  },
+  "D4d datapoint categories missing": {
+    "ok": false,
+    "status": "error",
+    "url": null,
+    "errorCode": "DRILLTHROUGH_DATAPOINT_CATEGORIES",
+    "errorMessage": "categories missing or not an array",
+    "source": "datapoint",
+    "widgetId": "w2",
+    "drillConfig": null,
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": null,
+      "failedStage": "assemble",
+      "warnings": []
+    }
+  },
+  "E1 spec null": {
+    "ok": false,
+    "status": "error",
+    "url": null,
+    "errorCode": "DRILLTHROUGH_MISSING_SPEC",
+    "errorMessage": "spec missing or not an object",
+    "source": null,
+    "widgetId": null,
+    "drillConfig": null,
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": null,
+      "failedStage": "validateSpec",
+      "warnings": []
+    }
+  },
+  "E2 invalid source": {
+    "ok": false,
+    "status": "error",
+    "url": null,
+    "errorCode": "DRILLTHROUGH_INVALID_SOURCE",
+    "errorMessage": "source must be icon or datapoint",
+    "source": "x",
+    "widgetId": null,
+    "drillConfig": null,
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": null,
+      "failedStage": "validateSpec",
+      "warnings": []
+    }
+  },
+  "E3 BW selection but hierarchy rows empty": {
+    "ok": false,
+    "status": "error",
+    "url": null,
+    "errorCode": "DRILLTHROUGH_ORG_TREE_MISSING",
+    "errorMessage": "org tree missing",
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": null,
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": null,
+      "failedStage": "mapOrg",
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "E3b DEZPV selection but hierarchy rows empty": {
+    "ok": false,
+    "status": "error",
+    "url": null,
+    "errorCode": "DRILLTHROUGH_ORG_TREE_MISSING",
+    "errorMessage": "org tree missing",
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": null,
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": null,
+      "failedStage": "mapOrg",
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "E3c no readRows dependency": {
+    "ok": false,
+    "status": "error",
+    "url": null,
+    "errorCode": "DRILLTHROUGH_ORG_TREE_MISSING",
+    "errorMessage": "org tree missing",
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": null,
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": null,
+      "failedStage": "mapOrg",
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "E4 link missing for env": {
+    "ok": false,
+    "status": "error",
+    "url": null,
+    "errorCode": "DRILLTHROUGH_LINK_MISSING",
+    "errorMessage": "pkzAnalysetool link missing",
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "F_TST_SID",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": null,
+      "failedStage": "encodeUrl",
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "E5 host unresolved (empty href, no hostEnv)": {
+    "ok": false,
+    "status": "error",
+    "url": null,
+    "errorCode": "DRILLTHROUGH_HOST_UNRESOLVED",
+    "errorMessage": "host environment unresolved",
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "F_TST_SID",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": null,
+      "failedStage": "encodeUrl",
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "O-ORG1 idValue with # in the middle": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=XY&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "XY",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "GESCHLECHT",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "O-ORG2 idValue with trailing #": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_gruppe_DrillFromGDB=---&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "---",
+      "p_dienststelle_drillFromGDB": "",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "GESCHLECHT",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "O-ORG3 display with ~": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=A%20B&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "A~B",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "GESCHLECHT",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "O-ORG4 BW mag/level mismatch": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=---&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "---",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "GESCHLECHT",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        },
+        {
+          "code": "DRILLTHROUGH_BW_MAG_LEVEL_MISMATCH",
+          "message": "MAG and level-0 did not both match"
+        }
+      ]
+    }
+  },
+  "O-ORG5 BW level-1 group of other branch + level-2": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=---%3BMA05&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "---;MA05",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "GESCHLECHT",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "O-ORG6 provided orgTree is used": {
+    "ok": true,
+    "status": "success",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=Y1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "errorCode": null,
+    "errorMessage": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": {
+      "Kennzahl_Code": "KZ_100",
+      "p_art": "BW",
+      "p_datenart": "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A",
+      "p_gruppe_drillFromGDB": "",
+      "p_dienststelle_drillFromGDB": "Y1",
+      "p_dezpv_drillFromGDB": "",
+      "p_range_DrillFromGDB": "",
+      "p_aktmon_DrillFromGDB": "",
+      "p_aufspannen_1": "GESCHLECHT",
+      "p_aufspannen_2": "",
+      "source": "icon"
+    },
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "O-ORG7 provided orgTree invalid": {
+    "ok": false,
+    "status": "error",
+    "url": null,
+    "errorCode": "DRILLTHROUGH_ORG_TREE_INVALID",
+    "errorMessage": "org tree invalid",
+    "source": "icon",
+    "widgetId": "w1",
+    "drillConfig": null,
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "buildDrillthroughUrl",
+      "hostEnv": null,
+      "failedStage": "mapOrg",
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "open O1": {
+    "ok": false,
+    "errorCode": "DRILLTHROUGH_OPEN_BLOCKED",
+    "errorMessage": "window.open returned null",
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=MA05&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2022%20-%201&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "source": "icon",
+    "widgetId": "w1",
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "openDrillthrough",
+      "hostEnv": "test",
+      "failedStage": "openWindow",
+      "warnings": []
+    }
+  },
+  "open O2": {
+    "ok": true,
+    "errorCode": null,
+    "errorMessage": null,
+    "url": "https://test.example/pkz?run=1&p_p_art=BW&p_p_datenart=FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A&p_p_dienststelle_DrillFromGDB=MA05&p_p_range_DrillFromGDB=ja_kalenderJahr&p_p_stichtag_or_range=Zeitraum&p_p_dummy_validate=1&p_p_art_DrillFromGDB=BW&p_p_kz_1=KZ_100&p_p_kz_1_source=MASTER_FACT&p_p_noBlock_alleKZ=0&p_p_KzBezeichnung_DrillFromGDB=KZ_100&p_p_drillthroughFromGDB=ja&p_p_drillthroughMultipleDstPossible=ja&p_p_aktmon_DrillFromGDB=2022%20-%201&p_p_aufspannen_1=GESCHLECHT&p_p_dummy_aufrissPrompt_v2=0&format=HTML&Download=false&prompt=true",
+    "source": "icon",
+    "widgetId": "w1",
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "openDrillthrough",
+      "hostEnv": "test",
+      "failedStage": null,
+      "warnings": []
+    }
+  },
+  "open O3": {
+    "ok": false,
+    "errorCode": "DRILLTHROUGH_LINK_MISSING",
+    "errorMessage": "pkzAnalysetool link missing",
+    "url": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "openDrillthrough",
+      "hostEnv": null,
+      "failedStage": "encodeUrl",
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_YEAR_OMITTED",
+          "message": "no year resolved"
+        }
+      ]
+    }
+  },
+  "open O4": {
+    "ok": true,
+    "errorCode": null,
+    "errorMessage": null,
+    "url": null,
+    "source": "icon",
+    "widgetId": "w1",
+    "diagnostics": {
+      "service": "drillthrough",
+      "operation": "openDrillthrough",
+      "hostEnv": null,
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "DRILLTHROUGH_HIERARCHY_PENDING",
+          "message": "Hierarchy load already in flight."
+        }
+      ]
+    }
+  }
+}
