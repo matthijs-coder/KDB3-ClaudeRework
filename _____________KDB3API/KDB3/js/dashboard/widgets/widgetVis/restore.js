@@ -6,8 +6,9 @@ define([
   "./runtime.js",
   "./settings.js",
   "./settingsSnapshot.js",
-  "./state.js"
-], function (_gates, _cleanup, _config, _lifecycle, _visRuntime, _settings, _settingsSnapshot, _state) {
+  "./state.js",
+  "../widgetSettings/selectors.js"
+], function (_gates, _cleanup, _config, _lifecycle, _visRuntime, _settings, _settingsSnapshot, _state, _settingsSelectors) {
   "use strict";
 
   var DEGRADED = "WRITEBACK_WIDGET_BINDING_DEGRADED";
@@ -30,9 +31,7 @@ define([
   }
 
   function readCommittedSettings(_KDB, _widgetId) {
-    var api = _KDB && _KDB.api ? _KDB.api.widgetSettings : null;
-    var state = api && typeof api.getState === "function" ? api.getState() : null;
-    var record = state && state.byWidget ? state.byWidget[_widgetId] : null;
+    var record = _settingsSelectors.readWidgetSettings(_KDB, _widgetId);
     var settings;
     if (!record) {
       return null;

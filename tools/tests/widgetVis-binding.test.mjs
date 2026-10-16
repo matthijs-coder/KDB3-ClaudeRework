@@ -914,9 +914,9 @@ async function computeRestoreFixtures() {
     c: { dimension: null }
   } };
   const makeKdb = () => {
-    const _KDB = buildKdb({ api: { widgetSettings: { getState: () => settingsState } } });
+    const _KDB = buildKdb();
     _KDB.runtime.widgetVis = { byId: { a: { opSeq: 1 }, b: { opSeq: 1 } } };
-    _KDB.state.widgets = { vis: { byId: { a: { derived: { code: "K", metricsTable: "Personal_KDB" } }, b: { derived: { code: "K" } } } } };
+    _KDB.state.widgets = { settings: settingsState, vis: { byId: { a: { derived: { code: "K", metricsTable: "Personal_KDB" } }, b: { derived: { code: "K" } } } } };
     return _KDB;
   };
   const correlation = { 2: { kind: "vis", widgetId: "b" }, 1: { kind: "vis", widgetId: "a" }, 3: { kind: "text", widgetId: "t" }, 4: { kind: "vis", widgetId: "a" } };
