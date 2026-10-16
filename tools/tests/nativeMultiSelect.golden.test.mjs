@@ -29,15 +29,15 @@ function createConsoleSpy() {
 const quiet = createConsoleSpy();
 const unit = (rel, stubs) => loadAmd(nmsFile(rel), { stubs: stubs || { console: quiet.console } });
 const UNITS = {
-  mapConfirmedValues: () => unit("effects/mapNativeMultiSelectConfirmedValues.js"),
-  prepareConfirmWrite: () => unit("effects/prepareNativeMultiSelectConfirmWrite.js"),
-  mergeReplayItem: () => unit("actions/mergeNativeMultiSelectReplayItems.js").mergeReplayItem,
-  isUnownedFilterDescriptor: () => unit("effects/isUnownedNativeMultiSelectItem.js").isUnownedFilterDescriptor,
-  readClaimDefinition: () => unit("effects/readClaimDefinition.js"),
-  listUnownedItems: () => unit("effects/listUnownedNativeMultiSelectItems.js"),
-  createReducer: () => unit("state/createNativeMultiSelectReducer.js"),
-  actions: () => unit("config/actions.js"),
-  buildCommittedStep: () => unit("history/buildCommittedStep.js")
+  mapConfirmedValues: () => unit("commit.js").mapConfirmedValues,
+  prepareConfirmWrite: () => unit("commit.js").prepareConfirmWrite,
+  mergeReplayItem: () => unit("history.js").mergeReplayItem,
+  isUnownedFilterDescriptor: () => unit("inventory.js").isUnownedFilterDescriptor,
+  readClaimDefinition: () => unit("inventory.js").readClaimDefinition,
+  listUnownedItems: () => unit("inventory.js").listUnownedItems,
+  createReducer: () => unit("state.js").createReducer,
+  actions: () => unit("config.js").actions,
+  buildCommittedStep: () => unit("commit.js").buildCommittedStep
 };
 
 // ---------- fixtures ----------
@@ -358,7 +358,7 @@ test("register: state, runtime buckets, stamps, history contribution, api", () =
   assert.deepEqual(stateOf(b), { lifecycle: "idle", byScope: {}, errorCode: null, errorMessage: null });
   const rt = b.rt();
   assert.deepEqual(Object.keys(rt).sort(), [
-    "abortControllers", "historyReplayHandlerContribution", "listeners", "observers", "parameterSetRunId", "pendingPromises",
+    "abortControllers", "domRefs", "historyReplayHandlerContribution", "listeners", "observers", "parameterSetRunId", "pendingPromises",
     "subscriptions", "tabMutationRunId", "tabMutationSnapshots", "tabsFacet", "timers"
   ].sort());
   assert.equal(rt.tabsFacet, b.tabsFacet);
@@ -424,6 +424,25 @@ test("destroy: releases subscriptions, resets runtime, then reports disposed res
   assert.equal(b.api.dispatch({ type: A.confirm, payload: {} }), undefined);
   assert.equal(b.api.dispatch({ type: "nativeMultiSelect/other" }), undefined);
   assert.ok(b.spy.warn.some((args) => String(args[0]).indexOf("[nativeMultiSelect.") === 0 && String(args[0]).indexOf("called after destroy") > 0));
+});
+
+test("destroy: aborts controllers, disconnects observers, cancels timers and removes listeners", async () => {
+  const b = boot();
+  const rt = b.rt();
+  const calls = [];
+  const controller = new AbortController();
+  rt.abortControllers.main = controller;
+  rt.observers.dom = { disconnect: () => calls.push("disconnect") };
+  rt.listeners.click = { target: { removeEventListener: (...a) => calls.push(a[0]) }, type: "click", handler: () => {} };
+  rt.timers.late = { kind: "timeout", id: setTimeout(() => calls.push("timer"), 5) };
+  b.api.destroy();
+  await new Promise((resolve) => setTimeout(resolve, 25));
+  assert.equal(controller.signal.aborted, true);
+  assert.deepEqual(calls.sort(), ["click", "disconnect"]);
+  assert.deepEqual(rt.timers, {});
+  assert.deepEqual(rt.abortControllers, {});
+  assert.deepEqual(rt.observers, {});
+  assert.deepEqual(rt.listeners, {});
 });
 
 test("dispatch: unknown action reduces and returns state; reducer errors do not throw", () => {
@@ -911,17 +930,18 @@ test("tabMutation apply restoreDeleted: writes the stored items into the insert 
   assert.deepEqual(b.facet.writes, [{ itemId: JAHR_ID, itemName: "Jahr", scopeId: "page2_tabpanel", values: [v("2019")] }]);
 });
 
-test("tabMutation apply: duplicate and restoreDeleted report unresolved slots without diagnostics", async () => {
+test("tabMutation apply: duplicate and restoreDeleted report unresolved slots with their diagnostics", async () => {
   const b = boot({ items: tmItems() });
   const targets = { 0: { scopeId: "page1_tabpanel", tabId: "t0" } };
   const base = { runId: 1, operationId: "opU", tabIdxToScopeId: targets };
   const dupPlan = { operation: "duplicate", sourceSlot: { tabIdx: 0 }, insertSlot: { tabIdx: 1 }, slotMoves: [{ fromTabIdx: 0, toTabIdx: 7 }] };
   await b.api.dispatch({ type: A.prepare, payload: Object.assign({}, base, { plan: { operation: "move", slotMoves: [] } }) });
+  const unresolvedSlot = [{ code: "TABS_MUTATION_PREPARE_FAILED", message: "scopeId could not be resolved for tabIdx 7", tabId: null }];
   const dup = await b.api.dispatch({ type: A.apply, payload: Object.assign({}, base, { plan: dupPlan }) });
-  assert.deepEqual(plain(dup), { ok: false, operationId: "opU", appliedScopes: [], clearedScopes: [], diagnostics: [] });
+  assert.deepEqual(plain(dup), { ok: false, operationId: "opU", appliedScopes: [], clearedScopes: [], diagnostics: unresolvedSlot });
   const rdPlan = { operation: "restoreDeleted", insertSlot: { tabIdx: 1 }, slotMoves: [{ fromTabIdx: 0, toTabIdx: 7 }], restore: { filters: {} } };
   const rd = await b.api.dispatch({ type: A.apply, payload: Object.assign({}, base, { plan: rdPlan }) });
-  assert.deepEqual(plain(rd), { ok: false, operationId: "opU", appliedScopes: [], clearedScopes: [], diagnostics: [] });
+  assert.deepEqual(plain(rd), { ok: false, operationId: "opU", appliedScopes: [], clearedScopes: [], diagnostics: unresolvedSlot });
 });
 
 test("tabMutation apply: guards, missing snapshot, unsupported plan, superseded run", async () => {
