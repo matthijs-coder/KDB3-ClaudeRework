@@ -84,21 +84,42 @@ test("widgetBase failure: record error, result not ok, no text colour request", 
   assert.equal(env.record("t1").colour, undefined);
 });
 
-test("text colour rejected by widgetText ({ok:false}): background commit stays, result stays ok", async () => {
-  const env = createEnv({ textResult: { ok: false, widgetId: "t1", status: "error", errorCode: "WIDGET_TEXT_COLOR_VALUE_INVALID" } });
+test("text colour rejected by widgetText ({ok:false}): recorded on the record, background commit and result stay ok", async () => {
+  const env = createEnv({ textResult: { ok: false, widgetId: "t1", status: "error", errorCode: "WIDGET_TEXT_COLOR_VALUE_INVALID", errorMessage: "bad colour" } });
   const result = await commit(env);
   await flush();
   assert.deepStrictEqual(result, { ok: true, widgetId: "t1", colour: "#0000ff" });
   assert.equal(env.record("t1").colour, "#0000ff");
-  assert.equal(env.record("t1").errorCode, null);
+  assert.equal(env.record("t1").errorCode, "WIDGET_TEXT_COLOR_VALUE_INVALID");
+  assert.equal(env.record("t1").errorMessage, "bad colour");
+  assert.equal(env.logs.filter((l) => l[0] === "warn" && String(l[1]).indexOf("applyReadableTextColor") >= 0).length, 1);
 });
 
-test("text colour dispatch rejects: logged, background commit stays, result stays ok", async () => {
+test("text colour rejected without an errorCode: fallback code", async () => {
+  const env = createEnv({ textResult: { ok: false } });
+  await commit(env);
+  await flush();
+  assert.equal(env.record("t1").errorCode, "WIDGET_SETTINGS_TEXT_COLOUR_FAILED");
+  assert.equal(env.record("t1").errorMessage, null);
+});
+
+test("text colour superseded (stale) or skipped is not a failure", async () => {
+  for (const textResult of [{ ok: false, stale: true, status: "aborted" }, { ok: true, skipped: true }]) {
+    const env = createEnv({ textResult });
+    await commit(env);
+    await flush();
+    assert.equal(env.record("t1").errorCode, null);
+  }
+});
+
+test("text colour dispatch rejects: logged and recorded, background commit stays, result stays ok", async () => {
   const env = createEnv({ textRejects: true });
   const result = await commit(env);
   await flush();
   assert.deepStrictEqual(result, { ok: true, widgetId: "t1", colour: "#0000ff" });
-  assert.equal(env.record("t1").errorCode, null);
+  assert.equal(env.record("t1").colour, "#0000ff");
+  assert.equal(env.record("t1").errorCode, "WIDGET_SETTINGS_TEXT_COLOUR_ERROR");
+  assert.equal(env.record("t1").errorMessage, "text boom");
   assert.equal(env.logs.filter((l) => l[0] === "warn" && String(l[1]).indexOf("applyReadableTextColor") >= 0).length, 1);
 });
 
