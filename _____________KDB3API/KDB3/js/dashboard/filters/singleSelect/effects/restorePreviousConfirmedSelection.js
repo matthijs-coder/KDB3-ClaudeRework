@@ -1,13 +1,13 @@
 define([
   "../state/selectionState.js",
   "./verifyCommitFilterValue.js",
-  "./readFiltersFacet.js",
+  "../runtime.js",
   "./hostFilterWrite.js"
-], function (_selectionState, _verifyCommit, _readFiltersFacet, _hostWrite) {
+], function (_selectionState, _verifyCommit, _singleSelectRuntime, _hostWrite) {
   "use strict";
 
   async function __controller(_KDB, _filterRef, _previousConfirmedSelection, _previousHostValues) {
-    var filtersFacet = _readFiltersFacet(_KDB);
+    var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB);
     var selection = _selectionState.normalizeConfirmedSelection(_previousConfirmedSelection);
     var values = Array.isArray(_previousHostValues) ? _previousHostValues : [];
     if (!_hostWrite.isWriteReady(filtersFacet) || !_filterRef) {

@@ -1,14 +1,14 @@
 define([
   "./resolveFilterRef.js",
   "./writeVerifiedSelection.js",
-  "./readFiltersFacet.js",
+  "../runtime.js",
   "../config.js"
-], function (_resolveFilterRef, _writeVerifiedSelection, _readFiltersFacet, _config) {
+], function (_resolveFilterRef, _writeVerifiedSelection, _singleSelectRuntime, _config) {
   "use strict";
 
   async function __controller(_KDB, _runtime, _filterInstanceId, _values) {
     try {
-      var filtersFacet = _readFiltersFacet(_KDB, _runtime);
+      var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
       var filterRef = _resolveFilterRef.resolveFilterRef(
         _KDB, _runtime, { filterInstanceId: _filterInstanceId }
       );

@@ -1,11 +1,11 @@
 define([
   "../effects/resolveFilterRef.js",
   "../effects/writeVerifiedSelection.js",
-  "../effects/readFiltersFacet.js",
+  "../runtime.js",
   "../effects/hostFilterWrite.js",
   "../config.js",
   "./ownerSelectionSupport.js"
-], function (_resolveFilterRef, _writeVerifiedSelection, _readFiltersFacet, _hostWrite, _config, _support) {
+], function (_resolveFilterRef, _writeVerifiedSelection, _singleSelectRuntime, _hostWrite, _config, _support) {
   "use strict";
 
   async function applyOwnerSelection(_KDB, _runtime, _payload) {
@@ -33,7 +33,7 @@ define([
         record.status !== "active" || record.hostStatus !== "present") {
         return _support.failure(id, _config.errorCodes.INSTANCE_NOT_FOUND, "writable delegated Sicht descriptor missing");
       }
-      var filtersFacet = _readFiltersFacet(_KDB, _runtime);
+      var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
       var filterRef = _resolveFilterRef.resolveFilterRef(_KDB, _runtime, { filterInstanceId: id });
       if (!filterRef || !_hostWrite.isWriteReady(filtersFacet)) {
         return _support.failure(id, _config.errorCodes.HOST_WRITE_FAILED, "host filter API unavailable");

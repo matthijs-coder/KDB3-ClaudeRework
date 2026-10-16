@@ -1,10 +1,10 @@
 define([
   "./readSingleSelectCandidate.js",
   "./listSingleSelectHostDescriptors.js",
-  "./readFiltersFacet.js",
+  "../runtime.js",
   "../config.js",
   "../../../../core/utils/getKennzahlenSource.js"
-], function (_candidateReader, _listHostDescriptors, _readFiltersFacet, _config, _getKennzahlenSource) {
+], function (_candidateReader, _listHostDescriptors, _singleSelectRuntime, _config, _getKennzahlenSource) {
   "use strict";
 
   function buildUnknownDiagnostic(_itemName, _scopeId, _definitionResult) {
@@ -105,7 +105,7 @@ define([
   }
 
   function __controller(_KDB) {
-    var inventory = _listHostDescriptors(_readFiltersFacet(_KDB));
+    var inventory = _listHostDescriptors(_singleSelectRuntime.readFiltersFacet(_KDB));
     var candidates = [];
     var diagnostics = [];
     var rawFallbackCounts = {};

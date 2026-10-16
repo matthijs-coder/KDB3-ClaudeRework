@@ -3,8 +3,8 @@ define([
   "./config.js",
   "./createSingleSelectController.js",
   "./history/createSingleSelectHistoryReplayHandler.js",
-  "./effects/ensureSingleSelectRuntime.js"
-], function (_initialState, _config, _createSingleSelectController, _createHandler, _ensureRuntime) {
+  "./runtime.js"
+], function (_initialState, _config, _createSingleSelectController, _createHandler, _singleSelectRuntime) {
   "use strict";
 
   // Lifecycle terms for singleSelect: idle, ready, error, disposed.
@@ -38,7 +38,7 @@ define([
       if (!_KDB.state.filters.singleSelect) {
         _KDB.state.filters.singleSelect = _initialState();
       }
-      _ensureRuntime(_KDB);
+      _singleSelectRuntime.ensureSingleSelectRuntime(_KDB);
       _KDB.runtime.singleSelect.filtersFacet = readFiltersFacet(_KDB);
       stageSingleSelectHistoryReplayHandler(_KDB);
       var controller = _createSingleSelectController({ _KDB: _KDB, options: _options || {} });

@@ -2,10 +2,10 @@ define([
   "./guardTabMutation.js",
   "./buildTabMutationTransfers.js",
   "../../effects/resolveFilterRef.js",
-  "../../effects/readFiltersFacet.js",
+  "../../runtime.js",
   "../../effects/hostFilterWrite.js",
   "../../config.js"
-], function (_support, _buildTransfers, _resolveFilterRef, _readFiltersFacet, _hostWrite, _config) {
+], function (_support, _buildTransfers, _resolveFilterRef, _singleSelectRuntime, _hostWrite, _config) {
   "use strict";
 
   function failure(_operationId, _diagnostics) {
@@ -52,7 +52,7 @@ define([
         }
       });
       if (diagnostics.length > 0) { return failure(payload.operationId, diagnostics); }
-      var filtersFacet = _readFiltersFacet(_KDB, _runtime);
+      var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
       var snapshot = {
         operationId: payload.operationId,
         runId: payload.runId,

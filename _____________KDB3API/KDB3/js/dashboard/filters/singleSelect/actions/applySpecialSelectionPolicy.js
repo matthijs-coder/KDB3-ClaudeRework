@@ -2,10 +2,10 @@ define([
   "../effects/resolveFilterRef.js",
   "../effects/verifyCommitFilterValue.js",
   "../effects/commitSelectionState.js",
-  "../effects/readFiltersFacet.js",
+  "../runtime.js",
   "../effects/hostFilterWrite.js",
   "../config.js"
-], function (_resolveFilterRef, _verifyCommitFilterValue, _commitSelectionState, _readFiltersFacet, _hostWrite, _config) {
+], function (_resolveFilterRef, _verifyCommitFilterValue, _commitSelectionState, _singleSelectRuntime, _hostWrite, _config) {
   "use strict";
 
   function matchesSemanticId(_record, _semanticId) {
@@ -40,7 +40,7 @@ define([
         !matchesSemanticId(record, _payload.semanticSpecialFilterId)) {
         return failed(_id, _config.errorCodes.SPECIAL_INSTANCE_MISSING);
       }
-      var filtersFacet = _readFiltersFacet(_KDB, _runtime);
+      var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
       var filterRef = _resolveFilterRef.resolveFilterRef(_KDB, _runtime, { filterInstanceId: _id });
       if (!filterRef || !_hostWrite.isWriteReady(filtersFacet)) {
         return failed(_id, _config.errorCodes.SPECIAL_POLICY_APPLY_FAILED);

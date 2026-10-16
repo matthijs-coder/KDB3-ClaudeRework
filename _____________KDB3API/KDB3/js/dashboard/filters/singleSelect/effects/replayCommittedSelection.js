@@ -6,11 +6,11 @@ define([
   "../config.js",
   "../history/notifySpecialOwnerForReplay.js",
   "./resolveFilterRef.js",
-  "./readFiltersFacet.js",
+  "../runtime.js",
   "./hostFilterWrite.js"
 ], function (
   _writes, _restorePrevious, _commitSelectionState, _selectionState, _config, _notifySpecialOwner,
-  _resolveFilterRef, _readFiltersFacet, _hostWrite
+  _resolveFilterRef, _singleSelectRuntime, _hostWrite
 ) {
   "use strict";
 
@@ -47,7 +47,7 @@ define([
     var value = _value || {};
     var runtime = _KDB && _KDB.runtime ? _KDB.runtime.singleSelect : null;
     var singleSelectRoot = _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.singleSelect : null;
-    var filtersFacet = _readFiltersFacet(_KDB, runtime);
+    var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, runtime);
     var filterRef;
     var previousHostValues;
     var previousSelection;

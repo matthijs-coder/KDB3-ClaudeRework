@@ -5,7 +5,7 @@ define([
   "../effects/waitForFilterInventory.js",
   "./reconcileRunSupport.js",
   "./notifyInventoryReconciledOwners.js",
-  "../effects/singleSelectInFlight.js"
+  "../runtime.js"
 ], function (
   _enumerateFilterInstances,
   _reconcileState,
@@ -13,7 +13,7 @@ define([
   _waitForFilterInventory,
   _runSupport,
   _notifyInventoryReconciledOwners,
-  _inFlight
+  _singleSelectRuntime
 ) {
   "use strict";
 
@@ -55,7 +55,7 @@ define([
       );
       _runSupport.verifyRetainedApiMappings(priorInstancesById, reconciled, diagnostics);
       if (!_runSupport.isCurrent(_runtime, _run)) { return _runSupport.staleResult(_KDB); }
-      _inFlight.adopt(_runtime, reconciled.instancesById);
+      _singleSelectRuntime.inFlight.adopt(_runtime, reconciled.instancesById);
       root.instancesById = reconciled.instancesById;
       var inventoryIncomplete = inventory.uniquenessUnproven === true;
       root.inventory = {

@@ -2,14 +2,14 @@ define([
   "./resolveFilterRef.js",
   "./resolveFilterValueFromTable.js",
   "./verifyCommitFilterValue.js",
-  "./readFiltersFacet.js",
+  "../runtime.js",
   "./hostFilterWrite.js",
   "../config.js"
 ], function (
   _resolveFilterRef,
   _resolveFilterValue,
   _verifyCommit,
-  _readFiltersFacet,
+  _singleSelectRuntime,
   _hostWrite,
   _config
 ) {
@@ -26,7 +26,7 @@ define([
     var filterRef;
     var previousValues;
     try {
-      filtersFacet = _readFiltersFacet(_KDB, _runtime);
+      filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
       filterRef = _resolveFilterRef.resolveFilterRef(_KDB, _runtime, _handoff);
       if (!_hostWrite.isWriteReady(filtersFacet) || !filterRef) {
         throw codedError(_config.errorCodes.HOST_WRITE_FAILED, "filter host writer unavailable");

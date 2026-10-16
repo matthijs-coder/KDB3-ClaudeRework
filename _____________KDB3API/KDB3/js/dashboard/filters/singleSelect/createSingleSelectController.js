@@ -2,17 +2,15 @@ define([
   "./config.js",
   "./state/createSingleSelectReducer.js",
   "./state/selectors.js",
-  "./effects/guardInteractionFreshness.js",
+  "./runtime.js",
   "./actions/dispatchSingleSelectAction.js",
-  "./effects/ensureSingleSelectRuntime.js",
   "./singleSelectControllerGuards.js"
 ], function (
   _config,
   _createSingleSelectReducer,
   _selectors,
-  _guardInteractionFreshness,
+  _singleSelectRuntime,
   _dispatchAction,
-  _ensureRuntime,
   _guards
 ) {
   "use strict";
@@ -33,7 +31,7 @@ define([
       return false;
     }
     try {
-      _ensureRuntime(_controller._KDB);
+      _singleSelectRuntime.ensureSingleSelectRuntime(_controller._KDB);
       _controller.options = Object.assign({}, _controller.options, _options || {});
       _controller._KDB.state.filters.singleSelect.instancesById = _controller._KDB.state.filters.singleSelect.instancesById || {};
       _controller._KDB.state.filters.singleSelect.inventory = _controller._KDB.state.filters.singleSelect.inventory || {
@@ -41,7 +39,7 @@ define([
       };
       delete _controller._KDB.state.filters.singleSelect.byScope;
       _guards.dispatchInternal(_controller, { type: _config.actions.MOUNT_SUCCEEDED, payload: { mountedAt: Date.now() } });
-      _dispatchAction(_controller._KDB, _ensureRuntime(_controller._KDB), {
+      _dispatchAction(_controller._KDB, _singleSelectRuntime.ensureSingleSelectRuntime(_controller._KDB), {
         type: _config.actions.RECONCILE_FILTER_INSTANCES,
         payload: { reason: "mount" }
       }, _controller.options, _guards.dispatchInternal.bind(null, _controller));
@@ -62,7 +60,7 @@ define([
     }
     _controller.isDisposed = true;
     try {
-      _guardInteractionFreshness.resetSingleSelectRuntime(_ensureRuntime(_controller._KDB));
+      _singleSelectRuntime.resetSingleSelectRuntime(_singleSelectRuntime.ensureSingleSelectRuntime(_controller._KDB));
       if (_controller._KDB.runtime && _controller._KDB.runtime.singleSelect) {
         _controller._KDB.runtime.singleSelect.historyReplayHandlerContribution = null;
       }
@@ -85,7 +83,7 @@ define([
     try {
       return _dispatchAction(
         _controller._KDB,
-        _ensureRuntime(_controller._KDB),
+        _singleSelectRuntime.ensureSingleSelectRuntime(_controller._KDB),
         _action,
         _controller.options,
         _guards.dispatchInternal.bind(null, _controller)

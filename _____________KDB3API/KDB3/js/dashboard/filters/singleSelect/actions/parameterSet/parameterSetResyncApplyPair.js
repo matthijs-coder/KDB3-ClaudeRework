@@ -2,15 +2,15 @@ define([
   "../../config.js",
   "./parameterSetRuntime.js",
   "../../effects/verifyCommitFilterValue.js",
-  "../../effects/readFiltersFacet.js",
+  "../../runtime.js",
   "../../effects/hostFilterWrite.js",
   "../../effects/commitSelectionState.js"
-], function (_config, _runtime, _verifyCommit, _readFiltersFacet, _hostWrite, _commitSelectionState) {
+], function (_config, _runtime, _verifyCommit, _singleSelectRuntime, _hostWrite, _commitSelectionState) {
   "use strict";
 
   async function applyConfirmedPair(_KDB, _filterRef, _selection, _payload, _assignment, _filterInstanceId) {
     try {
-      var filtersFacet = _readFiltersFacet(_KDB);
+      var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB);
       var useValue = _selection && _selection.useValue != null ? String(_selection.useValue) : "";
       var incomingDisplay = _selection && _selection.displayValue;
       var incomingSource = _selection && _selection.displaySource;

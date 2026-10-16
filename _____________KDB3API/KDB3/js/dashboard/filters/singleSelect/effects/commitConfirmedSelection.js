@@ -6,8 +6,7 @@ define([
   "./finalizeConfirmedCommit.js",
   "./setCommitUiState.js",
   "./lookupLiveFilterState.js",
-  "./singleSelectInFlight.js",
-  "./guardInteractionFreshness.js"
+  "../runtime.js"
 ], function (
   _executeConfirmedCommit,
   _selectionState,
@@ -16,8 +15,7 @@ define([
   _finalizeConfirmedCommit,
   _setCommitUiState,
   _lookupLiveFilterState,
-  _inFlight,
-  _guardInteractionFreshness
+  _singleSelectRuntime
 ) {
   "use strict";
 
@@ -64,11 +62,11 @@ define([
     if (options.signal && options.signal.aborted === true) {
       return false;
     }
-    if (_guardInteractionFreshness.isStaleInteraction(liveState, options.interactionSequence)) {
+    if (_singleSelectRuntime.isStaleInteraction(liveState, options.interactionSequence)) {
       return false;
     }
     liveState.isCommitInProgress = true;
-    _inFlight.begin(_runtime, instanceId);
+    _singleSelectRuntime.inFlight.begin(_runtime, instanceId);
     _setCommitUiState(_KDB, _runtime, true);
     try {
       var executed = await _executeConfirmedCommit(
@@ -107,7 +105,7 @@ define([
       }
       liveState = _lookupLiveFilterState(_KDB, _handoffContext, liveState);
       liveState.isCommitInProgress = false;
-      _inFlight.end(_runtime, instanceId);
+      _singleSelectRuntime.inFlight.end(_runtime, instanceId);
       _setCommitUiState(_KDB, _runtime, false);
     }
   }
