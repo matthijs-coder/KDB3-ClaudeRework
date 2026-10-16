@@ -510,4 +510,4 @@ They mean:
 - `_KDB.state` remains central, but write access is restricted by ownership;
 - runtime objects stay out of `_KDB.state`.
 
-See also: `_____________KDB3API/architecture/projectStructureRules.md`, `_____________KDB3API/architecture/migrationContext.md`, `_____________KDB3API/architecture/eventSubscribe.md`, `_____________KDB3API/architecture/filesExplained.md`, `_____________KDB3API/.cursor/rules/`.
+See also: `_____________KDB3API/architecture/projectStructureRules.md`, `_____________KDB3API/architecture/_archive/migrationContext.md`, `_____________KDB3API/architecture/eventSubscribe.md`, `_____________KDB3API/architecture/filesExplained.md`, `_____________KDB3API/.cursor/rules/`.

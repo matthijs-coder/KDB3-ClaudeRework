@@ -22,7 +22,7 @@ Every entry has the following fields:
 1. Propose the event with the user; confirm fact vs request and naming.
 2. Add a new section below using the template at the end of this file.
 3. Implement emit / subscribe / teardown in the owning module.
-4. Reference this catalog entry from the relevant module contract per `_____________KDB3API/contracts/_template.md` section 6.
+4. Reference this catalog entry from the relevant module contract per `_____________KDB3API/contracts/_archive/_template.md` section 6.
 
 A new event without a catalog entry is not allowed to land in code.
 
@@ -55,7 +55,7 @@ Catalog entries for `_____________KDB3API/contracts/kdbControl.md` Section 6. Em
 
 ### ~~Toolbox request-events superseded (CP-1)~~
 
-The following **request** catalog rows applied when toolbox used `_KDB.events` for header/footer chrome. **CP-1 (2026-05-13):** known-owner controls use **`_KDB.api.header.dispatch`** / **`_KDB.api.footer.dispatch`** instead; these request names are **not** emitted from the sandbox port. See `contracts/kdbControl-header-footer-toolbox-contractdelta.md` §4–5 and `contracts/kdbControl.md` §6.
+The following **request** catalog rows applied when toolbox used `_KDB.events` for header/footer chrome. **CP-1 (2026-05-13):** known-owner controls use **`_KDB.api.header.dispatch`** / **`_KDB.api.footer.dispatch`** instead; these request names are **not** emitted from the sandbox port. See `contracts/_archive/kdbControl-header-footer-toolbox-contractdelta.md` §4–5 and `contracts/kdbControl.md` §6.
 
 - ~~`header:toggleRequested`~~ — superseded by direct `header/toggle` dispatch.
 - ~~`header:editRequested`~~ — superseded by direct `header/startTitleEdit` / related header actions.
@@ -92,7 +92,7 @@ The following **request** catalog rows applied when toolbox used `_KDB.events` f
   ```
 - **Subscribers:**
   - `kdbControl` — file: `kdbControl/__orchestratorKdbControl.js` (or documented wiring) — handler: subscription registered in `mount`; unsubscribe fn stored under `_KDB.runtime.kdbControl.subscriptions.authoringEntered`.
-- **Teardown owner:** **`kdbControl.destroy()`** — must clear **`authoringEntered`** (and all other `kdbControl` subscription handles) per `_____________KDB3API/contracts/kdbControl-authoring-mode-contractdelta.md` §7 and `_____________KDB3API/contracts/kdbControl.md` §3.
+- **Teardown owner:** **`kdbControl.destroy()`** — must clear **`authoringEntered`** (and all other `kdbControl` subscription handles) per `_____________KDB3API/contracts/_archive/kdbControl-authoring-mode-contractdelta.md` §7 and `_____________KDB3API/contracts/kdbControl.md` §3.
 
 ### `authoring:exited`
 
@@ -108,7 +108,7 @@ The following **request** catalog rows applied when toolbox used `_KDB.events` f
   ```
 - **Subscribers:**
   - `kdbControl` — file: `kdbControl/__orchestratorKdbControl.js` (or documented wiring) — handler: subscription registered in `mount`; unsubscribe fn stored under `_KDB.runtime.kdbControl.subscriptions.authoringExited`.
-- **Teardown owner:** **`kdbControl.destroy()`** — must clear **`authoringExited`** (and all other `kdbControl` subscription handles) per `_____________KDB3API/contracts/kdbControl-authoring-mode-contractdelta.md` §7 and `_____________KDB3API/contracts/kdbControl.md` §3.
+- **Teardown owner:** **`kdbControl.destroy()`** — must clear **`authoringExited`** (and all other `kdbControl` subscription handles) per `_____________KDB3API/contracts/_archive/kdbControl-authoring-mode-contractdelta.md` §7 and `_____________KDB3API/contracts/kdbControl.md` §3.
 
 ---
 
@@ -207,7 +207,7 @@ Catalog entry for `_____________KDB3API/contracts/dragDrop.md` Section 8. Emitte
 
 ## Module: tabs
 
-Catalog entry for `_____________KDB3API/contracts/tabs-activationEvent-contractdelta.md` and `_____________KDB3API/contracts/tabs-kdbControl-clickAhead-follow-contractdelta.md`. Emitter uses `_KDB.events` per `events.mdc`. **Status: approved and implemented 2026-07-11; click-ahead 2026-09-04, Cognos groen.**
+Catalog entry for `_____________KDB3API/contracts/_archive/tabs-activationEvent-contractdelta.md` and `_____________KDB3API/contracts/_archive/tabs-kdbControl-clickAhead-follow-contractdelta.md`. Emitter uses `_KDB.events` per `events.mdc`. **Status: approved and implemented 2026-07-11; click-ahead 2026-09-04, Cognos groen.**
 
 ### `tabs:activationStarted`
 
@@ -274,4 +274,4 @@ Catalog entry for `_____________KDB3API/contracts/tabs-activationEvent-contractd
 - **Teardown owner:** `<who unsubscribes when>`
 ````
 
-See also: `_____________KDB3API/.cursor/rules/events.mdc`, `naming.mdc`, `module-public-api.mdc`, `_____________KDB3API/contracts/_template.md`.
+See also: `_____________KDB3API/.cursor/rules/events.mdc`, `naming.mdc`, `module-public-api.mdc`, `_____________KDB3API/contracts/_archive/_template.md`.

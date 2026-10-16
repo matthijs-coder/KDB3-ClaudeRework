@@ -5,7 +5,7 @@
 ---
 
 **Status:** `Implemented` — code review PASS 2026-08-27; Cognos-host niet in-browser geverifieerd
-**Parents:** `contracts/tabs-parameterSetRestore-contractdelta.md` §5 / §5.2; `contracts/writeback.md` §6.4 ~1157; `contracts/writeback-t2-item5c-contractdelta.md`; `contracts/widgetBase-lazyLaunchpadRouting-contractdelta.md` §3.4
+**Parents:** `contracts/tabs-parameterSetRestore-contractdelta.md` §5 / §5.2; `contracts/writeback.md` §6.4 ~1157; `contracts/_archive/writeback-t2-item5c-contractdelta.md`; `contracts/widgetBase-lazyLaunchpadRouting-contractdelta.md` §3.4
 **Type:** `feature module contract delta`
 **Authoring AI:** Cursor Grok 4.6 (captain), 2026-08-27
 **Reviewed by:** pending PO

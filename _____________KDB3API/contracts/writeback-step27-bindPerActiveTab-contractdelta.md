@@ -1,6 +1,6 @@
 # Contract Delta: step 27 binds vis widgets per active tab
 
-> Delta on `contracts/writeback.md` §6.4 step 27 (and §1186 render semantics), `contracts/widgetVis-parameterSetRestore-contractdelta.md` §84-85, `contracts/widgetTopN.md` (restore not covered).
+> Delta on `contracts/writeback.md` §6.4 step 27 (and §1186 render semantics), `contracts/_archive/widgetVis-parameterSetRestore-contractdelta.md` §84-85, `contracts/widgetTopN.md` (restore not covered).
 > Contract-only. Sequenced **after** WP-J (`tabs-parameterSetActivate-liveWidgetsReady`) and WP-N (degraded noise) are live-verified.
 
 ---

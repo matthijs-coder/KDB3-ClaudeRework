@@ -1,12 +1,12 @@
 # Contract Delta: `kdbControl` / tabs edit-UI for Tab-CRUD
 
-> Delta on top of `contracts/kdbControl.md` and `contracts/tabs-edit-ui-contractdelta.md`, downstream of `contracts/tabs-tabCrud-contractdelta.md`.
+> Delta on top of `contracts/kdbControl.md` and `contracts/_archive/tabs-edit-ui-contractdelta.md`, downstream of `contracts/_archive/tabs-tabCrud-contractdelta.md`.
 > Contract-only: no production code is approved by this document.
 
 ---
 
 **Status:** `Approved — PO 2026-08-10; messageService integration replaces the native-confirm placeholder (updated 2026-07-15)`
-**Parent contracts:** `contracts/kdbControl.md`, `contracts/tabs-edit-ui-contractdelta.md`
+**Parent contracts:** `contracts/kdbControl.md`, `contracts/_archive/tabs-edit-ui-contractdelta.md`
 **Depends on:** `tabs-tabCrud-contractdelta.md` (§1 D-CRUD-2/4/6, §2.4 MutationResult, §8 error codes), `contracts/messageService.md` (Approved 2026-07-15; `confirm`/`choose`/`notify`/`showAlert`)
 **Type:** `feature module contract delta`
 **Authoring AI:** Fable 5, 2026-07-14 (messageService sync 2026-07-15)

@@ -1,6 +1,6 @@
 # Service Contract: `widgetBindingApply`
 
-> Full CP-1 contract for the shared Cognos binding-apply service in the widgets composed-port path. Design authority lives in `_____________KDB3API/architecture/widgets-domain-blueprint.md`; this contract expands the original stub with the §12 execution-readiness details.
+> Full CP-1 contract for the shared Cognos binding-apply service in the widgets composed-port path. Design authority lives in `_____________KDB3API/architecture/_archive/widgets-domain-blueprint.md`; this contract expands the original stub with the §12 execution-readiness details.
 
 ---
 
@@ -31,11 +31,11 @@ No production behavior code may be generated until this CP-1 contract is approve
 
 | Evidence | Use in this contract |
 |---|---|
-| `architecture/widgets-domain-blueprint.md` | Authority for shared-service boundary, no `_KDB.state.widgets` writes, named-method public API, write-after-apply discipline and §12 detail requirements. |
+| `architecture/_archive/widgets-domain-blueprint.md` | Authority for shared-service boundary, no `_KDB.state.widgets` writes, named-method public API, write-after-apply discipline and §12 detail requirements. |
 | `contracts/widgetBindingPlan.md` | Schema authority for `BindingPlan`; `widgetBindingApply` consumes its output and must not rebuild domain decisions. |
 | `contracts/widgetVis.md` | Visible-widget consumer; expects `applyBinding(plan, { target: { widgetId, targetKind:"vis" }, signal, timeoutProfile:"vis" })`. |
 | `contracts/widgetTopN.md` / `widgetDataTable.md` | Helper-table consumer path; topN configures a datatable/List helper through this service and reads helper rows through `tableDataService`. |
-| `architecture/widgets-legacy-survey-redesign2.md` RUN 4 | Legacy apply order, plan fields, slot/filter/render touchpoints, post-success writebacks, supersession checks, rollback and diagnostics. |
+| `architecture/_archive/widgets-legacy-survey-redesign2.md` RUN 4 | Legacy apply order, plan fields, slot/filter/render touchpoints, post-success writebacks, supersession checks, rollback and diagnostics. |
 | Read-only legacy investigation report | Confirms `applyBindingPlan` as the authoritative apply path and `applyLiveWidgetSlots`/`applyLiveWidgetLocalFilters` as superseded imperative twins. |
 
 Deliberate deltas versus legacy:
@@ -264,7 +264,7 @@ If `plan.ok !== true` or `plan.status !== "success"`, `applyBinding` returns `st
 4. `setVisType` — call `setVisType(desiredVisType, target.widgetId)` only when current canonical type differs or current type is unknown. `desiredVisType` is the Cognos visualization id: prefer `plan.visualization.cognosVisualizationTypeId` when non-null, then `canonicalVisType`, then `visType` as a final fallback for legacy/standard labels.
 5. `clearSlotsAndFilters` — if `plan.slotsChanged === true`, `plan.slotsToClear` contains `"all"`, or `plan.resetIntent.enabled === true` with `clearAllSlots` / `clearAllLocalFilters`, call `clearAllSlots(target.widgetId)` then `clearAllLocalFilters(target.widgetId)`.
 6. `setDatasourceAfterClear` — repeat `setVizDataSource(plan.datasource.id, target.widgetId)` after a clear, matching REDESIGN2 behavior.
-7. `applySlots` — run only when the plan is rebuilding/resetting slots (`plan.slotsChanged === true`, `slotsToClear` contains `"all"`, or reset intent requests slot/local-filter reset). For filter-only plans where slots are unchanged, record `applySlots` as skipped and do not call `addDataItemsToSlot`. When run, honor `slot.options.limit` / `slot.options.keepOnlyFirst` before applying `columnIds`, call `addDataItemsToSlot(target.widgetId, slotName, effectiveColumnIds)`, then if `slot.options.customLabel` is present call `setCustomLabelInSlot(target.widgetId, slotName, customLabel.columnId, customLabel.label)` (empty label is an apply failure, not a skip), then `sortDataItemInSlot(slotName, columnId, order, target.widgetId, priority)` for each resolved sort spec. Authority: `contracts/visualization-dimension-custom-label-contractdelta.md`.
+7. `applySlots` — run only when the plan is rebuilding/resetting slots (`plan.slotsChanged === true`, `slotsToClear` contains `"all"`, or reset intent requests slot/local-filter reset). For filter-only plans where slots are unchanged, record `applySlots` as skipped and do not call `addDataItemsToSlot`. When run, honor `slot.options.limit` / `slot.options.keepOnlyFirst` before applying `columnIds`, call `addDataItemsToSlot(target.widgetId, slotName, effectiveColumnIds)`, then if `slot.options.customLabel` is present call `setCustomLabelInSlot(target.widgetId, slotName, customLabel.columnId, customLabel.label)` (empty label is an apply failure, not a skip), then `sortDataItemInSlot(slotName, columnId, order, target.widgetId, priority)` for each resolved sort spec. Authority: `contracts/_archive/visualization-dimension-custom-label-contractdelta.md`.
 8. `removeManagedFilters` — remove previously managed filters only when the caller passes `options.previousManagedFilterItemIds[]` and `targetKind !== "topNHelper"`; otherwise skip and report `skippedSteps:["removeManagedFilters"]`. The service does not read previous ids from the plan and does not persist managed-filter ids itself.
 9. `applyLocalFilters` — for each descriptor, build the Cognos local-filter body and call `addOrReplaceLocalFilter(target.widgetId, descriptor.itemId, body)`.
 10. `applyTopBottom` — for `targetKind:"topNHelper"` only, apply `SlotPlanItem.options.topBottom` to the helper slot/value item through `setTopBottomOnSlot`; skip for visible targets or plans without topBottom material.
@@ -533,7 +533,7 @@ Integration order:
 - Deciding when a widget should be intentionally emptied; callers express that through `BindingPlan.emptyIntent` and a `localFilters[]` `emptyData/forceEmpty` descriptor.
 - Committing settings, derived widget state or history (`widgetSettings`, `widgetVis`, `widgetTopN`).
 - Inline rollback/replay of last-good plan.
-- Title, legend, tooltip, drillthrough, focus mode and list-summary cosmetic writebacks. Slot data-item `setCustomLabel` after add is an apply Cognos touchpoint, not this bucket (`contracts/visualization-dimension-custom-label-contractdelta.md`).
+- Title, legend, tooltip, drillthrough, focus mode and list-summary cosmetic writebacks. Slot data-item `setCustomLabel` after add is an apply Cognos touchpoint, not this bucket (`contracts/_archive/visualization-dimension-custom-label-contractdelta.md`).
 - Launchpad, canvas placement, widget cleanup ownership and DOM movement.
 - TableData cache reads, helper row reads, TopN row extraction or hierarchy data loading.
 - Cross-module integration tests.

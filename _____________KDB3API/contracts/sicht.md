@@ -649,7 +649,7 @@ No known blocking questions remain.
 If CP-1 approves this contract, the next phase is:
 
 ```txt
-_____________KDB3API/contracts/sicht-port-execution-spec.md
+_____________KDB3API/contracts/_archive/sicht-port-execution-spec.md
 ```
 
 The execution spec must include the mapping table, per-file `Rules to apply` checklist, anti-D1 / anti-D2 acceptance criteria, and the direct-port forbidden action that no behavior changes beyond this approved contract are allowed.

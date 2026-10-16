@@ -2,7 +2,7 @@
 
 **Status:** `Open` 2026-09-03 (PO vastenburg). No fixture on hand. Do **not** block same-package mapping green.
 
-**Parents:** `contracts/writeback-v2Map-contractdelta.md` A1 / A3; host checklist items 2–3 in `contracts/futureTodo/writeback-mapping-restore-ux-implement-captain-handoff-2026-09-03.md`.
+**Parents:** `contracts/_archive/writeback-v2Map-contractdelta.md` A1 / A3; host checklist items 2–3 in `contracts/_archive/writeback-mapping-restore-ux-implement-captain-handoff-2026-09-03.md`.
 
 ## Closed 2026-09-03 (this chat)
 

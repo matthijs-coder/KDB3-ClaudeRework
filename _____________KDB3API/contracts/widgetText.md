@@ -1,6 +1,6 @@
 # Module Contract: `widgetText`
 
-> Full CP-1 contract for the text-content composed-port tranche. Design authority lives in `_____________KDB3API/architecture/widgets-domain-blueprint.md`; this contract makes the `widgetText` implementation scope explicit and keeps base/settings/history ownership outside this module.
+> Full CP-1 contract for the text-content composed-port tranche. Design authority lives in `_____________KDB3API/architecture/_archive/widgets-domain-blueprint.md`; this contract makes the `widgetText` implementation scope explicit and keeps base/settings/history ownership outside this module.
 
 ---
 
@@ -32,7 +32,7 @@ No production behavior code may be generated until this CP-1 contract is approve
 
 | Evidence | Use in this contract |
 |---|---|
-| `architecture/widgets-domain-blueprint.md` | Authority for base/content/settings split, dispatch APIs, `_KDB.state.widgets.text`, write-after-apply discipline and §12 full-contract requirements. |
+| `architecture/_archive/widgets-domain-blueprint.md` | Authority for base/content/settings split, dispatch APIs, `_KDB.state.widgets.text`, write-after-apply discipline and §12 full-contract requirements. |
 | `contracts/widgetBase.md` | `widgetBase` owns shell/frame/drop placement and dispatches `widgetText/contentCreate` after text drop. |
 | `contracts/widgetSettings.md` | `widgetSettings` owns panel-control values and settings history; it dispatches `applyFontSize` / `applyRestyle` / `commitTextEdit` to `widgetText`. |
 | `contracts/historyService.md` | History steps are serializable and pushed only through `_KDB.services.history.pushCommittedStep(step)`. |

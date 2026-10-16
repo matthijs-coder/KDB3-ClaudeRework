@@ -147,6 +147,6 @@ Replay-handlers worden **tweemaal** gebonden (`KDB.js` na kdbControl-mount en na
 | `contracts/tabs.md` | Status Draft; phase-1 **defert** move/delete. Live tabs doen dat al. | `runTabMutationSaga.js` |
 | `contracts/widgetSettings.md` | Draft; noemt `commitDimension` / `commitVisType` / `commitColour`. | `intentDispatchMap.js` |
 | `contracts/nativeMultiSelect.md` §6 | Folderlijst is plat `actions/*.js`; live tree heeft `actions/tabMutation/` en `actions/parameterSet/`. | Live `nativeMultiSelect/` + `config/actions.js` |
-| `contracts/pageContextPlain.md` | Status **Superseded**. | `nativeMultiSelect` (v3-bucket `filt.pcfs`) |
+| `contracts/_archive/pageContextPlain.md` | Status **Superseded**. | `nativeMultiSelect` (v3-bucket `filt.pcfs`) |
 
 `eventSubscribe.md` is geen human map voor confirm / tab-move / settings — dat zijn dispatch-sagas, geen bus-events.
