@@ -102,10 +102,10 @@ test('bus: invalid subscribe arguments throw', () => {
   assert.throws(() => bus.subscribe('a', null), /Event handler/);
 });
 
-test('bus: public surface has no unsubscribe method', () => {
+test('bus: public surface is emit, subscribe, dispose (no unsubscribe method)', () => {
   const { console } = silentConsole();
   const bus = load('core/events/createEventBus.js', { stubs: { console } })();
-  assert.deepEqual(Object.keys(bus).sort(), ['emit', 'subscribe']);
+  assert.deepEqual(Object.keys(bus).sort(), ['dispose', 'emit', 'subscribe']);
 });
 
 test('authoringMode constants and selector keep their shape', () => {
@@ -117,6 +117,39 @@ test('authoringMode constants and selector keep their shape', () => {
   assert.equal(readIsAuthoring({ state: { authoring: { isAuthoring: true } } }), true);
   assert.equal(readIsAuthoring({ state: { authoring: { isAuthoring: 1 } } }), false);
   assert.equal(readIsAuthoring(null), false);
+});
+
+test('bus: dispose drops handlers and abort listeners; emit is inert and late subscribe is a no-op', () => {
+  const { console } = silentConsole();
+  const bus = load('core/events/createEventBus.js', { stubs: { console } })();
+  const seen = [];
+  const listeners = new Set();
+  const signal = {
+    aborted: false,
+    addEventListener: (type, fn) => listeners.add(fn),
+    removeEventListener: (type, fn) => listeners.delete(fn),
+  };
+  const off = bus.subscribe('a', (p) => seen.push(['a', p]), { signal });
+  bus.subscribe('b', (p) => seen.push(['b', p]));
+  assert.equal(listeners.size, 1);
+  bus.dispose();
+  assert.equal(listeners.size, 0);
+  bus.emit('a', 1);
+  bus.emit('b', 2);
+  assert.deepEqual(seen, []);
+  const late = bus.subscribe('a', (p) => seen.push(['late', p]));
+  assert.equal(typeof late, 'function');
+  bus.emit('a', 3);
+  assert.deepEqual(seen, []);
+  assert.doesNotThrow(() => { off(); late(); bus.dispose(); });
+});
+
+test('bus: dispose still validates subscribe arguments', () => {
+  const { console } = silentConsole();
+  const bus = load('core/events/createEventBus.js', { stubs: { console } })();
+  bus.dispose();
+  assert.throws(() => bus.subscribe('', () => {}), /non-empty string/);
+  assert.throws(() => bus.subscribe('a', null), /must be a function/);
 });
 
 // ------------------------------------------------------------- authoring

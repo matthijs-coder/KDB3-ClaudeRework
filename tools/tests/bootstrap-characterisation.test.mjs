@@ -298,6 +298,20 @@ test('destroy releases the root namespaces and is idempotent', async () => {
   assert.deepEqual(h.log, []);
 });
 
+test('destroy disposes the event bus: handlers are dropped and late events are ignored', async () => {
+  const h = createHarness();
+  const kdb = h.createKdb();
+  await kdb.renderKDB({});
+  const bus = kdb.events;
+  const seen = [];
+  bus.subscribe('probe', (payload) => seen.push(payload));
+  bus.emit('probe', 1);
+  kdb.destroy();
+  bus.emit('probe', 2);
+  assert.deepEqual(seen, [1]);
+  assert.equal(kdb.events, null);
+});
+
 test('destroy: a throwing feature does not stop the rest; lifecycle ends in "error"', async () => {
   const h = createHarness({ failDestroy: 'tabs' });
   const kdb = h.createKdb();

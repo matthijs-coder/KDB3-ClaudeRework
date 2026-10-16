@@ -170,6 +170,12 @@ define([
         console.error("[core.destroy] runtime cleanup failed", error);
       }
       try {
+        if (this.events && typeof this.events.dispose === "function") { this.events.dispose(); }
+      } catch (error) {
+        destroyError = destroyError || error;
+        console.error("[core.destroy] event bus dispose failed", error);
+      }
+      try {
         _getKDBAnchor.uninstallGetKDB(this);
       } catch (error) {
         destroyError = destroyError || error;
