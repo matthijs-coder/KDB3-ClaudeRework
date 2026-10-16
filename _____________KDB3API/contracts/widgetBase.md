@@ -35,7 +35,7 @@ Normative detail: `contracts/_archive/tabs-tabMutation-rebuildOnSlotStock-contra
 
 | Evidence | Use in this contract |
 |---|---|
-| `_______REDESIGN2/KDB3/js/dashboard/canvas/widgets/` investigation | Orchestrator flow, `canvas:dropValidated` routing, route-all startup parking, placement rollback, history boundaries, render/lifecycle split evidence. |
+| `legacy-redesign2:js/dashboard/canvas/widgets/` investigation | Orchestrator flow, `canvas:dropValidated` routing, route-all startup parking, placement rollback, history boundaries, render/lifecycle split evidence. |
 | `laatsteOriginal/KDB2/js/widgets/helpers/` investigation | External lifecycle evidence for launchpad send/take, parameter-set restore hooks, drag/drop lifecycle helpers and widget id stability assumptions. |
 | `_____________KDB3API/contracts/launchpad.md` | Launchpad is environment owner only; `widgetBase` owns widget shell movement and reads launchpad slot metadata/selectors. |
 | `_____________KDB3API/contracts/dragDrop.md` | `dragDrop` owns validation and scale-aware payload; `widgetBase` owns final placement, state and history. |

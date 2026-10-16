@@ -34,15 +34,15 @@ Sibling modules may still contain legacy local popup logic; `filterDock` does no
 Source:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/filters/filterDock/
+legacy-redesign2:js/dashboard/filters/filterDock/
 ```
 
 Read-only evidence:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/filters/singleSelect/
-_______REDESIGN2/KDB3/js/dashboard/filters/sicht/
-_______REDESIGN2/KDB3/js/dashboard/filters/stelleHierarchy/
+legacy-redesign2:js/dashboard/filters/singleSelect/
+legacy-redesign2:js/dashboard/filters/sicht/
+legacy-redesign2:js/dashboard/filters/stelleHierarchy/
 ```
 
 Naming decision:

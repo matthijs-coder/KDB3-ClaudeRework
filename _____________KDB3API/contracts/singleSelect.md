@@ -19,7 +19,7 @@
 Source:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/filters/singleSelect/
+legacy-redesign2:js/dashboard/filters/singleSelect/
 ```
 
 Target after CP-1 and execution-spec approval:
@@ -37,14 +37,14 @@ This is a direct port: preserve legacy single-select behavior and change only wh
 Primary source:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/filters/singleSelect/
+legacy-redesign2:js/dashboard/filters/singleSelect/
 ```
 
 Read-only boundary evidence:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/filters/__filtersOrchestrator.js
-_______REDESIGN2/KDB3/js/dashboard/filters/filterDock/
+legacy-redesign2:js/dashboard/filters/__filtersOrchestrator.js
+legacy-redesign2:js/dashboard/filters/filterDock/
 _____________KDB3API/contracts/filterDock.md
 _____________KDB3API/contracts/_archive/filterDock-downstream-handoff-contractdelta.md
 ```

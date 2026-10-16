@@ -39,8 +39,8 @@ Reports used:
 Legacy source paths for mapping only:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/filters/singleSelect/specialRights/
-_______REDESIGN2/KDB3/js/dashboard/filters/singleSelect/
+legacy-redesign2:js/dashboard/filters/singleSelect/specialRights/
+legacy-redesign2:js/dashboard/filters/singleSelect/
 laatsteOriginal/KDB2/js/filters/
 laatsteOriginal/KDB2/js/filters/singleSelect/
 ```

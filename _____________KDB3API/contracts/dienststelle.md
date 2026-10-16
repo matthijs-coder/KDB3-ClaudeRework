@@ -46,7 +46,7 @@ Source priority:
 
 | Source | Status in this contract |
 |---|---|
-| `_______REDESIGN2/KDB3/js/dashboard/filters/stelleHierarchy/` | Canonical behavioral baseline. |
+| `legacy-redesign2:js/dashboard/filters/stelleHierarchy/` | Canonical behavioral baseline. |
 | `laatsteOriginal/KDB2/js/filters/hierarchy/` | Gap/delta evidence only; no behavior is added from it unless explicitly included below. |
 | `_______KDB3/` | Not used as a behavioral source or copy source for this port. Current production integration points in `_____________KDB3API` must still be verified before edits. |
 

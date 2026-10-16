@@ -19,7 +19,7 @@
 Source:
 
 ```txt
-_______REDESIGN2/KDB3/js/base/services/historyService/
+legacy-redesign2:js/base/services/historyService/
 ```
 
 Target after CP-1 and execution-spec approval:

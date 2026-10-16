@@ -19,10 +19,10 @@
 Source:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/canvas/dragDrop/
-_______REDESIGN2/KDB3/js/dashboard/canvas/kdbControl/kennzahlenTree/bindKennzahlenTreeDragDrop.js
-_______REDESIGN2/KDB3/js/dashboard/canvas/kdbControl/bindToolboxTextDragDrop.js
-_______REDESIGN2/KDB3/js/dashboard/canvas/widgets/placeWidgetOnCanvas.js
+legacy-redesign2:js/dashboard/canvas/dragDrop/
+legacy-redesign2:js/dashboard/canvas/kdbControl/kennzahlenTree/bindKennzahlenTreeDragDrop.js
+legacy-redesign2:js/dashboard/canvas/kdbControl/bindToolboxTextDragDrop.js
+legacy-redesign2:js/dashboard/canvas/widgets/placeWidgetOnCanvas.js
 ```
 
 Target after CP-1 and execution-spec approval:

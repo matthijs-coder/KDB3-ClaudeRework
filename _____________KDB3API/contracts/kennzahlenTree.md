@@ -19,7 +19,7 @@
 Source:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/canvas/kdbControl/kennzahlenTree/
+legacy-redesign2:js/dashboard/canvas/kdbControl/kennzahlenTree/
 ```
 
 Target after CP-1 and execution-spec approval:
@@ -34,14 +34,14 @@ This is a direct port: preserve REDESIGN2 behavior and change only what the rule
 
 | Legacy file | Evidence used |
 |---|---|
-| `_______REDESIGN2/KDB3/js/dashboard/canvas/kdbControl/kennzahlenTree/__kennzahlenTreeOrchestrator.js` | Async tree pipeline: resolve container, avoid duplicate pending render, build state, render jsTree blocks, bind drag/drop, resolve readiness. |
-| `_______REDESIGN2/KDB3/js/dashboard/canvas/kdbControl/kennzahlenTree/buildKennzahlenTreeState.js` | Builds per-source tree entries from `_KDB.data.hierarchies.byName`, `_KDB.properties.kennzahlenTreePropObj`, `_KDB.properties.kennzahlenTablesPropObj`; filters by `Freigabe`; creates group and leaf jsTree nodes. |
-| `_______REDESIGN2/KDB3/js/dashboard/canvas/kdbControl/kennzahlenTree/renderKennzahlenTrees.js` | Renders one search-enabled jsTree block per source, uses jQuery + jsTree, creates search input/icon, waits for `ready.jstree`, records render time. |
-| `_______REDESIGN2/KDB3/js/dashboard/canvas/kdbControl/kennzahlenTree/bindKennzahlenTreeDragDrop.js` | Makes leaf anchors draggable and calls legacy drag/drop API with payload fields `code`, `display`, `title`, `langtext`, `kennzahlenTable`, `originId`, `draggedElementType`. |
+| `legacy-redesign2:js/dashboard/canvas/kdbControl/kennzahlenTree/__kennzahlenTreeOrchestrator.js` | Async tree pipeline: resolve container, avoid duplicate pending render, build state, render jsTree blocks, bind drag/drop, resolve readiness. |
+| `legacy-redesign2:js/dashboard/canvas/kdbControl/kennzahlenTree/buildKennzahlenTreeState.js` | Builds per-source tree entries from `_KDB.data.hierarchies.byName`, `_KDB.properties.kennzahlenTreePropObj`, `_KDB.properties.kennzahlenTablesPropObj`; filters by `Freigabe`; creates group and leaf jsTree nodes. |
+| `legacy-redesign2:js/dashboard/canvas/kdbControl/kennzahlenTree/renderKennzahlenTrees.js` | Renders one search-enabled jsTree block per source, uses jQuery + jsTree, creates search input/icon, waits for `ready.jstree`, records render time. |
+| `legacy-redesign2:js/dashboard/canvas/kdbControl/kennzahlenTree/bindKennzahlenTreeDragDrop.js` | Makes leaf anchors draggable and calls legacy drag/drop API with payload fields `code`, `display`, `title`, `langtext`, `kennzahlenTable`, `originId`, `draggedElementType`. |
 | `_______REDESIGN2/__savedProperties/kennzahlenTreePropId.js` | Confirms configured per-source path columns: `Gruppe1`, `Gruppe2`, `Gruppe3`. |
 | `_______REDESIGN2/__savedProperties/kennzahlenTablesPropId.js` | Confirms per-source table mappings for `code`, `kurztext`, `hardcoded`, `parentCode`, `URL`. |
-| `_______REDESIGN2/KDB3/js/base/tasks/init/setupStatePromises/steps/initializeKennzahlenTreeState.js` | Shows legacy state shape and rule violations to align: `readyPromise`, `pendingRenderPromise`, and listener arrays live in state in legacy but must move to runtime. |
-| `_______REDESIGN2/KDB3/js/dashboard/canvas/kdbControl/createControlElementsRegistry.js` | Shows the legacy Kennzahlen mount region; production kdbControl currently exposes it as `#kdb-control_metrics_container`. |
+| `legacy-redesign2:js/base/tasks/init/setupStatePromises/steps/initializeKennzahlenTreeState.js` | Shows legacy state shape and rule violations to align: `readyPromise`, `pendingRenderPromise`, and listener arrays live in state in legacy but must move to runtime. |
+| `legacy-redesign2:js/dashboard/canvas/kdbControl/createControlElementsRegistry.js` | Shows the legacy Kennzahlen mount region; production kdbControl currently exposes it as `#kdb-control_metrics_container`. |
 
 Production evidence:
 

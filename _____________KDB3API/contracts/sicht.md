@@ -48,16 +48,16 @@ Primary semantic sources:
 Legacy source paths used for file inventory and mapping only:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/filters/sicht/
+legacy-redesign2:js/dashboard/filters/sicht/
 laatsteOriginal/KDB2/js/filters/cascading/
 ```
 
 Related evidence for boundaries only:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/filters/stelleHierarchy/
-_______REDESIGN2/KDB3/js/dashboard/filters/singleSelect/
-_______REDESIGN2/KDB3/js/dashboard/filters/filterDock/
+legacy-redesign2:js/dashboard/filters/stelleHierarchy/
+legacy-redesign2:js/dashboard/filters/singleSelect/
+legacy-redesign2:js/dashboard/filters/filterDock/
 _____________KDB3API/KDB3/js/dashboard/filters/singleSelect/
 _____________KDB3API/KDB3/js/dashboard/filters/specialSingleSelect/
 _____________KDB3API/KDB3/js/dashboard/filters/filterDock/

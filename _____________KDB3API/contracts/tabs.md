@@ -41,8 +41,8 @@ Investigation results used for this contract:
 
 | Source | Evidence used |
 |---|---|
-| `_______REDESIGN2/KDB3/js/dashboard/tabs/` | State-driven tab visibility, helper-tab conventions, authoring visibility, startup DOM sync/hydration, optional traversal API, add/rename pattern. |
-| `_______REDESIGN2/KDB3/js/dashboard/canvas/kdbControl/` | kdbControl as UI/event layer rather than tabs owner. |
+| `legacy-redesign2:js/dashboard/tabs/` | State-driven tab visibility, helper-tab conventions, authoring visibility, startup DOM sync/hydration, optional traversal API, add/rename pattern. |
+| `legacy-redesign2:js/dashboard/canvas/kdbControl/` | kdbControl as UI/event layer rather than tabs owner. |
 | `laatsteOriginal/KDB2/js/controlContainer/configurationFunctions/helpers/configurationToolboxHelpers.js` | Working legacy business behavior for rename, soft-delete, duplicate, move and writeback remapping. Only rename is in phase 1. |
 | Current `_____________KDB3API/KDB3/js/dashboard/canvas/kdbControl/framework/bindFrameworkToolboxPlaceholderApis.js` | Existing production kdbControl already expects `_KDB.api.tabs.dispatch(...)`. |
 | Current `_____________KDB3API/KDB3/js/dashboard/canvas/kdbControl/framework/syncFrameworkViewFromState.js` | Existing production kdbControl already expects `_KDB.api.tabs.getState()` projections for toolbox tab-edit UI. |

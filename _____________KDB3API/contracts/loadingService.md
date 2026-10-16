@@ -19,10 +19,10 @@ Primary legacy source used:
 
 | Legacy file | Role |
 |---|---|
-| `_______KDB3/KDB3/js/core/services/loadingService/createLoadingService.js` | Named-method service factory for starting and finishing loading overlays. |
-| `_______KDB3/KDB3/js/core/services/loadingService/__orchestratorLoadingService.js` | Thin orchestrator that returns the service instance. |
-| `_______KDB3/KDB3/js/core/services/__orchestratorServices.js` | Registers legacy `_KDB.services.loading`. |
-| `_______KDB3/KDB3/js/KDB.js` | Uses `_KDB.services.loading.startLoading(...)` before module startup and `finishLoading(...)` in the initialization `finally` path. |
+| `legacy:js/core/services/loadingService/createLoadingService.js` | Named-method service factory for starting and finishing loading overlays. |
+| `legacy:js/core/services/loadingService/__orchestratorLoadingService.js` | Thin orchestrator that returns the service instance. |
+| `legacy:js/core/services/__orchestratorServices.js` | Registers legacy `_KDB.services.loading`. |
+| `legacy:js/KDB.js` | Uses `_KDB.services.loading.startLoading(...)` before module startup and `finishLoading(...)` in the initialization `finally` path. |
 
 No fallback source was needed because the primary legacy folder exists and contains the complete service.
 

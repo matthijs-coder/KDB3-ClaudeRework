@@ -32,7 +32,7 @@
 Source:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/historyControls/
+legacy-redesign2:js/dashboard/historyControls/
 ```
 
 Read-only evidence:
