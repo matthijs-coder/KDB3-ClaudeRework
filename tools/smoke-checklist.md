@@ -498,3 +498,35 @@ Bootstrap manifest, idempotent render, replay registration, loading watchdog con
 - [ ] **Slow-load watchdog dialog.** With the dashboard open run `getKDB().services.loading.startLoading({ mountKey: "kdb-root-loading-animation-mount", watchdogMs: 5000 })`. After 5 s the overlay disappears and the dialog "Dashboard nicht vollständig geladen" opens with the text "Das Dashboard oder die benötigten Daten konnten nicht innerhalb von 5 Minuten ..." and the two navigation choices, identical to baseline. Same call with `mountKey: "smoke-test"`: overlay lifts after 5 s, no dialog. Console: `getKDB().services.loading.registerWatchdogHandler` is a function.
 - [ ] **CSS links removed after destroy.** Before closing: `document.head.querySelectorAll('link[rel="stylesheet"][href*="ext/KDB3/css"]').length` is the full set (20) and has no duplicates after reopen. After closing the dashboard (and no other KDB dashboard open): the same query returns `0` (intended change: the links used to stay). After a reopen the full set is back.
 - [ ] **Listeners after destroy, 3 times.** Close and reopen the dashboard 3 times. Keep `const k = getKDB()` from the first open. Expected after each close: `window.top.getKDB` is gone (or the newer instance), `k.events === null`, `k.runtime.homeDialog === null`, `k.state.rootLifecycle.lifecycle === "disposed"`; `getEventListeners(document)` and `getEventListeners(window)` counts return to the baseline numbers (as in 4.3), Memory heap snapshot after the third cycle shows no growth in detached KDB nodes compared with baseline.
+
+### P2-W3
+
+Additive public APIs (no consumer uses them yet, so the app must behave exactly like `main`). Smoke = **CORE boot only** (section 1, items 1.1-1.14), then the console snippet below on the booted dashboard. Every line states the expected shape; any `Uncaught` or a differing shape is a failure.
+
+- [ ] **P2-W3.1 CORE boot.** Run section 1 (1.1-1.14). Expected: as baseline, no new console errors or warnings.
+- [ ] **P2-W3.2 New APIs on a booted dashboard.** Paste into the console of the dashboard frame (needs the live dashboard; the TopN part only if a vis widget exists):
+
+```js
+const k = window.top.getKDB();
+const out = {};
+// services.chrome: raw checks object plus no-throw wrappers
+out.chromeChecks = Object.keys(k.services.chrome.readChromeChecks() || {}).sort();      // ["beginWait","endWait","ensureRuntime","recordSyncMiss","scheduleFlush","trackWait"]
+const probe = Promise.resolve("el");
+out.trackWaitIsPromise = k.services.chrome.trackWait("smoke.noop", probe) instanceof Promise;  // true
+// elements.selectors: same values as the config catalogue
+out.selectorGroups = Object.keys(k.elements.selectors).filter((g) => ["root","toolbar","dashboardPdf","footer","tab","tabs","dragDrop","page","filterDock","widget","focusMode","legend"].includes(g)).length; // 12
+out.rootSelectors = k.elements.selectors.root.pageViewContent;                           // ".pageViewContent"
+// widgetBinding
+out.widgetBinding = [Object.keys(k.services.widgetBinding).sort(), k.services.widgetBinding.checkAvailable()]; // [["checkAvailable","run"], {ok:true, missing:null}]
+// filterDock
+out.filterDock = [typeof k.api.filterDock.getActiveFilterEl(), k.api.filterDock.isFiltersReady()];    // ["object" (null before a click, element after), true]
+// kdbControl, launchpad, widgetText through AMD (the console has no AMD handle: use the API twins)
+out.kdbControlSyncView = typeof k.api.kdbControl.syncView;                               // "function"
+out.helperTabIds = k.state.launchpad.helperTabIds;                                       // array of strings (what readHelperTabIds copies)
+out.textState = Object.keys((k.api.widgetText.getState() || {}).byId || {}).length;      // number of text widgets (what readTextById holds)
+console.log(JSON.stringify(out, null, 1));
+```
+
+  Then click a filter in the dock (popup opens) and run `k.api.filterDock.getActiveFilterEl() instanceof Element` (expected `true`), and `k.api.filterDock.dispatch({ type: "filterDock/clickOriginalButtonRequested", payload: { filterKey: "x", buttonTid: "cancelClickable" } }).ok` (expected `false` for a non-matching `filterKey`, an object with `ok` and the usual filterDock state fields). Close the popup with a click outside.
+- [ ] **P2-W3.3 Superuser reveal (readRightFlag switch).** As a superuser (superuser table first cell is `1`): the developer-mode toggle column in the kdbControl settings panel (`.kdb-control_dashboard-toggles-column--developer-mode-visible`) is visible and the metrics tree offers the release filter as on baseline; as a non-superuser both stay hidden. Expected: identical to `main` for both users.
+- [ ] **P2-W3.4 Close + reopen once** (1.14). Expected: `Object.keys(window.top.getKDB().services)` contains `chrome` and `widgetBinding` on each new instance and the teardown logs no errors.
