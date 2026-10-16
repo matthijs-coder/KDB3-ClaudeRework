@@ -10,7 +10,7 @@
 
 ```txt
 _____________KDB3API/contracts/dienststelle.md
-_____________KDB3API/contracts/dienststelle-port-execution-spec.md
+_____________KDB3API/contracts/_archive/dienststelle-port-execution-spec.md
 ```
 
 **Authoring AI:** GPT-5.5, 2026-05-27

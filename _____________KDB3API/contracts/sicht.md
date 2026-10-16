@@ -20,7 +20,7 @@ Target after CP-1 and execution-spec approval:
 
 ```txt
 KDB3/js/dashboard/filters/sicht/
-KDB3/css/filters/sichtSingleSelect.css
+KDB3/css/filters/filters.css
 ```
 
 This tranche is a narrow direct-port baseline plus user-approved behavior redesign:
@@ -389,8 +389,8 @@ Approved rules:
 CSS / DOM marker decision:
 
 - Sicht wrapper uses the dual-class pattern: `KDB_singleSelectFilter` (shared generic singleSelect visual behavior) + `KDB_sichtSingleSelect` (Sicht semantic/delta marker).
-- Generic checkbox/search/commit styling comes from `css/filters/singleSelect.css` via `KDB_singleSelectFilter`.
-- Sicht-specific delta styling lives in `css/filters/sichtSingleSelect.css` under `KDB_sicht*` classes.
+- Generic checkbox/search/commit styling comes from `css/filters/filters.css` via `KDB_singleSelectFilter`.
+- Sicht-specific delta styling lives in `css/filters/filters.css` under `KDB_sicht*` classes.
 - `KDB_cascadingFilter` is not applied to Sicht.
 
 ## 12. History
@@ -486,12 +486,12 @@ If a later implementation discovers that delegated `singleSelect` cannot confirm
 CSS path:
 
 ```txt
-KDB3/css/filters/sichtSingleSelect.css
+KDB3/css/filters/filters.css
 ```
 
 CSS registration:
 
-- Add `./v1/ext/KDB3/css/filters/sichtSingleSelect.css` to `core/css/config/cssHrefList.js` after CP-1 approval.
+- Add `./v1/ext/KDB3/css/filters/filters.css` to `core/css/config/cssHrefList.js` after CP-1 approval.
 
 Owned class names:
 
@@ -501,21 +501,21 @@ Owned class names:
 | `KDB_sichtSingleSelect` | Sicht semantic/delta marker for the filter wrapper. |
 | `KDB_sichtHideAlle` | Native Alle option row hidden for Sicht. |
 | `KDB_sichtOptionDisabled` | Option is visible but disabled because its Dienststelle default is not ready. |
-| `KDB_sichtOptionBw` | Per-option marker for BW; also keep-first sibling hide key in `sichtSingleSelect.css`. |
-| `KDB_sichtOptionDezpv` | Per-option marker for DEZPV; also keep-first sibling hide key in `sichtSingleSelect.css`. |
+| `KDB_sichtOptionBw` | Per-option marker for BW; also keep-first sibling hide key in `filters/filters.css` (former `sichtSingleSelect.css` section). |
+| `KDB_sichtOptionDezpv` | Per-option marker for DEZPV; also keep-first sibling hide key in `filters/filters.css` (former `sichtSingleSelect.css` section). |
 
 CSS behavior:
 
 - Hide `"Alle"` option by default for Sicht via `KDB_sichtHideAlle`.
-- Subsequent same owned option-class rows (`.KDB_sichtOptionBw ~ .KDB_sichtOptionBw` and `.KDB_sichtOptionDezpv ~ .KDB_sichtOptionDezpv`) may be hidden in `sichtSingleSelect.css`; still scoped to `.KDB_sichtSingleSelect`.
+- Subsequent same owned option-class rows (`.KDB_sichtOptionBw ~ .KDB_sichtOptionBw` and `.KDB_sichtOptionDezpv ~ .KDB_sichtOptionDezpv`) may be hidden in `filters/filters.css` (former `sichtSingleSelect.css` section); still scoped to `.KDB_sichtSingleSelect`.
 - Sicht must always keep one normal option selected.
 - Re-click on the current selected option must not toggle to an empty / Alle state.
-- Do not duplicate generic singleSelect CSS into `sichtSingleSelect.css`.
+- Do not duplicate generic singleSelect CSS into `filters/filters.css` (former `sichtSingleSelect.css` section).
 - Do not apply `KDB_cascadingFilter` to Sicht.
 
 Bounded native CSS exception:
 
-- `sichtSingleSelect.css` may hide Cognos duplicate marker rows via `.ba-common-listItem-wrapper:has([aria-label="duplicates"])`.
+- `filters/filters.css` (former `sichtSingleSelect.css` section) may hide Cognos duplicate marker rows via `.ba-common-listItem-wrapper:has([aria-label="duplicates"])`.
 - This complements JS duplicate hiding in `hideDuplicateSichtOptions.js`; it is not replaced by JS alone.
 - Scope is limited to `.KDB_sichtSingleSelect`; no additional native selectors in CSS without contract update.
 
@@ -572,7 +572,7 @@ This tranche includes bootstrap and CSS registration after CP-1 approval:
 - `KDB.js` destroys `_KDB.api.sicht`.
 - `filterDock` routes `filterType: "sicht"` to `_KDB.api.sicht`.
 - `singleSelect/effects/commitConfirmedSelection.js` dispatches `sicht/singleSelectCommitted` to `_KDB.api.sicht` after successful `filterType: "sicht"` commits.
-- `cssHrefList.js` includes `./v1/ext/KDB3/css/filters/sichtSingleSelect.css`.
+- `cssHrefList.js` includes `./v1/ext/KDB3/css/filters/filters.css`.
 
 Future integration target:
 
@@ -620,7 +620,7 @@ After tableData-derived `byOption` is evaluated on mount or sync:
 | Dimension | Draft decision / recommendation |
 |---|---|
 | Scope slice | Narrow tranche: `sicht` owner + `filterDock` routing + delegation to `singleSelect` + notify `specialSingleSelect` + history + bootstrap/CSS. |
-| Final target path | `KDB3/js/dashboard/filters/sicht/`; CSS at `KDB3/css/filters/sichtSingleSelect.css`. |
+| Final target path | `KDB3/js/dashboard/filters/sicht/`; CSS at `KDB3/css/filters/filters.css`. |
 | Classification | Dashboard/filters feature module, not service. |
 | State owner/subtree | `_KDB.state.filters.sicht`; confirmed active Sicht owned only by `sicht`. |
 | Public API surface | `_KDB.api.sicht = { mount, destroy, dispatch, getState }`; dispatch-style feature module. |
@@ -649,7 +649,7 @@ No known blocking questions remain.
 If CP-1 approves this contract, the next phase is:
 
 ```txt
-_____________KDB3API/contracts/sicht-port-execution-spec.md
+_____________KDB3API/contracts/_archive/sicht-port-execution-spec.md
 ```
 
 The execution spec must include the mapping table, per-file `Rules to apply` checklist, anti-D1 / anti-D2 acceptance criteria, and the direct-port forbidden action that no behavior changes beyond this approved contract are allowed.

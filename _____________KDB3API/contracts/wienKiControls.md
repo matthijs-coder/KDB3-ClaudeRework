@@ -151,7 +151,7 @@ wienKiControls/
 
 No `state/`, no `events/`, no `adapters/` (inline SVG, no luminance PNG helper).
 
-CSS: `KDB3/css/customButtons/wienKiControls.css` — clone PDF button chrome (32×32 button, clipped label, `is-unavailable` on **root**). Icon box is **24×24** (not 16×16): speech-bubble + `KI` needs more pixels than a silhouette PNG. Register in `cssHrefList.js` next to share/pdf.
+CSS: `KDB3/css/customButtons/toolbarControls.css` — clone PDF button chrome (32×32 button, clipped label, `is-unavailable` on **root**). Icon box is **24×24** (not 16×16): speech-bubble + `KI` needs more pixels than a silhouette PNG. Register in `cssHrefList.js` next to share/pdf.
 
 ---
 
@@ -230,7 +230,7 @@ Empty / non-https URL at `finishMount`: `serviceAvailable: false`, root `is-unav
 - Dashboard PDF export — `pdfExportControls` / `dashboardPdf`
 - Header / kdbControl Benutzerhandbuch links — those owners
 - Read-only share hide-set (toolbar icon stays; no panel to hide)
-- `pdfCapture.css` (action bar is outside capture root)
+- `widgets/widgetHiding.css` (former `pdfCapture.css`) (action bar is outside capture root)
 - Cognos facet ops
 - Closing or tracking the popup on `destroy`
 - Calling `message.destroy()` from this module

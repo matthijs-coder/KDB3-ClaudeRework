@@ -150,7 +150,7 @@ Framework tranche 1 does not add `registerControl` or `registerCustomControl`. S
 |------|
 | `tabs:toolRequested` |
 
-**Subscribes** (handles stored on **`authoringEntered`** / **`authoringExited`**; **teardown:** only **`kdbControl.destroy()`** clears these keys and unsubscribes — see `_____________KDB3API/contracts/kdbControl-authoring-mode-contractdelta.md` §7):
+**Subscribes** (handles stored on **`authoringEntered`** / **`authoringExited`**; **teardown:** only **`kdbControl.destroy()`** clears these keys and unsubscribes — see `_____________KDB3API/contracts/_archive/kdbControl-authoring-mode-contractdelta.md` §7):
 
 | Name |
 |------|
@@ -342,7 +342,7 @@ Framework tranche 1 F1-Q1 through F1-Q4 are resolved in **User decisions (framew
 - `_______KDB3/KDB3/js/dashboard/canvas/kdbControl/framework/buildControlMainToggles.js` — legacy top toggle structure and classes.
 - `_______KDB3/KDB3/js/dashboard/canvas/kdbControl/framework/buildControlMainBlocks.js` — legacy panel block structure.
 - Legacy `syncFrameworkInitialView.js` / bind framework files may be read only to understand class application; behavior is not ported wholesale.
-- `_____________KDB3API/contracts/kdbControl-framework-visual-parity-mapping.md` — mapping from legacy selectors / structure to current sandbox selectors / structure.
+- `_____________KDB3API/contracts/_archive/kdbControl-framework-visual-parity-mapping.md` — mapping from legacy selectors / structure to current sandbox selectors / structure.
 
 **Allowed changes for tranche 2:**
 
@@ -364,7 +364,7 @@ Framework tranche 1 F1-Q1 through F1-Q4 are resolved in **User decisions (framew
 
 **Execution-spec requirements:**
 
-- Write `_____________KDB3API/contracts/kdbControl-framework-visual-parity-execution-spec.md` after CP-1 approval.
+- Write `_____________KDB3API/contracts/_archive/kdbControl-framework-visual-parity-execution-spec.md` after CP-1 approval.
 - Include Section A pre-flight echo and per-file `Rules to apply` checklists.
 - Scope the CSS port in slices: shell/collapse first, header/toggles second, panel chrome third; do not attempt full `kdbControl.css` wholesale.
 - Use `kdbControl-framework-visual-parity-mapping.md` as the selector translation source: every CSS slice must state which legacy selector concept it maps to and which current selector implements it.

@@ -1,6 +1,6 @@
 # Module Contract: `widgetDataTable` — STUB
 
-> STUB only (titles/outline). Full contract written at the start of the `widgetDataTable` tranche per `feature-structure.mdc`. Rationale: `architecture/widgets-domain-blueprint.md`.
+> STUB only (titles/outline). Full contract written at the start of the `widgetDataTable` tranche per `feature-structure.mdc`. Rationale: `architecture/_archive/widgets-domain-blueprint.md`.
 
 **Status:** `Stub`
 **Owner module / service:** `widgetDataTable`

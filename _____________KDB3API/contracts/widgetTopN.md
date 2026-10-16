@@ -1,6 +1,6 @@
 # Module Contract: `widgetTopN`
 
-> Full CP-1 contract for the TopN-resolution composed-port tranche. Design authority lives in `_____________KDB3API/architecture/widgets-domain-blueprint.md`; the binding boundary is fixed by `widgetBindingPlan.md`, `widgetBindingApply.md` and `widgetVis.md`.
+> Full CP-1 contract for the TopN-resolution composed-port tranche. Design authority lives in `_____________KDB3API/architecture/_archive/widgets-domain-blueprint.md`; the binding boundary is fixed by `widgetBindingPlan.md`, `widgetBindingApply.md` and `widgetVis.md`.
 
 ---
 
@@ -31,8 +31,8 @@ No production behavior code may be generated until this CP-1 contract is approve
 
 | Evidence | Use in this contract |
 |---|---|
-| `architecture/widgets-domain-blueprint.md` | Authority for `widgetTopN` as first-class content module serving `widgetVis`, state ownership, dispatch choreography and Section 12 execution readiness. |
-| `contracts/widgets-binding-pipeline-planner-handoff.md` | Non-authority context for already-settled binding pipeline decisions. |
+| `architecture/_archive/widgets-domain-blueprint.md` | Authority for `widgetTopN` as first-class content module serving `widgetVis`, state ownership, dispatch choreography and Section 12 execution readiness. |
+| `contracts/_archive/widgets-binding-pipeline-planner-handoff.md` | Non-authority context for already-settled binding pipeline decisions. |
 | `contracts/widgetBindingPlan.md` | Schema authority for `BindingPlanSpec`, `BindingPlan`, `helperTableResult`, `emptyIntent`, `managedFilterItemIds` and `opSeq` diagnostic echo. |
 | `contracts/widgetBindingApply.md` | Authority for helper `applyBinding`, helper target shape, timeout, abort and diagnostics. |
 | `contracts/widgetVis.md` | Authority for inbound `resolveRequested` caller shape and outbound `widgetVis/topNResolved` payload consumption. |
@@ -269,7 +269,7 @@ Terminal rule: every non-stale `resolveRequested` must dispatch exactly one term
 
 ### `widgetTopN/cleanup`
 
-`widgetVis` may dispatch `widgetTopN/cleanup` when a dimension is absent and this owner’s `resolutionStatus` is `pending`, `success`, or `error`. Payload and reducer behavior are unchanged. See `contracts/widgetSettings-dimension-ohne-clears-topn-contractdelta.md`.
+`widgetVis` may dispatch `widgetTopN/cleanup` when a dimension is absent and this owner’s `resolutionStatus` is `pending`, `success`, or `error`. Payload and reducer behavior are unchanged. See `contracts/_archive/widgetSettings-dimension-ohne-clears-topn-contractdelta.md`.
 
 Payload:
 
@@ -355,7 +355,7 @@ Helper `visTypeConfig` is helper-only:
 - No `Monat` column, no visible-dimension `itemId`/tooltip column, no generic `List` `slotComposition`, no `kennzahlDefaults` on helper `dataConfig`.
 - `dimensionSelectionAffects` uses a non-slot sentinel (`disabled`) so the generic planner does not prepend visible dimensions into `grid_cols`.
 - Helper dimension filters use `topNItemId` with exclude defaults `Gesamt`, `ALLE`, `^` (or dimension-specific exclude values when supplied on the visible dimension config).
-- Helper `widgetFilter` carries: (1) `AggregationstypId: { include: ["Stichtag"] }` (not `Monatsdurchschnitt`; not visible-vis `kennzahlDefaults`); (2) Jahr include on `jahrColumnId` `[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]` when the period pin has a year caption; (3) Monat include on `[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]` when the period pin has a mapped TM1 display caption (`JUL`, never `"07"`). Period pin is leftover List vis-title `NewestStichtag` via `tableData.reloadTable` (`contracts/widgetTopN-newestStichtag-contractdelta.md`). No year-table fallback.
+- Helper `widgetFilter` carries: (1) `AggregationstypId: { include: ["Stichtag"] }` (not `Monatsdurchschnitt`; not visible-vis `kennzahlDefaults`); (2) Jahr include on `jahrColumnId` `[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]` when the period pin has a year caption; (3) Monat include on `[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]` when the period pin has a mapped TM1 display caption (`JUL`, never `"07"`). Period pin is leftover List vis-title `NewestStichtag` via `tableData.reloadTable` (`contracts/_archive/widgetTopN-newestStichtag-contractdelta.md`). No year-table fallback.
 - `extractTopNResult` still reads `excludeItemId` from the original visible `request.dataConfig.dataTableConfig.dimensions[dimension].exclude.itemId`; helper `dataConfig` does not replace that extraction source.
 - Helper `BindingPlanSpec.hierarchySnapshot` is the planner-ready snapshot supplied by `widgetVis`; `widgetBindingPlan` may use it for the Dienststelle local filter, but must not inject the hierarchy item as an extra `topNHelper` slot column.
 - `topBottom` / `topcount` apply behavior is represented as helper slot plan material and consumed by `widgetBindingApply`; `widgetTopN` still owns only orchestration/read/extract/cleanup timing.
@@ -609,6 +609,7 @@ Allowed:
 
 - Passing helper/owner widget ids to services and public dispatch calls.
 - Resolving a helper shell by exact `widgetId` only to write, confirm or clear TopN-owned claim mirror attributes (`data-connected-vis-widget-id`, `data-kdb-topn-claim-token`). The DOM node is scoped local to that effect and is never stored in state or runtime.
+- Recorded exception (as built, not yet re-homed to `widgetBase`): `effects/placeHelperAfterOwner.js` moves the helper shell itself, beside the owner shell for the helper apply/read and back into its own `topN` launchpad slot afterwards (slot resolved by its pad/page attributes). Runtime keeps only the serializable lease `byOwner[ownerVisId].helperPlacement = { helperWidgetId, opSeq, slot }`; only the latest leasing op restores.
 
 Forbidden:
 
@@ -729,7 +730,7 @@ Hard implementation prerequisites:
 - Editing `.cursor/rules/`, templates, authority docs or legacy trees.
 - Applying terminal result values to the visible widget; owner: `widgetVis`.
 - Storing or committing `topNChoice`; owner: `widgetSettings`.
-- Helper frame movement/placement writes; owner: `widgetBase`.
+- Helper frame movement/placement writes; owner: `widgetBase` (the temporary helper-shell move in `placeHelperAfterOwner.js` is the §14 recorded exception; it writes no frame state).
 - Populating/classifying the same-tab `topN` launchpad helper pool. TopN helper claim in this tranche trusts that pad as pre-arranged helper inventory.
 - Cognos apply/read internals; owner: `widgetBindingApply`.
 - Binding schema changes; owner: `widgetBindingPlan`.
@@ -769,5 +770,6 @@ CP-1 is acceptable when:
 | 2026-06-06 | `Stub` | Planner (Claude Opus 4.8) | Initial outline from widgets-domain blueprint. |
 | 2026-06-07 | `Stub -> Draft CP-1` | `<pending>` | Full composed-port contract expanded: direct vis/topN dispatch, helper claim orchestration, binding-plan/apply/read usage, terminal-result guarantee, `opSeq` supersession and helper cleanup/release rules. |
 | 2026-06-14 | `Draft CP-1 read boundary refinement` | GPT-5.5 | TopN helper reads use `readHelperTableRows` with full `tableData.reloadTable` pick array; extraction unpacks tableData cell objects. |
-| 2026-09-01 | Parent sync NewestStichtag period pin | Implementing captain (Grok 4.6); PO product lock | §8.1.1: last month of selected Jahr; `grid_cols` two slots; Monat include beside Jahr. `resolveRequested` names `jahrFilterValue` + `monatFilterValue`. Delta: `contracts/widgetTopN-newestStichtag-contractdelta.md`. |
+| 2026-09-01 | Parent sync NewestStichtag period pin | Implementing captain (Grok 4.6); PO product lock | §8.1.1: last month of selected Jahr; `grid_cols` two slots; Monat include beside Jahr. `resolveRequested` names `jahrFilterValue` + `monatFilterValue`. Delta: `contracts/_archive/widgetTopN-newestStichtag-contractdelta.md`. |
 | 2026-10-06 | Parent sync restore note | Cursor coordinator; PO live | §8.4: restore runs the TopN chain on the shown tab (writeback step 27 per tab). No `widgetTopN` change. Delta: `contracts/writeback-step27-bindPerActiveTab-contractdelta.md`. |
+| 2026-10-16 | Parent sync helper restore | Cursor Phase 0 worker; PO decision (restore helper) | §14/§20: record that `placeHelperAfterOwner.js` moves the helper shell (beside owner, then back to its `topN` slot) with a runtime placement lease. No API change. |

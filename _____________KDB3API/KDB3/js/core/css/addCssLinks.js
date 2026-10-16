@@ -1,14 +1,9 @@
 define([], function () {
-  function __controller(_KDB, _cssHrefList) {
+  function addCssLinks(_KDB, _cssHrefList) {
     if (!Array.isArray(_cssHrefList)) {
       return;
     }
-    try {
-      addStylesheetLinks(_KDB, _cssHrefList);
-    } catch (error) {
-      console.error("[core.css.addCssLinks] failed", error);
-      throw error;
-    }
+    addStylesheetLinks(_KDB, _cssHrefList);
   }
 
   function addStylesheetLinks(_KDB, _cssHrefList) {
@@ -46,5 +41,5 @@ define([], function () {
     return false;
   }
 
-  return __controller;
+  return addCssLinks;
 });

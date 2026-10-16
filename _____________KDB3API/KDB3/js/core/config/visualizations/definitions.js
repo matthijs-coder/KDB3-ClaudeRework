@@ -2,10 +2,6 @@ define([], function () {
   "use strict";
 
   return {
-    "defaultTopN": "0",
-    "defaultWidth": "10cm",
-    "defaultHeight": "10cm",
-    "defaultBackgroundColor": "",
     "defaultType": "Line",
     "visualizations": {
       "Line": {

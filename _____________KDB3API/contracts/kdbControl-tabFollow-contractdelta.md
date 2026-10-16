@@ -6,7 +6,7 @@
 
 **Status:** `Approved (PO vastenburg), 2026-07-11 — implemented same day; CP-1 host-move redesign approved and implemented 2026-07-11 (PO)`
 **Parent contract:** `contracts/kdbControl.md`
-**Depends on:** `contracts/tabs-activationEvent-contractdelta.md` (`tabs:changed`); click-ahead 2026-09-04: `contracts/tabs-kdbControl-clickAhead-follow-contractdelta.md` (`tabs:activationStarted`)
+**Depends on:** `contracts/_archive/tabs-activationEvent-contractdelta.md` (`tabs:changed`); click-ahead 2026-09-04: `contracts/_archive/tabs-kdbControl-clickAhead-follow-contractdelta.md` (`tabs:activationStarted`)
 **Type:** `feature module contract delta`
 **Authoring AI:** Fable 5, 2026-07-11
 **Reviewed by:** `<pending>`
@@ -21,7 +21,7 @@ The kdb-control shell is placed once at mount inside the `.KDB3Widget` host elem
 
 > **CP-1 supersedes the original per-shell resolution:** instead of moving only the control shell into a per-tab `kdbWidget` match (which exists only in the first tab and therefore never resolved on other tabs), kdbControl moves the **entire `.KDB3Widget` host element** into the active tab's page/dropbox. The shell, its domRefs and the launchpad (also mounted in the host) all move along; `placeControlShell.js` stays untouched.
 
-`kdbControl` subscribes to `tabs:activationStarted` (click-ahead, same tick as the user click) **and** `tabs:changed` (`framework/followActiveTab.js`). Same move handler; `firstActivation` remains irrelevant. Click-ahead details: `contracts/tabs-kdbControl-clickAhead-follow-contractdelta.md`.
+`kdbControl` subscribes to `tabs:activationStarted` (click-ahead, same tick as the user click) **and** `tabs:changed` (`framework/followActiveTab.js`). Same move handler; `firstActivation` remains irrelevant. Click-ahead details: `contracts/_archive/tabs-kdbControl-clickAhead-follow-contractdelta.md`.
 
 On `tabs:changed` (and on `tabs:activationStarted`):
 

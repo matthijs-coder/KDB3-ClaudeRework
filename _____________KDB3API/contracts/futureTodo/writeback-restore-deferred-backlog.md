@@ -12,7 +12,7 @@
 
 ## T2 as-built (2026-08-17) — not Cognos-green, not parked
 
-Pick-list: `contracts/futureTodo/t2-parameterSet-gaps-launch-prompt.md`.
+Pick-list: `contracts/_archive/t2-parameterSet-gaps-launch-prompt.md`.
 Deltas live under `contracts/writeback-t2-item*.md`. No fourth backlog.
 
 | Slice | Code | Cognos | Still deferred after this WP |
@@ -46,7 +46,7 @@ Open outside those slices: §1.2 GET-fixture, §2.3 reserved traverse names, §3
 
 ### 2.1 Echte canvas-render-barrier ("canvasReady" eerlijk maken) — **in progress T2-5c 2026-08-17**
 - **Nu (pre-5c):** `canvasReady` = "tab geklikt + 150ms" (optimistisch, tabs-delta D3). writebackSet consumeert het veld nog niet.
-- Promoted (activate only): `contracts/writeback-t2-item5c-contractdelta.md` — `parameterSetActivateTabRequested` awaits bounded `getCanvasWhenReady` after click + 150ms. Do not mark done until Cognos. 5a/5b stay in progress (not Cognos-green).
+- Promoted (activate only): `contracts/_archive/writeback-t2-item5c-contractdelta.md` — `parameterSetActivateTabRequested` awaits bounded `getCanvasWhenReady` after click + 150ms. Do not mark done until Cognos. 5a/5b stay in progress (not Cognos-green).
 - **Later (still deferred):** per live widget `getWidgetWhenReady` + `whenRenderComplete` on activate (legacy 2,5s per tab-widget, 3-12s elders). Global `waitFor: "canvas"` (PDF/GET/mutation) stays click + 150ms. Alle primitieven blijven Cognos-API-gebaseerd → wrappers onder `_KDB.cognosAPI`, geen DOM-scraping.
 - **Legacy-lessen:** timeouts bounded en non-fataal waar mogelijk (degraded-outcome, niet abort); marges klein en gericht (100-200ms), geen blinde 2000ms-pauzes.
 
@@ -61,7 +61,7 @@ Open outside those slices: §1.2 GET-fixture, §2.3 reserved traverse names, §3
 Patroon-sweep na de lazy-render-bugfixronde (widgetBase-routing, kdbControl-tabFollow, dragDrop-rebind): geen nieuwe `firstActivation`-muren in runtime-paden; wel twee one-shot-gaps in de writeback-restoreketen, die — anders dan de event-gedreven runtime-paden — geen `tabs:changed`-herstelmoment hebben. Beide hangen samen met 2.1 (echte canvas-barrier) en zijn pas relevant zodra restore tegen trage lazy renders draait:
 - **Page-context filter restore:** `runFilterRestore` activeert de tab (T2-5c: click + 150ms + bounded `getCanvasWhenReady`) en singleSelect leest direct daarna de Cognos page-context API; één poging, hard `TARGET_MISSING` bij te trage host-registratie. Later: bounded poll/retry op page-context-registratie vóór de harde fail.
 - **`ensureTabWidgetsRouted` in restore:** één aanroep per tabtarget; bij `missingShells > 0` blijft de tab runtime-retryable, maar de restore-fase kan `ok: true` rapporteren terwijl pre-restore widgets nog niet geparkeerd zijn (step-24-claims kunnen dan shells missen). Later: `missingShells` in het faseresultaat meenemen (bounded re-ensure of degraded-diagnostic).
-- **B GO 2026-08-18:** owned by `contracts/writeback-restore-missingShells-contractdelta.md` (Implementing; Cognos later). Do not fold **C**.
+- **B GO 2026-08-18:** owned by `contracts/_archive/writeback-restore-missingShells-contractdelta.md` (Implementing; Cognos later). Do not fold **C**.
 - **Geaccepteerde restcaps:** kdbControl-tabFollow ~4s en dragDrop-rebind ~3s zijn bewust begrensd en herstellen bij elke volgende activatie; geen actie.
 
 ## 3. Tabs — openstaande verificaties en opties
@@ -74,7 +74,7 @@ Patroon-sweep na de lazy-render-bugfixronde (widgetBase-routing, kdbControl-tabF
 
 ### 3.2 `waitForInflightTraversals` op restore/reset — **in progress T2-5a 2026-08-16**
 - Contractdelta `tabs-parameterSetRestore-contractdelta.md` §4 (item 2) vereist het; live code wachtte alleen op activate/post-traverse.
-- Promoted: `contracts/writeback-t2-item5a-contractdelta.md`. Do not mark done until Cognos.
+- Promoted: `contracts/_archive/writeback-t2-item5a-contractdelta.md`. Do not mark done until Cognos.
 
 ### 3.3 Class-toggle-fallback voor hidden-tab-activatie
 - Alleen bouwen als een Cognos-versie programmatic clicks op verborgen tab-buttons blijkt te negeren (huidige aanpak werkt: click + defensieve re-hide).
