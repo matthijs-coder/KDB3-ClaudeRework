@@ -9,7 +9,7 @@ define([
   "./view/dropdownOptionSelection.js",
   "./view/resolveWidgetPlacementContext.js",
   "../../../core/config/colorPalette.js",
-  "../../canvas/kdbControl/state/selectors.js"
+  "../../canvas/kdbControl/selectors.js"
 ], function (
   _config,
   _selectors,
@@ -184,12 +184,10 @@ define([
   }
 
   function applyKdbControlColourDefault(_KDB, _context, kind, descriptor) {
-    const control = _KDB && _KDB.api && _KDB.api.kdbControl;
-    const snapshot = control && typeof control.getState === "function" ? control.getState() : undefined;
     const isText = _context && _context.widgetType === "text";
     const defaults = isText
-      ? _kdbControlSelectors.readCommentDefaults(snapshot)
-      : _kdbControlSelectors.readVisualizationDefaults(snapshot);
+      ? _kdbControlSelectors.readCommentDefaults(_KDB)
+      : _kdbControlSelectors.readVisualizationDefaults(_KDB);
     const hex = String(defaults.backgroundColor || "").trim();
     if (!hex) {
       return descriptor;

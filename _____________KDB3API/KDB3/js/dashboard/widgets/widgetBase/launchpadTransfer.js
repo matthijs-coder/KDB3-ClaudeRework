@@ -1,7 +1,7 @@
 define([
   "../../../core/utils/kit/history.js",
   "../../../core/utils/kit/runtime.js",
-  "../../launchpad/state/selectors.js",
+  "../../launchpad/selectors.js",
   "./state.js",
   "./effects.js",
   "./history.js",

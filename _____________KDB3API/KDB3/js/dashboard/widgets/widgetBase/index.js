@@ -2,7 +2,7 @@ define([
   "../../../core/utils/kit/data.js",
   "../../../core/utils/kit/errors.js",
   "../../../core/utils/kit/runtime.js",
-  "../../launchpad/state/selectors.js",
+  "../../launchpad/selectors.js",
   "../../tabs/events/eventNames.js",
   "./config.js",
   "./state.js",
