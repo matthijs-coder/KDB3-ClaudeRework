@@ -1,5 +1,11 @@
-define(["../../../../core/utils/normalizeCognosScopeId.js"], function (_normalizeScopeId) {
+define([
+  "./clone.js",
+  "../../../../core/utils/normalizeCognosScopeId.js"
+], function (_clone, _normalizeScopeId) {
   "use strict";
+
+  var cloneSelection = _clone.cloneSelection;
+  var cloneInstance = _clone.cloneInstance;
 
   function readOwnerState(_KDB) {
     return _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.singleSelect : undefined;
@@ -26,25 +32,6 @@ define(["../../../../core/utils/normalizeCognosScopeId.js"], function (_normaliz
       status: _record.status,
       hostStatus: _record.hostStatus
     };
-  }
-
-  function cloneSelection(_selection) {
-    return _selection ? Object.assign({}, _selection) : null;
-  }
-
-  function cloneInstance(_instance) {
-    if (!_instance) { return undefined; }
-    var cloned = Object.assign({}, _instance, {
-      timestamps: _instance.timestamps ? Object.assign({}, _instance.timestamps) : null
-    });
-    ["currentSelection", "backupSelection", "pendingSelection"].forEach(function (_key) {
-      if (Object.prototype.hasOwnProperty.call(_instance, _key)) {
-        cloned[_key] = cloneSelection(_instance[_key]);
-      } else {
-        delete cloned[_key];
-      }
-    });
-    return cloned;
   }
 
   function buildCompatibilityByScope(_state) {

@@ -1,7 +1,8 @@
 define([
   "../config.js",
+  "../commit/ownerNotify.js",
   "../../../../core/utils/kit/errors.js"
-], function (_config, _kitErrors) {
+], function (_config, _ownerNotify, _kitErrors) {
   "use strict";
 
   var codes = _config.errorCodes;
@@ -139,8 +140,8 @@ define([
 
   function readOwnerActionType(_ownerName) {
     return _ownerName === "sicht"
-      ? "sicht/singleSelectInventoryReconciled"
-      : "specialSingleSelect/singleSelectInventoryReconciled";
+      ? _ownerNotify.ownerActions.sichtInventoryReconciled
+      : _ownerNotify.ownerActions.specialInventoryReconciled;
   }
 
   function buildOwnerAckError(_ownerName, _payload, _kind, _details) {

@@ -5,8 +5,12 @@ define([
   "./operations.js",
   "./validation.js",
   "./history.js",
+  "../dienststelle/state.js",
+  "../specialSingleSelect/state.js",
   "../../../core/utils/kit/history.js"
-], function (_config, _state, _selectors, _operations, _validation, _history, _kitHistory) {
+], function (
+  _config, _state, _selectors, _operations, _validation, _history, _dienststelleState, _specialState, _kitHistory
+) {
   "use strict";
 
   var actions = _state.actions;
@@ -267,7 +271,7 @@ define([
         return { ok: true, skipped: true };
       }
       await Promise.resolve(api.dispatch({
-        type: "dienststelle/sichtChanged",
+        type: _dienststelleState.ACTIONS.SICHT_CHANGED,
         payload: {
           activeSichtValue: _selection.displayValue,
           selection: {
@@ -296,7 +300,7 @@ define([
         return { ok: true, skipped: true };
       }
       await Promise.resolve(api.dispatch({
-        type: "specialSingleSelect/sichtChanged",
+        type: _specialState.actions.SICHT_CHANGED,
         payload: { activeSichtValue: _selection.displayValue }
       }));
       return { ok: true };

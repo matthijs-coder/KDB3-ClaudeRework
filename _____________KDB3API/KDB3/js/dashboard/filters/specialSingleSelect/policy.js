@@ -1,8 +1,9 @@
 define([
   "./config.js",
   "./state.js",
-  "./instances.js"
-], function (_config, _state, _instances) {
+  "./instances.js",
+  "../singleSelect/config.js"
+], function (_config, _state, _instances, _singleSelectConfig) {
   "use strict";
 
   var errorCodes = _config.ERROR_CODES;
@@ -326,7 +327,7 @@ define([
       return { ok: false };
     }
     return api.dispatch({
-      type: "singleSelect/applySpecialSelectionPolicy",
+      type: _singleSelectConfig.actions.APPLY_SPECIAL_SELECTION_POLICY,
       payload: _payload
     });
   }

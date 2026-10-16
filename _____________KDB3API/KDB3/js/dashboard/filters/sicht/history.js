@@ -2,10 +2,11 @@ define([
   "./state/selectors.js",
   "./operations.js",
   "./delegation.js",
-  "../singleSelect/state/selectors.js",
+  "../singleSelect/selectors.js",
+  "../dienststelle/state.js",
   "../../../core/utils/kit/data.js",
   "../../../core/utils/kit/history.js"
-], function (_selectors, _operations, _delegation, _singleSelectSelectors, _kitData, _kitHistory) {
+], function (_selectors, _operations, _delegation, _singleSelectSelectors, _dienststelleState, _kitData, _kitHistory) {
   "use strict";
 
   var STEP_KEY = "filter_sicht";
@@ -92,7 +93,7 @@ define([
         return false;
       }
       return (await _KDB.api.dienststelle.dispatch({
-        type: "dienststelle/historyReplayRequested",
+        type: _dienststelleState.ACTIONS.HISTORY_REPLAY_REQUESTED,
         payload: {
           targetValue: dependencies.dienststelle,
           step: _step,

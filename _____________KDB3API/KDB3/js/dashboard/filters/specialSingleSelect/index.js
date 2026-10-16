@@ -6,10 +6,11 @@ define([
   "./delegation.js",
   "./sync.js",
   "./inventory.js",
+  "../_core/ownerController.js",
+  "../_core/tableDataWatcher.js",
   "../../../core/utils/kit/data.js",
   "../../../core/utils/kit/runtime.js",
-  "../../../core/utils/kit/errors.js",
-  "../../../core/services/tableData/events/eventNames.js"
+  "../../../core/utils/kit/errors.js"
 ], function (
   _config,
   _state,
@@ -18,10 +19,11 @@ define([
   _delegation,
   _sync,
   _inventory,
+  _ownerController,
+  _tableDataWatcher,
   _data,
   _runtime,
-  _errors,
-  _tableDataEvents
+  _errors
 ) {
   "use strict";
 
@@ -110,6 +112,9 @@ define([
     return route ? route(_ctx, _action.payload || {}, _action) : undefined;
   }
 
+  var DISPOSED_RESULTS = {};
+  ACK_ACTION_TYPES.forEach(function (_type) { DISPOSED_RESULTS[_type] = buildDisposedAck; });
+
   function createSpecialSingleSelectController(_KDB, _options) {
     var ctx = {
       _KDB: _KDB,
@@ -123,108 +128,77 @@ define([
       lastInventoryResult: null
     };
 
+    function reduce(_action) {
+      _sync.dispatchInternal(ctx, _action);
+    }
+
     function mount(_mountOptions) {
-      if (ctx.guard.blocked("mount")) {
-        return false;
-      }
-      try {
-        ctx.options = Object.assign({}, ctx.options, _mountOptions || {});
-        _sync.dispatchInternal(ctx, {
-          type: actions.MOUNT_SUCCEEDED,
-          payload: { mountedAt: Date.now() }
-        });
-        _sync.scheduleSync(ctx);
-        return true;
-      } catch (error) {
-        console.error("[specialSingleSelect.mount] failed", error);
-        return false;
-      }
-    }
-
-    function destroy() {
-      if (ctx.guard.isDisposed()) {
-        return;
-      }
-      ctx.guard.dispose();
-      try {
-        var errors = _runtime.disposeRuntimeBuckets(ctx.runtime);
-        ctx.runtime.syncRequest = null;
-        if (errors.length) {
-          console.error("[specialSingleSelect.destroy] cleanup errors", errors);
-        }
-        _sync.dispatchInternal(ctx, { type: actions.DESTROY, payload: {} });
-      } catch (error) {
-        console.error("[specialSingleSelect.destroy] failed", error);
-      }
-    }
-
-    function dispatch(_action) {
-      if (ctx.guard.blocked("dispatch")) {
-        return isAckAction(_action && _action.type) ? buildDisposedAck(_action) : undefined;
-      }
-      try {
-        var actionResult = routeAction(ctx, _action || {});
-        if (actionResult && typeof actionResult.then === "function") {
-          return actionResult;
-        }
-        return _selectors.readSpecialSingleSelectState(_KDB);
-      } catch (error) {
-        console.error("[specialSingleSelect.dispatch] failed", error);
-        _sync.dispatchInternal(ctx, {
-          type: actions.ERROR,
-          payload: {
-            errorCode: errorCodes.DISPATCH_FAILED,
-            errorMessage: String(error.message || error)
-          }
-        });
-        return isAckAction(_action && _action.type) ? buildDispatchFailureAck(_action, error) : undefined;
-      }
-    }
-
-    function getState() {
-      return ctx.guard.isDisposed() ? undefined : _data.cloneJson(_selectors.readSpecialSingleSelectState(_KDB));
-    }
-
-    return { mount: mount, destroy: destroy, dispatch: dispatch, getState: getState };
-  }
-
-  function subscribeTableDataChanges(_KDB, _api) {
-    var events = _KDB && _KDB.events;
-    if (!events || typeof events.subscribe !== "function") {
-      return null;
-    }
-    return events.subscribe(_tableDataEvents.LOAD_FINISHED, function (_payload) {
-      var tableName = _payload && _payload.tableName;
-      if (!_tableData.isRelevantTableName(_KDB, tableName)) {
-        return;
-      }
-      _api.dispatch({
-        type: actions.TABLE_DATA_CHANGED,
-        payload: { tableName: tableName, rowCount: _payload.rowCount }
+      ctx.options = Object.assign({}, ctx.options, _mountOptions || {});
+      reduce({
+        type: actions.MOUNT_SUCCEEDED,
+        payload: { mountedAt: Date.now() }
       });
+      _sync.scheduleSync(ctx);
+    }
+
+    function teardown() {
+      var errors = _runtime.disposeRuntimeBuckets(ctx.runtime);
+      ctx.runtime.syncRequest = null;
+      if (errors.length) {
+        console.error("[specialSingleSelect.destroy] cleanup errors", errors);
+      }
+    }
+
+    // A non-promise route result (such as an owner ack) is not returned to the caller; the state is.
+    function route(_action) {
+      var actionResult = routeAction(ctx, _action);
+      if (actionResult && typeof actionResult.then === "function") {
+        return actionResult;
+      }
+      return _selectors.readSpecialSingleSelectState(_KDB);
+    }
+
+    function reportDispatchError(_error, _action) {
+      reduce({
+        type: actions.ERROR,
+        payload: {
+          errorCode: errorCodes.DISPATCH_FAILED,
+          errorMessage: String(_error.message || _error)
+        }
+      });
+      return isAckAction(_action.type) ? buildDispatchFailureAck(_action, _error) : undefined;
+    }
+
+    return _ownerController.createOwnerController({
+      _KDB: _KDB,
+      name: "specialSingleSelect",
+      guard: ctx.guard,
+      reduce: reduce,
+      mount: mount,
+      teardown: teardown,
+      route: route,
+      readState: function () { return _data.cloneJson(_selectors.readSpecialSingleSelectState(_KDB)); },
+      destroyAction: actions.DESTROY,
+      disposedResults: DISPOSED_RESULTS,
+      onDispatchError: reportDispatchError
     });
   }
 
   function registerSpecialSingleSelect(_KDB, _options) {
-    _KDB.state = _KDB.state || {};
-    _KDB.state.filters = _KDB.state.filters || {};
-    _KDB.runtime = _KDB.runtime || {};
-    _KDB.api = _KDB.api || {};
-    _KDB.elements = _KDB.elements || {};
-    _KDB.elements.selectors = _KDB.elements.selectors || {};
-    _KDB.elements.selectors.specialSingleSelect = _config.SELECTORS;
-
-    if (!_KDB.state.filters.specialSingleSelect) {
-      _KDB.state.filters.specialSingleSelect = _state.createInitialState();
-    }
+    _ownerController.prepareOwnerNamespaces(_KDB, "specialSingleSelect", {
+      createInitialState: _state.createInitialState,
+      domSelectors: _config.SELECTORS
+    });
 
     var runtime = _runtime.ensureRuntime(_KDB, "specialSingleSelect");
     var controller = createSpecialSingleSelectController(_KDB, _options);
     _KDB.api.specialSingleSelect = controller;
-    if (typeof runtime.subscriptions.tableDataLoadFinished === "function") {
-      runtime.subscriptions.tableDataLoadFinished();
-    }
-    runtime.subscriptions.tableDataLoadFinished = subscribeTableDataChanges(_KDB, controller);
+    _tableDataWatcher.watchTableData(_KDB, {
+      runtime: runtime,
+      isRelevant: _tableData.isRelevantTableName,
+      dispatch: controller.dispatch,
+      actionType: actions.TABLE_DATA_CHANGED
+    });
     return controller;
   }
 

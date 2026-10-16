@@ -1,35 +1,15 @@
 define([
   "./config.js",
+  "../_core/tableDataWatcher.js",
   "../../../core/utils/isRightAllowed.js"
-], function (_config, _isRightAllowed) {
+], function (_config, _tableDataWatcher, _isRightAllowed) {
   "use strict";
 
   function readTableConfig(_KDB, _tableKey) {
     return _KDB && _KDB.config && _KDB.config.tables ? _KDB.config.tables[_tableKey] : null;
   }
 
-  function normalizeMatchValue(_value) {
-    return String(_value == null ? "" : _value).trim().toLowerCase();
-  }
-
-  function buildRelevantNameSet(_KDB) {
-    var relevantNames = {};
-    _config.TABLE_KEYS.forEach(function (_tableKey) {
-      var tableConfig = readTableConfig(_KDB, _tableKey);
-      relevantNames[normalizeMatchValue(_tableKey)] = true;
-      if (tableConfig && tableConfig.name) {
-        relevantNames[normalizeMatchValue(tableConfig.name)] = true;
-      }
-    });
-    return relevantNames;
-  }
-
-  function isRelevantTableName(_KDB, _tableName) {
-    if (!_tableName) {
-      return false;
-    }
-    return buildRelevantNameSet(_KDB)[normalizeMatchValue(_tableName)] === true;
-  }
+  var isRelevantTableName = _tableDataWatcher.createTableNameMatcher(_config.TABLE_KEYS);
 
   function buildTableInput(_KDB, _tableKey) {
     var tableConfig = readTableConfig(_KDB, _tableKey);

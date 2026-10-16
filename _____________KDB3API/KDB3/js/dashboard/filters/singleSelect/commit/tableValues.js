@@ -1,4 +1,7 @@
-define(["../config.js"], function (_config) {
+define([
+  "../config.js",
+  "../../_core/filterDefinitions.js"
+], function (_config, _filterDefinitions) {
   "use strict";
 
   var EXPLICIT_TABLE_KEYS = {
@@ -32,9 +35,7 @@ define(["../config.js"], function (_config) {
     return normalizeFilterLabelKey(label) + "_filter";
   }
 
-  function normalizeText(_value) {
-    return String(_value == null ? "" : _value).trim().toLowerCase();
-  }
+  var normalizeText = _filterDefinitions.normalizeLower;
 
   function normalizeCell(_cell) {
     var display;

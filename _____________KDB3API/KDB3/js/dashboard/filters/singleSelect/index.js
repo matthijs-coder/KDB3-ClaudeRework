@@ -17,6 +17,7 @@ define([
   "./tabMutation/apply.js",
   "./tabMutation/restore.js",
   "./tabMutation/resync.js",
+  "../_core/ownerController.js",
   "../../../core/utils/kit/errors.js"
 ], function (
   _config,
@@ -37,6 +38,7 @@ define([
   _applyTabMutation,
   _restoreTabMutation,
   _resyncTabMutation,
+  _ownerController,
   _kitErrors
 ) {
   "use strict";
@@ -106,16 +108,13 @@ define([
     return service && service.filters ? service.filters : null;
   }
 
+  var DISPOSED_RESULTS = {};
+  Object.keys(DISPOSED_ASYNC_TYPES).forEach(function (_type) { DISPOSED_RESULTS[_type] = disposedResult; });
+
   function createController(_KDB, _options) {
     var guard = _kitErrors.createDisposedGuard("singleSelect");
-    var controller = { options: _options || {}, reducer: _reducer.createSingleSelectReducer() };
-
-    function reduce(_action) {
-      var filtersState = _KDB.state && _KDB.state.filters;
-      if (filtersState) {
-        filtersState.singleSelect = controller.reducer(filtersState.singleSelect, _action);
-      }
-    }
+    var controller = { options: _options || {} };
+    var reduce = _ownerController.createStateWriter(_KDB, "singleSelect", _reducer.createSingleSelectReducer());
 
     function dispatchAction(_action) {
       var action = _action || {};
@@ -130,80 +129,58 @@ define([
     }
 
     function mount(_mountOptions) {
-      if (guard.blocked("mount")) {
-        return false;
-      }
-      try {
-        _singleSelectRuntime.ensureSingleSelectRuntime(_KDB);
-        controller.options = Object.assign({}, controller.options, _mountOptions || {});
-        var root = _KDB.state.filters.singleSelect;
-        root.instancesById = root.instancesById || {};
-        root.inventory = root.inventory || { generation: 0, freshness: "stale", reconciledAt: null, errorCode: null };
-        delete root.byScope;
-        reduce({ type: actions.MOUNT_SUCCEEDED, payload: { mountedAt: Date.now() } });
-        dispatchAction({ type: actions.RECONCILE_FILTER_INSTANCES, payload: { reason: "mount" } });
-        return true;
-      } catch (error) {
-        console.error("[singleSelect.mount] failed", error);
-        reduce({
-          type: actions.ERROR,
-          payload: { errorCode: "SINGLE_SELECT_MOUNT_FAILED", errorMessage: String(error.message || error) }
-        });
-        return false;
-      }
+      _singleSelectRuntime.ensureSingleSelectRuntime(_KDB);
+      controller.options = Object.assign({}, controller.options, _mountOptions || {});
+      var root = _KDB.state.filters.singleSelect;
+      root.instancesById = root.instancesById || {};
+      root.inventory = root.inventory || { generation: 0, freshness: "stale", reconciledAt: null, errorCode: null };
+      delete root.byScope;
+      reduce({ type: actions.MOUNT_SUCCEEDED, payload: { mountedAt: Date.now() } });
+      dispatchAction({ type: actions.RECONCILE_FILTER_INSTANCES, payload: { reason: "mount" } });
     }
 
-    function destroy() {
-      if (guard.isDisposed()) {
+    function teardown() {
+      _singleSelectRuntime.resetSingleSelectRuntime(_singleSelectRuntime.ensureSingleSelectRuntime(_KDB));
+    }
+
+    function reportError(_code, _error) {
+      reduce({
+        type: actions.ERROR,
+        payload: { errorCode: _code, errorMessage: String(_error.message || _error) }
+      });
+    }
+
+    function logFailure(_phase, _error, _action) {
+      if (_phase === "dispatch") {
+        console.error("[singleSelect.dispatch] failed", { actionType: _action && _action.type }, _error);
         return;
       }
-      guard.dispose();
-      try {
-        _singleSelectRuntime.resetSingleSelectRuntime(_singleSelectRuntime.ensureSingleSelectRuntime(_KDB));
-        if (_KDB.runtime && _KDB.runtime.singleSelect) {
-          _KDB.runtime.singleSelect.historyReplayHandlerContribution = null;
-        }
-        if (_KDB.state && _KDB.state.filters) {
-          reduce({ type: actions.DESTROY, payload: {} });
-        }
-      } catch (error) {
-        console.error("[singleSelect.destroy] failed", error);
-      }
+      console.error("[singleSelect." + _phase + "] failed", _error);
     }
 
-    function dispatch(_action) {
-      if (guard.blocked("dispatch")) {
-        return _action && hasOwn(DISPOSED_ASYNC_TYPES, _action.type) ? disposedResult(_action) : undefined;
-      }
-      try {
-        return dispatchAction(_action);
-      } catch (error) {
-        console.error("[singleSelect.dispatch] failed", { actionType: _action && _action.type }, error);
-        reduce({
-          type: actions.ERROR,
-          payload: { errorCode: "SINGLE_SELECT_DISPATCH_FAILED", errorMessage: String(error.message || error) }
-        });
-        return undefined;
-      }
-    }
-
-    function getState() {
-      return guard.isDisposed() ? undefined : _selectors.readSingleSelectState(_KDB);
-    }
-
-    return { mount: mount, destroy: destroy, dispatch: dispatch, getState: getState };
+    return _ownerController.createOwnerController({
+      _KDB: _KDB,
+      name: "singleSelect",
+      guard: guard,
+      reduce: reduce,
+      mount: mount,
+      teardown: teardown,
+      route: dispatchAction,
+      readState: function () { return _selectors.readSingleSelectState(_KDB); },
+      destroyAction: actions.DESTROY,
+      clearsReplayContribution: true,
+      disposedResults: DISPOSED_RESULTS,
+      logFailure: logFailure,
+      onMountError: function (_error) { reportError("SINGLE_SELECT_MOUNT_FAILED", _error); },
+      onDispatchError: function (_error) { reportError("SINGLE_SELECT_DISPATCH_FAILED", _error); }
+    });
   }
 
   function register(_KDB, _options) {
-    _KDB.state = _KDB.state || {};
-    _KDB.state.filters = _KDB.state.filters || {};
-    _KDB.api = _KDB.api || {};
-    _KDB.elements = _KDB.elements || {};
-    _KDB.elements.selectors = _KDB.elements.selectors || {};
-    _KDB.elements.selectors.singleSelect = _config.domSelectors;
-    if (!_KDB.state.filters.singleSelect) {
-      _KDB.state.filters.singleSelect = _reducer.initialState();
-    }
+    _ownerController.prepareOwnerNamespaces(_KDB, "singleSelect", {
+      createInitialState: _reducer.initialState,
+      domSelectors: _config.domSelectors
+    });
     var runtime = _singleSelectRuntime.ensureSingleSelectRuntime(_KDB);
     // cognosHost is the first core service, so it exists by the time the filter
     // orchestrators run; the guard covers a harness that boots without services.

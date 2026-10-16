@@ -1,5 +1,19 @@
-define(["../config.js"], function (_config) {
+define([
+  "../config.js",
+  "../../sicht/state.js",
+  "../../specialSingleSelect/state.js"
+], function (_config, _sichtState, _specialState) {
   "use strict";
+
+  // Action types the delegated owners accept from singleSelect; the owners export them.
+  var ownerActions = {
+    sichtCommitted: _sichtState.actions.SINGLE_SELECT_COMMITTED,
+    sichtDraftChanged: _sichtState.actions.SINGLE_SELECT_DRAFT_CHANGED,
+    sichtDraftReverted: _sichtState.actions.SINGLE_SELECT_DRAFT_REVERTED,
+    sichtInventoryReconciled: _sichtState.actions.SINGLE_SELECT_INVENTORY_RECONCILED,
+    specialCommitted: _specialState.actions.USER_SELECTION_COMMITTED,
+    specialInventoryReconciled: _specialState.actions.SINGLE_SELECT_INVENTORY_RECONCILED
+  };
 
   function isNegativeAck(_ack) {
     return _ack === false || (_ack && _ack.ok === false) || (_ack && _ack.acknowledged === false);
@@ -56,7 +70,7 @@ define(["../config.js"], function (_config) {
         };
       }
       var ack = await api.dispatch({
-        type: filterType === "sicht" ? "sicht/singleSelectCommitted" : "specialSingleSelect/userSelectionCommitted",
+        type: filterType === "sicht" ? ownerActions.sichtCommitted : ownerActions.specialCommitted,
         payload: buildPayload(_handoffContext, _selection)
       });
       if (isNegativeAck(ack)) {
@@ -80,6 +94,7 @@ define(["../config.js"], function (_config) {
   }
 
   return {
+    ownerActions: ownerActions,
     isNegativeAck: isNegativeAck,
     notifyOwnerCommit: notifyOwnerCommit
   };

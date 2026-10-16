@@ -1,7 +1,7 @@
 define([
   "./config.js",
   "./sync.js",
-  "../singleSelect/state/selectors.js"
+  "../singleSelect/selectors.js"
 ], function (_config, _sync, _singleSelectSelectors) {
   "use strict";
 

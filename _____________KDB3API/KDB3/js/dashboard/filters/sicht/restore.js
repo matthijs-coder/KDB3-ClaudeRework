@@ -4,8 +4,10 @@ define([
   "./availability.js",
   "./operations.js",
   "./delegation.js",
-  "./commit.js"
-], function (_config, _selectors, _availability, _operations, _delegation, _commit) {
+  "./commit.js",
+  "../_core/parameterSetRun.js",
+  "../dienststelle/state.js"
+], function (_config, _selectors, _availability, _operations, _delegation, _commit, _parameterSetRun, _dienststelleState) {
   "use strict";
 
   var INVALID_PAYLOAD = "WRITEBACK_INVALID_V3_PAYLOAD";
@@ -278,7 +280,7 @@ define([
         return { ok: true, skipped: true };
       }
       await Promise.resolve(api.dispatch({
-        type: "dienststelle/sichtChanged",
+        type: _dienststelleState.ACTIONS.SICHT_CHANGED,
         payload: {
           activeSichtValue: _selection.displayValue,
           selection: {
@@ -328,17 +330,10 @@ define([
   }
 
   function claimRunId(runtime, runId) {
-    if (typeof runId !== "number" || !isFinite(runId)) {
-      return cancelResult(runId, "parameterSet action requires numeric runId");
-    }
-    if (typeof runtime.parameterSetRunId === "number" && runId < runtime.parameterSetRunId) {
-      return cancelResult(
-        runId,
-        "stale parameterSet runId " + runId + " superseded by " + runtime.parameterSetRunId
-      );
-    }
-    runtime.parameterSetRunId = runId;
-    return null;
+    var rejection = _parameterSetRun.claimParameterSetRun(runtime, runId, {
+      invalidMessage: "parameterSet action requires numeric runId"
+    });
+    return rejection ? cancelResult(rejection.runId, rejection.message) : null;
   }
 
   function ensureCurrentRun(runtime, runId) {
