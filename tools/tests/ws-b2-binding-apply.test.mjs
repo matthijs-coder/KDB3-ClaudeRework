@@ -12,8 +12,8 @@ import { JS_ROOT } from "../lib/amd-graph.mjs";
 const RECORD = process.env.WS_B_RECORD === "1";
 const SNAPSHOT_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), "ws-b2-binding-apply.snapshot.json");
 const APPLY_DIR = "core/services/widgetBindingApply";
-const FILTER_BODY_PATH = `${APPLY_DIR}/effects/buildFilterBody.js`;
-const KEEPEXCLUDE_PATH = `${APPLY_DIR}/effects/buildKeepexcludeConditionsFilterObj.js`;
+const FILTER_BODY_PATH = `${APPLY_DIR}/filterBody/buildFilterBody.js`;
+const KEEPEXCLUDE_PATH = `${APPLY_DIR}/filterBody/keepexcludeConditions.js`;
 const RUN_GUARD_MS = 2000;
 
 const quiet = { log() {}, info() {}, warn() {}, error() {} };
@@ -24,9 +24,9 @@ const buildFilterBodyModule = load(FILTER_BODY_PATH);
 const buildKeepexclude = load(KEEPEXCLUDE_PATH);
 const visTypes = load("core/config/visualizations/bindingSpecsVisTypes.js");
 
-// The filter-body builders receive the keepexclude builder through their second argument.
+// The keepexclude builder is the optional second argument of buildFilterBody.
 function callFilterBody(descriptor, withBuilder) {
-  return buildFilterBodyModule(descriptor, withBuilder ? { buildKeepexcludeConditionsFilterObj: buildKeepexclude } : {});
+  return buildFilterBodyModule(descriptor, withBuilder ? buildKeepexclude : undefined);
 }
 
 const snapshot = RECORD

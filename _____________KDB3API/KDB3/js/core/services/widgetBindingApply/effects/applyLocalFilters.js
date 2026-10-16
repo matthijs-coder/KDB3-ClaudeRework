@@ -1,7 +1,8 @@
 define([
-  "./buildFilterBody.js",
+  "../filterBody/buildFilterBody.js",
+  "../filterBody/keepexcludeConditions.js",
   "./bindingApplyStepHelpers.js",
-], function (_buildFilterBody, _bindingApplyStepHelpers) {
+], function (_buildFilterBody, _buildKeepexcludeConditionsFilterObj, _bindingApplyStepHelpers) {
   "use strict";
 
   function localFilterOptions(_descriptor) {
@@ -36,7 +37,7 @@ define([
         }
 
         descriptor = descriptors[index];
-        built = _buildFilterBody(descriptor, _cognosBinding);
+        built = _buildFilterBody(descriptor, _buildKeepexcludeConditionsFilterObj);
         if (!built.ok) {
           return built;
         }

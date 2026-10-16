@@ -1,5 +1,5 @@
 define([
-  "./buildKeepexcludeConditionsFilterObj.js"
+  "../filterBody/keepexcludeConditions.js"
 ], function (_buildKeepexcludeConditionsFilterObj) {
   "use strict";
 
