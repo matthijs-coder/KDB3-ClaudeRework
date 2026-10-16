@@ -1,11 +1,11 @@
 define([
   "../hostFilterIo.js",
-  "./resolveFilterValueFromTable.js",
+  "../commit/tableValues.js",
   "../runtime.js",
   "../config.js"
 ], function (
   _hostFilterIo,
-  _resolveFilterValue,
+  _tableValues,
   _singleSelectRuntime,
   _config
 ) {
@@ -35,7 +35,7 @@ define([
           throw codedError(_config.errorCodes.HOST_WRITE_FAILED, "filter host writer unavailable");
         }
       } else {
-        var resolved = await _resolveFilterValue.resolveFilterValueFromTable(
+        var resolved = await _tableValues.resolveFilterValueFromTable(
           _KDB,
           _handoff.filterLabel,
           _displayValue,
