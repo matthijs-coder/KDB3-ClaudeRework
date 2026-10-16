@@ -246,7 +246,7 @@ test("subscribeSelections: invalid input and missing host return a no-op unsubsc
   assert.equal(typeof svc.visualization.subscribeSelections("w1", () => {}), "function");
 });
 
-test("subscribeSelections: runtime.subscriptions bookkeeping (P1 baseline)", () => {
+test("subscribeSelections: runtime.subscriptions returns to baseline after unsubscribe and replace (P1)", () => {
   const { handlers, host } = eventHost();
   const { _KDB, svc } = create(host);
   const baseline = _KDB.runtime.cognosHostService.subscriptions.length;
@@ -257,9 +257,27 @@ test("subscribeSelections: runtime.subscriptions bookkeeping (P1 baseline)", () 
   assert.equal(_KDB.runtime.cognosHostService.subscriptions.length, baseline + 3);
   unsubscribes.forEach((unsubscribe) => unsubscribe());
   assert.equal(handlers.length, 0);
-  assert.equal(_KDB.runtime.cognosHostService.subscriptions.length, baseline + 3, "released closures are kept until destroy");
+  assert.equal(_KDB.runtime.cognosHostService.subscriptions.length, baseline);
+  for (let index = 0; index < 5; index += 1) {
+    svc.visualization.subscribeSelections("same", () => {});
+  }
+  assert.equal(_KDB.runtime.cognosHostService.subscriptions.length, baseline + 1, "replace releases the previous closure");
+  assert.equal(handlers.length, 1);
   svc.destroy();
   assert.deepEqual(_KDB.runtime.cognosHostService.subscriptions, []);
+  assert.equal(handlers.length, 0);
+});
+
+test("unsubscribing after destroy does not recreate or touch the runtime", () => {
+  const { handlers, host } = eventHost();
+  const { _KDB, svc } = create(host);
+  const unsubscribe = svc.visualization.subscribeSelections("w1", () => {});
+  svc.destroy();
+  const after = _KDB.runtime.cognosHostService;
+  unsubscribe();
+  assert.equal(_KDB.runtime.cognosHostService, after);
+  assert.deepEqual(after.subscriptions, []);
+  assert.equal(handlers.length, 0);
 });
 
 test("destroy releases live selection subscriptions", () => {
