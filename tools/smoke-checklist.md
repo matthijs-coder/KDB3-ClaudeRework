@@ -242,6 +242,9 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Load a parameter set that has styled widgets (colour, font size, TopN, visType). Expected: the widgets and their settings match the set, and the console shows no `[widgetBase.` / `[widgetSettings.` errors.
 - [ ] Focus mode: click the info icon (also the one in the main settings panel) and change one dropdown. Expected: no new console error (the info kind returns `WIDGET_SETTINGS_KIND_UNSUPPORTED` without dispatch), and the dropdown applies.
 - [ ] Change a widget's dropdown option (for example Diagrammtyp), then undo and redo. Expected: the option and the widget follow each step. Repeat with a Dimension change that clears TopN (coupled Dimension -> TopN clear): one undo restores both the Dimension and the TopN choice, one redo clears TopN again.
+- [ ] `window.top.getKDB().api.widgetBase.dispatch({type:"widgetBase/remove", widgetId:"<id>", payload:{reason:"user"}})`. Expected: `runtime.widgetSettings.domRefs["<id>"]`, `abortControllers["panel:<id>"]` and `abortControllers["toolbar:<id>"]` are gone; undo restores the widget with its settings panel working.
+- [ ] Move a widget launchpad->canvas and canvas->launchpad, then undo/redo each. Expected: the settings panel and toolbar are restored and respond on every step.
+- [ ] After a successful tab duplicate/delete/move: `Object.keys(window.top.getKDB().runtime.widgetBase.tabMutationSnapshots)` is empty.
 
 ### WS-M widgetVis + widgetDataTable
 - [ ] Drillthrough header icon and datapoint icon: compare URLs for 3-4 org/year combinations (see WS-D).
