@@ -1,14 +1,14 @@
 define([
-  "../config/slotNames.js",
+  "../config.js",
   "./resolveSlotColumnIds.js",
   "./resolveSlotSortSpecs.js",
   "./slotActivity.js",
   "./topBottomOptions.js",
-], function (_slotNames, _resolveSlotColumnIds, _resolveSlotSortSpecs, _slotActivity, _topBottomOptions) {
+], function (_config, _resolveSlotColumnIds, _resolveSlotSortSpecs, _slotActivity, _topBottomOptions) {
   "use strict";
 
   function isRequiredSlot(_slotName) {
-    return _slotNames.REQUIRED_SLOTS.indexOf(_slotName) >= 0;
+    return _config.REQUIRED_SLOTS.indexOf(_slotName) >= 0;
   }
 
   function pushWarning(_diagnostics, _code, _message, _field) {
