@@ -31,8 +31,8 @@ define([], function () {
     WRITEBACK_WIDGET_RESTORE_FAILED: "WRITEBACK_WIDGET_RESTORE_FAILED",
     WRITEBACK_WIDGET_BINDING_DEGRADED: "WRITEBACK_WIDGET_BINDING_DEGRADED",
     WRITEBACK_SKIPPED_BY_DESIGN: "WRITEBACK_SKIPPED_BY_DESIGN",
-    // Echte collector-crash tijdens GET (geen design-skip): de save wordt
-    // afgebroken in plaats van stil een onvolledige payload te persisteren.
+    // A real collector crash during GET (not a design skip): the save aborts
+    // instead of silently persisting an incomplete payload.
     WRITEBACK_COLLECTOR_FAILED: "WRITEBACK_COLLECTOR_FAILED",
     WRITEBACK_FILTER_KIND_UNSUPPORTED: "WRITEBACK_FILTER_KIND_UNSUPPORTED",
     WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING: "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",

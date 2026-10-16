@@ -1,0 +1,4953 @@
+{
+  "errorCodes": [
+    "WRITEBACK_UNSUPPORTED_SCHEMA_VERSION",
+    "WRITEBACK_UNSUPPORTED_STATUS",
+    "WRITEBACK_INVALID_V3_PAYLOAD",
+    "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+    "WRITEBACK_MAPPING_CONFIG_MISSING",
+    "WRITEBACK_MAPPING_TOKEN_UNRESOLVED",
+    "WRITEBACK_MAPPING_PACKAGE_MISMATCH",
+    "WRITEBACK_TABS_NOT_READY",
+    "WRITEBACK_TABS_TARGET_MISSING",
+    "WRITEBACK_TABS_TRAVERSAL_FAILED",
+    "WRITEBACK_TABS_SURPLUS_UNTOUCHED",
+    "WRITEBACK_FILTER_CLEAR_FAILED",
+    "WRITEBACK_FILTER_RESTORE_FAILED",
+    "WRITEBACK_SICHT_RESTORE_FAILED",
+    "WRITEBACK_DIENSTSTELLE_RESTORE_FAILED",
+    "WRITEBACK_DIENSTSTELLE_BW_LABEL_MAPPED",
+    "WRITEBACK_DIENSTSTELLE_BW_LABEL_UNMAPPED",
+    "WRITEBACK_KDBCONTROL_RESTORE_FAILED",
+    "WRITEBACK_HEADER_FIELD_UNSUPPORTED",
+    "WRITEBACK_HEADER_RESTORE_FAILED",
+    "WRITEBACK_FOOTER_HEADER_GUARD",
+    "WRITEBACK_WIDGET_RESET_FAILED",
+    "WRITEBACK_WIDGET_KIND_UNSUPPORTED",
+    "WRITEBACK_WIDGET_LOCALFILTER_UNSUPPORTED",
+    "WRITEBACK_WIDGET_RESTORE_FAILED",
+    "WRITEBACK_WIDGET_BINDING_DEGRADED",
+    "WRITEBACK_SKIPPED_BY_DESIGN",
+    "WRITEBACK_COLLECTOR_FAILED",
+    "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+    "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+    "WRITEBACK_SINGLESELECT_SCOPE_TARGET_AMBIGUOUS",
+    "WRITEBACK_SINGLESELECT_INSTANCE_KEY_MISSING",
+    "WRITEBACK_SINGLESELECT_INSTANCE_AMBIGUOUS",
+    "WRITEBACK_SINGLESELECT_USE_VALUE_MISSING",
+    "WRITEBACK_SINGLESELECT_DISPLAY_DEGRADED",
+    "WRITEBACK_SINGLESELECT_INVENTORY_STALE",
+    "WRITEBACK_SCHEMA_NORMALIZE_FAILED",
+    "WRITEBACK_HISTORY_GUARD_FAILED",
+    "WRITEBACK_RESTORE_CANCELLED",
+    "WRITEBACK_TIMEOUT",
+    "WRITEBACK_URL_PARAMETER_ID_PRECEDENCE",
+    "WRITEBACK_URL_PARAMETER_ID_NOT_FOUND",
+    "WRITEBACK_URL_PARAMETER_SET_WAIT_TIMEOUT",
+    "WRITEBACK_URL_SHARE_HOST_LIST_UNREADY"
+  ],
+  "detect": {
+    "v3Object": "v3",
+    "v3String": "v3",
+    "v3OneElementArray": "v3",
+    "v2ConfigurationOnly": "v2",
+    "v2GlobalFilters": "v2",
+    "v2Widgets": "v2",
+    "v2TopHeader": "v2",
+    "v2BottomFooter": "v2",
+    "v2TabsArray": "v2",
+    "v2TabsObjectOnly": "unknown",
+    "v2ObjectString": "v2",
+    "v2OneElementArray": "v2",
+    "v2OneElementArrayString": "v2",
+    "twoElementArray": "unknown",
+    "emptyArray": "unknown",
+    "invalidJson": "unknown",
+    "emptyString": "unknown",
+    "nullInput": "unknown",
+    "undefinedInput": "unknown",
+    "numberInput": "unknown",
+    "emptyObject": "unknown",
+    "versionTwo": "unknown",
+    "versionThree": "v3",
+    "versionThreeString": "v3",
+    "markerArrays": "unknown",
+    "nestedArrayElement": "unknown"
+  },
+  "normalize": {
+    "v3Object": {
+      "ok": true,
+      "result": {
+        "payload": {
+          "v": 3,
+          "pkg": "Personal_KDB",
+          "canv": {
+            "w": 1000,
+            "h": 800
+          },
+          "sett": {
+            "dash": {
+              "bg": "#eeeeee",
+              "hidWs": 1
+            },
+            "panel": {
+              "bg": "#111111"
+            },
+            "newwg": {
+              "vis": {
+                "w": 400,
+                "h": 300
+              }
+            }
+          },
+          "head": {
+            "on": 1,
+            "title": "Titel",
+            "icon": "wappen"
+          },
+          "foot": {
+            "on": 0
+          },
+          "filt": {
+            "sicht": "BW",
+            "dstl": {
+              "key": "Dienststelle_BW",
+              "glob": [
+                "MAG"
+              ],
+              "byTab": {
+                "0": [
+                  "MAG"
+                ]
+              }
+            },
+            "sels": [
+              {
+                "key": "Geschlecht",
+                "vals": [
+                  "Weiblich"
+                ]
+              },
+              {
+                "key": "Berufsfamilie",
+                "vals": [
+                  "Technik"
+                ],
+                "tab": 0
+              }
+            ],
+            "pcfs": [
+              {
+                "nm": "Jahr",
+                "vals": [
+                  {
+                    "d": "2023",
+                    "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                  }
+                ],
+                "tab": 0
+              }
+            ]
+          },
+          "tabs": [
+            {
+              "name": "Eins"
+            },
+            {
+              "name": "Zwei",
+              "hide": 1
+            }
+          ],
+          "wgts": [
+            {
+              "tab": 0,
+              "x": 0,
+              "y": 0,
+              "w": 100,
+              "h": 100,
+              "kind": "vis",
+              "code": "M1",
+              "type": "line",
+              "grp": "jahr",
+              "vals": 1
+            },
+            {
+              "tab": 1,
+              "x": 5,
+              "y": 5,
+              "w": 50,
+              "h": 50,
+              "kind": "txt",
+              "text": "Hallo",
+              "fsize": 12
+            }
+          ]
+        },
+        "format": "v3"
+      }
+    },
+    "v3String": {
+      "ok": true,
+      "result": {
+        "payload": {
+          "v": 3,
+          "pkg": "Personal_KDB",
+          "canv": {
+            "w": 1000,
+            "h": 800
+          },
+          "sett": {
+            "dash": {
+              "bg": "#eeeeee",
+              "hidWs": 1
+            },
+            "panel": {
+              "bg": "#111111"
+            },
+            "newwg": {
+              "vis": {
+                "w": 400,
+                "h": 300
+              }
+            }
+          },
+          "head": {
+            "on": 1,
+            "title": "Titel",
+            "icon": "wappen"
+          },
+          "foot": {
+            "on": 0
+          },
+          "filt": {
+            "sicht": "BW",
+            "dstl": {
+              "key": "Dienststelle_BW",
+              "glob": [
+                "MAG"
+              ],
+              "byTab": {
+                "0": [
+                  "MAG"
+                ]
+              }
+            },
+            "sels": [
+              {
+                "key": "Geschlecht",
+                "vals": [
+                  "Weiblich"
+                ]
+              },
+              {
+                "key": "Berufsfamilie",
+                "vals": [
+                  "Technik"
+                ],
+                "tab": 0
+              }
+            ],
+            "pcfs": [
+              {
+                "nm": "Jahr",
+                "vals": [
+                  {
+                    "d": "2023",
+                    "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                  }
+                ],
+                "tab": 0
+              }
+            ]
+          },
+          "tabs": [
+            {
+              "name": "Eins"
+            },
+            {
+              "name": "Zwei",
+              "hide": 1
+            }
+          ],
+          "wgts": [
+            {
+              "tab": 0,
+              "x": 0,
+              "y": 0,
+              "w": 100,
+              "h": 100,
+              "kind": "vis",
+              "code": "M1",
+              "type": "line",
+              "grp": "jahr",
+              "vals": 1
+            },
+            {
+              "tab": 1,
+              "x": 5,
+              "y": 5,
+              "w": 50,
+              "h": 50,
+              "kind": "txt",
+              "text": "Hallo",
+              "fsize": 12
+            }
+          ]
+        },
+        "format": "v3"
+      }
+    },
+    "v3OneElementArray": {
+      "ok": true,
+      "result": {
+        "payload": {
+          "v": 3,
+          "pkg": "Personal_KDB",
+          "canv": {
+            "w": 1000,
+            "h": 800
+          },
+          "sett": {
+            "dash": {
+              "bg": "#eeeeee",
+              "hidWs": 1
+            },
+            "panel": {
+              "bg": "#111111"
+            },
+            "newwg": {
+              "vis": {
+                "w": 400,
+                "h": 300
+              }
+            }
+          },
+          "head": {
+            "on": 1,
+            "title": "Titel",
+            "icon": "wappen"
+          },
+          "foot": {
+            "on": 0
+          },
+          "filt": {
+            "sicht": "BW",
+            "dstl": {
+              "key": "Dienststelle_BW",
+              "glob": [
+                "MAG"
+              ],
+              "byTab": {
+                "0": [
+                  "MAG"
+                ]
+              }
+            },
+            "sels": [
+              {
+                "key": "Geschlecht",
+                "vals": [
+                  "Weiblich"
+                ]
+              },
+              {
+                "key": "Berufsfamilie",
+                "vals": [
+                  "Technik"
+                ],
+                "tab": 0
+              }
+            ],
+            "pcfs": [
+              {
+                "nm": "Jahr",
+                "vals": [
+                  {
+                    "d": "2023",
+                    "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                  }
+                ],
+                "tab": 0
+              }
+            ]
+          },
+          "tabs": [
+            {
+              "name": "Eins"
+            },
+            {
+              "name": "Zwei",
+              "hide": 1
+            }
+          ],
+          "wgts": [
+            {
+              "tab": 0,
+              "x": 0,
+              "y": 0,
+              "w": 100,
+              "h": 100,
+              "kind": "vis",
+              "code": "M1",
+              "type": "line",
+              "grp": "jahr",
+              "vals": 1
+            },
+            {
+              "tab": 1,
+              "x": 5,
+              "y": 5,
+              "w": 50,
+              "h": 50,
+              "kind": "txt",
+              "text": "Hallo",
+              "fsize": 12
+            }
+          ]
+        },
+        "format": "v3"
+      }
+    },
+    "v3StringInArray": {
+      "ok": true,
+      "result": {
+        "payload": {
+          "v": 3,
+          "pkg": "Personal_KDB",
+          "canv": {
+            "w": 1000,
+            "h": 800
+          },
+          "sett": {
+            "dash": {
+              "bg": "#eeeeee",
+              "hidWs": 1
+            },
+            "panel": {
+              "bg": "#111111"
+            },
+            "newwg": {
+              "vis": {
+                "w": 400,
+                "h": 300
+              }
+            }
+          },
+          "head": {
+            "on": 1,
+            "title": "Titel",
+            "icon": "wappen"
+          },
+          "foot": {
+            "on": 0
+          },
+          "filt": {
+            "sicht": "BW",
+            "dstl": {
+              "key": "Dienststelle_BW",
+              "glob": [
+                "MAG"
+              ],
+              "byTab": {
+                "0": [
+                  "MAG"
+                ]
+              }
+            },
+            "sels": [
+              {
+                "key": "Geschlecht",
+                "vals": [
+                  "Weiblich"
+                ]
+              },
+              {
+                "key": "Berufsfamilie",
+                "vals": [
+                  "Technik"
+                ],
+                "tab": 0
+              }
+            ],
+            "pcfs": [
+              {
+                "nm": "Jahr",
+                "vals": [
+                  {
+                    "d": "2023",
+                    "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                  }
+                ],
+                "tab": 0
+              }
+            ]
+          },
+          "tabs": [
+            {
+              "name": "Eins"
+            },
+            {
+              "name": "Zwei",
+              "hide": 1
+            }
+          ],
+          "wgts": [
+            {
+              "tab": 0,
+              "x": 0,
+              "y": 0,
+              "w": 100,
+              "h": 100,
+              "kind": "vis",
+              "code": "M1",
+              "type": "line",
+              "grp": "jahr",
+              "vals": 1
+            },
+            {
+              "tab": 1,
+              "x": 5,
+              "y": 5,
+              "w": 50,
+              "h": 50,
+              "kind": "txt",
+              "text": "Hallo",
+              "fsize": 12
+            }
+          ]
+        },
+        "format": "v3"
+      }
+    },
+    "v2Object": {
+      "ok": true,
+      "result": {
+        "payload": {
+          "configuration": {
+            "dashboardWidth": "1000px",
+            "dashboardHeight": "800px"
+          }
+        },
+        "format": "v2"
+      }
+    },
+    "v2String": {
+      "ok": true,
+      "result": {
+        "payload": {
+          "configuration": {
+            "dashboardWidth": "1000px",
+            "dashboardHeight": "800px"
+          }
+        },
+        "format": "v2"
+      }
+    },
+    "v2ArrayInString": {
+      "ok": true,
+      "result": {
+        "payload": {
+          "configuration": {
+            "dashboardWidth": "1000px",
+            "dashboardHeight": "800px"
+          }
+        },
+        "format": "v2"
+      }
+    },
+    "twoElementArray": {
+      "ok": true,
+      "result": {
+        "payload": [
+          {
+            "configuration": {
+              "dashboardWidth": "1000px",
+              "dashboardHeight": "800px"
+            }
+          },
+          {
+            "configuration": {
+              "dashboardWidth": "1000px",
+              "dashboardHeight": "800px"
+            }
+          }
+        ],
+        "format": "unknown"
+      }
+    },
+    "emptyString": {
+      "ok": false,
+      "error": {
+        "name": "WritebackError",
+        "message": "[writeback] WRITEBACK_INVALID_V3_PAYLOAD: WBParameterSetFunction received an empty payload for a restore status",
+        "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+        "diagnostic": {
+          "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+          "phase": "bridge",
+          "message": "WBParameterSetFunction received an empty payload for a restore status",
+          "details": {
+            "status": "notDefaultParamSet"
+          }
+        }
+      }
+    },
+    "nullInput": {
+      "ok": false,
+      "error": {
+        "name": "WritebackError",
+        "message": "[writeback] WRITEBACK_INVALID_V3_PAYLOAD: WBParameterSetFunction received an empty payload for a restore status",
+        "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+        "diagnostic": {
+          "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+          "phase": "bridge",
+          "message": "WBParameterSetFunction received an empty payload for a restore status",
+          "details": {
+            "status": "default"
+          }
+        }
+      }
+    },
+    "undefinedInput": {
+      "ok": false,
+      "error": {
+        "name": "WritebackError",
+        "message": "[writeback] WRITEBACK_INVALID_V3_PAYLOAD: WBParameterSetFunction received an empty payload for a restore status",
+        "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+        "diagnostic": {
+          "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+          "phase": "bridge",
+          "message": "WBParameterSetFunction received an empty payload for a restore status",
+          "details": {
+            "status": "default"
+          }
+        }
+      }
+    },
+    "emptyArray": {
+      "ok": true,
+      "result": {
+        "payload": [],
+        "format": "unknown"
+      }
+    },
+    "invalidJson": {
+      "ok": false,
+      "error": {
+        "name": "WritebackError",
+        "message": "[writeback] WRITEBACK_UNSUPPORTED_LEGACY_FORMAT: WBParameterSetFunction payload is not valid JSON",
+        "code": "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+        "diagnostic": {
+          "code": "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+          "phase": "bridge",
+          "message": "WBParameterSetFunction payload is not valid JSON",
+          "details": {
+            "error": "<engine message>"
+          }
+        }
+      }
+    },
+    "jsonNull": {
+      "ok": true,
+      "result": {
+        "payload": null,
+        "format": "unknown"
+      }
+    },
+    "jsonNumber": {
+      "ok": true,
+      "result": {
+        "payload": 42,
+        "format": "unknown"
+      }
+    },
+    "emptyObject": {
+      "ok": true,
+      "result": {
+        "payload": {},
+        "format": "unknown"
+      }
+    }
+  },
+  "toV3": {
+    "v2SamePackage": {
+      "ok": true,
+      "v3": {
+        "v": 3,
+        "pkg": "Personal_KDB",
+        "canv": {
+          "w": 1134,
+          "h": 1200
+        },
+        "sett": {
+          "dash": {
+            "bg": "#eeeeee",
+            "hidWs": 1
+          },
+          "panel": {
+            "bg": "#111111",
+            "btn": "#222222",
+            "act": "#333333"
+          },
+          "newwg": {
+            "vis": {
+              "w": 378,
+              "h": 250,
+              "bg": "#abcdef"
+            },
+            "txt": {
+              "w": 302,
+              "h": 100,
+              "bg": "#ffeecc"
+            }
+          }
+        },
+        "head": {
+          "on": 1,
+          "title": "Kennzahlen",
+          "icon": "wappen"
+        },
+        "foot": {
+          "on": 0
+        },
+        "filt": {
+          "sicht": "BW",
+          "dstl": {
+            "key": "Dienststelle_BW",
+            "glob": [
+              "MAG",
+              "Unbekannte Dienststelle"
+            ],
+            "byTab": {
+              "0": [
+                "MAG",
+                "Unbekannte Dienststelle"
+              ]
+            }
+          },
+          "sels": [
+            {
+              "key": "Berufsfamilie",
+              "vals": [
+                "Technik",
+                "Verwaltung"
+              ]
+            },
+            {
+              "key": "Geschlecht",
+              "vals": [
+                "Weiblich"
+              ],
+              "tab": 0
+            }
+          ],
+          "pcfs": [
+            {
+              "nm": "Jahr",
+              "vals": [
+                {
+                  "d": "2024",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                }
+              ]
+            },
+            {
+              "nm": "Jahr",
+              "vals": [
+                {
+                  "d": "2022",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                },
+                {
+                  "d": "2023",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                }
+              ],
+              "tab": 0
+            }
+          ]
+        },
+        "tabs": [
+          {
+            "name": "Uebersicht"
+          },
+          {
+            "name": "Verborgen",
+            "hide": 1
+          },
+          {
+            "name": "Weitere"
+          }
+        ],
+        "wgts": [
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_LINE",
+            "type": "Line",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_PIE",
+            "type": "Pie"
+          },
+          {
+            "tab": 1,
+            "x": 38,
+            "y": 76,
+            "w": 378,
+            "h": 189,
+            "kind": "vis",
+            "code": "M_SBAR",
+            "type": "StackedBar",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 1,
+            "x": 5,
+            "y": 6,
+            "w": 700,
+            "h": 400,
+            "kind": "vis",
+            "code": "M_SCOL",
+            "type": "StackedColumn",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_LIST",
+            "type": "List",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_PROG",
+            "type": "com.ibm.vis.custom.prognoseyearlinechart",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 0,
+            "x": 0,
+            "y": 300,
+            "w": 400,
+            "h": 80,
+            "kind": "txt",
+            "text": "Kommentar",
+            "fsize": 14,
+            "bgcol": "#ffeecc",
+            "style": "KDB_widgetHeader_custom"
+          },
+          {
+            "tab": 1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 50,
+            "kind": "txt",
+            "text": "Default text"
+          },
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_LOCAL",
+            "type": "Line",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_DIENSTSTELLE_BW_LABEL_UNMAPPED",
+          "phase": "map",
+          "message": "Dienststelle BW label has no bwOldToNewMap entry; label kept on payload",
+          "details": {
+            "label": "Unbekannte Dienststelle"
+          }
+        },
+        {
+          "code": "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 filter kind is not supported in v3 map",
+          "details": {
+            "name": "Mystery"
+          }
+        },
+        {
+          "code": "WRITEBACK_DIENSTSTELLE_BW_LABEL_UNMAPPED",
+          "phase": "map",
+          "message": "Dienststelle BW label has no bwOldToNewMap entry; label kept on payload",
+          "details": {
+            "label": "Unbekannte Dienststelle"
+          }
+        },
+        {
+          "code": "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 filter kind is not supported in v3 map",
+          "details": {
+            "name": "Mystery"
+          }
+        },
+        {
+          "code": "WRITEBACK_WIDGET_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 widget kind is not supported in tranche 1",
+          "details": {
+            "widgetId": "w9",
+            "widgetType": "widget.dataTable"
+          }
+        },
+        {
+          "code": "WRITEBACK_WIDGET_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 widget kind is not supported in tranche 1",
+          "details": {
+            "widgetId": "w10",
+            "widgetType": "widget.chartXYZ"
+          }
+        },
+        {
+          "code": "WRITEBACK_WIDGET_LOCALFILTER_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 widget localFilters are not persisted in v3",
+          "details": {
+            "widgetId": "w11"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 widget omitted because tab.index is missing or unparseable",
+          "details": {
+            "widgetId": "w12"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 widget omitted because layout could not be parsed",
+          "details": {
+            "widgetId": "w13"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 widget skipped by design",
+          "details": {
+            "widgetId": "w14"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 widget skipped by design",
+          "details": {
+            "widgetId": "w15"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 vis widget omitted because data.code or visualType is missing",
+          "details": {
+            "widgetId": "w16"
+          }
+        }
+      ]
+    },
+    "v2SamePackageString": {
+      "ok": true,
+      "v3": {
+        "v": 3,
+        "pkg": "Personal_KDB",
+        "canv": {
+          "w": 1134,
+          "h": 1200
+        },
+        "sett": {
+          "dash": {
+            "bg": "#eeeeee",
+            "hidWs": 1
+          },
+          "panel": {
+            "bg": "#111111",
+            "btn": "#222222",
+            "act": "#333333"
+          },
+          "newwg": {
+            "vis": {
+              "w": 378,
+              "h": 250,
+              "bg": "#abcdef"
+            },
+            "txt": {
+              "w": 302,
+              "h": 100,
+              "bg": "#ffeecc"
+            }
+          }
+        },
+        "head": {
+          "on": 1,
+          "title": "Kennzahlen",
+          "icon": "wappen"
+        },
+        "foot": {
+          "on": 0
+        },
+        "filt": {
+          "sicht": "BW",
+          "dstl": {
+            "key": "Dienststelle_BW",
+            "glob": [
+              "MAG",
+              "Unbekannte Dienststelle"
+            ],
+            "byTab": {
+              "0": [
+                "MAG",
+                "Unbekannte Dienststelle"
+              ]
+            }
+          },
+          "sels": [
+            {
+              "key": "Berufsfamilie",
+              "vals": [
+                "Technik",
+                "Verwaltung"
+              ]
+            },
+            {
+              "key": "Geschlecht",
+              "vals": [
+                "Weiblich"
+              ],
+              "tab": 0
+            }
+          ],
+          "pcfs": [
+            {
+              "nm": "Jahr",
+              "vals": [
+                {
+                  "d": "2024",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                }
+              ]
+            },
+            {
+              "nm": "Jahr",
+              "vals": [
+                {
+                  "d": "2022",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                },
+                {
+                  "d": "2023",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                }
+              ],
+              "tab": 0
+            }
+          ]
+        },
+        "tabs": [
+          {
+            "name": "Uebersicht"
+          },
+          {
+            "name": "Verborgen",
+            "hide": 1
+          },
+          {
+            "name": "Weitere"
+          }
+        ],
+        "wgts": [
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_LINE",
+            "type": "Line",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_PIE",
+            "type": "Pie"
+          },
+          {
+            "tab": 1,
+            "x": 38,
+            "y": 76,
+            "w": 378,
+            "h": 189,
+            "kind": "vis",
+            "code": "M_SBAR",
+            "type": "StackedBar",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 1,
+            "x": 5,
+            "y": 6,
+            "w": 700,
+            "h": 400,
+            "kind": "vis",
+            "code": "M_SCOL",
+            "type": "StackedColumn",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_LIST",
+            "type": "List",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_PROG",
+            "type": "com.ibm.vis.custom.prognoseyearlinechart",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 0,
+            "x": 0,
+            "y": 300,
+            "w": 400,
+            "h": 80,
+            "kind": "txt",
+            "text": "Kommentar",
+            "fsize": 14,
+            "bgcol": "#ffeecc",
+            "style": "KDB_widgetHeader_custom"
+          },
+          {
+            "tab": 1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 50,
+            "kind": "txt",
+            "text": "Default text"
+          },
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_LOCAL",
+            "type": "Line",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_DIENSTSTELLE_BW_LABEL_UNMAPPED",
+          "phase": "map",
+          "message": "Dienststelle BW label has no bwOldToNewMap entry; label kept on payload",
+          "details": {
+            "label": "Unbekannte Dienststelle"
+          }
+        },
+        {
+          "code": "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 filter kind is not supported in v3 map",
+          "details": {
+            "name": "Mystery"
+          }
+        },
+        {
+          "code": "WRITEBACK_DIENSTSTELLE_BW_LABEL_UNMAPPED",
+          "phase": "map",
+          "message": "Dienststelle BW label has no bwOldToNewMap entry; label kept on payload",
+          "details": {
+            "label": "Unbekannte Dienststelle"
+          }
+        },
+        {
+          "code": "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 filter kind is not supported in v3 map",
+          "details": {
+            "name": "Mystery"
+          }
+        },
+        {
+          "code": "WRITEBACK_WIDGET_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 widget kind is not supported in tranche 1",
+          "details": {
+            "widgetId": "w9",
+            "widgetType": "widget.dataTable"
+          }
+        },
+        {
+          "code": "WRITEBACK_WIDGET_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 widget kind is not supported in tranche 1",
+          "details": {
+            "widgetId": "w10",
+            "widgetType": "widget.chartXYZ"
+          }
+        },
+        {
+          "code": "WRITEBACK_WIDGET_LOCALFILTER_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 widget localFilters are not persisted in v3",
+          "details": {
+            "widgetId": "w11"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 widget omitted because tab.index is missing or unparseable",
+          "details": {
+            "widgetId": "w12"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 widget omitted because layout could not be parsed",
+          "details": {
+            "widgetId": "w13"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 widget skipped by design",
+          "details": {
+            "widgetId": "w14"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 widget skipped by design",
+          "details": {
+            "widgetId": "w15"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 vis widget omitted because data.code or visualType is missing",
+          "details": {
+            "widgetId": "w16"
+          }
+        }
+      ]
+    },
+    "v2SamePackageArray": {
+      "ok": true,
+      "v3": {
+        "v": 3,
+        "pkg": "Personal_KDB",
+        "canv": {
+          "w": 1134,
+          "h": 1200
+        },
+        "sett": {
+          "dash": {
+            "bg": "#eeeeee",
+            "hidWs": 1
+          },
+          "panel": {
+            "bg": "#111111",
+            "btn": "#222222",
+            "act": "#333333"
+          },
+          "newwg": {
+            "vis": {
+              "w": 378,
+              "h": 250,
+              "bg": "#abcdef"
+            },
+            "txt": {
+              "w": 302,
+              "h": 100,
+              "bg": "#ffeecc"
+            }
+          }
+        },
+        "head": {
+          "on": 1,
+          "title": "Kennzahlen",
+          "icon": "wappen"
+        },
+        "foot": {
+          "on": 0
+        },
+        "filt": {
+          "sicht": "BW",
+          "dstl": {
+            "key": "Dienststelle_BW",
+            "glob": [
+              "MAG",
+              "Unbekannte Dienststelle"
+            ],
+            "byTab": {
+              "0": [
+                "MAG",
+                "Unbekannte Dienststelle"
+              ]
+            }
+          },
+          "sels": [
+            {
+              "key": "Berufsfamilie",
+              "vals": [
+                "Technik",
+                "Verwaltung"
+              ]
+            },
+            {
+              "key": "Geschlecht",
+              "vals": [
+                "Weiblich"
+              ],
+              "tab": 0
+            }
+          ],
+          "pcfs": [
+            {
+              "nm": "Jahr",
+              "vals": [
+                {
+                  "d": "2024",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                }
+              ]
+            },
+            {
+              "nm": "Jahr",
+              "vals": [
+                {
+                  "d": "2022",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                },
+                {
+                  "d": "2023",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                }
+              ],
+              "tab": 0
+            }
+          ]
+        },
+        "tabs": [
+          {
+            "name": "Uebersicht"
+          },
+          {
+            "name": "Verborgen",
+            "hide": 1
+          },
+          {
+            "name": "Weitere"
+          }
+        ],
+        "wgts": [
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_LINE",
+            "type": "Line",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_PIE",
+            "type": "Pie"
+          },
+          {
+            "tab": 1,
+            "x": 38,
+            "y": 76,
+            "w": 378,
+            "h": 189,
+            "kind": "vis",
+            "code": "M_SBAR",
+            "type": "StackedBar",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 1,
+            "x": 5,
+            "y": 6,
+            "w": 700,
+            "h": 400,
+            "kind": "vis",
+            "code": "M_SCOL",
+            "type": "StackedColumn",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_LIST",
+            "type": "List",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_PROG",
+            "type": "com.ibm.vis.custom.prognoseyearlinechart",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          },
+          {
+            "tab": 0,
+            "x": 0,
+            "y": 300,
+            "w": 400,
+            "h": 80,
+            "kind": "txt",
+            "text": "Kommentar",
+            "fsize": 14,
+            "bgcol": "#ffeecc",
+            "style": "KDB_widgetHeader_custom"
+          },
+          {
+            "tab": 1,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 50,
+            "kind": "txt",
+            "text": "Default text"
+          },
+          {
+            "tab": 0,
+            "x": 10,
+            "y": 20,
+            "w": 300,
+            "h": 200,
+            "kind": "vis",
+            "code": "M_LOCAL",
+            "type": "Line",
+            "dim": "Geschlecht",
+            "topn": "5",
+            "bgcol": "#ABCDEF"
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_DIENSTSTELLE_BW_LABEL_UNMAPPED",
+          "phase": "map",
+          "message": "Dienststelle BW label has no bwOldToNewMap entry; label kept on payload",
+          "details": {
+            "label": "Unbekannte Dienststelle"
+          }
+        },
+        {
+          "code": "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 filter kind is not supported in v3 map",
+          "details": {
+            "name": "Mystery"
+          }
+        },
+        {
+          "code": "WRITEBACK_DIENSTSTELLE_BW_LABEL_UNMAPPED",
+          "phase": "map",
+          "message": "Dienststelle BW label has no bwOldToNewMap entry; label kept on payload",
+          "details": {
+            "label": "Unbekannte Dienststelle"
+          }
+        },
+        {
+          "code": "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 filter kind is not supported in v3 map",
+          "details": {
+            "name": "Mystery"
+          }
+        },
+        {
+          "code": "WRITEBACK_WIDGET_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 widget kind is not supported in tranche 1",
+          "details": {
+            "widgetId": "w9",
+            "widgetType": "widget.dataTable"
+          }
+        },
+        {
+          "code": "WRITEBACK_WIDGET_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 widget kind is not supported in tranche 1",
+          "details": {
+            "widgetId": "w10",
+            "widgetType": "widget.chartXYZ"
+          }
+        },
+        {
+          "code": "WRITEBACK_WIDGET_LOCALFILTER_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 widget localFilters are not persisted in v3",
+          "details": {
+            "widgetId": "w11"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 widget omitted because tab.index is missing or unparseable",
+          "details": {
+            "widgetId": "w12"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 widget omitted because layout could not be parsed",
+          "details": {
+            "widgetId": "w13"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 widget skipped by design",
+          "details": {
+            "widgetId": "w14"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 widget skipped by design",
+          "details": {
+            "widgetId": "w15"
+          }
+        },
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "map",
+          "message": "v2 vis widget omitted because data.code or visualType is missing",
+          "details": {
+            "widgetId": "w16"
+          }
+        }
+      ]
+    },
+    "v2Canvas": {
+      "ok": true,
+      "v3": {
+        "v": 3,
+        "pkg": "Personal_KDB",
+        "canv": {
+          "w": 1280,
+          "h": 720
+        },
+        "head": {
+          "on": 0,
+          "icon": "default"
+        },
+        "tabs": [
+          {
+            "name": "Eins"
+          }
+        ],
+        "wgts": [
+          {
+            "tab": 0,
+            "x": 1,
+            "y": 3,
+            "w": 3,
+            "h": 4,
+            "kind": "txt",
+            "text": "Titel"
+          },
+          {
+            "tab": 0,
+            "x": 96,
+            "y": 3,
+            "w": 11,
+            "h": 151,
+            "kind": "vis",
+            "code": "M_VIS",
+            "type": "Line"
+          }
+        ]
+      },
+      "diagnostics": []
+    },
+    "v2NoFilters": {
+      "ok": true,
+      "v3": {
+        "v": 3,
+        "pkg": "Personal_KDB",
+        "canv": {
+          "w": 1000,
+          "h": 800
+        }
+      },
+      "diagnostics": []
+    },
+    "v2CrossPackage": {
+      "ok": true,
+      "v3": {
+        "v": 3,
+        "pkg": "Personal_KDB",
+        "canv": {
+          "w": 1000,
+          "h": 800
+        },
+        "filt": {
+          "sels": [
+            {
+              "key": "Berufsfamilie",
+              "vals": [
+                "Technik"
+              ]
+            }
+          ],
+          "pcfs": [
+            {
+              "nm": "Jahr",
+              "vals": [
+                {
+                  "d": "2023",
+                  "u": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]->:[TMR].[Jahr_flach].[Jahr_flach].[Jahr]"
+                }
+              ]
+            },
+            {
+              "nm": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+              "vals": [
+                {
+                  "d": "Maennlich",
+                  "u": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]->:[TMR].[Geschlecht].[Geschlecht].[Geschlecht]"
+                }
+              ],
+              "tab": 0
+            },
+            {
+              "nm": "Neuer Filter",
+              "vals": [
+                {
+                  "d": "v1",
+                  "u": "***Neuer Filter_filter_use_KID***.[Neuer Filter]"
+                }
+              ],
+              "tab": 0
+            }
+          ]
+        },
+        "tabs": [
+          {
+            "name": "Tab A"
+          }
+        ],
+        "wgts": [
+          {
+            "tab": 0,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100,
+            "kind": "vis",
+            "code": "M_CROSS",
+            "type": "Line",
+            "dim": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+          }
+        ]
+      },
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_MAPPING_TOKEN_UNRESOLVED",
+          "phase": "map",
+          "message": "cross-package KID token could not be resolved to runtime mapping",
+          "details": {
+            "token": "***Neuer Filter_filter_use_KID***.[Neuer Filter]"
+          }
+        },
+        {
+          "code": "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "v2 filter kind is not supported in v3 map",
+          "details": {
+            "name": "[Personal_Berechtigung_Dienststelle_KDB_TM1].[Dienststelle].[Dienststelle].[Dienststelle].[Sicht]"
+          }
+        },
+        {
+          "code": "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+          "phase": "map",
+          "message": "filt.dstl omitted because filt.sicht is missing",
+          "details": {
+            "activeFilterKey": "Dienststelle_BW"
+          }
+        }
+      ]
+    },
+    "v3Valid": {
+      "ok": true,
+      "v3": {
+        "v": 3,
+        "pkg": "Personal_KDB",
+        "canv": {
+          "w": 1000,
+          "h": 800
+        },
+        "sett": {
+          "dash": {
+            "bg": "#eeeeee",
+            "hidWs": 1
+          },
+          "panel": {
+            "bg": "#111111"
+          },
+          "newwg": {
+            "vis": {
+              "w": 400,
+              "h": 300
+            }
+          }
+        },
+        "head": {
+          "on": 1,
+          "title": "Titel",
+          "icon": "wappen"
+        },
+        "foot": {
+          "on": 0
+        },
+        "filt": {
+          "sicht": "BW",
+          "dstl": {
+            "key": "Dienststelle_BW",
+            "glob": [
+              "MAG"
+            ],
+            "byTab": {
+              "0": [
+                "MAG"
+              ]
+            }
+          },
+          "sels": [
+            {
+              "key": "Geschlecht",
+              "vals": [
+                "Weiblich"
+              ]
+            },
+            {
+              "key": "Berufsfamilie",
+              "vals": [
+                "Technik"
+              ],
+              "tab": 0
+            }
+          ],
+          "pcfs": [
+            {
+              "nm": "Jahr",
+              "vals": [
+                {
+                  "d": "2023",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                }
+              ],
+              "tab": 0
+            }
+          ]
+        },
+        "tabs": [
+          {
+            "name": "Eins"
+          },
+          {
+            "name": "Zwei",
+            "hide": 1
+          }
+        ],
+        "wgts": [
+          {
+            "tab": 0,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100,
+            "kind": "vis",
+            "code": "M1",
+            "type": "line",
+            "grp": "jahr",
+            "vals": 1
+          },
+          {
+            "tab": 1,
+            "x": 5,
+            "y": 5,
+            "w": 50,
+            "h": 50,
+            "kind": "txt",
+            "text": "Hallo",
+            "fsize": 12
+          }
+        ]
+      },
+      "diagnostics": []
+    },
+    "v3ValidString": {
+      "ok": true,
+      "v3": {
+        "v": 3,
+        "pkg": "Personal_KDB",
+        "canv": {
+          "w": 1000,
+          "h": 800
+        },
+        "sett": {
+          "dash": {
+            "bg": "#eeeeee",
+            "hidWs": 1
+          },
+          "panel": {
+            "bg": "#111111"
+          },
+          "newwg": {
+            "vis": {
+              "w": 400,
+              "h": 300
+            }
+          }
+        },
+        "head": {
+          "on": 1,
+          "title": "Titel",
+          "icon": "wappen"
+        },
+        "foot": {
+          "on": 0
+        },
+        "filt": {
+          "sicht": "BW",
+          "dstl": {
+            "key": "Dienststelle_BW",
+            "glob": [
+              "MAG"
+            ],
+            "byTab": {
+              "0": [
+                "MAG"
+              ]
+            }
+          },
+          "sels": [
+            {
+              "key": "Geschlecht",
+              "vals": [
+                "Weiblich"
+              ]
+            },
+            {
+              "key": "Berufsfamilie",
+              "vals": [
+                "Technik"
+              ],
+              "tab": 0
+            }
+          ],
+          "pcfs": [
+            {
+              "nm": "Jahr",
+              "vals": [
+                {
+                  "d": "2023",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                }
+              ],
+              "tab": 0
+            }
+          ]
+        },
+        "tabs": [
+          {
+            "name": "Eins"
+          },
+          {
+            "name": "Zwei",
+            "hide": 1
+          }
+        ],
+        "wgts": [
+          {
+            "tab": 0,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100,
+            "kind": "vis",
+            "code": "M1",
+            "type": "line",
+            "grp": "jahr",
+            "vals": 1
+          },
+          {
+            "tab": 1,
+            "x": 5,
+            "y": 5,
+            "w": 50,
+            "h": 50,
+            "kind": "txt",
+            "text": "Hallo",
+            "fsize": 12
+          }
+        ]
+      },
+      "diagnostics": []
+    },
+    "v3Unnormalized": {
+      "ok": true,
+      "v3": {
+        "v": 3,
+        "pkg": "Personal_KDB",
+        "canv": {
+          "w": 1000,
+          "h": 800
+        },
+        "sett": {
+          "dash": {
+            "bg": "#eeeeee",
+            "hidWs": 1
+          },
+          "panel": {
+            "bg": "#111111"
+          },
+          "newwg": {
+            "vis": {
+              "w": 400,
+              "h": 300
+            }
+          }
+        },
+        "head": {
+          "on": 1,
+          "icon": "stadt-wien"
+        },
+        "foot": {
+          "on": 0
+        },
+        "filt": {
+          "sicht": "BW",
+          "dstl": {
+            "key": "Dienststelle_BW",
+            "glob": [
+              "MAG"
+            ],
+            "byTab": {
+              "0": [
+                "MAG"
+              ]
+            }
+          },
+          "sels": [
+            {
+              "key": "Geschlecht",
+              "vals": [
+                "Weiblich"
+              ]
+            },
+            {
+              "key": "Berufsfamilie",
+              "vals": [
+                "Technik"
+              ],
+              "tab": 0
+            }
+          ],
+          "pcfs": [
+            {
+              "nm": "Jahr",
+              "vals": [
+                {
+                  "d": "2023",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                }
+              ],
+              "tab": 0
+            }
+          ]
+        },
+        "tabs": [
+          {
+            "name": "Eins"
+          },
+          {
+            "name": "Zwei",
+            "hide": 1
+          }
+        ],
+        "wgts": [
+          {
+            "tab": 0,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100,
+            "kind": "vis",
+            "code": "M1",
+            "type": "line",
+            "grp": "jahr",
+            "vals": 1
+          },
+          {
+            "tab": 1,
+            "x": 5,
+            "y": 5,
+            "w": 50,
+            "h": 50,
+            "kind": "txt",
+            "text": "Hallo",
+            "fsize": 12
+          }
+        ]
+      },
+      "diagnostics": []
+    },
+    "v3InvalidTabs": {
+      "ok": true,
+      "v3": {
+        "v": 3,
+        "pkg": "Personal_KDB",
+        "canv": {
+          "w": 1000,
+          "h": 800
+        },
+        "sett": {
+          "dash": {
+            "bg": "#eeeeee",
+            "hidWs": 1
+          },
+          "panel": {
+            "bg": "#111111"
+          },
+          "newwg": {
+            "vis": {
+              "w": 400,
+              "h": 300
+            }
+          }
+        },
+        "head": {
+          "on": 1,
+          "title": "Titel",
+          "icon": "wappen"
+        },
+        "foot": {
+          "on": 0
+        },
+        "filt": {
+          "sicht": "BW",
+          "dstl": {
+            "key": "Dienststelle_BW",
+            "glob": [
+              "MAG"
+            ],
+            "byTab": {
+              "0": [
+                "MAG"
+              ]
+            }
+          },
+          "sels": [
+            {
+              "key": "Geschlecht",
+              "vals": [
+                "Weiblich"
+              ]
+            },
+            {
+              "key": "Berufsfamilie",
+              "vals": [
+                "Technik"
+              ],
+              "tab": 0
+            }
+          ],
+          "pcfs": [
+            {
+              "nm": "Jahr",
+              "vals": [
+                {
+                  "d": "2023",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                }
+              ],
+              "tab": 0
+            }
+          ]
+        },
+        "wgts": [
+          {
+            "tab": 0,
+            "x": 0,
+            "y": 0,
+            "w": 100,
+            "h": 100,
+            "kind": "vis",
+            "code": "M1",
+            "type": "line",
+            "grp": "jahr",
+            "vals": 1
+          },
+          {
+            "tab": 1,
+            "x": 5,
+            "y": 5,
+            "w": 50,
+            "h": 50,
+            "kind": "txt",
+            "text": "Hallo",
+            "fsize": 12
+          }
+        ]
+      },
+      "diagnostics": []
+    },
+    "v3BadWidget": {
+      "ok": false,
+      "error": {
+        "name": "WritebackError",
+        "message": "[writeback] WRITEBACK_INVALID_V3_PAYLOAD: mapped payload failed validateV3",
+        "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+        "diagnostic": {
+          "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+          "phase": "map",
+          "message": "mapped payload failed validateV3",
+          "details": {
+            "diagnostics": [
+              {
+                "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+                "phase": "validate",
+                "message": "widget tab must resolve to a tab in tabs (tab < tabs.length)",
+                "details": {
+                  "index": 0,
+                  "tab": 9,
+                  "tabsLength": 2
+                }
+              },
+              {
+                "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+                "phase": "validate",
+                "message": "unknown widget field for kind \"vis\"",
+                "details": {
+                  "index": 0,
+                  "kind": "vis",
+                  "field": "bogus"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "diagnostics": []
+    },
+    "v3UnknownKey": {
+      "ok": false,
+      "error": {
+        "name": "WritebackError",
+        "message": "[writeback] WRITEBACK_INVALID_V3_PAYLOAD: mapped payload failed validateV3",
+        "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+        "diagnostic": {
+          "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+          "phase": "map",
+          "message": "mapped payload failed validateV3",
+          "details": {
+            "diagnostics": [
+              {
+                "code": "WRITEBACK_INVALID_V3_PAYLOAD",
+                "phase": "validate",
+                "message": "unknown top-level field",
+                "details": {
+                  "field": "extra"
+                }
+              }
+            ]
+          }
+        }
+      },
+      "diagnostics": []
+    },
+    "v3ReservedKind": {
+      "ok": true,
+      "v3": {
+        "v": 3,
+        "pkg": "Personal_KDB",
+        "canv": {
+          "w": 1000,
+          "h": 800
+        },
+        "sett": {
+          "dash": {
+            "bg": "#eeeeee",
+            "hidWs": 1
+          },
+          "panel": {
+            "bg": "#111111"
+          },
+          "newwg": {
+            "vis": {
+              "w": 400,
+              "h": 300
+            }
+          }
+        },
+        "head": {
+          "on": 1,
+          "title": "Titel",
+          "icon": "wappen"
+        },
+        "foot": {
+          "on": 0
+        },
+        "filt": {
+          "sicht": "BW",
+          "dstl": {
+            "key": "Dienststelle_BW",
+            "glob": [
+              "MAG"
+            ],
+            "byTab": {
+              "0": [
+                "MAG"
+              ]
+            }
+          },
+          "sels": [
+            {
+              "key": "Geschlecht",
+              "vals": [
+                "Weiblich"
+              ]
+            },
+            {
+              "key": "Berufsfamilie",
+              "vals": [
+                "Technik"
+              ],
+              "tab": 0
+            }
+          ],
+          "pcfs": [
+            {
+              "nm": "Jahr",
+              "vals": [
+                {
+                  "d": "2023",
+                  "u": "[Personal_KDB_TM1].[Jahr].[Jahr].[Jahr]->:[TMR].[Jahr].[Jahr]"
+                }
+              ],
+              "tab": 0
+            }
+          ]
+        },
+        "tabs": [
+          {
+            "name": "Eins"
+          },
+          {
+            "name": "Zwei",
+            "hide": 1
+          }
+        ],
+        "wgts": [
+          {
+            "tab": 0,
+            "x": 0,
+            "y": 0,
+            "w": 1,
+            "h": 1,
+            "kind": "tbl"
+          }
+        ]
+      },
+      "diagnostics": []
+    },
+    "unknownObject": {
+      "ok": false,
+      "error": {
+        "name": "WritebackError",
+        "message": "[writeback] WRITEBACK_UNSUPPORTED_LEGACY_FORMAT: unsupported or unknown legacy writeback format",
+        "code": "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+        "diagnostic": {
+          "code": "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+          "phase": "map",
+          "message": "unsupported or unknown legacy writeback format",
+          "details": {
+            "detectedFormat": "unknown"
+          }
+        }
+      },
+      "diagnostics": []
+    },
+    "unknownString": {
+      "ok": false,
+      "error": {
+        "name": "WritebackError",
+        "message": "[writeback] WRITEBACK_UNSUPPORTED_LEGACY_FORMAT: unsupported or unknown legacy writeback format",
+        "code": "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+        "diagnostic": {
+          "code": "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+          "phase": "map",
+          "message": "unsupported or unknown legacy writeback format",
+          "details": {
+            "detectedFormat": "unknown"
+          }
+        }
+      },
+      "diagnostics": []
+    },
+    "nullInput": {
+      "ok": false,
+      "error": {
+        "name": "WritebackError",
+        "message": "[writeback] WRITEBACK_UNSUPPORTED_LEGACY_FORMAT: unsupported or unknown legacy writeback format",
+        "code": "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+        "diagnostic": {
+          "code": "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+          "phase": "map",
+          "message": "unsupported or unknown legacy writeback format",
+          "details": {
+            "detectedFormat": "unknown"
+          }
+        }
+      },
+      "diagnostics": []
+    },
+    "twoElementArray": {
+      "ok": false,
+      "error": {
+        "name": "WritebackError",
+        "message": "[writeback] WRITEBACK_UNSUPPORTED_LEGACY_FORMAT: unsupported or unknown legacy writeback format",
+        "code": "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+        "diagnostic": {
+          "code": "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+          "phase": "map",
+          "message": "unsupported or unknown legacy writeback format",
+          "details": {
+            "detectedFormat": "unknown"
+          }
+        }
+      },
+      "diagnostics": []
+    },
+    "v2StringInvalidJsonInner": {
+      "ok": false,
+      "error": {
+        "name": "WritebackError",
+        "message": "[writeback] WRITEBACK_UNSUPPORTED_LEGACY_FORMAT: unsupported or unknown legacy writeback format",
+        "code": "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+        "diagnostic": {
+          "code": "WRITEBACK_UNSUPPORTED_LEGACY_FORMAT",
+          "phase": "map",
+          "message": "unsupported or unknown legacy writeback format",
+          "details": {
+            "detectedFormat": "unknown"
+          }
+        }
+      },
+      "diagnostics": []
+    }
+  },
+  "buildWidget": {
+    "vis|line|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|line|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahr",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|line|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahrStichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|line|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrH",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|line|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrV",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|line|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|line|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Line|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Line|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahr",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Line|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahrStichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Line|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrH",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Line|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrV",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Line|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Line|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|pie|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|pie|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahr",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|pie|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahrStichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|pie|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrH",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|pie|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrV",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|pie|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|pie|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Pie|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Pie|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahr",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Pie|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahrStichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Pie|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrH",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Pie|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrV",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Pie|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Pie|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Pie",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedbar|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedbar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedbar|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedbar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahr",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedbar|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedbar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahrStichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedbar|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedbar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrH",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedbar|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedbar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrV",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedbar|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedbar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedbar|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedbar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedBar|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedBar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedBar|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedBar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahr",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedBar|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedBar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahrStichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedBar|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedBar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrH",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedBar|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedBar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrV",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedBar|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedBar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedBar|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedBar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedcolumn|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedcolumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedcolumn|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedcolumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahr",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedcolumn|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedcolumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahrStichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedcolumn|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedcolumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrH",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedcolumn|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedcolumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrV",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedcolumn|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedcolumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|stackedcolumn|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "stackedcolumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedColumn|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedColumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedColumn|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedColumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahr",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedColumn|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedColumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahrStichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedColumn|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedColumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrH",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedColumn|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedColumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrV",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedColumn|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedColumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|StackedColumn|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "StackedColumn",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|list|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "list",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|list|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "list",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahr",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|list|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "list",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahrStichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|list|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "list",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|list|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "list",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|list|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "list",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|list|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "list",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|List|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "List",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|List|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "List",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahr",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|List|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "List",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahrStichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|List|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "List",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|List|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "List",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|List|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "List",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|List|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "List",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|prognose|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|prognose|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|prognose|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|prognose|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|prognose|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|prognose|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|prognose|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Prognose|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Prognose|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Prognose|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Prognose|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Prognose|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Prognose|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|Prognose|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "Prognose",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyear|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyear",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyear|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyear",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyear|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyear",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyear|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyear",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyear|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyear",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyear|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyear",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyear|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyear",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyearlinechart|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyearlinechart",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyearlinechart|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyearlinechart",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyearlinechart|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyearlinechart",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyearlinechart|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyearlinechart",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyearlinechart|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyearlinechart",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyearlinechart|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyearlinechart",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|com.ibm.vis.custom.prognoseyearlinechart|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "com.ibm.vis.custom.prognoseyearlinechart",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|bar|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "bar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|bar|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "bar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahr",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|bar|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "bar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahrStichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|bar|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "bar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrH",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|bar|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "bar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrV",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|bar|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "bar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|bar|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "bar",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|null|stichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|null|jahr": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahr",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|null|jahrStichtag": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "jahrStichtag",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|null|stichtagProJahrH": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrH",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|null|stichtagProJahrV": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "grp": "stichtagProJahrV",
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|null|bogus": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|null|undefined": {
+      "widget": {
+        "tab": 2,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "dim": "Geschlecht",
+        "topn": "5",
+        "vals": 1,
+        "iter": 0,
+        "wzbar": 1,
+        "vcap": 0,
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|defaults": {
+      "widget": {
+        "tab": 0,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line"
+      },
+      "diagnostics": []
+    },
+    "vis|noSettings": {
+      "widget": {
+        "tab": 0,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|noMetric": {
+      "widget": null,
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_WIDGET_RESTORE_FAILED",
+          "phase": "get",
+          "message": "vis widget missing metricCode in derived.code",
+          "details": {
+            "widgetId": "wv"
+          }
+        }
+      ]
+    },
+    "vis|noVisRecord": {
+      "widget": null,
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_WIDGET_RESTORE_FAILED",
+          "phase": "get",
+          "message": "vis widget missing metricCode in derived.code",
+          "details": {
+            "widgetId": "wv"
+          }
+        }
+      ]
+    },
+    "vis|noneDimension": {
+      "widget": {
+        "tab": 0,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line",
+        "bgcol": "#123456"
+      },
+      "diagnostics": []
+    },
+    "vis|colourDefaultUpper": {
+      "widget": {
+        "tab": 0,
+        "x": 1,
+        "y": 2,
+        "w": 300,
+        "h": 200,
+        "kind": "vis",
+        "code": "M_CODE",
+        "type": "line"
+      },
+      "diagnostics": []
+    },
+    "vis|nanLayout": {
+      "widget": null,
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_WIDGET_RESTORE_FAILED",
+          "phase": "get",
+          "message": "widget layout or tab index contains a non-finite number",
+          "details": {
+            "widgetId": "wv"
+          }
+        }
+      ]
+    },
+    "vis|badTab": {
+      "widget": null,
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_WIDGET_RESTORE_FAILED",
+          "phase": "get",
+          "message": "widget layout or tab index contains a non-finite number",
+          "details": {
+            "widgetId": "wv"
+          }
+        }
+      ]
+    },
+    "vis|noLayout": {
+      "widget": null,
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_WIDGET_RESTORE_FAILED",
+          "phase": "get",
+          "message": "widget layout or tab index contains a non-finite number",
+          "details": {
+            "widgetId": "wn"
+          }
+        }
+      ]
+    },
+    "txt|full": {
+      "widget": {
+        "tab": 1,
+        "x": 3,
+        "y": 4,
+        "w": 50,
+        "h": 20,
+        "kind": "txt",
+        "text": "Beschreibung",
+        "fsize": 14,
+        "bgcol": "#ddeeff",
+        "style": "KDB_widgetHeader_custom"
+      },
+      "diagnostics": []
+    },
+    "txt|defaults": {
+      "widget": {
+        "tab": 1,
+        "x": 3,
+        "y": 4,
+        "w": 50,
+        "h": 20,
+        "kind": "txt",
+        "text": "Beschreibung"
+      },
+      "diagnostics": []
+    },
+    "txt|frameColour": {
+      "widget": {
+        "tab": 0,
+        "x": 0,
+        "y": 0,
+        "w": 1,
+        "h": 1,
+        "kind": "txt",
+        "text": "Beschreibung",
+        "bgcol": "#aabbcc"
+      },
+      "diagnostics": []
+    },
+    "txt|noRecords": {
+      "widget": {
+        "tab": 0,
+        "x": 0,
+        "y": 0,
+        "w": 1,
+        "h": 1,
+        "kind": "txt",
+        "text": ""
+      },
+      "diagnostics": []
+    },
+    "txt|nonStringText": {
+      "widget": {
+        "tab": 0,
+        "x": 0,
+        "y": 0,
+        "w": 1,
+        "h": 1,
+        "kind": "txt",
+        "text": ""
+      },
+      "diagnostics": []
+    },
+    "txt|nanLayout": {
+      "widget": null,
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_WIDGET_RESTORE_FAILED",
+          "phase": "get",
+          "message": "widget layout or tab index contains a non-finite number",
+          "details": {
+            "widgetId": "wt"
+          }
+        }
+      ]
+    },
+    "invalid|nullFrame": {
+      "threw": {
+        "name": "TypeError",
+        "message": "<engine message>",
+        "code": null,
+        "diagnostic": null
+      },
+      "diagnostics": []
+    }
+  }
+}

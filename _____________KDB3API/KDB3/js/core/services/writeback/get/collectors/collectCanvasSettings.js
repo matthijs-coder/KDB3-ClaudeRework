@@ -4,6 +4,13 @@ define([
 ], function (_convertUnitToPx, _kdbControlInitialState) {
   "use strict";
 
+  const PANEL_COLOUR_KEYS = {
+    bg: "backgroundColor",
+    btn: "buttonColor",
+    act: "actionButtonColor",
+    inBg: "innerBackgroundColor",
+  };
+
   // GET collector for v3 `canv`/`sett` per contracts/writeback.md §4.1/§4.1.1.
   // Reads the kdbControl snapshot via _KDB.api.kdbControl.getState() and emits
   // only deltas against owner defaults. Dashboard width/height are carried by
@@ -34,7 +41,7 @@ define([
     if (dash) {
       sett.dash = dash;
     }
-    const panel = collectColourGroup(settings.controlPanel, defaults.controlPanel, { bg: "backgroundColor", btn: "buttonColor", act: "actionButtonColor", inBg: "innerBackgroundColor" });
+    const panel = collectColourGroup(settings.controlPanel, defaults.controlPanel, PANEL_COLOUR_KEYS);
     if (panel) {
       sett.panel = panel;
     }

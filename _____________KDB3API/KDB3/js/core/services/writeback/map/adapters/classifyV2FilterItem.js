@@ -55,29 +55,25 @@ define([], function () {
   }
 
   function classifyV2FilterItem(_filterPropObj, _name, _valuesArray) {
-    try {
-      const name = String(_name || "").trim();
-      const lower = name.toLowerCase();
-      if (lower === "sicht") {
-        return { kind: "sicht" };
-      }
-      const prop = lookupFilterPropEntry(_filterPropObj, name);
-      if (isDienststelleName(lower) || (prop && prop.isHierarchy === "true")) {
-        return { kind: "dstl", name: name };
-      }
-      if (prop && prop.isSingleSelect === "true") {
-        return { kind: "sels", key: name };
-      }
-      if (prop && prop.isNative === "true") {
-        return { kind: "pcfs", nm: name };
-      }
-      if (hasDuPairs(_valuesArray)) {
-        return { kind: "pcfs", nm: name };
-      }
-      return { kind: "unsupported" };
-    } catch (error) {
-      throw error;
+    const name = String(_name || "").trim();
+    const lower = name.toLowerCase();
+    if (lower === "sicht") {
+      return { kind: "sicht" };
     }
+    const prop = lookupFilterPropEntry(_filterPropObj, name);
+    if (isDienststelleName(lower) || (prop && prop.isHierarchy === "true")) {
+      return { kind: "dstl", name: name };
+    }
+    if (prop && prop.isSingleSelect === "true") {
+      return { kind: "sels", key: name };
+    }
+    if (prop && prop.isNative === "true") {
+      return { kind: "pcfs", nm: name };
+    }
+    if (hasDuPairs(_valuesArray)) {
+      return { kind: "pcfs", nm: name };
+    }
+    return { kind: "unsupported" };
   }
 
   return classifyV2FilterItem;

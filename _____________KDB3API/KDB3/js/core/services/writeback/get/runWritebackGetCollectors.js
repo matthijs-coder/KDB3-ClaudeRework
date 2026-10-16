@@ -15,18 +15,23 @@ define([
 ) {
   "use strict";
 
+  // User-facing alert texts (German; labels are owned by the set service, localisation is Phase 2).
+  const ALERT_TITLE = "Dashboard speichern";
+  const SAVE_FAILED_TEXT = "Das Dashboard konnte nicht gespeichert werden; der zuletzt gespeicherte Stand bleibt erhalten. ";
+  const SAVE_FAILED_SUFFIX = " Details stehen in der Browser-Konsole.";
+  const FAILED_AREAS_PREFIX = "Fehlgeschlagene Bereiche: ";
+  const PARTIAL_COLLECT_TEXT = "Beim Speichern konnten nicht alle Bereiche erfasst werden, weil Teile des Dashboards noch nicht bereit waren "
+    + "(z. B. Filter oder noch nicht geladene Tabs). Zuletzt getroffene Auswahlen fehlen möglicherweise im "
+    + "gespeicherten Stand. Bitte kurz warten und erneut speichern. Details stehen in der Browser-Konsole.";
+
   async function runWritebackGetCollectors(_KDB, _rawFrame, _diagnostics) {
-    try {
-      await runCollector(_KDB, "canvasSettings", _collectCanvasSettings, _rawFrame, _diagnostics);
-      await runCollector(_KDB, "headerFooter", _collectHeaderFooter, _rawFrame, _diagnostics);
-      await runCollector(_KDB, "tabs", _collectTabs, _rawFrame, _diagnostics);
-      await runCollector(_KDB, "filters", _collectFilters, _rawFrame, _diagnostics);
-      await runCollector(_KDB, "widgets", _collectWidgets, _rawFrame, _diagnostics);
-      assertCollectorsSucceeded(_KDB, _diagnostics);
-      notifyPartialCollect(_KDB, _diagnostics);
-    } catch (error) {
-      throw error;
-    }
+    await runCollector(_KDB, "canvasSettings", _collectCanvasSettings, _rawFrame, _diagnostics);
+    await runCollector(_KDB, "headerFooter", _collectHeaderFooter, _rawFrame, _diagnostics);
+    await runCollector(_KDB, "tabs", _collectTabs, _rawFrame, _diagnostics);
+    await runCollector(_KDB, "filters", _collectFilters, _rawFrame, _diagnostics);
+    await runCollector(_KDB, "widgets", _collectWidgets, _rawFrame, _diagnostics);
+    assertCollectorsSucceeded(_KDB, _diagnostics);
+    notifyPartialCollect(_KDB, _diagnostics);
   }
 
   async function runCollector(_KDB, name, collector, rawFrame, diagnostics) {
@@ -65,7 +70,7 @@ define([
       const details = failures[index].details;
       failedNames.push(details && details.collector ? details.collector : "?");
     }
-    notifySaveFailed(_KDB, "Fehlgeschlagene Bereiche: " + failedNames.join(", ") + ".");
+    notifySaveFailed(_KDB, FAILED_AREAS_PREFIX + failedNames.join(", ") + ".");
     throw _errorCodes.createWritebackError(
       _errorCodes.codes.WRITEBACK_COLLECTOR_FAILED,
       "get",
@@ -88,23 +93,18 @@ define([
       }
     }
     if (!hasPartial) { return; }
-    notifySaveIssue(_KDB, "warning",
-      "Beim Speichern konnten nicht alle Bereiche erfasst werden, weil Teile des Dashboards noch nicht bereit waren "
-      + "(z. B. Filter oder noch nicht geladene Tabs). Zuletzt getroffene Auswahlen fehlen möglicherweise im "
-      + "gespeicherten Stand. Bitte kurz warten und erneut speichern. Details stehen in der Browser-Konsole.");
+    notifySaveIssue(_KDB, "warning", PARTIAL_COLLECT_TEXT);
   }
 
   function notifySaveFailed(_KDB, detailText) {
-    notifySaveIssue(_KDB, "error",
-      "Das Dashboard konnte nicht gespeichert werden; der zuletzt gespeicherte Stand bleibt erhalten. "
-      + (detailText || "") + " Details stehen in der Browser-Konsole.");
+    notifySaveIssue(_KDB, "error", SAVE_FAILED_TEXT + (detailText || "") + SAVE_FAILED_SUFFIX);
   }
 
   function notifySaveIssue(_KDB, severity, messageText) {
     const messageService = _KDB.services && _KDB.services.message;
     if (!messageService || typeof messageService.showAlert !== "function") { return; }
     try {
-      messageService.showAlert({ title: "Dashboard speichern", severity: severity, message: messageText });
+      messageService.showAlert({ title: ALERT_TITLE, severity: severity, message: messageText });
     } catch (messageError) {
       console.warn("[writebackGet.collect] user message failed", messageError);
     }
