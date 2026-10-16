@@ -12,10 +12,6 @@ import { JS_ROOT } from "../lib/amd-graph.mjs";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const old = JSON.parse(fs.readFileSync(path.join(HERE, "fixtures/w2-labels.old.json"), "utf8"));
 
-function sourceOf(relPath) {
-  return fs.readFileSync(path.join(JS_ROOT, relPath), "utf8");
-}
-
 test("chrome flush labels equal the old literals", () => {
   const labels = loadAmd(path.join(JS_ROOT, "core/cognosHost/config/chromeLabels.js"));
   assert.deepStrictEqual({ ...labels }, old.chrome.labels);
@@ -46,11 +42,25 @@ test("chrome flush alert shows the old text, registered labels override it", () 
   }).finally(() => { console.error = quiet; });
 });
 
-test("dashboardPdf text literals are present in the old sources", () => {
-  for (const [file, labels] of Object.entries(old.dashboardPdf.files)) {
-    const source = sourceOf(file);
-    for (const literal of Object.values(labels)) {
-      assert.ok(source.includes(JSON.stringify(literal)), `${file}: ${literal}`);
-    }
-  }
+test("dashboardPdf labels equal the old literals", () => {
+  const config = loadAmd(path.join(JS_ROOT, "core/services/dashboardPdf/config.js"));
+  const flat = Object.assign({}, ...Object.values(old.dashboardPdf.files));
+  assert.deepStrictEqual({ ...config.pdfLabels }, flat);
+});
+
+test("dashboardPdf readLabels: registered labels override single keys, missing config falls back to the defaults", () => {
+  const config = loadAmd(path.join(JS_ROOT, "core/services/dashboardPdf/config.js"));
+  assert.equal(config.readLabels({}).attachmentTitle, "Anhang");
+  assert.equal(config.readLabels(null).unnamedTab, "Unbenannter Tab");
+  const labels = config.readLabels({ config: { labels: { de: { dashboardPdf: { attachmentTitle: "Appendix" } } } } });
+  assert.equal(labels.attachmentTitle, "Appendix");
+  assert.equal(labels.unnamedTab, "Unbenannter Tab");
+});
+
+test("dashboardPdf registration publishes the labels under config.labels.de.dashboardPdf", () => {
+  const register = loadAmd(path.join(JS_ROOT, "core/services/dashboardPdf/__orchestratorDashboardPdf.js"));
+  const kdb = { config: { labels: { de: { dashboardPdf: { attachmentTitle: "Appendix" } } } } };
+  register(kdb);
+  const flat = Object.assign({}, ...Object.values(old.dashboardPdf.files));
+  assert.deepStrictEqual({ ...kdb.config.labels.de.dashboardPdf }, { ...flat, attachmentTitle: "Appendix" });
 });

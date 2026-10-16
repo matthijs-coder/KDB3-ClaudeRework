@@ -1,8 +1,6 @@
 define(["../../cognosHost/config/rootChromeSelectors.js"], function (_rootChrome) {
   "use strict";
 
-  var TITLE_FALLBACK = "konfigurierbares Personaldashboard";
-  var SUBTITLE_FALLBACK = "PER130 konfigurierbares Personaldashboard";
   var PDF_WIDGET_RENDER_TIMEOUT_MS = 12000;
   var PDF_CAPTURE_TIMEOUT_MS = 60000;
   var DEFAULT_EXPORT_TIMEOUT_MS = 30000;
@@ -31,6 +29,37 @@ define(["../../cognosHost/config/rootChromeSelectors.js"], function (_rootChrome
     SCOPE_TARGET_RESOLVE_FAILED: "DASHBOARD_PDF_SCOPE_TARGET_RESOLVE_FAILED"
   };
 
+  // User-visible German text of the PDF (title page, tab footer, attachment page). Registered on
+  // _KDB.config.labels.de.dashboardPdf (existing values win). Error messages stay English and are not labels.
+  var pdfLabels = {
+    titleFallback: "konfigurierbares Personaldashboard",
+    subtitleFallback: "PER130 konfigurierbares Personaldashboard",
+    unnamedTab: "Unbenannter Tab",
+    pageFooterPrefix: "Seite ",
+    attachmentTitle: "Anhang",
+    dashboardName: "Dashboard-Name",
+    filterSection: "Filter:",
+    globalFilters: "Globale Filter: ",
+    tabFilterSuffix: " -Tab Filter: ",
+    dataSourceLoading: "Daten-Quellen-Beladung ",
+    source: "Quelle: ",
+    dataFreshness: "Datenaktualität: ",
+    updateCycle: "Aktualisierungszyklus: ",
+    additionalInfo: "Erweiterende Informationen",
+    system: "Verwendetes System: ",
+    systemPrefix: "Cognos Analytics ",
+    environment: "Umgebung",
+    createdOn: "Erstellungsdatum: ",
+    metrics: "Kennzahlen: ",
+    metricsPrefix: "siehe Dataspot: ",
+    dataSteward: "Data Steward"
+  };
+
+  function readLabels(_KDB) {
+    var labels = _KDB && _KDB.config && _KDB.config.labels && _KDB.config.labels.de ? _KDB.config.labels.de.dashboardPdf : null;
+    return labels && typeof labels === "object" ? Object.assign({}, pdfLabels, labels) : pdfLabels;
+  }
+
   // Registered on _KDB.elements.selectors.dashboardPdf (defaults under existing values).
   var domSelectors = {
     loadingMountSelector: _rootChrome.pdf.strings.loadingMountSelector
@@ -55,8 +84,6 @@ define(["../../cognosHost/config/rootChromeSelectors.js"], function (_rootChrome
   };
 
   return {
-    TITLE_FALLBACK: TITLE_FALLBACK,
-    SUBTITLE_FALLBACK: SUBTITLE_FALLBACK,
     PDF_WIDGET_RENDER_TIMEOUT_MS: PDF_WIDGET_RENDER_TIMEOUT_MS,
     PDF_CAPTURE_TIMEOUT_MS: PDF_CAPTURE_TIMEOUT_MS,
     DEFAULT_EXPORT_TIMEOUT_MS: DEFAULT_EXPORT_TIMEOUT_MS,
@@ -67,6 +94,8 @@ define(["../../cognosHost/config/rootChromeSelectors.js"], function (_rootChrome
     CODES: CODES,
     domSelectors: domSelectors,
     legendSwatchCloneLayout: legendSwatchCloneLayout,
-    loading: loading
+    loading: loading,
+    pdfLabels: pdfLabels,
+    readLabels: readLabels
   };
 });
