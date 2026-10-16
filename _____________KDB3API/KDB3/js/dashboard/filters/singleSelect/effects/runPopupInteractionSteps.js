@@ -1,6 +1,6 @@
 define([
   "./applyPendingSelection.js",
-  "./commitConfirmedSelection.js",
+  "../commit/commitSelection.js",
   "./revertToBackupSelection.js",
   "../dockHandoff/popup.js"
 ], function (
@@ -13,7 +13,7 @@ define([
 
   return {
     applyPendingSelection: _applyPendingSelection,
-    commitConfirmedSelection: _commitConfirmedSelection,
+    commitConfirmedSelection: _commitConfirmedSelection.commitConfirmedSelection,
     revertToBackupSelection: _revertToBackupSelection,
     restorePopupSelection: _popup.restorePopupSelection
   };

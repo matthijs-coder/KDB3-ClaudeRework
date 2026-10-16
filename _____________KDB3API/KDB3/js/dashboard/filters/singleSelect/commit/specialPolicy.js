@@ -1,10 +1,13 @@
 define([
+  "../config.js",
   "../hostFilterIo.js",
-  "../state/selection.js",
   "../runtime.js",
-  "../config.js"
-], function (_hostFilterIo, _selectionState, _singleSelectRuntime, _config) {
+  "../state/selection.js"
+], function (_config, _hostFilterIo, _singleSelectRuntime, _selectionState) {
   "use strict";
+
+  var codes = _config.errorCodes;
+  var ALLE = _config.ALLE;
 
   function matchesSemanticId(_record, _semanticId) {
     return String(_record && _record.condition || "").trim().toLowerCase() ===
@@ -28,6 +31,10 @@ define([
     return null;
   }
 
+  function failed(_id, _code) {
+    return { filterInstanceId: _id, ok: false, degraded: false, errorCode: _code };
+  }
+
   async function applyOne(_KDB, _runtime, _payload, _id) {
     try {
       var root = _KDB.state.filters.singleSelect;
@@ -36,38 +43,37 @@ define([
         record.status !== "active" || record.hostStatus !== "present" ||
         record.filterType !== "specialSingleSelect" ||
         !matchesSemanticId(record, _payload.semanticSpecialFilterId)) {
-        return failed(_id, _config.errorCodes.SPECIAL_INSTANCE_MISSING);
+        return failed(_id, codes.SPECIAL_INSTANCE_MISSING);
       }
       var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
       var filterRef = _hostFilterIo.resolveFilterRef(_KDB, _runtime, { filterInstanceId: _id });
       if (!filterRef || !_hostFilterIo.isWriteReady(filtersFacet)) {
-        return failed(_id, _config.errorCodes.SPECIAL_POLICY_APPLY_FAILED);
+        return failed(_id, codes.SPECIAL_POLICY_APPLY_FAILED);
       }
       var clear = _payload.operation === "clearHidden";
-      var expected = clear ? { displayValue: "Alle", useValue: "" } : _payload.selection;
-      var previousValues = _hostFilterIo.readValues(filtersFacet, filterRef);
-      if (!(await _hostFilterIo.writeValues(filtersFacet, filterRef, clear ? [] : [{
-        d: expected.displayValue,
-        u: expected.useValue
-      }]))) {
-        return failed(_id, _config.errorCodes.SPECIAL_POLICY_APPLY_FAILED);
-      }
-      var verification = _hostFilterIo.verifySelection(filtersFacet, filterRef, expected);
-      if (verification.ok !== true) {
-        await _hostFilterIo.writeValues(filtersFacet, filterRef, previousValues);
-        var rollbackExpected = previousValues && previousValues[0]
-          ? { displayValue: previousValues[0].d, useValue: previousValues[0].u }
-          : { displayValue: "Alle", useValue: "" };
-        try {
-          _hostFilterIo.verifySelection(filtersFacet, filterRef, rollbackExpected);
-        } catch (rollbackError) {
-          console.error("[singleSelect.applySpecialSelectionPolicy] rollback reread failed", rollbackError);
+      var expected = clear ? { displayValue: ALLE, useValue: "" } : _payload.selection;
+      var written = await _hostFilterIo.writeVerified(
+        filtersFacet,
+        filterRef,
+        clear ? [] : [{ d: expected.displayValue, u: expected.useValue }],
+        { expected: expected, verifyRollback: true }
+      );
+      if (!written.ok) {
+        if (written.rollbackVerified === false) {
+          console.error("[singleSelect.applySpecialSelectionPolicy] rollback could not be verified", {
+            filterInstanceId: _id
+          });
         }
-        return failed(_id, _config.errorCodes.COMMIT_VERIFICATION_MISMATCH);
+        return failed(
+          _id,
+          written.errorCode === codes.HOST_WRITE_FAILED
+            ? codes.SPECIAL_POLICY_APPLY_FAILED
+            : codes.COMMIT_VERIFICATION_MISMATCH
+        );
       }
       _selectionState.applyConfirmedState(record, root, {
-        displayValue: clear ? "Alle" : verification.observed.d,
-        useValue: clear ? "" : verification.observed.u,
+        displayValue: clear ? ALLE : written.observed.d,
+        useValue: clear ? "" : written.observed.u,
         displaySource: clear ? "policy" : "cognos"
       });
       return { filterInstanceId: _id, ok: true, degraded: false };
@@ -76,12 +82,8 @@ define([
         filterInstanceId: _id,
         operation: _payload.operation
       }, error);
-      return failed(_id, _config.errorCodes.SPECIAL_POLICY_APPLY_FAILED);
+      return failed(_id, codes.SPECIAL_POLICY_APPLY_FAILED);
     }
-  }
-
-  function failed(_id, _code) {
-    return { filterInstanceId: _id, ok: false, degraded: false, errorCode: _code };
   }
 
   async function applySpecialSelectionPolicy(_KDB, _runtime, _payload) {
@@ -91,7 +93,7 @@ define([
       if (validationError) {
         return {
           ok: false, degraded: false, applied: [],
-          diagnostics: [{ code: _config.errorCodes.SPECIAL_POLICY_APPLY_FAILED, message: validationError }]
+          diagnostics: [{ code: codes.SPECIAL_POLICY_APPLY_FAILED, message: validationError }]
         };
       }
       var ids = [];
@@ -106,7 +108,7 @@ define([
         applied.push(result);
         if (result.ok !== true) {
           diagnostics.push({
-            code: result.errorCode || _config.errorCodes.SPECIAL_POLICY_APPLY_FAILED,
+            code: result.errorCode || codes.SPECIAL_POLICY_APPLY_FAILED,
             filterInstanceId: ids[i],
             message: "special selection policy apply failed"
           });
@@ -117,10 +119,12 @@ define([
       console.error("[singleSelect.applySpecialSelectionPolicy] failed", error);
       return {
         ok: false, degraded: false, applied: [],
-        diagnostics: [{ code: _config.errorCodes.SPECIAL_POLICY_APPLY_FAILED, message: String(error && error.message ? error.message : error) }]
+        diagnostics: [{ code: codes.SPECIAL_POLICY_APPLY_FAILED, message: String(error && error.message ? error.message : error) }]
       };
     }
   }
 
-  return applySpecialSelectionPolicy;
+  return {
+    applySpecialSelectionPolicy: applySpecialSelectionPolicy
+  };
 });

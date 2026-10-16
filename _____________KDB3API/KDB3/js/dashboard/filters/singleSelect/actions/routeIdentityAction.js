@@ -1,8 +1,8 @@
 define([
   "./parameterSet/routeParameterSetIdentityAction.js",
   "../inventory/reconcile.js",
-  "./applyOwnerSelection.js",
-  "./applySpecialSelectionPolicy.js"
+  "../commit/ownerSelection.js",
+  "../commit/specialPolicy.js"
 ], function (
   _routeParameterSetIdentityAction,
   _reconcileInventory,
@@ -22,10 +22,10 @@ define([
         return _reconcileInventory.reconcileFilterInstances(_KDB, _runtime, action.payload);
       }
       if (action.type === "singleSelect/applyOwnerSelection") {
-        return _applyOwnerSelection(_KDB, _runtime, action.payload);
+        return _applyOwnerSelection.applyOwnerSelection(_KDB, _runtime, action.payload);
       }
       if (action.type === "singleSelect/applySpecialSelectionPolicy") {
-        return _applySpecialSelectionPolicy(_KDB, _runtime, action.payload);
+        return _applySpecialSelectionPolicy.applySpecialSelectionPolicy(_KDB, _runtime, action.payload);
       }
       return null;
     } catch (error) {
