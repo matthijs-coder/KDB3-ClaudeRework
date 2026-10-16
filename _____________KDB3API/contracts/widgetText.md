@@ -569,7 +569,7 @@ DOM writes forbidden:
 
 ## 8. Readers / Writers
 
-Published selectors from `widgetText/state/selectors.js`:
+Published selectors from `dashboard/widgets/widgetText/selectors.js`:
 
 | Selector | Reads | Returns |
 |---|---|---|

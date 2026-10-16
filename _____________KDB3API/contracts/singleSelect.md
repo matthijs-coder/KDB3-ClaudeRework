@@ -53,13 +53,13 @@ _____________KDB3API/contracts/_archive/filterDock-downstream-handoff-contractde
 |---|---|
 | `__singleSelectOrchestrator.js` | Pipeline order: ensure state, restore popup, derive intent, handle confirm/cancel/close/clear/alle/option/open, guard programmatic clicks and commit-in-progress. |
 | `selectionState.js` | Normalization: empty display becomes `"Alle"`; `useValue` is empty when display is `"Alle"`. |
-| `ensureFilterState.js` | State keying under `_KDB.state.filters.singleSelect.byScope[filterScope][filterLabel]`; `filterKey` is stored on the per-filter state only as auxiliary metadata. |
-| `deriveInteractionIntent.js` | Intent mapping, including the custom Alle option via `[data-tid="KDB_singleSelect_AlleOption"]`. |
-| `applyPendingSelection.js` | Pending selection mutation for option, Alle and clear interactions, including toggle-to-Alle when the same option is clicked and Alle exists. |
-| `restorePopupSelection.js` | Popup/footer/Alle DOM sync, custom footer, one-shot DOM hydration, popup MutationObserver, out-click pending revert. |
-| `commitConfirmedSelection.js` | Confirm flow: resolve filter API, visual `syncPopupOptionSelection`, tableData `replaceFilterContext`, strict `verifyCommitFilterValue`, apply confirmed state, owner notification, history commit, rollback on failure, close popup in finally. |
-| `revertToBackupSelection.js` | Cancel/close pending reset to backup. |
-| `buildCommittedStep.js` | History step shape with key `filter_singleSelect`. |
+| `dashboard/filters/singleSelect/state/instance.js` (`ensureFilterState`) | State keying under `_KDB.state.filters.singleSelect.byScope[filterScope][filterLabel]`; `filterKey` is stored on the per-filter state only as auxiliary metadata. |
+| `dashboard/filters/singleSelect/dockHandoff/interaction.js` (`deriveInteractionIntent`) | Intent mapping, including the custom Alle option via `[data-tid="KDB_singleSelect_AlleOption"]`. |
+| `dashboard/filters/singleSelect/dockHandoff/interaction.js` (`applyPendingSelection`) | Pending selection mutation for option, Alle and clear interactions, including toggle-to-Alle when the same option is clicked and Alle exists. |
+| `dashboard/filters/singleSelect/dockHandoff/popup.js` (`restorePopupSelection`) | Popup/footer/Alle DOM sync, custom footer, one-shot DOM hydration, popup MutationObserver, out-click pending revert. |
+| `dashboard/filters/singleSelect/commit/commitSelection.js` (`commitConfirmedSelection`) | Confirm flow: resolve filter API, visual `syncPopupOptionSelection`, tableData `replaceFilterContext`, strict `verifyCommitFilterValue`, apply confirmed state, owner notification, history commit, rollback on failure, close popup in finally. |
+| `dashboard/filters/singleSelect/dockHandoff/interaction.js` (`revertToBackupSelection`) | Cancel/close pending reset to backup. |
+| `dashboard/filters/singleSelect/history.js` (`buildCommittedStep`) | History step shape with key `filter_singleSelect`. |
 | `__singleSelectHistoryAdapter.js` | Undo/redo replay behavior: apply target value through Cognos filter API and sync `singleSelect` state; registration is deferred unless CP-1 expands scope. |
 | `singleSelect/specialRights/**` | Rights-driven filter removal/defaulting and writes into the same `singleSelect.byScope` tree; default deferred from this core tranche. |
 | Production `filterDock` contract/delta | New central dock observation owner and downstream handoff shape; `singleSelect` must consume it through direct API, not by adding a dock listener or reading filterDock runtime. |
@@ -368,7 +368,7 @@ Deep files must not discover dependencies through `window._KDB`, `window.top.get
 
 ### Production commit baseline
 
-Accepted commit order in `commitConfirmedSelection.js` (F6 native-click removal, smoke passed 2026-05-26):
+Accepted commit order in `dashboard/filters/singleSelect/commit/commitSelection.js` (`commitConfirmedSelection`) (F6 native-click removal, smoke passed 2026-05-26):
 
 1. Resolve the facet ref from the live instance record (`resolveFilterRef`).
 2. If popup mount exists: `syncPopupOptionSelection` — visual `.KDB_selectedOption` class sync only.

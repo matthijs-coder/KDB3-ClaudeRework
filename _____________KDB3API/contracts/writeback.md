@@ -1159,7 +1159,7 @@ Contract:
 - apply tab names and visibility through tabs owner state/effects, not direct writeback DOM mutation;
 - ensure at least one dashboard tab is visible;
 - provide a `tabIdx -> { tabId, pageId, scopeId? }` lookup for filter and widget restore;
-- `tabs/resolveFilterScopeTargets` is the canonical live scopeId↔tabIdx map used by GET (`collectFilterTargets.js`) and SET (`filterRestoreTargets.js`), complementing the restore-run `tabTargets`;
+- `tabs/resolveFilterScopeTargets` is the canonical live scopeId↔tabIdx map used by GET (`core/services/writeback/get/collectors/collectFilters.js` (`collectFilterTargets`)) and SET (`filterRestoreTargets.js`), complementing the restore-run `tabTargets`;
 - handle saved tab-count mismatch with diagnostics;
 - support hidden dashboard tabs without making hidden tab buttons permanently visible;
 - expose `tabs/parameterSetActivateTabRequested` for hidden or not-canvas-ready tabs before page-context writes and widget restore;

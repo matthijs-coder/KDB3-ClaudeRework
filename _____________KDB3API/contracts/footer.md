@@ -48,7 +48,7 @@ _KDB.state.footer = {
 | `domRefs` | Footer root, mount slot. |
 | `abortControllers` | Footer-local interactions, including `updateDate` for the table wait (abort own apply only; never `abortTable`). |
 | `subscriptions` | o.a. `headerConfirmedChanged`: unsubscribe voor `header:confirmedChanged`; `tabsChanged`: unsubscribe voor `tabs:changed` (page indicator). |
-| `dashboardFacet` | Stamped `cognosHost.dashboard` (created-user leftover). Effects read via `effects/readDashboardFacet.js`. Not a live host handle. |
+| `dashboardFacet` | Stamped `cognosHost.dashboard` (created-user leftover). Effects read via `dashboard/controls/toolbarControls/shareButton.js` (`readDashboardFacet`). Not a live host handle. |
 
 **Cleanup:** `footer.destroy()` clears subscriptions, DOM, runtime.
 

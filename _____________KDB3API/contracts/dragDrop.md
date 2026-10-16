@@ -33,7 +33,7 @@ _____________KDB3API/KDB3/js/dashboard/canvas/dragDrop/
 
 This is a direct port: preserve legacy native HTML5 drag/drop behavior and change only what the rules force. No `TEST/` sandbox, no browser harness, no production file changes before CP-1.
 
-`placeWidgetOnCanvas.js` is boundary evidence for coordinate conversion and placement semantics only. Final widget creation, placement, persistence, history, and widget-state writes stay with the future widgets/canvas owner API or an approved event boundary; they are not ported into `dragDrop` unless CP-1 explicitly expands scope.
+`dashboard/widgets/widgetBase/view/placement.js` (`placeWidgetOnCanvas`) is boundary evidence for coordinate conversion and placement semantics only. Final widget creation, placement, persistence, history, and widget-state writes stay with the future widgets/canvas owner API or an approved event boundary; they are not ported into `dragDrop` unless CP-1 explicitly expands scope.
 
 ## 1. Legacy Evidence
 
@@ -41,16 +41,16 @@ This is a direct port: preserve legacy native HTML5 drag/drop behavior and chang
 |---|---|
 | `dragDrop/__dragDropOrchestrator.js` | Registers drag/drop state, runtime, avatar templates, dropbox setup, and a public object with `refreshDropboxes`, `startDrag`, `finishDrag`. |
 | `dragDrop/startDragSession.js` | Native HTML5 dragstart path; builds serializable transfer payload; writes legacy `_KDB.state.canvas.dragDrop.session`; creates hidden source copy, active-source markings, custom avatar, document `dragover` tracking, and temporary 1x1 native drag image suppressor. |
-| `dragDrop/finishDragSession.js` | Cleanup path for avatar DOM, active dropbox class, marked source classes, layout grid class, document `dragover` listener, temporary source copy, and session reset. |
+| `dashboard/canvas/dragDrop/session.js` (`finishDragSession`) | Cleanup path for avatar DOM, active dropbox class, marked source classes, layout grid class, document `dragover` listener, temporary source copy, and session reset. |
 | `dragDrop/setupDropboxes.js` | Discovers dashboard dropboxes, skips launchpad helper tabs, marks dropboxes with `kdb_dropbox="true"`, and binds `dragenter`, `dragover`, `dragleave`, `drop`. |
 | `dragDrop/updateDragHover.js` | Drag-hover validation, drop-effect toggling, active dropbox class, avatar movement, and bounds checks during dragover. |
 | `dragDrop/publishDropIntent.js` | Parses `dataTransfer`, resolves dropbox-local pointer/layout metadata, validates drop intent, removes temporary copy, emits legacy `WIDGET_DROP_VALIDATED` (`canvas:dropValidated`), and shows validation warnings. |
-| `dragDrop/validateDropIntent.js` | Validates real dropboxes, blocks launchpad helper tabs, accepts only `visualization` and `text`, checks bounds, and rejects labels that conflict with filter names. |
+| `dashboard/canvas/dragDrop/dropboxes/validate.js` (`validateDropIntent`) | Validates real dropboxes, blocks launchpad helper tabs, accepts only `visualization` and `text`, checks bounds, and rejects labels that conflict with filter names. |
 | `dragDrop/dropboxGeometry.js` | Resolves dropbox metrics, pointer offsets, rendered placement, and bounds checks from `clientX/clientY`, dropbox origin, drag anchor offset, widget size, and scale. |
 | `dragDrop/createDragAvatars.js` | Creates hidden avatar templates for visualization/text using default dimensions and default widget backgrounds; stores template runtime. |
 | `kdbControl/kennzahlenTree/bindKennzahlenTreeDragDrop.js` | Source binder: only `.jstree-leaf` anchors become draggable; parent nodes are blocked; payload includes code, display, title, langtext, kennzahlenTable, originId, and draggedElementType. |
 | `kdbControl/bindToolboxTextDragDrop.js` | Source binder: only the text/comment toolbox button is draggable, with `draggedElementType: "text"` and `sourceKind: "toolboxTextButton"`. |
-| `widgets/placeWidgetOnCanvas.js` | Boundary evidence: final widget left/top is `client -> dropbox-local -> minus drag offset -> divide by scale -> clamp`; raw `clientX/clientY` must not become widget placement. |
+| `dashboard/widgets/widgetBase/view/placement.js` (`placeWidgetOnCanvas`) | Boundary evidence: final widget left/top is `client -> dropbox-local -> minus drag offset -> divide by scale -> clamp`; raw `clientX/clientY` must not become widget placement. |
 
 Production evidence:
 
@@ -219,7 +219,7 @@ Disposed-state discipline follows `module-public-api.mdc`: after `destroy()`, re
 
 ## 7. Readers / Writers
 
-Published selectors from `dragDrop/state/selectors.js`:
+Published selectors from `dashboard/canvas/dragDrop/selectors.js`:
 
 | Selector | Reads | Returns |
 |---|---|---|
@@ -254,7 +254,7 @@ Recommended CP-1 decision:
 
 CP-1 must explicitly decide event catalog scope:
 
-- **A. Approve narrow `eventSubscribe.md` update for `canvas:dropValidated`.** Then create `events/eventNames.js` and `dropboxes/publishValidatedDrop.js`.
+- **A. Approve narrow `eventSubscribe.md` update for `canvas:dropValidated`.** Then create `events/eventNames.js` and `dashboard/canvas/dragDrop/dropboxes/publish.js` (`publishValidatedDrop`).
 - **B. Do not approve `eventSubscribe.md` update.** Then do not create event-emitting code; mark `publishValidatedDrop` as deferred and stop for a contract delta if drop completion cannot be represented.
 
 Recommendation: choose A. Drag/drop without a validated-drop signal is incomplete, and this is a defensible fact-event because no widgets-owner API exists in this tranche.
@@ -333,7 +333,7 @@ rendered placement
 -> persist layout/Cognos state/history
 ```
 
-Do not use raw `clientX/clientY` as widget `left`/`top`. Do not port `placeWidgetOnCanvas.js` into `dragDrop` without a CP-1 contract change assigning placement responsibility to `dragDrop`.
+Do not use raw `clientX/clientY` as widget `left`/`top`. Do not port `dashboard/widgets/widgetBase/view/placement.js` (`placeWidgetOnCanvas`) into `dragDrop` without a CP-1 contract change assigning placement responsibility to `dragDrop`.
 
 DataTransfer compatibility:
 
@@ -401,9 +401,9 @@ KDB3/js/dashboard/canvas/dragDrop/
     destroyDragDropController.js
 ```
 
-**As-built size-split:** `createDragDropController.js` remains the AMD path for `__orchestratorDragDrop.js` and still returns `{ destroy, finishDrag, getState, mount, refreshDropboxes, startDrag }`. Mount/refresh/complete-drop live in `effects/mountDragDropController.js`; destroy in `effects/destroyDragDropController.js`; runtime init/cleanup in `runtime/ensureDragDropRuntime.js` and `runtime/cleanupDragDropRuntime.js`.
+**As-built size-split:** `dashboard/canvas/dragDrop/index.js` (`createDragDropController`) remains the AMD path for `__orchestratorDragDrop.js` and still returns `{ destroy, finishDrag, getState, mount, refreshDropboxes, startDrag }`. Mount/refresh/complete-drop live in `effects/mountDragDropController.js`; destroy in `effects/destroyDragDropController.js`; runtime init/cleanup in `runtime/ensureDragDropRuntime.js` and `runtime/cleanupDragDropRuntime.js`.
 
-`events/eventNames.js` and `dropboxes/publishValidatedDrop.js` depend on CP-1 approval for the `canvas:dropValidated` catalog entry. If event scope is not approved, the execution spec must mark these as deferred or stop for a contract delta.
+`events/eventNames.js` and `dashboard/canvas/dragDrop/dropboxes/publish.js` (`publishValidatedDrop`) depend on CP-1 approval for the `canvas:dropValidated` catalog entry. If event scope is not approved, the execution spec must mark these as deferred or stop for a contract delta.
 
 No `core/dragDrop/` folder is created in this tranche.
 
@@ -429,7 +429,7 @@ Until bootstrap registration exists, `metricsTree` may warn that the drag/drop A
 ## 15. Out Of Scope
 
 - Creating, moving, placing, configuring, or persisting widgets.
-- Porting `placeWidgetOnCanvas.js` into `dragDrop`.
+- Porting `dashboard/widgets/widgetBase/view/placement.js` (`placeWidgetOnCanvas`) into `dragDrop`.
 - Writing `_KDB.state.widgets`, `_KDB.runtime.widgets`, filters, tabs, launchpad, history, kdbControl, or metricsTree state.
 - Reworking widget placement behavior beyond rule-alignment.
 - Creating a core/shared dragDrop service.

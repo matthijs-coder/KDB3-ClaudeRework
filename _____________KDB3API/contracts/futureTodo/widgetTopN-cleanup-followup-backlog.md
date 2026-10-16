@@ -89,7 +89,7 @@ Treat as a **separate mini-contract** + caller audit, not a single-module tweak.
 
 `config/visTypes/` is one level deeper than `effects/` under `widgetVis`. Any new imports to `KDB3/js/core/**` from `visTypes/` need **five** `../` segments, not four.
 
-**Reference:** fixed in `widgetVis/config/visTypes/resolveTopNHelperListConfig.js` (2026-06).
+**Reference:** fixed in `dashboard/widgets/widgetVis/bindingConfig.js` (`resolveTopNHelperListConfig`) (2026-06).
 
 **Optional sweep:** grep `widgetVis/config/visTypes/**/*.js` for `../../../../core/` (four levels) and correct to `../../../../../core/`.
 

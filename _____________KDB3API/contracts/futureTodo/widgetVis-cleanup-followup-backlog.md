@@ -20,13 +20,13 @@ Delivered:
 | Rule alignment | amd nested-fn hoist (focus mode), try/catch on `contentReady`, `actionRouter` + `controllerHelpers`, direct function exports |
 | Diagnostics | `WIDGET_VIS_UNKNOWN_ACTION` (E2); TopN prerequisite catch distinguishes timeout vs failure (E8); post-render `ok` semantics documented (E6) |
 | Integration | E3 broadcast gate wake once; E7 `resolveTopNHelperListConfig` via config facade; orchestrator vs `mount()` init ownership |
-| Cross-module | `widgetTopN/effects/runHelperBinding.js` — direct `_applyVisualizationProperties(...)` call after export shape change |
+| Cross-module | `dashboard/widgets/widgetTopN/helperBinding.js` (`runHelperBinding`) — direct `_applyVisualizationProperties(...)` call after export shape change |
 
 Public API `{ mount, destroy, dispatch, getState }`, action types, and `_KDB.state.widgets.vis` shape were intentionally unchanged.
 
 Cognos smoke (2026-06): TopN helper path, startup batch, dienststelle broadcast verified.
 
-**Cross-module fix:** `widgetTopN/effects/runHelperBinding.js` — use `_applyVisualizationProperties(_KDB, …)` not `.applyVisualizationProperties` (regression from widgetVis export slimming).
+**Cross-module fix:** `dashboard/widgets/widgetTopN/helperBinding.js` (`runHelperBinding`) — use `_applyVisualizationProperties(_KDB, …)` not `.applyVisualizationProperties` (regression from widgetVis export slimming).
 
 No contract update required for the closed tranche except minor §7.0 / §15 deltas already applied (`applyPostRenderCleanup` `ok` semantics, `WIDGET_VIS_UNKNOWN_ACTION`).
 
@@ -69,7 +69,7 @@ Do **not** implement opportunistically.
 
 ### D4 — DOM selectors registry (`dom.mdc`)
 
-**Current:** legend/title/tooltip/content files use inline Cognos class selectors and `document.getElementById` in `resolveVisualizationContent.js`.
+**Current:** legend/title/tooltip/content files use inline Cognos class selectors and `document.getElementById` in `dashboard/widgets/widgetVis/dom.js` (`resolveVisualizationContent`).
 
 **Target:** `_KDB.elements.selectors.widgetVis` per `dom.mdc`.
 
@@ -79,7 +79,7 @@ Do **not** implement opportunistically.
 
 ### D5 — Legend vs tooltip pipe-regex unification
 
-**Current:** `view/legend/legendCaptionText.js` uses Unicode-aware `SPACED_PIPE_DELIMITER_REGEX`; `view/syncTooltipMetadata.js` uses weaker `\s+\|\s+`.
+**Current:** `view/legend/legendCaptionText.js` uses Unicode-aware `SPACED_PIPE_DELIMITER_REGEX`; `dashboard/widgets/widgetVis/render/postRender.js` (`syncTooltipMetadata`) uses weaker `\s+\|\s+`.
 
 **Before change:** confirm Cognos emits NBSP/thin-space delimiters on tooltip nodes; unifying regexes changes tooltip metadata behavior.
 
@@ -103,7 +103,7 @@ Duplicated per module (`widgetTopN`, `launchpad`, etc.). Belongs in a project-wi
 
 ### Export shape consistency after facade slimming
 
-When a `widgetVis` AMD module switches from `{ fn: fn }` to direct `return fn`, grep **all** importers under `KDB3/js/**` (not only `widgetVis/`). Reference fix: `widgetTopN/effects/runHelperBinding.js`.
+When a `widgetVis` AMD module switches from `{ fn: fn }` to direct `return fn`, grep **all** importers under `KDB3/js/**` (not only `widgetVis/`). Reference fix: `dashboard/widgets/widgetTopN/helperBinding.js` (`runHelperBinding`).
 
 ---
 

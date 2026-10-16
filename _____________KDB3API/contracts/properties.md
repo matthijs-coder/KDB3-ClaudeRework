@@ -245,7 +245,7 @@ No service dependency is required.
 - Host subscription: `content.on("change:property:<propertyId>", handler)` on the same content object for approved property ids.
 - Mirror owner: `properties` writes `_KDB.properties`.
 
-No `_KDB.cognosAPI.<theme>.<function>` wrapper exists yet for property reads. CP-1 recommendation is to keep `readPropertyValue.js` as the narrow local host-bound helper for this direct port. If a future second module needs property reads, promote that access to a thin `_KDB.cognosAPI.properties.getPropertyValue` wrapper under a separate contract/update.
+No `_KDB.cognosAPI.<theme>.<function>` wrapper exists yet for property reads. CP-1 recommendation is to keep `core/properties/loadProperties.js` (`readPropertyValue`) as the narrow local host-bound helper for this direct port. If a future second module needs property reads, promote that access to a thin `_KDB.cognosAPI.properties.getPropertyValue` wrapper under a separate contract/update.
 
 ## 9. Folder Layout
 

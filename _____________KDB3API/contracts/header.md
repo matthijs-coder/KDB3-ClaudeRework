@@ -158,7 +158,7 @@ header/
     eventNames.js
 ```
 
-As-built: `createHeaderController.js` remains the AMD orchestrator path; `runtime/cleanupHeaderRuntime.js` owns destroy abort/DOM/`domRefs`/history-replay-handler cleanup.
+As-built: `dashboard/header/index.js` (`createHeaderController`) remains the AMD orchestrator path; `runtime/cleanupHeaderRuntime.js` owns destroy abort/DOM/`domRefs`/history-replay-handler cleanup.
 
 ---
 

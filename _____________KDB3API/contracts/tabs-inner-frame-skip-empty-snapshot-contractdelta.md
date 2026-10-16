@@ -35,7 +35,7 @@ Selectors uit `pageChromeSelectors.js`, niet hardcoded in de activate-action als
 
 ## 3. `tabs/parameterSetActivateTabRequested` (SET 18/23)
 
-Vervangt skip-on-`hasBeenActivated` in `parameterSetActivateTab.js` en de tekst in parent §5 / `writeback.md` §6.4.
+Vervangt skip-on-`hasBeenActivated` in `dashboard/tabs/restore/parameterSetActivation.js` (`parameterSetActivateTab`) en de tekst in parent §5 / `writeback.md` §6.4.
 
 1. Predicate true → skip click: `{ ok: true, skippedActivation: true, canvasReady: true }`.
 2. Anders: bestaande `tabs/traverse` `singleTab`, `includeHiddenDashboardTabs: true`, `waitFor: "canvas"` (150ms blijft **klikmarge**, geen frame-wacht).
@@ -67,10 +67,10 @@ Niet-empty + `missingShells > 0`: bestaande 4a (niet markeren) ongewijzigd. Lett
 
 ## 5. Files (implementatie, niet nu)
 
-- `KDB3/js/dashboard/tabs/actions/parameterSetActivateTab.js`
+- `dashboard/tabs/restore/parameterSetActivation.js` (`parameterSetActivateTab`)
 - klein tabs-effect `waitForTabInnerFrame` (poll catalogus-predicate)
-- `KDB3/js/dashboard/widgets/widgetBase/actions/handleEnsureTabWidgetsRouted.js` (`mayMarkRouted`)
-- optioneel `waitForScopedShells.js` container-wait → inner frame
+- `dashboard/widgets/widgetBase/tabWidgets.js` (`handleEnsureTabWidgetsRouted`) (`mayMarkRouted`)
+- optioneel `dashboard/widgets/widgetBase/discovery.js` (`waitForScopedShells`) container-wait → inner frame
 
 Niet: overlay, user-click intercept, alle canvas-tabs bij startup laden, startup-traverse schrappen.
 

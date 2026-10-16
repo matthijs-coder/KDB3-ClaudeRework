@@ -45,7 +45,7 @@ Investigation results used for this contract:
 | `legacy-redesign2:js/dashboard/canvas/kdbControl/` | kdbControl as UI/event layer rather than tabs owner. |
 | `laatsteOriginal/KDB2/js/controlContainer/configurationFunctions/helpers/configurationToolboxHelpers.js` | Working legacy business behavior for rename, soft-delete, duplicate, move and writeback remapping. Only rename is in phase 1. |
 | Current `_____________KDB3API/KDB3/js/dashboard/canvas/kdbControl/framework/bindFrameworkToolboxPlaceholderApis.js` | Existing production kdbControl already expects `_KDB.api.tabs.dispatch(...)`. |
-| Current `_____________KDB3API/KDB3/js/dashboard/canvas/kdbControl/framework/syncFrameworkViewFromState.js` | Existing production kdbControl already expects `_KDB.api.tabs.getState()` projections for toolbox tab-edit UI. |
+| Current `dashboard/canvas/kdbControl/framework/syncView.js` (`syncFrameworkViewFromState`) | Existing production kdbControl already expects `_KDB.api.tabs.getState()` projections for toolbox tab-edit UI. |
 | Current `_____________KDB3API/KDB3/js/core/cognosAPI/tabs.js` | Inner-ring wrappers for `getTabsContainers`, `getTabsContent`, `getTabName`, `setTabName`. Called from ring 1 only; not the tabs module wrapping target. |
 
 Legacy code must not be treated as the design. It is evidence for behavior and edge cases only.

@@ -74,13 +74,13 @@ Legacy files mapped for this tranche:
 | `sicht/__sichtOrchestrator.js` | Owner loop, popup/intent handling, relevance application, confirm/cancel/close branches. |
 | `sicht/ensureSichtState.js` | State root and per-filter selection shape; redesigned into reducer-owned state. |
 | `sicht/selectionState.js` | Selection normalization and display/use value helpers. |
-| `sicht/applyPendingSelection.js` | Option click to pending selection; redesigned to avoid toggle-off / Alle. |
+| `dashboard/filters/singleSelect/dockHandoff/interaction.js` (`applyPendingSelection`) | Option click to pending selection; redesigned to avoid toggle-off / Alle. |
 | `sicht/restorePopupSelection.js` | Legacy REDESIGN2 popup sync / duplicate hide. Production successors: `effects/syncSichtOptionAvailability.js` and `effects/hideDuplicateSichtOptions.js`. Generic restore remains singleSelect `restorePopupSelection.js`. Do not add a Sicht `restorePopupSelection.js`. |
-| `sicht/hideDuplicateOptions.js` | Duplicate option suppression. Production successor: `effects/hideDuplicateSichtOptions.js`. Do not delete JS hide. |
+| `sicht/hideDuplicateOptions.js` | Duplicate option suppression. Production successor: `dashboard/filters/sicht/view.js` (`hideDuplicateSichtOptions`). Do not delete JS hide. |
 | `sicht/getSichtRelevance.js` | Rights/data/default readiness model; redesigned to use `tableDataService` and module config. |
 | `sicht/applyConfirmedSichtCascade.js` | Commit, Cognos value update, history, events and downstream coupling; this tranche keeps Sicht commit and `specialSingleSelect` notification only. |
 | `sicht/applyStartupSicht.js` | Startup default concept; this tranche keeps tableData-driven default readiness, without Dienststelle cascade. |
-| `sicht/buildCommittedStep.js` | History step pattern, redesigned as `filter_sicht`. |
+| `dashboard/filters/sicht/history.js` (`buildCommittedStep`) | History step pattern, redesigned as `filter_sicht`. |
 | `sicht/__sichtHistoryAdapter.js` | Replay concept; this tranche records dependent snapshots but replays only Sicht until dependent owner APIs exist. |
 
 ## 2. Purpose
@@ -258,7 +258,7 @@ Rules:
 
 Confirmed-commit hook:
 
-- This tranche may add a narrow hook to `singleSelect/effects/commitConfirmedSelection.js`.
+- This tranche may add a narrow hook to `dashboard/filters/singleSelect/commit/commitSelection.js` (`commitConfirmedSelection`).
 - After `singleSelect` confirms a successful Cognos commit for a handoff with `filterType: "sicht"`, it dispatches:
 
 ```js
@@ -516,13 +516,13 @@ CSS behavior:
 Bounded native CSS exception:
 
 - `filters/filters.css` (former `sichtSingleSelect.css` section) may hide Cognos duplicate marker rows via `.ba-common-listItem-wrapper:has([aria-label="duplicates"])`.
-- This complements JS duplicate hiding in `hideDuplicateSichtOptions.js`; it is not replaced by JS alone.
+- This complements JS duplicate hiding in `dashboard/filters/sicht/view.js` (`hideDuplicateSichtOptions`); it is not replaced by JS alone.
 - Scope is limited to `.KDB_sichtSingleSelect`; no additional native selectors in CSS without contract update.
 
 Selector discipline:
 
 - Shared popup/dock selectors (`filterItemSelector`, `popupMountSelector`, `optionSelector`, dock roots) are read from `_KDB.elements.selectors.filterDock` at runtime.
-- `sicht/config/selectors.js` holds Sicht-owned `KDB_sicht*` classes, Sicht popup-read fallbacks (`filterLabelSelector`, `popupMountFallbackSelector`, `optionSelector`), and native option-read selectors used only by Sicht popup sync (`optionLabelSelector`, `roleOptionSelector`, `checkboxSelector`, `selectedOptionClass`).
+- `dashboard/filters/sicht/state/selectors.js` holds Sicht-owned `KDB_sicht*` classes, Sicht popup-read fallbacks (`filterLabelSelector`, `popupMountFallbackSelector`, `optionSelector`), and native option-read selectors used only by Sicht popup sync (`optionLabelSelector`, `roleOptionSelector`, `checkboxSelector`, `selectedOptionClass`).
 - Effects must not hardcode Cognos-native selector strings; consume `filterDock` first, then `_KDB.elements.selectors.sicht` fallbacks.
 
 No live DOM nodes are stored in `_KDB.state`. Runtime refs belong under `_KDB.runtime.sicht.domRefs` and are cleared on destroy.
@@ -571,7 +571,7 @@ This tranche includes bootstrap and CSS registration after CP-1 approval:
 - `KDB.js` mounts `_KDB.api.sicht`.
 - `KDB.js` destroys `_KDB.api.sicht`.
 - `filterDock` routes `filterType: "sicht"` to `_KDB.api.sicht`.
-- `singleSelect/effects/commitConfirmedSelection.js` dispatches `sicht/singleSelectCommitted` to `_KDB.api.sicht` after successful `filterType: "sicht"` commits.
+- `dashboard/filters/singleSelect/commit/commitSelection.js` (`commitConfirmedSelection`) dispatches `sicht/singleSelectCommitted` to `_KDB.api.sicht` after successful `filterType: "sicht"` commits.
 - `cssHrefList.js` includes `./v1/ext/KDB3/css/filters/filters.css`.
 
 Future integration target:

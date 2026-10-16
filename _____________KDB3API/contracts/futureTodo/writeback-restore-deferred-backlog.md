@@ -103,7 +103,7 @@ Patroon-sweep na de lazy-render-bugfixronde (widgetBase-routing, kdbControl-tabF
 
 ### 6.2 GET/SET `maxUserTabs`-bron
 - Micro-fix in de filterronde harmoniseert `collectTabs` en `listDashboardSlots`; structureel hoort de limit uit één bron (`state.limits`) te komen — bewaken bij toekomstige tabs-wijzigingen.
-- **As-built 2026-08-17:** GET collectors `collectTabs.js` / `collectWidgets.js` use the same fallback as `listDashboardSlots.js` (`tabs/config/defaults.js` `MAX_USER_TABS`) when `state.limits.maxUserTabs` is unset. Hardcoded `5` fallbacks in `tabMutationPostconditions.js`, `reduceTabMutationApply.js`, `buildTabDuplicatePlan.js` now read that default too. Happy path still uses `state.limits` (seeded by `createInitialTabsState`).
+- **As-built 2026-08-17:** GET collectors `collectTabs.js` / `collectWidgets.js` use the same fallback as `dashboard/tabs/slots.js` (`listDashboardSlots`) (`tabs/config/defaults.js` `MAX_USER_TABS`) when `state.limits.maxUserTabs` is unset. Hardcoded `5` fallbacks in `tabMutationPostconditions.js`, `dashboard/tabs/tabMutation/reduce.js` (`reduceTabMutationApply`), `buildTabDuplicatePlan.js` now read that default too. Happy path still uses `state.limits` (seeded by `createInitialTabsState`).
 
 ## 7. Widget shell-aanvoer (create-pad voor surplus-entries)
 - **Nu (PO-besluit 2026-07-12, widgetBase-restore-delta §4b):** restore claimt shells die door `parameterSetResetRequested` op de launchpad zijn geparkeerd. Entries waarvoor geen passende shell beschikbaar is (parameter-set met méér/andere widgets dan aanwezig) falen eerlijk met `WRITEBACK_WIDGET_RESTORE_FAILED` per entry.

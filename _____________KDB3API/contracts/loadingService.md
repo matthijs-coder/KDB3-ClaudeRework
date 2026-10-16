@@ -231,7 +231,7 @@ Rationale:
 - **Q1:** Approve target path `KDB3/js/core/services/loadingService/`?
 - **Q2:** Approve `_KDB.state.loading` as the service-owned serializable state subtree?
 - **Q3:** Choose public service key: **A** `_KDB.services.loading` (recommended for direct port) or **B** `_KDB.services.loadingService` (requires later caller migration). Methods stay `startLoading`, `finishLoading`, `destroy`.
-- **Q4:** Approve factory file `createLoadingService.js`?
+- **Q4:** Approve factory file `core/services/loadingService/index.js` (`createLoadingService`)?
 - **Q5:** Approve moving watchdog timers, remove-delay timers, mount refs, spinner refs and position overrides from legacy factory-scope maps into `_KDB.runtime.loadingService`?
 - **Q6:** Approve no events and no `events/eventNames.js`?
 - **Q7:** Approve `destroy()` as the single lifecycle teardown method, with no `dispose()` alias?

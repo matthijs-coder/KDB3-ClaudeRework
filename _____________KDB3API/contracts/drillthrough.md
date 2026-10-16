@@ -528,7 +528,7 @@ No dependencies on `_KDB.api.*`, `_KDB.events`, `_KDB.cognosAPI.*`, `_KDB.runtim
 | Concern | Home | Why |
 |---|---|---|
 | Env report URLs (`pathRef`) | `_KDB.config.links.pkzAnalysetool.{dev,test,prod}` | Existing links owner (`core/config/baseLinks.js`). |
-| `p_datenart` hash | service `config/datenart.js` | Prompt constant, not a navigable URL. |
+| `p_datenart` hash | service `core/services/drillthrough/config.js` (`datenart`) | Prompt constant, not a navigable URL. |
 | Prompt catalog, aufriss maps, month labels, dummy constants | service `config/` | Encoder/assembler policy. |
 
 Do **not** duplicate full URLs inside service config. Do **not** put the datenart hash in `links`.

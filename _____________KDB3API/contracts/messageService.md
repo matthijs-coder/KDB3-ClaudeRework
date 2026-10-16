@@ -45,7 +45,7 @@ Current-code findings:
 
 - `_KDB.cognosAPI.glassMessages` already provides thin `showToast`, `showErrorDialog` and `showMessageDialog` wrappers.
 - `_KDB.services.message` is not registered.
-- `warnSettingsMessage.js` already targets a provisional `_KDB.services.message.warn(...)` surface.
+- `dashboard/canvas/kdbControl/dimensionGate.js` (`warnSettingsMessage`) already targets a provisional `_KDB.services.message.warn(...)` surface.
 - Drag/drop validation still calls a non-existent flat `_KDB.cognosAPI.showToast` path.
 - PDF export calls `_KDB.cognosAPI.glassMessages.showErrorDialog` directly.
 
@@ -235,7 +235,7 @@ Generic German defaults live under `_KDB.config.labels.de.message` and are overr
 
 Callers override labels where legacy parity requires `OK/Abbrechen`.
 
-The provisional `warnSettingsMessage.js` call to `_KDB.services.message.warn(...)` is not a binding API precedent. Its migration target is `notify({ severity: "warning", ... })` or `notifyAnchored(...)`.
+The provisional `dashboard/canvas/kdbControl/dimensionGate.js` (`warnSettingsMessage`) call to `_KDB.services.message.warn(...)` is not a binding API precedent. Its migration target is `notify({ severity: "warning", ... })` or `notifyAnchored(...)`.
 
 ## 5. Readers / Writers
 
@@ -359,7 +359,7 @@ Structural limits:
 - each entry function delegates to factory-scope named helpers;
 - no inline or nested subfunctions;
 - at most six imports per normal executable file;
-- `createMessageService.js` coordinates named helpers and does not become a god factory;
+- `core/services/messageService/index.js` (`createMessageService`) coordinates named helpers and does not become a god factory;
 - `__orchestratorMessageService.js` performs wiring and registration only.
 
 Later registration target:
@@ -394,7 +394,7 @@ Q1-Q12 are approved as recorded in `CP-1 Decisions Needed`. The tabs owner contr
 1. Implement and verify the isolated service, owned DOM, queue, disposed guard and teardown.
 2. Register `_KDB.services.message` through `core/services/__orchestratorServices.js`.
 3. Migrate current seams first:
-   - `warnSettingsMessage.js`;
+   - `dashboard/canvas/kdbControl/dimensionGate.js` (`warnSettingsMessage`);
    - drag/drop validation's broken flat toast call;
    - PDF export's direct Glass error dialog.
 4. Replace the tabs delete native-confirm seam with awaited `message.confirm`.

@@ -344,7 +344,7 @@ Per-filter rights / Alle marker classes target the respective `.filterItemWrappe
 
 ## 10. Readers / Writers
 
-Published selectors from `specialSingleSelect/state/selectors.js`:
+Published selectors from `dashboard/filters/specialSingleSelect/selectors.js`:
 
 | Selector | Reads | Returns |
 |---|---|---|
@@ -418,7 +418,7 @@ Rules:
 
 - Exactly one root Sicht class at a time, or none when `activeSichtValue` is unknown.
 - Sync is idempotent: remove all `rootSichtClassValues`, then add the class for the current `activeSichtValue`.
-- Root sync runs once per sync cycle in `effects/syncSpecialSingleSelectRootClass.js` (pattern: Dienststelle `syncDienststelleRootClass.js`).
+- Root sync runs once per sync cycle in `dashboard/filters/specialSingleSelect/view.js` (`syncSpecialSingleSelectRootClass`) (pattern: Dienststelle `dashboard/filters/dienststelle/view/chromeClasses.js` (`syncDienststelleRootClass`)).
 - Document-level `document.querySelector("#filterDockContainer")` is permitted for root class sync only; wrapper queries must be scoped to `#filterDockContainer` and return all matches.
 
 ### Wrapper classes (rights / module marker)

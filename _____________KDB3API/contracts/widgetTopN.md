@@ -533,7 +533,7 @@ Terminal success payload:
 
 ## 10. Readers / Writers
 
-Published selectors from `widgetTopN/state/selectors.js`:
+Published selectors from `dashboard/widgets/widgetTopN/selectors.js`:
 
 | Selector | Reads | Returns |
 |---|---|---|

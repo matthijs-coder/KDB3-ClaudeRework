@@ -121,7 +121,7 @@ dashboard/filters/nativeMultiSelect/
 
 **As-built 2026-08-16:** Jahr uses `isNative: "true"` plus `isSingleSelect: "false"`.
 
-**As-built 2026-08-16:** `stripTabpanel` owner-local (`effects/stripTabpanel.js`); `tabMutationSupport` wraps shared `tabMutationRun` library (DS-style guard/stale); `actions/` files remain flat (folders not moved); `lookupNativeMultiSelectRef` and `lookupNativeMultiSelectRefByName` not merged.
+**As-built 2026-08-16:** `stripTabpanel` owner-local (`dashboard/filters/nativeMultiSelect/state.js` (`stripTabpanel`)); `tabMutationSupport` wraps shared `tabMutationRun` library (DS-style guard/stale); `actions/` files remain flat (folders not moved); `lookupNativeMultiSelectRef` and `lookupNativeMultiSelectRefByName` not merged.
 
 **As-built 2026-08-16 (dest itemId / GET page collect):** Kale host `itemId`s are per-scope. Tab-mutation dest write (move/duplicate shift+clone) resolves the dest host by **name + dest scope** (`lookupNativeMultiSelectRefByName`, dest-skip + warn if missing, never create); reducer `byScope` stores the dest host’s live `itemId`. Resync uses that dest `itemId` first, then name. Source clear still uses source `itemId` + source scope. GET `filt.pcfs` page collect uses `listUnowned(scopeId)` only; identities stay `"global|"+nm` vs `String(tab)+"|"+nm`; global is never listed into page entries. Page lookups use `_tabpanel` strip equality only. Historical P0 dest lookup-by-itemId (`pageContextPlain-tabMutation-contractdelta.md` §2.2) is superseded for the live owner.
 

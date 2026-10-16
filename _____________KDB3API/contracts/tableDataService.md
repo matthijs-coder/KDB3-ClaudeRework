@@ -190,19 +190,19 @@ Both emitted events are catalogued in [_____________KDB3API/architecture/eventSu
 - `_KDB.runtime.tableData.visualizationFacet` / `_KDB.runtime.tableData.widgetsFacet` — stamped by `__orchestratorTableData` from existing `cognosHost.visualization` / `cognosHost.widgets` (not a new facet/op). Leftover Hierarchy `HideData` park wrap only: unpark instance ids `HideData` / `_none` / `_1`; body live `containsignorecase` `"b"`; repark then unsignaled `renderWidget` gated by `shouldRestorePark`. Authority: `tableData-hierarchy-park-filter-contractdelta.md`.
 - Table-name source — see **Q3**: either `_KDB.properties.loadingTablesPropObj` (REDESIGN2 pattern, name-based) or `_KDB.config.tables` (KDB3 pattern, handle-based).
 
-`createTableDataService.js` stays at 150 lines / 10 AMD. Slice 4 does not add a named method. `abortTable` is unchanged (cluster D): array of `{tableName|tableid|widgetId}`; disposed → `Promise.reject(new Error("tableDataService disposed"))`; aborted loads silent.
+`core/services/tableData/index.js` (`createTableDataService`) stays at 150 lines / 10 AMD. Slice 4 does not add a named method. `abortTable` is unchanged (cluster D): array of `{tableName|tableid|widgetId}`; disposed → `Promise.reject(new Error("tableDataService disposed"))`; aborted loads silent.
 
 ## 8. Cognos Touchpoints
 
 tableData does **not** call `_KDB.cognosAPI` after slice 4. Host access is ring 1 only (`cognosHostService.md` §4 review rule).
 
 - `effects/readDataQueryFacet.js` — owner choke point for `_KDB.runtime.tableData.dataQueryFacet`.
-- `effects/readTableQueryResult.js` — calls `dataQueryFacet.readQueryRows(widgetId, {budgetMs: 60000, intervalMs: 100, signal})` and maps Outcome → owner dialect `{status:"ready"|"failed"|"aborted"|"empty", result}`. `result` is `TableRowsResult` (`{ columns, columnNames, rowCount }`), never a live query handle. `"empty"` is owner-only (`!widgetId` before the facet is called). Timeout / flatten / host failure map to `"failed"` (B4), not `"empty"`.
+- `core/services/tableData/queryRead.js` (`readTableQueryResult`) — calls `dataQueryFacet.readQueryRows(widgetId, {budgetMs: 60000, intervalMs: 100, signal})` and maps Outcome → owner dialect `{status:"ready"|"failed"|"aborted"|"empty", result}`. `result` is `TableRowsResult` (`{ columns, columnNames, rowCount }`), never a live query handle. `"empty"` is owner-only (`!widgetId` before the facet is called). Timeout / flatten / host failure map to `"failed"` (B4), not `"empty"`.
 - `effects/waitForTableQueryResult.js` — **dead.** Not imported. Load path is `readParkedTableQueryResult` → `readTableQueryResult` → `dataQueryFacet.readQueryRows`. Do not revive this wait; do not route park through `waitForQueryResult`.
 - `effects/readCanvasFacet.js` — canvas DTO for widget-id resolution (slice 2). `visType` / `visTitle` arrive on that DTO; tableData does not call `_KDB.cognosAPI.visualization` or `.canvas`.
-- `operations/runLoadTableWork.js` — consumes the flattened DTO from `readParkedTableQueryResult` (park-listed leftovers) or plain `readTableQueryResult` inside that wrap. AMD 10→9: `normalizeTableData.js` is no longer imported (file left on disk unused). Failed query still takes `markTableFailed` + toast (B4 / D2 dedupe). Abort is silent. Park protocol: `tableData-hierarchy-park-filter-contractdelta.md`.
+- `core/services/tableData/loadLifecycle.js` (`runLoadTableWork`) — consumes the flattened DTO from `readParkedTableQueryResult` (park-listed leftovers) or plain `readTableQueryResult` inside that wrap. AMD 10→9: `normalizeTableData.js` is no longer imported (file left on disk unused). Failed query still takes `markTableFailed` + toast (B4 / D2 dedupe). Abort is silent. Park protocol: `tableData-hierarchy-park-filter-contractdelta.md`.
 
-`abortTable` / `abortTableLoad` / `abortPreviousHierarchyWarmup` are unchanged. Flattening (`flattenQueryRows.js`) lives in ring 1. Live host method remains `_KDB.cognosAPI.dataQuery.getDataQueryResult` inside `facets/dataQuery/resolveDataQueryHostApi.js` only.
+`abortTable` / `abortTableLoad` / `abortPreviousHierarchyWarmup` are unchanged. Flattening (`core/services/cognosHost/facets/dataQuery/rows.js` (`flattenQueryRows`)) lives in ring 1. Live host method remains `_KDB.cognosAPI.dataQuery.getDataQueryResult` inside `facets/dataQuery/resolveDataQueryHostApi.js` only.
 
 ## 9. Folder Layout
 
@@ -251,7 +251,7 @@ Original Q1–Q5 are resolved in **User decisions (Phase 1.4)** at the top of th
 | 2026-08-20 | `abortTable` + toast-dedupe | cluster D | Public `abortTable(input)` aborts in-flight loads silently. Runtime `notifiedLoadFailures` dedupes load-failure toasts per tableKey while the same `errorMessage` holds. |
 | 2026-09-09 | Hierarchy leftover `HideData` park | PO vastenburg | Owner stamps `visualizationFacet` + `widgetsFacet`. Load wrap unpark → `renderWidget` → read → repark. No new public method. Delta: `tableData-hierarchy-park-filter-contractdelta.md`. |
 | 2026-09-09 | Park smoke-fail Rec A HOLD | captain | Cognos smoke: host matches filter instance id (`HideData_none` survives `{ itemId: "HideData" }`). Wrap-only: also remove `_none`/`_1`; post-repark unsignaled render with second `shouldRestorePark` check. JS pending GO. |
-| 2026-09-09 | Park wrap Rec A implemented | captain + dual grok 4.6 | `readParkedTableQueryResult.js` only. Dual PASS. Cognos smoke pending PO. |
+| 2026-09-09 | Park wrap Rec A implemented | captain + dual grok 4.6 | `core/services/tableData/queryRead.js` (`readParkedTableQueryResult`) only. Dual PASS. Cognos smoke pending PO. |
 | 2026-09-09 | HideData park body = attribute equals | PO vastenburg | Numeric `from`/`to` closed. `parkFilter.body` is `{ values: ["1"] }` on the three leftover keys. Wrap unchanged. |
 | 2026-09-09 | HideData park body = containsignorecase b | PO live dump | Query empty with `conditions.operator: "containsignorecase"`, `values: ["b"]`. Config body matches dump. Wrap unchanged. |
 | 2026-09-10 | HideData park write = keepexclude | PO console | `addFilter` + `conditionsInfo`/`keepexclude` sticks (leftovers stay empty). Read-shape `conditions` must not be sent to `addFilter`. |

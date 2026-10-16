@@ -40,7 +40,7 @@ No step reorder: steps 24-26 and 28-30 unchanged; only step 27's internal sequen
 - **O3 `deferRenderWait`.** Hardcoded in widgetVis (`handleParameterSetBinding.js:84-88`), only affects the vis render wait after the TopN gate. Dropping it re-adds up to 12 s per widget on top of step 28. Keep it.
 - **O4 runId / phases.** Same `runId` repeated is safe (stale = strictly lower, `handleParameterSetBinding.js:26-29`). Repeated phase names are an existing pattern (`tabActivateForWidgets` ×4). `required: true` per tab would stop at the first failing tab.
 - **O5 Step 28.** Unchanged; lands on the first visible dashboard tab; renders onCanvas vis only. Step 27 must use `restoreActiveTab: false` (true would click back before the bind).
-- **O6 5 s gate.** Same gate at startup (`dispatchVisSettingsBatch.js`). The 5 s includes Jahr pin, claim, helper move, helper apply and query. Sufficiency on an active page is **not provable from code** → live acceptance.
+- **O6 5 s gate.** Same gate at startup (`dashboard/widgets/widgetSettings/intent/downstream.js` (`dispatchVisSettingsBatch`)). The 5 s includes Jahr pin, claim, helper move, helper apply and query. Sufficiency on an active page is **not provable from code** → live acceptance.
 - **O7 Parent text.** `writeback.md:966`, `:1186`, `:1204`, `:1302`; `widgetVis-parameterSetRestore-contractdelta.md:84-85`; `tabs-inner-frame-skip-empty-snapshot-contractdelta.md` §3 / acceptance 2; `tabs-parameterSetActivate-liveWidgetsReady-contractdelta.md` consumers line; `widgetTopN.md` new restore note.
 
 ## 4. Design (PO decisions 2026-10-06: P1 `forceShow` yes, P2 (a), P3 keep)

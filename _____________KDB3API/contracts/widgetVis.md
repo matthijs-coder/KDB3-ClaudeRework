@@ -1135,7 +1135,7 @@ Required integration prerequisites or deltas:
 - Maximize/focus-mode history, persisted restore, global fullscreen/body classes, or widgetBase ownership without a focused contract delta.
 - `p_p_*` catalog / URL open (owned by `_KDB.services.drillthrough`).
 - PDF capture hide of the drillthrough icon (owned by `dashboardPdf`).
-- New visualization **facet** (F1c is ops on the existing `visualization` facet). `_KDB.cognosAPI` / `content.on` in widgetVis for selections. Ctrl / 3s flush. Growing `installDrillthrough.js` for S2. Planting S2 in header `.widgetIcons` or inside TR. Uncrushing `#maximize_32_v7` / reopening T1 `right: 28px`.
+- New visualization **facet** (F1c is ops on the existing `visualization` facet). `_KDB.cognosAPI` / `content.on` in widgetVis for selections. Ctrl / 3s flush. Growing `dashboard/widgets/widgetVis/drillthrough/install.js` (`installDrillthrough`) for S2. Planting S2 in header `.widgetIcons` or inside TR. Uncrushing `#maximize_32_v7` / reopening T1 `right: 28px`.
 - Scraping `.KDB_optionSelected`.
 - Cloning the PKZ icon onto `.KDB_focusModeSettingsPanel`.
 - Mutating `.collapseSvg.focusMode` or planting PKZ on that button. B column is a sibling **after** it.

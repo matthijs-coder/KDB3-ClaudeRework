@@ -19,7 +19,7 @@
 Production `filterDock` is the central dock-level integration owner:
 
 - one dock-level click listener (`effects/bindDockClickListener.js`);
-- one long-lived dock `MutationObserver` (`observation/bindDockObserver.js`);
+- one long-lived dock `MutationObserver` (`dashboard/filters/filterDock/observation/dockObserver.js` (`bindDockObserver`));
 - serializable observed state under `_KDB.state.filters.filterDock`;
 - live DOM refs only under `_KDB.runtime.filterDock.domRefs`;
 - direct owner handoff routing through public APIs for supported filter types;
@@ -59,7 +59,7 @@ Naming decision:
 | `filterDock/resolveFilterCapabilities.js` | Single-select, hierarchy/dienststelle, upstream/sicht, Alle-option and condition detection. |
 | `filterDock/resolveKennzahlenSource.js` | Legacy utility wrapper; production uses AMD import of `core/utils/getKennzahlenSource.js` in `getFilterConfig.js`. |
 | `filters/__filtersOrchestrator.js` | Current legacy startup shape: wait for dock, attach filterDock, route to type modules. |
-| `singleSelect/restorePopupSelection.js` | Evidence of local popup `MutationObserver` and out-click handling that future Mode 3 may delegate/remove. |
+| `dashboard/filters/singleSelect/dockHandoff/popup.js` (`restorePopupSelection`) | Evidence of local popup `MutationObserver` and out-click handling that future Mode 3 may delegate/remove. |
 | `sicht/restorePopupSelection.js` | REDESIGN2/legacy evidence only (not a production Sicht file). Live Sicht popup sync: `sicht/effects/syncSichtOptionAvailability.js`. Do not invent Sicht `restorePopupSelection.js`. |
 | `singleSelect/__singleSelectOrchestrator.js`, `sicht/__sichtOrchestrator.js`, `stelleHierarchy/__stelleHierarchyOrchestrator.js` | Evidence for future owner reactions and direct API integration targets. |
 
@@ -318,7 +318,7 @@ DOM readiness boundary:
 
 ## 7. Readers / Writers
 
-Published selectors from `filterDock/state/selectors.js`:
+Published selectors from `dashboard/filters/filterDock/selectors.js`:
 
 | Selector | Reads | Returns |
 |---|---|---|
@@ -376,7 +376,7 @@ Evaluation:
 - Normalizes serializable `popup` and `observedChildren` slices.
 - Dispatches `filterDock/popupObserved` and/or `filterDock/mutationsObserved`.
 - Detects the first `filtersReady` transition using batch wrapper-count stability and dispatches opt-in owner filters-ready notifications.
-- When popup readiness criteria are met, dispatches popup-ready owner handoffs via `observation/dispatchPopupReadyHandoff.js`.
+- When popup readiness criteria are met, dispatches popup-ready owner handoffs via `dashboard/filters/filterDock/observation/popupReadyHandoff.js` (`dispatchPopupReadyHandoff`).
 - Does not mutate sibling state and does not call sibling internals directly.
 
 Popup display resync observer delta:
@@ -525,7 +525,7 @@ _KDB.elements.selectors.filterDock = {
 };
 ```
 
-Document-level portal exception: `outClickCatcherSelector` (`#filterOutClickCatcher`) may render outside `#filterDockContainer`. `effects/closeActivePopup.js` queries scoped to the dock root first, then falls back to `document.querySelector(outClickCatcherSelector)` when the catcher is not under the dock root.
+Document-level portal exception: `outClickCatcherSelector` (`#filterOutClickCatcher`) may render outside `#filterDockContainer`. `dashboard/filters/filterDock/interaction/popupCommands.js` (`closeActivePopup`) queries scoped to the dock root first, then falls back to `document.querySelector(outClickCatcherSelector)` when the catcher is not under the dock root.
 
 Live refs belong under `_KDB.runtime.filterDock.domRefs` and must be cleared on destroy. `_KDB.state.filters.filterDock` stores only signatures, ids, labels, booleans, counts, timestamps, and other serializable values.
 

@@ -65,9 +65,9 @@ Mapped REDESIGN2 files:
 | `ensureHierarchyState.js` | Root and per-filter state shape. | `state/initialState.js`, reducer and selectors for `_KDB.state.filters.dienststelle`. |
 | `reconcileConfirmedHierarchy.js` | Core commit/reconcile, defaults, Cognos writes, dominance, sticky sync, event emit. | `effects/reconcileConfirmedDienststelle.js` split into focused helpers. |
 | `restoreHierarchyPopupSelection.js` | DOM-only popup checkbox restore on cancel/close. | `view/syncDienststelleViewFromState.js` or a focused popup-sync effect if approved by execution spec. |
-| `buildCommittedStep.js` | History step payload for hierarchy commits. | `history/buildCommittedStep.js` with `filter_dienststelle`. |
+| `dashboard/filters/dienststelle/history.js` (`buildCommittedStep`) | History step payload for hierarchy commits. | `dashboard/filters/dienststelle/history.js` (`buildCommittedStep`) with `filter_dienststelle`. |
 | `__stelleHierarchyHistoryAdapter.js` | Replay of direct hierarchy history steps. | `history/applyDienststelleHistoryReplay.js` and replay handler. |
-| `readDefaultValue.js` | Reads default table row from `{filterName}Default`. | `effects/readDefaultDienststelleValue.js` using `tableDataService` / configured table keys. |
+| `dashboard/filters/dienststelle/effects/reconcile/defaults.js` (`readDefaultValue`) | Reads default table row from `{filterName}Default`. | `effects/readDefaultDienststelleValue.js` using `tableDataService` / configured table keys. |
 | `awaitHierarchyDataReady.js` | Polls hierarchy semantics readiness. | `effects/awaitDienststelleDataReady.js`. |
 | `resolveHierarchyDataKey.js` | Maps active filter to hierarchy data key. | `config/dienststelleDefinitions.js` and `effects/resolveDienststelleDataKey.js`. |
 | `isValueAvailableInHierarchyData.js` | Validates default/restored value against hierarchy semantics. | `effects/isDienststelleValueAvailable.js`. |
@@ -778,7 +778,7 @@ Standalone step shape:
 Sicht dependency snapshot:
 
 - `sicht` currently reserves `dependencies.dienststelle: null`.
-- After Dienststelle exists, `sicht/history/readDependencySnapshots.js` may call `_KDB.api.dienststelle.getState()` or a future selector/snapshot action.
+- After Dienststelle exists, `dashboard/filters/sicht/history.js` (`readDependencySnapshots`) may call `_KDB.api.dienststelle.getState()` or a future selector/snapshot action.
 - Sicht replay may restore the embedded Dienststelle snapshot through `_KDB.api.dienststelle.dispatch({ type: "dienststelle/historyReplayRequested", ... })`.
 
 Decision:
@@ -898,7 +898,7 @@ Expected integration after CP-1 approval:
 
 - `KDB.js` or a future parent `dashboard/filters/__orchestratorFilters.js` registers `_KDB.api.dienststelle`.
 - `filterDock/effects/dispatchFilterHandoff.js` routes `dienststelle` to `_KDB.api.dienststelle`.
-- `sicht/effects/commitConfirmedSicht.js` dispatches confirmed Sicht changes to `_KDB.api.dienststelle`.
+- `dashboard/filters/sicht/commit.js` (`commitConfirmedSicht`) dispatches confirmed Sicht changes to `_KDB.api.dienststelle`.
 - History replay collection registers `filter_dienststelle` handler.
 - `sicht` dependency snapshots may use Dienststelle public snapshot after it exists.
 
