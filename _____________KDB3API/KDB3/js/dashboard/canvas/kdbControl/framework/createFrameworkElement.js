@@ -1,33 +1,17 @@
 define([], function () {
-
   "use strict";
 
-  function __controller(_tagName, _id, _className, _attributes) {
-
-    var el = document.createElement(_tagName);
-
-    if (_id) el.id = _id;
-
-    if (_className) el.className = _className;
-
-    if (_attributes) {
-
-      var k;
-
-      for (k in _attributes) {
-
-        if (Object.prototype.hasOwnProperty.call(_attributes, k)) el.setAttribute(k, _attributes[k]);
-
-      }
-
+  function createFrameworkElement(tagName, id, className, attributes) {
+    var el = document.createElement(tagName);
+    if (id) el.id = id;
+    if (className) el.className = className;
+    if (attributes) {
+      Object.keys(attributes).forEach(function (name) {
+        el.setAttribute(name, attributes[name]);
+      });
     }
-
     return el;
-
   }
 
-  return __controller;
-
+  return createFrameworkElement;
 });
-
-

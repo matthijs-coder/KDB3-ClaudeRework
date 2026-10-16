@@ -1,11 +1,9 @@
 define([
-  "../../config/parameterSetCodes.js",
+  "../../config.js",
   "./parameterSetRuntime.js",
-  "../../effects/resolveFilterRef.js",
-  "../../effects/verifyCommitFilterValue.js",
-  "../../effects/hostFilterWrite.js",
+  "../../hostFilterIo.js",
   "../../../../../core/utils/normalizeCognosScopeId.js"
-], function (_codes, _runtime, _resolveFilterRef, _verifyCommit, _hostWrite, _normalizeScopeId) {
+], function (_config, _runtime, _hostFilterIo, _normalizeScopeId) {
   "use strict";
 
   function isInstanceOnAllowedTab(_rec, _payload) {
@@ -67,12 +65,12 @@ define([
       if (!isInstanceOnAllowedTab(_rec, _payload)) {
         return;
       }
-      var filterRef = _resolveFilterRef.resolveFilterRef(_KDB, _runtimeState, {
+      var filterRef = _hostFilterIo.resolveFilterRef(_KDB, _runtimeState, {
         filterInstanceId: _rec.filterInstanceId
       });
       if (!filterRef) {
         _diagnostics.push({
-          code: _codes.RESTORE_FAILED,
+          code: _config.parameterSetCodes.RESTORE_FAILED,
           key: _rec.filterLabel,
           message: "filter API not found during clear"
         });
@@ -82,17 +80,17 @@ define([
       if (!preGuard.ok) {
         throw { cancelledResult: preGuard };
       }
-      var priorValues = _hostWrite.readValues(_filtersFacet, filterRef);
+      var priorValues = _hostFilterIo.readValues(_filtersFacet, filterRef);
       var rollbackInput = Array.isArray(priorValues)
         ? priorValues.map(function (entry) { return Object.assign({}, entry || {}); })
         : [];
-      if (!(await _hostWrite.writeValues(_filtersFacet, filterRef, []))) {
+      if (!(await _hostFilterIo.writeValues(_filtersFacet, filterRef, []))) {
         throw new Error("replaceFilterContext unavailable");
       }
-      if (!_verifyCommit(_filtersFacet, filterRef, { displayValue: "Alle", useValue: "" }).ok) {
-        var rollbackMismatch = await _hostWrite.rollbackHostWrite(_filtersFacet, filterRef, rollbackInput);
+      if (!_hostFilterIo.verifySelection(_filtersFacet, filterRef, { displayValue: "Alle", useValue: "" }).ok) {
+        var rollbackMismatch = await _hostFilterIo.rollbackExact(_filtersFacet, filterRef, rollbackInput);
         _diagnostics.push({
-          code: _codes.RESTORE_FAILED,
+          code: _config.parameterSetCodes.RESTORE_FAILED,
           key: _rec.filterLabel,
           message: "host clear verification mismatch; rollback " +
             (rollbackMismatch.ok ? "succeeded" : "failed")
@@ -101,10 +99,10 @@ define([
       }
       var postGuard = _runtime.validateMutationGuard(_KDB, _payload);
       if (!postGuard.ok) {
-        var rollbackOutcome = await _hostWrite.rollbackHostWrite(_filtersFacet, filterRef, rollbackInput);
+        var rollbackOutcome = await _hostFilterIo.rollbackExact(_filtersFacet, filterRef, rollbackInput);
         var diag = postGuard.diagnostics && postGuard.diagnostics[0]
           ? postGuard.diagnostics[0]
-          : { code: _codes.CANCELLED, message: "singleSelect clear superseded after host write" };
+          : { code: _config.parameterSetCodes.CANCELLED, message: "singleSelect clear superseded after host write" };
         throw {
           cancelledResult: {
             ok: false,
@@ -112,7 +110,7 @@ define([
             applied: [],
             skipped: [],
             diagnostics: [{
-              code: diag.code || _codes.CANCELLED,
+              code: diag.code || _config.parameterSetCodes.CANCELLED,
               message: diag.message + "; rollback " + (rollbackOutcome.ok ? "succeeded" : "failed")
             }]
           }

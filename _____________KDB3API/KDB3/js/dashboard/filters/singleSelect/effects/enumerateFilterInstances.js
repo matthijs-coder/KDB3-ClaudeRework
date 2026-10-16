@@ -1,15 +1,23 @@
 define([
   "./readSingleSelectCandidate.js",
   "./listSingleSelectHostDescriptors.js",
-  "./readFiltersFacet.js",
-  "../config/errorCodes.js",
+  "../inventory/definitions.js",
+  "../runtime.js",
+  "../config.js",
   "../../../../core/utils/getKennzahlenSource.js"
-], function (_candidateReader, _listHostDescriptors, _readFiltersFacet, _codes, _getKennzahlenSource) {
+], function (
+  _candidateReader,
+  _listHostDescriptors,
+  _definitions,
+  _singleSelectRuntime,
+  _config,
+  _getKennzahlenSource
+) {
   "use strict";
 
   function buildUnknownDiagnostic(_itemName, _scopeId, _definitionResult) {
     return {
-      code: _codes.HOST_ITEM_UNKNOWN,
+      code: _config.errorCodes.HOST_ITEM_UNKNOWN,
       scopeId: _scopeId,
       message: "Host item \"" + _itemName + "\" is not a configured supported single-select" +
         (_definitionResult.status === "ambiguous" ? " (configuration ambiguous)" : "")
@@ -28,7 +36,7 @@ define([
       if (!semanticKey) {
         _candidate.blocked = true;
         _diagnostics.push({
-          code: _codes.SEMANTIC_INSTANCE_KEY_MISSING,
+          code: _config.errorCodes.SEMANTIC_INSTANCE_KEY_MISSING,
           filterInstanceId: _candidate.descriptor.filterInstanceId,
           scopeId: _candidate.descriptor.scopeId,
           message: "same-scope same-label siblings require unique semantic instanceKey"
@@ -43,7 +51,7 @@ define([
       seen[_semanticKey].forEach(function (_candidate) {
         _candidate.blocked = true;
         _diagnostics.push({
-          code: _codes.SEMANTIC_INSTANCE_KEY_DUPLICATE,
+          code: _config.errorCodes.SEMANTIC_INSTANCE_KEY_DUPLICATE,
           filterInstanceId: _candidate.descriptor.filterInstanceId,
           scopeId: _candidate.descriptor.scopeId,
           message: "duplicate semantic instanceKey \"" + _semanticKey + "\" for same-scope same-label siblings"
@@ -72,15 +80,17 @@ define([
     });
   }
 
-  function readHostItem(_KDB, _descriptor, _source, _candidates, _diagnostics, _rawFallbackCounts) {
+  function readHostItem(_KDB, _descriptor, _source, _definitionIndex, _candidates, _diagnostics, _rawFallbackCounts) {
     var raw;
     var candidate;
     try {
-      candidate = _candidateReader.readCandidateFromDescriptor(_KDB, _descriptor, _source);
+      candidate = _candidateReader.readCandidateFromDescriptor(
+        _KDB, _descriptor, _source, _definitionIndex
+      );
       raw = candidate.rawDescriptor;
     } catch (rawError) {
       _diagnostics.push({
-        code: _codes.HOST_VALUE_READ_FAILED,
+        code: _config.errorCodes.HOST_VALUE_READ_FAILED,
         message: "host item scope/label could not be read: " +
           String(rawError && rawError.message ? rawError.message : rawError)
       });
@@ -99,21 +109,22 @@ define([
       }
       _candidates.push(candidate);
     } catch (error) {
-      _diagnostics.push({ code: _codes.RECONCILE_FAILED, message: String(error && error.message ? error.message : error) });
+      _diagnostics.push({ code: _config.errorCodes.RECONCILE_FAILED, message: String(error && error.message ? error.message : error) });
     }
     return false;
   }
 
   function __controller(_KDB) {
-    var inventory = _listHostDescriptors(_readFiltersFacet(_KDB));
+    var inventory = _listHostDescriptors(_singleSelectRuntime.readFiltersFacet(_KDB));
     var candidates = [];
     var diagnostics = [];
     var rawFallbackCounts = {};
     var uniquenessUnproven = inventory.uniquenessUnproven === true;
     var source = _getKennzahlenSource(_KDB);
     try {
+      var definitionIndex = _definitions.createDefinitionIndex(_KDB, source);
       inventory.descriptors.forEach(function (_descriptor) {
-        if (readHostItem(_KDB, _descriptor, source, candidates, diagnostics, rawFallbackCounts)) {
+        if (readHostItem(_KDB, _descriptor, source, definitionIndex, candidates, diagnostics, rawFallbackCounts)) {
           uniquenessUnproven = true;
         }
       });

@@ -1,7 +1,7 @@
 define([
   "../../../../core/utils/normalizeCognosScopeId.js",
-  "../config/errorCodes.js"
-], function (_normalizeCognosScopeId, _errorCodes) {
+  "../config.js"
+], function (_normalizeCognosScopeId, _config) {
   "use strict";
 
   function isScopePresentInInventory(_scopeId, _instancesById) {
@@ -20,13 +20,13 @@ define([
     if (!_handoff.tabId) {
       return {
         ok: false,
-        code: _errorCodes.SCOPE_TARGET_UNVERIFIED,
+        code: _config.errorCodes.SCOPE_TARGET_UNVERIFIED,
         message: "missing tabId hint for page-context filter"
       };
     }
     var tabsApi = _KDB && _KDB.api ? _KDB.api.tabs : null;
     if (!tabsApi || typeof tabsApi.dispatch !== "function") {
-      return { ok: false, code: _errorCodes.SCOPE_TARGET_UNVERIFIED, message: "tabs API unavailable for scope verification" };
+      return { ok: false, code: _config.errorCodes.SCOPE_TARGET_UNVERIFIED, message: "tabs API unavailable for scope verification" };
     }
     return tabsApi.dispatch({
       type: "tabs/resolveFilterScopeTargets",
@@ -41,16 +41,16 @@ define([
           _normalizeCognosScopeId(target.scopeId) !== _normalizeCognosScopeId(_handoff.scopeId)) {
           return {
             ok: false,
-            code: _errorCodes.SCOPE_TARGET_UNVERIFIED,
+            code: _config.errorCodes.SCOPE_TARGET_UNVERIFIED,
             message: "provided scopeId does not match resolved tab target"
           };
         }
         if (!isScopePresentInInventory(target.scopeId, _instancesById)) {
-          return { ok: false, code: _errorCodes.SCOPE_TARGET_UNVERIFIED, message: "resolved tab scope not present in live inventory" };
+          return { ok: false, code: _config.errorCodes.SCOPE_TARGET_UNVERIFIED, message: "resolved tab scope not present in live inventory" };
         }
         return { ok: true, scopeId: target.scopeId };
       }
-      return { ok: false, code: _errorCodes.SCOPE_TARGET_UNVERIFIED, message: "tab target could not be verified against inventory" };
+      return { ok: false, code: _config.errorCodes.SCOPE_TARGET_UNVERIFIED, message: "tab target could not be verified against inventory" };
     });
   }
 
@@ -61,7 +61,7 @@ define([
           !_handoff.semanticSpecialFilterId)) {
         return {
           ok: false,
-          code: _errorCodes.INSTANCE_NOT_FOUND,
+          code: _config.errorCodes.INSTANCE_NOT_FOUND,
           message: "special interaction is missing owner authorization or semantic id"
         };
       }
@@ -89,14 +89,14 @@ define([
       }
       return {
         ok: false,
-        code: candidates.length > 1 ? _errorCodes.INSTANCE_AMBIGUOUS : _errorCodes.INSTANCE_NOT_FOUND,
+        code: candidates.length > 1 ? _config.errorCodes.INSTANCE_AMBIGUOUS : _config.errorCodes.INSTANCE_NOT_FOUND,
         message: candidates.length > 1
           ? "interaction mapped to multiple filter instances"
           : "no live filter instance matched interaction hints"
       };
     } catch (error) {
       console.error("[singleSelect.resolveInteractionInstance] failed", error);
-      return { ok: false, code: _errorCodes.SCOPE_TARGET_UNVERIFIED, message: String(error && error.message ? error.message : error) };
+      return { ok: false, code: _config.errorCodes.SCOPE_TARGET_UNVERIFIED, message: String(error && error.message ? error.message : error) };
     }
   }
 

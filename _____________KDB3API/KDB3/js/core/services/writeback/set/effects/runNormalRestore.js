@@ -2,7 +2,7 @@ define([
   "../../schema/errorCodes.js",
   "../state/validateRestorePayload.js",
   "../state/readOwnerTargets.js",
-  "./runFilterRestore.js",
+  "./filters/runFilterRestore.js",
   "./runWidgetRestore.js",
   "./publishRestoreTabCaption.js",
 ], function (_errorCodes, _validateRestorePayload, _readOwnerTargets, _runFilterRestore, _runWidgetRestore, _publishRestoreTabCaption) {

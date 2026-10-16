@@ -1,12 +1,35 @@
 define([
   "../../schema/errorCodes.js",
-  "./collectFilterTargets.js",
   "./collectDienststelleFilter.js",
   "./collectSingleSelectInstances.js",
   "./collectNativeMultiSelect.js",
-  "./singleSelectFilterSupport.js",
-], function (_errorCodes, _collectFilterTargets, _collectDienststelleFilter, _collectSingleSelectInstances, _collectNativeMultiSelect, _singleSelectFilterSupport) {
+  "./collectorSupport.js",
+], function (_errorCodes, _collectDienststelleFilter, _collectSingleSelectInstances, _collectNativeMultiSelect, _support) {
   "use strict";
+
+  async function collectFilterTargets(_KDB) {
+    const tabsApi = _KDB && _KDB.api ? _KDB.api.tabs : null;
+    if (!tabsApi || typeof tabsApi.dispatch !== "function") {
+      throw _errorCodes.createWritebackError(
+        _errorCodes.codes.WRITEBACK_TABS_NOT_READY,
+        "get",
+        "tabs API dispatch is unavailable for filter-scope target traversal/readiness"
+      );
+    }
+    const result = await tabsApi.dispatch({
+      type: "tabs/resolveFilterScopeTargets",
+      payload: { source: "writebackGet" },
+    });
+    if (!result || result.ok !== true || !result.tabTargets || typeof result.tabTargets !== "object") {
+      throw _errorCodes.createWritebackError(
+        _errorCodes.codes.WRITEBACK_TABS_NOT_READY,
+        "get",
+        "tabs/resolveFilterScopeTargets failed during writeback GET filter readiness",
+        { diagnostics: result && result.diagnostics ? result.diagnostics : null }
+      );
+    }
+    return result.tabTargets;
+  }
 
   async function collectFilters(_KDB, diagnostics) {
     const filt = {};
@@ -17,13 +40,13 @@ define([
     let liveTabTargets = null;
 
     try {
-      liveTabTargets = await _collectFilterTargets(_KDB);
+      liveTabTargets = await collectFilterTargets(_KDB);
     } catch (error) {
       recordCollectorError(diagnostics, "filterTargets", error);
     }
 
     try {
-      sicht = collectSicht(readOwnerState(_KDB, "sicht"));
+      sicht = collectSicht(_support.readApiState(_KDB, "sicht"));
     } catch (error) {
       recordCollectorError(diagnostics, "sicht", error);
     }
@@ -64,14 +87,9 @@ define([
     return Object.keys(filt).length === 0 ? {} : { filt: filt };
   }
 
-  function readOwnerState(_KDB, owner) {
-    const api = _KDB && _KDB.api ? _KDB.api[owner] : null;
-    return api && typeof api.getState === "function" ? api.getState() : null;
-  }
-
   function collectSicht(sichtState) {
     if (!sichtState) return null;
-    const fromSelection = _singleSelectFilterSupport.trimUseValue(sichtState.currentSelection);
+    const fromSelection = _support.trimUseValue(sichtState.currentSelection);
     if (fromSelection !== "") return fromSelection;
     const activeSichtValue = typeof sichtState.activeSichtValue === "string"
       ? sichtState.activeSichtValue.trim()
@@ -79,12 +97,11 @@ define([
     return activeSichtValue !== "" ? activeSichtValue : null;
   }
 
-  // Fail-visible (remediation B3): een crash in een filter-subcollector mag de
-  // filt-sectie niet stil partieel laten; de marker laat writebackGet.collect
-  // de hele save afbreken. Uitzondering (reviewbevinding 2): readiness-condities
-  // met een eigen code (stale inventory, tabs niet klaar) zijn geen crash — de
-  // sectie ontbreekt zoals voorheen en writebackGet meldt de save als
-  // onvolledig (partial) aan de user in plaats van hem te blokkeren.
+  // Fail-visible (remediation B3): a crash in a filter sub-collector must not leave
+  // the filt section silently partial; the marker makes writebackGet.collect abort
+  // the whole save. Exception (review finding 2): readiness conditions with their own
+  // code (stale inventory, tabs not ready) are no crash. The section is simply missing
+  // and writebackGet tells the user the save is partial instead of blocking it.
   const READINESS_CODES = {
     WRITEBACK_SINGLESELECT_INVENTORY_STALE: true,
     WRITEBACK_TABS_NOT_READY: true

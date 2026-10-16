@@ -1,7 +1,7 @@
 define([
-  "../../config/parameterSetCodes.js",
+  "../../config.js",
   "./parameterSetRuntime.js"
-], function (_codes, _runtime) {
+], function (_config, _runtime) {
   "use strict";
 
   var ALLOWED_KEYS = Object.freeze({
@@ -16,28 +16,28 @@ define([
       var diagnostics = [];
       if (!isStrictPayload(payload)) {
         diagnostics.push({
-          code: _codes.RUN_FINISH_INVALID,
+          code: _config.parameterSetCodes.RUN_FINISH_INVALID,
           message: "singleSelect parameterSetRunFinished payload must contain only runId/source/outcome"
         });
         return Promise.resolve(settleFailure(null, diagnostics));
       }
       if (typeof payload.runId !== "number" || !isFinite(payload.runId)) {
         diagnostics.push({
-          code: _codes.RUN_FINISH_INVALID,
+          code: _config.parameterSetCodes.RUN_FINISH_INVALID,
           message: "singleSelect parameterSetRunFinished requires a finite numeric runId"
         });
         return Promise.resolve(settleFailure(null, diagnostics));
       }
       if (payload.source !== "writebackSet") {
         diagnostics.push({
-          code: _codes.RUN_FINISH_INVALID,
+          code: _config.parameterSetCodes.RUN_FINISH_INVALID,
           message: "singleSelect parameterSetRunFinished requires source \"writebackSet\""
         });
         return Promise.resolve(settleFailure(payload.runId, diagnostics));
       }
       if (!_runtime.isRunFinishOutcome(payload.outcome)) {
         diagnostics.push({
-          code: _codes.RUN_FINISH_INVALID,
+          code: _config.parameterSetCodes.RUN_FINISH_INVALID,
           message: "singleSelect parameterSetRunFinished outcome is invalid"
         });
         return Promise.resolve(settleFailure(payload.runId, diagnostics));
@@ -45,7 +45,7 @@ define([
       return Promise.resolve(_runtime.settleParameterSetRun(_KDB, payload.runId));
     } catch (error) {
       return Promise.resolve(settleFailure(null, [{
-        code: _codes.RUN_FINISH_INVALID,
+        code: _config.parameterSetCodes.RUN_FINISH_INVALID,
         message: "singleSelect parameterSetRunFinished failed: " +
           String(error && error.message ? error.message : error)
       }]));

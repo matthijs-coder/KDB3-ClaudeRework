@@ -4,44 +4,54 @@ define([
   "./config/pageChromeSelectors.js",
   "./config/filterDockChromeSelectors.js",
   "./config/widgetChromeSelectors.js",
-  "./effects/applyChromeCatalog.js",
-  "./effects/createChromeChecks.js"
-], function (
-  _rootChrome,
-  _tabChrome,
-  _pageChrome,
-  _filterDockChrome,
-  _widgetChrome,
-  _applyChromeCatalog,
-  _createChromeChecks
-) {
+  "./chromeChecks.js"
+], function (_rootChrome, _tabChrome, _pageChrome, _filterDockChrome, _widgetChrome, _createChromeChecks) {
   "use strict";
 
-  function registerCognosHostSelectors(_KDB) {
-    var checks;
-    try {
-      _KDB.elements = _KDB.elements || {};
-      _KDB.elements.selectors = _KDB.elements.selectors || {};
-      checks = _createChromeChecks();
-      checks.ensureRuntime(_KDB);
-      _KDB.runtime.cognosHost.chromeChecks = checks;
-      _applyChromeCatalog(_KDB, "root", _rootChrome.root.entries);
-      _applyChromeCatalog(_KDB, "toolbar", _rootChrome.toolbar.entries);
-      _applyChromeCatalog(_KDB, "dashboardPdf", _rootChrome.pdf.entries);
-      _applyChromeCatalog(_KDB, "footer", _rootChrome.footer.entries);
-      _applyChromeCatalog(_KDB, "tab", _tabChrome.tab.entries);
-      _applyChromeCatalog(_KDB, "tabs", _tabChrome.tabs.entries);
-      _applyChromeCatalog(_KDB, "dragDrop", _pageChrome.dragDrop.entries);
-      _applyChromeCatalog(_KDB, "page", _pageChrome.page.entries);
-      _applyChromeCatalog(_KDB, "filterDock", _filterDockChrome.filterDock.entries);
-      _applyChromeCatalog(_KDB, "widget", _widgetChrome.widget.entries);
-      _applyChromeCatalog(_KDB, "focusMode", _widgetChrome.focusMode.entries);
-      _applyChromeCatalog(_KDB, "legend", _widgetChrome.legend.entries);
-      return _KDB.elements.selectors;
-    } catch (error) {
-      console.error("[cognosHost.registerCognosHostSelectors] failed", error);
-      throw error;
+  var CATALOG = [
+    ["root", _rootChrome.root],
+    ["toolbar", _rootChrome.toolbar],
+    ["dashboardPdf", _rootChrome.pdf],
+    ["footer", _rootChrome.footer],
+    ["tab", _tabChrome.tab],
+    ["tabs", _tabChrome.tabs],
+    ["dragDrop", _pageChrome.dragDrop],
+    ["page", _pageChrome.page],
+    ["filterDock", _filterDockChrome.filterDock],
+    ["widget", _widgetChrome.widget],
+    ["focusMode", _widgetChrome.focusMode],
+    ["legend", _widgetChrome.legend]
+  ];
+
+  function applyChromeCatalog(_KDB, namespace, entries, selectorMeta) {
+    var bucket = Object.assign({}, _KDB.elements.selectors[namespace] || {});
+    var key;
+    var entry;
+    for (key in entries) {
+      if (!Object.prototype.hasOwnProperty.call(entries, key)) continue;
+      entry = entries[key];
+      if (!entry || entry.selector == null) continue;
+      bucket[key] = entry.selector;
+      selectorMeta[namespace + "." + key] = {
+        required: entry.required === true,
+        selector: entry.selector
+      };
     }
+    _KDB.elements.selectors[namespace] = bucket;
+  }
+
+  function registerCognosHostSelectors(_KDB) {
+    var checks = _createChromeChecks();
+    var selectorMeta;
+    var idx;
+    _KDB.elements = _KDB.elements || {};
+    _KDB.elements.selectors = _KDB.elements.selectors || {};
+    selectorMeta = checks.ensureRuntime(_KDB).selectorMeta;
+    _KDB.runtime.cognosHost.chromeChecks = checks;
+    for (idx = 0; idx < CATALOG.length; idx += 1) {
+      applyChromeCatalog(_KDB, CATALOG[idx][0], CATALOG[idx][1].entries, selectorMeta);
+    }
+    return _KDB.elements.selectors;
   }
 
   return registerCognosHostSelectors;

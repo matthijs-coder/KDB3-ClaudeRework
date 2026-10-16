@@ -1,14 +1,85 @@
 define([
   "../../schema/errorCodes.js",
-  "./singleSelectFilterSupport.js",
-  "./singleSelectCollectorInventory.js",
-  "./singleSelectCollectorScope.js",
-  "./singleSelectCollectorMaterialize.js",
-], function (_errorCodes, _singleSelectFilterSupport, _readInventoryInstances, _resolvePageContextTabIdx, _materializeSingleSelectEntries) {
+  "../../../../../dashboard/filters/singleSelect/state/selectors.js",
+  "../../../../../dashboard/tabs/state/selectors.js",
+  "./collectorSupport.js",
+  "./materializeSingleSelect.js",
+], function (_errorCodes, _singleSelectSelectors, _tabsSelectors, _support, _materializeSingleSelectEntries) {
   "use strict";
 
+  function readInventoryInstances(_KDB) {
+    const state = _singleSelectSelectors.readSingleSelectState(_KDB) || {};
+    const inventory = state.inventory || {};
+    const freshness = typeof inventory.freshness === "string" ? inventory.freshness : "stale";
+    if (freshness !== "fresh") {
+      throw _errorCodes.createWritebackError(
+        _errorCodes.codes.WRITEBACK_SINGLESELECT_INVENTORY_STALE,
+        "get",
+        "singleSelect inventory is not fresh for writeback collection",
+        { freshness: freshness, generation: inventory.generation == null ? null : inventory.generation }
+      );
+    }
+
+    return (_singleSelectSelectors.readFilterInstances(_KDB, {
+      status: "active",
+      hostStatus: "present",
+    }) || []).filter(function (instance) {
+      return instance &&
+        instance.selectionOwner === "singleSelect" &&
+        instance.filterType !== "sicht" &&
+        instance.filterType !== "dienststelle";
+    }).sort(function (left, right) {
+      return String(left.filterInstanceId || "").localeCompare(String(right.filterInstanceId || ""));
+    });
+  }
+
+  function pushScopeIssue(_diagnostics, _code, _message, _details) {
+    _diagnostics.push(_errorCodes.makeDiagnostic(_errorCodes.codes[_code], "get", _message, _details));
+  }
+
+  function resolvePageContextTabIdx(_KDB, _instance, _liveTabTargets, _diagnostics, _identityDetails) {
+    if (!_liveTabTargets || typeof _liveTabTargets !== "object") {
+      pushScopeIssue(_diagnostics, "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+        "page-context instance skipped because live scope targets are unavailable", _identityDetails);
+      return { ok: false };
+    }
+
+    const match = _tabsSelectors.readTabScopeMatch(_KDB, _instance.scopeId, _liveTabTargets);
+    if (!match || match.status === "missing") {
+      pushScopeIssue(_diagnostics, "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+        "page-context scope cannot be mapped to one dashboard tab target",
+        Object.assign({}, _identityDetails, { scopeId: _instance.scopeId }));
+      return { ok: false };
+    }
+    if (match.status === "ambiguous") {
+      pushScopeIssue(_diagnostics, "WRITEBACK_SINGLESELECT_SCOPE_TARGET_AMBIGUOUS",
+        "page-context scope maps to multiple dashboard tab targets",
+        Object.assign({}, _identityDetails, { scopeId: _instance.scopeId, candidates: match.candidates || [] }));
+      return { ok: false };
+    }
+    if (match.evidence !== "liveScope") {
+      pushScopeIssue(_diagnostics, "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+        "alias-only tab scope evidence is unsafe for page-context writeback collection",
+        Object.assign({}, _identityDetails, { scopeId: _instance.scopeId, evidence: match.evidence || null }));
+      return { ok: false };
+    }
+
+    const tabIdx = match.tab && match.tab.tabIdx != null ? Number(match.tab.tabIdx) : NaN;
+    if (!isFinite(tabIdx) || tabIdx < 0 || Math.floor(tabIdx) !== tabIdx) {
+      pushScopeIssue(_diagnostics, "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+        "liveScope match did not expose a valid numeric tabIdx",
+        Object.assign({}, _identityDetails, { scopeId: _instance.scopeId, tabIdx: match.tab ? match.tab.tabIdx : null }));
+      return { ok: false };
+    }
+    const liveTarget = _liveTabTargets[String(tabIdx)];
+    if (!liveTarget || liveTarget.visible !== true) {
+      return { ok: false };
+    }
+    return { ok: true, tab: tabIdx };
+  }
+
   function collectSingleSelectInstances(_KDB, diagnostics, liveTabTargets) {
-    const instances = _readInventoryInstances(_KDB);
+    const instances = readInventoryInstances(_KDB);
     const pending = [];
     const seenByFilterInstanceId = {};
 
@@ -18,7 +89,7 @@ define([
       seenByFilterInstanceId[instance.filterInstanceId] = true;
 
       const filterKey = readSemanticFilterKey(instance);
-      if (_singleSelectFilterSupport.isKnownUnsupportedKey(filterKey)) continue;
+      if (_support.isKnownUnsupportedKey(filterKey)) continue;
 
       const useValue = typeof instance.useValue === "string" ? instance.useValue.trim() : "";
       if (useValue === "") {
@@ -38,7 +109,7 @@ define([
       }
 
       const identity = buildIdentityDetails(instance);
-      const tabResolution = _resolvePageContextTabIdx(_KDB, instance, liveTabTargets, diagnostics, identity);
+      const tabResolution = resolvePageContextTabIdx(_KDB, instance, liveTabTargets, diagnostics, identity);
       if (!tabResolution.ok) continue;
       pending.push(buildPendingEntry(filterKey, readSemanticInstanceKey(instance), useValue, tabResolution.tab));
     }

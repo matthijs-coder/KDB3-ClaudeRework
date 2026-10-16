@@ -1,8 +1,8 @@
 define([
-  "../../config/parameterSetCodes.js",
+  "../../config.js",
   "./parameterSetRuntimeRegistry.js",
   "./parameterSetWritebackGenerationGuards.js"
-], function (_codes, _registry, _writebackGuards) {
+], function (_config, _registry, _writebackGuards) {
   "use strict";
 
   function cancelled(_message) {
@@ -11,7 +11,7 @@ define([
       degraded: false,
       applied: [],
       skipped: [],
-      diagnostics: [{ code: _codes.CANCELLED, message: _message }]
+      diagnostics: [{ code: _config.parameterSetCodes.CANCELLED, message: _message }]
     };
   }
 

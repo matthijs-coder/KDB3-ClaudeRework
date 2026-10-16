@@ -1,0 +1,1841 @@
+{
+  "summarize.undefinedInput": {
+    "addedCount": 0,
+    "removedCount": 0,
+    "attributeCount": 0,
+    "hasAttributeMutations": false,
+    "nonKdbAttributeCount": 0,
+    "hasNonKdbAttributeMutations": false,
+    "lastAddedSignature": null,
+    "lastRemovedSignature": null,
+    "lastAttributeSignature": null,
+    "lastNonKdbAttributeSignature": null,
+    "observedAt": 5000
+  },
+  "summarize.emptyArray": {
+    "addedCount": 0,
+    "removedCount": 0,
+    "attributeCount": 0,
+    "hasAttributeMutations": false,
+    "nonKdbAttributeCount": 0,
+    "hasNonKdbAttributeMutations": false,
+    "lastAddedSignature": null,
+    "lastRemovedSignature": null,
+    "lastAttributeSignature": null,
+    "lastNonKdbAttributeSignature": null,
+    "observedAt": 5000
+  },
+  "summarize.childListEmptyNodes": {
+    "addedCount": 0,
+    "removedCount": 0,
+    "attributeCount": 0,
+    "hasAttributeMutations": false,
+    "nonKdbAttributeCount": 0,
+    "hasNonKdbAttributeMutations": false,
+    "lastAddedSignature": null,
+    "lastRemovedSignature": null,
+    "lastAttributeSignature": null,
+    "lastNonKdbAttributeSignature": null,
+    "observedAt": 5000
+  },
+  "summarize.childListNodes": {
+    "addedCount": 1,
+    "removedCount": 2,
+    "attributeCount": 0,
+    "hasAttributeMutations": false,
+    "nonKdbAttributeCount": 0,
+    "hasNonKdbAttributeMutations": false,
+    "lastAddedSignature": "SPAN|data-tid=x|id=a|class=one.two.three",
+    "lastRemovedSignature": "P|class=gone",
+    "lastAttributeSignature": null,
+    "lastNonKdbAttributeSignature": null,
+    "observedAt": 5000
+  },
+  "summarize.childListTextNode": {
+    "addedCount": 1,
+    "removedCount": 0,
+    "attributeCount": 0,
+    "hasAttributeMutations": false,
+    "nonKdbAttributeCount": 0,
+    "hasNonKdbAttributeMutations": false,
+    "lastAddedSignature": null,
+    "lastRemovedSignature": null,
+    "lastAttributeSignature": null,
+    "lastNonKdbAttributeSignature": null,
+    "observedAt": 5000
+  },
+  "summarize.attributeOwnedBySingleSelect": {
+    "addedCount": 0,
+    "removedCount": 0,
+    "attributeCount": 1,
+    "hasAttributeMutations": true,
+    "nonKdbAttributeCount": 0,
+    "hasNonKdbAttributeMutations": false,
+    "lastAddedSignature": null,
+    "lastRemovedSignature": null,
+    "lastAttributeSignature": "DIV|class=inner",
+    "lastNonKdbAttributeSignature": null,
+    "observedAt": 5000
+  },
+  "summarize.attributeOwnedByDienststelle": {
+    "addedCount": 0,
+    "removedCount": 0,
+    "attributeCount": 1,
+    "hasAttributeMutations": true,
+    "nonKdbAttributeCount": 0,
+    "hasNonKdbAttributeMutations": false,
+    "lastAddedSignature": null,
+    "lastRemovedSignature": null,
+    "lastAttributeSignature": "B",
+    "lastNonKdbAttributeSignature": null,
+    "observedAt": 5000
+  },
+  "summarize.attributeNotOwnedDienststelleSuffix": {
+    "addedCount": 0,
+    "removedCount": 0,
+    "attributeCount": 1,
+    "hasAttributeMutations": true,
+    "nonKdbAttributeCount": 1,
+    "hasNonKdbAttributeMutations": true,
+    "lastAddedSignature": null,
+    "lastRemovedSignature": null,
+    "lastAttributeSignature": "DIV|class=x",
+    "lastNonKdbAttributeSignature": "DIV|class=x",
+    "observedAt": 5000
+  },
+  "summarize.attributeNotOwnedSelectedOptionSuffix": {
+    "addedCount": 0,
+    "removedCount": 0,
+    "attributeCount": 1,
+    "hasAttributeMutations": true,
+    "nonKdbAttributeCount": 1,
+    "hasNonKdbAttributeMutations": true,
+    "lastAddedSignature": null,
+    "lastRemovedSignature": null,
+    "lastAttributeSignature": "DIV|class=y",
+    "lastNonKdbAttributeSignature": "DIV|class=y",
+    "observedAt": 5000
+  },
+  "summarize.attributeSvgClassName": {
+    "addedCount": 0,
+    "removedCount": 0,
+    "attributeCount": 1,
+    "hasAttributeMutations": true,
+    "nonKdbAttributeCount": 1,
+    "hasNonKdbAttributeMutations": true,
+    "lastAddedSignature": null,
+    "lastRemovedSignature": null,
+    "lastAttributeSignature": "svg",
+    "lastNonKdbAttributeSignature": "svg",
+    "observedAt": 5000
+  },
+  "summarize.mixedWithNullRecord": {
+    "addedCount": 1,
+    "removedCount": 0,
+    "attributeCount": 2,
+    "hasAttributeMutations": true,
+    "nonKdbAttributeCount": 1,
+    "hasNonKdbAttributeMutations": true,
+    "lastAddedSignature": "DIV|class=wa-filterDock-filterItemText",
+    "lastRemovedSignature": null,
+    "lastAttributeSignature": "DIV|id=plain|class=bx--btn",
+    "lastNonKdbAttributeSignature": "DIV|id=plain|class=bx--btn",
+    "observedAt": 5000
+  },
+  "summarize.all": {
+    "addedCount": 3,
+    "removedCount": 2,
+    "attributeCount": 7,
+    "hasAttributeMutations": true,
+    "nonKdbAttributeCount": 4,
+    "hasNonKdbAttributeMutations": true,
+    "lastAddedSignature": "DIV|class=wa-filterDock-filterItemText",
+    "lastRemovedSignature": "P|class=gone",
+    "lastAttributeSignature": "DIV|id=plain|class=bx--btn",
+    "lastNonKdbAttributeSignature": "DIV|id=plain|class=bx--btn",
+    "observedAt": 5000
+  },
+  "merge.sequence4": {
+    "mutationDelta": 8,
+    "addedCount": 2,
+    "removedCount": 2,
+    "attributeCount": 4,
+    "nonKdbAttributeCount": 2,
+    "hasAttributeMutations": true,
+    "hasNonKdbAttributeMutations": true,
+    "lastAddedSignature": "DIV|class=wa-filterDock-filterItemText",
+    "lastRemovedSignature": "P|class=gone",
+    "lastAttributeSignature": "DIV|id=plain|class=bx--btn",
+    "lastNonKdbAttributeSignature": "DIV|id=plain|class=bx--btn",
+    "scheduledAt": 1234
+  },
+  "merge.single": {
+    "mutationDelta": 3,
+    "addedCount": 1,
+    "removedCount": 2,
+    "attributeCount": 0,
+    "nonKdbAttributeCount": 0,
+    "hasAttributeMutations": false,
+    "hasNonKdbAttributeMutations": false,
+    "lastAddedSignature": "SPAN|data-tid=x|id=a|class=one.two.three",
+    "lastRemovedSignature": "P|class=gone",
+    "lastAttributeSignature": null,
+    "lastNonKdbAttributeSignature": null,
+    "scheduledAt": 99
+  },
+  "merge.noSignatureOverwrite": {
+    "mutationDelta": 4,
+    "addedCount": 1,
+    "removedCount": 2,
+    "attributeCount": 1,
+    "nonKdbAttributeCount": 0,
+    "hasAttributeMutations": true,
+    "hasNonKdbAttributeMutations": false,
+    "lastAddedSignature": "SPAN|data-tid=x|id=a|class=one.two.three",
+    "lastRemovedSignature": "P|class=gone",
+    "lastAttributeSignature": "DIV|class=inner",
+    "lastNonKdbAttributeSignature": null,
+    "scheduledAt": 7
+  },
+  "owned.classes": [
+    false,
+    true,
+    false,
+    true,
+    true,
+    true,
+    true,
+    false,
+    true,
+    false,
+    true,
+    true,
+    true,
+    true,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  "owned.ancestor": true,
+  "owned.nonStringClassName": false,
+  "owned.nonElement": [
+    false,
+    false
+  ],
+  "session.steps": [
+    {
+      "op": "shouldDispatch",
+      "result": false,
+      "state": {
+        "activeFilterKey": null,
+        "isReady": false,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "shouldDispatch",
+      "result": true,
+      "state": {
+        "activeFilterKey": "tab1__A",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "shouldDispatch",
+      "result": false,
+      "state": {
+        "activeFilterKey": "tab1__A",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "decide",
+      "result": {
+        "dispatch": false,
+        "reason": "noRelevantMutation"
+      },
+      "state": {
+        "activeFilterKey": "tab1__A",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "decide",
+      "result": {
+        "dispatch": false,
+        "reason": "kdbOnlyAttributeMutation"
+      },
+      "state": {
+        "activeFilterKey": "tab1__A",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": "DIV|class=inner"
+      }
+    },
+    {
+      "op": "decide",
+      "result": {
+        "dispatch": true,
+        "reason": "selectionSyncGap"
+      },
+      "state": {
+        "activeFilterKey": "tab1__A",
+        "isReady": true,
+        "postReadyResyncDispatched": true,
+        "mutationGeneration": 1,
+        "lastAttributeSignature": "DIV|class=inner"
+      }
+    },
+    {
+      "op": "decide",
+      "result": {
+        "dispatch": false,
+        "reason": "followUpAlreadyDispatched"
+      },
+      "state": {
+        "activeFilterKey": "tab1__A",
+        "isReady": true,
+        "postReadyResyncDispatched": true,
+        "mutationGeneration": 1,
+        "lastAttributeSignature": "DIV|class=inner"
+      }
+    },
+    {
+      "op": "decide",
+      "result": {
+        "dispatch": false,
+        "reason": "followUpAlreadyDispatched"
+      },
+      "state": {
+        "activeFilterKey": "tab1__A",
+        "isReady": true,
+        "postReadyResyncDispatched": true,
+        "mutationGeneration": 1,
+        "lastAttributeSignature": "DIV|class=inner"
+      }
+    },
+    {
+      "op": "resetOnClick",
+      "result": false,
+      "state": {
+        "activeFilterKey": "tab1__A",
+        "isReady": true,
+        "postReadyResyncDispatched": true,
+        "mutationGeneration": 1,
+        "lastAttributeSignature": "DIV|class=inner"
+      }
+    },
+    {
+      "op": "resetOnClick",
+      "result": true,
+      "state": {
+        "activeFilterKey": null,
+        "isReady": false,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 1,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "decide",
+      "result": {
+        "dispatch": false,
+        "reason": "popupNotReadySession"
+      },
+      "state": {
+        "activeFilterKey": null,
+        "isReady": false,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 1,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "shouldDispatch",
+      "result": true,
+      "state": {
+        "activeFilterKey": "tab1__A",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "decide",
+      "result": {
+        "dispatch": false,
+        "reason": "kdbOnlyAttributeMutation"
+      },
+      "state": {
+        "activeFilterKey": "tab1__A",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": "DIV|class=inner"
+      }
+    },
+    {
+      "op": "decide",
+      "result": {
+        "dispatch": true,
+        "reason": "nonKdbAttributeMutation"
+      },
+      "state": {
+        "activeFilterKey": "tab1__A",
+        "isReady": true,
+        "postReadyResyncDispatched": true,
+        "mutationGeneration": 1,
+        "lastAttributeSignature": "DIV|class=y"
+      }
+    },
+    {
+      "op": "shouldDispatch",
+      "result": false,
+      "state": {
+        "activeFilterKey": null,
+        "isReady": false,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 1,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "shouldDispatch",
+      "result": true,
+      "state": {
+        "activeFilterKey": "pageContext__B",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "shouldDispatch",
+      "result": false,
+      "state": {
+        "activeFilterKey": "pageContext__B",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "decide",
+      "result": {
+        "dispatch": true,
+        "reason": "selectionSyncGap"
+      },
+      "state": {
+        "activeFilterKey": "pageContext__B",
+        "isReady": true,
+        "postReadyResyncDispatched": true,
+        "mutationGeneration": 1,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "decide",
+      "result": {
+        "dispatch": false,
+        "reason": "followUpAlreadyDispatched"
+      },
+      "state": {
+        "activeFilterKey": "pageContext__B",
+        "isReady": true,
+        "postReadyResyncDispatched": true,
+        "mutationGeneration": 1,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "shouldDispatch",
+      "result": true,
+      "state": {
+        "activeFilterKey": "global__D",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "decide",
+      "result": {
+        "dispatch": false,
+        "reason": "notSingleSelectFamily"
+      },
+      "state": {
+        "activeFilterKey": "global__D",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "decide",
+      "result": {
+        "dispatch": false,
+        "reason": "missingInput"
+      },
+      "state": {
+        "activeFilterKey": "global__D",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "resetOnClick",
+      "result": false,
+      "state": {
+        "activeFilterKey": "global__D",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "resetOnClick",
+      "result": true,
+      "state": {
+        "activeFilterKey": null,
+        "isReady": false,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "resetOnClick",
+      "result": false,
+      "state": {
+        "activeFilterKey": null,
+        "isReady": false,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "shouldDispatch",
+      "result": false,
+      "state": {
+        "activeFilterKey": null,
+        "isReady": false,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "shouldDispatch",
+      "result": true,
+      "state": {
+        "activeFilterKey": "tab1__A",
+        "isReady": true,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    },
+    {
+      "op": "resetState",
+      "result": null,
+      "state": {
+        "activeFilterKey": null,
+        "isReady": false,
+        "postReadyResyncDispatched": false,
+        "mutationGeneration": 0,
+        "lastAttributeSignature": null
+      }
+    }
+  ],
+  "session.isPopupReady": [
+    false,
+    false,
+    true,
+    false,
+    false
+  ],
+  "reducer.initial": {
+    "lifecycle": "idle",
+    "lastClickedFilter": null,
+    "popup": {
+      "isVisible": false,
+      "activeFilterId": null,
+      "activeFilterType": null,
+      "hasOptions": false,
+      "optionCount": 0,
+      "hasOkButton": false,
+      "hasCancelButton": false,
+      "observedAt": 0
+    },
+    "observedChildren": {
+      "addedCount": 0,
+      "removedCount": 0,
+      "lastAddedSignature": null,
+      "lastRemovedSignature": null,
+      "observedAt": 0
+    },
+    "pendingSignals": {
+      "mutationCount": 0,
+      "clickCount": 0,
+      "scheduledAt": 0
+    },
+    "lastInteraction": null,
+    "filtersReady": false,
+    "filtersReadyAt": 0,
+    "filterWrapperCount": 0,
+    "mountedAt": 0,
+    "updatedAt": 0,
+    "errorCode": null,
+    "errorMessage": null
+  },
+  "reducer.states": [
+    {
+      "lifecycle": "ready",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": false,
+        "activeFilterId": null,
+        "activeFilterType": null,
+        "hasOptions": false,
+        "optionCount": 0,
+        "hasOkButton": false,
+        "hasCancelButton": false,
+        "observedAt": 0
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 0,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": false,
+      "filtersReadyAt": 0,
+      "filterWrapperCount": 0,
+      "mountedAt": 111,
+      "updatedAt": 5000,
+      "errorCode": null,
+      "errorMessage": null
+    },
+    {
+      "lifecycle": "ready",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": false,
+        "activeFilterId": null,
+        "activeFilterType": null,
+        "hasOptions": false,
+        "optionCount": 0,
+        "hasOkButton": false,
+        "hasCancelButton": false,
+        "observedAt": 0
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 0,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": false,
+      "filtersReadyAt": 0,
+      "filterWrapperCount": 0,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": null,
+      "errorMessage": null
+    },
+    {
+      "lifecycle": "ready",
+      "lastClickedFilter": {
+        "filterId": "tab1__A",
+        "filterKey": "pageContext__A",
+        "filterLabel": "A",
+        "filterType": "singleSelect"
+      },
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": null,
+        "activeFilterType": null,
+        "hasOptions": false,
+        "optionCount": 0,
+        "hasOkButton": false,
+        "hasCancelButton": false,
+        "observedAt": 0
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 1,
+        "scheduledAt": 0
+      },
+      "lastInteraction": {
+        "interactionType": "open"
+      },
+      "filtersReady": false,
+      "filtersReadyAt": 0,
+      "filterWrapperCount": 0,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": null,
+      "errorMessage": null
+    },
+    {
+      "lifecycle": "ready",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": null,
+        "activeFilterType": null,
+        "hasOptions": false,
+        "optionCount": 0,
+        "hasOkButton": false,
+        "hasCancelButton": false,
+        "observedAt": 0
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 2,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": false,
+      "filtersReadyAt": 0,
+      "filterWrapperCount": 0,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": null,
+      "errorMessage": null
+    },
+    {
+      "lifecycle": "ready",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": "tab1__A",
+        "activeFilterType": "singleSelect",
+        "hasOptions": true,
+        "optionCount": 3,
+        "hasOkButton": true,
+        "hasCancelButton": true,
+        "observedAt": 1
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 2,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": false,
+      "filtersReadyAt": 0,
+      "filterWrapperCount": 0,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": null,
+      "errorMessage": null
+    },
+    {
+      "lifecycle": "ready",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": "tab1__A",
+        "activeFilterType": "singleSelect",
+        "hasOptions": true,
+        "optionCount": 3,
+        "hasOkButton": true,
+        "hasCancelButton": true,
+        "observedAt": 1
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 2,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": false,
+      "filtersReadyAt": 0,
+      "filterWrapperCount": 0,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": null,
+      "errorMessage": null
+    },
+    {
+      "lifecycle": "ready",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": "tab1__A",
+        "activeFilterType": "singleSelect",
+        "hasOptions": true,
+        "optionCount": 3,
+        "hasOkButton": true,
+        "hasCancelButton": true,
+        "observedAt": 1
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 2,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": true,
+      "filtersReadyAt": 321,
+      "filterWrapperCount": 4,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": null,
+      "errorMessage": null
+    },
+    {
+      "lifecycle": "ready",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": "tab1__A",
+        "activeFilterType": "singleSelect",
+        "hasOptions": true,
+        "optionCount": 3,
+        "hasOkButton": true,
+        "hasCancelButton": true,
+        "observedAt": 1
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 2,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": true,
+      "filtersReadyAt": 321,
+      "filterWrapperCount": 4,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": null,
+      "errorMessage": null
+    },
+    {
+      "lifecycle": "ready",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": "tab1__A",
+        "activeFilterType": "singleSelect",
+        "hasOptions": true,
+        "optionCount": 3,
+        "hasOkButton": true,
+        "hasCancelButton": true,
+        "observedAt": 1
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 2,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": true,
+      "filtersReadyAt": 321,
+      "filterWrapperCount": 4,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": "FILTER_DOCK_OWNER_API_MISSING",
+      "errorMessage": "m"
+    },
+    {
+      "lifecycle": "ready",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": "tab1__A",
+        "activeFilterType": "singleSelect",
+        "hasOptions": true,
+        "optionCount": 3,
+        "hasOkButton": true,
+        "hasCancelButton": true,
+        "observedAt": 1
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 2,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": true,
+      "filtersReadyAt": 321,
+      "filterWrapperCount": 4,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": "FILTER_DOCK_OWNER_ROUTE_DIAGNOSTIC",
+      "errorMessage": null
+    },
+    {
+      "lifecycle": "error",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": "tab1__A",
+        "activeFilterType": "singleSelect",
+        "hasOptions": true,
+        "optionCount": 3,
+        "hasOkButton": true,
+        "hasCancelButton": true,
+        "observedAt": 1
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 2,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": true,
+      "filtersReadyAt": 321,
+      "filterWrapperCount": 4,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": "FILTER_DOCK_MOUNT_FAILED",
+      "errorMessage": "boom"
+    },
+    {
+      "lifecycle": "error",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": "tab1__A",
+        "activeFilterType": "singleSelect",
+        "hasOptions": true,
+        "optionCount": 3,
+        "hasOkButton": true,
+        "hasCancelButton": true,
+        "observedAt": 1
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 2,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": true,
+      "filtersReadyAt": 321,
+      "filterWrapperCount": 4,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": "FILTER_DOCK_ERROR",
+      "errorMessage": null
+    },
+    {
+      "lifecycle": "error",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": "tab1__A",
+        "activeFilterType": "singleSelect",
+        "hasOptions": true,
+        "optionCount": 3,
+        "hasOkButton": true,
+        "hasCancelButton": true,
+        "observedAt": 1
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 2,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": true,
+      "filtersReadyAt": 321,
+      "filterWrapperCount": 4,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": "FILTER_DOCK_ERROR",
+      "errorMessage": null
+    },
+    {
+      "lifecycle": "error",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": "tab1__A",
+        "activeFilterType": "singleSelect",
+        "hasOptions": true,
+        "optionCount": 3,
+        "hasOkButton": true,
+        "hasCancelButton": true,
+        "observedAt": 1
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 2,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": true,
+      "filtersReadyAt": 321,
+      "filterWrapperCount": 4,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": "FILTER_DOCK_ERROR",
+      "errorMessage": null
+    },
+    {
+      "lifecycle": "disposed",
+      "lastClickedFilter": null,
+      "popup": {
+        "isVisible": true,
+        "activeFilterId": "tab1__A",
+        "activeFilterType": "singleSelect",
+        "hasOptions": true,
+        "optionCount": 3,
+        "hasOkButton": true,
+        "hasCancelButton": true,
+        "observedAt": 1
+      },
+      "observedChildren": {
+        "addedCount": 0,
+        "removedCount": 0,
+        "lastAddedSignature": null,
+        "lastRemovedSignature": null,
+        "observedAt": 0
+      },
+      "pendingSignals": {
+        "mutationCount": 0,
+        "clickCount": 2,
+        "scheduledAt": 0
+      },
+      "lastInteraction": null,
+      "filtersReady": true,
+      "filtersReadyAt": 321,
+      "filterWrapperCount": 4,
+      "mountedAt": 5000,
+      "updatedAt": 5000,
+      "errorCode": "FILTER_DOCK_ERROR",
+      "errorMessage": null
+    }
+  ],
+  "capabilities.rows": [
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": false,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "type": "nativeMultiSelect",
+      "typeFromRaw": "nativeMultiSelect"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": false,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "type": "nativeMultiSelect",
+      "typeFromRaw": "nativeMultiSelect"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": false,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "type": "nativeMultiSelect",
+      "typeFromRaw": "nativeMultiSelect"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": true,
+        "isNative": false,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": true,
+        "isNative": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "type": "singleSelect",
+      "typeFromRaw": "singleSelect"
+    },
+    {
+      "raw": {
+        "isUpstream": true,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": true,
+        "isNative": false,
+        "isSicht": true,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": true,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": true,
+        "isNative": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "type": "sicht",
+      "typeFromRaw": "sicht"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": true,
+        "isNative": false,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": "Personengruppe"
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": true,
+        "isNative": false,
+        "hasAlleOption": false,
+        "condition": "Personengruppe"
+      },
+      "type": "specialSingleSelect",
+      "typeFromRaw": "specialSingleSelect"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": true,
+        "isNative": false,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": " DienststellenLeitung "
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": true,
+        "isNative": false,
+        "hasAlleOption": false,
+        "condition": " DienststellenLeitung "
+      },
+      "type": "specialSingleSelect",
+      "typeFromRaw": "specialSingleSelect"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": true,
+        "isHierarchy": true,
+        "isSingleSelect": false,
+        "isNative": false,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": true,
+        "isHierarchy": true,
+        "isSingleSelect": false,
+        "isNative": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "type": "dienststelle",
+      "typeFromRaw": "dienststelle"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": true,
+        "isSingleSelect": false,
+        "isNative": false,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": true,
+        "isSingleSelect": false,
+        "isNative": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "type": "unknown",
+      "typeFromRaw": "unknown"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": true,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": true,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "type": "nativeMultiSelect",
+      "typeFromRaw": "nativeMultiSelect"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": true,
+        "isSingleSelect": false,
+        "isNative": true,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": true,
+        "isSingleSelect": false,
+        "isNative": true,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "type": "nativeMultiSelect",
+      "typeFromRaw": "nativeMultiSelect"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": true,
+        "isHierarchy": true,
+        "isSingleSelect": false,
+        "isNative": true,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": true,
+        "isHierarchy": true,
+        "isSingleSelect": false,
+        "isNative": true,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "type": "dienststelle",
+      "typeFromRaw": "dienststelle"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": false,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "type": "nativeMultiSelect",
+      "typeFromRaw": "nativeMultiSelect"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": false,
+        "isSicht": false,
+        "hasAlleOption": true,
+        "condition": "x"
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": false,
+        "hasAlleOption": true,
+        "condition": "x"
+      },
+      "type": "nativeMultiSelect",
+      "typeFromRaw": "nativeMultiSelect"
+    },
+    {
+      "raw": {
+        "isUpstream": true,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": false,
+        "isSicht": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": true,
+        "isDownstream": false,
+        "isHierarchy": false,
+        "isSingleSelect": false,
+        "isNative": false,
+        "hasAlleOption": false,
+        "condition": null
+      },
+      "type": "nativeMultiSelect",
+      "typeFromRaw": "nativeMultiSelect"
+    },
+    {
+      "raw": {
+        "isUpstream": false,
+        "isDownstream": true,
+        "isHierarchy": false,
+        "isSingleSelect": true,
+        "isNative": false,
+        "isSicht": false,
+        "hasAlleOption": true,
+        "condition": null
+      },
+      "handoff": {
+        "isUpstream": false,
+        "isDownstream": true,
+        "isHierarchy": false,
+        "isSingleSelect": true,
+        "isNative": false,
+        "hasAlleOption": true,
+        "condition": null
+      },
+      "type": "singleSelect",
+      "typeFromRaw": "singleSelect"
+    }
+  ],
+  "capabilities.nullHandoff": {
+    "isUpstream": false,
+    "isDownstream": false,
+    "isHierarchy": false,
+    "isSingleSelect": false,
+    "isNative": false,
+    "hasAlleOption": false,
+    "condition": null
+  },
+  "capabilities.nullType": "unknown",
+  "routes.projection": {
+    "singleSelect": {
+      "apiKey": "singleSelect",
+      "allowDeprecatedScopeProjection": false,
+      "needsFilterDockFiltersReady": true,
+      "needsFilterDockHeaderResync": false,
+      "needsFilterDockCommittedDisplayResync": true,
+      "needsPopupDisplayResync": false,
+      "actionTypes": {
+        "stateChanged": "singleSelect/filterDockStateChanged",
+        "popupReady": "singleSelect/filterDockPopupReady",
+        "filtersReady": "singleSelect/reconcileFilterInstances",
+        "committedDisplayObserved": "singleSelect/filterDockCommittedDisplayObserved"
+      }
+    },
+    "specialSingleSelect": {
+      "apiKey": "specialSingleSelect",
+      "allowDeprecatedScopeProjection": true,
+      "needsFilterDockFiltersReady": false,
+      "needsFilterDockHeaderResync": false,
+      "needsFilterDockCommittedDisplayResync": false,
+      "needsPopupDisplayResync": false,
+      "actionTypes": {
+        "stateChanged": "specialSingleSelect/filterDockStateChanged",
+        "popupReady": "specialSingleSelect/filterDockPopupReady"
+      }
+    },
+    "sicht": {
+      "apiKey": "sicht",
+      "allowDeprecatedScopeProjection": true,
+      "needsFilterDockFiltersReady": false,
+      "needsFilterDockHeaderResync": false,
+      "needsFilterDockCommittedDisplayResync": false,
+      "needsPopupDisplayResync": false,
+      "actionTypes": {
+        "stateChanged": "sicht/filterDockStateChanged",
+        "popupReady": "sicht/filterDockPopupReady"
+      }
+    },
+    "dienststelle": {
+      "apiKey": "dienststelle",
+      "allowDeprecatedScopeProjection": true,
+      "needsFilterDockFiltersReady": true,
+      "needsFilterDockHeaderResync": true,
+      "needsFilterDockCommittedDisplayResync": true,
+      "needsPopupDisplayResync": true,
+      "actionTypes": {
+        "stateChanged": "dienststelle/filterDockStateChanged",
+        "popupReady": "dienststelle/filterDockPopupReady",
+        "filtersReady": "dienststelle/filterDockFiltersReady",
+        "headerObserved": "dienststelle/filterDockHeaderObserved",
+        "committedDisplayObserved": "dienststelle/filterDockCommittedDisplayObserved"
+      }
+    },
+    "nativeMultiSelect": {
+      "apiKey": "nativeMultiSelect",
+      "allowDeprecatedScopeProjection": false,
+      "needsFilterDockFiltersReady": false,
+      "needsFilterDockHeaderResync": false,
+      "needsFilterDockCommittedDisplayResync": false,
+      "needsPopupDisplayResync": false,
+      "actionTypes": {
+        "stateChanged": "nativeMultiSelect/filterDockStateChanged"
+      }
+    }
+  },
+  "ownerPayload": {
+    "singleSelect": {
+      "filterId": "tab1__A",
+      "filterKey": "pageContext__A",
+      "filterLabel": "A",
+      "filterType": "singleSelect",
+      "scopeId": null,
+      "interactionType": "open",
+      "capabilities": {
+        "isSingleSelect": true
+      }
+    },
+    "specialSingleSelect": {
+      "filterId": "tab1__A",
+      "filterKey": "pageContext__A",
+      "filterLabel": "A",
+      "filterType": "singleSelect",
+      "legacyScope": "tab1",
+      "legacyScopeId": "tab1",
+      "scopeId": "tab1",
+      "scope": "tab1",
+      "interactionType": "open",
+      "capabilities": {
+        "isSingleSelect": true
+      }
+    },
+    "sicht": {
+      "filterId": "tab1__A",
+      "filterKey": "pageContext__A",
+      "filterLabel": "A",
+      "filterType": "singleSelect",
+      "legacyScope": "tab1",
+      "legacyScopeId": "tab1",
+      "scopeId": "tab1",
+      "scope": "tab1",
+      "interactionType": "open",
+      "capabilities": {
+        "isSingleSelect": true
+      }
+    },
+    "dienststelle": {
+      "filterId": "tab1__A",
+      "filterKey": "pageContext__A",
+      "filterLabel": "A",
+      "filterType": "singleSelect",
+      "legacyScope": "tab1",
+      "legacyScopeId": "tab1",
+      "scopeId": "tab1",
+      "scope": "tab1",
+      "interactionType": "open",
+      "capabilities": {
+        "isSingleSelect": true
+      }
+    },
+    "nativeMultiSelect": {
+      "filterId": "tab1__A",
+      "filterKey": "pageContext__A",
+      "filterLabel": "A",
+      "filterType": "singleSelect",
+      "scopeId": null,
+      "interactionType": "open",
+      "capabilities": {
+        "isSingleSelect": true
+      }
+    },
+    "missingLegacy": {
+      "filterId": "x",
+      "scope": "unknown",
+      "scopeId": "unknown"
+    }
+  },
+  "popupHandoff.full": {
+    "filterId": "tab1__A",
+    "filterKey": "pageContext__A",
+    "filterInstanceId": "i1",
+    "filterLabel": "A",
+    "itemNameHint": "A",
+    "itemIdHint": "idA",
+    "filterType": "singleSelect",
+    "scopeType": "pageContext",
+    "tabId": "tab1",
+    "scopeResolution": "ownerRequired",
+    "legacyScope": null,
+    "legacyScopeId": null,
+    "tabContextDiagnostic": null,
+    "filterConfig": {
+      "itemName": "A",
+      "nested": {
+        "a": 1
+      }
+    },
+    "capabilities": {
+      "isSingleSelect": true,
+      "condition": null
+    },
+    "interactionType": "open",
+    "isAlleOption": false,
+    "optionLabel": null,
+    "popup": {
+      "isVisible": true,
+      "activeFilterId": "tab1__A",
+      "activeFilterType": "singleSelect",
+      "hasOptions": true,
+      "optionCount": 3,
+      "hasOkButton": true,
+      "hasCancelButton": true,
+      "observedAt": 1
+    },
+    "observedAt": 1
+  },
+  "popupHandoff.noInteraction": {
+    "filterId": "tab1__A",
+    "filterKey": "pageContext__A",
+    "filterInstanceId": "i1",
+    "filterLabel": "A",
+    "itemNameHint": "A",
+    "itemIdHint": "idA",
+    "filterType": "singleSelect",
+    "scopeType": "pageContext",
+    "tabId": "tab1",
+    "scopeResolution": "ownerRequired",
+    "legacyScope": null,
+    "legacyScopeId": null,
+    "tabContextDiagnostic": null,
+    "filterConfig": {},
+    "capabilities": {},
+    "interactionType": "open",
+    "isAlleOption": false,
+    "optionLabel": null,
+    "popup": {
+      "isVisible": true,
+      "activeFilterId": "tab1__A",
+      "activeFilterType": "singleSelect",
+      "hasOptions": true,
+      "optionCount": 3,
+      "hasOkButton": true,
+      "hasCancelButton": true,
+      "observedAt": 0
+    },
+    "observedAt": 5000
+  },
+  "popupHandoff.missing": [
+    null,
+    null
+  ],
+  "handoff.keys": [
+    "filterId",
+    "filterKey",
+    "filterInstanceId",
+    "filterLabel",
+    "itemNameHint",
+    "itemIdHint",
+    "semanticInstanceKeyHint",
+    "filterType",
+    "filterScope",
+    "scopeType",
+    "tabId",
+    "scopeId",
+    "scopeResolution",
+    "legacyScope",
+    "legacyScopeId",
+    "tabContextDiagnostic",
+    "filterConfig",
+    "capabilities",
+    "interactionType",
+    "isAlleOption",
+    "optionLabel",
+    "confirmedLabels",
+    "sourceElementSignature",
+    "popup",
+    "observedAt"
+  ],
+  "handoff.value": {
+    "filterId": "tab1__A",
+    "filterKey": "pageContext__A",
+    "filterInstanceId": null,
+    "filterLabel": "A",
+    "itemNameHint": "A",
+    "itemIdHint": "idA",
+    "semanticInstanceKeyHint": null,
+    "filterType": "singleSelect",
+    "filterScope": "pageContext",
+    "scopeType": "pageContext",
+    "tabId": "tab1",
+    "scopeId": null,
+    "scopeResolution": "ownerRequired",
+    "legacyScope": "tab1",
+    "legacyScopeId": "tab1",
+    "tabContextDiagnostic": null,
+    "filterConfig": {
+      "itemName": "A"
+    },
+    "capabilities": {
+      "isSingleSelect": true
+    },
+    "interactionType": "option",
+    "isAlleOption": false,
+    "optionLabel": "2024",
+    "confirmedLabels": null,
+    "sourceElementSignature": "DIV|class=a.b",
+    "popup": {
+      "isVisible": true
+    },
+    "observedAt": 42
+  },
+  "clickResolution": {
+    "lastClickedFilter": {
+      "filterId": "tab1__A",
+      "filterKey": "pageContext__A",
+      "filterLabel": "A",
+      "filterType": "singleSelect",
+      "filterScope": "pageContext",
+      "scopeType": "pageContext",
+      "tabId": "tab1",
+      "scopeId": null,
+      "scopeResolution": "ownerRequired",
+      "filterInstanceId": null,
+      "itemNameHint": "A",
+      "itemIdHint": "idA",
+      "semanticInstanceKeyHint": null,
+      "legacyScope": "tab1",
+      "legacyScopeId": "tab1",
+      "tabContextDiagnostic": null,
+      "sourceElementSignature": "DIV|class=a.b",
+      "clickedAt": 42
+    },
+    "interaction": {
+      "filterId": "tab1__A",
+      "filterKey": "pageContext__A",
+      "filterInstanceId": null,
+      "filterLabel": "A",
+      "itemNameHint": "A",
+      "itemIdHint": "idA",
+      "semanticInstanceKeyHint": null,
+      "filterType": "singleSelect",
+      "filterScope": "pageContext",
+      "scopeType": "pageContext",
+      "tabId": "tab1",
+      "scopeId": null,
+      "scopeResolution": "ownerRequired",
+      "legacyScope": "tab1",
+      "legacyScopeId": "tab1",
+      "tabContextDiagnostic": null,
+      "filterConfig": {
+        "itemName": "A"
+      },
+      "capabilities": {
+        "isSingleSelect": true
+      },
+      "interactionType": "option",
+      "isAlleOption": false,
+      "optionLabel": "2024",
+      "confirmedLabels": null,
+      "sourceElementSignature": "DIV|class=a.b",
+      "popup": {
+        "isVisible": true
+      },
+      "observedAt": 42
+    },
+    "filterEl": "FILTER_EL"
+  }
+}

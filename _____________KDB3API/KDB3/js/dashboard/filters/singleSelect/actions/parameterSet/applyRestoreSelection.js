@@ -1,9 +1,9 @@
 define([
   "./applyRestoreSelectionCore.js",
-  "../../config/parameterSetCodes.js"
+  "../../config.js"
 ], function (
   _applyRestoreSelectionCore,
-  _codes
+  _config
 ) {
   "use strict";
 
@@ -26,7 +26,7 @@ define([
         cancelled: true,
         degraded: false,
         diagnostic: {
-          code: _codes.RESTORE_FAILED,
+          code: _config.parameterSetCodes.RESTORE_FAILED,
           message: String(error && error.message ? error.message : error)
         }
       };

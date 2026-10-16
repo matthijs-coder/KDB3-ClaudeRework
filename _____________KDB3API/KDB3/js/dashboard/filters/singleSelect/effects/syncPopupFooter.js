@@ -1,26 +1,26 @@
 define([
-  "../config/selectors.js",
-  "../state/selectionState.js"
-], function (_selectors, _selectionState) {
+  "../config.js",
+  "../state/selection.js"
+], function (_config, _selectionState) {
   "use strict";
 
   var FOOTER_HTML =
     '<button title="" data-tid="cancelClickable" tabindex="0" class="bx--btn bx--btn--secondary" type="button">Abbrechen</button><button title="" data-tid="okClickable" tabindex="-1" class="bx--btn bx--btn--primary" type="button">Fertig</button>';
 
   function ensureFooter(_filterEl) {
-    var orig = _filterEl.querySelector(_selectors.nativeFooterSelector);
+    var orig = _filterEl.querySelector(_config.domSelectors.nativeFooterSelector);
     var foot;
     if (!orig) {
       return null;
     }
     orig.style.display = "none";
-    foot = _filterEl.querySelector(_selectors.customFooterSelector);
+    foot = _filterEl.querySelector(_config.domSelectors.customFooterSelector);
     if (foot) {
       return foot;
     }
     foot = document.createElement("div");
-    foot.setAttribute("data-tid", _selectors.footerTid);
-    foot.className = _selectors.footerCloneClassName + " KDB_singleSelectFooter";
+    foot.setAttribute("data-tid", _config.domSelectors.footerTid);
+    foot.className = _config.domSelectors.footerCloneClassName + " KDB_singleSelectFooter";
     foot.innerHTML = FOOTER_HTML;
     (orig.parentElement || _filterEl).insertBefore(foot, orig.nextSibling);
     return foot;
@@ -35,7 +35,7 @@ define([
     }
     foot.style.display =
       _handoffContext.condition && _handoffContext.hasAlleOption !== true ? "none" : "";
-    ok = foot.querySelector(_selectors.footerOkButtonSelector);
+    ok = foot.querySelector(_config.domSelectors.footerOkButtonSelector);
     if (!ok) {
       return;
     }
@@ -45,7 +45,7 @@ define([
         _selectionState.getConfirmedDisplayValue(_filterState.backupSelection);
     ok.disabled = dis;
     ok.tabIndex = dis ? -1 : 0;
-    ok.classList.toggle(_selectors.disabledButtonClass, dis);
+    ok.classList.toggle(_config.domSelectors.disabledButtonClass, dis);
   }
 
   return __controller;
