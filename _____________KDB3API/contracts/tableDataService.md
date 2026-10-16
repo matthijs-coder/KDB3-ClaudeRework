@@ -179,7 +179,7 @@ Services do not publish a separate selector registry for their own state subtree
   - none in this skeleton iteration.
 - **Request-events:** none.
 
-Both emitted events are catalogued in [_____________KDB3API/architecture/eventSubscribe.md](_____________KDB3API/architecture/eventSubscribe.md).
+Both emitted events are catalogued in [architecture/eventSubscribe.md](../architecture/eventSubscribe.md).
 
 ## 7. Dependencies
 

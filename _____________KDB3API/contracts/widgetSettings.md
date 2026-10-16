@@ -179,7 +179,7 @@ KDB3/js/dashboard/widgets/widgetSettings/
   state.js            # initial state, byWidget bookkeeping, commitWidgetSettingValue, seed error/deferred records
   runtime.js          # ensureWidgetSettingsRuntime
   history.js          # settings history steps and replay handler (option replay, push after confirmed apply)
-  seed.js             # seedDefaults: startup defaults resolution, readiness wait, kdbControl colour default
+  seed.js             # handleSeedDefaults (action `widgetSettings/seedDefaults`): startup defaults resolution, readiness wait, kdbControl colour default
   seedApply.js        # startup batch commit and report handling
   colour.js           # commitColour (apply via widgetBase, readable text colour, history)
   restore.js          # parameterSet reset/restore batch and restoreCommittedSettings (history replay)
