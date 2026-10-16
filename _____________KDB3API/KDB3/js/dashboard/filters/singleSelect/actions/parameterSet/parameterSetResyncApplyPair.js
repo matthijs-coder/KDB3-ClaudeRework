@@ -1,11 +1,10 @@
 define([
   "../../config.js",
   "./parameterSetRuntime.js",
-  "../../effects/verifyCommitFilterValue.js",
+  "../../hostFilterIo.js",
   "../../runtime.js",
-  "../../effects/hostFilterWrite.js",
   "../../state/selection.js"
-], function (_config, _runtime, _verifyCommit, _singleSelectRuntime, _hostWrite, _selectionState) {
+], function (_config, _runtime, _hostFilterIo, _singleSelectRuntime, _selectionState) {
   "use strict";
 
   async function applyConfirmedPair(_KDB, _filterRef, _selection, _payload, _assignment, _filterInstanceId) {
@@ -24,10 +23,10 @@ define([
         };
       }
       var displayValue = incomingDisplay != null ? String(incomingDisplay) : "";
-      if (!_hostWrite.isWriteReady(filtersFacet)) {
+      if (!_hostFilterIo.isWriteReady(filtersFacet)) {
         throw new Error("replaceFilterContext unavailable");
       }
-      var priorValues = _hostWrite.readValues(filtersFacet, _filterRef);
+      var priorValues = _hostFilterIo.readValues(filtersFacet, _filterRef);
       var rollbackInput = Array.isArray(priorValues)
         ? priorValues.map(function (entry) { return Object.assign({}, entry || {}); })
         : [];
@@ -35,15 +34,15 @@ define([
       if (!preWriteGuard.ok) {
         return cancelledResult(preWriteGuard, _assignment, _filterInstanceId, "supersededBeforeHostWrite", null);
       }
-      if (!(await _hostWrite.writeValues(filtersFacet, _filterRef, useValue ? [{ d: displayValue, u: useValue }] : []))) {
+      if (!(await _hostFilterIo.writeValues(filtersFacet, _filterRef, useValue ? [{ d: displayValue, u: useValue }] : []))) {
         throw new Error("replaceFilterContext unavailable");
       }
       var postGuard = _runtime.validateMutationGuard(_KDB, _payload || {});
       if (!postGuard.ok) {
-        var rollbackPost = await _hostWrite.rollbackHostWrite(filtersFacet, _filterRef, rollbackInput);
+        var rollbackPost = await _hostFilterIo.rollbackExact(filtersFacet, _filterRef, rollbackInput);
         return cancelledResult(postGuard, _assignment, _filterInstanceId, "supersededAfterHostWrite", rollbackPost);
       }
-      var verifyResult = _verifyCommit(filtersFacet, _filterRef, {
+      var verifyResult = _hostFilterIo.verifySelection(filtersFacet, _filterRef, {
         displayValue: useValue ? displayValue : "Alle",
         useValue: useValue
       });
@@ -51,12 +50,12 @@ define([
         return keepResyncOwnerSelection(canonicalInstance, root, _selection);
       }
       if (!verifyResult.ok) {
-        var rollbackVerify = await _hostWrite.rollbackHostWrite(filtersFacet, _filterRef, rollbackInput);
+        var rollbackVerify = await _hostFilterIo.rollbackExact(filtersFacet, _filterRef, rollbackInput);
         throw new Error("resync host reread mismatch; rollback " + (rollbackVerify.ok ? "succeeded" : "failed"));
       }
       var preCommitGuard = _runtime.validateMutationGuard(_KDB, _payload || {});
       if (!preCommitGuard.ok) {
-        var rollbackCommit = await _hostWrite.rollbackHostWrite(filtersFacet, _filterRef, rollbackInput);
+        var rollbackCommit = await _hostFilterIo.rollbackExact(filtersFacet, _filterRef, rollbackInput);
         return cancelledResult(preCommitGuard, _assignment, _filterInstanceId, "supersededBeforeCanonicalCommit", rollbackCommit);
       }
       if (!useValue) {

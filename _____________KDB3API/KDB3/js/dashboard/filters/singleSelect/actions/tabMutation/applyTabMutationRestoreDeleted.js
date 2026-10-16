@@ -1,8 +1,8 @@
 define([
   "./guardTabMutation.js",
-  "../../effects/writeAndVerifyInstanceSelection.js",
+  "../../hostFilterIo.js",
   "../../config.js"
-], function (_support, _writeSelection, _config) {
+], function (_support, _hostFilterIo, _config) {
   "use strict";
 
   function diagnostic(_code, _message, _record) {
@@ -60,7 +60,7 @@ define([
           diagnostics.push(diagnostic(_config.errorCodes.IDENTITY_COLLISION, "target instance selected more than once", targetMatch.instance));
           continue;
         }
-        var written = await _writeSelection(_KDB, _runtime, targetId, sourceSnapshot.hostValues);
+        var written = await _hostFilterIo.writeInstanceSelection(_KDB, _runtime, targetId, sourceSnapshot.hostValues);
         if (_support.isStaleRun(_runtime, _payload)) {
           diagnostics.push(diagnostic(_config.errorCodes.TAB_MUTATION_CANCELLED, "tab mutation run superseded during restore write", targetMatch.instance));
           break;

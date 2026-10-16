@@ -1,10 +1,10 @@
 define([
   "../../config.js",
   "./parameterSetRuntime.js",
-  "../../effects/resolveFilterRef.js",
+  "../../hostFilterIo.js",
   "./parameterSetResyncApplyPair.js",
   "../../../sicht/state/selectors.js"
-], function (_config, _runtime, _resolveFilterRef, _applyPair, _sichtSelectors) {
+], function (_config, _runtime, _hostFilterIo, _applyPair, _sichtSelectors) {
   "use strict";
 
   function resolveConfirmedSelection(_KDB, _record, _assignment, _diagnostics) {
@@ -75,7 +75,7 @@ define([
       for (var idx = 0; idx < ids.length; idx += 1) {
         var assignment = registered[ids[idx]];
         var rec = root.instancesById ? root.instancesById[ids[idx]] : null;
-        var filterRef = _resolveFilterRef.resolveFilterRef(_KDB, _runtimeState, { filterInstanceId: ids[idx] });
+        var filterRef = _hostFilterIo.resolveFilterRef(_KDB, _runtimeState, { filterInstanceId: ids[idx] });
         if (!rec || !filterRef) {
           _diagnostics.push({ code: _config.parameterSetCodes.RESYNC_FAILED, key: assignment.key, tab: assignment.tab, message: "resync instance missing after restore" });
           _progress.skipped.push({ filterInstanceId: ids[idx], key: assignment.key, reason: "instanceMissing" });

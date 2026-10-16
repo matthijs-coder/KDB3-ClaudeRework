@@ -1,11 +1,10 @@
 define([
   "./guardTabMutation.js",
   "./buildTabMutationTransfers.js",
-  "../../effects/resolveFilterRef.js",
+  "../../hostFilterIo.js",
   "../../runtime.js",
-  "../../effects/hostFilterWrite.js",
   "../../config.js"
-], function (_support, _buildTransfers, _resolveFilterRef, _singleSelectRuntime, _hostWrite, _config) {
+], function (_support, _buildTransfers, _hostFilterIo, _singleSelectRuntime, _config) {
   "use strict";
 
   function failure(_operationId, _diagnostics) {
@@ -62,10 +61,10 @@ define([
       for (var s = 0; s < scopeIds.length; s += 1) {
         var records = _support.instancesInScope(instances, scopeIds[s]);
         for (var i = 0; i < records.length; i += 1) {
-          var filterRef = _resolveFilterRef.resolveFilterRef(
+          var filterRef = _hostFilterIo.resolveFilterRef(
             _KDB, _runtime, { filterInstanceId: records[i].filterInstanceId }
           );
-          if (!filterRef || !_hostWrite.isWriteReady(filtersFacet)) {
+          if (!filterRef || !_hostFilterIo.isWriteReady(filtersFacet)) {
             diagnostics.push({
               code: _config.errorCodes.TAB_MUTATION_PREPARE_FAILED,
               filterInstanceId: records[i].filterInstanceId,
@@ -75,7 +74,7 @@ define([
           }
           snapshot.byId[records[i].filterInstanceId] = _support.cloneSnapshotRecord(
             records[i],
-            _hostWrite.readValues(filtersFacet, filterRef)
+            _hostFilterIo.readValues(filtersFacet, filterRef)
           );
         }
       }

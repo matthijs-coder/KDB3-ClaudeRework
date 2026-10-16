@@ -1,11 +1,9 @@
 define([
-  "../effects/resolveFilterRef.js",
-  "../effects/verifyCommitFilterValue.js",
+  "../hostFilterIo.js",
   "../state/selection.js",
   "../runtime.js",
-  "../effects/hostFilterWrite.js",
   "../config.js"
-], function (_resolveFilterRef, _verifyCommitFilterValue, _selectionState, _singleSelectRuntime, _hostWrite, _config) {
+], function (_hostFilterIo, _selectionState, _singleSelectRuntime, _config) {
   "use strict";
 
   function matchesSemanticId(_record, _semanticId) {
@@ -41,27 +39,27 @@ define([
         return failed(_id, _config.errorCodes.SPECIAL_INSTANCE_MISSING);
       }
       var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
-      var filterRef = _resolveFilterRef.resolveFilterRef(_KDB, _runtime, { filterInstanceId: _id });
-      if (!filterRef || !_hostWrite.isWriteReady(filtersFacet)) {
+      var filterRef = _hostFilterIo.resolveFilterRef(_KDB, _runtime, { filterInstanceId: _id });
+      if (!filterRef || !_hostFilterIo.isWriteReady(filtersFacet)) {
         return failed(_id, _config.errorCodes.SPECIAL_POLICY_APPLY_FAILED);
       }
       var clear = _payload.operation === "clearHidden";
       var expected = clear ? { displayValue: "Alle", useValue: "" } : _payload.selection;
-      var previousValues = _hostWrite.readValues(filtersFacet, filterRef);
-      if (!(await _hostWrite.writeValues(filtersFacet, filterRef, clear ? [] : [{
+      var previousValues = _hostFilterIo.readValues(filtersFacet, filterRef);
+      if (!(await _hostFilterIo.writeValues(filtersFacet, filterRef, clear ? [] : [{
         d: expected.displayValue,
         u: expected.useValue
       }]))) {
         return failed(_id, _config.errorCodes.SPECIAL_POLICY_APPLY_FAILED);
       }
-      var verification = _verifyCommitFilterValue(filtersFacet, filterRef, expected);
+      var verification = _hostFilterIo.verifySelection(filtersFacet, filterRef, expected);
       if (verification.ok !== true) {
-        await _hostWrite.writeValues(filtersFacet, filterRef, previousValues);
+        await _hostFilterIo.writeValues(filtersFacet, filterRef, previousValues);
         var rollbackExpected = previousValues && previousValues[0]
           ? { displayValue: previousValues[0].d, useValue: previousValues[0].u }
           : { displayValue: "Alle", useValue: "" };
         try {
-          _verifyCommitFilterValue(filtersFacet, filterRef, rollbackExpected);
+          _hostFilterIo.verifySelection(filtersFacet, filterRef, rollbackExpected);
         } catch (rollbackError) {
           console.error("[singleSelect.applySpecialSelectionPolicy] rollback reread failed", rollbackError);
         }

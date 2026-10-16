@@ -3,9 +3,9 @@ define([
   "./buildTabMutationTransfers.js",
   "./applyTabMutationWrites.js",
   "../reconcileFilterInstances.js",
-  "../../effects/writeAndVerifyInstanceSelection.js",
+  "../../hostFilterIo.js",
   "../../config.js"
-], function (_support, _buildTransfers, _writes, _reconcile, _writeSelection, _config) {
+], function (_support, _buildTransfers, _writes, _reconcile, _hostFilterIo, _config) {
   "use strict";
 
   function selectionToHostValues(_selection) {
@@ -59,7 +59,7 @@ define([
         continue;
       }
       var targetId = match.instance.filterInstanceId;
-      var written = await _writeSelection(_KDB, _runtime, targetId,
+      var written = await _hostFilterIo.writeInstanceSelection(_KDB, _runtime, targetId,
         selectionToHostValues(entry.currentSelection));
       if (!written.ok) {
         _diagnostics.push(_writes.diagnostic(written.errorCode,

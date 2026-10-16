@@ -1,16 +1,12 @@
 define([
-  "./resolveFilterRef.js",
+  "../hostFilterIo.js",
   "./resolveFilterValueFromTable.js",
-  "./verifyCommitFilterValue.js",
   "../runtime.js",
-  "./hostFilterWrite.js",
   "../config.js"
 ], function (
-  _resolveFilterRef,
+  _hostFilterIo,
   _resolveFilterValue,
-  _verifyCommit,
   _singleSelectRuntime,
-  _hostWrite,
   _config
 ) {
   "use strict";
@@ -27,15 +23,15 @@ define([
     var previousValues;
     try {
       filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
-      filterRef = _resolveFilterRef.resolveFilterRef(_KDB, _runtime, _handoff);
-      if (!_hostWrite.isWriteReady(filtersFacet) || !filterRef) {
+      filterRef = _hostFilterIo.resolveFilterRef(_KDB, _runtime, _handoff);
+      if (!_hostFilterIo.isWriteReady(filtersFacet) || !filterRef) {
         throw codedError(_config.errorCodes.HOST_WRITE_FAILED, "filter host writer unavailable");
       }
-      previousValues = _hostWrite.readValues(filtersFacet, filterRef);
+      previousValues = _hostFilterIo.readValues(filtersFacet, filterRef);
       var selectedValue;
       if (_displayValue === "Alle") {
         selectedValue = { d: "Alle", u: "" };
-        if (!(await _hostWrite.writeValues(filtersFacet, filterRef, []))) {
+        if (!(await _hostFilterIo.writeValues(filtersFacet, filterRef, []))) {
           throw codedError(_config.errorCodes.HOST_WRITE_FAILED, "filter host writer unavailable");
         }
       } else {
@@ -49,11 +45,11 @@ define([
           throw codedError(_config.errorCodes.HOST_WRITE_FAILED, "selection pair resolution failed: " + (resolved && resolved.errorCode || "unknown"));
         }
         selectedValue = resolved.selectedValue;
-        if (!(await _hostWrite.writeValues(filtersFacet, filterRef, [selectedValue]))) {
+        if (!(await _hostFilterIo.writeValues(filtersFacet, filterRef, [selectedValue]))) {
           throw codedError(_config.errorCodes.HOST_WRITE_FAILED, "filter host writer unavailable");
         }
       }
-      var verified = _verifyCommit(filtersFacet, filterRef, {
+      var verified = _hostFilterIo.verifySelection(filtersFacet, filterRef, {
         displayValue: selectedValue.d,
         useValue: selectedValue.u
       });

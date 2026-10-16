@@ -1,10 +1,10 @@
 define([
   "./guardTabMutation.js",
   "./resolveTabMutationSnapshotTarget.js",
-  "../../effects/writeAndVerifyInstanceSelection.js",
+  "../../hostFilterIo.js",
   "../reconcileFilterInstances.js",
   "../../config.js"
-], function (_support, _resolveSnapshotTarget, _writeSelection, _reconcile, _config) {
+], function (_support, _resolveSnapshotTarget, _hostFilterIo, _reconcile, _config) {
   "use strict";
 
   function restoreStateFields(_record, _snapshotRecord) {
@@ -47,7 +47,7 @@ define([
           });
           continue;
         }
-        var written = await _writeSelection(
+        var written = await _hostFilterIo.writeInstanceSelection(
           _KDB, _runtime, target.instance.filterInstanceId, snapshot.byId[ids[i]].hostValues
         );
         if (_support.isStaleRun(_runtime, payload)) {

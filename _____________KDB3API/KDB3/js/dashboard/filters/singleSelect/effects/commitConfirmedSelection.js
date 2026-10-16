@@ -1,7 +1,7 @@
 define([
   "./executeConfirmedCommit.js",
   "../state/selection.js",
-  "./restorePreviousConfirmedSelection.js",
+  "../hostFilterIo.js",
   "./requestFilterDockPopupAction.js",
   "./finalizeConfirmedCommit.js",
   "./setCommitUiState.js",
@@ -10,7 +10,7 @@ define([
 ], function (
   _executeConfirmedCommit,
   _selectionState,
-  _restorePreviousConfirmedSelection,
+  _hostFilterIo,
   _requestFilterDockPopupAction,
   _finalizeConfirmedCommit,
   _setCommitUiState,
@@ -22,7 +22,7 @@ define([
   var ROLLBACK_UNVERIFIED_CODE = "SINGLE_SELECT_HOST_ROLLBACK_UNVERIFIED";
 
   function restoreOrMarkUncertain(_KDB, _handoff, _filterState, _filterRef, _previousConfirmedSelection, _previousValues) {
-    return _restorePreviousConfirmedSelection(
+    return _hostFilterIo.restorePreviousSelection(
       _KDB,
       _filterRef,
       _previousConfirmedSelection,

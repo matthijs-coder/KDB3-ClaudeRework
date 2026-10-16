@@ -1,24 +1,5 @@
-define([
-  "../effects/verifyCommitFilterValue.js",
-  "../effects/hostFilterWrite.js",
-  "../config.js"
-], function (_verifyCommitFilterValue, _hostWrite, _config) {
+define(["../config.js"], function (_config) {
   "use strict";
-
-  async function rollbackToPreviousValues(_filtersFacet, _filterRef, _previousValues) {
-    try {
-      if (!(await _hostWrite.writeValues(_filtersFacet, _filterRef, _previousValues))) {
-        return false;
-      }
-      var expected = _previousValues && _previousValues[0]
-        ? { displayValue: _previousValues[0].d, useValue: _previousValues[0].u }
-        : { displayValue: "Alle", useValue: "" };
-      return _verifyCommitFilterValue(_filtersFacet, _filterRef, expected).ok === true;
-    } catch (error) {
-      console.error("[singleSelect.applyOwnerSelection] rollback reread failed", error);
-      return false;
-    }
-  }
 
   function isNegativeAck(_ack) {
     return _ack === false || (_ack && _ack.ok === false) ||
@@ -95,7 +76,6 @@ define([
   }
 
   return {
-    rollbackToPreviousValues: rollbackToPreviousValues,
     notifySichtOwner: notifySichtOwner,
     success: success,
     failure: failure

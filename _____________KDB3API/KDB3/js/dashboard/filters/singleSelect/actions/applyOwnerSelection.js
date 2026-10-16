@@ -1,11 +1,9 @@
 define([
-  "../effects/resolveFilterRef.js",
-  "../effects/writeVerifiedSelection.js",
+  "../hostFilterIo.js",
   "../runtime.js",
-  "../effects/hostFilterWrite.js",
   "../config.js",
   "./ownerSelectionSupport.js"
-], function (_resolveFilterRef, _writeVerifiedSelection, _singleSelectRuntime, _hostWrite, _config, _support) {
+], function (_hostFilterIo, _singleSelectRuntime, _config, _support) {
   "use strict";
 
   async function applyOwnerSelection(_KDB, _runtime, _payload) {
@@ -34,15 +32,15 @@ define([
         return _support.failure(id, _config.errorCodes.INSTANCE_NOT_FOUND, "writable delegated Sicht descriptor missing");
       }
       var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
-      var filterRef = _resolveFilterRef.resolveFilterRef(_KDB, _runtime, { filterInstanceId: id });
-      if (!filterRef || !_hostWrite.isWriteReady(filtersFacet)) {
+      var filterRef = _hostFilterIo.resolveFilterRef(_KDB, _runtime, { filterInstanceId: id });
+      if (!filterRef || !_hostFilterIo.isWriteReady(filtersFacet)) {
         return _support.failure(id, _config.errorCodes.HOST_WRITE_FAILED, "host filter API unavailable");
       }
-      var previousValues = _hostWrite.readValues(filtersFacet, filterRef);
+      var previousValues = _hostFilterIo.readValues(filtersFacet, filterRef);
       var selection = payload.selection || {};
       var values = selection.displayValue === "Alle"
         ? [] : [{ d: selection.displayValue, u: selection.useValue }];
-      var writeResult = await _writeVerifiedSelection(filtersFacet, filterRef, values, {
+      var writeResult = await _hostFilterIo.writeVerified(filtersFacet, filterRef, values, {
         expected: selection,
         verifyRollback: true
       });
@@ -78,7 +76,7 @@ define([
         displaySource: "cognos"
       });
       if (!ownerResult.ok) {
-        var ownerRollbackOk = await _support.rollbackToPreviousValues(filtersFacet, filterRef, previousValues);
+        var ownerRollbackOk = await _hostFilterIo.rollbackVerified(filtersFacet, filterRef, previousValues);
         return _support.failure(
           id,
           ownerRollbackOk ? ownerResult.code : _config.errorCodes.HOST_ROLLBACK_UNVERIFIED,

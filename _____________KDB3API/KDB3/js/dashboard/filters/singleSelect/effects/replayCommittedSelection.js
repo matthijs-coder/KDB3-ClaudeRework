@@ -1,15 +1,12 @@
 define([
   "./replayCommittedSelectionWrites.js",
-  "./restorePreviousConfirmedSelection.js",
+  "../hostFilterIo.js",
   "../state/selection.js",
   "../config.js",
   "../history/notifySpecialOwnerForReplay.js",
-  "./resolveFilterRef.js",
-  "../runtime.js",
-  "./hostFilterWrite.js"
+  "../runtime.js"
 ], function (
-  _writes, _restorePrevious, _selectionState, _config, _notifySpecialOwner,
-  _resolveFilterRef, _singleSelectRuntime, _hostWrite
+  _writes, _hostFilterIo, _selectionState, _config, _notifySpecialOwner, _singleSelectRuntime
 ) {
   "use strict";
 
@@ -26,12 +23,12 @@ define([
   // (ROLLBACK_FAILED) and never counts as success.
 
   function resolveFilterRef(_KDB, _runtime, _filterInstanceId) {
-    return _resolveFilterRef.resolveFilterRef(_KDB, _runtime, { filterInstanceId: _filterInstanceId });
+    return _hostFilterIo.resolveFilterRef(_KDB, _runtime, { filterInstanceId: _filterInstanceId });
   }
 
   async function rollbackHost(_KDB, _filterRef, _previousSelection, _previousValues) {
     try {
-      return await _restorePrevious(_KDB, _filterRef, _previousSelection, _previousValues) === true;
+      return await _hostFilterIo.restorePreviousSelection(_KDB, _filterRef, _previousSelection, _previousValues) === true;
     } catch (error) {
       console.error("[singleSelect.replayCommittedSelection] rollback threw", error);
       return false;
@@ -56,7 +53,7 @@ define([
     var notifyResult;
     var rollbackVerified;
 
-    if (!_record || !runtime || !singleSelectRoot || !_hostWrite.isWriteReady(filtersFacet)) {
+    if (!_record || !runtime || !singleSelectRoot || !_hostFilterIo.isWriteReady(filtersFacet)) {
       return { ok: false, errorCode: _config.historyReplayCodes.REPLAY_FAILED };
     }
     // `_record` is the resolver's published (projected) descriptor and does
@@ -70,7 +67,7 @@ define([
     if (!filterRef) {
       return { ok: false, errorCode: _config.historyReplayCodes.INSTANCE_MISSING };
     }
-    previousHostValues = _hostWrite.readValues(filtersFacet, filterRef);
+    previousHostValues = _hostFilterIo.readValues(filtersFacet, filterRef);
     previousSelection = _selectionState.normalizeConfirmedSelection(priorFilterState.currentSelection);
 
     try {
