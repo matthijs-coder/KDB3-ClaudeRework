@@ -162,7 +162,7 @@ test("history: replay handler only knows widget_textEdit; pushed step keeps key 
   const history = load("history.js");
   const pushed = [];
   const kdb = createKdb({ history: { pushCommittedStep: (step) => (pushed.push(step), true) } });
-  assert.equal(history.pushTextEditHistory(kdb, "w1", "a", "b"), true);
+  assert.deepEqual(history.pushTextEditHistory(kdb, "w1", "a", "b"), { ok: true });
   assert.equal(pushed[0].key, "widget_textEdit");
   assert.deepEqual(pushed[0].old, { widgetId: "w1", text: "a" });
   assert.deepEqual(pushed[0].new, { widgetId: "w1", text: "b" });
@@ -358,4 +358,140 @@ test("destroy before the edit-arming timer fires leaves no listener behind", asy
   assert.equal(fixture.listeners.focusout, undefined);
   assert.equal(fixture.editable.contentEditable, "false");
   assert.equal(fixture.editable.attributes["data-kdb-text-edit-active"], undefined);
+});
+
+function quietConsoleError(fn) {
+  const original = console.error;
+  const calls = [];
+  console.error = (...args) => calls.push(args);
+  return Promise.resolve()
+    .then(fn)
+    .finally(() => {
+      console.error = original;
+    })
+    .then((value) => ({ value, calls }));
+}
+
+function setupEditorEnv() {
+  const dom = installFakeDocument();
+  globalThis.window = { getSelection: () => ({ removeAllRanges() {}, addRange() {} }), dispatchEvent() {} };
+  globalThis.document.createRange = () => ({ selectNodeContents() {} });
+  return dom;
+}
+
+function throwingShell(dom, widgetId) {
+  const shell = new FakeElement("div");
+  shell.querySelector = () => {
+    throw new Error("boom " + widgetId);
+  };
+  dom.register(widgetId, shell);
+  return shell;
+}
+
+test("parameter-set restore isolates a throwing entry: others restored, old per-entry diagnostic recorded", async () => {
+  const dom = setupEditorEnv();
+  const kdb = createKdb();
+  const controller = load("index.js")(kdb, {});
+  controller.mount({});
+  const w1 = createTextWidgetFixture(dom, "w1", "x");
+  throwingShell(dom, "w2");
+  const w3 = createTextWidgetFixture(dom, "w3", "x");
+
+  const { value: result, calls } = await quietConsoleError(() => controller.dispatch({
+    type: "widgetText/parameterSetRestoreRequested",
+    payload: {
+      runId: 1,
+      skipHistory: true,
+      widgets: [{ kind: "txt", text: "A" }, { kind: "txt", text: "B" }, { kind: "txt", text: "C" }],
+      widgetCorrelation: { 0: { widgetId: "w1" }, 1: { widgetId: "w2" }, 2: { widgetId: "w3" } }
+    }
+  }));
+  assert.equal(result.ok, false);
+  assert.equal(w1.span.textContent, "A");
+  assert.equal(w3.span.textContent, "C");
+  assert.ok(calls.length >= 1);
+  assert.deepEqual(result.diagnostics.map((d) => [d.code, d.entryIndex]), [["WRITEBACK_WIDGET_RESTORE_FAILED", "1"]]);
+  assert.match(result.diagnostics[0].message, /widgetId w2: WIDGET_TEXT_CONTENT_CREATE_FAILED/);
+  assert.equal(kdb.state.widgets.text.lifecycle, "ready", "no module-level error state for restore");
+});
+
+test("parameter-set reset isolates a throwing entry and still cleans the others", async () => {
+  const dom = setupEditorEnv();
+  const kdb = createKdb();
+  const controller = load("index.js")(kdb, {});
+  controller.mount({});
+  createTextWidgetFixture(dom, "w1", "x");
+  createTextWidgetFixture(dom, "w2", "x");
+  createTextWidgetFixture(dom, "w3", "x");
+  for (const id of ["w1", "w2", "w3"]) {
+    assert.equal((await controller.dispatch({ type: "widgetText/contentCreate", widgetId: id, payload: {} })).ok, true);
+  }
+  const bad = kdb.runtime.widgetText.byId.w2;
+  bad.editSession = { isActive: true, originalText: "x", startedAt: 1 };
+  bad.domRefs = { shellEl: throwingShell(dom, "w2") };
+
+  const { value: result } = await quietConsoleError(() => controller.dispatch({
+    type: "widgetText/parameterSetResetRequested",
+    payload: { runId: 2, widgetIds: ["w1", "w2", "w3"] }
+  }));
+  assert.equal(result.ok, false);
+  assert.equal(result.status, "error");
+  assert.deepEqual(result.diagnostics.map((d) => [d.code, d.widgetId]), [["WRITEBACK_WIDGET_RESET_FAILED", "w2"]]);
+  assert.equal(kdb.state.widgets.text.byId.w1, undefined);
+  assert.equal(kdb.state.widgets.text.byId.w3, undefined);
+});
+
+test("a throwing automatic refit does not fail a committed edit; reflow failure only flags diagnostics", async () => {
+  const dom = setupEditorEnv();
+  const pushed = [];
+  const kdb = createKdb({ history: { pushCommittedStep: (step) => (pushed.push(step), true) } });
+  const controller = load("index.js")(kdb, {});
+  controller.mount({});
+  const fixture = createTextWidgetFixture(dom, "w1", "old");
+  await controller.dispatch({ type: "widgetText/contentCreate", widgetId: "w1", payload: {} });
+
+  const originalStyle = fixture.span.style;
+  fixture.span.style = new Proxy({}, { set() { throw new Error("style boom"); } });
+  const { value: committed, calls } = await quietConsoleError(() => controller.dispatch({
+    type: "widgetText/commitTextEdit", widgetId: "w1", payload: { nextText: "new" }
+  }));
+  assert.equal(committed.ok, true);
+  assert.equal(committed.status, "success");
+  assert.equal(kdb.state.widgets.text.byId.w1.content.text, "new");
+  assert.equal(pushed.length, 1);
+  assert.ok(calls.some((args) => String(args[0]).includes("refitAutomaticFont")));
+  fixture.span.style = originalStyle;
+
+  Object.defineProperty(fixture.editable, "offsetHeight", { get() { throw new Error("layout boom"); } });
+  const { value: fontResult } = await quietConsoleError(() => controller.dispatch({
+    type: "widgetText/applyFontSize", widgetId: "w1", payload: { nextValue: "automatic" }
+  }));
+  assert.equal(fontResult.ok, true);
+  assert.equal(fontResult.reportToSettings.diagnostics.reflow, false);
+});
+
+test("a throwing history push maps to WIDGET_TEXT_HISTORY_COMMIT_FAILED with the message", async () => {
+  const dom = setupEditorEnv();
+  const kdb = createKdb({ history: { pushCommittedStep: () => { throw new Error("history boom"); } } });
+  const controller = load("index.js")(kdb, {});
+  controller.mount({});
+  createTextWidgetFixture(dom, "w1", "old");
+  await controller.dispatch({ type: "widgetText/contentCreate", widgetId: "w1", payload: {} });
+  const { value: result } = await quietConsoleError(() => controller.dispatch({
+    type: "widgetText/commitTextEdit", widgetId: "w1", payload: { nextText: "new" }
+  }));
+  assert.equal(result.ok, false);
+  assert.equal(result.errorCode, "WIDGET_TEXT_HISTORY_COMMIT_FAILED");
+  assert.equal(result.errorMessage, "history boom");
+});
+
+test("route lookup uses own properties only", async () => {
+  installFakeDocument();
+  const kdb = createKdb();
+  const controller = load("index.js")(kdb, {});
+  controller.mount({});
+  for (const type of ["constructor", "toString", "__proto__", "hasOwnProperty"]) {
+    assert.equal((await controller.dispatch({ type, widgetId: "w1" })).errorCode, "WIDGET_TEXT_UNKNOWN_ACTION", type);
+  }
+  assert.equal(kdb.state.widgets.text.lifecycle, "ready");
 });
