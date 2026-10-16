@@ -298,6 +298,27 @@ test("a release for an owner whose frame is removed prunes its records", async (
   });
 });
 
+test("two overlapping releases of a removed owner: records afterwards", async () => {
+  await withEnv({ cleanupMs: 100 }, async (env) => {
+    await env.resolve("o1", 1);
+    await waitUntil(() => env.applyStarts.some((e) => e.kind === "cleanup"));
+    await env.remove("o1");
+    const release = () => env.topN().dispatch({
+      type: "widgetTopN/cleanup",
+      widgetId: "o1",
+      payload: { ownerVisId: "o1", reason: "remove", clearHelperBinding: true, releaseClaim: true }
+    });
+    const first = release();
+    await sleep(10);
+    const results = await Promise.all([first, release()]);
+    await env.settle();
+    assert.deepEqual(results.map((r) => r.ok), [true, true]);
+    assert.equal(env.ownerRuntime("o1"), undefined);
+    assert.equal(env.ownerState("o1").helperWidgetId, null, "idle state record left behind");
+    assert.deepEqual(env.helperAttrs("h1"), [null, null]);
+  });
+});
+
 test("a remove/destroy release whose helper clear cannot be planned still releases the claim", async () => {
   await withEnv({ applyMs: 300 }, async (env) => {
     const running = env.resolve("o1", 1);
