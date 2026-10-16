@@ -553,6 +553,35 @@ test("tab capture failures", async () => {
   await runScenario("capture-encode-failed", { vendor: { canvas: { encodeThrows: new Error("encode boom") } } });
 });
 
+test("readiness polling does not accumulate abort listeners on the run signal", async () => {
+  let live = 0;
+  let peak = 0;
+  class CountingController extends AbortController {
+    constructor() {
+      super();
+      const signal = this.signal;
+      const add = signal.addEventListener.bind(signal);
+      const remove = signal.removeEventListener.bind(signal);
+      signal.addEventListener = (type, handler, options) => {
+        if (type === "abort") { live += 1; peak = Math.max(peak, live); }
+        return add(type, handler, options);
+      };
+      signal.removeEventListener = (type, handler, options) => {
+        if (type === "abort") live -= 1;
+        return remove(type, handler, options);
+      };
+    }
+  }
+  const { out } = await runScenario("readiness-listener-count", {
+    setup: (_kdb, ctx) => { ctx.spinners = true; },
+    options: { timeoutMs: 450 },
+    stubs: { AbortController: CountingController },
+    record: false
+  });
+  assert.strictEqual(out.result.errorCode, "DASHBOARD_PDF_CAPTURE_READINESS_TIMEOUT");
+  assert.ok(peak <= 2, `abort listeners on the run signal peaked at ${peak}`);
+});
+
 test("restore failures become warnings on a successful export", async () => {
   await runScenario("restore-traverse-failed", {
     setup: (_kdb, ctx) => { ctx.onTraverse = (action) => (action.payload.source === "dashboardPdfRestore" ? false : true); }
