@@ -94,7 +94,7 @@ define([
   }
 
   async function applyMoveMutation(_ctx, payload) {
-    var snapshot = _tabMutation.readRunSnapshot(_ctx.runtime, payload);
+    var snapshot = _tabMutation.readRunSnapshot(base, _ctx.runtime, payload);
     var tabTargets = payload.tabIdxToScopeId || {};
     var appliedScopes = [];
     var clearedScopes = [];
@@ -133,7 +133,7 @@ define([
   }
 
   async function applyDuplicateMutation(_ctx, payload) {
-    var snapshot = _tabMutation.readRunSnapshot(_ctx.runtime, payload);
+    var snapshot = _tabMutation.readRunSnapshot(base, _ctx.runtime, payload);
     var tabTargets = payload.tabIdxToScopeId || {};
     var appliedScopes = [];
     var diagnostics = [];
@@ -178,7 +178,7 @@ define([
   }
 
   async function runRestoreDeletedMutation(_ctx, payload) {
-    var snapshot = _tabMutation.readRunSnapshot(_ctx.runtime, payload);
+    var snapshot = _tabMutation.readRunSnapshot(base, _ctx.runtime, payload);
     var appliedScopes = [];
     var diagnostics = [];
     var restoreFilters = payload.plan.restore && payload.plan.restore.filters && payload.plan.restore.filters.dienststelle || {};

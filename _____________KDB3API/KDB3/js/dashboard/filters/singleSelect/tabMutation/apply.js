@@ -158,7 +158,7 @@ define([
     var appliedScopes = [];
     var clearedScopes = [];
     try {
-      var snapshot = _tabMutation.readRunSnapshot(runtime, payload);
+      var snapshot = _tabMutation.readRunSnapshot(_support.tabMutationBase, runtime, payload);
       if (!snapshot) {
         return _tabMutation.applyFailure(payload.operationId, [], [], [
           _support.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED, "prepare snapshot missing")

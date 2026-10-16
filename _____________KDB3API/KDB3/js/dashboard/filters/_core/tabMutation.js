@@ -11,6 +11,9 @@
  * base = {
  *   name                 owner name for log labels: "[<name>.<phase>] failed"
  *   guard                createRunGuard(...) of this owner
+ *   ledger               optional { writeSnapshot, readSnapshot, deleteSnapshot } over runtime.tabMutationSnapshots;
+ *                        default: core/utils/filters/tabMutationRun/tabMutationSnapshots.js, which also seeds
+ *                        runtime.tabMutationRunId / tabMutationSnapshots when they are missing
  * }
  * CODES = the four TABS_MUTATION_* error codes the saga and the history know.
  *
@@ -33,6 +36,7 @@
  * createRestore(base, hooks) -> async (ctx, payload) -> result
  *     run guard -> snapshot lookup (none: clean empty result) -> hooks.run(ctx, payload, snapshot) -> release.
  *     hooks.release: "always" (finally, also when run throws) | "afterRun" (only when run returned)
+ *     hooks.releaseMissing: true: an entry that is falsy still gets its key deleted (singleSelect)
  *     hooks.rejected(guardResult, payload)    default: restore result with the guard diagnostics and errorCode
  * createResync(base, hooks) -> async (ctx, payload) -> result
  *     run guard -> hooks.run(ctx, payload, diagnostics); run returning false means failure (diagnostics already added).
@@ -73,6 +77,10 @@ define([
         return _guardRunUtil.cancelled(_message, _payload, _runtime, options);
       }
     };
+  }
+
+  function ledgerOf(_base) {
+    return _base.ledger || _snapshots;
   }
 
   function prepareFailure(_operationId, _diagnostics) {
@@ -121,8 +129,8 @@ define([
   }
 
   // The prepare snapshot of this run, or null when it is missing or belongs to another run.
-  function readRunSnapshot(_runtime, _payload) {
-    var snapshot = _snapshots.readSnapshot(_runtime, _payload.operationId);
+  function readRunSnapshot(_base, _runtime, _payload) {
+    var snapshot = ledgerOf(_base).readSnapshot(_runtime, _payload.operationId);
     return snapshot && snapshot.runId === _payload.runId ? snapshot : null;
   }
 
@@ -156,7 +164,7 @@ define([
         if (_hooks.prune !== false) { pruneSupersededSnapshots(_ctx.runtime, payload.runId); }
         var captured = _hooks.capture(_ctx, payload);
         if (!captured.ok) { return prepareFailure(payload.operationId, captured.diagnostics); }
-        _snapshots.writeSnapshot(_ctx.runtime, payload.operationId, captured.snapshot);
+        ledgerOf(_base).writeSnapshot(_ctx.runtime, payload.operationId, captured.snapshot);
         var result = { ok: true, operationId: payload.operationId, snapshotScopes: captured.scopeIds, diagnostics: [] };
         var slot = readHistorySourceSlot(payload.plan);
         if (slot) { result.historySlice = _hooks.historySlice(_ctx, payload, captured.snapshot, slot); }
@@ -210,17 +218,19 @@ define([
           ? _hooks.rejected(guard, payload)
           : restoreResult(false, payload.operationId, [], [], guard.diagnostics, guard.errorCode || CODES.CANCELLED);
       }
-      var snapshot = _snapshots.readSnapshot(_ctx.runtime, payload.operationId);
-      if (!snapshot) { return restoreResult(true, payload.operationId, [], [], []); }
+      var ledger = ledgerOf(_base);
+      var snapshot = ledger.readSnapshot(_ctx.runtime, payload.operationId);
+      var empty = function () { return restoreResult(true, payload.operationId, [], [], []); };
+      if (!snapshot && _hooks.releaseMissing !== true) { return empty(); }
       if (_hooks.release === "afterRun") {
         var result = await _hooks.run(_ctx, payload, snapshot);
-        _snapshots.deleteSnapshot(_ctx.runtime, payload.operationId);
+        ledger.deleteSnapshot(_ctx.runtime, payload.operationId);
         return result;
       }
       try {
-        return await _hooks.run(_ctx, payload, snapshot);
+        return snapshot ? await _hooks.run(_ctx, payload, snapshot) : empty();
       } finally {
-        _snapshots.deleteSnapshot(_ctx.runtime, payload.operationId);
+        ledger.deleteSnapshot(_ctx.runtime, payload.operationId);
       }
     };
   }

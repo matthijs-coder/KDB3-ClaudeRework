@@ -133,9 +133,9 @@ test("apply: guard rejection, operation table, unsupported operation, onError po
 
 test("apply helpers: read the snapshot of this run only, superseded result", () => {
   const runtime = { tabMutationSnapshots: { op: { runId: 3 } } };
-  assert.equal(runner.readRunSnapshot(runtime, { operationId: "op", runId: 3 }).runId, 3);
-  assert.equal(runner.readRunSnapshot(runtime, { operationId: "op", runId: 4 }), null);
-  assert.equal(runner.readRunSnapshot(runtime, { operationId: "none", runId: 3 }), null);
+  assert.equal(runner.readRunSnapshot(base, runtime, { operationId: "op", runId: 3 }).runId, 3);
+  assert.equal(runner.readRunSnapshot(base, runtime, { operationId: "op", runId: 4 }), null);
+  assert.equal(runner.readRunSnapshot(base, runtime, { operationId: "none", runId: 3 }), null);
   const result = runner.supersededResult(base, { runtime: { tabMutationRunId: 9 } }, { operationId: "o", runId: 1 }, ["a"], ["c"], "late");
   assert.deepEqual(result, {
     ok: false, operationId: "o", appliedScopes: ["a"], clearedScopes: ["c"],

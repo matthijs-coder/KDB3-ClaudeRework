@@ -16,7 +16,20 @@ define([
       operationMismatchMessage: "operationId does not match the active tab mutation run"
     }
   });
-  var TAB_MUTATION_BASE = { name: "singleSelect", guard: RUN_GUARD };
+  // singleSelect reads and writes its ledger as it always did: no seeding of the run id, no repair of a missing map.
+  var LEDGER = {
+    writeSnapshot: function (_runtime, _operationId, _snapshot) {
+      _runtime.tabMutationSnapshots = _runtime.tabMutationSnapshots || {};
+      _runtime.tabMutationSnapshots[_operationId] = _snapshot;
+    },
+    readSnapshot: function (_runtime, _operationId) {
+      return _runtime.tabMutationSnapshots && _runtime.tabMutationSnapshots[_operationId];
+    },
+    deleteSnapshot: function (_runtime, _operationId) {
+      if (_runtime.tabMutationSnapshots) { delete _runtime.tabMutationSnapshots[_operationId]; }
+    }
+  };
+  var TAB_MUTATION_BASE = { name: "singleSelect", guard: RUN_GUARD, ledger: LEDGER };
 
   function cancelled(_message) {
     return RUN_GUARD.cancelled(_message, null, null);

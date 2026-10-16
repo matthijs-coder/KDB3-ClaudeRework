@@ -136,7 +136,7 @@ define([
   // Every operation needs the prepare snapshot of this run.
   function withRunSnapshot(_apply) {
     return function (_ctx, _payload) {
-      var snapshot = _tabMutation.readRunSnapshot(_ctx.runtime, _payload);
+      var snapshot = _tabMutation.readRunSnapshot(base, _ctx.runtime, _payload);
       if (!snapshot) { return applyFailed(_payload.operationId, "NativeMultiSelect prepare snapshot missing"); }
       return _apply({
         ctx: _ctx,

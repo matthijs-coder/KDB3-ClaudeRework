@@ -92,6 +92,7 @@ define([
 
   var restore = _tabMutation.createRestore(_support.tabMutationBase, {
     release: "always",
+    releaseMissing: true,
     rejected: function (_guard) { return _guard; },
     run: run
   });
