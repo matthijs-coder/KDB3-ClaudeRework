@@ -1,4 +1,4 @@
-﻿define([
+define([
   "./config.js",
   "./avatar.js",
   "./selectors.js",

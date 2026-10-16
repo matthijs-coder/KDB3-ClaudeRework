@@ -32,17 +32,18 @@ define([
   }
 
   // Binds only the dropbox(es) of one page. pageIds are candidate element ids (page id first, tab id second).
+  // Returns { status, boundEls }: boundEls are the dropbox elements that are bound after this pass.
   function bindPageDropboxes(ctx, pageIds) {
     const dropboxEls = readFirstPageDropboxes(ctx._KDB, pageIds);
     const helperTabIds = beginBindPass(ctx);
-    const statuses = dropboxEls.map(function (dropboxEl) {
-      return bindDropbox(ctx, dropboxEl, helperTabIds);
+    const boundEls = dropboxEls.filter(function (dropboxEl) {
+      return bindDropbox(ctx, dropboxEl, helperTabIds) === BIND_STATUS.BOUND;
     });
 
-    if (statuses.length === 0) {
-      return BIND_STATUS.MISSING;
+    if (dropboxEls.length === 0) {
+      return { status: BIND_STATUS.MISSING, boundEls: boundEls };
     }
-    return statuses.indexOf(BIND_STATUS.BOUND) === -1 ? BIND_STATUS.HELPER : BIND_STATUS.BOUND;
+    return { status: boundEls.length === 0 ? BIND_STATUS.HELPER : BIND_STATUS.BOUND, boundEls: boundEls };
   }
 
   function readFirstPageDropboxes(_KDB, pageIds) {

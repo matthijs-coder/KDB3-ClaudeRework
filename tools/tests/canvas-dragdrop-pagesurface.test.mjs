@@ -1,6 +1,6 @@
 // Unit tests for dashboard/canvas/{dragDrop,pageSurface} with a minimal AMD loader and a fake DOM.
 // Run: node --test tools/tests/canvas-dragdrop-pagesurface.test.mjs   (Node >= 22, no dependencies)
-import { test } from "node:test";
+import { test, mock } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -106,6 +106,10 @@ class FakeEl extends Target {
   querySelector(selector) {
     return this.querySelectorAll(selector)[0] || null;
   }
+  contains(node) {
+    for (let current = node; current; current = current.parentNode) if (current === this) return true;
+    return false;
+  }
   cloneNode() {
     return new FakeEl(this.id, [...this.classes], this.doc);
   }
@@ -170,6 +174,20 @@ const registerPageSurface = loadJs("dashboard/canvas/pageSurface/index.js");
 const dragState = loadJs("dashboard/canvas/dragDrop/state.js");
 const TABS_CHANGED = "tabs:changed";
 const sleep = (ms) => new Promise((resolveSleep) => setTimeout(resolveSleep, ms));
+const flushMicrotasks = async () => { for (let i = 0; i < 25; i += 1) await Promise.resolve(); };
+async function advance(ms) {
+  await flushMicrotasks();
+  mock.timers.tick(ms);
+  await flushMicrotasks();
+}
+const withFakeTimers = (fn) => async (doc) => {
+  mock.timers.enable({ apis: ["setTimeout", "Date"] });
+  try {
+    await fn(doc);
+  } finally {
+    mock.timers.reset();
+  }
+};
 const dropboxListenerCount = (el) => el.registered.length;
 
 test("dragDrop reducer: drag lifecycle and error handling", () => {
@@ -223,19 +241,21 @@ test("tabs:changed binds only the activated page and skips bound pages", withDom
   api.destroy();
 }));
 
-test("tabs:changed for a lazily loaded page binds when the element appears (bounded poll)", withDom(async (doc) => {
+test("tabs:changed for a lazily loaded page binds when the element appears (bounded poll)", withDom(withFakeTimers(async (doc) => {
   const _KDB = createKdb(doc);
   const api = registerDragDrop(_KDB);
   api.mount();
   _KDB.events.emit(TABS_CHANGED, { pageId: "pageLate", tabId: "tabLate" });
   assert.ok(_KDB.runtime.dragDrop.abortControllers.tabsChangedRebind, "poll is tracked in the abort bucket");
-  await sleep(50);
+  await advance(50);
   const late = addPage(doc, "tabLate", "pageLate");
-  await sleep(450);
-  assert.equal(dropboxListenerCount(late.pageEl), 4);
+  await advance(150);
+  assert.equal(dropboxListenerCount(late.pageEl), 4, "bound on the first pass after the element appeared");
+  assert.ok(_KDB.runtime.dragDrop.abortControllers.tabsChangedRebind, "poll keeps verifying one more interval");
+  await advance(200);
   assert.equal(_KDB.runtime.dragDrop.abortControllers.tabsChangedRebind, undefined);
   api.destroy();
-}));
+})));
 
 test("a newer activation or destroy cancels the pending poll", withDom(async (doc) => {
   const _KDB = createKdb(doc);
@@ -359,3 +379,217 @@ test("pageSurface without a ready facet applies the settings immediately on moun
   assert.deepEqual(calls, [["width", "500px"], ["height", "400px"]]);
   api.destroy();
 });
+
+function createDropEvent(el, payload, point = { x: 10, y: 10 }) {
+  const body = JSON.stringify(payload);
+  return {
+    target: el,
+    currentTarget: el,
+    clientX: point.x,
+    clientY: point.y,
+    preventDefault() {},
+    dataTransfer: { getData: (type) => (type === "application/json" ? body : "") }
+  };
+}
+
+function mountWithDropbox(doc, extra = {}) {
+  const page = addPage(doc, "tabA", "pageA");
+  const emitted = [];
+  const notices = [];
+  const _KDB = createKdb(doc, { services: { message: { notify: (n) => notices.push(n) } }, ...extra });
+  _KDB.events.subscribe("canvas:dropValidated", (payload) => emitted.push(payload));
+  const api = registerDragDrop(_KDB);
+  api.mount();
+  return { page, emitted, notices, _KDB, api };
+}
+
+const textPayload = { draggedElementType: "text", defaultWidth: 20, defaultHeight: 20, offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1, originId: "origin1", padKey: "text", sourceKind: "toolboxTextButton", payload: { title: "Notiz" } };
+
+test("a valid drop emits canvas:dropValidated and records the validation in state", withDom(async (doc) => {
+  const { page, emitted, _KDB, api } = mountWithDropbox(doc);
+  const origin = new FakeEl("origin1", [], doc);
+  doc.body.appendChild(origin);
+  page.pageEl.dispatch("drop", createDropEvent(page.pageEl, textPayload));
+  assert.equal(emitted.length, 1);
+  assert.equal(emitted[0].dropboxId, "pageA");
+  assert.equal(emitted[0].tabId, "tabA");
+  assert.equal(emitted[0].draggedElementType, "text");
+  assert.equal(emitted[0].originId, "origin1");
+  assert.equal(emitted[0].sourceKind, "toolboxTextButton");
+  assert.deepEqual(emitted[0].payload, { title: "Notiz" });
+  assert.deepEqual(Object.keys(emitted[0].layout).sort(), ["defaultHeight", "defaultWidth", "dragOffset", "pointer", "scaleX", "scaleY"]);
+  assert.equal(emitted[0].layout.pointer.offsetX, 10);
+  assert.equal(origin.classes.has("dropped"), true);
+  const state = api.getState();
+  assert.equal(state.lastValidation.isValid, true);
+  assert.equal(state.lastValidation.dropboxId, "pageA");
+  assert.equal(state.isDragging, false);
+  assert.equal(_KDB.state.dragDrop.lastValidation.draggedElementType, "text");
+  api.destroy();
+}));
+
+test("rejected drops: out-of-bounds, helper-tab and filter-name conflict emit nothing and notify", withDom(async (doc) => {
+  const { page, emitted, notices, _KDB, api } = mountWithDropbox(doc, {
+    properties: { filterPropObj: { src: { globalFilters: { Jahr: {} }, pageContextFilters: {} } } }
+  });
+  page.pageEl.dispatch("drop", createDropEvent(page.pageEl, textPayload, { x: 95, y: 10 }));
+  assert.equal(api.getState().lastValidation.reason, "out-of-bounds");
+  page.pageEl.dispatch("drop", createDropEvent(page.pageEl, { ...textPayload, payload: { title: " jahr " } }));
+  assert.equal(api.getState().lastValidation.reason, "name-conflicts-with-filter");
+  _KDB.runtime.dragDrop.helperTabIds = ["tabA"];
+  page.pageEl.dispatch("drop", createDropEvent(page.pageEl, textPayload));
+  assert.equal(api.getState().lastValidation.reason, "helper-tab");
+  assert.equal(api.getState().lastValidation.isValid, false);
+  assert.equal(emitted.length, 0);
+  assert.equal(notices.length, 3);
+  assert.ok(notices.every((n) => n.severity === "warning"));
+  assert.match(notices[1].message, /Filterbezeichnung/);
+  api.destroy();
+}));
+
+test("drop with a foreign payload is rejected as invalid-widget-type", withDom(async (doc) => {
+  const { page, emitted, api } = mountWithDropbox(doc);
+  page.pageEl.dispatch("drop", createDropEvent(page.pageEl, { draggedElementType: "chart" }));
+  assert.equal(api.getState().lastValidation.reason, "invalid-widget-type");
+  assert.equal(emitted.length, 0);
+  api.destroy();
+}));
+
+test("hover: dragover highlights within bounds, clears outside; dragleave honours inner targets", withDom(async (doc) => {
+  const { page, _KDB, api } = mountWithDropbox(doc);
+  _KDB.state.dragDrop.session = { defaultWidth: 20, defaultHeight: 20, offsetX: 0, offsetY: 0, scaleX: 1, scaleY: 1 };
+  const makeEvent = (x, y, extra = {}) => ({ target: page.pageEl, currentTarget: page.pageEl, clientX: x, clientY: y, preventDefault() {}, dataTransfer: {}, ...extra });
+  const inside = makeEvent(10, 10);
+  page.pageEl.dispatch("dragover", inside);
+  assert.equal(page.pageEl.classes.has("kdb_drag-over"), true);
+  assert.equal(inside.dataTransfer.dropEffect, "copy");
+  const outside = makeEvent(95, 10);
+  page.pageEl.dispatch("dragover", outside);
+  assert.equal(page.pageEl.classes.has("kdb_drag-over"), false);
+  assert.equal(outside.dataTransfer.dropEffect, "none");
+  page.pageEl.dispatch("dragenter", makeEvent(10, 10));
+  assert.equal(page.pageEl.classes.has("kdb_drag-over"), true);
+  const child = new FakeEl("child", [], doc);
+  page.pageEl.appendChild(child);
+  page.pageEl.dispatch("dragleave", makeEvent(10, 10, { relatedTarget: child }));
+  assert.equal(page.pageEl.classes.has("kdb_drag-over"), true, "moving onto a child keeps the highlight");
+  page.pageEl.dispatch("dragleave", makeEvent(10, 10, { relatedTarget: null }));
+  assert.equal(page.pageEl.classes.has("kdb_drag-over"), false);
+  api.destroy();
+}));
+
+test("a bound page that became a helper page is unbound on activation", withDom(withFakeTimers(async (doc) => {
+  const _KDB = createKdb(doc, { state: { launchpad: { helperTabIds: [] } } });
+  const page = addPage(doc, "tabA", "pageA");
+  const api = registerDragDrop(_KDB);
+  api.mount();
+  assert.equal(dropboxListenerCount(page.pageEl), 4);
+  _KDB.state.launchpad.helperTabIds = ["tabA"];
+  _KDB.events.emit(TABS_CHANGED, { pageId: "pageA", tabId: "tabA" });
+  await advance(0);
+  assert.equal(dropboxListenerCount(page.pageEl), 0);
+  assert.equal(page.pageEl.getAttribute("kdb_dropbox"), null);
+  assert.equal(_KDB.runtime.dragDrop.abortControllers.tabsChangedRebind, undefined, "a helper page ends the poll");
+  api.destroy();
+})));
+
+test("a page node swapped by Cognos right after the first bind is rebound, old listeners are released", withDom(withFakeTimers(async (doc) => {
+  const _KDB = createKdb(doc);
+  const first = addPage(doc, "tabA", "pageA");
+  const api = registerDragDrop(_KDB);
+  api.mount();
+  _KDB.events.emit(TABS_CHANGED, { pageId: "pageA", tabId: "tabA" });
+  const swapped = new FakeEl("pageA", ["page", "pagegenericPage"], doc);
+  first.tabEl.removeChild(first.pageEl);
+  first.tabEl.appendChild(swapped);
+  await advance(200);
+  assert.equal(dropboxListenerCount(swapped), 4);
+  assert.equal(dropboxListenerCount(first.pageEl), 0);
+  assert.equal(first.pageEl.getAttribute("kdb_dropbox"), null);
+  assert.ok(_KDB.runtime.dragDrop.abortControllers.tabsChangedRebind, "the poll waits for one more stable pass");
+  await advance(200);
+  assert.equal(_KDB.runtime.dragDrop.abortControllers.tabsChangedRebind, undefined);
+  assert.equal(_KDB.runtime.dragDrop.dropboxesById.pageA, swapped);
+  api.destroy();
+  assert.equal(dropboxListenerCount(swapped), 0);
+})));
+
+test("refreshDropboxes releases the listeners of a re-created element", withDom(async (doc) => {
+  const _KDB = createKdb(doc);
+  const first = addPage(doc, "tabA", "pageA");
+  const api = registerDragDrop(_KDB);
+  api.mount();
+  const swapped = new FakeEl("pageA", ["page", "pagegenericPage"], doc);
+  first.tabEl.removeChild(first.pageEl);
+  first.tabEl.appendChild(swapped);
+  assert.equal(api.refreshDropboxes(), true);
+  assert.equal(dropboxListenerCount(swapped), 4);
+  assert.equal(dropboxListenerCount(first.pageEl), 0);
+  api.destroy();
+}));
+
+test("rebind poll that keeps failing logs the last error once on timeout", withDom(withFakeTimers(async (doc) => {
+  const errors = mock.method(console, "error", () => {});
+  const _KDB = createKdb(doc, { api: { launchpad: { getState: () => { throw new Error("launchpad down"); } } } });
+  const api = registerDragDrop(_KDB);
+  api.mount();
+  errors.mock.resetCalls();
+  _KDB.events.emit(TABS_CHANGED, { pageId: "pageZ" });
+  for (let i = 0; i < 20; i += 1) await advance(200);
+  const logged = errors.mock.calls.filter((call) => String(call.arguments[0]).includes("pollForPageDropbox"));
+  assert.equal(logged.length, 1);
+  assert.equal(logged[0].arguments[1].message, "launchpad down");
+  assert.equal(_KDB.runtime.dragDrop.abortControllers.tabsChangedRebind, undefined);
+  errors.mock.restore();
+  api.destroy();
+})));
+
+test("a failing initial bind keeps mount usable: returns false, no error lifecycle, rebind subscription kept", withDom(async (doc) => {
+  const errors = mock.method(console, "error", () => {});
+  addPage(doc, "tabA", "pageA");
+  const _KDB = createKdb(doc, { api: { launchpad: { getState: () => { throw new Error("boom"); } } } });
+  const api = registerDragDrop(_KDB);
+  assert.equal(api.mount(), false);
+  assert.equal(api.getState().lifecycle, "ready");
+  assert.equal(typeof _KDB.runtime.dragDrop.subscriptions.tabsChanged, "function");
+  assert.equal(api.refreshDropboxes(), false);
+  assert.equal(api.getState().lifecycle, "ready");
+  assert.equal(api.getState().errorCode, null);
+  errors.mock.restore();
+  api.destroy();
+}));
+
+test("destroy releases subscription and poll even when a teardown step throws", withDom(withFakeTimers(async (doc) => {
+  const errors = mock.method(console, "error", () => {});
+  const _KDB = createKdb(doc);
+  const page = addPage(doc, "tabA", "pageA");
+  const api = registerDragDrop(_KDB);
+  api.mount();
+  _KDB.events.emit(TABS_CHANGED, { pageId: "pageLate" });
+  const poll = _KDB.runtime.dragDrop.abortControllers.tabsChangedRebind;
+  page.pageEl.removeAttribute = () => { throw new Error("detached host"); };
+  api.destroy();
+  assert.equal(poll.signal.aborted, true);
+  assert.equal(_KDB.runtime.dragDrop.subscriptions.tabsChanged, undefined);
+  assert.equal(_KDB.state.dragDrop.lifecycle, "disposed");
+  assert.ok(errors.mock.calls.some((call) => String(call.arguments[0]).includes("teardown failed")));
+  errors.mock.restore();
+})));
+
+test("native drag image: tracked timer removes the element and deletes itself after firing", withDom(withFakeTimers(async (doc) => {
+  const _KDB = createKdb(doc, { utils: { convertUnitToPx: () => null } });
+  addPage(doc, "tabA", "pageA");
+  const api = registerDragDrop(_KDB);
+  api.mount();
+  const source = new FakeEl("src", [], doc);
+  doc.body.appendChild(source);
+  api.startDrag({ dataTransfer: { setData() {}, setDragImage() {} }, clientX: 0, clientY: 0, target: source }, { draggedElementType: "text", dragSourceEl: source });
+  const dragImageEl = _KDB.runtime.dragDrop.domRefs.nativeDragImageEl;
+  assert.ok(dragImageEl && dragImageEl.parentNode === doc.body);
+  assert.ok(_KDB.runtime.dragDrop.timers.nativeDragImage);
+  await advance(1);
+  assert.equal(_KDB.runtime.dragDrop.timers.nativeDragImage, undefined);
+  assert.equal(_KDB.runtime.dragDrop.domRefs.nativeDragImageEl, null);
+  assert.equal(dragImageEl.parentNode, null);
+  api.destroy();
+})));

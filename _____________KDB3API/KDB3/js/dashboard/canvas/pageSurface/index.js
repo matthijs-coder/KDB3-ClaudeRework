@@ -18,29 +18,20 @@ define([
     let didFlushAfterReady = false;
     let didWarnMissingWhenReady = false;
 
-    // Boundary: public api.canvas entry point.
+    // applyAxis is the boundary for the DOM and facet work of one axis.
     function dispatch(action) {
-      if (guard.blocked("dispatch")) {
+      const axis = action ? INTENT_AXIS[action.type] : undefined;
+
+      if (guard.blocked("dispatch") || !axis) {
         return;
       }
-      try {
-        const axis = action ? INTENT_AXIS[action.type] : undefined;
-        const value = action && action.payload ? action.payload.value : undefined;
-
-        if (!axis) {
-          return;
-        }
-        if (isMounted !== true || didFlushAfterReady !== true) {
-          _effects.writePending(rt, axis, value);
-          return;
-        }
-        _effects.applyAxis(_KDB, rt, axis, value);
-      } catch (err) {
-        console.error("[pageSurface.dispatch] failed", err);
+      if (isMounted !== true || didFlushAfterReady !== true) {
+        _effects.writePending(rt, axis, action.payload ? action.payload.value : undefined);
+        return;
       }
+      _effects.applyAxis(_KDB, rt, axis, action.payload ? action.payload.value : undefined);
     }
 
-    // Boundary: public api.canvas entry point.
     function mount() {
       if (guard.blocked("mount") || isMounted) {
         return;

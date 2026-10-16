@@ -33,15 +33,21 @@ define([
       return false;
     }
 
-    // Boundary: also the dragend handler of the drag sources and the end of every drop.
+    // finishDragSession is the boundary of the cleanup (never throws); also the dragend handler of the drag sources.
     function completeDrop(event) {
-      try {
-        const didCleanup = _session.finishDragSession(_KDB, event, rt);
+      const didCleanup = _session.finishDragSession(_KDB, event, rt);
 
-        dispatch({ type: _state.ACTION_TYPES.DRAG_FINISHED });
-        return didCleanup;
+      dispatch({ type: _state.ACTION_TYPES.DRAG_FINISHED });
+      return didCleanup;
+    }
+
+    // A failing bind is not fatal: the module stays usable and the next tabs:changed or refresh retries it.
+    function bindAllDropboxesSafely(methodName) {
+      try {
+        return _bind.bindAllDropboxes(ctx);
       } catch (error) {
-        return handleBoundaryError("finishDrag", error);
+        console.error("[dragDrop." + methodName + "] bind failed", error);
+        return false;
       }
     }
 
@@ -51,10 +57,11 @@ define([
       }
       try {
         _avatar.createAvatarTemplates(_KDB, rt);
-        _bind.bindAllDropboxes(ctx);
         _rebind.subscribeTabsChangedRebind(ctx);
+        const didBind = bindAllDropboxesSafely("mount");
+
         dispatch({ type: _state.ACTION_TYPES.MOUNT_SUCCEEDED, payload: { mountedAt: Date.now(), options: options || {} } });
-        return true;
+        return didBind;
       } catch (error) {
         return handleBoundaryError("mount", error);
       }
@@ -64,11 +71,7 @@ define([
       if (guard.blocked("refreshDropboxes")) {
         return false;
       }
-      try {
-        return _bind.bindAllDropboxes(ctx);
-      } catch (error) {
-        return handleBoundaryError("refreshDropboxes", error);
-      }
+      return bindAllDropboxesSafely("refreshDropboxes");
     }
 
     function startDrag(event, sourceInfo) {
@@ -98,16 +101,22 @@ define([
         _session.finishDragSession(_KDB, null, rt);
         _bind.unbindAllDropboxes(rt);
         _avatar.removeAvatarTemplates(rt);
-        const errors = _rt.disposeRuntimeBuckets(rt);
-
-        if (errors.length) {
-          console.error("[dragDrop.destroy] cleanup errors", errors);
-        }
-        rt.sourceRuntime = null;
-        dispatch({ type: _state.ACTION_TYPES.DESTROY });
       } catch (error) {
-        console.error("[dragDrop.destroy] destroy failed", error);
+        console.error("[dragDrop.destroy] teardown failed", error);
+      } finally {
+        releaseRuntime();
       }
+    }
+
+    // Always runs on destroy: releases the tabs:changed subscription, the rebind poll, timers and listeners.
+    function releaseRuntime() {
+      const errors = _rt.disposeRuntimeBuckets(rt);
+
+      if (errors.length) {
+        console.error("[dragDrop.destroy] cleanup errors", errors);
+      }
+      rt.sourceRuntime = null;
+      dispatch({ type: _state.ACTION_TYPES.DESTROY });
     }
 
     return {

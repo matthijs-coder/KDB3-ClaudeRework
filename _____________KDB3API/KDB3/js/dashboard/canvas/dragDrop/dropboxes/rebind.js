@@ -7,9 +7,10 @@ define([
 ], function (_config, _tabsEvents, _async, _rt, _bind) {
   "use strict";
 
-  // Lazily loaded tabs render their page element only on activation, after the mount-time bind. On every
-  // tabs:changed the activated page alone is bound (bindings of other pages stay as they are); while its
-  // element is still missing, one bounded poll keeps trying. A newer activation cancels the older poll.
+  // Lazily loaded tabs render their page element only on activation, after the mount-time bind, and Cognos may
+  // swap that node shortly after. On every tabs:changed the activated page alone is bound (other pages keep
+  // their bindings), then one bounded poll re-checks it until a pass finds the same connected, bound element
+  // one interval after the previous pass. A newer activation cancels the older poll.
   function subscribeTabsChangedRebind(ctx) {
     const events = ctx._KDB.events;
 
@@ -36,11 +37,9 @@ define([
         _bind.bindAllDropboxes(ctx);
         return;
       }
-      if (_bind.bindPageDropboxes(ctx, pageIds) === _bind.BIND_STATUS.MISSING) {
-        pollForPageDropbox(ctx, pageIds);
-      }
+      pollForPageDropbox(ctx, pageIds);
     } catch (error) {
-      console.warn("[dragDrop.onTabsChanged] rebind failed", error);
+      console.error("[dragDrop.onTabsChanged] rebind failed", error);
     }
   }
 
@@ -52,22 +51,44 @@ define([
 
   function pollForPageDropbox(ctx, pageIds) {
     const controller = new AbortController();
+    let previousBoundEls = [];
+
+    function bindPage(info) {
+      if (ctx.isDisposed()) {
+        return null;
+      }
+      const result = _bind.bindPageDropboxes(ctx, pageIds);
+      const wasStable = info.attempt > 1 && isSameConnectedSet(previousBoundEls, result.boundEls);
+
+      previousBoundEls = result.boundEls;
+      if (result.status === _bind.BIND_STATUS.HELPER) {
+        return result.status;
+      }
+      return result.status === _bind.BIND_STATUS.BOUND && wasStable ? result.status : null;
+    }
 
     ctx.rt.abortControllers.tabsChangedRebind = controller;
     return _async.pollUntil({
-      check: function () {
-        const status = ctx.isDisposed() ? null : _bind.bindPageDropboxes(ctx, pageIds);
-
-        return status === _bind.BIND_STATUS.MISSING ? null : status;
-      },
+      check: bindPage,
       timeoutMs: _config.tabRebind.timeoutMs,
       intervalMs: _config.tabRebind.intervalMs,
       signal: controller.signal
-    }).then(function () {
+    }).then(function (outcome) {
       if (ctx.rt.abortControllers.tabsChangedRebind === controller) {
         delete ctx.rt.abortControllers.tabsChangedRebind;
       }
+      if (!outcome.ok && outcome.reason === "timeout" && outcome.lastError) {
+        console.error("[dragDrop.pollForPageDropbox] rebind did not settle", outcome.lastError);
+      }
     });
+  }
+
+  function isSameConnectedSet(previousEls, currentEls) {
+    return currentEls.length > 0
+      && currentEls.length === previousEls.length
+      && currentEls.every(function (el, index) {
+        return el === previousEls[index] && el.isConnected;
+      });
   }
 
   function abortPendingPoll(rt) {

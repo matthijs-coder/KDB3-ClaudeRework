@@ -1,4 +1,4 @@
-﻿define([
+define([
   "../config.js",
   "../events.js",
   "../session.js",
