@@ -717,7 +717,7 @@ KDB3/js/dashboard/widgets/widgetBase/
   state.js            # ACTION_TYPES, initial state, frame reducer, normalizeDispatchResult
   state/selectors.js  # published read selectors (readWidgetBaseState, readFrame, readWidgetsByTab, readCanvasWidgetsByTab, readPlacement, readAllWidgetIds)
   runtime.js          # ensureWidgetBaseRuntime, ensureWidgetBaseWidgetRuntime
-  launchpadRoute.js   # launchpad route resolution (descriptor -> kind/role/pad, skip reasons)
+  launchpadRoute.js   # resolveLaunchpadRoute (descriptor -> kind/role/pad, skip reasons), resolveClaimedWidget, readPadShellEligibility
   discovery.js        # discoverCanvasWidgets: canvas item scan, descriptors, ownership/shell checks
   canvas.js           # drop workflow (handleDropCreate), remove, colour, move/resize and move-mode handlers, rollbackWidgetBaseOperation
   launchpadTransfer.js# routeToLaunchpad / takeFromLaunchpad handlers and pre-transfer cleanup

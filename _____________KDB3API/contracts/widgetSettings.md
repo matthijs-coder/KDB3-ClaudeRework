@@ -20,7 +20,9 @@ Settings control-surface for all widget types. Owns the **panel-control VALUES**
 
 ## 4. Public API (dispatch-style)
 `_KDB.api.widgetSettings = { mount, destroy, dispatch, getState }`.
-Key actions: `openPanel`, `closePanel`, `syncPanelFromState`, `placeControls`, `seedDefaults`; value-committing controls that own the history step: `commitDimension`, `commitVisType`, `commitTopNChoice`, `commitShowValues` (vis; `showValues` explicit boolean only, inherit is absence); iterator/zoom ride the same option-select → `widgetVis/applyIteratorZoom` (`contracts/_archive/widgetSettings-vis-toggle-panel-wp2-contractdelta.md`); `commitFontSize`, `commitRestyle` (text); `commitColour` (any). Show-values chrome, D2 inherit, List CSS-hide, and `widgetVis/applyShowValues`: `contracts/_archive/widgetVis-show-values-contractdelta.md`. A user/history commit dispatches `apply*` to the consequence-owner first, commits the setting value only after the consequence-owner confirms apply, and then pushes the small history step when the source is a user action. `commitColour` sends the dropdown `optionValue` to `widgetBase/applyColour` or the compatibility `widgetBase/setColour`; `widgetBase` does not need a public `fromColour` because `widgetSettings` owns the old value and history payload. Startup defaults follow the same commit-after-apply rule but never push history.
+**As built:** the dispatch table in `index.js` routes exactly `widgetSettings/placeControls`, `applyButtonVisibility`, `cleanupWidgetControls`, `seedDefaults`, `commitColour`, `parameterSetResetRequested`, `parameterSetRestoreBatchRequested` and `restoreCommittedSettings` (constants in `config/actionTypes.js`); anything else returns `{ ok: true, skipped: true, reasonCode: "WIDGET_SETTINGS_ACTION_UNKNOWN" }`. Panel open/close and the dimension / visType / topN / showValues / iterator / zoom / fontSize / restyle commits are not dispatch actions: panel clicks run as intents (`effects/dispatchWidgetSettingsIntent.js` -> `intent/*`), which dispatch `apply*` to the consequence-owner and commit through `state.js` `commitWidgetSettingValue`. The names below describe those commit paths; read §9 for the real files.
+
+Key commit paths (value-committing controls that own the history step): `commitDimension`, `commitVisType`, `commitTopNChoice`, `commitShowValues` (vis; `showValues` explicit boolean only, inherit is absence); iterator/zoom ride the same option-select → `widgetVis/applyIteratorZoom` (`contracts/_archive/widgetSettings-vis-toggle-panel-wp2-contractdelta.md`); `commitFontSize`, `commitRestyle` (text); `commitColour` (any). Show-values chrome, D2 inherit, List CSS-hide, and `widgetVis/applyShowValues`: `contracts/_archive/widgetVis-show-values-contractdelta.md`. A user/history commit dispatches `apply*` to the consequence-owner first, commits the setting value only after the consequence-owner confirms apply, and then pushes the small history step when the source is a user action. `commitColour` sends the dropdown `optionValue` to `widgetBase/applyColour` or the compatibility `widgetBase/setColour`; `widgetBase` does not need a public `fromColour` because `widgetSettings` owns the old value and history payload. Startup defaults follow the same commit-after-apply rule but never push history.
 
 For visual widgets, default seeding must wait for per-widget `widgetVis` content registration before dispatching the visual startup batch:
 
@@ -108,7 +110,7 @@ If apply fails (`ok: false`, missing `reportToSettings`, or upstream `widgetTopN
 TopN startup defaults are included in the visual startup batch. `widgetVis` owns interpreting `topNChoice`, including `none`; `widgetSettings` must not send a separate startup `applyTopNChoice` for the same widget. A default `none` TopN may be committed as a settings value after the visual batch confirms, while future non-default TopN behavior may return documented deferred/report data without adding a second startup binding pipeline.
 
 ## 5. Readers / Writers (outline)
-Selectors: `readSettings(_KDB, id)`, `readPanelOpenFor(_KDB)`.
+No selector file. Read via `_KDB.api.widgetSettings.getState()` (cloned `_KDB.state.widgets.settings`). `config/selectors.js` holds DOM selectors (widget/panel/toolbar lookups), not state readers.
 
 ## 6. Events
 None. The Diagramme “Buttons verstecken” toggle does **not** flow through a widgetSettings selector or `KDB_hide`. Canvas gear visibility is the `.dashboardFrame` class `kdb-widget-chrome-always` ([kdbControl-widget-chrome-always-contractdelta.md](./_archive/kdbControl-widget-chrome-always-contractdelta.md)). No authoring coupling.
@@ -161,7 +163,49 @@ Forward `widgetVis/cleanupContent(settingsDelete)` is not reversed as a separate
 There is no `widgetSettings_deleteToLaunchpad` history key unless explicitly approved in a later contract delta.
 
 ## 9. Folder Layout
-`config/ state/ view/ (gear, panel, per-type controls, buildWidgetSettingsBar) effects/ createWidgetSettingsController.js __orchestratorWidgetSettings.js`.
+
+As built after the Phase 1 module-template rework (33 files):
+
+```txt
+KDB3/js/dashboard/widgets/widgetSettings/
+  __orchestratorWidgetSettings.js  # shim: re-exports index.js (path kept for KDB.js)
+  index.js            # registerWidgetSettings: mount/dispatch/destroy/getState, action ROUTES table
+  config.js           # KIND_TABLE (kind -> owner, action type, state key), labels, option tables, image paths, option defaults
+  config/
+    actionTypes.js        # widgetSettings/* action type constants (frozen external path)
+    controlDefinitions.js # gear/toolbar/dropdown control definitions (live, text, focus-only)
+    dropdownDefaults.js   # default dropdown option per control (frozen external path)
+    selectors.js          # DOM selectors: widget/panel/toolbar lookups, chrome classes
+  state.js            # initial state, byWidget bookkeeping, commitWidgetSettingValue, seed error/deferred records
+  runtime.js          # ensureWidgetSettingsRuntime
+  history.js          # settings history steps and replay handler (option replay, push after confirmed apply)
+  seed.js             # seedDefaults: startup defaults resolution, readiness wait, kdbControl colour default
+  seedApply.js        # startup batch commit and report handling
+  colour.js           # commitColour (apply via widgetBase, readable text colour, history)
+  restore.js          # parameterSet reset/restore batch and restoreCommittedSettings (history replay)
+  intent/             # panel intents (user option picks)
+    descriptor.js         # builds the intent descriptor from option/icon context
+    downstream.js         # maps an intent to the consequence-owner action and dispatches it
+    finalize.js           # apply result normalisation, commit-after-apply, coupled TopN clear
+    resetToLaunchpad.js   # settings-delete / reset-to-launchpad orchestration
+    topNGrouping.js       # TopN grouping-dimension validation
+    visSnapshot.js        # effective vis settings snapshot and restore/startup batches
+  effects/
+    dispatchWidgetSettingsIntent.js  # icon / dropdown-option intent entry point (frozen external path)
+    startWidgetRenderLoading.js      # render-loading marker (frozen external path)
+  view/
+    controls.js           # place/cleanup widget controls, button visibility, render-loading finish
+    buildSettingsIcon.js  # gear icon and dropdown DOM (frozen external path)
+    panelBuild.js         # settings panel DOM
+    panelEvents.js        # panel pointer/click/focus handlers
+    panelOutsidePointerBehavior.js  # shared outside-pointer dismiss rule (frozen external path)
+    toolbar.js            # widget toolbar build/place/bind
+    dropdownPopulate.js   # dropdown option DOM from metrics-table context
+    dropdownUi.js         # open/close/overflow of dropdowns
+    dropdownOptionSelection.js  # selected-option read/mark (frozen external path)
+    optionMarking.js      # marks panel options from committed state
+    resolveWidgetPlacementContext.js  # widget shell / panel / metrics-table lookup (frozen external path)
+```
 
 ## 10. Out Of Scope
 - Deriving/applying consequences (slots/binding/render/CSS) — owners: `widgetVis`/`widgetText`/`widgetBase`.
