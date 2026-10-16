@@ -5,7 +5,7 @@ Closed or retired workflow documents (some carry stale Draft / never-implemented
 - Contents: the retired contract and execution-spec templates, the Dutch `anew.md` kdbControl panel sketch (superseded by `../kdbControl.md`), closed `futureTodo/` notes, per-change `*-contractdelta.md`, `*-execution-spec.md` and `*-fix-spec.md` work orders, port reports, agent hand-off and launch prompts (including those formerly in `futureTodo/`), two architecture design reviews, and the Dutch `overdracht/` writeback hand-over.
 - Why: the contract-per-change workflow is retired. Living contracts in `../` describe the current behaviour.
 - Everything here is historical only. Do not implement against it. History is preserved (`git log --follow <file>`).
-- Layout is flat. `overdracht/` is a subfolder because its `writeback.md` would be confused with the living `../writeback.md`.
+- Layout is flat except two subfolders: `futureTodo-cleanup-backlogs/` (eight pre-Phase-1 file-level cleanup backlogs and the widgets cleanup roadmap, archived in the final docs pass because they describe the old module layouts; Phase 2 follow-ups live in the project coordination notes) and `overdracht/`. `overdracht/` is a subfolder because its `writeback.md` would be confused with the living `../writeback.md`.
 - Contract deltas still cited from JS comments stayed in `../` and move here when those references are rewritten.
 
 ## Possibly unimplemented

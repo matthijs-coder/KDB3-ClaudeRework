@@ -68,4 +68,4 @@ These stay in place because JS comments or living contracts cite them. Move them
 
 ## Other files kept in place
 
-- `futureTodo/`: open backlog and future-todo notes. Closed or superseded notes, hand-off prompts and the retired `_template.md` / `_executionSpecTemplate.md` templates are in `_archive/`.
+- `futureTodo/`: open backlog and future-todo notes. Closed or superseded notes (including the Phase 1-obsolete cleanup backlogs in `_archive/futureTodo-cleanup-backlogs/`), hand-off prompts and the retired `_template.md` / `_executionSpecTemplate.md` templates are in `_archive/`.

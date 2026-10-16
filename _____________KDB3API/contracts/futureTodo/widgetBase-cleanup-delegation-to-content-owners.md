@@ -6,7 +6,7 @@
 
 This is acceptable only as a temporary composed-port bridge while `widgetVis`, `widgetText`, settings, TopN and related content modules are incomplete.
 
-> **2026-06 note:** After the closed `widgetBase` cleanup tranche, `cleanWidgetForTransfer` is **frame-only** (launchpad chrome + runtime bucket teardown). It does **not** replicate legacy Cognos slot/filter clearing. Settings-delete already calls `widgetVis/cleanupContent` via `widgetSettings` before `routeToLaunchpad`. See `futureTodo/widgetBase-cleanup-followup-backlog.md` for reopen triggers.
+> **2026-06 note:** After the closed `widgetBase` cleanup tranche, `cleanWidgetForTransfer` is **frame-only** (launchpad chrome + runtime bucket teardown). It does **not** replicate legacy Cognos slot/filter clearing. Settings-delete already calls `widgetVis/cleanupContent` via `widgetSettings` before `routeToLaunchpad`. See `_archive/futureTodo-cleanup-backlogs/widgetBase-cleanup-followup-backlog.md` for the (archived) reopen triggers.
 
 ## Required Future Direction
 
