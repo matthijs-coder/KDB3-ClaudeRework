@@ -459,3 +459,14 @@ test("filters-ready dispatches once, then detect returns before touching the DOM
   assert.equal(h.filtersReady.detectFiltersReady(h.ctx, h.dock), false);
   assert.equal(h.dock.queries, queriesBefore);
 });
+
+test("internal-only diagnostic actions are gone from the action table", () => {
+  assert.deepEqual(Object.values(filterDockState.ACTIONS).sort(), [
+    "filterDock/clickObserved", "filterDock/clickOriginalButtonRequested", "filterDock/closeActivePopupRequested", "filterDock/destroy",
+    "filterDock/error", "filterDock/filtersReadyDiagnosticObserved", "filterDock/filtersReadyObserved", "filterDock/mountSucceeded",
+    "filterDock/popupObserved"
+  ]);
+  const initial = filterDockState.reduceFilterDockState(undefined, null);
+  const afterRemoved = filterDockState.reduceFilterDockState(initial, { type: "filterDock/mutationsObserved", payload: { mutationDelta: 5 } });
+  assert.deepStrictEqual(afterRemoved, initial);
+});

@@ -33,7 +33,8 @@ define([
     "filtersReadyDispatched",
     "filtersReadyWatch",
     "popupDisplayResyncSession",
-    "popupDisplayResyncPendingSource"
+    "popupDisplayResyncPendingSource",
+    "diagnostics"
   ];
 
   function mergeMissingKeys(target, source) {

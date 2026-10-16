@@ -4,12 +4,9 @@ define([], function () {
   var ACTIONS = {
     MOUNT_SUCCEEDED: "filterDock/mountSucceeded",
     CLICK_OBSERVED: "filterDock/clickObserved",
-    MUTATIONS_OBSERVED: "filterDock/mutationsObserved",
     POPUP_OBSERVED: "filterDock/popupObserved",
     FILTERS_READY_OBSERVED: "filterDock/filtersReadyObserved",
     FILTERS_READY_DIAGNOSTIC_OBSERVED: "filterDock/filtersReadyDiagnosticObserved",
-    EVALUATION_SCHEDULED: "filterDock/evaluationScheduled",
-    EVALUATION_FINISHED: "filterDock/evaluationFinished",
     ERROR: "filterDock/error",
     DESTROY: "filterDock/destroy",
     CLICK_ORIGINAL_BUTTON_REQUESTED: "filterDock/clickOriginalButtonRequested",
@@ -97,15 +94,6 @@ define([], function () {
       }
       return copyState(currentState, clickPatch);
     }
-    if (currentAction.type === ACTIONS.MUTATIONS_OBSERVED) {
-      return copyState(currentState, {
-        observedChildren: Object.assign({}, currentState.observedChildren, payload.observedChildren || {}),
-        updatedAt: Date.now(),
-        pendingSignals: Object.assign({}, currentState.pendingSignals, {
-          mutationCount: (currentState.pendingSignals.mutationCount || 0) + (payload.mutationDelta || 1)
-        })
-      });
-    }
     if (currentAction.type === ACTIONS.POPUP_OBSERVED) {
       return copyState(currentState, {
         popup: Object.assign({}, currentState.popup, payload.popup || {}),
@@ -127,22 +115,6 @@ define([], function () {
       return copyState(currentState, {
         errorCode: payload.errorCode || "FILTER_DOCK_OWNER_ROUTE_DIAGNOSTIC",
         errorMessage: payload.errorMessage || null,
-        updatedAt: Date.now()
-      });
-    }
-    if (currentAction.type === ACTIONS.EVALUATION_SCHEDULED) {
-      return copyState(currentState, {
-        pendingSignals: Object.assign({}, currentState.pendingSignals, {
-          scheduledAt: payload.scheduledAt || Date.now()
-        })
-      });
-    }
-    if (currentAction.type === ACTIONS.EVALUATION_FINISHED) {
-      return copyState(currentState, {
-        pendingSignals: Object.assign({}, currentState.pendingSignals, {
-          mutationCount: 0,
-          scheduledAt: 0
-        }),
         updatedAt: Date.now()
       });
     }
