@@ -48,7 +48,7 @@ function triggerObservers(env) {
   env.clock.flushFrames();
 }
 
-test("register: service surface, labels merge, selectors, runtime stamp, returns existing service", () => {
+test("register: service surface, labels merge, no selectors bucket, runtime stamp, returns existing service", () => {
   const { _KDB, service, register } = setup({ labels: { close: "Zu" } });
   assert.deepEqual(Object.keys(service).sort(), ["choose", "confirm", "destroy", "notify", "notifyAnchored", "showAlert", "showCopyable"]);
   assert.equal(_KDB.services.message, service);
@@ -56,7 +56,7 @@ test("register: service surface, labels merge, selectors, runtime stamp, returns
   assert.equal(_KDB.config.labels.de.message.close, "Zu");
   assert.equal(_KDB.config.labels.de.message.cancel, "Nein");
   assert.equal(_KDB.config.labels.de.message.title, "Meldung");
-  assert.equal(_KDB.elements.selectors.messageService.root, "#kdb-message-root");
+  assert.equal(_KDB.elements.selectors.messageService, undefined);
   const runtime = _KDB.runtime.messageService;
   assert.equal(runtime.messagesFacet, _KDB.services.cognosHost.messages);
   assert.equal(runtime.queues.activeModalRequest, null);

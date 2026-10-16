@@ -129,13 +129,6 @@ define([
     return _KDB.config.labels.de.message;
   }
 
-  // Kept for compatibility: nothing reads it (the root id is hard-coded). Phase 2 removes it.
-  function registerSelectors(_KDB) {
-    _KDB.elements = _KDB.elements || {};
-    _KDB.elements.selectors = _KDB.elements.selectors || {};
-    _KDB.elements.selectors.messageService = Object.assign({}, _config.domSelectors, _KDB.elements.selectors.messageService || {});
-  }
-
   function readMessagesFacet(_KDB) {
     var host = _KDB.services ? _KDB.services.cognosHost : null;
     return host && host.messages ? host.messages : null;
@@ -147,7 +140,6 @@ define([
     _runtime.ensureMessageRuntime(_KDB).messagesFacet = readMessagesFacet(_KDB);
     if (_KDB.services.message) return _KDB.services.message;
     labels = registerLabels(_KDB);
-    registerSelectors(_KDB);
     _KDB.services.message = createMessageService(_KDB, labels);
     return _KDB.services.message;
   }
