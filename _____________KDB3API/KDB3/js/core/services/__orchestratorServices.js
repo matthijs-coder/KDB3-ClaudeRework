@@ -1,5 +1,6 @@
 define([
   "./cognosHost/__orchestratorCognosHost.js",
+  "./chrome/index.js",
   "./tableData/__orchestratorTableData.js",
   "./loadingService/__orchestratorLoadingService.js",
   "./messageService/__orchestratorMessageService.js",
@@ -11,6 +12,7 @@ define([
   "./drillthrough/__orchestratorDrillthrough.js"
 ], function (
   _orchestratorCognosHost,
+  _registerChrome,
   _orchestratorTableData,
   _orchestratorLoadingService,
   _orchestratorMessageService,
@@ -26,6 +28,7 @@ define([
   function __orchestrator(_KDB) {
     _KDB.services = _KDB.services || {};
     _orchestratorCognosHost(_KDB);
+    _registerChrome(_KDB);
     _orchestratorTableData(_KDB);
     _orchestratorLoadingService(_KDB);
     _orchestratorMessageService(_KDB);
