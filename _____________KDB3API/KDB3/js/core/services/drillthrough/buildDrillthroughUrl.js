@@ -1,12 +1,10 @@
 define([
-  "./assemble/assembleIconDrillConfig.js",
-  "./assemble/assembleDatapointDrillConfig.js",
+  "./assemble.js",
   "./org/mapOrgPrompts.js",
   "./encode/encodeDrillthroughUrl.js",
   "./diagnostics/createBuildResult.js"
 ], function (
-  _assembleIconDrillConfig,
-  _assembleDatapointDrillConfig,
+  _assemble,
   _mapOrgPrompts,
   _encodeDrillthroughUrl,
   _createBuildResult
@@ -85,7 +83,7 @@ define([
         return failResult(_spec, invalid.errorCode, "validateSpec", []);
       }
       warnings = [];
-      assembled = _spec.source === "icon" ? _assembleIconDrillConfig(_spec, warnings) : _assembleDatapointDrillConfig(_spec, warnings);
+      assembled = _spec.source === "icon" ? _assemble.assembleIconDrillConfig(_spec, warnings) : _assemble.assembleDatapointDrillConfig(_spec, warnings);
       if (assembled && assembled.errorCode === "DRILLTHROUGH_DATAPOINT_CATEGORIES") {
         return failResult(_spec, assembled.errorCode, "assemble", warnings);
       }

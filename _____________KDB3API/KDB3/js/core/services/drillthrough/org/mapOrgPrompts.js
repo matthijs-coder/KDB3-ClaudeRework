@@ -2,8 +2,8 @@ define([
   "./mapBwOrgPrompts.js",
   "./mapDezpvOrgPrompts.js",
   "./buildOrgTreeFromRows.js",
-  "../config/hierarchyTableKeys.js"
-], function (_mapBwOrgPrompts, _mapDezpvOrgPrompts, _buildOrgTreeFromRows, _hierarchyTableKeys) {
+  "../config.js"
+], function (_mapBwOrgPrompts, _mapDezpvOrgPrompts, _buildOrgTreeFromRows, _config) {
   "use strict";
 
   function normalizeSicht(_sicht) {
@@ -20,7 +20,7 @@ define([
     if (_spec && _spec.orgTree && typeof _spec.orgTree === "object") {
       return _spec.orgTree;
     }
-    tableKey = _sicht === "DEZPV" ? _hierarchyTableKeys.DEZPV : _hierarchyTableKeys.BW;
+    tableKey = _sicht === "DEZPV" ? _config.HIERARCHY_TABLE_KEYS.DEZPV : _config.HIERARCHY_TABLE_KEYS.BW;
     if (typeof _readRows !== "function") {
       return null;
     }

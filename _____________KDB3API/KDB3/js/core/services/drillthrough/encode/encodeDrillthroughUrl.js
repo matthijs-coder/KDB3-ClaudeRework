@@ -1,9 +1,11 @@
 define([
-  "../config/promptCatalog.js",
-  "../config/datenart.js",
+  "../config.js",
   "./resolveHostEnv.js"
-], function (_promptCatalog, _datenart, _resolveHostEnv) {
+], function (_config, _resolveHostEnv) {
   "use strict";
+
+  var _promptCatalog = _config.promptCatalog;
+  var _datenart = _config.datenart;
 
   function encodeOrg(_raw) {
     var source = String(_raw == null ? "" : _raw).replace(/~/g, " ");

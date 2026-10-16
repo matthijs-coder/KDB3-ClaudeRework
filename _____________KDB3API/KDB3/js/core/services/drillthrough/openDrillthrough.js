@@ -3,10 +3,10 @@ define([
   "./effects/openBlankWindow.js",
   "./diagnostics/createBuildResult.js",
   "./diagnostics/logDrillthroughOpen.js",
-  "./config/hierarchyTableKeys.js",
+  "./config.js",
   "./effects/writeDrillthroughWaitDocument.js",
   "./effects/finishDeferredDrillthroughOpen.js"
-], function (_buildDrillthroughUrl, _openBlankWindow, _createBuildResult, _logDrillthroughOpen, _hierarchyTableKeys, _writeDrillthroughWaitDocument, _finishDeferredDrillthroughOpen) {
+], function (_buildDrillthroughUrl, _openBlankWindow, _createBuildResult, _logDrillthroughOpen, _config, _writeDrillthroughWaitDocument, _finishDeferredDrillthroughOpen) {
   "use strict";
 
   function logBuilt(_built) {
@@ -94,7 +94,7 @@ define([
     if (!_deps || typeof _deps.readPendingLoad !== "function") {
       return returnFailure(_built);
     }
-    tableKey = hierarchyTableKey(_spec, _hierarchyTableKeys);
+    tableKey = hierarchyTableKey(_spec, _config.HIERARCHY_TABLE_KEYS);
     pending = _deps.readPendingLoad([{ tableName: tableKey }]);
     if (!(pending && typeof pending.then === "function")) {
       return returnFailure(_built);
