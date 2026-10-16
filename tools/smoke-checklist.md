@@ -231,6 +231,10 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Place 20 widgets, delete them, undo the deletes. Expected: `getEventListeners(document).pointerdown.length` returns to the baseline value; `Object.keys(window.top.getKDB().runtime.widgetSettings.domRefs)` is empty only after **all** widgets are deleted (while some remain, it lists those).
 - [ ] Tab duplicate / delete / move with mixed widgets (vis, text, TopN, table). Expected: widgets and settings follow; forced shortage (more widgets than slots) shows the same toast and rolls back as baseline.
 - [ ] TopN without a grouping dimension: the message "Um die Top-N Funktion zu verwenden, muss zuerst eine Gruppierungsdimension gewählt werden." appears.
+- [ ] `window.top.getKDB().api.widgetBase.dispatch({type:"widgetBase/remove", widgetId:"<id>", payload:{reason:"user"}})`. Expected: `runtime.widgetSettings.domRefs["<id>"]`, `abortControllers["panel:<id>"]` and `abortControllers["toolbar:<id>"]` are gone; undo restores the widget with its settings panel working.
+- [ ] Load a parameter set that has styled widgets (colour, font size, TopN, visType). Expected: the widgets and their settings match the set, and the console shows no `[widgetBase.` / `[widgetSettings.` errors.
+- [ ] Move a widget launchpad->canvas and canvas->launchpad, then undo/redo each. Expected: the settings panel and toolbar are restored and respond on every step.
+- [ ] After a successful tab duplicate/delete/move: `Object.keys(window.top.getKDB().runtime.widgetBase.tabMutationSnapshots)` is empty.
 
 ### WS-M widgetVis + widgetDataTable
 - [ ] Drillthrough header icon and datapoint icon: compare URLs for 3-4 org/year combinations (see WS-D).
