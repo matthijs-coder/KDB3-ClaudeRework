@@ -1,12 +1,12 @@
 define([
   "../state/ensureFilterState.js",
-  "./guardInteractionFreshness.js",
+  "../runtime.js",
   "./runInteractionByIntent.js",
   "./sichtDraftEvents.js",
   "./recordFilterDockDiagnostics.js"
 ], function (
   _ensureFilterState,
-  _guardInteractionFreshness,
+  _singleSelectRuntime,
   _runInteractionByIntent,
   _sichtDraftEvents,
   _diagnostics
@@ -30,7 +30,7 @@ define([
     });
     if (_actionType === "singleSelect/filterDockStateChanged") {
       runOptions.interactionSequence =
-        _guardInteractionFreshness.bumpInteractionSequence(_filterState);
+        _singleSelectRuntime.bumpInteractionSequence(_filterState);
     }
     return runOptions;
   }

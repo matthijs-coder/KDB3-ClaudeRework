@@ -1,7 +1,6 @@
 define([
-  "./writeAndVerifyInstanceSelection.js",
-  "./hostFilterWrite.js"
-], function (_writeAndVerify, _hostWrite) {
+  "../hostFilterIo.js"
+], function (_hostFilterIo) {
   "use strict";
 
   function buildValuesForWrite(_displayValue, _useValue, _displaySource) {
@@ -27,21 +26,21 @@ define([
     var previous = Array.isArray(_previousHostValues) ? _previousHostValues : [];
     var observed;
     try {
-      if (!(await _hostWrite.writeValues(_filtersFacet, _filterRef, useValue ? [{ d: useValue, u: useValue }] : []))) {
+      if (!(await _hostFilterIo.writeValues(_filtersFacet, _filterRef, useValue ? [{ d: useValue, u: useValue }] : []))) {
         return { ok: false };
       }
-      observed = _hostWrite.readValues(_filtersFacet, _filterRef);
+      observed = _hostFilterIo.readValues(_filtersFacet, _filterRef);
       if (!useValue) {
         return { ok: Array.isArray(observed) && observed.length === 0 };
       }
       if (!Array.isArray(observed) || !observed[0] || String(observed[0].u || "") !== useValue) {
-        await _hostWrite.writeValues(_filtersFacet, _filterRef, previous);
+        await _hostFilterIo.writeValues(_filtersFacet, _filterRef, previous);
         return { ok: false };
       }
       return { ok: true };
     } catch (error) {
       try {
-        await _hostWrite.writeValues(_filtersFacet, _filterRef, previous);
+        await _hostFilterIo.writeValues(_filtersFacet, _filterRef, previous);
       } catch (rollbackError) {
         console.error("[singleSelect.replayCommittedSelectionWrites] unavailable rollback threw", rollbackError);
       }
@@ -53,7 +52,7 @@ define([
     if (isUnavailableReplay(_value) && _filtersFacet) {
       return await writeUnavailableReplay(_filtersFacet, _filterRef, _value.useValue, _previousHostValues);
     }
-    return await _writeAndVerify(
+    return await _hostFilterIo.writeInstanceSelection(
       _KDB,
       _runtime,
       _record.filterInstanceId,

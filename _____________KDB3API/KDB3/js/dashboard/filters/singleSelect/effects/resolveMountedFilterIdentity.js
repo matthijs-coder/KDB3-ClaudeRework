@@ -1,7 +1,7 @@
 define([
-  "../config/errorCodes.js",
+  "../config.js",
   "../../../../core/utils/normalizeCognosScopeId.js"
-], function (_codes, _normalizeScopeId) {
+], function (_config, _normalizeScopeId) {
   "use strict";
 
   function fallbackKey(_descriptor) {
@@ -25,7 +25,7 @@ define([
       _blocked[_index] = true;
       var descriptor = _candidates[_index].descriptor;
       _diagnostics.push({
-        code: _codes.IDENTITY_COLLISION,
+        code: _config.errorCodes.IDENTITY_COLLISION,
         filterInstanceId: descriptor.filterInstanceId,
         scopeId: descriptor.scopeId,
         itemId: descriptor.itemId,
@@ -69,7 +69,7 @@ define([
     if (descriptor.itemId && matches.length === 1) {
       if (!matches[0].itemId) {
         _diagnostics.push({
-          code: _codes.IDENTITY_ENRICHED,
+          code: _config.errorCodes.IDENTITY_ENRICHED,
           filterInstanceId: matches[0].filterInstanceId,
           scopeId: descriptor.scopeId,
           itemId: descriptor.itemId,
@@ -81,7 +81,7 @@ define([
     }
     if (descriptor.itemId && matches.length > 1) {
       _diagnostics.push({
-        code: _codes.IDENTITY_COLLISION,
+        code: _config.errorCodes.IDENTITY_COLLISION,
         filterInstanceId: descriptor.filterInstanceId,
         scopeId: descriptor.scopeId,
         itemId: descriptor.itemId,
@@ -97,7 +97,7 @@ define([
       return _mounted;
     }
     _diagnostics.push({
-      code: _codes.RECONCILE_FAILED,
+      code: _config.errorCodes.RECONCILE_FAILED,
       filterInstanceId: _descriptor && _descriptor.filterInstanceId || null,
       scopeId: _descriptor && _descriptor.scopeId || null,
       itemId: _descriptor && _descriptor.itemId || null,

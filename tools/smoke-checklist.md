@@ -102,15 +102,39 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Undo/redo after header edit, widget move, tab rename, filter change; double-click undo quickly. Expected: stack steps correctly; after loading a parameter set the undo stack is empty (`window.top.getKDB().services.history.getSnapshot().stack.length === 0`).
 - [ ] PDF export with 1 tab, with 5+ tabs, with a widget in focus mode (Vollbild), with legend charts (swatch colours/shapes in the PDF), and cancel/abort mid-export. Expected: output equals baseline; class `kdb-pdf-capturing` removed afterwards; the original tab is selected again.
 - [ ] Drillthrough: click a header icon and a datapoint on a line/pie/table widget for 3-4 org/year combinations (BW and DEZPV). Expected: the target URL (Network tab or `window.open` target) equals baseline.
+- [ ] Toast storm: trigger 5 anchored + 2 global notifications (e.g. repeated restore fallback). Run `kdbCount` (section 0) while open and after all closed. Expected: while open at most +1 `scroll` and +1 `resize` on `window`; after close back to baseline.
+- [ ] Anchored toast whose anchor disappears (switch tab while it shows). Expected: it moves to the global position within a frame, no console error.
+- [ ] Open and close a confirm dialog 10 times (Esc, Abbrechen, OK). Expected: no `.kdb-message-backdrop` left in Elements; `getKDB().runtime.messageService.queues.activeModalRequest === null`.
+- [ ] Spinner watchdog (optional): `getKDB().services.loading.startLoading({mountKey:"smoke-test", watchdogMs:2000})`. Expected: the spinner disappears after ~2 s; no dialog (non-boot key).
+- [ ] Boot watchdog dialog still appears once if boot hangs (throttle the network to "Offline" right after load start): same title/text as baseline.
+- [ ] Per-widget spinners during a full tab render: spinners appear and disappear as before; the page does not jump.
+- [ ] History: 6 header edits -> Undo possible exactly 5 times. `getKDB().services.history.isWritebackRestoreActive()` is `false` when idle and `true` while a parameter-set load spinner shows.
+- [ ] PDF long export with abort: start a 5+ tab export, wait 10 s, abort. Expected: at most one `[dashboardPdf.*]` console line for the abort, button usable, class `kdb-pdf-capturing` gone, original tab active.
+- [ ] PDF vendor path (dynamic `require`): export once. Expected: the PDF downloads; Network shows `jspdf.umd.min.js` and `html2canvas.min.js` loaded from `core/libraries/` with HTTP 200 (a wrong path shows the alert "PDF vendors are not available.").
+- [ ] PDF vendor failure: block `html2canvas.min.js` in DevTools Network and export. Expected: alert "PDF vendors are not available." (as baseline); after unblocking, a second export works.
+- [ ] PDF content: title page, one page per visible tab (footer "Seite n: <tab>"), "Anhang" with filter rows, legend swatches as coloured chips, no maximize/PKZ buttons; after exporting with a maximized widget, the widget is maximized again.
+- [ ] Drillthrough: the console no longer shows a `[drillthrough.openDrillthrough]` URL log line (intended); the opened URL equals baseline.
+- [ ] Drillthrough icon click before the hierarchy is loaded (reload, click immediately): wait window "Bitte einen Moment Geduld..." then navigates to the PKZ report.
 
 ### WS-E Toolbar controls (wienKi, pdf, history, share)
-- [ ] Button order and icons in the toolbar are unchanged: Undo, Redo, Teilen, PDF, Wien-KI (as on baseline). Test with the dark and the light Cognos theme (icon inversion).
+- [ ] Button order and icons in the toolbar are unchanged from baseline. DOM order, left to right: Share (Teilen), WienKI, PDF, History (Undo/Redo). Confirm the visual order once in Cognos. Test with the dark and the light Cognos theme (icon inversion).
 - [ ] PDF busy state: while exporting, the PDF button is disabled/busy; afterwards enabled.
 - [ ] Share dialog opens, "Nur Lesen" toggle works, read-only link hides the KDB chrome.
 - [ ] Undo/redo enabled state follows the history (disabled at start, enabled after a change).
 - [ ] Wien-KI: click opens the info dialog ("Wien-KI öffnen", copy-prompt) and the assist popup window.
 - [ ] Performance tab (record 10 s, switch tabs, hover): exactly **one** `MutationObserver` on the body for the toolbar (see section 4).
 - [ ] Close/reopen the dashboard: exactly one toolbar (no duplicate buttons).
+
+#### WS-E (toolbarControls module)
+- [ ] Declared order in `toolbarControls/config.js` (Share, WienKI, PDF, History) matches the DOM: inspect the action bar `.leading` element and confirm the four roots appear in exactly this order, identical to baseline.
+- [ ] Reload the dashboard 3 times: icons, labels, tooltips and spacing are identical to baseline (same CSS classes and `data-kdb-*` attributes).
+- [ ] DevTools console: `getKDB().runtime.toolbarControls.observers` has exactly one entry (`toolbar`) while all four buttons are mounted; no `runtime.historyControls`, `runtime.pdfExportControls`, `runtime.shareControls` or `runtime.wienKiControls` objects exist any more.
+- [ ] Toolbar re-render: switch tabs, open and close a dialog, toggle authoring mode. The four buttons stay in order, never duplicate, and Undo/Redo still react to clicks afterwards (baseline bug: the Undo/Redo click handler stayed dead after Cognos rebuilt the toolbar).
+- [ ] Switch the Cognos theme between light and dark (reload): PDF icon is black on light and white on dark; Teilen icon is inverted on dark.
+- [ ] PDF export error: with the PDF service failing (for example block the capture), the button recovers (label "PDF", not busy) and the console shows a single `[pdfExportControls.export]` entry.
+- [ ] Wien-KI: popup opens at the right edge of the screen; the console shows no `[wienKiControls.openWienKiPopup]` warnings in the normal case.
+- [ ] Share via URL: open a share link with `readOnly=1`; the dashboard has the class `kdb-share-read-only` (KDB chrome hidden); a link without the token removes it.
+- [ ] Close the dashboard: all four toolbar buttons disappear, `runtime.toolbarControls` has no observer, timer or pending wait left (DevTools: no `MutationObserver` for the toolbar remains).
 
 ### WS-F Tabs + dragDrop + pageSurface
 - [ ] Tabs: add, rename, delete, duplicate, move (reorder) - each with undo and redo. Expected: widgets and filters of the tab follow, same as baseline.
@@ -132,6 +156,18 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 ### WS-G kdbControl (control primitives)
 - [ ] In a widget settings panel / header editor: colour inputs (typing a hex value, picking from the palette), palette closes on outside-click, toggle switches (Ein/Aus) and radios work as on baseline.
 - [ ] Close/reopen the dashboard, then `getEventListeners(document).mousedown.length` is the same as after a first boot (no extra listener).
+
+#### G (kdbControl restructure)
+- [ ] Control panel opens with the same layout and texts: header "Dashboard-Steuerung" with settings and info icons, toggles "Kennzahlen"/"Toolbox", sections Kommentar / Tab / Kopfzeile/Fußzeile, and Dashboard / Diagramme / Kommentare / Steuerungspanel (settings icon opens the settings panel; clicking Toolbox twice returns to Kennzahlen).
+- [ ] Collapse arrow: click and Enter/Space collapse and expand the panel; arrow glyph flips.
+- [ ] Settings panel, all 13 inputs: width/height accept `300mm`, `20cm`, `800px`; a value below the minimum (e.g. `1px`) is raised to the minimum with an info message; `abc`, `12` (no unit) and `0mm` show a warning and change nothing. Colour inputs update on typing/picking; palette opens on focus/click, closes on Esc, outside click and focus-out; picking a swatch fills the input and the dashboard/panel colour changes.
+- [ ] Toolbox, Kopfzeile/Fußzeile: header/footer/subtitle switches follow the real header/footer state (also after a header edit or undo); the "Titel bearbeiten" radios start title/subtitle editing.
+- [ ] Toolbox, Tab: "Tab hinzufügen" adds a tab (blocked message at the maximum); the "Tab 1..5" radios follow the visible tabs and select the tab edit target (one request per click, not two).
+- [ ] Toolbox, Kommentar: click/drag the Kommentar button onto the canvas creates a text widget on the first, a lazily loaded and the last tab.
+- [ ] Settings undo/redo: change dashboard width, background colour, panel colour, "Buttons verstecken" and developer mode; undo and redo each (values and panel colours follow).
+- [ ] Parameter-set restore (Set A / Set B / "new dashboard"): canvas size, colours, switches come back; no extra undo steps afterwards.
+- [ ] Switching tabs moves the control panel with the active tab (also on a tab that renders late); during startup traversal it does not hop between tabs.
+- [ ] Close and reopen the dashboard: one control panel only; `getEventListeners(document).mousedown.length` equals the first boot; no `#kdb-control-root` left behind after close.
 
 ### WS-H singleSelect + nativeMultiSelect
 - [ ] Single-select popup (Geschlecht / Altersgruppe / Berufsfamilie): commit with OK, with "Alle", cancel, and click outside the popup (out-click reverts). Expected: values and dependent charts as baseline.
@@ -189,6 +225,17 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Text widget: add, edit text, font size (Schriftgröße), colour, background colour (Hintergrundfarbe), alignment (Zentriert), border presets (Rahmen); delete it. Expected: no leftover `<style>` tags (check Elements: search `kdb` in `<head>`), no `contenteditable` left after leaving edit mode or after close/reopen.
 - [ ] TopN widget flows (see 2.3/2.4) unchanged.
 
+#### N2 widgetText
+- [ ] Add a text widget from the launchpad: the default text ("Text hier eingeben") shows. Click the title icon to edit: the text is selected, typing works. Click outside (blur) commits; the new text stays. Start an edit again, type, press Esc: the original text returns and `contenteditable` is gone.
+- [ ] Undo and redo the text edit (history controls): the text switches between old and new; no extra history entry is created by undo/redo.
+- [ ] Font size (Schriftgröße): choose a fixed size (for example 24px), then "Automatisch". Expected: fixed size applies at once, automatic refits to the widget. After an edit with automatic size the text refits (a window resize event fires; this is expected).
+- [ ] Restyle options (Rahmen alle/unterer/oberer, Zentriert, combinations, Reinigen): the header class on the widget changes as in the baseline; "Reinigen" removes all.
+- [ ] Background colour (Hintergrundfarbe): pick a dark and a light colour on the text widget. Expected: the text colour follows (white on dark, black on light), also for the extreme values (white and black). In Elements the `<style id="KDB_widgetTextColor_...">` contains `color: #FFFFFF !important;` or `#000000`.
+- [ ] Delete the text widget. Expected: no `<style id="KDB_widgetTextFontSize_...">` or `<style id="KDB_widgetTextColor_...">` left in `<head>` (search `KDB_widgetText`).
+- [ ] Destroy during an open edit: start an edit (cursor in the text), then close/reopen the dashboard (or reload the KDB extension). Expected: no element with `contenteditable="true"` or `data-kdb-text-edit-active` remains on the text widget and its original text is shown.
+- [ ] Parameter-set restore with two text widgets (different texts, one with fixed font size): save, reset/switch to another parameter set, restore. Expected: both texts and font sizes are restored; no history entry is created by the restore.
+- [ ] Save and reload the dashboard: text content of each text widget is as saved (writeback reads `widgetText` state).
+
 #### N3 header + footer
 - [ ] Header on/off from the toolbox: header appears at the top of the page and disappears again; turning it off also hides the footer.
 - [ ] Header title and subtitle edit: confirm with Enter, with blur (click elsewhere on the canvas) and with click outside; Esc / cancel keeps the old text. The subtitle row appears when text is committed and disappears when the text is empty.
@@ -199,6 +246,13 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Save, reload and parameter-set restore: header on/title/subtitle/icon and footer on are restored; a saved dashboard without header comes back with header and footer off.
 - [ ] DOM check (Elements): no `kdb-dashboard-header-draft*` inputs inside `#KDB_topHeader` and no zoom-hint toast after switching the header on. A header icon dispatched with an unsafe key (`getKDB().api.header.dispatch({type:"header/setIcon",payload:{source:"api",iconKey:"../x"}})`) falls back to `Stadt-wien`.
 - [ ] Destroy and re-boot: no header or footer wrapper left from the old instance; no growth of `document` `pointerdown` listeners after repeated header edits (section 4.1).
+
+#### N4 launchpad
+- [ ] Load a dashboard with 3 tabs plus the helper tab. Console: `_KDB.api.launchpad.getState()` shows `lifecycle: "ready"`, one entry per dashboard tab in `tabs` (same order as the canvas tabs), the helper tab only in `helperTabIds`, and 5 pads (`visualization`, `text`, `dataTables`, `topN`, `otherResources`) each with one slot per tab. Elements: `#KDB_HideSpot > #KDB_widgetLaunchpad` has the 5 pad divs with one `.KDB_launchpadSlot` per tab.
+- [ ] Drag a visualization, a text widget and a TopN widget from the launchpad pads onto the canvas of different tabs. Expected: each lands where dropped, TopN resolves its helper (helper widget is read through `launchpad/readSlotWidgets`), no console errors.
+- [ ] Duplicate a widget and delete a widget. Expected: same result as baseline; the launchpad keeps parking the widgets (check `_KDB.api.launchpad.dispatch({type:'launchpad/readSlotWidgets',payload:{padKey:'visualization'}})` resolves `ok: true`).
+- [ ] Save, reload the dashboard. Expected: same tabs and widgets, launchpad `getState()` as before, no widgets left outside their slots.
+- [ ] Close/destroy the KDB widget (remove it from the dashboard or re-render). Expected: `#KDB_HideSpot` is removed from `document.body`, no leftover `#KDB_widgetLaunchpad`, no console errors.
 
 ### WS-O Core foundation (authoring, config, events, homeDialog, utils)
 - [ ] **Authoring mode** (Cognos Edit ↔ View, the pencil/"Bearbeiten" button):
@@ -273,6 +327,21 @@ Paste the following into the PR or chat. Short is fine, but all five points:
 Optional but useful: Network HAR export (for 404/403/timeouts), and a heap snapshot file for leak failures (4.3).
 
 ---
+
+## WS-K filterDock
+
+Run section 1 first. "Baseline" = the same step on `main` before the merge.
+
+- [ ] After boot: `window.top.getKDB().api.filterDock.getState()` returns `lifecycle: "ready"`, `filtersReady: true`, `errorCode: null`. `window.top.getKDB().runtime.filterDock.diagnostics` shows `mutationBatches` and `evaluations` counters that grow while you hover or click in the dock (`state.observedChildren` and `state.pendingSignals.mutationCount` stay at their initial values by design).
+- [ ] Hover over every filter header in the dock for 10 s with no popup open. Expected: no console errors; Performance scripting time not above baseline.
+- [ ] singleSelect popup: open, pick an option, "Alle", OK; re-open the **same** filter right away. Expected: custom popup and the selected-option highlight appear every time.
+- [ ] Sicht and special single select (Personengruppe): open, select, OK; open, Cancel. Expected: the popup renders the custom options each time.
+- [ ] Dienststelle with Sicht BW and with DEZPV: open the popup, wait 1 s, close it. Expected: hierarchy labels as baseline (BW: no popup-label resync; DEZPV: labels resynced); committed display text under the filter as baseline.
+- [ ] Native multi-select (Jahr): open, tick 2 values, OK. Expected: values commit; click outside the dock while Jahr is the last-clicked filter produces no console error.
+- [ ] Load Set A and the share URL (1.12). Expected: restore finishes in normal time (writeback waits for `filtersReady`; no stall of about 68 s).
+- [ ] Filters with a double quote or backslash in the Dienststelle/filter name (if the data has any): open the popup. Expected: no `SyntaxError` in the console, the popup renders.
+- [ ] Reload the dashboard with the Cognos filter dock disabled or hidden (or block it in the page): after about 30 s the console shows `[filterDock.mount] filter dock wait failed` once, `getKDB().api.filterDock.getState().errorCode` is `FILTER_DOCK_CHROME_WAIT_TIMEOUT`, and the dashboard stays usable.
+- [ ] Close the dashboard and re-open it 3 times: no console errors; `getEventListeners(document).click.length` returns to baseline (the outside-click listener is removed on destroy).
 
 ## 6) WS-K metricsTree
 

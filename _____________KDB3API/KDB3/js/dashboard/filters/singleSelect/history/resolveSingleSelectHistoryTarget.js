@@ -1,9 +1,8 @@
 define([
   "../state/selectors.js",
-  "../config/actions.js",
-  "../../../../core/utils/normalizeCognosScopeId.js",
-  "./historyReplayCodes.js"
-], function (_selectors, _actions, _normalizeScopeId, _codes) {
+  "../config.js",
+  "../../../../core/utils/normalizeCognosScopeId.js"
+], function (_selectors, _config, _normalizeScopeId) {
   "use strict";
 
   // Resolution per historyService-filterInstanceIdentity-contractdelta.md §5:
@@ -27,21 +26,21 @@ define([
       return { ok: true };
     }
     if (!api || typeof api.dispatch !== "function") {
-      return { ok: false, errorCode: _codes.REPLAY_FAILED };
+      return { ok: false, errorCode: _config.historyReplayCodes.REPLAY_FAILED };
     }
     try {
       result = await api.dispatch({
-        type: _actions.RECONCILE_FILTER_INSTANCES,
+        type: _config.actions.RECONCILE_FILTER_INSTANCES,
         payload: { reason: "historyReplay" }
       });
     } catch (error) {
       console.error("[singleSelect.resolveSingleSelectHistoryTarget] historyReplay reconcile threw", error);
-      return { ok: false, errorCode: _codes.REPLAY_FAILED };
+      return { ok: false, errorCode: _config.historyReplayCodes.REPLAY_FAILED };
     }
     root = _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.singleSelect : null;
     if (!result || result.ok !== true || result.degraded === true ||
       !root || !root.inventory || root.inventory.freshness !== "fresh") {
-      return { ok: false, errorCode: _codes.REPLAY_FAILED };
+      return { ok: false, errorCode: _config.historyReplayCodes.REPLAY_FAILED };
     }
     return { ok: true };
   }
@@ -108,11 +107,11 @@ define([
       }
       return {
         ok: false,
-        errorCode: candidates.length > 1 ? _codes.INSTANCE_AMBIGUOUS : _codes.INSTANCE_MISSING
+        errorCode: candidates.length > 1 ? _config.historyReplayCodes.INSTANCE_AMBIGUOUS : _config.historyReplayCodes.INSTANCE_MISSING
       };
     } catch (error) {
       console.error("[singleSelect.resolveSingleSelectHistoryTarget] failed", error);
-      return { ok: false, errorCode: _codes.REPLAY_FAILED };
+      return { ok: false, errorCode: _config.historyReplayCodes.REPLAY_FAILED };
     }
   }
 

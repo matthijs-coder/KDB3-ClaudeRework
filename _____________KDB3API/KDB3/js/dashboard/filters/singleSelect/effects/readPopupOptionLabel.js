@@ -1,4 +1,4 @@
-define(["../config/selectors.js"], function (_selectors) {
+define(["../config.js"], function (_config) {
   "use strict";
 
   var ALLE_HTML =
@@ -9,10 +9,10 @@ define(["../config/selectors.js"], function (_selectors) {
     if (!_el) {
       return "";
     }
-    if (_el.classList.contains(_selectors.alleOptionClass)) {
+    if (_el.classList.contains(_config.domSelectors.alleOptionClass)) {
       return "Alle";
     }
-    textNode = _el.querySelector(_selectors.optionLabelSelector);
+    textNode = _el.querySelector(_config.domSelectors.optionLabelSelector);
     return textNode
       ? String(textNode.getAttribute("aria-label") || textNode.textContent || "").trim()
       : "";
@@ -24,11 +24,11 @@ define(["../config/selectors.js"], function (_selectors) {
     if (filterDock && filterDock.popupMountSelector) {
       return filterDock.popupMountSelector;
     }
-    return _selectors.popupMountFallbackSelector;
+    return _config.domSelectors.popupMountFallbackSelector;
   }
 
   function ensureAlleOption(_root, _hasAlle, _KDB) {
-    var alleSelector = "." + _selectors.alleOptionClass;
+    var alleSelector = "." + _config.domSelectors.alleOptionClass;
     var a = _root.querySelectorAll(alleSelector);
     var alleMount;
     var i;

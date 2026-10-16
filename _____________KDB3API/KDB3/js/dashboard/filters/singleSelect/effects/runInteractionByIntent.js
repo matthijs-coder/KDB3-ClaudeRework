@@ -3,15 +3,15 @@ define([
   "./deriveInteractionIntent.js",
   "./runPopupInteractionSteps.js",
   "./requestFilterDockPopupAction.js",
-  "./guardInteractionFreshness.js",
-  "./singleSelectInFlight.js"
+  "../runtime.js",
+  "./guardInteractionFreshness.js"
 ], function (
   _ensureFilterState,
   _deriveInteractionIntent,
   _popupSteps,
   _requestFilterDockPopupAction,
-  _guardInteractionFreshness,
-  _inFlight
+  _singleSelectRuntime,
+  _guardInteractionFreshness
 ) {
   "use strict";
 
@@ -60,16 +60,16 @@ define([
 
     intent = _deriveInteractionIntent(_handoffContext);
     if (filterState.isCommitInProgress === true ||
-      _inFlight.isActive(_runtime, _handoffContext.filterInstanceId)) {
+      _singleSelectRuntime.inFlight.isActive(_runtime, _handoffContext.filterInstanceId)) {
       return;
     }
 
     if (_guardInteractionFreshness.isSelectionChangeIntent(intent.type)) {
-      if (_guardInteractionFreshness.isStaleInteraction(filterState, options.interactionSequence)) {
+      if (_singleSelectRuntime.isStaleInteraction(filterState, options.interactionSequence)) {
         return;
       }
       _popupSteps.applyPendingSelection(_handoffContext, filterState, intent);
-      _guardInteractionFreshness.markInteractionApplied(filterState, options.interactionSequence);
+      _singleSelectRuntime.markInteractionApplied(filterState, options.interactionSequence);
       interactionOptions.skipDomHydrate = true;
       interactionOptions.forceFreshPopupMount = true;
       await _popupSteps.restorePopupSelection(_KDB, _runtime, _handoffContext, filterState, interactionOptions);
@@ -77,7 +77,7 @@ define([
     }
 
     if (intent.type === "confirm") {
-      if (_guardInteractionFreshness.isStaleInteraction(filterState, options.interactionSequence)) {
+      if (_singleSelectRuntime.isStaleInteraction(filterState, options.interactionSequence)) {
         return;
       }
       interactionOptions.skipDomHydrate = true;

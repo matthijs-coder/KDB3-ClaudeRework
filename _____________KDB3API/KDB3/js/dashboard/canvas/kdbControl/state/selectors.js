@@ -1,109 +1,83 @@
 define([], function () {
-
   "use strict";
 
-  function defaultDashboard() {
+  function readText(value) {
+    return value != null ? String(value) : "";
+  }
+
+  function readDashboardSettings(state) {
+    var dashboard = state && state.settings && state.settings.dashboard;
+    if (!dashboard) {
+      return { width: "", height: "", backgroundColor: "", hideWidgetSettingsButtons: true, isDeveloperMode: false };
+    }
     return {
-      width: "",
-      height: "",
-      backgroundColor: "",
-      hideWidgetSettingsButtons: true,
-      isDeveloperMode: false,
+      width: readText(dashboard.width),
+      height: readText(dashboard.height),
+      backgroundColor: readText(dashboard.backgroundColor),
+      hideWidgetSettingsButtons: !!dashboard.hideWidgetSettingsButtons,
+      isDeveloperMode: !!dashboard.isDeveloperMode
     };
   }
 
-  function defaultControlPanel() {
+  function readControlPanelSettings(state) {
+    var panel = state && state.settings && state.settings.controlPanel;
+    if (!panel) {
+      return { backgroundColor: "", buttonColor: "", actionButtonColor: "", innerBackgroundColor: "" };
+    }
     return {
-      backgroundColor: "",
-      buttonColor: "",
-      actionButtonColor: "",
-      innerBackgroundColor: "",
+      backgroundColor: readText(panel.backgroundColor),
+      buttonColor: readText(panel.buttonColor),
+      actionButtonColor: readText(panel.actionButtonColor),
+      innerBackgroundColor: readText(panel.innerBackgroundColor)
     };
   }
 
-  function defaultVisualization() {
-    return { width: "", height: "", backgroundColor: "" };
+  function readWidgetDefaults(source) {
+    if (!source) return { width: "", height: "", backgroundColor: "" };
+    return {
+      width: readText(source.width),
+      height: readText(source.height),
+      backgroundColor: readText(source.backgroundColor)
+    };
   }
 
-  function defaultComment() {
-    return { width: "", height: "", backgroundColor: "" };
+  function readVisualizationDefaults(state) {
+    return readWidgetDefaults(state && state.settings && state.settings.defaultsNew && state.settings.defaultsNew.visualization);
+  }
+
+  function readCommentDefaults(state) {
+    return readWidgetDefaults(state && state.settings && state.settings.defaultsNew && state.settings.defaultsNew.comment);
+  }
+
+  function readFrameworkActiveTopPanel(state) {
+    return state && state.framework ? state.framework.activeTopPanel : undefined;
+  }
+
+  function readFrameworkOpenSectionId(state) {
+    return state && state.framework ? state.framework.openSectionId : undefined;
+  }
+
+  function readFrameworkCollapsed(state) {
+    return state && state.framework ? !!state.framework.isCollapsed : false;
+  }
+
+  function readFrameworkPlaceholderInputs(state) {
+    return state && state.framework && state.framework.placeholderInputs ? state.framework.placeholderInputs : {};
+  }
+
+  function readFrameworkPlaceholderSelections(state) {
+    return state && state.framework && state.framework.placeholderSelections ? state.framework.placeholderSelections : {};
   }
 
   return {
-
-    readDashboardSettings: function (s) {
-      var d = s && s.settings && s.settings.dashboard;
-      if (!d) return defaultDashboard();
-      return {
-        width: d.width != null ? String(d.width) : "",
-        height: d.height != null ? String(d.height) : "",
-        backgroundColor: d.backgroundColor != null ? String(d.backgroundColor) : "",
-        hideWidgetSettingsButtons: !!d.hideWidgetSettingsButtons,
-        isDeveloperMode: !!d.isDeveloperMode,
-      };
-    },
-
-    readControlPanelSettings: function (s) {
-      var c = s && s.settings && s.settings.controlPanel;
-      if (!c) return defaultControlPanel();
-      return {
-        backgroundColor: c.backgroundColor != null ? String(c.backgroundColor) : "",
-        buttonColor: c.buttonColor != null ? String(c.buttonColor) : "",
-        actionButtonColor: c.actionButtonColor != null ? String(c.actionButtonColor) : "",
-        innerBackgroundColor: c.innerBackgroundColor != null ? String(c.innerBackgroundColor) : "",
-      };
-    },
-
-    readVisualizationDefaults: function (s) {
-      var v = s && s.settings && s.settings.defaultsNew && s.settings.defaultsNew.visualization;
-      if (!v) return defaultVisualization();
-      return {
-        width: v.width != null ? String(v.width) : "",
-        height: v.height != null ? String(v.height) : "",
-        backgroundColor: v.backgroundColor != null ? String(v.backgroundColor) : "",
-      };
-    },
-
-    readCommentDefaults: function (s) {
-      var c = s && s.settings && s.settings.defaultsNew && s.settings.defaultsNew.comment;
-      if (!c) return defaultComment();
-      return {
-        width: c.width != null ? String(c.width) : "",
-        height: c.height != null ? String(c.height) : "",
-        backgroundColor: c.backgroundColor != null ? String(c.backgroundColor) : "",
-      };
-    },
-
-    readFrameworkActiveTopPanel: function (s) {
-
-      return s && s.framework ? s.framework.activeTopPanel : undefined;
-
-    },
-
-    readFrameworkOpenSectionId: function (s) {
-
-      return s && s.framework ? s.framework.openSectionId : undefined;
-
-    },
-
-    readFrameworkCollapsed: function (s) {
-
-      return s && s.framework ? !!s.framework.isCollapsed : false;
-
-    },
-
-    readFrameworkPlaceholderInputs: function (s) {
-
-      return s && s.framework && s.framework.placeholderInputs ? s.framework.placeholderInputs : {};
-
-    },
-
-    readFrameworkPlaceholderSelections: function (s) {
-
-      return s && s.framework && s.framework.placeholderSelections ? s.framework.placeholderSelections : {};
-
-    },
-
+    readDashboardSettings: readDashboardSettings,
+    readControlPanelSettings: readControlPanelSettings,
+    readVisualizationDefaults: readVisualizationDefaults,
+    readCommentDefaults: readCommentDefaults,
+    readFrameworkActiveTopPanel: readFrameworkActiveTopPanel,
+    readFrameworkOpenSectionId: readFrameworkOpenSectionId,
+    readFrameworkCollapsed: readFrameworkCollapsed,
+    readFrameworkPlaceholderInputs: readFrameworkPlaceholderInputs,
+    readFrameworkPlaceholderSelections: readFrameworkPlaceholderSelections
   };
-
 });

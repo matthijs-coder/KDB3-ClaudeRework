@@ -1,9 +1,8 @@
 define([
   "../state/buildFilterInstanceId.js",
-  "./readFilterDefinition.js",
-  "./classifyFilterInstance.js",
+  "../inventory/definitions.js",
   "../../../../core/utils/normalizeCognosScopeId.js"
-], function (_buildFilterInstanceId, _readDefinition, _classify, _normalizeScopeId) {
+], function (_buildFilterInstanceId, _definitions, _normalizeScopeId) {
   "use strict";
 
   function fallbackKey(_scopeType, _normalizedScope, _itemName) {
@@ -29,12 +28,14 @@ define([
     };
   }
 
-  function readCandidateFromDescriptor(_KDB, _descriptor, _source) {
+  function readCandidateFromDescriptor(_KDB, _descriptor, _source, _definitionIndex) {
     var raw = readRawFromDescriptor(_descriptor || {});
     var itemIdValue = _descriptor && _descriptor.itemId;
     var itemId = itemIdValue == null ? "" : String(itemIdValue).trim();
-    var definitionResult = _readDefinition(_KDB, _source, raw.scopeType, raw.itemName, itemId);
-    var classification = _classify(definitionResult, raw.itemName, raw.scopeType);
+    var definitionResult = _definitions.readFilterDefinition(
+      _KDB, _source, raw.scopeType, raw.itemName, itemId, _definitionIndex
+    );
+    var classification = _definitions.classifyFilterInstance(definitionResult, raw.itemName, raw.scopeType);
     var identity = _buildFilterInstanceId(raw.scopeType, raw.scopeId, itemId, raw.itemName);
     return {
       classification: classification,
