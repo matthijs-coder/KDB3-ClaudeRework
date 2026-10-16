@@ -1,4 +1,4 @@
-define([], function () {
+define(["./registerReplayHandlers.js"], function (_registerReplayHandlers) {
   "use strict";
 
   function registerAll(_KDB, _manifest) {
@@ -12,15 +12,12 @@ define([], function () {
   }
 
   // Mounts the entries of one phase in manifest order; a throwing mount stops the sequence.
-  function mountPhase(_KDB, _manifest, _phase, _afterEntry) {
+  function mountPhase(_KDB, _manifest, _phase) {
     _manifest.entries.forEach(function (entry) {
       if (!entry.mount || mountPhaseOf(entry) !== _phase) {
         return;
       }
       _KDB.api[entry.api].mount(Object.assign({}, entry.mount.options));
-      if (_afterEntry) {
-        _afterEntry(entry);
-      }
     });
   }
 
@@ -29,17 +26,8 @@ define([], function () {
     if (_renderOptions && _renderOptions.parent) {
       domRefs.renderParentEl = _renderOptions.parent;
     }
-    mountPhase(_KDB, _manifest, "boot", function (entry) {
-      if (entry.legacyReplayBindAfterMount) {
-        bindReplayLegacy(_KDB, _manifest);
-      }
-    });
-    bindReplayLegacy(_KDB, _manifest);
-  }
-
-  function bindReplayLegacy(_KDB, _manifest) {
-    const services = _manifest.entries.filter(function (entry) { return entry.name === "services"; })[0];
-    services.register(_KDB, { bindHistoryReplayHandlersOnly: true });
+    mountPhase(_KDB, _manifest, "boot");
+    _registerReplayHandlers(_KDB, _manifest);
   }
 
   function destroyFeatureApi(_api) {

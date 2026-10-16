@@ -99,7 +99,7 @@ define([
       replayKeys: ["tabs_move", "tabs_delete", "tabs_duplicate", "tabs_rename"] },
     { name: "kdbControl", register: _orchestratorKdbControl, api: "kdbControl", mount: { options: {} },
       replayKeys: ["kdbControl_settingsChange"] },
-    { name: "pageSurface", register: _orchestratorPageSurface, api: "canvas", mount: { options: {} }, legacyReplayBindAfterMount: true },
+    { name: "pageSurface", register: _orchestratorPageSurface, api: "canvas", mount: { options: {} } },
     { name: "historyControls", register: _orchestratorHistoryControls, api: "historyControls", mount: { options: {} } },
     { name: "pdfExportControls", register: _orchestratorPdfExportControls, api: "pdfExportControls", mount: { options: {} } },
     { name: "wienKiControls", register: _orchestratorWienKiControls, api: "wienKiControls", mount: { options: {} } },

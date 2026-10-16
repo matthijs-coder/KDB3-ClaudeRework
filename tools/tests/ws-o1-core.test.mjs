@@ -1,4 +1,4 @@
-// Golden tests for WS-O1: core/events, core/authoring, core/homeDialog, core/services/collectReplayHandlers.
+// Golden tests for WS-O1: core/events, core/authoring, core/homeDialog (replay registration lives in bootstrap-manifest.test.mjs).
 // Run: node --test tools/tests/ws-o1-core.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -278,54 +278,6 @@ test('authoring: mount keeps an existing state slice', () => {
   kdb.state.authoring = { isAuthoring: true };
   orchestrator(kdb);
   assert.deepEqual(kdb.api.authoring.getState(), { isAuthoring: true });
-});
-
-// ------------------------------------------------------ collectReplayHandlers
-
-const REPLAY_KEYS = {
-  kdbControl: ['kdbControl_settingsChange'],
-  header: ['header_chromeChange', 'header_textChange'],
-  footer: ['footer_chromeChange'],
-  singleSelect: ['filter_singleSelect'],
-  sicht: ['filter_sicht'],
-  dienststelle: ['filter_dienststelle'],
-  nativeMultiSelect: ['filter_nativeMultiSelect'],
-  widgetBase: ['widget_canvasDrop', 'widget_launchpadTransfer', 'widget_layoutMove', 'widget_layoutResize'],
-  widgetSettings: ['widgetSettings_optionSelect'],
-  widgetText: ['widget_textEdit'],
-  tabs: ['tabs_move', 'tabs_delete', 'tabs_duplicate', 'tabs_rename'],
-};
-
-test('collectReplayHandlers: 18 keys from 11 owners, in registration order', () => {
-  const collect = load('core/services/collectReplayHandlers.js');
-  const runtime = {};
-  const contributions = {};
-  for (const owner of Object.keys(REPLAY_KEYS)) {
-    contributions[owner] = { apply() {} };
-    runtime[owner] = { historyReplayHandlerContribution: contributions[owner] };
-  }
-  const map = collect({ runtime });
-  const expectedKeys = Object.values(REPLAY_KEYS).flat();
-  assert.equal(expectedKeys.length, 18);
-  assert.deepEqual(Object.keys(map), expectedKeys);
-  for (const [owner, keys] of Object.entries(REPLAY_KEYS)) {
-    for (const key of keys) assert.equal(map[key], contributions[owner], key);
-  }
-});
-
-test('collectReplayHandlers: contributions without apply, missing owners and missing runtime are skipped', () => {
-  const collect = load('core/services/collectReplayHandlers.js');
-  assert.deepEqual(Object.keys(collect({})), []);
-  assert.deepEqual(Object.keys(collect({ runtime: {} })), []);
-  const map = collect({
-    runtime: {
-      header: { historyReplayHandlerContribution: {} },
-      tabs: { historyReplayHandlerContribution: { apply() {} } },
-      footer: {},
-      sicht: null,
-    },
-  });
-  assert.deepEqual(Object.keys(map), ['tabs_move', 'tabs_delete', 'tabs_duplicate', 'tabs_rename']);
 });
 
 // ------------------------------------------------------------ homeDialog

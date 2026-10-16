@@ -193,6 +193,7 @@ export function createHarness({ realServices = false, props = {}, failMount = nu
     message: {
       showAlert(options) { alerts.push(options); log.push('message.showAlert'); },
     },
+    history: { registerReplayHandler() { return () => {}; } },
     writebackSet: { whenUrlShareRestoreSettled() { log.push('call:writebackSet.whenUrlShareRestoreSettled'); } },
   };
 
@@ -235,3 +236,15 @@ export function createHarness({ realServices = false, props = {}, failMount = nu
 }
 
 export const idx = (log, entry) => log.indexOf(entry);
+
+export function loadManifest() {
+  const overrides = {};
+  const noop = () => {};
+  for (const rel of Object.values(CORE_STEP_PATHS)) overrides[rel] = noop;
+  for (const feature of FEATURES) overrides[feature[1]] = noop;
+  return loadAmd(path.join(JS_ROOT, 'core/bootstrap/featureManifest.js'), { overrides });
+}
+
+export function loadBootstrapModule(rel) {
+  return loadAmd(path.join(JS_ROOT, rel));
+}

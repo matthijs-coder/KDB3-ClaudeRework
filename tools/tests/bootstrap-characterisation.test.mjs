@@ -18,15 +18,22 @@ const EXPECTED_REGISTER = [
   ...REGISTER_FEATURES.map((name) => 'register:' + name),
 ];
 
+const REPLAY_KEYS_IN_ORDER = [
+  'kdbControl_settingsChange', 'header_chromeChange', 'header_textChange', 'footer_chromeChange', 'filter_singleSelect',
+  'filter_sicht', 'filter_dienststelle', 'filter_nativeMultiSelect', 'widget_canvasDrop', 'widget_launchpadTransfer',
+  'widget_layoutMove', 'widget_layoutResize', 'widgetSettings_optionSelect', 'widget_textEdit', 'tabs_move', 'tabs_delete',
+  'tabs_duplicate', 'tabs_rename',
+];
+
 const MOUNT_STEPS = [
   'mount:header:{}', 'mount:footer:{}', 'mount:tabs:{}', 'mount:kdbControl:{}', 'mount:pageSurface:{}',
-  'services.bindHistoryReplayHandlersOnly',
   'mount:historyControls:{}', 'mount:pdfExportControls:{}', 'mount:wienKiControls:{}', 'mount:shareControls:{}',
   'mount:launchpad:{}', 'mount:widgetBase:{}', 'mount:widgetSettings:{}', 'mount:widgetText:{}',
   'mount:widgetVis:{"enableDrillthrough":true}', 'mount:widgetDataTable:{}', 'mount:widgetTopN:{}', 'mount:dragDrop:{}',
   'mount:metricsTree:{}', 'mount:singleSelect:{}', 'mount:dienststelle:{}', 'mount:sicht:{}',
   'mount:specialSingleSelect:{}', 'mount:nativeMultiSelect:{}',
-  'services.bindHistoryReplayHandlersOnly',
+  // DELTA (replay registration commit): one registration after the last mount replaces the two wholesale binds.
+  ...REPLAY_KEYS_IN_ORDER.map((key) => 'replay.register:' + key),
 ];
 
 const EXPECTED_BOOT_FLOW = [
@@ -51,13 +58,6 @@ const EXPECTED_DESTROY = [
   'service.destroy:writebackMap', 'service.destroy:dashboardPdf', 'service.destroy:widgetBindingApply',
   'service.destroy:history', 'service.destroy:message', 'service.destroy:loading', 'service.destroy:tableData',
   'service.destroy:cognosHost',
-];
-
-const REPLAY_KEYS_IN_ORDER = [
-  'kdbControl_settingsChange', 'header_chromeChange', 'header_textChange', 'footer_chromeChange', 'filter_singleSelect',
-  'filter_sicht', 'filter_dienststelle', 'filter_nativeMultiSelect', 'widget_canvasDrop', 'widget_launchpadTransfer',
-  'widget_layoutMove', 'widget_layoutResize', 'widgetSettings_optionSelect', 'widget_textEdit', 'tabs_move', 'tabs_delete',
-  'tabs_duplicate', 'tabs_rename',
 ];
 
 const REPLAY_OWNER_BY_KEY = {
@@ -113,28 +113,14 @@ test('replay handlers: 18 keys in order, each routed to its owner (real history 
   const history = kdb.services.history;
   const bindLines = h.log.filter((line) => line.startsWith('replay.bind:'));
   const registerLines = h.log.filter((line) => line.startsWith('replay.register:'));
-  const keysBound = (line) => line.slice('replay.bind:'.length).split(',');
-  // DELTA (replay registration commit): two wholesale binds become 18 registerReplayHandler calls.
-  assert.equal(bindLines.length, 2);
-  assert.deepEqual(keysBound(bindLines[0]), REPLAY_KEYS_IN_ORDER);
-  assert.deepEqual(keysBound(bindLines[1]), REPLAY_KEYS_IN_ORDER);
-  assert.deepEqual(registerLines, []);
+  assert.deepEqual(bindLines, []);
+  assert.deepEqual(registerLines, REPLAY_KEYS_IN_ORDER.map((key) => 'replay.register:' + key));
   h.log.length = 0;
   for (const key of REPLAY_KEYS_IN_ORDER) {
     assert.equal(history.pushCommittedStep({ key, old: { v: 1 }, new: { v: 2 } }), true, key);
     assert.equal(await history.undo(), true, key);
   }
   assert.deepEqual(h.log.filter((line) => line.startsWith('replay:')), REPLAY_KEYS_IN_ORDER.map((key) => 'replay:' + REPLAY_OWNER_BY_KEY[key] + ':' + key));
-});
-
-test('replay handlers: the first bind already sees every contribution (mount-time stamps happen before it)', async () => {
-  const h = createHarness({ realServices: true });
-  const kdb = h.createKdb();
-  await kdb.renderKDB({});
-  const firstBind = h.log.findIndex((line) => line.startsWith('replay.bind:'));
-  const lastMountBeforeFirstBind = h.log.lastIndexOf('mount:pageSurface:{}', firstBind);
-  assert.ok(lastMountBeforeFirstBind > -1 && lastMountBeforeFirstBind < firstBind);
-  assert.equal(h.log[firstBind], 'replay.bind:' + REPLAY_KEYS_IN_ORDER.join(','));
 });
 
 test('render() twice, sequentially: the second call returns the first promise and runs nothing again', async () => {
