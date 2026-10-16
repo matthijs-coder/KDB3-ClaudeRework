@@ -1,18 +1,4 @@
-define([], function () {
-  return {
-    CHANNELS: {
-      TEXT: "text",
-      VISUALIZATION: "visualization",
-      DATA_TABLES: "dataTables",
-      TOP_N: "topN",
-      OTHER_RESOURCES: "otherResources"
-    },
-    SKIP_REASON: {
-      HOST_WIDGET: "HOST_WIDGET",
-      WRITEBACK_TABLE: "WRITEBACK_TABLE",
-      LAUNCHPAD_DISABLED: "LAUNCHPAD_DISABLED"
-    },
-    CHART_TYPES: ["BAR", "COLUMN", "LINE", "PIE", "STACKEDBAR", "STACKEDCOLUMN", "AREA", "SCATTER", "BUBBLE", "COMBO"],
-    WRITE_BACK_TITLES: ["writebacktable", "writebacktabel", "writebacktabel_get", "writebacktabel_set"]
-  };
+// shim (WS-L phase A): remove in Phase B; re-exports the merged implementation
+define(["../config.js"], function (_m) {
+  return { CHANNELS: _m.CHANNELS, SKIP_REASON: _m.SKIP_REASON, CHART_TYPES: _m.CHART_TYPES, WRITE_BACK_TITLES: _m.WRITE_BACK_TITLES };
 });
