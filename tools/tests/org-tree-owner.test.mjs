@@ -5,6 +5,8 @@ import assert from "node:assert/strict";
 import path from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { BW_ROWS, DEZPV_ROWS } from "./lib/org-tree-corpus.mjs";
 
 const load = (rel) => loadAmd(path.join(JS_ROOT, "core/utils/orgTree", rel), { stubs: { console: { error() {}, log() {} } } });
@@ -14,7 +16,7 @@ const tree = load("buildOrgTree.js");
 
 test("published exports", () => {
   assert.deepStrictEqual(Object.keys(table), ["HIERARCHY_TABLE_KEYS", "normalizeSicht", "hierarchyTableKey"]);
-  assert.deepStrictEqual(Object.keys(cell), ["parseHierarchyCell", "extractLastBracketToken", "parseLevelNumber"]);
+  assert.deepStrictEqual(Object.keys(cell), ["parseHierarchyCell", "extractLastBracketToken", "parseLevelNumber", "extractUniqueNameLeaf"]);
   assert.deepStrictEqual(Object.keys(tree), ["buildOrgTreeFromRows", "readOrgTree"]);
 });
 
@@ -38,6 +40,30 @@ test("extractLastBracketToken and parseLevelNumber", () => {
   assert.equal(cell.parseLevelNumber("LEVEL000"), 0);
   assert.equal(cell.parseLevelNumber("[Org].[x]"), null);
   assert.equal(cell.parseLevelNumber(undefined), null);
+});
+
+// The dienststelle restore index compares full use values: the leaf is the last bracket of the whole string, untrimmed.
+function referenceLeaf(_useValue) {
+  const text = String(_useValue == null ? "" : _useValue);
+  const re = /\[([^\]]+)\]/g;
+  let last = "";
+  let match;
+  while ((match = re.exec(text)) !== null) last = match[1];
+  return last;
+}
+
+test("extractUniqueNameLeaf: exact semantics, differs from the trimmed token on purpose", () => {
+  const corpusFile = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures/org-tree-dienststelle.random-corpus.json");
+  const strings = JSON.parse(readFileSync(corpusFile, "utf8")).strings.concat([null, undefined, 42, "", "[a]\n[b]", "[ a ]", "[ ]", "[a[b]]"]);
+  strings.forEach((text) => assert.strictEqual(cell.extractUniqueNameLeaf(text), referenceLeaf(text), JSON.stringify(text)));
+  assert.equal(cell.extractUniqueNameLeaf("[Org].[Org].[Org].&[1].&[10]"), "10");
+  assert.equal(cell.extractUniqueNameLeaf("[a]\n[b]"), "b");
+  assert.equal(cell.extractUniqueNameLeaf("[ a ]"), " a ");
+  assert.equal(cell.extractUniqueNameLeaf("[ ]"), " ");
+  assert.equal(cell.extractUniqueNameLeaf("[a[b]]"), "a[b");
+  assert.equal(cell.extractUniqueNameLeaf("none"), "");
+  assert.equal(cell.extractUniqueNameLeaf(null), "");
+  assert.equal(cell.extractLastBracketToken("[ a ]"), "a");
 });
 
 test("readOrgTree: table per sicht, request shape, null without reader or rows, sicht echoed as given", () => {
