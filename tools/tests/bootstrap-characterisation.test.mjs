@@ -396,6 +396,39 @@ test('render failure in a mount: loading is finished, an alert is shown, render 
   assert.deepEqual(h.alerts, [{ title: 'Dashboard', severity: 'error', message: RENDER_FAILED_TEXT + 'mount failed tabs' }]);
 });
 
+test('a throwing mount still registers the replay handlers of the owners that stamped by then', async () => {
+  const h = createHarness({ failMount: 'tabs' });
+  const kdb = h.createKdb();
+  assert.equal(await kdb.renderKDB({}), false);
+  // kdbControl stamps in mount(), which never ran; every other owner stamped at registration or mounted before tabs.
+  assert.deepEqual(
+    h.log.filter((line) => line.startsWith('replay.register:')),
+    REPLAY_KEYS_IN_ORDER.filter((key) => key !== 'kdbControl_settingsChange').map((key) => 'replay.register:' + key),
+  );
+  assert.equal(h.log.includes('mount:kdbControl:{}'), false);
+});
+
+test('a throwing mount: undo still works through the real history service for the stamped owners', async () => {
+  const h = createHarness({ realServices: true, failMount: 'tabs' });
+  const kdb = h.createKdb();
+  assert.equal(await kdb.renderKDB({}), false);
+  const history = kdb.services.history;
+  history.pushCommittedStep({ key: 'header_chromeChange', old: { v: 1 }, new: { v: 2 } });
+  assert.equal(await history.undo(), true);
+  assert.ok(h.log.includes('replay:header:header_chromeChange'));
+  history.pushCommittedStep({ key: 'kdbControl_settingsChange', old: { v: 1 }, new: { v: 2 } });
+  assert.equal(await history.undo(), false);
+});
+
+test('a throwing first mount registers only the registration-time owners and the original error is reported', async () => {
+  const h = createHarness({ failMount: 'header' });
+  const kdb = h.createKdb();
+  assert.equal(await kdb.renderKDB({}), false);
+  assert.equal(kdb.state.rootLifecycle.errorMessage, 'mount failed header');
+  const keys = h.log.filter((line) => line.startsWith('replay.register:')).map((line) => line.slice('replay.register:'.length));
+  assert.deepEqual(keys, REPLAY_KEYS_IN_ORDER.filter((key) => !['kdbControl_settingsChange', 'header_chromeChange', 'header_textChange', 'footer_chromeChange'].includes(key)));
+});
+
 test('render failure on a destroyed instance shows nothing', async () => {
   const gate = deferred();
   const h = createHarness({ failMount: 'header', cubesGate: gate });

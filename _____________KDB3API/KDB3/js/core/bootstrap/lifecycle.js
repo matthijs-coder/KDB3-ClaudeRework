@@ -26,8 +26,13 @@ define(["./registerReplayHandlers.js"], function (_registerReplayHandlers) {
     if (_renderOptions && _renderOptions.parent) {
       domRefs.renderParentEl = _renderOptions.parent;
     }
-    mountPhase(_KDB, _manifest, "boot");
-    _registerReplayHandlers(_KDB, _manifest);
+    // Replay handlers are registered even when a mount throws, for the owners that stamped by then: undo/redo on a
+    // half-booted page then still works (the removed early bind used to cover that case).
+    try {
+      mountPhase(_KDB, _manifest, "boot");
+    } finally {
+      _registerReplayHandlers(_KDB, _manifest);
+    }
   }
 
   function destroyFeatureApi(_api) {

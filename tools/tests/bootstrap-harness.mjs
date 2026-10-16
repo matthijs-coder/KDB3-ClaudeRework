@@ -135,8 +135,8 @@ export function createHarness({ realCss = false, realServices = false, props = {
       kdb.api[apiKey] = {
         mount(options) {
           log.push('mount:' + name + ':' + JSON.stringify(options));
-          if (STAMPS_AT_MOUNT.includes(name)) stampContribution(kdb, name);
           if (failMount === name) throw new Error('mount failed ' + name);
+          if (STAMPS_AT_MOUNT.includes(name)) stampContribution(kdb, name);
         },
         destroy() {
           log.push('destroy:' + name);
