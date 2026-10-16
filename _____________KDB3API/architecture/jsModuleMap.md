@@ -162,11 +162,14 @@ Replay-handlers worden **tweemaal** gebonden (`KDB.js` na kdbControl-mount en na
 
 ## Stale contracts (niet herschrijven — niet als kaart gebruiken)
 
+Na de file-layout pass (WS-P) staat in elk living contract een as-built bestandsoverzicht. Wat nog afwijkt van de code:
+
 | Bestand | Waarom stale | Gebruik in plaats daarvan |
 |---|---|---|
-| `contracts/tabs.md` | Status Draft; phase-1 **defert** move/delete. Live tabs doen dat al. | `dashboard/tabs/tabMutation/saga.js` (`runTabMutationSaga`) |
-| `contracts/widgetSettings.md` | Draft; noemt `commitDimension` / `commitVisType` / `commitColour`. | `intentDispatchMap.js` |
-| `contracts/nativeMultiSelect.md` §6 | Folderlijst is plat `actions/*.js`; live tree heeft `actions/tabMutation/` en `actions/parameterSet/`. | Live `nativeMultiSelect/` + `config/actions.js` |
+| `contracts/tabs.md` | Status Draft; de tekst over fase 1 **defert** move/delete/duplicate, maar die zijn live. Een as-built noot staat bovenaan. | `dashboard/tabs/tabMutation/saga.js` (`runTabMutationSaga`), `contracts/kdbControl-tabsCrud-contractdelta.md` |
+| `contracts/widgetSettings.md` | Status Draft CP-1; noemt `commitDimension` / `commitVisType` als commit paths. De dispatch table kent alleen de routes uit de As-built alinea (§4). | `dashboard/widgets/widgetSettings/index.js` (ROUTES), `intent/` |
+| `contracts/dragDrop.md`, `contracts/dienststelle.md`, `contracts/sicht.md`, `contracts/singleSelect.md`, `contracts/specialSingleSelect.md`, `contracts/filterDock.md`, `contracts/messageService.md`, `contracts/loadingService.md`, `contracts/historyService.md` | CP-1 drafts: de beslis- en evidence-secties beschrijven nog het oorspronkelijke porting plan (legacy bestandsnamen staan er als evidence). Alleen de Folder Layout sectie is as-built. | De Folder Layout sectie van het contract en de code zelf |
 | `contracts/_archive/pageContextPlain.md` | Status **Superseded**. | `nativeMultiSelect` (v3-bucket `filt.pcfs`) |
+| `contracts/_archive/kennzahlenTree.md` | Superseded: de boom heet in productie `metricsTree`. | `contracts/metricsTree.md`, `dashboard/metricsTree/` |
 
 `eventSubscribe.md` is geen human map voor confirm / tab-move / settings — dat zijn dispatch-sagas, geen bus-events.

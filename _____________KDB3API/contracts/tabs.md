@@ -7,6 +7,7 @@
 ---
 
 **Status:** `Draft`
+**As-built note:** the phase-1 deferral of delete, duplicate and move below is superseded. `tabs/delete`, `tabs/duplicate`, `tabs/restoreDeleted` and `tabs/move` (plus `tabs/reorder`) are live and run through `dashboard/tabs/tabMutation/` (`actions.js` routes, `plans.js` builds the plans, `saga.js` `runTabMutationSaga` runs them, `owners.js` dispatches to the widget/filter owners). See `kdbControl-tabsCrud-contractdelta.md` and `dashboard/tabs/config/actionTypes.js`. The file layout is in section 18.
 **Owner module / service:** `tabs`
 **Type:** `feature module`
 **Authoring AI:** GPT-5.5, 2026-06-18

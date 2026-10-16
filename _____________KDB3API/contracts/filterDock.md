@@ -226,7 +226,7 @@ Resolved in `identity.js` (`resolveFilterType`) from capabilities (`readFilterCa
 ### Legacy naming (port mapping)
 
 - Legacy `dstleitung` is not used in the new project. Use `condition: "Dienststellenleitung"` in `filterPropObj` filter entries.
-- `compat/resolveFilterCapabilities.js` exposes config-only `hasAlleOption` (`isTrueish(filterConfig.hasAlleOption)`); it does not read `_KDB.state.filters.specialRights`. Runtime Alle/right semantics stay with `specialSingleSelect`.
+- `identity.js` (`readFilterCapabilities`) exposes config-only `hasAlleOption` (`isTrueish(filterConfig.hasAlleOption)`); it does not read `_KDB.state.filters.specialRights`. Runtime Alle/right semantics stay with `specialSingleSelect`.
 - `specialSingleSelect` detection uses lowercase `personengruppe` and `dienststellenleitung` against `capabilities.condition`.
 
 Every click handled by `filterDock` must generate the serializable `lastInteraction` object and dispatch `filterDock/clickObserved`.

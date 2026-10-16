@@ -322,7 +322,7 @@ No Dienststelle files are created or modified in this tranche.
 Module-local config lives in:
 
 ```txt
-dashboard/filters/sicht/config/sichtDefinitions.js
+dashboard/filters/sicht/config.js
 ```
 
 Draft shape:
@@ -364,7 +364,7 @@ _KDB.state.tableData.sicht_bw.rows[0].BW_Loaded.use
 ```
 
 - The implementation may iterate the first row's fields and use the first cell instead of hardcoding `BW_Loaded` / `DEZPV_Loaded`.
-- Option `displayValue` comes from `sichtDefinitions.js`; table data decides availability.
+- Option `displayValue` comes from `config.js`; table data decides availability.
 
 Visibility and disabled rules:
 
@@ -583,7 +583,7 @@ Legacy full cascade behavior is not reproduced in this tranche. That is an inten
 
 After tableData-derived `byOption` is evaluated on mount or sync:
 
-- Sicht may choose the first enabled normal option in deterministic order from `sichtDefinitions.js` (`BW`, then `DEZPV`): visible, enabled, non-empty `displayValue`, non-empty `useValue`, not `"Alle"`.
+- Sicht may choose the first enabled normal option in deterministic order from `config.js` (`BW`, then `DEZPV`): visible, enabled, non-empty `displayValue`, non-empty `useValue`, not `"Alle"`.
 - Startup default commits a real Cognos Sicht value through `_KDB.cognosAPI.filters.replaceFilterContext(...)` (narrow startup exception; normal user commits stay delegated to `singleSelect`).
 - Confirmed startup updates `_KDB.state.filters.sicht` via `sicht/singleSelectCommitted` with `isStartupDefault: true`.
 - Startup notifies `specialSingleSelect/sichtChanged` through the same confirmed path as manual commits.
@@ -614,7 +614,7 @@ After tableData-derived `byOption` is evaluated on mount or sync:
 | Inheritance model | `filterDock -> sicht -> singleSelect`; no copying/importing internal `singleSelect` files; no singleSelect state writes. |
 | Confirmed Sicht value | `activeSichtValue` comes from confirmed `displayValue` (`"BW"` / `"DEZPV"`). |
 | TableData keys | `sicht_bw`, `sicht_dezpv` determine visibility; `dienststelle_bw_default`, `dienststelle_dezpv_default` determine disabled/enabled readiness. |
-| Table row shape | Iterate first row fields or read `rows[0].<DataElementName>.use`; display comes from `sichtDefinitions.js`. |
+| Table row shape | Iterate first row fields or read `rows[0].<DataElementName>.use`; display comes from `config.js`. |
 | `tablesLoaded` | Legacy evidence only; not reintroduced. |
 | Duplicate / hidden / disabled | Prevent duplicates; no-right / unavailable options hidden; right but default not ready options disabled. |
 | Alle / re-click | `"Alle"` hidden; always normal option selected; re-click selected option ignored. |

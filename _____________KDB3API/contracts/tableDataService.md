@@ -196,13 +196,13 @@ Both emitted events are catalogued in [_____________KDB3API/architecture/eventSu
 
 tableData does **not** call `_KDB.cognosAPI` after slice 4. Host access is ring 1 only (`cognosHostService.md` §4 review rule).
 
-- `effects/readDataQueryFacet.js` — owner choke point for `_KDB.runtime.tableData.dataQueryFacet`.
+- `queryRead.js` — owner choke point for `_KDB.runtime.tableData.dataQueryFacet` (read from the runtime bucket).
 - `core/services/tableData/queryRead.js` (`readTableQueryResult`) — calls `dataQueryFacet.readQueryRows(widgetId, {budgetMs: 60000, intervalMs: 100, signal})` and maps Outcome → owner dialect `{status:"ready"|"failed"|"aborted"|"empty", result}`. `result` is `TableRowsResult` (`{ columns, columnNames, rowCount }`), never a live query handle. `"empty"` is owner-only (`!widgetId` before the facet is called). Timeout / flatten / host failure map to `"failed"` (B4), not `"empty"`.
 - The former `waitForTableQueryResult.js` — **removed (was dead).** Not imported. Load path is `readParkedTableQueryResult` → `readTableQueryResult` → `dataQueryFacet.readQueryRows`. Do not revive this wait; do not route park through `waitForQueryResult`.
-- `effects/readCanvasFacet.js` — canvas DTO for widget-id resolution (slice 2). `visType` / `visTitle` arrive on that DTO; tableData does not call `_KDB.cognosAPI.visualization` or `.canvas`.
-- `core/services/tableData/loadLifecycle.js` (`runLoadTableWork`) — consumes the flattened DTO from `readParkedTableQueryResult` (park-listed leftovers) or plain `readTableQueryResult` inside that wrap. AMD 10→9: `normalizeTableData.js` is no longer imported (file left on disk unused). Failed query still takes `markTableFailed` + toast (B4 / D2 dedupe). Abort is silent. Park protocol: `tableData-hierarchy-park-filter-contractdelta.md`.
+- `resolveTableWidgetId.js` — canvas DTO for widget-id resolution (slice 2), read from `runtime.tableData.canvasFacet`. `visType` / `visTitle` arrive on that DTO; tableData does not call `_KDB.cognosAPI.visualization` or `.canvas`.
+- `core/services/tableData/loadLifecycle.js` (`runLoadTableWork`) — consumes the flattened DTO from `readParkedTableQueryResult` (park-listed leftovers) or plain `readTableQueryResult` inside that wrap. AMD 10→9: the former `normalizeTableData` is no longer imported (the file no longer exists). Failed query still takes `markTableFailed` + toast (B4 / D2 dedupe). Abort is silent. Park protocol: `tableData-hierarchy-park-filter-contractdelta.md`.
 
-`abortTable` / `abortTableLoad` / `abortPreviousHierarchyWarmup` are unchanged. Flattening (`core/services/cognosHost/facets/dataQuery/rows.js` (`flattenQueryRows`)) lives in ring 1. Live host method remains `_KDB.cognosAPI.dataQuery.getDataQueryResult` inside `facets/dataQuery/resolveDataQueryHostApi.js` only.
+`abortTable` / `abortTableLoad` / `abortPreviousHierarchyWarmup` are unchanged. Flattening (`core/services/cognosHost/facets/dataQuery/rows.js` (`flattenQueryRows`)) lives in ring 1. Live host method remains `_KDB.cognosAPI.dataQuery.getDataQueryResult` inside `facets/dataQuery/` (`hostAccess.js` `resolveHostApi`) only.
 
 ## 9. Folder Layout
 
