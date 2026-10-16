@@ -14,9 +14,9 @@ Legend: **[CORE]** = part of the quick Core smoke (section 1, about 10 min, run 
 - [ ] Open DevTools (F12). Console: tick **Preserve log**; set the level filter to *All levels*. If the dashboard runs in an iframe, pick the right JS context in the console drop-down (top-left of the console). Handy filters: `KDB`, `[sicht-jahr]`, `error`.
 - [ ] Check the console handle: type `window.top.getKDB()`. Expected: the `_KDB` object (it is installed on `window.top` at boot). If `undefined`: wrong console context or boot failed - note it as a failure.
 - [ ] Baseline parameter sets (Cognos "Parameterset" dropdown):
-  - **Set A (v3)**: a set you saved with the current build (create it in step 1.9 if none exists).
+  - **Set A (v3)**: a set you saved with the current build (create it in step 1.10 if none exists).
   - **Set B (old v2)**: load a v2-format payload. Samples: `oude parameterset.txt` in the repo root (full old payload; paste it into the parameter-set content as the product owner normally does) and the per-property JS files in `_____________KDB3API/__savedProperties/` (`filterPropId.js`, `linePropId.js`, `piePropId.js`, `stackedBarPropId.js`, `stackedColumnPropId.js`, `listPropId.js`, `textWidgetPropId.js`, `headerWidgetPropId.js`, `loadingTablesPropId.js`, ...) which are the widget property values behind `spec.json`.
-  - A **share URL** with `?parameterId=<id of Set A>` (see 1.11).
+  - A **share URL** with `?parameterId=<id of Set A>` (see 1.12).
 - [ ] Record the **baseline numbers** right after a fresh boot (before touching anything). Write them down next to the build id:
   ```js
   // listener counts per target (run in the console)
