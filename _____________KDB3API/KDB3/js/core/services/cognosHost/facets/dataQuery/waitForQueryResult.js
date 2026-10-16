@@ -11,11 +11,14 @@ define([
   // once the host query has at least one result item (an empty structured query is valid: do not
   // wait for rowCount > 0). The host result is handed back as data.hostResult so readQueryRows
   // flattens it without a second getDataQueryResult.
+  // The poll interval starts at intervalMs (default 100) and backs off x1.25 up to 1000 ms.
   // budgetMs defaults to 60000. budgetMs: Infinity is an explicit opt-in to wait unbounded
   // (only destroy or the caller's signal ends it); no caller does that today.
   var CODES = _errorCodes.dataQuery;
   var DEFAULT_BUDGET_MS = 60000;
   var DEFAULT_INTERVAL_MS = 100;
+  var BACKOFF_FACTOR = 1.25;
+  var MAX_INTERVAL_MS = 1000;
 
   function inspectQueryResult(_result) {
     var items;
@@ -42,6 +45,7 @@ define([
     var options = _options || {};
     var budgetMs = typeof options.budgetMs === "number" ? options.budgetMs : DEFAULT_BUDGET_MS;
     var intervalMs = typeof options.intervalMs === "number" ? options.intervalMs : DEFAULT_INTERVAL_MS;
+    var maxIntervalMs = Math.max(intervalMs, MAX_INTERVAL_MS);
     var startedAt = Date.now();
     var registration = null;
     var api;
@@ -100,6 +104,7 @@ define([
             : buildTimeout("waitForQueryResult timed out for widget " + _widgetId);
         }
         await _async.sleep(intervalMs, [registration.controller.signal, options.signal]);
+        intervalMs = Math.min(intervalMs * BACKOFF_FACTOR, maxIntervalMs);
       }
     } finally {
       _runtime.releaseWait(_ctx._KDB, registration);

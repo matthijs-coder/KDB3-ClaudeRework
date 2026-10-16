@@ -71,3 +71,24 @@ test("P2: dataSources list wait does not register the same signal twice", async 
   const { svc } = create({ dataSources: { getDataSourceList: () => (++polls < 3 ? [state("loading")] : [state("ready")]) } });
   assert.equal((await svc.dataSources.hasErrorDataSource()).data, false);
 });
+
+test("P3: dataQuery poll interval backs off x1.25 and is capped at max(intervalMs, 1000)", async () => {
+  const stamps = [];
+  const empty = { getResultItemList: () => [] };
+  const { svc } = create({ dataQuery: { getDataQueryResult: async () => { stamps.push(Date.now()); return empty; } } });
+  await svc.dataQuery.waitForQueryResult("w1", { intervalMs: 20, budgetMs: 400 });
+  const gaps = stamps.slice(1).map((stamp, index) => stamp - stamps[index]);
+  assert.ok(gaps.length >= 4, "enough polls: " + gaps.length);
+  assert.ok(gaps[gaps.length - 1] > gaps[0] + 10, "later gaps are longer: " + gaps.join(","));
+  assert.ok(gaps[gaps.length - 1] < 800, "far below the 1000 ms cap within 400 ms");
+});
+
+test("P3: a caller-set interval above the cap is not shortened", async () => {
+  const stamps = [];
+  const empty = { getResultItemList: () => [] };
+  const { svc } = create({ dataQuery: { getDataQueryResult: async () => { stamps.push(Date.now()); return empty; } } });
+  const outcome = await svc.dataQuery.waitForQueryResult("w1", { intervalMs: 1500, budgetMs: 1200 });
+  assert.equal(outcome.errorCode, "DATAQUERY_WAIT_TIMEOUT");
+  assert.equal(stamps.length, 2);
+  assert.ok(stamps[1] - stamps[0] >= 1450, "interval above the cap is not shortened");
+});
