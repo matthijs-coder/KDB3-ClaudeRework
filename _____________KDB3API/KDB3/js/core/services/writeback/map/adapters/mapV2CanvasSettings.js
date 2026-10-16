@@ -1,14 +1,9 @@
 define([
-  "../../../../utils/convertUnitToPx.js",
-], function (_convertUnitToPx) {
+  "./mapV2Layout.js",
+], function (_mapV2Layout) {
   "use strict";
 
-  function parseDimension(_value) {
-    if (typeof _value === "number" && isFinite(_value)) {
-      return Math.round(_value);
-    }
-    return _convertUnitToPx(_value);
-  }
+  const parseDimension = _mapV2Layout.parseDimension;
 
   function readCanvasSize(_canvas, _configuration) {
     const fromCanvas = _canvas && typeof _canvas === "object" ? _canvas : {};
@@ -78,20 +73,16 @@ define([
   }
 
   function mapV2CanvasSettings(_payload) {
-    try {
-      const result = {};
-      const canv = readCanvasSize(_payload.canvas, _payload.configuration);
-      if (canv) {
-        result.canv = canv;
-      }
-      const sett = mapConfiguration(_payload.configuration);
-      if (sett) {
-        result.sett = sett;
-      }
-      return result;
-    } catch (error) {
-      throw error;
+    const result = {};
+    const canv = readCanvasSize(_payload.canvas, _payload.configuration);
+    if (canv) {
+      result.canv = canv;
     }
+    const sett = mapConfiguration(_payload.configuration);
+    if (sett) {
+      result.sett = sett;
+    }
+    return result;
   }
 
   return mapV2CanvasSettings;
