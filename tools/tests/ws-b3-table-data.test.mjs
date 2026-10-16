@@ -432,6 +432,28 @@ test("service: abort resolves null without rejecting or emitting", async () => {
   return snapshotPart("abort", { state: snapshotState(env.KDB), calls: env.calls });
 });
 
+test("service: a superseded load settling does not release the newer load", async () => {
+  const env = makeEnv({ queryHandlers: { wT1: (options, count) => (count === 1 ? { ok: true, data: SAMPLE } : abortableQuery(options)) } });
+  const { service, KDB } = env;
+  await service.waitForRows([{ tableName: "T1", isCoreTable: true }]);
+  const first = service.reloadTable([{ tableName: "T1" }]);
+  await settle();
+  const second = service.reloadTable([{ tableName: "T1" }]);
+  assert.equal(await first, null);
+  await settle();
+  const runtime = KDB.runtime.tableData;
+  assert.ok(runtime.abortControllers.T1, "newer load keeps its controller");
+  const shared = service.loadTable([{ tableName: "T1" }]);
+  assert.equal(service.readPendingLoad([{ tableName: "T1" }]), runtime.pendingLoads.T1);
+  const readsBefore = env.queryCounts.wT1;
+  await service.abortTable([{ tableName: "T1" }]);
+  assert.equal(await second, null, "abortTable still aborts the newer load");
+  assert.equal(await shared, null, "loadTable shared the newer pending promise");
+  assert.equal(env.queryCounts.wT1, readsBefore, "no extra query started");
+  assert.deepEqual(Object.keys(runtime.pendingLoads), []);
+  assert.deepEqual(Object.keys(runtime.abortControllers), []);
+});
+
 test("service: concurrent loads share one pending promise", async () => {
   const env = makeEnv({ queryHandlers: { wT1: async () => { await settle(); return { ok: true, data: SAMPLE }; } } });
   const a = env.service.loadTable([{ tableName: "T1" }]);

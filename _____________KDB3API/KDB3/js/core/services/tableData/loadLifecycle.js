@@ -18,6 +18,14 @@ define([
     }
   }
 
+  // A superseded load settles after its replacement registered; only the owner of the stored controller may clear.
+  function releaseSettledLoad(_KDB, tableKey, signal) {
+    const controller = _KDB.runtime.tableData.abortControllers[tableKey];
+    if (!controller || controller.signal === signal) {
+      clearRuntimeLoad(_KDB, tableKey);
+    }
+  }
+
   function abortTableLoad(_KDB, tableKey) {
     const controller = tableKey ? _KDB.runtime.tableData.abortControllers[tableKey] : null;
     if (controller && typeof controller.abort === "function") {
@@ -155,7 +163,7 @@ define([
       reportLoadFailed(_KDB, input, tableKey, error);
       throw error;
     } finally {
-      clearRuntimeLoad(_KDB, tableKey);
+      releaseSettledLoad(_KDB, tableKey, signal);
     }
   }
 
