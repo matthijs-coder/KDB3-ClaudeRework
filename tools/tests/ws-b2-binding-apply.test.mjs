@@ -370,6 +370,7 @@ const PATH_CASES = {
     host: { signal: { aborted: false } },
     options: (plan, ctx) => baseOptions(plan, ctx, { renderWait: { waitForStart: false, waitForComplete: false } }),
   },
+  lineAddListenerOnlySignal: { plan: "line", host: { signal: { aborted: false, addEventListener() {} } } },
   lineRenderNoStart: {
     plan: "line",
     options: (plan, ctx) => baseOptions(plan, ctx, { renderWait: { waitForStart: false, intervalMs: 25 } }),
