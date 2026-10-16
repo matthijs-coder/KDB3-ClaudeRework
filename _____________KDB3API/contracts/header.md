@@ -4,13 +4,13 @@
 **Owner module:** `header`  
 **Type:** feature module  
 **Related:** `stateOwnership.md` (subtree `_KDB.state.header`), `module-public-api.mdc`, `state.mdc`, `runtime.mdc`, `dom.mdc`, `events.mdc`, `feature-structure.mdc`  
-**Supersedes placeholder intent:** toolbox chrome drives **known owner** `header` via `_KDB.api.header.dispatch` — see [kdbControl-header-footer-toolbox-contractdelta.md](./kdbControl-header-footer-toolbox-contractdelta.md); legacy `kdbControl.md` §6 `header:*Requested` catalog rows are **not** the path for those controls once this contract is approved.
+**Supersedes placeholder intent:** toolbox chrome drives **known owner** `header` via `_KDB.api.header.dispatch` — see [kdbControl-header-footer-toolbox-contractdelta.md](./_archive/kdbControl-header-footer-toolbox-contractdelta.md); legacy `kdbControl.md` §6 `header:*Requested` catalog rows are **not** the path for those controls once this contract is approved.
 
 ---
 
 ## 1. Purpose
 
-Owns dashboard **Kopfzeile** semantics: serialisable header state, header region **mount/DOM**, subtitle visibility, title/subtitle **edit mode** (not kdbControl UI state). Publishes a **fact** after a **confirmed** header state/render change so consumers (e.g. `footer`) can react without coupling to kdbControl. Confirmed transition to `active` may show the zoom hint per [header-footer-zoom-hint-contractdelta.md](./header-footer-zoom-hint-contractdelta.md) (`notifyAnchored` on header `rootEl`, `HEADER_FOOTER_ZOOM_HINT`); footer does not own a second copy. **PO 2026-09-07:** trigger parked (commented `_notifyZoomHint` call in header effects); helper/labels remain — not dead code.
+Owns dashboard **Kopfzeile** semantics: serialisable header state, header region **mount/DOM**, subtitle visibility, title/subtitle **edit mode** (not kdbControl UI state). Publishes a **fact** after a **confirmed** header state/render change so consumers (e.g. `footer`) can react without coupling to kdbControl. Confirmed transition to `active` may show the zoom hint per [header-footer-zoom-hint-contractdelta.md](./_archive/header-footer-zoom-hint-contractdelta.md) (`notifyAnchored` on header `rootEl`, `HEADER_FOOTER_ZOOM_HINT`); footer does not own a second copy. **PO 2026-09-07:** trigger parked (commented `_notifyZoomHint` call in header effects); helper/labels remain — not dead code.
 
 ---
 
@@ -178,6 +178,6 @@ As-built: `createHeaderController.js` remains the AMD orchestrator path; `runtim
 
 | Date | Actor | Note |
 |------|-------|------|
-| 2026-05-13 | user | CP-1 closed: domein-**`status`** (`idle`/`active`/`removed`) voor chrome presence, `header/toggle` mapping, `SourceEnum`, `header:confirmedChanged` payload zonder `revision`/`editTarget` — zie [kdbControl-header-footer-toolbox-contractdelta.md](./kdbControl-header-footer-toolbox-contractdelta.md) §2. |
+| 2026-05-13 | user | CP-1 closed: domein-**`status`** (`idle`/`active`/`removed`) voor chrome presence, `header/toggle` mapping, `SourceEnum`, `header:confirmedChanged` payload zonder `revision`/`editTarget` — zie [kdbControl-header-footer-toolbox-contractdelta.md](./_archive/kdbControl-header-footer-toolbox-contractdelta.md) §2. |
 | 2026-08-16 | PO | T2 item 4: `iconKey` + `header/setIcon` + `readHeaderIconKey`; fact payload unchanged. See `writeback-t2-item4-contractdelta.md`. |
 | 2026-08-18 | PO | One icon forever. No picker, no `header_iconChange`. Writeback spine kept. |

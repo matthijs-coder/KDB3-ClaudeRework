@@ -232,7 +232,7 @@ tableData/
 - Hierarchy data — owner: separate `hierarchyDataService` (or merged in, depending on **Q1**).
 - Aggregate `tables:loaded` event covering many tables — owner: bootstrap orchestrator, not this service.
 - Real Cognos queries beyond stubbed `Promise.resolve(...)` fixtures in the harness — owner: production wiring (later iteration).
-- Super-user table-name resolution and permission checks — owner: the **consumer** (kdbControl visibility + metricsTree Freigabe per [kdbControl-developer-mode-toggle-contractdelta.md](./kdbControl-developer-mode-toggle-contractdelta.md)), not this service. Config key `superuser` is a normal `load: true` leftover; this service only caches rows.
+- Super-user table-name resolution and permission checks — owner: the **consumer** (kdbControl visibility + metricsTree Freigabe per [kdbControl-developer-mode-toggle-contractdelta.md](./_archive/kdbControl-developer-mode-toggle-contractdelta.md)), not this service. Config key `superuser` is a normal `load: true` leftover; this service only caches rows.
 - Migration of legacy `_KDB.data.tables.byHandle` consumers (`syncSettingsVisibility.js`, `applyStartupSicht.js`, etc.) — owner: those consumers, in a later port.
 - Compat read-through bridge between new `_KDB.state.tableData` and legacy `_KDB.data.tables` — separate decision, not in this contract.
 
