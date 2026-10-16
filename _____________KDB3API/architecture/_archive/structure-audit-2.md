@@ -3,6 +3,13 @@
 > **Historical snapshot (2026-08-16).** Not a living checklist. Do not add per-module
 > `adapters/create*Adapter.js`. Follow `contracts/cognosHostService.md` and the updated
 > `structure-audit-rubric.md` dimension #3. Findings below describe the tree as of that date.
+>
+> **Paths are historical.** Every `file:line` below names the tree as of 2026-08-16. The Phase 1
+> module-layout rework since then renamed, merged and split many of those files (for example `widgetBase`,
+> `widgetSettings`, `widgetVis`, `tabs`, the filters and `core/services/writeback`), so most cited paths and
+> line numbers no longer exist. For the current layout see `architecture/jsModuleMap.md` and the
+> "Files" / "Folder Layout" section of each `contracts/<module>.md`; to open a cited file as audited, check
+> out the repo at the audit date (`git log --before=2026-08-17`).
 
 > Independent read-only audit of production JS under `KDB3/js/**`.  
 > Date: 2026-08-16. Auditor: second-opinion lead (subagent batches + synthesis).  
