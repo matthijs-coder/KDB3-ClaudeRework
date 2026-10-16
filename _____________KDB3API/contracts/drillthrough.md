@@ -45,7 +45,7 @@ Target report: **PER125 Personalkennzahlen-Analysetool** via dxportal `pathRef`.
 
 Deliberate deltas versus live `addPkzDrillthrough.js`:
 
-- Public surface is `{ buildDrillthroughUrl, openDrillthrough }` on `_KDB.services.drillthrough`. Not a per-widget attach function.
+- Public surface is `{ buildDrillthroughUrl, openDrillthrough, destroy }` on `_KDB.services.drillthrough`. Not a per-widget attach function.
 - Caller passes a `DrillthroughSpec`. Service does **not** scrape widget DOM, does **not** read `_KDB.runtime.widgetVis`, does **not** call `_KDB.cognosAPI`.
 - `source: "icon" | "datapoint"` is a required discriminant. Datapoint is a **second fill mode for the same keys**, not extra URL fields. Trigger is native Cognos datapoint select (widgetVis); not Ctrl and not a 3s flush.
 - `info` (Cognos selection event blob) is **not** a URL field and is **not** on the public spec. Tranche-2 `widgetVis` extracts `categories[]` before the call.
@@ -55,7 +55,7 @@ Deliberate deltas versus live `addPkzDrillthrough.js`:
 - Org tree is parent/children/level from hierarchy **tables**, not `dienststelle.getCurrentHierarchySnapshot()` planner strings. Required for **icon (tranche 1)**, not datapoint-only.
 - No global CTRL listeners, no 3s capture window, no `watchWidgetRender`, no title `.kdb_hyperlink`, no `_KDB.state.pkzDrillthroughAttached`. Selection subscribe/peek is widgetVis + F1c, not this service.
 - All three env URLs include `/Personal/` in `pathRef`.
-- No `_KDB.state.drillthrough`. No `destroy` (sync `window.open`).
+- No `_KDB.state.drillthrough`. `destroy()` only releases pending hierarchy-wait opens (see Runtime).
 - Unused DEZPV “level-0 children as Dienststelle list” toggle is **not** ported. Canonical DEZPV path is the highest-wins orchestrator.
 
 ---
@@ -80,9 +80,11 @@ It does not render icons, bind visualization selections, read widget settings, w
 ### Runtime
 
 - Owns **no** `_KDB.runtime` subtree.
-- Creates no listeners, subscriptions, AbortControllers, timers, DOM refs, or adapters.
+- Creates no listeners, subscriptions, AbortControllers, DOM refs, or adapters. The only timer is one deferred-open timeout per pending hierarchy wait (below).
 - A hierarchy wait attaches to the promise returned by `tableData.readPendingLoad`. That promise is not copied onto `_KDB.runtime.drillthrough`. The service does not abort it.
-- Sync `window.open` needs no in-flight abort of its own. **`destroy` is omitted**, same as `widgetBindingPlan`.
+- Every `window.open` handle (direct open and wait window) gets `handle.opener = null` right after opening. The `"noopener"` window feature is not used: it makes `window.open` return `null`, which reads as a blocked popup and leaves no handle for the wait window. The opened URL and the `"_blank"` target are unchanged. A failing opener write is logged and does not fail the open.
+- A hierarchy wait also arms one timeout of `DEFERRED_OPEN_TIMEOUT_MS` (120000, `drillthrough/config.js`). If the load has not settled by then, the wait window shows the `loadFailedBody` text and a later settle is ignored.
+- `destroy()` is idempotent. It cancels the deferred-open timeouts, closes wait windows that are still waiting (opens that already settled keep their window) and makes a late settle a no-op. It does not abort the `tableData` load. After `destroy()`, `openDrillthrough` returns `ok:false`, `errorCode:"DRILLTHROUGH_DISPOSED"` without calling `window.open`; `buildDrillthroughUrl` stays available (pure).
 
 If root bootstrap removes `_KDB.services.drillthrough`, callers treat the missing service as a bootstrap/integration error.
 
@@ -93,12 +95,13 @@ If root bootstrap removes `_KDB.services.drillthrough`, callers treat the missin
 ### 4b. Shared service
 
 - Surface: `_KDB.services.drillthrough`
-- Style: `named methods` (shared-service default). No `dispatch`, `getState`, `mount`, or `destroy`.
+- Style: `named methods` (shared-service default). No `dispatch`, `getState`, or `mount`.
 
 ```js
 _KDB.services.drillthrough = {
   buildDrillthroughUrl: buildDrillthroughUrl,
-  openDrillthrough: openDrillthrough
+  openDrillthrough: openDrillthrough,
+  destroy: destroy
 };
 ```
 
@@ -107,11 +110,12 @@ _KDB.services.drillthrough = {
 | Method | Signature | Contract |
 |---|---|---|
 | `buildDrillthroughUrl` | `(spec: DrillthroughSpec) => DrillthroughBuildResult` | Sync. Validate spec, run the assembler for `spec.source`, map org prompts, encode URL. Known failures return `ok:false`; do not throw. |
-| `openDrillthrough` | `(spec: DrillthroughSpec) => DrillthroughOpenResult` | Sync. Calls `buildDrillthroughUrl(spec)` internally, then `window.open(url, "_blank")` when the build succeeds. On `DRILLTHROUGH_ORG_TREE_MISSING` while `tableData.readPendingLoad` already holds that hierarchy key, opens `about:blank` in the same turn. `location.replace` runs only when that load later leaves the table `ready` and a rebuild succeeds. Every other settle follows `contracts/_archive/drillthrough-hierarchy-wait-open-contractdelta.md` §3. Every other build failure still opens nothing. |
+| `openDrillthrough` | `(spec: DrillthroughSpec) => DrillthroughOpenResult` | Sync. Calls `buildDrillthroughUrl(spec)` internally, then `window.open(url, "_blank")` when the build succeeds. On `DRILLTHROUGH_ORG_TREE_MISSING` while `tableData.readPendingLoad` already holds that hierarchy key, opens `about:blank` in the same turn. `location.replace` runs only when that load later leaves the table `ready` and a rebuild succeeds. Every other settle follows `contracts/_archive/drillthrough-hierarchy-wait-open-contractdelta.md` §3. Every other build failure still opens nothing. After `destroy()` it returns `DRILLTHROUGH_DISPOSED` and opens nothing. |
+| `destroy` | `() => void` | Idempotent. Releases pending hierarchy-wait opens (timers, wait windows), see Runtime. |
 
 `openDrillthrough` always takes a spec (not a raw URL). It may call build internally.
 
-Post-disposal discipline is not applicable (no `destroy`).
+After `destroy()`: `openDrillthrough` returns `{ ok:false, errorCode:"DRILLTHROUGH_DISPOSED" }`, `buildDrillthroughUrl` keeps working, repeated `destroy()` is a no-op.
 
 ### 4.1 Action payload schemas
 

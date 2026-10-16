@@ -282,8 +282,7 @@ If CP-1 does not approve an event catalog update, the execution spec must either
 ## 9. Dependencies
 
 - `_KDB` (always).
-- `_KDB.elements.dashboardDropboxes()` to discover dropboxes until a canvas owner publishes a selector/API.
-- `_KDB.elements.closestBoundDropbox(target)` and `_KDB.elements.dropboxById(id)` when available.
+- Dropboxes are discovered through the DOM selectors (`_KDB.elements.selectors.dragDrop`, catalogue fallback). `_KDB.elements.dashboardDropboxes()` and `closestBoundDropbox(target)` were never defined and are not read; `dropboxById(id)` is also never assigned.
 - `_KDB.elements.toolboxTextDraggable()` only in the owner-specific toolbox binder if that binder is included.
 - `_KDB.properties.visualizationsPropObj` and `_KDB.properties.textWidgetPropObj` for default dimensions.
 - `_KDB.properties.filterPropObj` for legacy validation against filter labels.
