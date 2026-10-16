@@ -113,3 +113,20 @@ test("without _KDB.utils.readCurrentTab the API still works and nothing is bound
   controller.destroy();
   assert.equal(_KDB.utils.readCurrentTab, undefined);
 });
+
+test("getState().actions reports rename only (the never-enabled delete/duplicate/move/reorder entries are gone)", () => {
+  const { _KDB, controller } = mountTabs();
+  _KDB.state.tabs = { byIndex: {}, order: [], visibleOrder: [], activeIndex: null, editUi: {}, lifecycle: "ready", hydration: {}, traversal: {}, limits: {} };
+  assert.deepEqual(controller.getState().actions, { rename: { enabled: false, reason: "noTarget" } });
+  assert.deepEqual(Object.keys(tabsLoad("selectors.js").readTabsForKdbControl(_KDB).actions), ["rename"]);
+});
+
+test("the edit icon fails closed without a message service and logs a plain ASCII warning", async () => {
+  const warnings = [];
+  const confirm = loadAmd(path.join(JS_ROOT, "dashboard/tabs/editUi/confirm.js"), {
+    stubs: { document: documentStub, console: Object.assign({}, silent, { warn: (...args) => warnings.push(args[0]) }) }
+  });
+  const result = await confirm.confirmAndDispatchTabMutation({ services: {}, runtime: {} }, "delete", { tabId: "t1" });
+  assert.deepEqual(result, { ok: false, blocked: true });
+  assert.deepEqual(warnings, ["[tabs.editIcon] messageService unavailable - delete blocked (fail closed)"]);
+});
