@@ -152,19 +152,13 @@ define([
     return groups;
   }
 
-  function cloneVals(_vals) {
-    return (_vals || []).map(function (v) {
-      return { d: String(v.d), u: String(v.u) };
-    });
-  }
-
   function buildAppliedItem(_KDB, _nm, _scopeId, _vals, _filtersFacet) {
     var ref = _inventory.lookupRefByName(_KDB, _nm, _scopeId, _filtersFacet);
     return {
       itemId: ref ? String(ref.itemId || "") : "",
       itemName: _nm,
       sourceId: ref ? String(ref.sourceId || "") : "",
-      values: cloneVals(_vals)
+      values: _state.cloneValues(_vals)
     };
   }
 

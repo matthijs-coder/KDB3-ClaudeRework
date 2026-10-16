@@ -63,11 +63,23 @@ define([
     return _result;
   }
 
+  // guardRun rejects apply and restore of an older run, so snapshots of older runs can never be used again.
+  function pruneSupersededSnapshots(_runtime, _runId) {
+    var snapshots = _runtime.tabMutationSnapshots;
+    Object.keys(snapshots).forEach(function (operationId) {
+      var snapshot = snapshots[operationId];
+      if (snapshot && typeof snapshot.runId === "number" && snapshot.runId < _runId) {
+        delete snapshots[operationId];
+      }
+    });
+  }
+
   async function prepareTabMutation(_ctx, _payload) {
     var payload = _payload || {};
     try {
       var guard = _guard.guardRun(_ctx.runtime, payload);
       if (guard) { return withFailure(payload.operationId, guard.diagnostics); }
+      pruneSupersededSnapshots(_ctx.runtime, payload.runId);
       if (!payload.plan) {
         return withFailure(payload.operationId, [{ code: codes.PREPARE_FAILED, message: "tab mutation plan is missing" }]);
       }
@@ -118,28 +130,37 @@ define([
     var restored = [];
     var unrecoverable = [];
     var diagnostics = [];
-    var scopeIds = Object.keys(snapshot.byScope || {});
-    var sIdx;
-    for (sIdx = 0; sIdx < scopeIds.length; sIdx += 1) {
-      var scopeId = scopeIds[sIdx];
-      var items = (snapshot.byScope[scopeId] || []).map(_state.cloneItem);
-      _ctx.dispatchInternal({
-        type: actions.TAB_MUTATION_SCOPE_WRITE,
-        payload: { scopeId: scopeId, items: items, clear: false }
-      });
-      var i;
-      for (i = 0; i < items.length; i += 1) {
-        var hostOk = await restoreHostItem(_ctx._KDB, items[i].itemId, scopeId, items[i].values, _ctx.filtersFacet);
-        if (!hostOk) {
-          _guard.pushUnique(unrecoverable, scopeId);
-          diagnostics.push({ code: codes.ROLLBACK_INCOMPLETE, itemId: items[i].itemId, scopeId: scopeId, message: "NativeMultiSelect host scope restore failed" });
-        } else {
-          _guard.pushUnique(restored, scopeId);
+    var scopeId = null;
+    try {
+      var scopeIds = Object.keys(snapshot.byScope || {});
+      var sIdx;
+      for (sIdx = 0; sIdx < scopeIds.length; sIdx += 1) {
+        scopeId = scopeIds[sIdx];
+        var items = (snapshot.byScope[scopeId] || []).map(_state.cloneItem);
+        _ctx.dispatchInternal({
+          type: actions.TAB_MUTATION_SCOPE_WRITE,
+          payload: { scopeId: scopeId, items: items, clear: false }
+        });
+        var i;
+        for (i = 0; i < items.length; i += 1) {
+          var hostOk = await restoreHostItem(_ctx._KDB, items[i].itemId, scopeId, items[i].values, _ctx.filtersFacet);
+          if (!hostOk) {
+            _guard.pushUnique(unrecoverable, scopeId);
+            diagnostics.push({ code: codes.ROLLBACK_INCOMPLETE, itemId: items[i].itemId, scopeId: scopeId, message: "NativeMultiSelect host scope restore failed" });
+          } else {
+            _guard.pushUnique(restored, scopeId);
+          }
         }
       }
+      return buildResult(unrecoverable.length === 0, payload.operationId, restored, unrecoverable, diagnostics);
+    } catch (error) {
+      console.error("[nativeMultiSelect.restoreTabMutationSnapshot] failed", { operationId: payload.operationId }, error);
+      if (scopeId !== null) { _guard.pushUnique(unrecoverable, scopeId); }
+      diagnostics.push({ code: codes.ROLLBACK_INCOMPLETE, scopeId: scopeId, message: errorMessage(error) });
+      return buildResult(false, payload.operationId, restored, unrecoverable, diagnostics);
+    } finally {
+      _snapshots.deleteSnapshot(_ctx.runtime, payload.operationId);
     }
-    _snapshots.deleteSnapshot(_ctx.runtime, payload.operationId);
-    return buildResult(unrecoverable.length === 0, payload.operationId, restored, unrecoverable, diagnostics);
   }
 
   return {

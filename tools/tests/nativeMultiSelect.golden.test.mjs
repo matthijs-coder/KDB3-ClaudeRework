@@ -765,10 +765,10 @@ test("parameterSet restore: stale run is cancelled between items; guard rejects 
   assert.deepEqual(plain(older).diagnostics[0].message, "stale parameterSet runId 6 superseded by 50");
 });
 
-test("parameterSet restore: null display and use values are stringified", async () => {
+test("parameterSet restore: missing display and use values are stored as empty strings", async () => {
   const b = boot();
-  await b.api.dispatch({ type: A.restore, payload: { runId: 1, filters: [{ nm: "Jahr", vals: [{ d: null, u: "x" }] }] } });
-  assert.deepEqual(stateOf(b).byScope.global[0].values, [{ d: "null", u: "x" }]);
+  await b.api.dispatch({ type: A.restore, payload: { runId: 1, filters: [{ nm: "Jahr", vals: [{ d: null, u: "x" }, { d: 5 }, null] }] } });
+  assert.deepEqual(stateOf(b).byScope.global[0].values, [{ d: "", u: "x" }, { d: "5", u: "" }, { d: "", u: "" }]);
 });
 
 // ---------- controller: tab mutation ----------
@@ -846,12 +846,15 @@ test("tabMutation prepare: layout scope fallback and global-scoped slots are ski
   assert.deepEqual(plain(result).snapshotScopes, ["page2_tabpanel"]);
 });
 
-test("tabMutation prepare: older snapshots stay in the runtime map", async () => {
+test("tabMutation prepare: snapshots of older runs are pruned, same and newer runs stay", async () => {
   const b = boot({ items: tmItems() });
-  b.rt().tabMutationSnapshots = { a: { runId: 3 }, b: { runId: 4 } };
+  b.rt().tabMutationSnapshots = { a: { runId: 3 }, b: { runId: 4 }, same: { runId: 5 }, odd: null, noRun: {} };
   const plan = { operation: "move", slotMoves: [{ fromTabIdx: 0, toTabIdx: 1 }] };
   assert.equal((await b.api.dispatch({ type: A.prepare, payload: mutation({ runId: 5, operationId: "c", plan }) })).ok, true);
-  assert.deepEqual(Object.keys(b.rt().tabMutationSnapshots).sort(), ["a", "b", "c"]);
+  assert.deepEqual(Object.keys(b.rt().tabMutationSnapshots).sort(), ["c", "noRun", "odd", "same"]);
+  const stale = await b.api.dispatch({ type: A.prepare, payload: mutation({ runId: 2, operationId: "d", plan }) });
+  assert.equal(stale.ok, false);
+  assert.deepEqual(Object.keys(b.rt().tabMutationSnapshots).sort(), ["c", "noRun", "odd", "same"]);
 });
 
 async function prepareAndApply(b, plan, extra) {
@@ -1015,13 +1018,25 @@ test("tabMutation restoreSnapshot: failed host items are reported as unrecoverab
   assert.deepEqual(b.rt().tabMutationSnapshots, {});
 });
 
-test("tabMutation restoreSnapshot: a throwing host write rejects and leaves the snapshot", async () => {
+test("tabMutation restoreSnapshot: a throwing host write returns an incomplete result and deletes the snapshot", async () => {
   const b = boot({ items: tmItems() });
   const plan = { operation: "move", slotMoves: [{ fromTabIdx: 0, toTabIdx: 1 }] };
   await b.api.dispatch({ type: A.prepare, payload: mutation({ plan }) });
   b.facet.throwWrites = true;
-  await assert.rejects(b.api.dispatch({ type: A.restoreSnapshot, payload: mutation({}) }), /host write crashed/);
-  assert.deepEqual(Object.keys(b.rt().tabMutationSnapshots), ["op1"]);
+  const result = await b.api.dispatch({ type: A.restoreSnapshot, payload: mutation({}) });
+  assert.deepEqual(plain(result), {
+    ok: false,
+    operationId: "op1",
+    restored: [],
+    unrecoverable: ["page1_tabpanel"],
+    diagnostics: [{ code: "TABS_MUTATION_ROLLBACK_INCOMPLETE", scopeId: "page1_tabpanel", message: "host write crashed" }]
+  });
+  assert.deepEqual(b.rt().tabMutationSnapshots, {});
+  assert.equal(b.spy.error.length, 1);
+  await b.api.dispatch({ type: A.prepare, payload: mutation({ runId: 2, operationId: "op2", plan }) });
+  const stale = await b.api.dispatch({ type: A.restoreSnapshot, payload: mutation({ runId: 1, operationId: "op2" }) });
+  assert.equal(stale.ok, false);
+  assert.deepEqual(Object.keys(b.rt().tabMutationSnapshots), ["op2"]);
 });
 
 test("tabMutation resync: pushes owner state back to the host for affected slots", async () => {
