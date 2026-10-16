@@ -2,9 +2,10 @@
  * historyService replay: handler resolution, the replay lock, lock-aware `history:changed` emission and the
  * undo/redo runner. `context` is built by index.js: { _KDB, replayHandlers, guard, dispatch, recordError }.
  * Handlers are `{ apply(_KDB, targetValue, step, { direction }) -> boolean | Promise<boolean> }`; undo applies
- * `step.old`, redo applies `step.new`; only a strict `true` counts as success.
+ * `step.old`, redo applies `step.new`; only a strict `true` counts as success. Handlers receive a copy of the
+ * stored step, so they cannot change history by mutating it.
  */
-define(["./events/eventNames.js"], function (_eventNames) {
+define(["../../utils/kit/data.js", "./events/eventNames.js"], function (_data, _eventNames) {
   "use strict";
 
   // German user-facing text; moves to config.labels.de in Phase 2.
@@ -117,7 +118,7 @@ define(["./events/eventNames.js"], function (_eventNames) {
     emitHistoryChanged(_KDB);
     let didApply = false;
     try {
-      didApply = await applyHistoryStep(_KDB, direction, step, context.replayHandlers());
+      didApply = await applyHistoryStep(_KDB, direction, _data.cloneJson(step), context.replayHandlers());
     } catch (error) {
       context.recordError(direction, error);
     } finally {
