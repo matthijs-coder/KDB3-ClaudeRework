@@ -65,10 +65,11 @@ define([
 
   function readSlotMeta(node) {
     var padKey = node && typeof node.getAttribute === "function" ? node.getAttribute(PAD_ATTR) : null;
-    if (!padKey) {
+    var pageIndex = padKey ? node.getAttribute("cor_page_index") : null;
+    if (!padKey || pageIndex === null) {
       return null;
     }
-    return { padKey: padKey, tabId: node.getAttribute("cor_page_id") || "", pageIndex: node.getAttribute("cor_page_index") || "" };
+    return { padKey: padKey, tabId: node.getAttribute("cor_page_id") || "", pageIndex: pageIndex };
   }
 
   function readLeasedSlot(ownerRuntime, helperWidgetId) {
