@@ -26,8 +26,8 @@ define([
   HANDLERS[actions.APPLY_TAB_MUTATION] = _apply.applyTabMutation;
   HANDLERS[actions.RESTORE_TAB_MUTATION_SNAPSHOT] = _snapshot.restoreTabMutationSnapshot;
   HANDLERS[actions.RESYNC_TAB_MUTATION_HOST] = _hostScopes.resyncTabMutationHost;
-  HANDLERS[actions.FILTER_DOCK_STATE_CHANGED] = _commit.handleFilterDockConfirm;
-  HANDLERS[actions.HISTORY_REPLAY_REQUESTED] = _history.handleHistoryReplay;
+  HANDLERS[actions.FILTER_DOCK_STATE_CHANGED] = _commit.commitFilterDockConfirm;
+  HANDLERS[actions.HISTORY_REPLAY_REQUESTED] = _history.applyHistoryReplay;
 
   function disposedParameterSetResult() {
     return Promise.resolve({

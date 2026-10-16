@@ -131,8 +131,8 @@ define([
     var unrecoverable = [];
     var diagnostics = [];
     var scopeId = null;
+    var scopeIds = Object.keys(snapshot.byScope || {});
     try {
-      var scopeIds = Object.keys(snapshot.byScope || {});
       var sIdx;
       for (sIdx = 0; sIdx < scopeIds.length; sIdx += 1) {
         scopeId = scopeIds[sIdx];
@@ -155,7 +155,7 @@ define([
       return buildResult(unrecoverable.length === 0, payload.operationId, restored, unrecoverable, diagnostics);
     } catch (error) {
       console.error("[nativeMultiSelect.restoreTabMutationSnapshot] failed", { operationId: payload.operationId }, error);
-      if (scopeId !== null) { _guard.pushUnique(unrecoverable, scopeId); }
+      scopeIds.slice(Math.max(scopeIds.indexOf(scopeId), 0)).forEach(function (_id) { _guard.pushUnique(unrecoverable, _id); });
       diagnostics.push({ code: codes.ROLLBACK_INCOMPLETE, scopeId: scopeId, message: errorMessage(error) });
       return buildResult(false, payload.operationId, restored, unrecoverable, diagnostics);
     } finally {

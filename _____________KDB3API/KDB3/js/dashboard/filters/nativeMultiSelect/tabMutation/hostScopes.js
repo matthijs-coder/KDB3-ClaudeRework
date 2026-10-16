@@ -111,7 +111,7 @@ define([
     }
   }
 
-  // Affected slots of a plan, one per tabIdx. core listAffectedPlanSlots does not dedupe (WS-O, Phase 2).
+  // Affected slots of a plan, one per tabIdx. core listAffectedPlanSlots does not dedupe.
   function collectAffectedSlots(_plan) {
     var plan = _plan || {};
     var slots = [];

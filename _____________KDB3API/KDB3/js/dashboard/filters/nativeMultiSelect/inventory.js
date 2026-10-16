@@ -56,7 +56,7 @@ define([
   }
 
   function claimKey(_scopeType, _itemName) {
-    return _scopeType + "|" + _itemName;
+    return _scopeType + "\u0000" + _itemName;
   }
 
   // Definitions of the active source grouped by scope type and item name, in the order of filterInstances.

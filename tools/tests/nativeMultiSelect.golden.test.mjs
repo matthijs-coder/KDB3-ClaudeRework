@@ -154,7 +154,10 @@ function boot(opts) {
     },
     runtime: {}
   };
-  const register = loadAmd(nmsFile("__orchestratorNativeMultiSelect.js"), { stubs: { console: testConsole } });
+  const register = loadAmd(path.join(options.nmsDir || NMS, "__orchestratorNativeMultiSelect.js"), {
+    stubs: { console: testConsole },
+    modules: options.modules || {}
+  });
   const api = register(KDB, {});
   return { KDB, api, facet, history, spy, tabsDispatches, tabsFacet, rt: () => KDB.runtime.nativeMultiSelect };
 }
@@ -492,6 +495,97 @@ test("dispatch: unknown action reduces and returns state; reducer errors do not 
   assert.equal(after.lifecycle, "error");
   assert.equal(after.errorCode, "E1");
   assert.equal(b.api.dispatch(undefined).lifecycle, "error");
+});
+
+// ---------- TopN wave payloads ----------
+const JAHR_COL = "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]";
+
+// Runs the confirm and replay paths against a stubbed runTopNFilterConfirmWave and returns the payloads it received.
+// waveSpec is the AMD path of the stub as written in the module under test.
+async function captureWavePayloads(nmsDir, waveSpec) {
+  const calls = [];
+  const modules = {};
+  modules[waveSpec] = (_KDB, payload) => { calls.push(clone(payload)); return Promise.resolve({ ok: true }); };
+  const items = defaultItems().concat([item(JAHR_COL, "Jahr", "global", [v("2022", "[J].[2022]")])]).filter((i) => !(i.itemName === "Jahr" && i.itemId === JAHR_ID && i.rawScopeId === "global"));
+  const instances = Object.assign(filterInstances(), { jahrCol: { scopeType: "global", itemName: "Jahr", itemId: JAHR_COL, isNative: true } });
+  const b = boot({ items, filterInstances: instances, nmsDir, modules });
+  const out = {};
+  const confirm = (payload) => b.api.dispatch({ type: A.confirm, payload: Object.assign({ interactionType: "confirm", confirmedLabels: ["2023", "2024"] }, payload) });
+  const replay = (targetValue) => b.api.dispatch({ type: A.replay, payload: { targetValue, isHistoryReplay: true, skipHistory: true } });
+  const take = async (name, run) => { calls.length = 0; await run(); out[name] = clone(calls); };
+  await take("confirmGlobalJahr", () => confirm({ filterLabel: "Jahr", scopeType: "global", itemIdHint: JAHR_COL, tabId: "t1" }));
+  await take("confirmGlobalOther", () => confirm({ filterLabel: "Land", scopeType: "global", itemIdHint: LAND_ID, tabId: "t1" }));
+  await take("confirmPage", () => confirm({ filterLabel: "Land", scopeId: "page1_tabpanel", filterConfig: { itemId: LAND_ID }, tabId: "t1" }));
+  await take("confirmSkipHistory", () => confirm({ filterLabel: "Land", scopeType: "global", itemIdHint: LAND_ID, skipHistory: true }));
+  await take("replayGlobalJahr", () => replay({ itemName: "Jahr", scopeKey: "global", values: [v("2021", "[J].[2021]"), v("2019", "[J].[2019]")] }));
+  await take("replayPage", () => replay({ itemName: "Land", scopeKey: "page1_tabpanel", values: [v("FR")] }));
+  await take("replayUnknown", () => replay({ itemName: "Nope", scopeKey: "global", values: [] }));
+  return out;
+}
+
+// Expected payloads were captured by running captureWavePayloads against the pre-restructure modules (commit 899c47c,
+// actions/handleFilterDockConfirm.js and actions/handleNativeMultiSelectHistoryReplay.js).
+const OLD_WAVE_PAYLOADS = {
+  "confirmGlobalJahr": [
+    {
+      "scopeType": "global",
+      "tabId": null,
+      "scopeId": null,
+      "isJahr": true,
+      "selectedYearKnown": true,
+      "selectedYear": 2024,
+      "filterType": "nativeMultiSelect"
+    }
+  ],
+  "confirmGlobalOther": [
+    {
+      "scopeType": "global",
+      "tabId": null,
+      "scopeId": null,
+      "isJahr": false,
+      "selectedYearKnown": false,
+      "selectedYear": null,
+      "filterType": "nativeMultiSelect"
+    }
+  ],
+  "confirmPage": [
+    {
+      "scopeType": "pageContext",
+      "tabId": "t1",
+      "scopeId": "page1_tabpanel",
+      "isJahr": false,
+      "selectedYearKnown": false,
+      "selectedYear": null,
+      "filterType": "nativeMultiSelect"
+    }
+  ],
+  "confirmSkipHistory": [],
+  "replayGlobalJahr": [
+    {
+      "scopeType": "global",
+      "scopeId": null,
+      "isJahr": true,
+      "selectedYearKnown": true,
+      "selectedYear": 2021,
+      "filterType": "nativeMultiSelect"
+    }
+  ],
+  "replayPage": [
+    {
+      "scopeType": "pageContext",
+      "scopeId": "page1_tabpanel",
+      "isJahr": false,
+      "selectedYearKnown": false,
+      "selectedYear": null,
+      "filterType": "nativeMultiSelect"
+    }
+  ],
+  "replayUnknown": []
+};
+
+test("TopN wave payloads of confirm and history replay match the pre-restructure modules", async () => {
+  const captured = await captureWavePayloads(NMS, "../../widgets/widgetVis/actions/runTopNFilterConfirmWave.js");
+  assert.deepEqual(captured, OLD_WAVE_PAYLOADS);
 });
 
 // ---------- controller: confirm ----------
@@ -1025,6 +1119,33 @@ test("tabMutation apply: host write failure becomes an apply diagnostic", async 
   assert.ok(applied.diagnostics.every((d) => d.code === "TABS_MUTATION_APPLY_FAILED" && d.message === "HOST_FAIL"));
 });
 
+test("tabMutation apply: a rejected host write during move and duplicate returns an apply failure and logs once", async () => {
+  const plans = {
+    move: { operation: "move", slotMoves: [{ fromTabIdx: 0, fromTabId: "t0", toTabIdx: 1, toTabId: "t1" }] },
+    duplicate: {
+      operation: "duplicate",
+      sourceSlot: { tabIdx: 0, tabId: "t0" },
+      insertSlot: { tabIdx: 1, tabId: "t1" },
+      clonePair: { from: { tabIdx: 0, tabId: "t0" }, to: { tabIdx: 1, tabId: "t1" } },
+      slotMoves: []
+    }
+  };
+  for (const name of Object.keys(plans)) {
+    const b = boot({ items: tmItems() });
+    await b.api.dispatch({ type: A.prepare, payload: mutation({ plan: plans[name] }) });
+    b.facet.throwWrites = true;
+    const result = await b.api.dispatch({ type: A.apply, payload: mutation({ plan: plans[name] }) });
+    assert.deepEqual(plain(result), {
+      ok: false,
+      operationId: "op1",
+      appliedScopes: [],
+      clearedScopes: [],
+      diagnostics: [{ code: "TABS_MUTATION_APPLY_FAILED", message: "host write crashed" }]
+    }, name);
+    assert.equal(b.spy.error.length, 1, name);
+  }
+});
+
 test("tabMutation restoreSnapshot: restores host and owner state and deletes the snapshot", async () => {
   const b = boot({ items: tmItems() });
   const plan = { operation: "move", slotMoves: [{ fromTabIdx: 0, toTabIdx: 1 }] };
@@ -1067,7 +1188,7 @@ test("tabMutation restoreSnapshot: a throwing host write returns an incomplete r
     ok: false,
     operationId: "op1",
     restored: [],
-    unrecoverable: ["page1_tabpanel"],
+    unrecoverable: ["page1_tabpanel", "page2_tabpanel"],
     diagnostics: [{ code: "TABS_MUTATION_ROLLBACK_INCOMPLETE", scopeId: "page1_tabpanel", message: "host write crashed" }]
   });
   assert.deepEqual(b.rt().tabMutationSnapshots, {});

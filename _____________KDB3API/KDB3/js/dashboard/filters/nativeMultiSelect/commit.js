@@ -233,7 +233,7 @@ define([
     try {
       Promise.resolve(_runTopNFilterConfirmWave(_KDB, {
         scopeType: _scopeKey === "global" ? "global" : "pageContext",
-        tabId: _scopeKey === "global" ? null : _tabId,
+        tabId: _tabId,
         scopeId: _scopeKey === "global" ? null : _scopeKey,
         isJahr: isJahr,
         selectedYearKnown: isJahr,
@@ -247,7 +247,7 @@ define([
 
   // ---------- dock confirm ----------
 
-  async function handleFilterDockConfirm(_ctx, _payload) {
+  async function commitFilterDockConfirm(_ctx, _payload) {
     var payload = _payload || {};
     var itemName;
     var scopeKey;
@@ -258,7 +258,7 @@ define([
     try {
       if (payload.interactionType !== "confirm") { return; }
       if (!Array.isArray(payload.confirmedLabels)) {
-        console.warn("[nativeMultiSelect.handleFilterDockConfirm] confirmedLabels missing");
+        console.warn("[nativeMultiSelect.commitFilterDockConfirm] confirmedLabels missing");
         return;
       }
       itemName = String(payload.filterLabel || payload.itemNameHint || "").trim();
@@ -268,7 +268,7 @@ define([
       liveItems = _inventory.listUnownedItems(_ctx._KDB, scopeKey, _ctx.filtersFacet);
       liveItem = findByName(liveItems, itemName);
       if (!liveItem) {
-        console.warn("[nativeMultiSelect.handleFilterDockConfirm] live item not found");
+        console.warn("[nativeMultiSelect.commitFilterDockConfirm] live item not found");
         return;
       }
       prepared = prepareConfirmWrite(_ctx._KDB, payload, liveItems, liveItem, itemName, scopeKey);
@@ -279,7 +279,7 @@ define([
       skipsHistory = payload.skipHistory === true || payload.isHistoryReplay === true;
       if (!skipsHistory) {
         startTopNWave(_ctx._KDB, scopeKey, payload.itemIdHint || (payload.filterConfig && payload.filterConfig.itemId) || "",
-          payload.tabId, prepared.newValues);
+          scopeKey === "global" ? null : payload.tabId, prepared.newValues);
       }
       if (prepared.newValues.length === 0 || skipsHistory) {
         return;
@@ -290,12 +290,12 @@ define([
         { itemName: itemName, scopeKey: scopeKey, values: prepared.newValues }
       );
     } catch (err) {
-      console.error("[nativeMultiSelect.handleFilterDockConfirm]", err);
+      console.error("[nativeMultiSelect.commitFilterDockConfirm]", err);
     }
   }
 
   return {
-    handleFilterDockConfirm: handleFilterDockConfirm,
+    commitFilterDockConfirm: commitFilterDockConfirm,
     mapConfirmedValues: mapConfirmedValues,
     prepareConfirmWrite: prepareConfirmWrite,
     buildCommittedStep: buildCommittedStep,

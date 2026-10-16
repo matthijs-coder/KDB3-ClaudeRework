@@ -36,7 +36,7 @@ define([
 
   // Action handler for HISTORY_REPLAY_REQUESTED: writes the target values to the host item and mirrors them
   // into the owner state. Resolves true when the host write succeeded.
-  async function handleHistoryReplay(_ctx, _payload) {
+  async function applyHistoryReplay(_ctx, _payload) {
     var payload = _payload || {};
     var target = payload.targetValue || {};
     var itemName = String(target.itemName || "").trim();
@@ -81,7 +81,7 @@ define([
       _commit.startTopNWave(_ctx._KDB, scopeKey, filterRef.itemId ? String(filterRef.itemId) : "", undefined, values);
       return true;
     } catch (err) {
-      console.error("[nativeMultiSelect.handleHistoryReplay]", err);
+      console.error("[nativeMultiSelect.applyHistoryReplay]", err);
       return false;
     }
   }
@@ -117,7 +117,7 @@ define([
 
   return {
     createHistoryReplayHandler: createHistoryReplayHandler,
-    handleHistoryReplay: handleHistoryReplay,
+    applyHistoryReplay: applyHistoryReplay,
     mergeReplayItem: mergeReplayItem
   };
 });
