@@ -1,53 +1,28 @@
 define([], function () {
   "use strict";
 
-  function cloneObject(_value) {
-    if (_value == null || typeof _value !== "object") {
-      return _value;
-    }
-    try {
-      return JSON.parse(JSON.stringify(_value));
-    } catch (_error) {
-      return Object.assign({}, _value);
-    }
-  }
-
+  // Selector results are the stored objects; callers must not mutate them.
   function readSichtState(_KDB) {
     var state =
       _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.sicht : null;
-    return state ? cloneObject(state) : undefined;
+    return state || undefined;
   }
 
   function readActiveSichtValue(_KDB) {
-    var state =
-      _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.sicht : null;
-    return state ? state.activeSichtValue : null;
-  }
-
-  function readSichtOptionState(_KDB, _sichtValue) {
-    var state =
-      _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.sicht : null;
-    var option = state && state.byOption ? state.byOption[_sichtValue] : null;
-    return option ? cloneObject(option) : undefined;
-  }
-
-  function readCurrentSichtSelection(_KDB) {
-    var state =
-      _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.sicht : null;
-    return state && state.currentSelection
-      ? cloneObject(state.currentSelection)
-      : undefined;
-  }
-
-  function readActiveSichtInstanceId(_KDB) {
-    var state =
-      _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.sicht : null;
-    return state && state.activeFilterInstanceId ? state.activeFilterInstanceId : null;
+    var state = readSichtState(_KDB);
+    if (!state) {
+      return null;
+    }
+    if (state.activeSichtValue != null && String(state.activeSichtValue).trim() !== "") {
+      return String(state.activeSichtValue);
+    }
+    return (state.currentSelection && state.currentSelection.displayValue)
+      ? String(state.currentSelection.displayValue)
+      : null;
   }
 
   function readConfirmedSichtSelection(_KDB) {
-    var state =
-      _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.sicht : null;
+    var state = readSichtState(_KDB);
     if (!state || !state.currentSelection || !state.currentSelection.displayValue) {
       return null;
     }
@@ -59,12 +34,37 @@ define([], function () {
     };
   }
 
+  function findOptionByDisplay(_byOption, _displayValue) {
+    var keys = Object.keys(_byOption || {});
+    var idx;
+    var option;
+    for (idx = 0; idx < keys.length; idx += 1) {
+      option = _byOption[keys[idx]];
+      if (option && option.displayValue === _displayValue) {
+        return option;
+      }
+    }
+    return null;
+  }
+
+  function findOptionByUse(_byOption, _useValue) {
+    var keys = Object.keys(_byOption || {});
+    var idx;
+    var option;
+    for (idx = 0; idx < keys.length; idx += 1) {
+      option = _byOption[keys[idx]];
+      if (option && String(option.useValue || "") === _useValue) {
+        return option;
+      }
+    }
+    return null;
+  }
+
   return {
     readSichtState: readSichtState,
     readActiveSichtValue: readActiveSichtValue,
-    readSichtOptionState: readSichtOptionState,
-    readCurrentSichtSelection: readCurrentSichtSelection,
-    readActiveSichtInstanceId: readActiveSichtInstanceId,
-    readConfirmedSichtSelection: readConfirmedSichtSelection
+    readConfirmedSichtSelection: readConfirmedSichtSelection,
+    findOptionByDisplay: findOptionByDisplay,
+    findOptionByUse: findOptionByUse
   };
 });
