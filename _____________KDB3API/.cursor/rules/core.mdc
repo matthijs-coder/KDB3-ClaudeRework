@@ -1,0 +1,74 @@
+---
+description: KDB3 core architecture rules (always applied). Ownership, layers, Cognos isolation, module APIs, errors, size, tools, change workflow.
+alwaysApply: true
+---
+
+# KDB3 core rules
+
+KDB3 is an IBM Cognos Analytics dashboard extension. Production code is `KDB3/js/**`: AMD modules loaded by the host's RequireJS (no ES modules, no build step). Cognos instantiates `KDB3/js/KDB.js` (renderer class in `KDB3/spec.json`). Paths are relative to `_____________KDB3API/`. Topic rules in this folder load on demand; this file holds what every change must respect.
+
+## 1. Frozen external contract
+
+Do not change these without a written note and review (section 9):
+
+- `KDB3/spec.json`, the extension entry points (`KDB.js` render/destroy, `window.top.getKDB`, `window.top.WBParameterGetFunction` / `WBParameterSetFunction`);
+- saved parameter sets: v2 and v3 must keep loading; the v3 shape written today stays the same;
+- settings/property formats and persisted keys and values;
+- public names: `_KDB.api.*` and `_KDB.services.*` methods, event names.
+
+During refactors also keep stable: action types other modules dispatch, the `_KDB.runtime.<owner>.<x>Facet` stamps, and file paths other modules import (published selectors and event-name files).
+
+## 2. Layers
+
+- `KDB.js`: bootstrap only (register, mount, destroy order; root namespaces). Lifecycle changes need review.
+- `core/`: infrastructure (event bus, config, properties, utils, Cognos rings, services under `core/services/`).
+- `dashboard/`: feature modules (header, footer, tabs, canvas, controls, launchpad, metricsTree, widgets, filters).
+- **`core` never imports `dashboard`.** Existing violations (writeback, dashboardPdf) are scheduled Phase 2 work; do not add new ones.
+- Across modules, import only the owner's published selectors and event-name constants. Commands go through `_KDB.api.<module>` or `_KDB.services.<service>`.
+
+## 3. `_KDB` namespaces
+
+`state`, `runtime`, `services`, `api`, `events`, `config`, `properties`, `elements`, `utils`, `cognosAPI` (`data` is reserved, unused). No new top-level key without review. Code receives `_KDB` as an argument; `window.top.getKDB()` is for the console only. Option and dropdown lists live in `_KDB.config.options`; `_KDB.dropdownOptions`, `_KDB.utilities` and `_KDB.generalFunctions` are dead legacy names, never use them. Details: `state.mdc`.
+
+## 4. Ownership
+
+- `_KDB.state.<subtree>`: JSON-serialisable; **exactly one canonical writer** per subtree (map: `architecture/stateOwnership.md`). Others read through the owner's selectors and change it only through the owner's API.
+- `_KDB.runtime.<owner>`: owner-private technical resources (DOM refs, listeners, observers, timers, AbortControllers, pending promises). Never serialised, never read by other modules. Every resource has a cleanup path in `destroy`.
+- Listener hygiene: one `AbortController` per mount scope; pass `{ signal }` to `addEventListener` and to `_KDB.events.subscribe(name, handler, { signal })`; `destroy` aborts it. Details: `runtime.mdc`.
+- Lifecycle fields use terms from `.cursor/lifecycleVocabulary.md`.
+
+## 5. Cognos isolation (three rings, do not bypass)
+
+| Ring | Folder | Only it may call |
+|---|---|---|
+| Inner | `core/cognosAPI/` (`_KDB.cognosAPI`) | `__getDashboardAPI()` |
+| Ring 1 | `core/services/cognosHost/` (`_KDB.services.cognosHost.<facet>`) | `_KDB.cognosAPI.*`; returns Outcome objects |
+| Chrome | `core/cognosHost/` | Cognos DOM selectors and chrome checks |
+
+Feature code uses the facet its owner stamped into `_KDB.runtime.<owner>.<x>Facet` and never calls `_KDB.cognosAPI` or `__getDashboardAPI()`. Details: `cognos-adapter.mdc`.
+
+## 6. Module APIs
+
+- Feature module: `_KDB.api.<module> = { mount, destroy, dispatch, getState, register*? }`. Commands are `dispatch({ type: "<module>/<action>", payload })`. Cross-module dispatch is the app's command bus.
+- Service: `_KDB.services.<service>` with named methods only. Never mix the two shapes.
+- After `destroy()` every public method is guarded (no throw). Details: `module-public-api.mdc`.
+- New and refactored modules use the one module template in `feature-structure.mdc` (`index.js`, `state.js`, `selectors.js`, `view.js`, `effects.js`, `config.js`).
+
+## 7. Events
+
+Facts are past tense: `<region>:<entity><VerbPast>` or `<region>:<verbPast>` (`tableData:loadFinished`, `tabs:changed`). Requests end in `Requested` (`header:toggleRequested`). Import name constants from the emitter; record events in `architecture/eventSubscribe.md`. For a command to a known owner, call its API instead of emitting. Details: `events.mdc`.
+
+## 8. Code
+
+- **Size: split by cohesion, not by count.** One concept per file; aim for at most about 300 to 400 code lines (blank lines and comments do not count). Above 500, check for two concepts. Above 800, justify it in a header comment. Functions about 60 lines. No line packing (lines over 180 chars). No file that only forwards to or wraps another file. No folder for fewer than about 4 files unless it is a named sub-domain. At most 3 folder levels below a module.
+- **Errors: try/catch only at boundaries** (Cognos/extension hooks, public API entry points, event/DOM/timer callbacks, async fire-and-forget). Internal code lets errors propagate. **No log-and-rethrow**; log once at the boundary. Details: `error-handling.mdc`.
+- **Shared helper kit:** `KDB3/js/core/utils/kit/` (API in each file's header comment; import by AMD relative path). Use `cloneJson`, `isPlainObject`, `sleep`, `pollUntil`, `disposeRuntimeBuckets`, `codedError` and the other kit helpers instead of local copies of clone/isPlainObject/sleep/poll/runtime cleanup. No `JSON.parse(JSON.stringify(...))` in new code.
+- English for identifiers, comments and docs. German domain nouns are fine for product concepts (`dienststelle`, `sicht`, `kennzahl`), not for technical identifiers. Naming and AMD shape: `naming.mdc`, `amd.mdc`.
+
+## 9. Change workflow
+
+- Refactoring and bug fixes need **no contract and no execution spec**. Keep behaviour identical unless the task says otherwise.
+- A change to the frozen contract (section 1) needs a short written note in the PR description: what changes, why, and how old saved parameter sets and settings keep working. It also needs explicit review before merge.
+- Before a PR, run from the repo root: `node tools/check-all.mjs` (must pass: AMD paths, cycles, syntax, kit tests). Use `node tools/line-report.mjs` for size, and `tools/smoke-checklist.md` for manual verification in Cognos (no Cognos runtime is available in CI).
+
+Topic rules: `feature-structure.mdc` (template, size, folders), `module-public-api.mdc`, `state.mdc`, `runtime.mdc`, `events.mdc`, `error-handling.mdc`, `dom.mdc`, `cognos-adapter.mdc`, `naming.mdc`, `amd.mdc`.
