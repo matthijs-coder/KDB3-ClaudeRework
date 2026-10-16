@@ -1,12 +1,28 @@
-define(["../config.js", "./initialState.js"], function (_config, _initialState) {
+define(["../config.js"], function (_config) {
   "use strict";
 
-  function createSingleSelectReducer() {
-    return reduceSingleSelectState;
+  function initialState() {
+    return {
+      lifecycle: "idle",
+      inventory: {
+        generation: 0,
+        freshness: "stale",
+        reconcileInFlight: false,
+        reconciledAt: null,
+        errorCode: null
+      },
+      instancesById: {},
+      meta: { isProgrammaticClick: false },
+      lastInteraction: null,
+      lastConfirmedAt: null,
+      lastDiagnostics: [],
+      errorCode: null,
+      errorMessage: null
+    };
   }
 
   function reduceSingleSelectState(_state, _action) {
-    var state = _state || _initialState();
+    var state = _state || initialState();
     var action = _action || {};
     var payload = action.payload || {};
 
@@ -27,12 +43,18 @@ define(["../config.js", "./initialState.js"], function (_config, _initialState) 
     if (action.type === _config.actions.DESTROY) {
       return Object.assign({}, state, {
         lifecycle: "disposed",
-        lastInteraction: null,
-        instancesById: Object.assign({}, state.instancesById || {})
+        lastInteraction: null
       });
     }
     return state;
   }
 
-  return createSingleSelectReducer;
+  function createSingleSelectReducer() {
+    return reduceSingleSelectState;
+  }
+
+  return {
+    initialState: initialState,
+    createSingleSelectReducer: createSingleSelectReducer
+  };
 });

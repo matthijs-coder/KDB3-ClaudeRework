@@ -3,6 +3,7 @@
 // SS_GOLDEN_LAYOUT=old runs the same expectations against the pre-B1 file layout (B0 tree).
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import path from "node:path";
 import { getEventListeners } from "node:events";
 import { loadAmd } from "../lib/amd-loader.mjs";
@@ -32,65 +33,39 @@ function load(rel, extra) {
   return loadAmd(path.join(SS, rel), Object.assign({ stubs: { console: quietConsole, document: fakeDocument } }, extra || {}));
 }
 
+const has = (rel) => fs.existsSync(path.join(SS, rel));
+
 function adapter() {
-  if (LAYOUT === "old") {
-    const dispatchFile = load("actions/dispatchSingleSelectAction.js");
-    return {
-      register: load("__orchestratorSingleSelect.js"),
-      buildFilterInstanceId: load("state/buildFilterInstanceId.js"),
-      createFilterInstanceState: load("state/createFilterInstanceState.js"),
-      ensureFilterState: load("state/ensureFilterState.js"),
-      lookupLiveFilterState: load("effects/lookupLiveFilterState.js"),
-      reconcileInstanceState: load("effects/reconcileFilterInstanceState.js"),
-      enumerateFilterInstances: load("effects/enumerateFilterInstances.js"),
-      waitForFilterInventory: load("effects/waitForFilterInventory.js"),
-      notifyOwners: load("actions/notifyInventoryReconciledOwners.js"),
-      mapHandoff: load("effects/mapFilterDockHandoff.js"),
-      deriveIntent: load("effects/deriveInteractionIntent.js"),
-      applyPendingSelection: load("effects/applyPendingSelection.js"),
-      revertToBackupSelection: load("effects/revertToBackupSelection.js"),
-      processFilterDockHandoff: load("effects/processFilterDockHandoff.js").processFilterDockHandoff,
-      stepValue: load("history/normalizeSingleSelectHistoryStepValue.js"),
-      buildCommittedStep: load("history/buildCommittedStep.js"),
-      pushGenericHistory: load("effects/pushSingleSelectHistory.js").pushGenericHistory,
-      createHistoryReplayHandler: load("history/createSingleSelectHistoryReplayHandler.js"),
-      reducer: {
-        initialState: load("state/initialState.js"),
-        create: load("state/createSingleSelectReducer.js")
-      },
-      selectors: load("state/selectors.js"),
-      dispatchAction: dispatchFile
-    };
-  }
-  const handoff = load("dockHandoff/handoff.js");
-  const history = load("history.js");
-  const identity = load("inventory/identity.js");
-  const enumerate = load("inventory/enumerate.js");
-  const instance = load("state/instance.js");
-  const interaction = load("dockHandoff/interaction.js");
-  const reducer = load("state/reducer.js");
+  const instance = has("state/instance.js") ? load("state/instance.js") : null;
+  const reducer = has("state/reducer.js") ? load("state/reducer.js") : null;
+  const identity = has("inventory/identity.js") ? load("inventory/identity.js") : null;
+  const enumerate = has("inventory/enumerate.js") ? load("inventory/enumerate.js") : null;
+  const ownerAck = has("inventory/ownerAck.js") ? load("inventory/ownerAck.js") : null;
+  const handoff = has("dockHandoff/handoff.js") ? load("dockHandoff/handoff.js") : null;
+  const interaction = has("dockHandoff/interaction.js") ? load("dockHandoff/interaction.js") : null;
+  const history = has("history.js") ? load("history.js") : null;
   return {
     register: load("__orchestratorSingleSelect.js"),
-    buildFilterInstanceId: instance.buildFilterInstanceId,
-    createFilterInstanceState: instance,
-    ensureFilterState: instance.ensureFilterState,
-    lookupLiveFilterState: instance.lookupLiveFilterState,
-    reconcileInstanceState: identity.reconcileFilterInstanceState,
-    enumerateFilterInstances: enumerate.enumerateFilterInstances,
-    waitForFilterInventory: enumerate.waitForFilterInventory,
-    notifyOwners: load("inventory/ownerAck.js").notifyInventoryReconciledOwners,
-    mapHandoff: handoff.mapFilterDockHandoff,
-    deriveIntent: interaction.deriveInteractionIntent,
-    applyPendingSelection: interaction.applyPendingSelection,
-    revertToBackupSelection: interaction.revertToBackupSelection,
-    processFilterDockHandoff: handoff.processFilterDockHandoff,
-    stepValue: history,
-    buildCommittedStep: history.buildCommittedStep,
-    pushGenericHistory: history.pushCommittedSelectionStep,
-    createHistoryReplayHandler: history.createHistoryReplayHandler,
-    reducer: { initialState: reducer.initialState, create: reducer.createSingleSelectReducer },
-    selectors: load("state/selectors.js"),
-    dispatchAction: null
+    buildFilterInstanceId: instance ? instance.buildFilterInstanceId : load("state/buildFilterInstanceId.js"),
+    createFilterInstanceState: instance || load("state/createFilterInstanceState.js"),
+    ensureFilterState: instance ? instance.ensureFilterState : load("state/ensureFilterState.js"),
+    lookupLiveFilterState: instance ? instance.lookupLiveFilterState : load("effects/lookupLiveFilterState.js"),
+    reconcileInstanceState: identity ? identity.reconcileFilterInstanceState : load("effects/reconcileFilterInstanceState.js"),
+    enumerateFilterInstances: enumerate ? enumerate.enumerateFilterInstances : load("effects/enumerateFilterInstances.js"),
+    waitForFilterInventory: enumerate ? enumerate.waitForFilterInventory : load("effects/waitForFilterInventory.js"),
+    notifyOwners: ownerAck ? ownerAck.notifyInventoryReconciledOwners : load("actions/notifyInventoryReconciledOwners.js"),
+    mapHandoff: handoff ? handoff.mapFilterDockHandoff : load("effects/mapFilterDockHandoff.js"),
+    deriveIntent: interaction ? interaction.deriveInteractionIntent : load("effects/deriveInteractionIntent.js"),
+    applyPendingSelection: interaction ? interaction.applyPendingSelection : load("effects/applyPendingSelection.js"),
+    revertToBackupSelection: interaction ? interaction.revertToBackupSelection : load("effects/revertToBackupSelection.js"),
+    processFilterDockHandoff: handoff ? handoff.processFilterDockHandoff : load("effects/processFilterDockHandoff.js").processFilterDockHandoff,
+    stepValue: history || load("history/normalizeSingleSelectHistoryStepValue.js"),
+    buildCommittedStep: history ? history.buildCommittedStep : load("history/buildCommittedStep.js"),
+    pushGenericHistory: history ? history.pushCommittedSelectionStep : load("effects/pushSingleSelectHistory.js").pushGenericHistory,
+    reducer: reducer
+      ? { initialState: reducer.initialState, create: reducer.createSingleSelectReducer }
+      : { initialState: load("state/initialState.js"), create: load("state/createSingleSelectReducer.js") },
+    selectors: load("state/selectors.js")
   };
 }
 
@@ -150,7 +125,7 @@ async function bootReconciled(facet, extra) {
 }
 
 test("buildFilterInstanceId: itemId, label fallback, global/page scope", () => {
-  const build = A.buildFilterInstanceId.buildFilterInstanceId || A.buildFilterInstanceId;
+  const build = A.buildFilterInstanceId;
   assert.deepEqual(build("global", "global", " g1 ", "Geschlecht"), {
     filterInstanceId: "g|s=global|i=g1", identityQuality: "itemId", normalizedScopeId: "global"
   });
@@ -244,7 +219,7 @@ test("ensureFilterState: canonical, delegated, missing, rights-forced", () => {
 });
 
 test("lookupLiveFilterState: live record, delegated state, captured fallback", () => {
-  const lookup = A.lookupLiveFilterState.lookupLiveFilterState || A.lookupLiveFilterState;
+  const lookup = A.lookupLiveFilterState;
   const captured = { captured: true };
   const live = { live: true };
   const KDB = { state: { filters: { singleSelect: { instancesById: { a: live, s: { selectionOwner: "sicht" } } } } } };
@@ -267,7 +242,7 @@ function candidate(id, overrides) {
 }
 
 test("reconcileFilterInstanceState: discovered, updated, removed, collisions", () => {
-  const reconcile = A.reconcileInstanceState.reconcileFilterInstanceState || A.reconcileInstanceState;
+  const reconcile = A.reconcileInstanceState;
   const existing = {
     "g|s=global|i=a": { filterInstanceId: "g|s=global|i=a", scopeType: "global", scopeId: "global", itemName: "A", filterLabel: "A", status: "active", hostStatus: "present" },
     "g|s=global|i=gone": { filterInstanceId: "g|s=global|i=gone", scopeType: "global", scopeId: "global", itemName: "Gone", status: "active", hostStatus: "present" }
@@ -361,7 +336,7 @@ test("waitForFilterInventory: retries, abort, timeout code", async () => {
 });
 
 test("notifyInventoryReconciledOwners: policy flags, acks, dedupe, failures", async () => {
-  const notify = A.notifyOwners.notifyInventoryReconciledOwners || A.notifyOwners;
+  const notify = A.notifyOwners;
   const received = [];
   const KDB = { api: {
     sicht: { dispatch: async (a) => { received.push(["sicht", a]); return { ok: true, acknowledged: true }; } },
@@ -409,8 +384,8 @@ test("notifyInventoryReconciledOwners: policy flags, acks, dedupe, failures", as
 });
 
 test("mapFilterDockHandoff and deriveInteractionIntent", () => {
-  assert.equal(A.mapHandoff.mapFilterDockHandoff ? A.mapHandoff.mapFilterDockHandoff(null) : A.mapHandoff(null), null);
-  const map = A.mapHandoff.mapFilterDockHandoff || A.mapHandoff;
+  const map = A.mapHandoff;
+  assert.equal(map(null), null);
   const mapped = map({
     filterLabel: "Geschlecht", scopeType: "global", filterType: "singleSelect", interactionType: "confirm", operationId: 5,
     capabilities: { hasAlleOption: true, condition: "c" }, popup: { isVisible: true },
@@ -428,7 +403,7 @@ test("mapFilterDockHandoff and deriveInteractionIntent", () => {
   assert.deepEqual(mapped.ownerSelectionContext, {
     currentSelection: { displayValue: "A" }, backupSelection: null, pendingSelection: null
   });
-  const derive = A.deriveIntent.deriveInteractionIntent || A.deriveIntent;
+  const derive = A.deriveIntent;
   assert.deepEqual(derive(null), { type: "unknown", optionLabel: null });
   assert.deepEqual(derive({ interactionType: "option", optionLabel: "Frau" }), { type: "option", optionLabel: "Frau" });
   assert.deepEqual(derive({ interactionType: "bogus" }), { type: "unknown", optionLabel: null });
@@ -439,8 +414,8 @@ test("mapFilterDockHandoff and deriveInteractionIntent", () => {
 });
 
 test("pending selection helpers", () => {
-  const apply = A.applyPendingSelection.applyPendingSelection || A.applyPendingSelection;
-  const revert = A.revertToBackupSelection.revertToBackupSelection || A.revertToBackupSelection;
+  const apply = A.applyPendingSelection;
+  const revert = A.revertToBackupSelection;
   const state = { pendingSelection: { displayValue: "Frau" }, backupSelection: { displayValue: "Mann", useValue: "1" } };
   apply({ hasAlleOption: true }, state, { type: "alle" });
   assert.deepEqual(state.pendingSelection, { displayValue: "Alle" });

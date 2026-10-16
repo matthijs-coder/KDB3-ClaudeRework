@@ -2,7 +2,7 @@ define([
   "../state/selection.js",
   "./notifyOwnerAfterCommit.js",
   "./pushSingleSelectHistory.js",
-  "./lookupLiveFilterState.js",
+  "../state/instance.js",
   "../config.js",
   "../../../widgets/widgetVis/actions/runTopNFilterConfirmWave.js"
 ], function (
@@ -27,7 +27,7 @@ define([
       // the host). applyConfirmedState must hit the live instance, not the
       // object captured before that wait (contract section 11, M4).
       _selectionState.applyConfirmedState(
-        _lookupLiveFilterState(_KDB, _handoff, _filterState),
+        _lookupLiveFilterState.lookupLiveFilterState(_KDB, _handoff, _filterState),
         _KDB.state.filters.singleSelect,
         _next
       );

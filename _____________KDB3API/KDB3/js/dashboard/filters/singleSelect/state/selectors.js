@@ -1,11 +1,31 @@
-define([
-  "./projectFilterInstance.js",
-  "../../../../core/utils/normalizeCognosScopeId.js"
-], function (_projectFilterInstance, _normalizeScopeId) {
+define(["../../../../core/utils/normalizeCognosScopeId.js"], function (_normalizeScopeId) {
   "use strict";
 
   function readOwnerState(_KDB) {
     return _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.singleSelect : undefined;
+  }
+
+  function projectFilterInstance(_record) {
+    if (!_record) { return null; }
+    var selection = _record.selectionOwner === "singleSelect" && _record.currentSelection
+      ? _record.currentSelection : null;
+    return {
+      filterInstanceId: _record.filterInstanceId,
+      scopeType: _record.scopeType,
+      scopeId: _record.scopeId,
+      filterLabel: _record.filterLabel,
+      itemName: _record.itemName,
+      itemId: _record.itemId == null ? null : _record.itemId,
+      semanticInstanceKey: _record.semanticInstanceKey,
+      filterType: _record.filterType,
+      selectionOwner: _record.selectionOwner,
+      identityQuality: _record.identityQuality,
+      displayValue: selection ? selection.displayValue : null,
+      useValue: selection ? selection.useValue : null,
+      displaySource: selection ? selection.displaySource || null : null,
+      status: _record.status,
+      hostStatus: _record.hostStatus
+    };
   }
 
   function cloneSelection(_selection) {
@@ -66,14 +86,14 @@ define([
       if (options.hostStatus && rec.hostStatus !== options.hostStatus) { return; }
       if (options.scopeType && rec.scopeType !== options.scopeType) { return; }
       if (options.scopeId && _normalizeScopeId(rec.scopeId) !== _normalizeScopeId(options.scopeId)) { return; }
-      out.push(_projectFilterInstance(rec));
+      out.push(projectFilterInstance(rec));
     });
     return out;
   }
 
   function readFilterInstance(_KDB, _filterInstanceId) {
     var state = readOwnerState(_KDB);
-    return _projectFilterInstance(state && state.instancesById ? state.instancesById[_filterInstanceId] : null);
+    return projectFilterInstance(state && state.instancesById ? state.instancesById[_filterInstanceId] : null);
   }
 
   function readFilterInstancesByScope(_KDB, _scopeType, _scopeId) {

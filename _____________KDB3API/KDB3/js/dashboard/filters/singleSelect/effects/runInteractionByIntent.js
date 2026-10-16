@@ -1,5 +1,5 @@
 define([
-  "../state/ensureFilterState.js",
+  "../state/instance.js",
   "./deriveInteractionIntent.js",
   "./runPopupInteractionSteps.js",
   "./requestFilterDockPopupAction.js",
@@ -44,7 +44,7 @@ define([
       return;
     }
 
-    filterState = _ensureFilterState(_KDB, _handoffContext);
+    filterState = _ensureFilterState.ensureFilterState(_KDB, _handoffContext);
     interactionOptions = _guardInteractionFreshness.buildInteractionOptions(options, _handoffContext);
     interactionOptions.filterState = filterState;
 

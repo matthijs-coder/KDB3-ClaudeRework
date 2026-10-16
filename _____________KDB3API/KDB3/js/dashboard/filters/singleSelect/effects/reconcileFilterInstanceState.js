@@ -1,5 +1,5 @@
 define([
-  "../state/createFilterInstanceState.js",
+  "../state/instance.js",
   "./resolveMountedFilterIdentity.js",
   "../config.js"
 ], function (_createState, _collisionSupport, _config) {

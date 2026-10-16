@@ -5,7 +5,7 @@ define([
   "./requestFilterDockPopupAction.js",
   "./finalizeConfirmedCommit.js",
   "./setCommitUiState.js",
-  "./lookupLiveFilterState.js",
+  "../state/instance.js",
   "../runtime.js"
 ], function (
   _executeConfirmedCommit,
@@ -28,7 +28,7 @@ define([
       _previousConfirmedSelection,
       _previousValues
     ).then(function (_rollbackOk) {
-      var liveState = _lookupLiveFilterState(_KDB, _handoff, _filterState);
+      var liveState = _lookupLiveFilterState.lookupLiveFilterState(_KDB, _handoff, _filterState);
       if (_rollbackOk === true) {
         liveState.currentSelection = Object.assign({}, _previousConfirmedSelection);
         liveState.backupSelection = Object.assign({}, _previousConfirmedSelection);
@@ -58,7 +58,7 @@ define([
     var commitSucceeded = false;
     var liveState = _filterState;
     var instanceId = _handoffContext.filterInstanceId;
-    liveState = _lookupLiveFilterState(_KDB, _handoffContext, _filterState);
+    liveState = _lookupLiveFilterState.lookupLiveFilterState(_KDB, _handoffContext, _filterState);
     if (options.signal && options.signal.aborted === true) {
       return false;
     }
@@ -73,7 +73,7 @@ define([
         _KDB, _runtime, _handoffContext, nextSelectionLabel
       );
       filterRef = executed.filterRef;
-      liveState = _lookupLiveFilterState(_KDB, _handoffContext, liveState);
+      liveState = _lookupLiveFilterState.lookupLiveFilterState(_KDB, _handoffContext, liveState);
       await _finalizeConfirmedCommit(
         _KDB, _handoffContext, liveState, previousConfirmedSelection, executed.selection
       );
@@ -89,7 +89,7 @@ define([
         errorCode: singleSelectRoot.errorCode
       }, error);
       filterRef = filterRef || (error && error.filterRef);
-      liveState = _lookupLiveFilterState(_KDB, _handoffContext, liveState);
+      liveState = _lookupLiveFilterState.lookupLiveFilterState(_KDB, _handoffContext, liveState);
       await restoreOrMarkUncertain(
         _KDB,
         _handoffContext,
@@ -103,7 +103,7 @@ define([
       if (commitSucceeded === true && !(options.signal && options.signal.aborted === true)) {
         _requestFilterDockPopupAction.requestClosePopup(_KDB, options);
       }
-      liveState = _lookupLiveFilterState(_KDB, _handoffContext, liveState);
+      liveState = _lookupLiveFilterState.lookupLiveFilterState(_KDB, _handoffContext, liveState);
       liveState.isCommitInProgress = false;
       _singleSelectRuntime.inFlight.end(_runtime, instanceId);
       _setCommitUiState(_KDB, _runtime, false);

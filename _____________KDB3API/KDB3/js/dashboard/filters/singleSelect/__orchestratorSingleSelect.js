@@ -1,5 +1,5 @@
 define([
-  "./state/initialState.js",
+  "./state/reducer.js",
   "./config.js",
   "./createSingleSelectController.js",
   "./history/createSingleSelectHistoryReplayHandler.js",
@@ -36,7 +36,7 @@ define([
       _KDB.elements.selectors = _KDB.elements.selectors || {};
       _KDB.elements.selectors.singleSelect = _config.domSelectors;
       if (!_KDB.state.filters.singleSelect) {
-        _KDB.state.filters.singleSelect = _initialState();
+        _KDB.state.filters.singleSelect = _initialState.initialState();
       }
       _singleSelectRuntime.ensureSingleSelectRuntime(_KDB);
       _KDB.runtime.singleSelect.filtersFacet = readFiltersFacet(_KDB);

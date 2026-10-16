@@ -1,5 +1,5 @@
 define([
-  "../state/buildFilterInstanceId.js",
+  "../state/instance.js",
   "../inventory/definitions.js",
   "../../../../core/utils/normalizeCognosScopeId.js"
 ], function (_buildFilterInstanceId, _definitions, _normalizeScopeId) {
@@ -36,7 +36,7 @@ define([
       _KDB, _source, raw.scopeType, raw.itemName, itemId, _definitionIndex
     );
     var classification = _definitions.classifyFilterInstance(definitionResult, raw.itemName, raw.scopeType);
-    var identity = _buildFilterInstanceId(raw.scopeType, raw.scopeId, itemId, raw.itemName);
+    var identity = _buildFilterInstanceId.buildFilterInstanceId(raw.scopeType, raw.scopeId, itemId, raw.itemName);
     return {
       classification: classification,
       definitionResult: definitionResult,

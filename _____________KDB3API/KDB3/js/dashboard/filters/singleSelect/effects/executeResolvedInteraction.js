@@ -1,5 +1,5 @@
 define([
-  "../state/ensureFilterState.js",
+  "../state/instance.js",
   "../runtime.js",
   "./runInteractionByIntent.js",
   "./sichtDraftEvents.js",
@@ -51,7 +51,7 @@ define([
       _handoffContext.filterInstanceId = _resolved.filterInstanceId;
       _handoffContext.scopeId = _resolved.scopeId;
       stampLastInteraction(root, _handoffContext, _resolved);
-      var filterState = _ensureFilterState(_KDB, _handoffContext);
+      var filterState = _ensureFilterState.ensureFilterState(_KDB, _handoffContext);
       var runOptions = buildRunOptions(_actionType, _options, filterState);
       await _runInteractionByIntent.runInteraction(
         _KDB,

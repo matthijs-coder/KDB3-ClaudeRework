@@ -1,6 +1,6 @@
 define([
   "./config.js",
-  "./state/createSingleSelectReducer.js",
+  "./state/reducer.js",
   "./state/selectors.js",
   "./runtime.js",
   "./actions/dispatchSingleSelectAction.js",
@@ -16,7 +16,7 @@ define([
   "use strict";
 
   function createSingleSelectController(_deps) {
-    var controller = { _KDB: _deps._KDB, options: _deps.options || {}, reducer: _createSingleSelectReducer(), isDisposed: false, didWarnDisposed: false };
+    var controller = { _KDB: _deps._KDB, options: _deps.options || {}, reducer: _createSingleSelectReducer.createSingleSelectReducer(), isDisposed: false, didWarnDisposed: false };
     return {
       mount: mount.bind(null, controller),
       destroy: destroy.bind(null, controller),
