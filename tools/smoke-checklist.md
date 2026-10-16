@@ -181,6 +181,19 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Destroy + re-mount (close/reopen the KDB3 widget). Expected: `document.getElementById("KDB_dragAvatarTemplates")` is `null` after destroy (no stale avatar templates), drag and drop works again after re-mount, and listener counts on `document` do not grow.
 - [ ] Page size and background (kdbControl settings: dashboard width, height, background colour): change each once before and after the canvas is ready (right after load). Expected: the page size and colour follow, same as baseline; undo/redo of dashboard settings re-applies them.
 
+#### F1 tabs
+- [ ] Add (kdbControl "+"), then rename a tab by clicking it in edit mode: type a new name, **Enter** commits, **Esc** restores the old name, clicking elsewhere commits. Expected: the label follows, the edit icons (rename, delete, duplicate, move) disappear after the session ends.
+- [ ] Delete, duplicate and move (position dialog) a tab, each followed by undo and redo (history buttons). Expected: names, order, widgets and filters follow in both directions; the caption "Tab n von m: name" shows on the loading cover while a mutation runs.
+- [ ] While a delete/duplicate/move runs, look at the edit icons of another tab. Expected: they are greyed out (`aria-disabled="true"`) and clicking them does nothing; they work again after the mutation ends.
+- [ ] Delete down to one visible tab, and duplicate up to the maximum. Expected: a plain notice at each limit (no error alert), nothing changes.
+- [ ] Reload and watch the first seconds. Expected: one startup traversal over the tabs (no endless flipping), no console error, the originally active tab is active at the end.
+- [ ] Parameter-set restore (Set A, then Set B, then reset to defaults) with several tabs: names, visibility and the landing tab follow; no console error `[tabs.*]`.
+- [ ] PDF export on a dashboard with 3 or more tabs (uses the traverse). Expected: every tab is visited, export completes, the original tab is active afterwards. Cancel an export mid-way: no console error.
+- [ ] Console: `const k = window.top.getKDB(); const orig = k.utils.readCurrentTab;` close the KDB3 widget, then `k.utils.readCurrentTab === orig` (the saved original is back); reopen: `readCurrentTab` is a different (tabs-aware) function again and `k.utils.readCurrentTab()` still returns the current tab.
+- [ ] Destroy + re-mount twice. Expected: tab editing, mutations and undo/redo work after each re-mount; no `[tabs.*] called after destroy` warnings while idle.
+- [ ] Traverse timeout leaves no stuck cover. Console: `await window.top.getKDB().api.tabs.dispatch({ type: "tabs/traverse", payload: { scope: "allDashboard", timeoutMs: 50 } })`. Expected: it resolves `false`, a `TABS_TRAVERSE_TIMEOUT` is recorded in the tabs state, the loading cover is gone and the original tab is active again after a moment.
+- [ ] Rename while the kdbControl view throws still succeeds. Console: `const k = window.top.getKDB(); const orig = k.api.kdbControl.syncView; k.api.kdbControl.syncView = () => { throw new Error("x"); };`, rename a tab, then `k.api.kdbControl.syncView = orig`. Expected: the new name is shown and stays, only a `[tabs.syncKdbControlView]` warning appears (no rename failure alert).
+
 ### WS-G kdbControl (control primitives)
 - [ ] In a widget settings panel / header editor: colour inputs (typing a hex value, picking from the palette), palette closes on outside-click, toggle switches (Ein/Aus) and radios work as on baseline.
 - [ ] Close/reopen the dashboard, then `getEventListeners(document).mousedown.length` is the same as after a first boot (no extra listener).
@@ -210,6 +223,22 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Parameter-set restore (Set A and Set B) restores the Dienststelle; with an invalid Dienststelle the fallback message matches baseline.
 - [ ] Tab duplicate/move/delete with Dienststelle set. Expected: values follow the tab; undo/redo works.
 - [ ] Console stays quiet during a Dienststelle change (no repeated lines, no `[sicht-jahr]`).
+
+WS-I details. In the console use `const getKDB = window.top.getKDB;`.
+- [ ] Boot (BW): `getKDB().runtime.dienststelle` has the 7 buckets plus `parameterSetRunId`, `tabMutationRunId`, `tabMutationSnapshots` and `tabsFacet`. `typeof getKDB().runtime.dienststelle.historyReplayHandlerContribution.apply === "function"`.
+- [ ] Open the Dienststelle popup (BW, then DEZPV): labels stay hidden until sanitized, then show without `#`/`|` artefacts (DEZPV option display sanitized). `#filterDockContainer` has `KDB_dienststelleActive_<Sicht>` and matches `getKDB().state.filters.dienststelle.activeFilterKey`.
+- [ ] Confirm a global selection. Charts update after the ~600 ms widget notify. During that window `getKDB().runtime.dienststelle.timers.userNotify` looks like `{kind:"timeout", id:…}`; afterwards the key is gone. Exactly one Undo step; Undo and Redo restore chip and charts.
+- [ ] Confirm a page-scoped selection on tab 2, switch tabs and back: only tab 2 shows it. The writeback GET (save Set A) contains it for that tab.
+- [ ] Clear the selection, then OK: the anchored message "Für den Dienststelle-Filter ist mindestens eine Auswahl erforderlich…" appears and the default is reapplied.
+- [ ] Switch Sicht BW <-> DEZPV three times quickly: no stale chip; the hierarchy reloads once per switch; no console errors.
+- [ ] Restore Set A and Set B. The old BW label maps (diagnostic `WRITEBACK_DIENSTSTELLE_BW_LABEL_MAPPED` in the writeback result). An invalid value gives the same fallback info message as baseline.
+- [ ] Tab duplicate, move, and delete + undo with page-scoped values: the values follow the tab.
+- [ ] Start a tab mutation and trigger a table reload: no Dienststelle reconcile runs while `getKDB().runtime.tabs.pendingPromises.tabMutation` is set.
+- [ ] Drillthrough from a vis widget: the org values match baseline. In the console, `getKDB().api.dienststelle.getCurrentHierarchySnapshot({pageScopeId:"active"})` has the same keys as baseline.
+- [ ] PDF export: the attachment rows list Dienststelle global and per-tab values as on baseline.
+- [ ] `const s = getKDB().api.dienststelle.getState(); s !== getKDB().state.filters.dienststelle` (still a copy). `getKDB().api.dienststelle.dispatch({type:"dienststelle/syncRequested",payload:{}}) === getKDB().state.filters.dienststelle` (now the live reference, intentional).
+- [ ] Destroy: `getKDB().api.dienststelle.destroy()` within 600 ms after a confirm has finished (inside the deferred widget-notify window). The pending `userNotify` timer is cancelled: no widget notify and no errors afterwards. A `destroy()` issued synchronously in the same tick as the confirm is not covered; the reconcile chain still completes and notifies, as on baseline. `Object.keys(getKDB().runtime.dienststelle.timers).length === 0`, `historyReplayHandlerContribution === null`. A second `destroy()` is silent. `dispatch(...)` warns once `[dienststelle.dispatch] called after destroy`.
+- [ ] Console during all of the above: no `[dienststelle.history] push skipped`, no `[dienststelle.widgetVis.dispatch]` info lines.
 
 ### WS-J Sicht + specialSingleSelect
 - [ ] Sicht BW and DEZPV: option list, default selection and table loads match baseline.
@@ -269,6 +298,10 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Footer: created-by user and update date show; after a parameter-set restore the footer is as saved.
 - [ ] Text widget: add, edit text, font size (Schriftgröße), colour, background colour (Hintergrundfarbe), alignment (Zentriert), border presets (Rahmen); delete it. Expected: no leftover `<style>` tags (check Elements: search `kdb` in `<head>`), no `contenteditable` left after leaving edit mode or after close/reopen.
 - [ ] TopN widget flows (see 2.3/2.4) unchanged.
+
+#### N1 widgetTopN
+- [ ] **N1.1 Owner chart no longer waits for the helper cleanup (intended change) + lease outcome.** Prepare: a tab with 2-3 TopN vis widgets and one spare LIST in `#KDB_topNPad`; record the pad children first: `[...document.querySelectorAll('#KDB_topNPad [data-kdb-launchpad-pad="topN"] > *')].map(e => e.id)`. Then (a) set "Top 5" on one chart, (b) change Top 5 -> Top 10 -> Top 3 quickly, (c) confirm a different global Jahr (wave over all TopN charts on the tab). Time each from the click to the chart showing the new values (stopwatch or DevTools Performance) and compare with the same steps on the baseline build. Expected: each chart appears about the helper cleanup render time (up to ~5 s per chart, serial in the Jahr wave) earlier than baseline, never later; values as baseline. Lease outcome after each step (wait ~5 s for the background cleanup): the pad snippet returns the same helper ids as recorded; `Object.values(getKDB().runtime.widgetTopN.byOwner).map(r => r.helperPlacement)` is all `null`; `Object.keys(getKDB().runtime.widgetTopN.pendingPromises)` is `[]` (no cleanup left running); after (a) and (b) `byOwner[visId].lastHelperPlan === null` for the changed chart; no chart shows `WIDGET_TOPN_NO_HELPER_AVAILABLE`; the console shows no `[widgetTopN.placeHelperAfterOwner] restore failed`, no `[widgetTopN.postResolutionCleanup] cleanup failed` and no `[widgetTopN.settleHelperCleanup] helper cleanup did not settle` warning. Repeat (c) and reload the dashboard during the wave once: no console error from widgetTopN.
+- [ ] **N1.2 widgetTopN module conversion (no behaviour change).** On a vis widget: set a dimension and Top 5 (values appear, the helper is back in its pad slot, no title editor is left open on the helper), change N to Top 10, set "Ohne", change the grouping dimension, then undo/redo the TopN steps. Expected: same charts and same values as baseline. Console: no widgetTopN error, no `[widgetTopN.dismissHelperTitleEdit] dismiss failed` warning, and `getKDB().api.widgetTopN.getState()` returns an object with `lifecycle: "ready"` and one `byOwner` entry per TopN chart. Not covered here: deleting a TopN chart does not release its helper claim (known leak, Phase 2).
 
 #### N2 widgetText
 - [ ] Add a text widget from the launchpad: the default text ("Text hier eingeben") shows. Click the title icon to edit: the text is selected, typing works. Click outside (blur) commits; the new text stays. Start an edit again, type, press Esc: the original text returns and `contenteditable` is gone.

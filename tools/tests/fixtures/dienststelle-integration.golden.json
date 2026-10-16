@@ -1,0 +1,2830 @@
+{
+ "restoreThrows": {
+  "out": {
+   "r": "REJECT:rows boom",
+   "errorCode": null
+  },
+  "state": {
+   "lifecycle": "ready",
+   "sicht": null,
+   "key": null,
+   "error": null,
+   "filters": {},
+   "resolution": {
+    "scope": null,
+    "dominant": [],
+    "downstream": [],
+    "byScope": {}
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": null,
+    "lastSichtChangeAt": null,
+    "lastConfirmedAt": null
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": null,
+    "pages": {}
+   },
+   "Dienststelle_DEZPV": {
+    "global": null,
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]"
+  ],
+  "pushes": [],
+  "widget": [],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 1,
+   "pendingPromises": {},
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "restoreFailWrite": {
+  "out": {
+   "r": {
+    "ok": false,
+    "degraded": false,
+    "appliedScopes": [],
+    "fallbackScopes": [],
+    "missingValues": [],
+    "diagnostics": [
+     {
+      "code": "WRITEBACK_DIENSTSTELLE_RESTORE_FAILED",
+      "scope": "global",
+      "message": "cognos apply failed: X"
+     }
+    ]
+   }
+  },
+  "state": {
+   "lifecycle": "ready",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    }
+   },
+   "resolution": {
+    "scope": null,
+    "dominant": [],
+    "downstream": [],
+    "byScope": {}
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": null,
+    "lastSichtChangeAt": 1700000000000,
+    "lastConfirmedAt": null
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [
+     {
+      "d": "Bundeswehr",
+      "u": "&1]"
+     }
+    ],
+    "pages": {}
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Bundeswehr\",\"u\":\"&1]\"}]"
+  ],
+  "pushes": [],
+  "widget": [],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 1,
+   "pendingPromises": {},
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "parameterSetClear": {
+  "out": {
+   "r1": {
+    "ok": true,
+    "diagnostics": []
+   },
+   "r2": {
+    "ok": true,
+    "diagnostics": []
+   },
+   "r3": {
+    "ok": false,
+    "diagnostics": [
+     {
+      "code": "WRITEBACK_RESTORE_CANCELLED",
+      "message": "dienststelle parameterSet action requires a numeric runId"
+     }
+    ]
+   },
+   "r4": {
+    "ok": false,
+    "diagnostics": [
+     {
+      "code": "WRITEBACK_RESTORE_CANCELLED",
+      "message": "stale parameterSet runId 1 superseded by 2"
+     }
+    ]
+   },
+   "r5": {
+    "ok": false,
+    "diagnostics": [
+     {
+      "code": "WRITEBACK_RESTORE_CANCELLED",
+      "message": "stale parameterSet runId 1 superseded by 2"
+     }
+    ]
+   }
+  },
+  "state": {
+   "lifecycle": "ready",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=1700000000000 conf=1700000000000 null",
+     "global": "cur=Default Org|&1]|default| bak= pend= obs=Default Org|&1]|default| at=1700000000000",
+     "pages": {
+      "tab0_tabpanel": "cur=Org C|&4]|cognos|Org C bak= pend= obs=Org C|&4]|cognos|Org C at=1700000000000"
+     }
+    }
+   },
+   "resolution": {
+    "scope": null,
+    "dominant": [],
+    "downstream": [],
+    "byScope": {}
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": null,
+    "lastSichtChangeAt": 5,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [],
+    "pages": {}
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]",
+   "write Dienststelle_BW global []",
+   "clear Dienststelle_BW tab1_tabpanel",
+   "write Dienststelle_BW global []",
+   "clear Dienststelle_BW tab0_tabpanel",
+   "clear Dienststelle_BW tab1_tabpanel",
+   "clear Dienststelle_BW tab2_tabpanel"
+  ],
+  "pushes": [],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Default Org"
+  ],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 2,
+   "pendingPromises": {
+    "hierarchyWarmup": {}
+   },
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "destroyedApi": {
+  "out": {
+   "live": false,
+   "dispatched": "__undefined__",
+   "clear": {
+    "ok": false,
+    "appliedScopes": [],
+    "fallbackScopes": [],
+    "missingValues": [],
+    "diagnostics": [
+     {
+      "code": "WRITEBACK_RESTORE_CANCELLED",
+      "message": "dienststelle controller is disposed"
+     }
+    ]
+   },
+   "prepare": {
+    "ok": false,
+    "operationId": "z",
+    "diagnostics": [
+     {
+      "code": "TABS_MUTATION_CANCELLED",
+      "message": "dienststelle controller is disposed"
+     }
+    ]
+   },
+   "state": "__undefined__",
+   "snapshot": "__undefined__",
+   "mount": false,
+   "runtimeKeys": [
+    "abortControllers",
+    "domRefs",
+    "listeners",
+    "observers",
+    "parameterSetRunId",
+    "pendingPromises",
+    "subscriptions",
+    "tabMutationRunId",
+    "tabMutationSnapshots",
+    "timers"
+   ],
+   "contribution": null
+  },
+  "state": {
+   "lifecycle": "disposed",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=1700000000000 conf=null null",
+     "global": "cur=Default Org|&1]|default| bak= pend= obs=Default Org|&1]|default| at=1700000000000",
+     "pages": {}
+    }
+   },
+   "resolution": {
+    "scope": "global",
+    "dominant": [
+     "Default Org|&1]|default|"
+    ],
+    "downstream": [],
+    "byScope": {}
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": null,
+    "lastSichtChangeAt": 5,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [
+     {
+      "d": "Default Org",
+      "u": "&1]"
+     }
+    ],
+    "pages": {}
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]"
+  ],
+  "pushes": [],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Default Org"
+  ],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "undefined",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 0,
+   "pendingPromises": {},
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "restoreMatrix": {
+  "out": {
+   "r1": {
+    "ok": true,
+    "degraded": true,
+    "appliedScopes": [
+     "global",
+     "tab0_tabpanel"
+    ],
+    "fallbackScopes": [],
+    "missingValues": [
+     {
+      "scope": "tab0_tabpanel",
+      "value": "nonexistent"
+     }
+    ],
+    "diagnostics": [
+     {
+      "code": "WRITEBACK_DIENSTSTELLE_BW_LABEL_UNMAPPED",
+      "scope": "tab0_tabpanel",
+      "message": "legacy BW label has no mapping: nonexistent"
+     },
+     {
+      "code": "WRITEBACK_DIENSTSTELLE_BW_LABEL_UNMAPPED",
+      "scope": "tab1",
+      "message": "legacy BW label has no mapping: Heer"
+     }
+    ]
+   },
+   "r2": {
+    "appliedScopes": [],
+    "fallbackScopes": [],
+    "missingValues": [],
+    "ok": false,
+    "diagnostics": [
+     {
+      "code": "WRITEBACK_RESTORE_CANCELLED",
+      "message": "stale parameterSet runId 0 superseded by 1"
+     }
+    ]
+   },
+   "r3": {
+    "ok": false,
+    "appliedScopes": [],
+    "fallbackScopes": [],
+    "missingValues": [],
+    "diagnostics": [
+     {
+      "code": "WRITEBACK_DIENSTSTELLE_RESTORE_FAILED",
+      "message": "active Sicht/filter key mismatch for dienststelle restore"
+     }
+    ]
+   },
+   "r4": {
+    "ok": true,
+    "degraded": true,
+    "appliedScopes": [
+     "global"
+    ],
+    "fallbackScopes": [],
+    "missingValues": [
+     {
+      "scope": "global",
+      "value": "x"
+     }
+    ],
+    "diagnostics": [
+     {
+      "code": "WRITEBACK_DIENSTSTELLE_RESTORE_DISPLAY_DEGRADED",
+      "scope": "global",
+      "value": "&3]",
+      "message": "hierarchy display missing or ambiguous; transport-only d=u used"
+     }
+    ]
+   },
+   "r5": {
+    "appliedScopes": [],
+    "fallbackScopes": [],
+    "missingValues": [],
+    "ok": false,
+    "diagnostics": [
+     {
+      "code": "WRITEBACK_RESTORE_CANCELLED",
+      "message": "dienststelle parameterSet action requires a numeric runId"
+     }
+    ]
+   }
+  },
+  "state": {
+   "lifecycle": "ready",
+   "sicht": "DEZPV",
+   "key": "Dienststelle_DEZPV",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "active true  def=null conf=1700000000000 null",
+     "global": "cur=&3]|&3]|cognos|&3] bak= pend= obs=&3]|&3]|cognos|&3] at=1700000000000",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "inactive false  def=null conf=1700000000000 null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    }
+   },
+   "resolution": {
+    "scope": "global",
+    "dominant": [
+     "&3]|&3]|cognos|&3]"
+    ],
+    "downstream": [],
+    "byScope": {}
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": null,
+    "lastSichtChangeAt": 1700000000000,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [],
+    "pages": {}
+   },
+   "Dienststelle_DEZPV": {
+    "global": [
+     {
+      "d": "&3]",
+      "u": "&3]"
+     }
+    ],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Bundeswehr\",\"u\":\"&1]\"}]",
+   "write Dienststelle_BW tab0_tabpanel [{\"d\":\"Luftwaffe#1 | LW - Luft\",\"u\":\"&2]\"}]",
+   "abortTable [{\"tableName\":\"dienststelle_bw_hierarchy\"}]",
+   "write Dienststelle_BW global []",
+   "clear Dienststelle_BW tab0_tabpanel",
+   "clear Dienststelle_BW tab1_tabpanel",
+   "clear Dienststelle_BW tab2_tabpanel",
+   "write Dienststelle_DEZPV global [{\"d\":\"&3]\",\"u\":\"&3]\"}]"
+  ],
+  "pushes": [],
+  "widget": [],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 3,
+   "pendingPromises": {},
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "restoreTimeoutAndThrow": {
+  "out": {
+   "r": {
+    "ok": false,
+    "appliedScopes": [],
+    "fallbackScopes": [],
+    "missingValues": [],
+    "diagnostics": [
+     {
+      "code": "WRITEBACK_DIENSTSTELLE_RESTORE_FAILED",
+      "message": "hierarchy/default data wait timed out"
+     }
+    ]
+   }
+  },
+  "state": {
+   "lifecycle": "ready",
+   "sicht": null,
+   "key": null,
+   "error": null,
+   "filters": {},
+   "resolution": {
+    "scope": null,
+    "dominant": [],
+    "downstream": [],
+    "byScope": {}
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": null,
+    "lastSichtChangeAt": null,
+    "lastConfirmedAt": null
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": null,
+    "pages": {}
+   },
+   "Dienststelle_DEZPV": {
+    "global": null,
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]"
+  ],
+  "pushes": [],
+  "widget": [],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 1,
+   "pendingPromises": {},
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "tabMutationOperations": {
+  "out": {
+   "move": {
+    "prepare": {
+     "ok": true,
+     "operationId": "op11",
+     "snapshotScopes": [
+      "tab0_tabpanel",
+      "tab1_tabpanel",
+      "tab2_tabpanel"
+     ],
+     "diagnostics": []
+    },
+    "apply": {
+     "ok": true,
+     "operationId": "op11",
+     "appliedScopes": [
+      "tab1_tabpanel",
+      "tab2_tabpanel"
+     ],
+     "clearedScopes": [
+      "tab0_tabpanel",
+      "tab1_tabpanel"
+     ],
+     "diagnostics": []
+    },
+    "resync": {
+     "ok": true,
+     "operationId": "op11",
+     "diagnostics": []
+    },
+    "restore": {
+     "ok": true,
+     "operationId": "op11",
+     "restored": [
+      "tab0_tabpanel",
+      "tab1_tabpanel",
+      "tab2_tabpanel"
+     ],
+     "unrecoverable": [],
+     "diagnostics": []
+    },
+    "store": {
+     "Dienststelle_BW": {
+      "global": [
+       {
+        "d": "Default Org",
+        "u": "&1]"
+       }
+      ],
+      "pages": {
+       "tab1_tabpanel": [
+        {
+         "d": "Org D",
+         "u": "&3]"
+        }
+       ],
+       "tab0_tabpanel": [
+        {
+         "d": "Org C",
+         "u": "&4]"
+        }
+       ]
+      }
+     },
+     "Dienststelle_DEZPV": {
+      "global": [],
+      "pages": {}
+     }
+    },
+    "logLength": 26
+   },
+   "delete": {
+    "prepare": {
+     "ok": true,
+     "operationId": "op12",
+     "snapshotScopes": [
+      "tab2_tabpanel",
+      "tab1_tabpanel"
+     ],
+     "diagnostics": [],
+     "historySlice": {
+      "Dienststelle_BW": {
+       "currentValues": [
+        {
+         "displayValue": "Org D",
+         "useValue": "&3]",
+         "source": "cognos",
+         "hostDisplay": "Org D"
+        }
+       ],
+       "backupValues": [],
+       "pendingValues": [],
+       "lastObservedHostValues": [
+        {
+         "displayValue": "Org D",
+         "useValue": "&3]",
+         "source": "cognos",
+         "hostDisplay": "Org D"
+        }
+       ],
+       "lastConfirmedAt": 1700000000000
+      },
+      "Dienststelle_DEZPV": {
+       "currentValues": [],
+       "backupValues": [],
+       "pendingValues": [],
+       "lastObservedHostValues": [],
+       "lastConfirmedAt": 1700000000000
+      }
+     }
+    },
+    "apply": {
+     "ok": true,
+     "operationId": "op12",
+     "appliedScopes": [
+      "tab1_tabpanel"
+     ],
+     "clearedScopes": [
+      "tab1_tabpanel",
+      "tab2_tabpanel"
+     ],
+     "diagnostics": []
+    },
+    "resync": {
+     "ok": true,
+     "operationId": "op12",
+     "diagnostics": []
+    },
+    "restore": {
+     "ok": true,
+     "operationId": "op12",
+     "restored": [
+      "tab2_tabpanel",
+      "tab1_tabpanel"
+     ],
+     "unrecoverable": [],
+     "diagnostics": []
+    },
+    "store": {
+     "Dienststelle_BW": {
+      "global": [
+       {
+        "d": "Default Org",
+        "u": "&1]"
+       }
+      ],
+      "pages": {
+       "tab0_tabpanel": [
+        {
+         "d": "Org C",
+         "u": "&4]"
+        }
+       ],
+       "tab1_tabpanel": [
+        {
+         "d": "Org D",
+         "u": "&3]"
+        }
+       ]
+      }
+     },
+     "Dienststelle_DEZPV": {
+      "global": [],
+      "pages": {}
+     }
+    },
+    "logLength": 40
+   },
+   "duplicate": {
+    "prepare": {
+     "ok": true,
+     "operationId": "op13",
+     "snapshotScopes": [
+      "tab1_tabpanel",
+      "tab2_tabpanel",
+      "tab0_tabpanel"
+     ],
+     "diagnostics": [],
+     "historySlice": {
+      "Dienststelle_BW": {
+       "currentValues": [
+        {
+         "displayValue": "Org C",
+         "useValue": "&4]",
+         "source": "cognos",
+         "hostDisplay": "Org C"
+        }
+       ],
+       "backupValues": [],
+       "pendingValues": [],
+       "lastObservedHostValues": [
+        {
+         "displayValue": "Org C",
+         "useValue": "&4]",
+         "source": "cognos",
+         "hostDisplay": "Org C"
+        }
+       ],
+       "lastConfirmedAt": 1700000000000
+      },
+      "Dienststelle_DEZPV": {
+       "currentValues": [],
+       "backupValues": [],
+       "pendingValues": [],
+       "lastObservedHostValues": [],
+       "lastConfirmedAt": 1700000000000
+      }
+     }
+    },
+    "apply": {
+     "ok": true,
+     "operationId": "op13",
+     "appliedScopes": [
+      "tab2_tabpanel",
+      "tab1_tabpanel"
+     ],
+     "clearedScopes": [],
+     "diagnostics": []
+    },
+    "resync": {
+     "ok": true,
+     "operationId": "op13",
+     "diagnostics": []
+    },
+    "restore": {
+     "ok": true,
+     "operationId": "op13",
+     "restored": [
+      "tab1_tabpanel",
+      "tab2_tabpanel",
+      "tab0_tabpanel"
+     ],
+     "unrecoverable": [],
+     "diagnostics": []
+    },
+    "store": {
+     "Dienststelle_BW": {
+      "global": [
+       {
+        "d": "Default Org",
+        "u": "&1]"
+       }
+      ],
+      "pages": {
+       "tab0_tabpanel": [
+        {
+         "d": "Org C",
+         "u": "&4]"
+        }
+       ],
+       "tab1_tabpanel": [
+        {
+         "d": "Org D",
+         "u": "&3]"
+        }
+       ]
+      }
+     },
+     "Dienststelle_DEZPV": {
+      "global": [],
+      "pages": {}
+     }
+    },
+    "logLength": 54
+   },
+   "restoreDeleted": {
+    "prepare": {
+     "ok": true,
+     "operationId": "op14",
+     "snapshotScopes": [
+      "tab1_tabpanel",
+      "tab2_tabpanel"
+     ],
+     "diagnostics": []
+    },
+    "apply": {
+     "ok": true,
+     "operationId": "op14",
+     "appliedScopes": [
+      "tab2_tabpanel",
+      "tab1_tabpanel"
+     ],
+     "clearedScopes": [],
+     "diagnostics": []
+    },
+    "resync": {
+     "ok": true,
+     "operationId": "op14",
+     "diagnostics": []
+    },
+    "restore": {
+     "ok": true,
+     "operationId": "op14",
+     "restored": [
+      "tab1_tabpanel",
+      "tab2_tabpanel"
+     ],
+     "unrecoverable": [],
+     "diagnostics": []
+    },
+    "store": {
+     "Dienststelle_BW": {
+      "global": [
+       {
+        "d": "Default Org",
+        "u": "&1]"
+       }
+      ],
+      "pages": {
+       "tab0_tabpanel": [
+        {
+         "d": "Org C",
+         "u": "&4]"
+        }
+       ],
+       "tab1_tabpanel": [
+        {
+         "d": "Org D",
+         "u": "&3]"
+        }
+       ]
+      }
+     },
+     "Dienststelle_DEZPV": {
+      "global": [],
+      "pages": {}
+     }
+    },
+    "logLength": 66
+   }
+  },
+  "state": {
+   "lifecycle": "ready",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {
+      "tab0_tabpanel": "cur= bak= pend= obs= at=1700000000000",
+      "tab1_tabpanel": "cur= bak= pend= obs= at=1700000000000",
+      "tab2_tabpanel": "cur= bak= pend= obs= at=1700000000000"
+     }
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=1700000000000 conf=1700000000000 null",
+     "global": "cur=Default Org|&1]|cognos|Default Org bak= pend= obs=Default Org|&1]|cognos|Default Org at=1700000000000",
+     "pages": {
+      "tab0_tabpanel": "cur=Org C|&4]|cognos|Org C bak= pend= obs=Org C|&4]|cognos|Org C at=1700000000000",
+      "tab1_tabpanel": "cur=Org D|&3]|cognos|Org D bak= pend= obs=Org D|&3]|cognos|Org D at=1700000000000",
+      "tab2_tabpanel": "cur= bak= pend= obs= at=1700000000000"
+     }
+    }
+   },
+   "resolution": {
+    "scope": "global",
+    "dominant": [
+     "Default Org|&1]|cognos|Default Org"
+    ],
+    "downstream": [],
+    "byScope": {
+     "tab0_tabpanel": [
+      "Org C|&4]|cognos|Org C"
+     ],
+     "tab1_tabpanel": [
+      "Org D|&3]|cognos|Org D"
+     ]
+    }
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": null,
+    "lastSichtChangeAt": 5,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [
+     {
+      "d": "Default Org",
+      "u": "&1]"
+     }
+    ],
+    "pages": {
+     "tab0_tabpanel": [
+      {
+       "d": "Org C",
+       "u": "&4]"
+      }
+     ],
+     "tab1_tabpanel": [
+      {
+       "d": "Org D",
+       "u": "&3]"
+      }
+     ]
+    }
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]",
+   "clear Dienststelle_BW tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_BW tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"Org C\",\"u\":\"&4]\"}]",
+   "write Dienststelle_DEZPV tab1_tabpanel []",
+   "write Dienststelle_BW tab2_tabpanel [{\"d\":\"Org D\",\"u\":\"&3]\"}]",
+   "write Dienststelle_DEZPV tab2_tabpanel []",
+   "write Dienststelle_BW tab0_tabpanel []",
+   "write Dienststelle_DEZPV tab0_tabpanel []",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"Org C\",\"u\":\"&4]\"}]",
+   "write Dienststelle_DEZPV tab1_tabpanel []",
+   "write Dienststelle_BW tab2_tabpanel [{\"d\":\"Org D\",\"u\":\"&3]\"}]",
+   "write Dienststelle_DEZPV tab2_tabpanel []",
+   "write Dienststelle_BW tab0_tabpanel [{\"d\":\"Org C\",\"u\":\"&4]\"}]",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"Org D\",\"u\":\"&3]\"}]",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_BW tab2_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "clear Dienststelle_BW tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "write Dienststelle_BW tab1_tabpanel []",
+   "clear Dienststelle_BW tab2_tabpanel",
+   "write Dienststelle_DEZPV tab1_tabpanel []",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW tab2_tabpanel []",
+   "write Dienststelle_DEZPV tab2_tabpanel []",
+   "write Dienststelle_BW tab1_tabpanel []",
+   "write Dienststelle_DEZPV tab1_tabpanel []",
+   "clear Dienststelle_BW tab2_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"Org D\",\"u\":\"&3]\"}]",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "write Dienststelle_BW tab2_tabpanel [{\"d\":\"Org D\",\"u\":\"&3]\"}]",
+   "write Dienststelle_DEZPV tab2_tabpanel []",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"Org C\",\"u\":\"&4]\"}]",
+   "write Dienststelle_DEZPV tab1_tabpanel []",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"Org C\",\"u\":\"&4]\"}]",
+   "write Dienststelle_DEZPV tab1_tabpanel []",
+   "write Dienststelle_BW tab2_tabpanel [{\"d\":\"Org D\",\"u\":\"&3]\"}]",
+   "write Dienststelle_DEZPV tab2_tabpanel []",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"Org D\",\"u\":\"&3]\"}]",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_BW tab2_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW tab0_tabpanel [{\"d\":\"Org C\",\"u\":\"&4]\"}]",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "write Dienststelle_BW tab2_tabpanel [{\"d\":\"Org D\",\"u\":\"&3]\"}]",
+   "write Dienststelle_DEZPV tab2_tabpanel []",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"R\",\"u\":\"r\"}]",
+   "write Dienststelle_DEZPV tab1_tabpanel []",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"R\",\"u\":\"r\"}]",
+   "write Dienststelle_DEZPV tab1_tabpanel []",
+   "write Dienststelle_BW tab2_tabpanel [{\"d\":\"Org D\",\"u\":\"&3]\"}]",
+   "write Dienststelle_DEZPV tab2_tabpanel []",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"Org D\",\"u\":\"&3]\"}]",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_BW tab2_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel"
+  ],
+  "pushes": [],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Default Org"
+  ],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 0,
+   "pendingPromises": {
+    "hierarchyWarmup": {}
+   },
+   "subscriptions": {},
+   "tabMutationRunId": 14,
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "tabMutationRejections": {
+  "out": {
+   "noPlan": {
+    "prepare": {
+     "ok": false,
+     "operationId": "op21",
+     "snapshotScopes": [],
+     "diagnostics": [
+      {
+       "code": "TABS_MUTATION_PREPARE_FAILED",
+       "message": "tab mutation plan is missing"
+      }
+     ]
+    },
+    "apply": {
+     "ok": false,
+     "operationId": "op21",
+     "appliedScopes": [],
+     "clearedScopes": [],
+     "diagnostics": [
+      {
+       "code": "TABS_MUTATION_APPLY_FAILED",
+       "message": "dienststelle apply supports delete, move, duplicate, and restoreDeleted"
+      }
+     ]
+    },
+    "restore": {
+     "ok": true,
+     "operationId": "op21",
+     "restored": [],
+     "unrecoverable": [],
+     "diagnostics": []
+    }
+   },
+   "unknownOp": {
+    "prepare": {
+     "ok": true,
+     "operationId": "op22",
+     "snapshotScopes": [],
+     "diagnostics": []
+    },
+    "apply": {
+     "ok": false,
+     "operationId": "op22",
+     "appliedScopes": [],
+     "clearedScopes": [],
+     "diagnostics": [
+      {
+       "code": "TABS_MUTATION_APPLY_FAILED",
+       "message": "dienststelle apply supports delete, move, duplicate, and restoreDeleted"
+      }
+     ]
+    },
+    "restore": {
+     "ok": true,
+     "operationId": "op22",
+     "restored": [],
+     "unrecoverable": [],
+     "diagnostics": []
+    }
+   },
+   "badSlot": {
+    "prepare": {
+     "ok": false,
+     "operationId": "op23",
+     "snapshotScopes": [],
+     "diagnostics": [
+      {
+       "code": "TABS_MUTATION_PREPARE_FAILED",
+       "message": "scopeId could not be resolved for tabIdx 9",
+       "tabId": null
+      }
+     ]
+    },
+    "apply": {
+     "ok": false,
+     "operationId": "op23",
+     "appliedScopes": [],
+     "clearedScopes": [],
+     "diagnostics": [
+      {
+       "code": "TABS_MUTATION_APPLY_FAILED",
+       "message": "dienststelle prepare snapshot missing"
+      }
+     ]
+    },
+    "restore": {
+     "ok": true,
+     "operationId": "op23",
+     "restored": [],
+     "unrecoverable": [],
+     "diagnostics": []
+    }
+   },
+   "moveBadFrom": {
+    "prepare": {
+     "ok": false,
+     "operationId": "op24",
+     "snapshotScopes": [],
+     "diagnostics": [
+      {
+       "code": "TABS_MUTATION_PREPARE_FAILED",
+       "message": "scopeId could not be resolved for tabIdx 7",
+       "tabId": null
+      }
+     ]
+    },
+    "apply": {
+     "ok": false,
+     "operationId": "op24",
+     "appliedScopes": [],
+     "clearedScopes": [],
+     "diagnostics": [
+      {
+       "code": "TABS_MUTATION_APPLY_FAILED",
+       "message": "dienststelle prepare snapshot missing"
+      }
+     ]
+    },
+    "restore": {
+     "ok": true,
+     "operationId": "op24",
+     "restored": [],
+     "unrecoverable": [],
+     "diagnostics": []
+    }
+   },
+   "guard": {
+    "ok": false,
+    "operationId": null,
+    "appliedScopes": [],
+    "clearedScopes": [],
+    "diagnostics": [
+     {
+      "code": "TABS_MUTATION_CANCELLED",
+      "message": "dienststelle tab mutation requires runId and operationId",
+      "currentRunId": 24
+     }
+    ]
+   },
+   "stale": {
+    "ok": false,
+    "operationId": "o",
+    "snapshotScopes": [],
+    "diagnostics": [
+     {
+      "code": "TABS_MUTATION_CANCELLED",
+      "message": "dienststelle tab mutation run was superseded",
+      "runId": 1,
+      "currentRunId": 24
+     }
+    ]
+   }
+  },
+  "state": {
+   "lifecycle": "ready",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=1700000000000 conf=1700000000000 null",
+     "global": "cur=Default Org|&1]|cognos|Default Org bak= pend= obs=Default Org|&1]|cognos|Default Org at=1700000000000",
+     "pages": {
+      "tab0_tabpanel": "cur=Org C|&4]|cognos|Org C bak= pend= obs=Org C|&4]|cognos|Org C at=1700000000000"
+     }
+    }
+   },
+   "resolution": {
+    "scope": "global",
+    "dominant": [
+     "Default Org|&1]|cognos|Default Org"
+    ],
+    "downstream": [],
+    "byScope": {
+     "tab0_tabpanel": [
+      "Org C|&4]|cognos|Org C"
+     ]
+    }
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": null,
+    "lastSichtChangeAt": 5,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [
+     {
+      "d": "Default Org",
+      "u": "&1]"
+     }
+    ],
+    "pages": {
+     "tab0_tabpanel": [
+      {
+       "d": "Org C",
+       "u": "&4]",
+       "hostDisplay": ""
+      }
+     ]
+    }
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]"
+  ],
+  "pushes": [],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Default Org"
+  ],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 0,
+   "pendingPromises": {
+    "hierarchyWarmup": {}
+   },
+   "subscriptions": {},
+   "tabMutationRunId": 24,
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "startupWithHostValues": {
+  "out": {
+   "page": {
+    "activeDownstreamName": "Dienststelle_BW",
+    "filterId": "Dienststelle_BW",
+    "filterLabel": "Dienststelle",
+    "visibleFilterLabel": "Dienststelle",
+    "hierarchyItemId": "[metrics_TM1].[Dienststelle].[Dienststelle].[Dienststelle_BW]",
+    "activeHierarchyTableKey": "dienststelle_bw_hierarchy",
+    "resolution": {
+     "hasConfirmedSelection": true,
+     "dominantValues": [
+      "[metrics_TM1].[Org].[Org].&[1]"
+     ],
+     "downstreamValues": [
+      "[metrics_TM1].[Org].[Org].&[1]"
+     ],
+     "displayValues": [
+      "Gx"
+     ],
+     "hostDisplayValues": [
+      "G#1 | X - Gx"
+     ],
+     "dominantScopeKey": "global",
+     "resolvedAt": 1700000000000
+    },
+    "source": "dienststelle"
+   },
+   "global": {
+    "activeDownstreamName": "Dienststelle_BW",
+    "filterId": "Dienststelle_BW",
+    "filterLabel": "Dienststelle",
+    "visibleFilterLabel": "Dienststelle",
+    "hierarchyItemId": "[metrics_TM1].[Dienststelle].[Dienststelle].[Dienststelle_BW]",
+    "activeHierarchyTableKey": "dienststelle_bw_hierarchy",
+    "resolution": {
+     "hasConfirmedSelection": true,
+     "dominantValues": [
+      "[metrics_TM1].[Org].[Org].&[1]"
+     ],
+     "downstreamValues": [
+      "[metrics_TM1].[Org].[Org].&[1]"
+     ],
+     "displayValues": [
+      "Gx"
+     ],
+     "hostDisplayValues": [
+      "G#1 | X - Gx"
+     ],
+     "dominantScopeKey": "global",
+     "resolvedAt": 1700000000000
+    },
+    "source": "dienststelle"
+   },
+   "state": {
+    "lifecycle": "ready",
+    "sicht": "BW",
+    "key": "Dienststelle_BW",
+    "error": null,
+    "filters": {
+     "Dienststelle_DEZPV": {
+      "head": "inactive false  def=null conf=null null",
+      "global": "cur= bak= pend= obs= at=null",
+      "pages": {}
+     },
+     "Dienststelle_BW": {
+      "head": "active true  def=null conf=1700000000000 null",
+      "global": "cur=Gx|&1]|cognos|G#1 | X - Gx bak= pend= obs=Gx|&1]|cognos|G#1 | X - Gx at=1700000000000",
+      "pages": {
+       "tab1_tabpanel": "cur=P|&2]|cognos|P bak= pend= obs=P|&2]|cognos|P at=1700000000000"
+      }
+     }
+    },
+    "resolution": {
+     "scope": "global",
+     "dominant": [
+      "Gx|&1]|cognos|G#1 | X - Gx"
+     ],
+     "downstream": [],
+     "byScope": {
+      "tab1_tabpanel": [
+       "P|&2]|cognos|P"
+      ]
+     }
+    },
+    "meta": {
+     "lastFilterDockHandoffAt": null,
+     "lastSichtChangeAt": 5,
+     "lastConfirmedAt": 1700000000000
+    },
+    "replay": {
+     "isApplyingHistory": false,
+     "lastAppliedAt": null
+    }
+   }
+  },
+  "state": {
+   "lifecycle": "ready",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=null conf=1700000000000 null",
+     "global": "cur=Gx|&1]|cognos|G#1 | X - Gx bak= pend= obs=Gx|&1]|cognos|G#1 | X - Gx at=1700000000000",
+     "pages": {
+      "tab1_tabpanel": "cur=P|&2]|cognos|P bak= pend= obs=P|&2]|cognos|P at=1700000000000"
+     }
+    }
+   },
+   "resolution": {
+    "scope": "global",
+    "dominant": [
+     "Gx|&1]|cognos|G#1 | X - Gx"
+    ],
+    "downstream": [],
+    "byScope": {
+     "tab1_tabpanel": [
+      "P|&2]|cognos|P"
+     ]
+    }
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": null,
+    "lastSichtChangeAt": 5,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [
+     {
+      "d": "G#1 | X - Gx",
+      "u": "&1]"
+     }
+    ],
+    "pages": {
+     "tab1_tabpanel": [
+      {
+       "d": "P",
+       "u": "&2]"
+      }
+     ]
+    }
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel"
+  ],
+  "pushes": [],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Gx|&1]|user|G#1 | X - Gx sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Gx"
+  ],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 0,
+   "pendingPromises": {
+    "hierarchyWarmup": {}
+   },
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "dockEvents": {
+  "out": {
+   "results": [
+    {
+     "lifecycle": "ready",
+     "errorCode": null
+    },
+    {
+     "lifecycle": "ready",
+     "errorCode": null
+    },
+    {
+     "lifecycle": "ready",
+     "errorCode": null
+    },
+    {
+     "lifecycle": "ready",
+     "errorCode": null
+    },
+    {
+     "lifecycle": "ready",
+     "errorCode": null
+    },
+    {
+     "lifecycle": "ready",
+     "errorCode": null
+    },
+    {
+     "lifecycle": "error",
+     "errorCode": "E"
+    },
+    {
+     "lifecycle": "error",
+     "errorCode": "E"
+    },
+    {
+     "lifecycle": "error",
+     "errorCode": "E"
+    },
+    {
+     "lifecycle": "error",
+     "errorCode": "E"
+    }
+   ]
+  },
+  "state": {
+   "lifecycle": "error",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": "E",
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=1700000000000 conf=null null",
+     "global": "cur=Default Org|&1]|default| bak= pend= obs=Default Org|&1]|default| at=1700000000000",
+     "pages": {}
+    }
+   },
+   "resolution": {
+    "scope": "global",
+    "dominant": [
+     "Default Org|&1]|default|"
+    ],
+    "downstream": [],
+    "byScope": {}
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": 1700000000000,
+    "lastSichtChangeAt": 5,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [
+     {
+      "d": "Default Org",
+      "u": "&1]"
+     }
+    ],
+    "pages": {}
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]"
+  ],
+  "pushes": [],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Default Org"
+  ],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "lastPendingIntent": "clear",
+   "lastPendingIntentScope": "pageContext",
+   "lastPendingIntentScopeId": "tab0_tabpanel",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 0,
+   "pendingPromises": {
+    "hierarchyWarmup": {}
+   },
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "sichtSwitch": {
+  "out": {},
+  "state": {
+   "lifecycle": "ready",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=1700000000000 conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=1700000000000 conf=null null",
+     "global": "cur=Default Org|&1]|default| bak= pend= obs=Default Org|&1]|default| at=1700000000000",
+     "pages": {}
+    }
+   },
+   "resolution": {
+    "scope": "global",
+    "dominant": [
+     "Default Org|&1]|default|"
+    ],
+    "downstream": [],
+    "byScope": {}
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": null,
+    "lastSichtChangeAt": 7,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [
+     {
+      "d": "Default Org",
+      "u": "&1]"
+     }
+    ],
+    "pages": {}
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]",
+   "abortTable [{\"tableName\":\"dienststelle_bw_hierarchy\"}]",
+   "write Dienststelle_BW global []",
+   "clear Dienststelle_BW tab0_tabpanel",
+   "clear Dienststelle_BW tab1_tabpanel",
+   "clear Dienststelle_BW tab2_tabpanel",
+   "write Dienststelle_DEZPV global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]",
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]"
+  ],
+  "pushes": [],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Default Org",
+   "widgetVis/dienststelleChanged global/global Dienststelle_DEZPV Default Org|&1]|default| user 6 [metrics_TM1].[Org].[Org].&[1] Default Org",
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| user 7 [metrics_TM1].[Org].[Org].&[1] Default Org"
+  ],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 0,
+   "pendingPromises": {
+    "hierarchyWarmup": {}
+   },
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "tableDataSnapshots": {
+  "out": {
+   "active": {
+    "activeDownstreamName": "Dienststelle_BW",
+    "filterId": "Dienststelle_BW",
+    "filterLabel": "Dienststelle",
+    "visibleFilterLabel": "Dienststelle",
+    "hierarchyItemId": "[metrics_TM1].[Dienststelle].[Dienststelle].[Dienststelle_BW]",
+    "activeHierarchyTableKey": "dienststelle_bw_hierarchy",
+    "resolution": {
+     "hasConfirmedSelection": true,
+     "dominantValues": [
+      "[metrics_TM1].[Org].[Org].&[1]"
+     ],
+     "downstreamValues": [
+      "[metrics_TM1].[Org].[Org].&[1]"
+     ],
+     "displayValues": [
+      "Org A"
+     ],
+     "hostDisplayValues": [
+      "Org A"
+     ],
+     "dominantScopeKey": "global",
+     "resolvedAt": 1700000000000
+    },
+    "source": "dienststelle"
+   },
+   "scoped": {
+    "activeDownstreamName": "Dienststelle_BW",
+    "filterId": "Dienststelle_BW",
+    "filterLabel": "Dienststelle",
+    "visibleFilterLabel": "Dienststelle",
+    "hierarchyItemId": "[metrics_TM1].[Dienststelle].[Dienststelle].[Dienststelle_BW]",
+    "activeHierarchyTableKey": "dienststelle_bw_hierarchy",
+    "resolution": {
+     "hasConfirmedSelection": true,
+     "dominantValues": [
+      "[metrics_TM1].[Org].[Org].&[1]"
+     ],
+     "downstreamValues": [
+      "[metrics_TM1].[Org].[Org].&[1]"
+     ],
+     "displayValues": [
+      "Org A"
+     ],
+     "hostDisplayValues": [
+      "Org A"
+     ],
+     "dominantScopeKey": "global",
+     "resolvedAt": 1700000000000
+    },
+    "source": "dienststelle"
+   },
+   "none": {
+    "activeDownstreamName": "Dienststelle_BW",
+    "filterId": "Dienststelle_BW",
+    "filterLabel": "Dienststelle",
+    "visibleFilterLabel": "Dienststelle",
+    "hierarchyItemId": "[metrics_TM1].[Dienststelle].[Dienststelle].[Dienststelle_BW]",
+    "activeHierarchyTableKey": "dienststelle_bw_hierarchy",
+    "resolution": {
+     "hasConfirmedSelection": true,
+     "dominantValues": [
+      "[metrics_TM1].[Org].[Org].&[1]"
+     ],
+     "downstreamValues": [
+      "[metrics_TM1].[Org].[Org].&[1]"
+     ],
+     "displayValues": [
+      "Org A"
+     ],
+     "hostDisplayValues": [
+      "Org A"
+     ],
+     "dominantScopeKey": "global",
+     "resolvedAt": 1700000000000
+    },
+    "source": "dienststelle"
+   },
+   "busyAddedLogs": 0
+  },
+  "state": {
+   "lifecycle": "ready",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=1700000000000 conf=1700000000000 null",
+     "global": "cur=Org A|&1]|cognos|Org A bak= pend= obs=Org A|&1]|cognos|Org A at=1700000000000",
+     "pages": {
+      "tab0_tabpanel": "cur=Org C|&4]|cognos|Org C bak= pend= obs=Org C|&4]|cognos|Org C at=1700000000000"
+     }
+    }
+   },
+   "resolution": {
+    "scope": "global",
+    "dominant": [
+     "Org A|&1]|cognos|Org A"
+    ],
+    "downstream": [],
+    "byScope": {
+     "tab0_tabpanel": [
+      "Org C|&4]|cognos|Org C"
+     ]
+    }
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": null,
+    "lastSichtChangeAt": 5,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [
+     {
+      "d": "Org A",
+      "u": "&1]",
+      "hostDisplay": "Org A"
+     }
+    ],
+    "pages": {
+     "tab0_tabpanel": [
+      {
+       "d": "Org C",
+       "u": "&4]",
+       "hostDisplay": ""
+      }
+     ]
+    }
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]"
+  ],
+  "pushes": [],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Default Org"
+  ],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 0,
+   "pendingPromises": {
+    "hierarchyWarmup": {}
+   },
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "destroyDuringConfirm": {
+  "out": {},
+  "state": {
+   "lifecycle": "disposed",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=1700000000000 conf=1700000000000 null",
+     "global": "cur=Org A|&1]|cognos|Org A bak= pend= obs=Org A|&1]|cognos|Org A at=1700000000000",
+     "pages": {}
+    }
+   },
+   "resolution": {
+    "scope": "global",
+    "dominant": [
+     "Org A|&1]|cognos|Org A"
+    ],
+    "downstream": [],
+    "byScope": {}
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": 9,
+    "lastSichtChangeAt": 5,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [
+     {
+      "d": "Org A",
+      "u": "&1]",
+      "hostDisplay": "Org A"
+     }
+    ],
+    "pages": {}
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]"
+  ],
+  "pushes": [
+   {
+    "key": "filter_dienststelle",
+    "timestamp": 1700000000000,
+    "old": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [
+       {
+        "displayValue": "Org A",
+        "useValue": "&1]",
+        "source": "cognos",
+        "hostDisplay": "Org A"
+       }
+      ],
+      "pageContext": {
+       "tab0_tabpanel": [],
+       "tab1_tabpanel": [],
+       "tab2_tabpanel": []
+      }
+     }
+    },
+    "new": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [
+       {
+        "displayValue": "Org A",
+        "useValue": "&1]",
+        "source": "cognos",
+        "hostDisplay": "Org A"
+       }
+      ],
+      "pageContext": {}
+     }
+    }
+   }
+  ],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Default Org",
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Org A|&1]|user|Org A user 9 [metrics_TM1].[Org].[Org].&[1] Org A"
+  ],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "undefined",
+   "lastPendingIntent": "confirm",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 0,
+   "pendingPromises": {},
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "historyReplay": {
+  "out": {
+   "r1": true,
+   "r2": false,
+   "r3": true,
+   "r4": true,
+   "r5": true,
+   "r6": false
+  },
+  "state": {
+   "lifecycle": "ready",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=1700000000000 null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=1700000000000 conf=1700000000000 null",
+     "global": "cur=A|&1]|cognos|A bak= pend= obs=A|&1]|cognos|A at=1700000000000",
+     "pages": {
+      "tab1_tabpanel": "cur=B|&2]|cognos|B bak= pend= obs=B|&2]|cognos|B at=1700000000000"
+     }
+    }
+   },
+   "resolution": {
+    "scope": "global",
+    "dominant": [
+     "A|&1]|cognos|A"
+    ],
+    "downstream": [],
+    "byScope": {
+     "tab1_tabpanel": [
+      "B|&2]|cognos|B"
+     ]
+    }
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": null,
+    "lastSichtChangeAt": 3,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": 1700000000000
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [
+     {
+      "d": "A",
+      "u": "&1]"
+     }
+    ],
+    "pages": {
+     "tab1_tabpanel": [
+      {
+       "d": "B",
+       "u": "&2]"
+      }
+     ]
+    }
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]",
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"A\",\"u\":\"&1]\"}]",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"B\",\"u\":\"&2]\"}]",
+   "clear Dienststelle_BW tab0_tabpanel",
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"A\",\"u\":\"&1]\"}]",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"B\",\"u\":\"&2]\"}]",
+   "abortTable [{\"tableName\":\"dienststelle_bw_hierarchy\"}]",
+   "write Dienststelle_BW global []",
+   "clear Dienststelle_BW tab0_tabpanel",
+   "clear Dienststelle_BW tab1_tabpanel",
+   "clear Dienststelle_BW tab2_tabpanel",
+   "write Dienststelle_DEZPV global [{\"d\":\"Z\",\"u\":\"z\"}]",
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"A\",\"u\":\"&1]\"}]",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"B\",\"u\":\"&2]\"}]",
+   "clear Dienststelle_BW tab0_tabpanel"
+  ],
+  "pushes": [],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Default Org",
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW A|&1]|historyReplay|A historyReplay 77 [metrics_TM1].[Org].[Org].&[1] A",
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW A|&1]|historyReplay|A historyReplay 1700000000000 [metrics_TM1].[Org].[Org].&[1] A",
+   "widgetVis/dienststelleChanged global/global Dienststelle_DEZPV Z|z|historyReplay|Z historyReplay 1700000000000 z Z",
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW A|&1]|historyReplay|A historyReplay 3 [metrics_TM1].[Org].[Org].&[1] A"
+  ],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 0,
+   "pendingPromises": {
+    "hierarchyWarmup": {}
+   },
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 1,
+   "userCommitHopSeq": null
+  }
+ },
+ "destroyInNotifyWindow": {
+  "out": {
+   "before": [
+    "userNotify"
+   ],
+   "after": [],
+   "widgetCount": 1
+  },
+  "state": {
+   "lifecycle": "disposed",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=1700000000000 conf=1700000000000 null",
+     "global": "cur=Org A|&1]|cognos|Org A bak= pend= obs=Org A|&1]|cognos|Org A at=1700000000000",
+     "pages": {}
+    }
+   },
+   "resolution": {
+    "scope": "global",
+    "dominant": [
+     "Org A|&1]|cognos|Org A"
+    ],
+    "downstream": [],
+    "byScope": {}
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": 9,
+    "lastSichtChangeAt": 5,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [
+     {
+      "d": "Org A",
+      "u": "&1]",
+      "hostDisplay": "Org A"
+     }
+    ],
+    "pages": {}
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]"
+  ],
+  "pushes": [
+   {
+    "key": "filter_dienststelle",
+    "timestamp": 1700000000000,
+    "old": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [
+       {
+        "displayValue": "Org A",
+        "useValue": "&1]",
+        "source": "cognos",
+        "hostDisplay": "Org A"
+       }
+      ],
+      "pageContext": {
+       "tab0_tabpanel": [],
+       "tab1_tabpanel": [],
+       "tab2_tabpanel": []
+      }
+     }
+    },
+    "new": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [
+       {
+        "displayValue": "Org A",
+        "useValue": "&1]",
+        "source": "cognos",
+        "hostDisplay": "Org A"
+       }
+      ],
+      "pageContext": {}
+     }
+    }
+   }
+  ],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Default Org"
+  ],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "undefined",
+   "lastPendingIntent": "confirm",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 0,
+   "pendingPromises": {},
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "confirmGlobalClearConfirm": {
+  "out": {
+   "widgetBeforeDeferral": 0,
+   "widgetAfterDeferral": 1,
+   "firstWidget": {
+    "type": "widgetVis/dienststelleChanged",
+    "payload": {
+     "filterId": "global__Dienststelle",
+     "filterLabel": "Dienststelle",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "scopeType": "global",
+     "scopeId": "global",
+     "selection": {
+      "displayValue": "Default Org",
+      "useValue": "&1]",
+      "source": "default",
+      "hostDisplay": ""
+     },
+     "hierarchySnapshot": {
+      "activeDownstreamName": "Dienststelle_BW",
+      "filterId": "Dienststelle_BW",
+      "filterLabel": "Dienststelle",
+      "visibleFilterLabel": "Dienststelle",
+      "hierarchyItemId": "[metrics_TM1].[Dienststelle].[Dienststelle].[Dienststelle_BW]",
+      "activeHierarchyTableKey": "dienststelle_bw_hierarchy",
+      "resolution": {
+       "hasConfirmedSelection": true,
+       "dominantValues": [
+        "[metrics_TM1].[Org].[Org].&[1]"
+       ],
+       "downstreamValues": [
+        "[metrics_TM1].[Org].[Org].&[1]"
+       ],
+       "displayValues": [
+        "Default Org"
+       ],
+       "hostDisplayValues": [
+        ""
+       ],
+       "dominantScopeKey": "global",
+       "resolvedAt": 1700000000000
+      },
+      "source": "dienststelle"
+     },
+     "source": "sichtDefault",
+     "observedAt": 5
+    }
+   },
+   "firstPush": {
+    "key": "filter_dienststelle",
+    "timestamp": 1700000000000,
+    "old": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [
+       {
+        "displayValue": "Org A",
+        "useValue": "&1]",
+        "source": "cognos",
+        "hostDisplay": "Org A"
+       }
+      ],
+      "pageContext": {
+       "tab0_tabpanel": [],
+       "tab1_tabpanel": [],
+       "tab2_tabpanel": []
+      }
+     }
+    },
+    "new": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [
+       {
+        "displayValue": "Org A",
+        "useValue": "&1]",
+        "source": "cognos",
+        "hostDisplay": "Org A"
+       }
+      ],
+      "pageContext": {}
+     }
+    }
+   }
+  },
+  "state": {
+   "lifecycle": "ready",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=1700000000000 conf=1700000000000 null",
+     "global": "cur= bak= pend= obs= at=1700000000000",
+     "pages": {
+      "tab0_tabpanel": "cur=Default Org|&1]|default| bak= pend= obs=Default Org|&1]|default| at=1700000000000",
+      "tab1_tabpanel": "cur=Default Org|&1]|default| bak= pend= obs=Default Org|&1]|default| at=1700000000000",
+      "tab2_tabpanel": "cur=Default Org|&1]|default| bak= pend= obs=Default Org|&1]|default| at=1700000000000"
+     }
+    }
+   },
+   "resolution": {
+    "scope": null,
+    "dominant": [],
+    "downstream": [],
+    "byScope": {
+     "tab0_tabpanel": [
+      "Default Org|&1]|default|"
+     ],
+     "tab1_tabpanel": [
+      "Default Org|&1]|default|"
+     ],
+     "tab2_tabpanel": [
+      "Default Org|&1]|default|"
+     ]
+    }
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": 11,
+    "lastSichtChangeAt": 5,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": null,
+    "pages": {
+     "tab0_tabpanel": [
+      {
+       "d": "Default Org",
+       "u": "&1]"
+      }
+     ],
+     "tab1_tabpanel": [
+      {
+       "d": "Default Org",
+       "u": "&1]"
+      }
+     ],
+     "tab2_tabpanel": [
+      {
+       "d": "Default Org",
+       "u": "&1]"
+      }
+     ]
+    }
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]",
+   "write Dienststelle_BW tab0_tabpanel [{\"d\":\"Default Org\",\"u\":\"&1]\"}]",
+   "write Dienststelle_BW tab1_tabpanel [{\"d\":\"Default Org\",\"u\":\"&1]\"}]",
+   "write Dienststelle_BW tab2_tabpanel [{\"d\":\"Default Org\",\"u\":\"&1]\"}]"
+  ],
+  "pushes": [
+   {
+    "key": "filter_dienststelle",
+    "timestamp": 1700000000000,
+    "old": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [
+       {
+        "displayValue": "Org A",
+        "useValue": "&1]",
+        "source": "cognos",
+        "hostDisplay": "Org A"
+       }
+      ],
+      "pageContext": {
+       "tab0_tabpanel": [],
+       "tab1_tabpanel": [],
+       "tab2_tabpanel": []
+      }
+     }
+    },
+    "new": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [
+       {
+        "displayValue": "Org A",
+        "useValue": "&1]",
+        "source": "cognos",
+        "hostDisplay": "Org A"
+       }
+      ],
+      "pageContext": {}
+     }
+    }
+   },
+   {
+    "key": "filter_dienststelle",
+    "timestamp": 1700000000000,
+    "old": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [],
+      "pageContext": {
+       "tab0_tabpanel": [],
+       "tab1_tabpanel": [],
+       "tab2_tabpanel": []
+      }
+     }
+    },
+    "new": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [],
+      "pageContext": {
+       "tab0_tabpanel": [
+        {
+         "displayValue": "Default Org",
+         "useValue": "&1]",
+         "source": "default",
+         "hostDisplay": ""
+        }
+       ],
+       "tab1_tabpanel": [
+        {
+         "displayValue": "Default Org",
+         "useValue": "&1]",
+         "source": "default",
+         "hostDisplay": ""
+        }
+       ],
+       "tab2_tabpanel": [
+        {
+         "displayValue": "Default Org",
+         "useValue": "&1]",
+         "source": "default",
+         "hostDisplay": ""
+        }
+       ]
+      }
+     }
+    }
+   }
+  ],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Default Org",
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Org A|&1]|user|Org A user 9 [metrics_TM1].[Org].[Org].&[1] Org A",
+   "widgetVis/dienststelleChanged pageContext/tab0_tabpanel Dienststelle_BW Default Org|&1]|default| user 11 [metrics_TM1].[Org].[Org].&[1] Default Org"
+  ],
+  "messages": [
+   [
+    "notify",
+    {
+     "code": "DIENSTSTELLE_EMPTY_OK_DEFAULT",
+     "message": "Auswahl fuer Dienststelle noetig",
+     "severity": "info"
+    }
+   ]
+  ],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "lastPendingIntent": "confirm",
+   "lastPendingIntentScope": "global",
+   "lastPendingIntentScopeId": null,
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 0,
+   "pendingPromises": {
+    "hierarchyWarmup": {}
+   },
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ },
+ "confirmPageClearConfirm": {
+  "out": {},
+  "state": {
+   "lifecycle": "ready",
+   "sicht": "BW",
+   "key": "Dienststelle_BW",
+   "error": null,
+   "filters": {
+    "Dienststelle_DEZPV": {
+     "head": "inactive false  def=null conf=null null",
+     "global": "cur= bak= pend= obs= at=null",
+     "pages": {}
+    },
+    "Dienststelle_BW": {
+     "head": "active true  def=1700000000000 conf=1700000000000 null",
+     "global": "cur=Default Org|&1]|cognos|Default Org bak= pend= obs=Default Org|&1]|cognos|Default Org at=1700000000000",
+     "pages": {
+      "tab1_tabpanel": "cur= bak= pend= obs= at=1700000000000"
+     }
+    }
+   },
+   "resolution": {
+    "scope": "global",
+    "dominant": [
+     "Default Org|&1]|cognos|Default Org"
+    ],
+    "downstream": [],
+    "byScope": {}
+   },
+   "meta": {
+    "lastFilterDockHandoffAt": 11,
+    "lastSichtChangeAt": 5,
+    "lastConfirmedAt": 1700000000000
+   },
+   "replay": {
+    "isApplyingHistory": false,
+    "lastAppliedAt": null
+   }
+  },
+  "store": {
+   "Dienststelle_BW": {
+    "global": [
+     {
+      "d": "Default Org",
+      "u": "&1]"
+     }
+    ],
+    "pages": {
+     "tab1_tabpanel": null
+    }
+   },
+   "Dienststelle_DEZPV": {
+    "global": [],
+    "pages": {}
+   }
+  },
+  "log": [
+   "abortTable [{\"tableName\":\"dienststelle_dezpv_hierarchy\"}]",
+   "write Dienststelle_DEZPV global []",
+   "clear Dienststelle_DEZPV tab0_tabpanel",
+   "clear Dienststelle_DEZPV tab1_tabpanel",
+   "clear Dienststelle_DEZPV tab2_tabpanel",
+   "write Dienststelle_BW global [{\"d\":\"Default Org\",\"u\":\"&1]\"}]"
+  ],
+  "pushes": [
+   {
+    "key": "filter_dienststelle",
+    "timestamp": 1700000000000,
+    "old": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [
+       {
+        "displayValue": "Default Org",
+        "useValue": "&1]",
+        "source": "cognos",
+        "hostDisplay": "Default Org"
+       }
+      ],
+      "pageContext": {
+       "tab0_tabpanel": [],
+       "tab1_tabpanel": [
+        {
+         "displayValue": "Org B",
+         "useValue": "&2]",
+         "source": "cognos",
+         "hostDisplay": "Org B"
+        }
+       ],
+       "tab2_tabpanel": []
+      }
+     }
+    },
+    "new": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [
+       {
+        "displayValue": "Default Org",
+        "useValue": "&1]",
+        "source": "cognos",
+        "hostDisplay": "Default Org"
+       }
+      ],
+      "pageContext": {
+       "tab1_tabpanel": [
+        {
+         "displayValue": "Org B",
+         "useValue": "&2]",
+         "source": "cognos",
+         "hostDisplay": "Org B"
+        }
+       ]
+      }
+     }
+    }
+   },
+   {
+    "key": "filter_dienststelle",
+    "timestamp": 1700000000000,
+    "old": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [
+       {
+        "displayValue": "Default Org",
+        "useValue": "&1]",
+        "source": "cognos",
+        "hostDisplay": "Default Org"
+       }
+      ],
+      "pageContext": {
+       "tab0_tabpanel": [],
+       "tab1_tabpanel": [],
+       "tab2_tabpanel": []
+      }
+     }
+    },
+    "new": {
+     "activeSichtValue": "BW",
+     "activeFilterKey": "Dienststelle_BW",
+     "visibleFilterLabel": "Dienststelle",
+     "valuesByScope": {
+      "global": [
+       {
+        "displayValue": "Default Org",
+        "useValue": "&1]",
+        "source": "cognos",
+        "hostDisplay": "Default Org"
+       }
+      ],
+      "pageContext": {
+       "tab1_tabpanel": []
+      }
+     }
+    }
+   }
+  ],
+  "widget": [
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|default| sichtDefault 5 [metrics_TM1].[Org].[Org].&[1] Default Org",
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|user|Default Org user 9 [metrics_TM1].[Org].[Org].&[1] Default Org",
+   "widgetVis/dienststelleChanged global/global Dienststelle_BW Default Org|&1]|user|Default Org user 11 [metrics_TM1].[Org].[Org].&[1] Default Org"
+  ],
+  "messages": [],
+  "runtime": {
+   "abortControllers": {},
+   "domRefs": {},
+   "historyReplayHandlerContribution": "function",
+   "lastPendingIntent": "confirm",
+   "lastPendingIntentScope": "pageContext",
+   "lastPendingIntentScopeId": "tab1_tabpanel",
+   "listeners": {},
+   "observers": {},
+   "parameterSetRunId": 0,
+   "pendingPromises": {
+    "hierarchyWarmup": {}
+   },
+   "subscriptions": {},
+   "tabsFacet": null,
+   "timers": 0,
+   "userCommitHopSeq": null
+  }
+ }
+}
