@@ -62,9 +62,10 @@ export function checkSnapshot(name, snapshot) {
     .map((k) => JSON.stringify(k) + ": " + JSON.stringify(snapshot[k]))
     .join(",\n");
   const serialized = "{\n" + text + "\n}\n";
-  if (process.env.UPDATE_SNAPSHOTS === "1" || !fs.existsSync(file)) {
+  if (process.env.UPDATE_SNAPSHOTS === "1") {
     fs.writeFileSync(file, serialized);
   }
+  assert.ok(fs.existsSync(file), "missing fixture " + name + " (record with UPDATE_SNAPSHOTS=1)");
   const recorded = JSON.parse(fs.readFileSync(file, "utf8"));
   const actual = JSON.parse(serialized);
   const keys = Object.keys(recorded);
