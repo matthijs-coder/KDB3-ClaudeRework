@@ -51,7 +51,7 @@ const CONFIG_PROPERTIES = {
     tblA: { code: "MyCode", kurztext: "MyText", freigabe: "Rel", hardcoded: "Hard" },
     tblB: { code: "MyCode", kurztext: "MyText", freigabe: "Rel" }
   },
-  metricsTreePropObj: { tblA: { pathColumnNamesArr: ["Gruppe1"] } }
+  kennzahlenTreePropObj: { tblA: { pathColumnNamesArr: ["Gruppe1"] } }
 };
 
 const SCENARIOS = {

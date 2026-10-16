@@ -6,7 +6,7 @@ Paste sources for the Cognos property panel. Each file is `const x = JSON.string
 |---|---|---|---|
 | `loadingTablesPropId.js` | yes | `loadingTablesPropObj` | Array of table names (not an object). |
 | `kennzahlenTablesPropId.js` | yes | `kennzahlenTablesPropObj` | |
-| `kennzahlenTreePropId.js` | yes | `kennzahlenTreePropObj` | `dashboard/metricsTree/catalog.js` reads `properties.metricsTreePropObj`, not this key (see `contracts/metricsTree.md`). |
+| `kennzahlenTreePropId.js` | yes | `kennzahlenTreePropObj` | Read by `dashboard/metricsTree/catalog.js` (`pathColumnNamesArr` per table name; `dynamicTree` is not read). |
 | `filterPropId.js` | yes | `filterPropObj` | |
 | `textWidgetPropId.js` | yes | `textWidgetPropObj` | Also read for default widget dimensions (`widgetBase/view/placement.js`, `dragDrop/avatar.js`). |
 | `visualizationsPropId.js` | yes | `visualizationsPropObj` | Also read for default widget dimensions (`widgetBase/view/placement.js`, `dragDrop/avatar.js`). |
