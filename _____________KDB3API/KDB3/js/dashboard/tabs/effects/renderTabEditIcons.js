@@ -50,17 +50,10 @@ define([
     });
   }
 
-  function resolveActionLogName(cfg) {
-    if (cfg.key === "duplicate") { return "copy"; }
-    return cfg.key;
-  }
-
   function createIconWrapper(cfg, context) {
-    const actionName = resolveActionLogName(cfg);
-    const tabName = context && context.tabName != null ? String(context.tabName) : "";
     const tabIndex = context && typeof context.tabIndex === "number" ? context.tabIndex : -1;
     const tabId = context && typeof context.tabId === "string" ? context.tabId : null;
-    const enabled = _iconActions.isIconEnabled(cfg, context);
+    const enabled = _iconActions.isIconEnabled(context);
     const top = document.createElement("div");
     top.className = cfg.wrapperClass;
     top.setAttribute("aria-disabled", enabled ? "false" : "true");
@@ -98,7 +91,7 @@ define([
 
     item.appendChild(container);
     top.appendChild(item);
-    _iconActions.bindIconClick(cfg, context, enabled, top, input, tabIndex, tabId, actionName, tabName);
+    _iconActions.bindIconClick(cfg, context, enabled, top, input, tabIndex, tabId);
     return top;
   }
 

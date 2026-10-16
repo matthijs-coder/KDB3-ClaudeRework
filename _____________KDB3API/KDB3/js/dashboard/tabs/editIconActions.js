@@ -2,28 +2,26 @@ define([
   "./config.js",
   "./config/defaults.js",
   "./config/mutationCodes.js",
-  "./slots.js"
-], function (_config, _defaults, _codes, _slots) {
+  "./slots.js",
+  "../../core/utils/kit/runtime.js"
+], function (_config, _defaults, _codes, _slots, _runtime) {
   "use strict";
 
   const MUTATION_UI = _config.mutationUi;
 
   function isTabMutationInFlight(_KDB) {
-    return !!(_KDB && _KDB.runtime && _KDB.runtime.tabs && _KDB.runtime.tabs.pendingPromises && _KDB.runtime.tabs.pendingPromises.tabMutation);
+    return _runtime.readTabsBusy(_KDB, ["tabMutation"]);
   }
 
-  function isIconEnabled(cfg, context) {
-    if (isTabMutationInFlight(context && context._KDB)) { return false; }
-    if (cfg.key === "delete") { return _defaults.TAB_DELETE_UI_ENABLED === true; }
-    if (cfg.key === "move") { return _defaults.TAB_MOVE_UI_ENABLED === true; }
-    if (cfg.key === "duplicate") { return _defaults.TAB_DUPLICATE_UI_ENABLED === true; }
-    return false;
+  // Icons render disabled while a tab mutation runs.
+  function isIconEnabled(context) {
+    return !isTabMutationInFlight(context && context._KDB);
   }
 
-  function bindIconClick(cfg, context, enabled, top, input, tabIndex, tabId, actionName, tabName) {
+  function bindIconClick(cfg, context, enabled, top, input, tabIndex, tabId) {
     const handler = enabled && MUTATION_UI[cfg.key]
       ? onMutationIconClick.bind(null, cfg.key, context && context._KDB, tabIndex, tabId)
-      : onDeferredIconClick.bind(null, actionName, tabName, tabIndex);
+      : onDisabledIconClick;
     top.addEventListener("click", handler);
     input.addEventListener("click", handler);
   }
@@ -46,11 +44,10 @@ define([
     }
   }
 
-  function onDeferredIconClick(actionName, tabName, tabIndex, ev) {
+  function onDisabledIconClick(ev) {
     ev.preventDefault();
     ev.stopPropagation();
     blurIconTarget(ev);
-    console.log('[tabs.editIcon] ' + actionName + ' clicked for tab "' + tabName + '" (index ' + tabIndex + ')');
     return false;
   }
 

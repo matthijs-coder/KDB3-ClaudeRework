@@ -28,12 +28,11 @@ define([
       session.iconRefs = _renderTabEditIcons.renderTabEditIcons(wrapperEl, {
         _KDB: _ctx._KDB,
         tabIndex: session.tabIndex,
-        tabId: session.tabId,
-        tabName: session.originalName
+        tabId: session.tabId
       });
       // Runtime-mediated commit hook: the edit-icon click handlers end the
       // session via runtime.editSession.commit() before their dialog opens
-      // (avoids a module cycle renderTabEditIcons -> tabEditIconActions -> here).
+      // (avoids a module cycle renderTabEditIcons -> editIconActions -> here).
       session.commit = function () { _commitTabRenameEditSession.commitEditSession(_ctx, session); };
       _bindTabRenameSessionListeners(_ctx, session);
       return true;
