@@ -491,6 +491,10 @@ Reason rules:
 | `historyReplay` | Apply replayed removed state and cleanup runtime; no new history. |
 | `destroy` | Runtime cleanup only during module teardown; no user history and no attempt to park. |
 
+TopN claim: for a removed frame of `kind: "vis"` (not a TopN helper) `widgetBase` dispatches `widgetTopN/cleanup { ownerVisId, reason: "remove" | "destroy", clearHelperBinding: true, releaseClaim: true }` through `_KDB.api.widgetTopN.dispatch` after `removeSucceeded`. It is not awaited and never changes the remove result: a missing, disposed, throwing or failing widgetTopN is logged at most. The owner's claim is held until the helper clear has finished, so another owner resolving in that window can report `WIDGET_TOPN_NO_HELPER_AVAILABLE`.
+
+Idempotence: the frame stays in state with `placement: "removed"`. A repeated `remove` of a widget whose frame is already `removed` returns `{ ok: true, skipped: true, widgetId, placement: "removed", reasonCode: "WIDGET_BASE_ALREADY_REMOVED" }` and dispatches nothing (no widgetVis dispose, no TopN cleanup, no second `widget_removed` step). Nothing in the app dispatches `widgetBase/remove` today (console only), and `widget_removed` has no replay handler, so it cannot be undone.
+
 ### `widgetBase/reportError`
 
 Payload:
