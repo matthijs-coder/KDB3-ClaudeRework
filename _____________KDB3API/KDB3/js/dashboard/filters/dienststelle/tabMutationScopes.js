@@ -22,7 +22,7 @@ define([
   "use strict";
 
   var RUN_GUARD = _tabMutation.createRunGuard({
-    staleMode: "ds",
+    staleMode: "runId",
     options: {
       pinOperationId: false,
       ensureRunIdDefault0: true,

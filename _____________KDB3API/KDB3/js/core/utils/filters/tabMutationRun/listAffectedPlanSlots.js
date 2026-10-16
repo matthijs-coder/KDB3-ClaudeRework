@@ -6,7 +6,7 @@ define([], function () {
   // options.dedupeByTabIdx    one entry per numeric tabIdx, first occurrence wins, tabId normalised to null
   // options.includeClonePair  duplicate: clonePair.from and clonePair.to come first
   // options.includeSourceSlot duplicate: sourceSlot (default true)
-  function __controller(_plan, _options) {
+  function listAffectedPlanSlots(_plan, _options) {
     try {
       var options = _options || {};
       var plan = _plan || {};
@@ -51,5 +51,5 @@ define([], function () {
     }
   }
 
-  return __controller;
+  return listAffectedPlanSlots;
 });

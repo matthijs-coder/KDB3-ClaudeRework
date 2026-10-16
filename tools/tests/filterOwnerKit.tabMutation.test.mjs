@@ -20,7 +20,7 @@ const GUARD_OPTIONS = {
   pinOperationId: false, ensureRunIdDefault0: true, includeRunIdsInDiagnostic: true,
   missingIdsMessage: "needs ids", supersededMessage: "superseded"
 };
-const guard = runner.createRunGuard({ options: GUARD_OPTIONS, staleMode: "ds" });
+const guard = runner.createRunGuard({ options: GUARD_OPTIONS, staleMode: "runId" });
 const base = { name: "demo", guard: guard };
 const ctxOf = () => ({ runtime: {}, trace: [] });
 const payload = (over) => Object.assign({ runId: 1, operationId: "op", plan: { operation: "move" } }, over || {});

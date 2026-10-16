@@ -55,7 +55,7 @@ define([], function () {
   function isStale(_runtime, _payload, _opts) {
     try {
       var opts = _opts || {};
-      if (opts.staleMode === "ss") {
+      if (opts.staleMode === "pinned") {
         var runId = _payload && _payload.runId;
         var operationId = _payload && _payload.operationId;
         if (typeof runId !== "number" || !isFinite(runId)) { return true; }

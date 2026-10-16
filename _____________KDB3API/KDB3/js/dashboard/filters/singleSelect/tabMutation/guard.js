@@ -6,7 +6,7 @@ define([
   "use strict";
 
   var RUN_GUARD = _tabMutation.createRunGuard({
-    staleMode: "ss",
+    staleMode: "pinned",
     options: {
       pinOperationId: true,
       ensureRunIdDefault0: false,
