@@ -71,59 +71,33 @@ ParameterSet before tab-mutation; collect before generic reducer dispatch. filte
 
 ## 6. Folder
 
+As built: 13 files; exports are listed per file. `__orchestratorNativeMultiSelect.js` is a shim over `index.js`. Tab-mutation code sits in `tabMutation/`, parameter-set restore and the GET collect in `restore.js`.
+
 ```txt
 dashboard/filters/nativeMultiSelect/
-  config/actions.js
-  config/parameterSetCodes.js
-  state/initialState.js
-  state/createNativeMultiSelectReducer.js
-  actions/handleTabMutationAction.js
-  actions/tabMutationSupport.js
-  actions/prepareTabMutation.js
-  actions/applyTabMutation.js
-  actions/applyTabMutationScopeOps.js
-  actions/applyTabMutationDelete.js
-  actions/applyTabMutationMove.js
-  actions/applyTabMutationDuplicate.js
-  actions/restoreTabMutationSnapshot.js
-  actions/resyncTabMutationHost.js
-  actions/routeParameterSetAction.js
-  actions/parameterSetClear.js
-  actions/parameterSetRestore.js
-  actions/parameterSetRestoreGlobal.js
-  actions/parameterSetHostApply.js
-  actions/parameterSetContext.js
-  actions/collectWritebackSnapshot.js
-  effects/ensureNativeMultiSelectRuntime.js
-  effects/cleanupNativeMultiSelectRuntime.js
-  effects/readClaimDefinition.js
-  effects/isUnownedNativeMultiSelectItem.js
-  effects/stripTabpanel.js
-  effects/listUnownedNativeMultiSelectItems.js
-  effects/lookupNativeMultiSelectRef.js
-  effects/lookupNativeMultiSelectRefByName.js
-  effects/resolveNativeMultiSelectConfirmScope.js
-  effects/mapNativeMultiSelectConfirmedValues.js
-  effects/prepareNativeMultiSelectConfirmWrite.js
-  actions/handleFilterDockConfirm.js
-  actions/handleNativeMultiSelectHistoryReplay.js
-  actions/routeNativeMultiSelectUserCommit.js
-  history/buildCommittedStep.js
-  history/maybePushNativeMultiSelectHistoryStep.js
-  history/applyNativeMultiSelectHistoryReplay.js
-  history/createNativeMultiSelectHistoryReplayHandler.js
-  history/stageNativeMultiSelectHistoryReplayHandler.js
-  createNativeMultiSelectController.js
-  __orchestratorNativeMultiSelect.js
+  __orchestratorNativeMultiSelect.js                  shim over index.js (path kept for KDB.js)
+  commit.js                                           commitFilterDockConfirm, mapConfirmedValues, prepareConfirmWrite, buildCommittedStep, startTopNWave, findByName
+  config.js                                           actions, parameterSetCodes, tabMutationCodes, HISTORY_STEP_KEY
+  history.js                                          createHistoryReplayHandler, applyHistoryReplay, mergeReplayItem
+  hostFilterIo.js                                     warnDestSkip, writeRef, applyByItemId, applyByName
+  index.js                                            registerNativeMultiSelect
+  inventory.js                                        createClaimIndex, readClaimDefinition, isUnownedFilterDescriptor, listUnownedItems, listAllUnownedScopes, lookupRef, lookupRefByName
+  restore.js                                          parameterSetClear, parameterSetRestore, collectWritebackSnapshot
+  state.js                                            initialState, createReducer, cloneValues, cloneItem, materializeValues, stripTabpanel, readByScope, ...
+  tabMutation/
+    apply.js                                          applyTabMutation
+    guard.js                                          guardRun, isStale, cancelled, resolveScopeIdForSlot, pushUnique
+    hostScopes.js                                     failed, clearScopeItems, writeScopeFromSnapshot, resyncTabMutationHost
+    snapshot.js                                       prepareTabMutation, restoreTabMutationSnapshot
 ```
 
 **As-built 2026-08-16 (T1b kale-value history):** filterDock confirm-only (`nativeMultiSelect` in `OWNER_ROUTE_MAP`, `stateChanged` only). Page scope via `tabs/resolveFilterScopeTargets` (`tabId`; dock `scopeId` is null / `ownerRequired`). Step key `filter_nativeMultiSelect`. Confirm `new` comes from popup `confirmedLabels` mapped to `{d,u}` (reuse known `u` by `d`, else TM1 `{itemId}->:[TMR].[{dim}].[{hier}].[{d}]`). Empty OK updates `byScope`, no history step. No host poll after OK.
 
 **As-built 2026-08-16:** Jahr uses `isNative: "true"` plus `isSingleSelect: "false"`.
 
-**As-built 2026-08-16:** `stripTabpanel` owner-local (`dashboard/filters/nativeMultiSelect/state.js` (`stripTabpanel`)); `tabMutationSupport` wraps shared `tabMutationRun` library (DS-style guard/stale); `actions/` files remain flat (folders not moved); `lookupNativeMultiSelectRef` and `lookupNativeMultiSelectRefByName` not merged.
+**As-built 2026-08-16:** `stripTabpanel` owner-local (`dashboard/filters/nativeMultiSelect/state.js` (`stripTabpanel`)); `tabMutation/guard.js` wraps the shared `tabMutationRun` library (DS-style guard/stale); `lookupRef` and `lookupRefByName` (`inventory.js`) are not merged. (Superseded layout note: the former flat `actions/*.js` and `effects/*.js` files are now the files listed above.)
 
-**As-built 2026-08-16 (dest itemId / GET page collect):** Kale host `itemId`s are per-scope. Tab-mutation dest write (move/duplicate shift+clone) resolves the dest host by **name + dest scope** (`lookupNativeMultiSelectRefByName`, dest-skip + warn if missing, never create); reducer `byScope` stores the dest host’s live `itemId`. Resync uses that dest `itemId` first, then name. Source clear still uses source `itemId` + source scope. GET `filt.pcfs` page collect uses `listUnowned(scopeId)` only; identities stay `"global|"+nm` vs `String(tab)+"|"+nm`; global is never listed into page entries. Page lookups use `_tabpanel` strip equality only. Historical P0 dest lookup-by-itemId (`pageContextPlain-tabMutation-contractdelta.md` §2.2) is superseded for the live owner.
+**As-built 2026-08-16 (dest itemId / GET page collect):** Kale host `itemId`s are per-scope. Tab-mutation dest write (move/duplicate shift+clone) resolves the dest host by **name + dest scope** (`lookupRefByName` in `inventory.js`, dest-skip + warn if missing, never create); reducer `byScope` stores the dest host’s live `itemId`. Resync uses that dest `itemId` first, then name. Source clear still uses source `itemId` + source scope. GET `filt.pcfs` page collect uses `listUnowned(scopeId)` only; identities stay `"global|"+nm` vs `String(tab)+"|"+nm`; global is never listed into page entries. Page lookups use `_tabpanel` strip equality only. Historical P0 dest lookup-by-itemId (`pageContextPlain-tabMutation-contractdelta.md` §2.2) is superseded for the live owner.
 
 ## 7. Out of scope
 

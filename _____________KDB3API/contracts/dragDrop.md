@@ -249,7 +249,7 @@ Legacy emits `widgetEvents.WIDGET_DROP_VALIDATED`, whose string is `canvas:dropV
 Recommended CP-1 decision:
 
 - Preserve `canvas:dropValidated` for rule-alignment-only behavior.
-- Create `dragDrop/events/eventNames.js` as the emitter-owned constants file for this direct port.
+- `dragDrop/events.js` is the emitter-owned constants file (`DROP_VALIDATED`).
 - Add an `eventSubscribe.md` catalog entry before implementation, or explicitly approve deferring event emission until the widgets owner exists.
 
 CP-1 must explicitly decide event catalog scope:
@@ -349,8 +349,7 @@ Naming bridge: legacy `kennzahlenTree` source-binder behavior maps to the produc
 
 In this tranche, the only owner-specific source binders that may be specified are:
 
-- `adapters/bindMetricsTreeDragDrop.js` only if the existing production `metricsTree` adapter is not sufficient;
-- `adapters/bindToolboxTextDragDrop.js` only if kdbControl toolbox scope is explicitly approved.
+- As built: the metrics tree source binder is `dashboard/metricsTree/dragSource.js`; the toolbox text source binder is in `dashboard/canvas/kdbControl/framework/bindToolboxActions.js`. Both call `_KDB.api.dragDrop`.
 
 Do not move general `kdbControl`, `kennzahlenTree`, or toolbox behavior into generic dragDrop code.
 
@@ -386,155 +385,6 @@ KDB3/js/dashboard/canvas/dragDrop/
 ```
 
 Runtime ownership (avatar DOM, source copy, listeners, timers) is created and released inside `index.js` via `core/utils/kit/runtime.js`; there are no separate `runtime/` or `effects/` folders.
-
-`events/eventNames.js` and `dashboard/canvas/dragDrop/dropboxes/publish.js` (`publishValidatedDrop`).
-- **B. Do not approve `eventSubscribe.md` update.** Then do not create event-emitting code; mark `publishValidatedDrop` as deferred and stop for a contract delta if drop completion cannot be represented.
-
-Recommendation: choose A. Drag/drop without a validated-drop signal is incomplete, and this is a defensible fact-event because no widgets-owner API exists in this tranche.
-
-If CP-1 does not approve the `canvas:dropValidated` catalog entry, do not create a partial `dragDrop` implementation. Stop before implementation and request a contract/spec delta.
-
-Event summary:
-
-```js
-canvas:dropValidated
-```
-
-| Field | Contract |
-|---|---|
-| Type | fact |
-| Emitter | `dragDrop` after successful validation |
-| Confirmation point | `validateDropIntent` returned `{ isValid: true }`, temporary copy cleanup ran, and layout payload was resolved. |
-| Subscribers | Future `widgets`/canvas owner; no production subscriber exists in this tranche. |
-| Payload | JSON-serializable drop request: `draggedElementType`, `dropboxId`, `layout`, `originId`, `padKey`, `payload`, `sourceKind`, `startedAt`, `tabId`. |
-
-For a valid drop, validation and `publishValidatedDrop` must occur before final session cleanup if the payload still depends on session/runtime data. Cleanup must always run afterward in a finally-style path.
-
-If CP-1 does not approve an event catalog update, the execution spec must either stop before implementing event emission or explicitly defer `publishValidatedDrop` until a widgets/canvas owner tranche.
-
-## 9. Dependencies
-
-- `_KDB` (always).
-- Dropboxes are discovered through the DOM selectors (`_KDB.elements.selectors.dragDrop`, catalogue fallback). `_KDB.elements.dashboardDropboxes()` and `closestBoundDropbox(target)` were never defined and are not read; `dropboxById(id)` is also never assigned.
-- `_KDB.elements.toolboxTextDraggable()` only in the owner-specific toolbox binder if that binder is included.
-- `_KDB.properties.visualizationsPropObj` and `_KDB.properties.textWidgetPropObj` for default dimensions.
-- `_KDB.properties.filterPropObj` for legacy validation against filter labels.
-- `_KDB.config` / table config only indirectly through source payload builders; dragDrop does not own metrics data.
-- `_KDB.events` only for `canvas:dropValidated` if CP-1 approves the event catalog scope.
-- `_KDB.cognosAPI.showToast` for legacy validation warnings where present.
-
-Deep files must not discover dependencies through `window._KDB`, `window.top.getKDB()`, or legacy `_KDB.utilities`. Dimension conversion is ported into local pure helpers or a sanctioned `_KDB.utils` helper if one exists.
-
-## 10. DOM Discipline
-
-Selector config belongs under `_KDB.elements.selectors.dragDrop` when new selectors are needed. Existing host helper functions under `_KDB.elements.*` are legacy evidence and may be consumed only at the integration boundary documented above.
-
-Live DOM refs belong under `_KDB.runtime.dragDrop.domRefs`.
-
-`dragDrop` may create/manage:
-
-- hidden avatar-template mount under the launchpad hide spot or a fallback hidden mount;
-- custom visible avatar attached to `document.body`;
-- temporary hidden source copy;
-- temporary transparent 1x1 native drag-image suppressor;
-- active source CSS classes;
-- active dropbox CSS class;
-- temporary page grid CSS class `KDB_absoluteLayoutGrid` on `.page.pagetemplateIndicator`. `widgetBase` move/resize gesture helpers may toggle this same class for the gesture only. That toggle is not a new `_KDB.api.dragDrop` method.
-
-Native drag image suppression must happen during `dragstart` with `dataTransfer.setDragImage(transparentEl, 0, 0)` after transfer data is prepared. The temporary element must be removed via registered timer/cleanup.
-
-Custom avatar behavior must preserve legacy: fixed positioning, pointer-events none, high z-index, source-offset tracking, default dimensions, canvas/dropbox scale, and cleanup on drop/cancel/destroy.
-
-## 11. Coordinate And Placement Boundary
-
-`dragDrop` owns coordinate evidence up to the validated drop payload:
-
-```txt
-clientX/clientY
--> dropbox-local pointer offset
--> minus drag anchor offset
--> rendered placement + scale metadata in payload
-```
-
-The widgets/canvas owner owns final placement:
-
-```txt
-rendered placement
--> divide by canvas scale
--> clamp within canvas bounds
--> append/place widget
--> persist layout/Cognos state/history
-```
-
-Do not use raw `clientX/clientY` as widget `left`/`top`. Do not port `dashboard/widgets/widgetBase/view/placement.js` (`placeWidgetOnCanvas`) into `dragDrop` without a CP-1 contract change assigning placement responsibility to `dragDrop`.
-
-DataTransfer compatibility:
-
-- Legacy writes the transfer payload to both `application/json` and `text/plain`.
-- The direct port must preserve both keys unless browser compatibility or a rule conflict forces a change.
-- If implementation cannot confirm those keys from the legacy evidence, stop and report the evidence gap before writing production code.
-
-## 12. Source Binders
-
-Default CP-1 recommendation: source binders remain owner-specific adapters and call `_KDB.api.dragDrop`.
-
-Naming bridge: legacy `kennzahlenTree` source-binder behavior maps to the production `metricsTree` owner/adapter where applicable. Do not create a new `kennzahlenTree` dependency from `dragDrop` unless CP-1 explicitly approves it.
-
-In this tranche, the only owner-specific source binders that may be specified are:
-
-- `adapters/bindMetricsTreeDragDrop.js` only if the existing production `metricsTree` adapter is not sufficient;
-- `adapters/bindToolboxTextDragDrop.js` only if kdbControl toolbox scope is explicitly approved.
-
-Do not move general `kdbControl`, `kennzahlenTree`, or toolbox behavior into generic dragDrop code.
-
-Rules to preserve:
-
-- only `.jstree-leaf` metrics/kennzahl nodes are draggable;
-- parent nodes are blocked with `preventDefault()`;
-- metrics/kennzahl payload preserves `code`, `display`, `title`, `langtext`, `kennzahlenTable`/`metricsTable`, `originId`, and `draggedElementType` where present;
-- toolbox drag source is only the text/comment button, with `draggedElementType: "text"` and `sourceKind: "toolboxTextButton"`.
-
-## 13. Folder Layout
-
-Production target after CP-1 and execution-spec approval:
-
-```txt
-KDB3/js/dashboard/canvas/dragDrop/
-  __orchestratorDragDrop.js
-  createDragDropController.js
-  config/
-    defaults.js
-  state/
-    initialState.js
-    createDragDropReducer.js
-    selectors.js
-  session/
-    startDragSession.js
-    finishDragSession.js
-    parseTransferPayload.js
-  avatar/
-    createDragAvatarTemplates.js
-    createDragAvatar.js
-    moveDragAvatar.js
-    suppressNativeDragImage.js
-  dropboxes/
-    bindDropboxes.js
-    readHelperTabIds.js
-    updateDragHover.js
-    resolveDropboxGeometry.js
-    validateDropIntent.js
-    publishValidatedDrop.js
-  events/
-    eventNames.js
-  runtime/
-    ensureDragDropRuntime.js
-    cleanupDragDropRuntime.js
-  effects/
-    mountDragDropController.js
-    destroyDragDropController.js
-```
-
-**As-built size-split:** `dashboard/canvas/dragDrop/index.js` (`createDragDropController`) remains the AMD path for `__orchestratorDragDrop.js` and still returns `{ destroy, finishDrag, getState, mount, refreshDropboxes, startDrag }`. Mount/refresh/complete-drop live in `effects/mountDragDropController.js`; destroy in `effects/destroyDragDropController.js`; runtime init/cleanup in `runtime/ensureDragDropRuntime.js` and `runtime/cleanupDragDropRuntime.js`.
 
 `events.js` and `dropboxes/publish.js` (`publishValidatedDrop`) own the `canvas:dropValidated` event (see `architecture/eventSubscribe.md`).
 
