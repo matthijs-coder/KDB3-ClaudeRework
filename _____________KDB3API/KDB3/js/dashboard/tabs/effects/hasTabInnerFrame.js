@@ -29,16 +29,9 @@ define([], function () {
   }
 
   function readExactPageRootSelector(_KDB) {
-    try {
-      var page = _KDB && _KDB.elements && _KDB.elements.selectors
-        ? _KDB.elements.selectors.page
-        : null;
-      var selector = page && page.exactPageRootSelector;
-      return typeof selector === "string" && selector.length > 0 ? selector : null;
-    } catch (err) {
-      console.error("[tabs.hasTabInnerFrame] selector read failed", err);
-      return null;
-    }
+    const page = _KDB && _KDB.elements && _KDB.elements.selectors ? _KDB.elements.selectors.page : null;
+    const selector = page && page.exactPageRootSelector;
+    return typeof selector === "string" && selector.length > 0 ? selector : null;
   }
 
   function hasExactPageRootDescendant(_wrapper, _selector) {
@@ -57,24 +50,12 @@ define([], function () {
   }
 
   function findTabById(_KDB, _tabId) {
-    try {
-      var state = _KDB && _KDB.state ? _KDB.state.tabs : null;
-      var byIndex = state && state.byIndex ? state.byIndex : {};
-      var keys = Object.keys(byIndex);
-      var index = 0;
-      var tab;
-      while (index < keys.length) {
-        tab = byIndex[keys[index]];
-        if (tab && tab.tabId === _tabId) {
-          return tab;
-        }
-        index += 1;
-      }
-      return null;
-    } catch (err) {
-      console.error("[tabs.hasTabInnerFrame] tab lookup failed", _tabId, err);
-      return null;
-    }
+    const state = _KDB && _KDB.state ? _KDB.state.tabs : null;
+    const byIndex = state && state.byIndex ? state.byIndex : {};
+    const key = Object.keys(byIndex).find(function (candidate) {
+      return byIndex[candidate] && byIndex[candidate].tabId === _tabId;
+    });
+    return key === undefined ? null : byIndex[key];
   }
 
   function isPageChildOfWrapper(_wrapper, _tabId, _pageId) {

@@ -36,7 +36,9 @@ define(["./copyTabsState.js"], function (_copyTabsState) {
 
   function updateRename(_state, _payload) {
     if (_payload.phase === "pending") {
-      return _copyTabsState.copyRoot(_state, { pendingOperation: { type: "rename", source: _payload.source || null, tabIndex: _payload.tabIndex, tabId: _payload.tabId || null, name: _payload.name || "" } });
+      return _copyTabsState.copyRoot(_state, {
+        pendingOperation: { type: "rename", source: _payload.source || null, tabIndex: _payload.tabIndex, tabId: _payload.tabId || null, name: _payload.name || "" }
+      });
     }
     if (_payload.phase === "confirmed") {
       return commitRename(_state, _payload);
@@ -79,7 +81,15 @@ define(["./copyTabsState.js"], function (_copyTabsState) {
     // Failed rename also ends the session: uncheck the toolbox radio too
     // (same reset as commitRename/cancelEditSession, otherwise the push-based
     // kdbControl sync keeps the radio checked).
-    const next = _copyTabsState.copyRoot(_state, { byIndex: byIndex, pendingOperation: null, lifecycle: "error", toolboxTabEditLineIndex: null, selectedTool: null, errorCode: _payload.errorCode || "TABS_RENAME_FAILED", errorMessage: _payload.errorMessage || null });
+    const next = _copyTabsState.copyRoot(_state, {
+      byIndex: byIndex,
+      pendingOperation: null,
+      lifecycle: "error",
+      toolboxTabEditLineIndex: null,
+      selectedTool: null,
+      errorCode: _payload.errorCode || "TABS_RENAME_FAILED",
+      errorMessage: _payload.errorMessage || null
+    });
     return _copyTabsState.copyRoot(next, { editUi: recomputeEditUi(next, clearEditSessionFields(_state.editUi)) });
   }
 
@@ -94,7 +104,8 @@ define(["./copyTabsState.js"], function (_copyTabsState) {
   }
 
   function clearEditSessionFields(_editUi) {
-    return _copyTabsState.copyObject(_editUi || createEditUiState(), { activeTool: null, sessionTabIndex: null, sessionTabId: null, isEditingLabel: false, errorCode: null, errorMessage: null });
+    const cleared = { activeTool: null, sessionTabIndex: null, sessionTabId: null, isEditingLabel: false, errorCode: null, errorMessage: null };
+    return _copyTabsState.copyObject(_editUi || createEditUiState(), cleared);
   }
 
   function recomputeEditUi(_state, _editUiPatch) {
@@ -115,19 +126,6 @@ define(["./copyTabsState.js"], function (_copyTabsState) {
     return false;
   }
 
-  function resolveRenameTarget(_state, _payload) {
-    const byIndex = _state && _state.byIndex ? _state.byIndex : {};
-    const editUi = _state && _state.editUi ? _state.editUi : {};
-    const source = _payload || {};
-    if (typeof editUi.sessionTabIndex === "number" && _copyTabsState.isRenamableUserTab(byIndex[String(editUi.sessionTabIndex)])) {
-      return byIndex[String(editUi.sessionTabIndex)];
-    }
-    const explicitIndex = Object.prototype.hasOwnProperty.call(source, "physicalTabIndex") ? source.physicalTabIndex : Object.prototype.hasOwnProperty.call(source, "tabIndex") ? source.tabIndex : null;
-    if (typeof explicitIndex === "number" && _copyTabsState.isRenamableUserTab(byIndex[String(explicitIndex)])) { return byIndex[String(explicitIndex)]; }
-    if (source.tabId && _copyTabsState.isRenamableUserTab(_copyTabsState.findTabById(byIndex, source.tabId))) { return _copyTabsState.findTabById(byIndex, source.tabId); }
-    return _copyTabsState.isRenamableUserTab(byIndex[String(_state && _state.activeIndex)]) ? byIndex[String(_state.activeIndex)] : null;
-  }
-
   return {
     addVisibleTab: addVisibleTab,
     selectEditTarget: selectEditTarget,
@@ -136,7 +134,6 @@ define(["./copyTabsState.js"], function (_copyTabsState) {
     cancelEditSession: cancelEditSession,
     createEditUiState: createEditUiState,
     clearEditSessionFields: clearEditSessionFields,
-    recomputeEditUi: recomputeEditUi,
-    resolveRenameTarget: resolveRenameTarget
+    recomputeEditUi: recomputeEditUi
   };
 });
