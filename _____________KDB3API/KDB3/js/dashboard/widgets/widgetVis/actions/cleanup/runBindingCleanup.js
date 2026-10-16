@@ -16,6 +16,7 @@ define([
       widgetId: _widgetId,
       opSeq: _opSeq,
       reason: "cleanup",
+      mode: "cleanup",
       metric: _context.readMetric(_widgetId),
       settings: _context.readSettingsSnapshot(_widgetId, _payload),
       payload: _payload
