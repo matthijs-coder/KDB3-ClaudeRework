@@ -157,3 +157,105 @@ test("traverse options: key and target indexes", () => {
   const failed = options.buildFailedPayload("TABS_TRAVERSE_TIMEOUT", "timed out");
   assert.equal(failed.errorCode, "TABS_TRAVERSE_TIMEOUT");
 });
+
+function makeTabsState(names, visibleCount, activeIndex) {
+  const byIndex = {};
+  const order = [];
+  names.forEach((name, index) => {
+    byIndex[String(index)] = {
+      index, tabId: "t" + index, pageId: "p" + index, name, role: "dashboard", isHelper: false,
+      visible: index < visibleCount, isActive: index === activeIndex, button: { visible: index < visibleCount }, edit: {}
+    };
+    order.push(index);
+  });
+  return {
+    byIndex, order, activeIndex, activeTabId: "t" + activeIndex, editUi: {},
+    limits: { maxUserTabs: names.length, minVisibleUserTabs: 1 }
+  };
+}
+
+function namesOf(state) {
+  return state.order.map((index) => state.byIndex[String(index)].name + (state.byIndex[String(index)].visible ? "" : "(hidden)"));
+}
+
+test("tab mutation plans + reducer: delete, duplicate, move and restoreDeleted keep a contiguous visible prefix", () => {
+  const plans = load("tabMutation/plans.js");
+  const reduce = load("tabMutation/reduce.js");
+  const start = makeTabsState(["A", "B", "C", "D"], 3, 1);
+
+  const del = plans.buildDeletePlan(start, { tabId: "t1", baselineNamesByIndex: { 2: "Tab 3" }, operationSeq: 7 });
+  assert.equal(del.ok, true);
+  assert.match(del.plan.operationId, /^tabmut-\d+-7$/);
+  const afterDelete = reduce(start, { plan: del.plan });
+  assert.equal(afterDelete.error, null);
+  assert.deepEqual(namesOf(afterDelete.state), ["A", "C", "Tab 3(hidden)", "D(hidden)"]);
+  assert.equal(afterDelete.state.activeIndex, 1);
+
+  const dup = plans.buildDuplicatePlan(start, { tabId: "t0" });
+  const afterDup = reduce(start, { plan: dup.plan });
+  assert.deepEqual(namesOf(afterDup.state), ["A", "A", "B", "C"]);
+
+  const move = plans.buildMovePlan(start, { tabId: "t0", targetPosition: 2 });
+  const afterMove = reduce(start, { plan: move.plan });
+  assert.deepEqual(namesOf(afterMove.state), ["B", "C", "A", "D(hidden)"]);
+  assert.equal(plans.buildMovePlan(start, { tabId: "t0", targetPosition: 0 }).errorCode, "TABS_MOVE_SAME_POSITION");
+
+  const restore = plans.buildRestoreDeletedPlan(afterDelete.state, {
+    insertTabIdx: 1, tabId: "t1", name: "B", hideSlot: { tabId: "t2" }, filters: {}
+  });
+  assert.equal(restore.ok, true);
+  const afterRestore = reduce(afterDelete.state, { plan: restore.plan });
+  assert.equal(afterRestore.error, null);
+  assert.deepEqual(namesOf(afterRestore.state), ["A", "B", "C", "D(hidden)"]);
+});
+
+test("tab mutation plans: guards", () => {
+  const plans = load("tabMutation/plans.js");
+  const single = makeTabsState(["A", "B"], 1, 0);
+  assert.equal(plans.buildDeletePlan(single, { tabId: "t0" }).errorCode, "TABS_MIN_VISIBLE");
+  const full = makeTabsState(["A", "B"], 2, 0);
+  assert.equal(plans.buildDuplicatePlan(full, { tabId: "t0" }).errorCode, "TABS_MAX_VISIBLE");
+  assert.equal(plans.buildDeletePlan(full, { tabId: "missing" }).ok, false);
+});
+
+test("selectors: scope match by alias and live scope, tab targets", () => {
+  const selectors = load("selectors.js");
+  const _KDB = { state: { tabs: makeTabsState(["A", "B"], 2, 0) } };
+  assert.deepEqual(Object.keys(selectors.readTabTargets(_KDB)), ["0", "1"]);
+  assert.equal(selectors.readTabScopeMatch(_KDB, "t1").status, "ok");
+  assert.equal(selectors.readTabScopeMatch(_KDB, "").status, "missing");
+  const live = { 0: { scopeId: "scopeX" }, 1: { scopeId: "scopeX" } };
+  assert.equal(selectors.readTabScopeMatch(_KDB, "scopeX", live).status, "ambiguous");
+  assert.deepEqual(selectors.readVisibleTabs(_KDB).map((tab) => tab.name), ["A", "B"]);
+});
+
+test("controller: disposed dispatch answers without throwing, rename without a target is a no-op", async () => {
+  const orchestrate = load("__orchestratorTabs.js");
+  const _KDB = { utils: {}, config: {}, services: {} };
+  const controller = orchestrate(_KDB, {});
+  assert.equal(controller.dispatch({ type: "tabs/rename", payload: { name: "x" } }), false);
+  controller.destroy();
+  assert.equal(controller.dispatch({ type: "tabs/add" }), false);
+  assert.equal(await controller.dispatch({ type: "tabs/traverse" }), false);
+  assert.equal(controller.getState(), undefined);
+  assert.equal(controller.mount(), false);
+});
+
+test("controller: rename commits pending, asks Cognos, confirms and records the name", async () => {
+  const orchestrate = load("__orchestratorTabs.js");
+  const renamed = [];
+  const facet = { setTabName: (tab, name) => { renamed.push([tab.pageId, name]); return { ok: true, data: name }; } };
+  const _KDB = { utils: {}, config: {}, services: { cognosHost: { tabs: facet } }, state: {} };
+  _KDB.state.tabs = makeTabsState(["A", "B"], 2, 0);
+  const controller = orchestrate(_KDB, {});
+  _KDB.state.tabs = Object.assign(makeTabsState(["A", "B"], 2, 0), { lifecycle: "ready", hydration: {}, traversal: {} });
+  assert.equal(await controller.dispatch({ type: "tabs/rename", payload: { tabIndex: 1, tabId: "t1", name: " Neu " } }), true);
+  assert.deepEqual(renamed, [["p1", "Neu"]]);
+  assert.equal(_KDB.state.tabs.byIndex["1"].name, "Neu");
+  assert.equal(_KDB.state.tabs.pendingOperation, null);
+
+  facet.setTabName = () => ({ ok: false });
+  assert.equal(await controller.dispatch({ type: "tabs/rename", payload: { tabIndex: 0, tabId: "t0", name: "X" } }), false);
+  assert.equal(_KDB.state.tabs.byIndex["0"].name, "A");
+  assert.equal(_KDB.state.tabs.byIndex["0"].errorCode, "TABS_RENAME_FAILED");
+});

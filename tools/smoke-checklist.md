@@ -181,6 +181,17 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Destroy + re-mount (close/reopen the KDB3 widget). Expected: `document.getElementById("KDB_dragAvatarTemplates")` is `null` after destroy (no stale avatar templates), drag and drop works again after re-mount, and listener counts on `document` do not grow.
 - [ ] Page size and background (kdbControl settings: dashboard width, height, background colour): change each once before and after the canvas is ready (right after load). Expected: the page size and colour follow, same as baseline; undo/redo of dashboard settings re-applies them.
 
+#### F1 tabs
+- [ ] Add (kdbControl "+"), then rename a tab by clicking it in edit mode: type a new name, **Enter** commits, **Esc** restores the old name, clicking elsewhere commits. Expected: the label follows, the edit icons (rename, delete, duplicate, move) disappear after the session ends.
+- [ ] Delete, duplicate and move (position dialog) a tab, each followed by undo and redo (history buttons). Expected: names, order, widgets and filters follow in both directions; the caption "Tab n von m: name" shows on the loading cover while a mutation runs.
+- [ ] While a delete/duplicate/move runs, look at the edit icons of another tab. Expected: they are greyed out (`aria-disabled="true"`) and clicking them does nothing; they work again after the mutation ends.
+- [ ] Delete down to one visible tab, and duplicate up to the maximum. Expected: a plain notice at each limit (no error alert), nothing changes.
+- [ ] Reload and watch the first seconds. Expected: one startup traversal over the tabs (no endless flipping), no console error, the originally active tab is active at the end.
+- [ ] Parameter-set restore (Set A, then Set B, then reset to defaults) with several tabs: names, visibility and the landing tab follow; no console error `[tabs.*]`.
+- [ ] PDF export on a dashboard with 3 or more tabs (uses the traverse). Expected: every tab is visited, export completes, the original tab is active afterwards. Cancel an export mid-way: no console error.
+- [ ] Console: `const k = window.top.getKDB(); const orig = k.utils.readCurrentTab;` close the KDB3 widget, then `k.utils.readCurrentTab === orig` (the saved original is back); reopen: `readCurrentTab` is a different (tabs-aware) function again and `k.utils.readCurrentTab()` still returns the current tab.
+- [ ] Destroy + re-mount twice. Expected: tab editing, mutations and undo/redo work after each re-mount; no `[tabs.*] called after destroy` warnings while idle.
+
 ### WS-G kdbControl (control primitives)
 - [ ] In a widget settings panel / header editor: colour inputs (typing a hex value, picking from the palette), palette closes on outside-click, toggle switches (Ein/Aus) and radios work as on baseline.
 - [ ] Close/reopen the dashboard, then `getEventListeners(document).mousedown.length` is the same as after a first boot (no extra listener).
