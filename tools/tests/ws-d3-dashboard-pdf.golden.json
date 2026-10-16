@@ -11373,6 +11373,62 @@
    "vendorLoadCached": true
   }
  },
+ "no-visible-tabs-restores-active-tab": {
+  "result": {
+   "ok": false,
+   "errorCode": "DASHBOARD_PDF_NO_VISIBLE_TABS",
+   "errorMessage": "No visible tabs for export.",
+   "warnings": []
+  },
+  "calls": [
+   [
+    "loading.start",
+    {
+     "mountEl": "loadingMount",
+     "mountKey": "dashboard-pdf-export",
+     "transparent": false,
+     "watchdogMs": 1800000,
+     "sessionMessageKey": "pdfExport"
+    }
+   ],
+   [
+    "host.addClass",
+    "kdb-pdf-capturing"
+   ],
+   [
+    "tabs.dispatch",
+    "tabs/traverse",
+    "dashboardPdfRestore",
+    1
+   ],
+   [
+    "widgetBase.dispatch",
+    "t1",
+    "dashboardPdfRestore",
+    12000
+   ],
+   [
+    "host.removeClass",
+    "kdb-pdf-capturing"
+   ],
+   [
+    "loading.finish",
+    "dashboard-pdf-export"
+   ]
+  ],
+  "docCalls": [],
+  "progress": [],
+  "vendorRequests": 2,
+  "cloneSnapshot": null,
+  "cloneCount": 0,
+  "runtime": {
+   "facetStamped": true,
+   "activeRun": null,
+   "abortControllersActiveRun": null,
+   "pendingActiveRun": null,
+   "vendorLoadCached": true
+  }
+ },
  "focus-exit-failed": {
   "result": {
    "ok": false,
