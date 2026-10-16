@@ -389,7 +389,7 @@ function makeKdb(ctx) {
   return kdb;
 }
 
-async function runScenario(name, { setup, options, stubs, vendor, dispose, twice } = {}) {
+async function runScenario(name, { setup, options, stubs, vendor, dispose, twice, record = true } = {}) {
   const ctx = { calls: [], docCalls: [], cloneSnapshots: [], vendorRequests: [], progress: [] };
   const kdb = makeKdb(ctx);
   if (setup) setup(kdb, ctx);
@@ -416,7 +416,7 @@ async function runScenario(name, { setup, options, stubs, vendor, dispose, twice
     pendingActiveRun: rt.pendingPromises.activeRun,
     vendorLoadCached: !!(rt.pendingPromises.vendorLoad && typeof rt.pendingPromises.vendorLoad.then === "function")
   };
-  expectGolden(name, out);
+  if (record) expectGolden(name, out);
   return { out, ctx, kdb, service };
 }
 
@@ -446,15 +446,19 @@ test("export succeeds: full page sequence, attachment rows, progress, loading, c
 
 test("vendor module paths resolve to the vendored libraries", async () => {
   const { ctx } = await runScenario("success-vendor-paths", {});
-  const dirs = [PDF_ROOT];
+  const files = [];
   const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).forEach((entry) => {
-    if (entry.isDirectory()) { dirs.push(path.join(dir, entry.name)); walk(path.join(dir, entry.name)); }
+    const abs = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(abs);
+    else if (entry.name.endsWith(".js")) files.push(abs);
   });
   walk(PDF_ROOT);
+  const requesters = files.filter((file) => /libraries\/jspdf/.test(fs.readFileSync(file, "utf8")));
+  assert.strictEqual(requesters.length, 1, "exactly one dashboardPdf file names the vendor libraries");
   assert.strictEqual(ctx.vendorRequests.length, 2);
   ctx.vendorRequests.forEach((spec) => {
-    const hits = dirs.filter((dir) => path.resolve(dir, spec).startsWith(LIBRARIES_ROOT) && fs.existsSync(path.resolve(dir, spec)));
-    assert.ok(hits.length >= 1, `${spec} does not resolve to a file in core/libraries from any dashboardPdf folder`);
+    const resolved = path.resolve(path.dirname(requesters[0]), spec);
+    assert.ok(resolved.startsWith(LIBRARIES_ROOT) && fs.existsSync(resolved), `${spec} must resolve to a file in core/libraries from ${requesters[0]}`);
   });
 });
 
