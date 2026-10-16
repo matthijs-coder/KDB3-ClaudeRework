@@ -609,7 +609,7 @@ Allowed:
 
 - Passing helper/owner widget ids to services and public dispatch calls.
 - Resolving a helper shell by exact `widgetId` only to write, confirm or clear TopN-owned claim mirror attributes (`data-connected-vis-widget-id`, `data-kdb-topn-claim-token`). The DOM node is scoped local to that effect and is never stored in state or runtime.
-- Recorded exception (as built, not yet re-homed to `widgetBase`): `effects/placeHelperAfterOwner.js` moves the helper shell itself, beside the owner shell for the helper apply/read and back into its own `topN` launchpad slot afterwards (slot resolved by its pad/page attributes). Runtime keeps only the serializable lease `byOwner[ownerVisId].helperPlacement = { helperWidgetId, opSeq, slot }`; only the latest leasing op restores.
+- Recorded exception (as built, not yet re-homed to `widgetBase`): `helperPlacement.js` (`appendHelperAfterOwner`, `restoreHelperPlacement`) moves the helper shell itself, beside the owner shell for the helper apply/read and back into its own `topN` launchpad slot afterwards (slot resolved by its pad/page attributes). Runtime keeps only the serializable lease `byOwner[ownerVisId].helperPlacement = { helperWidgetId, opSeq, slot }`; only the latest leasing op restores.
 
 Forbidden:
 
@@ -668,46 +668,26 @@ Rules:
 
 ## 18. Folder Layout
 
+As built (13 files, exports per file). `__orchestratorWidgetTopN.js` is a shim over `index.js` (controller, dispatch table, `registerWidgetTopN`).
+
 ```txt
-KDB3/js/dashboard/widgets/widgetTopN/
-  __orchestratorWidgetTopN.js
-  createWidgetTopNController.js
-  config/
-    actionTypes.js
-  runtime/
-    ensureWidgetTopNRuntime.js
-  state/
-    initialState.js
-    createWidgetTopNReducer.js
-    selectors.js
-    cloneSerializable.js
-  utils/
-    effectResultHelpers.js
-    normalizeTableCell.js
-  actions/
-    handleResolveRequested.js
-    handleCleanup.js
-    normalizeDispatchResult.js
-    validateOwnerVisId.js
-    validateResolveRequest.js
-    dispatchResolveOutcome.js
-    routeWidgetTopNDispatch.js
-  effects/
-    claimTopNHelper.js
-    confirmTopNHelperClaim.js
-    readTopNHelperCandidates.js
-    mirrorTopNHelperClaim.js
-    buildHelperBindingSpec.js
-    runHelperBinding.js
-    readHelperTableRows.js
-    extractTopNResult.js
-    cleanupTopNHelper.js
-    releaseTopNClaim.js
-    placeHelperAfterOwner.js
-    dispatchTopNResolved.js
+dashboard/widgets/widgetTopN/
+  __orchestratorWidgetTopN.js                         shim over index.js (path kept for KDB.js)
+  cleanup.js                                          handleCleanup, startPostResolutionCleanup
+  config.js                                           TOPN_PAD_KEY, PAD_ATTR, CLAIM_OWNER_ATTR, CLAIM_TOKEN_ATTR, NOTE_EDITABLE_SELECTOR, CLAIM_CONFIRM_MS, CLEANUP_KEY_PREFIX, ...
+  extractTopNResult.js                                extractTopNResult
+  helperBinding.js                                    readBindingServices, runHelperBinding, readHelperTableRows, buildHelperApplyOptions, readPlanError, readApplyError
+  helperClaim.js                                      claimTopNHelper, releaseTopNClaim, runExclusiveHelperCleanup
+  helperPlacement.js                                  appendHelperAfterOwner, restoreHelperPlacement, isHelperOnLoanToOwner, dismissHelperTitleEdit
+  helperSpec.js                                       buildTopNSpec, buildCleanupSpec
+  index.js                                            registerWidgetTopN
+  resolve.js                                          handleResolveRequested
+  results.js                                          messageFromError, failure, staleAborted, staleOperation, ownerIdConflict, isAborted, isAbortError, ...
+  selectors.js                                        readWidgetTopNState, readOwnerClaim, isHelperClaimedByOtherOwner
+  state.js                                            ACTION_TYPES, createInitialState, reduceWidgetTopN, validateAction, validateResolveRequest, validateCleanupRequest, isDefaultTopN, ...
 ```
 
-No `view/`, `events/` or `lifecycle/` folder. The helper claim DOM mirror lives in `effects/mirrorTopNHelperClaim.js`, not a view layer.
+No `view/`, `events/` or `lifecycle/` folder. The helper claim DOM mirror lives in `helperClaim.js` (with `helperPlacement.js` for DOM placement), not a view layer.
 
 ## 19. Bootstrap And Integration
 
@@ -730,7 +710,7 @@ Hard implementation prerequisites:
 - Editing `.cursor/rules/`, templates, authority docs or legacy trees.
 - Applying terminal result values to the visible widget; owner: `widgetVis`.
 - Storing or committing `topNChoice`; owner: `widgetSettings`.
-- Helper frame movement/placement writes; owner: `widgetBase` (the temporary helper-shell move in `placeHelperAfterOwner.js` is the §14 recorded exception; it writes no frame state).
+- Helper frame movement/placement writes; owner: `widgetBase` (the temporary helper-shell move in `helperPlacement.js` is the §14 recorded exception; it writes no frame state).
 - Populating/classifying the same-tab `topN` launchpad helper pool. TopN helper claim in this tranche trusts that pad as pre-arranged helper inventory.
 - Cognos apply/read internals; owner: `widgetBindingApply`.
 - Binding schema changes; owner: `widgetBindingPlan`.

@@ -609,7 +609,7 @@ No `events/eventNames.js` is created. A fact-event may be added only when a real
 - `_KDB.api.widgetSettings` as caller/consequence consumer only; `widgetText` does not call back into settings for apply commits in this tranche.
 - `_KDB.api.widgetBase` as the owner that calls `contentCreate` and may later call `cleanupContent`; `widgetText` does not write base state.
 - `_KDB.api.widgetText.dispatch({ type: "widgetText/applyReadableTextColor", ... })` as the public route used by `widgetSettings` after committed text-widget colour changes. `widgetSettings` must not import `widgetText/effects/*` directly.
-- `_KDB.config.options` or local `config/restyleClasses.js` for restyle class mapping. New code must not use forbidden `_KDB.dropdownOptions`.
+- `_KDB.config.options` or `config.js` (`restyle` option table) for restyle class mapping. New code must not use forbidden `_KDB.dropdownOptions`.
 - Widget shell DOM resolved by exact `widgetId`.
 
 Deep files receive dependencies through AMD imports and controller options. They do not discover `_KDB` through `window`.
@@ -684,57 +684,29 @@ Starting a new inline edit aborts any existing edit session for the same widget 
 
 ## 15. Folder Layout
 
+As built (exports per file). `__orchestratorWidgetText.js` is a shim over `index.js` (controller + `registerWidgetText`).
+
 ```txt
-KDB3/js/dashboard/widgets/widgetText/
-  __orchestratorWidgetText.js
-  createWidgetTextController.js
-  widgetTextDispatchContext.js
+dashboard/widgets/widgetText/
+  __orchestratorWidgetText.js                         shim over index.js (path kept for KDB.js)
+  config.js                                           defaultText, automaticFontSize, contentWrapperSelector, staticContentSelector, textFillSelector, editableSelector, staticContentClass, ...
+  dispatchResult.js                                   failureResult, staleResult, normalizeDispatchResult
+  effects.js                                          handleContentCreate, handleApplyFontSize, handleApplyRestyle, handleApplyReadableTextColor, handleCleanupContent, cleanupAllWidgetRuntimes
+  fontSize.js                                         applyFontSize
+  history.js                                          pushTextEditHistory, createWidgetTextReplayHandler
+  index.js                                            registerWidgetText
+  restore.js                                          handleParameterSetRestore, handleParameterSetReset
+  selectors.js                                        readWidgetTextState, readTextRecord, readTextContent, readTextPending
+  state.js                                            createInitialWidgetTextState, reduceWidgetText
+  textEdit.js                                         handleCommitTextEdit, endOpenEdit
+  textStyle.js                                        normalizeTextColor, applyReadableTextColor, applyFixedFontSize, removeFixedFontSize, removeAllScopedStyles
+  view.js                                             resolveWidgetShell, resolveEditableNodes, buildTextContentDom, placeTextContentDom, syncTextContentDom, applyRestyle
+  widgetRuntime.js                                    createIdleEditSession, readRuntimeRoot, ensureWidgetRuntime, ensureOpSeq, isStaleOpSeq, storeDomRefs
   config/
-    actionTypes.js
-    defaults.js
-    restyleClasses.js
-  state/
-    initialState.js
-    createWidgetTextReducer.js
-    selectors.js
-    cloneSerializable.js
-  runtime/
-    initializeRuntime.js
-    ensureWidgetRuntime.js
-  view/
-    forceTextDomReflow.js
-    resolveWidgetTextShell.js
-    resolveTextEditableNodes.js
-    buildTextContentDom.js
-    placeTextContentDom.js
-    syncTextContentDom.js
-    applyTextFontSize.js
-    applyTextRestyle.js
-  actions/
-    handleContentCreate.js
-    handleCommitTextEdit.js
-    commitConfirmedText.js
-    startInlineTextEdit.js
-    handleApplyFontSize.js
-    handleApplyRestyle.js
-    handleApplyTitle.js
-    handleApplyReadableTextColor.js
-    handleCleanupContent.js
-    normalizeDispatchResult.js
-    routeWidgetTextDispatch.js
-  effects/
-    bindInlineTextEdit.js
-    commitWidgetTextHistory.js
-    cleanupWidgetTextRuntime.js
-    manageScopedTextFontStyle.js
-    manageScopedTextColorStyle.js
-  history/
-    stageWidgetTextHistoryReplayHandler.js
-    createWidgetTextHistoryReplayHandler.js
-    applyWidgetTextHistoryReplay.js
+    actionTypes.js                                    CONTENT_CREATE, COMMIT_TEXT_EDIT, APPLY_FONT_SIZE, APPLY_RESTYLE, APPLY_TITLE, APPLY_READABLE_TEXT_COLOR, CLEANUP_CONTENT, ...
 ```
 
-No `events/eventNames.js` is created because `widgetText` emits no events in this tranche.
+No events file exists because `widgetText` emits no events.
 
 ## 16. Bootstrap Registration
 

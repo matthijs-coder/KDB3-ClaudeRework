@@ -136,29 +136,27 @@ Published from `header/state/selectors.js` (per `module-public-api.mdc`): o.a. `
 
 ---
 
-## 9. Folder layout (target)
+## 9. Folder layout
+
+As built (exports per file). `__orchestratorHeader.js` is a shim over `index.js` (controller + `registerHeader`). Destroy cleanup (abort controllers, DOM, `domRefs`, history replay handler) is in `index.js`.
 
 ```txt
-header/
-  __orchestratorHeader.js
-  createHeaderController.js
-  state/
-    initialState.js
-    createHeaderReducer.js
-    selectors.js
-  effects/
-    __orchestratorHeaderEffects.js
-  runtime/
-    cleanupHeaderRuntime.js
-  dom/
-    buildHeaderChrome.js
-    placeHeader.js
-    syncHeaderFromState.js
+dashboard/header/
+  __orchestratorHeader.js                             shim over index.js (path kept for KDB.js)
+  config.js                                           DEFAULT_ICON_KEY, ICON_KEY_UNSAFE_PATTERN, IMAGES_BASE_PATH, VALID_SOURCES, LABELS, ERROR_CODES
+  editSession.js                                      bindHeaderEditSession
+  effects.js                                          runHeaderEffects
+  history.js                                          pushHeaderHistoryStep, createHeaderReplayHandler
+  iconKeys.js                                         normalizeHeaderIconStem, isDefaultHeaderIcon, isSafeIconKey, readHeaderIconCatalog, resolveHeaderIconKey
+  index.js                                            registerHeader
+  restore.js                                          restoreHeaderParameterSet
+  state.js                                            createInitialHeaderState, reduceHeader, readActiveEditTarget, snapshotChrome, snapshotBeforeCommit, isSameChrome
+  view.js                                             ensureHeaderChrome, removeHeaderChrome, syncHeaderView
   events/
-    eventNames.js
+    eventNames.js                                     HEADER_CONFIRMED_CHANGED
+  state/
+    selectors.js                                      readHeaderStatus, readHeaderSubtitleVisible, readHeaderEditTarget, readHeaderTitleText, readHeaderSubtitleText, readHeaderIconKey
 ```
-
-As-built: `dashboard/header/index.js` (`createHeaderController`) remains the AMD orchestrator path; `runtime/cleanupHeaderRuntime.js` owns destroy abort/DOM/`domRefs`/history-replay-handler cleanup.
 
 ---
 
