@@ -1,38 +1,38 @@
 define([], function () {
   "use strict";
 
-  function __controller(_KDB) {
-    try {
-      return {
-        getDataSourcesFeature: function () {
-          return __getDashboardAPI().getFeature("DataSources");
-        },
+  function createDataSourcesApi() {
+    return {
+      // console helper / host knowledge base, no app caller
+      getDataSourcesFeature: function () {
+        return __getDashboardAPI().getFeature("DataSources");
+      },
 
-        getDataSourcesArray: function () {
-          return __getDashboardAPI().getSpec().dataSources.sources;
-        },
+      // console helper / host knowledge base, no app caller
+      getDataSourcesArray: function () {
+        return __getDashboardAPI().getSpec().dataSources.sources;
+      },
 
-        getDataSource: function () {
-          return __getDashboardAPI().getSources();
-        },
+      // console helper / host knowledge base, no app caller
+      getDataSource: function () {
+        return __getDashboardAPI().getSources();
+      },
 
-        getDataSourceList: function () {
-          return __getDashboardAPI().getFeature("DataSources").getDataSourceList();
-        },
+      getDataSourceList: function () {
+        return __getDashboardAPI().getFeature("DataSources").getDataSourceList();
+      },
 
-        getActiveDataSourceId: function () {
-          return __getDashboardAPI().getFeature("DataSources").getActiveDataSourceId();
-        },
+      // console helper / host knowledge base, no app caller
+      getActiveDataSourceId: function () {
+        return __getDashboardAPI().getFeature("DataSources").getActiveDataSourceId();
+      },
 
-        setActiveDataSourceId: function (_dataSourceId) {
-          return __getDashboardAPI().getFeature("DataSources").setActiveDataSourceId(_dataSourceId);
-        },
-      };
-    } catch (error) {
-      console.error("[KDB][__controller] failed", error);
-      throw error;
-    }
+      // console helper / host knowledge base, no app caller
+      setActiveDataSourceId: function (_dataSourceId) {
+        return __getDashboardAPI().getFeature("DataSources").setActiveDataSourceId(_dataSourceId);
+      }
+    };
   }
 
-  return __controller;
+  return createDataSourcesApi;
 });

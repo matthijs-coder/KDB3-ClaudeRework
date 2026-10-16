@@ -80,6 +80,16 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] PDF export (1.13) works.
 - [ ] Listener count: `getEventListeners(document)` before and after adding and removing 5 widgets - same totals as before (no growth). Console: `window.top.getKDB().runtime.cognosHost` still exists.
 - [ ] Rapid filter changes (5 clicks in 2 s). Expected: final state correct, no stuck spinner; no `timeout` errors earlier than baseline.
+- [ ] Console helpers (pure-Cognos layer kept): `Object.keys(getKDB().cognosAPI)` lists 10 themes; `getKDB().cognosAPI.visualization.getLocalFiltersList(<widgetId>)` and `getKDB().cognosAPI.widgets.getWidget(<id>)` still work.
+- [ ] Console: `var s=getKDB().services.cognosHost; s.filters===s.filters && s.widgets===s.widgets` is true; `Object.keys(s.visualization).length` is 16; `Object.keys(s.widgets)` has no `getWidgetType`.
+- [ ] Table with a slow query (> 2 s): loads, no `DATAQUERY_WAIT_TIMEOUT` in the console, time to first rows not visibly slower (the poll now backs off from 100 ms up to 1 s).
+- [ ] Toggle a vis widget's selection 10x, switch tabs 5x, duplicate and delete a vis widget 5x, switch dashboard edit/consume mode 3x: `getKDB().runtime.cognosHostService.subscriptions.length` returns to its start value; selection-driven features and the KDB authoring state still follow; no `[cognosHost.*]` errors.
+- [ ] Rapid filter changes (10 within 3 s) during a tab switch (page-context wait): no `FILTERS_*` errors; a heap snapshot before/after shows a flat "EventListener" count.
+- [ ] Table/vis widgets load after a tab switch (canvas waits); no `CANVAS_WAIT_*` in the console. Rename a tab and reload: the name persists.
+- [ ] Share link (board id, BI base URL), footer user name and PDF file name still show; PDF export on 2 different tabs (capture root).
+- [ ] Remove one required chrome selector via DevTools before load (e.g. rename the toolbar class): one alert appears once; optional misses only log `console.debug`.
+- [ ] Home dialog: the BI home perspective and app view open; the cubes-unavailable message still shows with an errored data source.
+- [ ] Teardown + reopen the dashboard: no `[cognosHost.*]` errors.
 
 ### WS-B Binding plan/apply + tableData
 - [ ] For each chart type (`Line`, `Pie`, `StackedBar`, `StackedColumn`, `List`, and the Prognose line chart): add, then change dimension, then change Kennzahl. Expected: renders identically to baseline. Console check, if you want to compare: `window.top.getKDB().services.widgetBindingPlan` is present.
