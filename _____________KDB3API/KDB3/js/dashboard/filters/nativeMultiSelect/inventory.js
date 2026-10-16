@@ -37,7 +37,8 @@ define([
   }
 
   function readClaimDefinition(_KDB, _scopeType, _itemName, _itemId, _index) {
-    return _definitions.readDefinition(_KDB, _scopeType, _itemName, _itemId, _index, claimOptions(_KDB));
+    // The source is read once per scan (createClaimIndex); only a call without an index needs the options.
+    return _definitions.readDefinition(_KDB, _scopeType, _itemName, _itemId, _index, _index ? undefined : claimOptions(_KDB));
   }
 
   // ---------- ownership policy ----------
