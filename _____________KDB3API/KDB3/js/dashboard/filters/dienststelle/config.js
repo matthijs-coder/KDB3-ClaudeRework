@@ -1,4 +1,7 @@
-define(["../../../core/cognosHost/config/filterDockChromeSelectors.js"], function (_filterDockChrome) {
+define([
+  "../../../core/cognosHost/config/filterDockChromeSelectors.js",
+  "../_core/tableDataWatcher.js"
+], function (_filterDockChrome, _tableDataWatcher) {
   "use strict";
 
   var chrome = _filterDockChrome.filterDock.strings;
@@ -53,10 +56,6 @@ define(["../../../core/cognosHost/config/filterDockChromeSelectors.js"], functio
       DEZPV: "KDB_dienststelleActive_DEZPV"
     },
     rootActiveClassValues: ["KDB_dienststelleActive_BW", "KDB_dienststelleActive_DEZPV"],
-    sichtClassByValue: {
-      BW: "KDB_Sicht_BW",
-      DEZPV: "KDB_Sicht_DEZPV"
-    },
     popupMountSelector: chrome.popupMountSelector,
     popupLabelsReadyClass: "KDB_dienststelle_popupLabelsReady",
     listItemWrapperSelector: chrome.listItemWrapperSelector,
@@ -83,32 +82,11 @@ define(["../../../core/cognosHost/config/filterDockChromeSelectors.js"], functio
     return entry ? Object.assign({}, entry) : null;
   }
 
-  function normalizeMatchValue(_value) {
-    return String(_value == null ? "" : _value).trim().toLowerCase();
-  }
-
   function readTableConfig(_KDB, _tableKey) {
     return _KDB && _KDB.config && _KDB.config.tables ? _KDB.config.tables[_tableKey] : null;
   }
 
-  function buildRelevantNameSet(_KDB) {
-    var relevantNames = {};
-    TABLE_KEYS.forEach(function (tableKey) {
-      var tableConfig = readTableConfig(_KDB, tableKey);
-      relevantNames[normalizeMatchValue(tableKey)] = true;
-      if (tableConfig && tableConfig.name) {
-        relevantNames[normalizeMatchValue(tableConfig.name)] = true;
-      }
-    });
-    return relevantNames;
-  }
-
-  function isRelevantTableName(_KDB, _tableName) {
-    if (!_tableName) {
-      return false;
-    }
-    return buildRelevantNameSet(_KDB)[normalizeMatchValue(_tableName)] === true;
-  }
+  var isRelevantTableName = _tableDataWatcher.createTableNameMatcher(TABLE_KEYS);
 
   function buildTableInput(_KDB, _tableKey) {
     var tableConfig = readTableConfig(_KDB, _tableKey);

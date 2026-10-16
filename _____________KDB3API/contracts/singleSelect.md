@@ -469,7 +469,7 @@ dashboard/filters/singleSelect/
     specialPolicy.js                                  applySpecialSelectionPolicy
     tableValues.js                                    resolveFilterOptionsTableKey, findMatchingRowValue, findMatchingUseValue, resolveFilterValueFromTable
   dockHandoff/
-    handoff.js                                        mapFilterDockHandoff, processFilterDockHandoff
+    handoff.js                                        mapFilterDockHandoff (profile over _core/dockHandoff.js mapDockHandoff), processFilterDockHandoff
     interaction.js                                    deriveInteractionIntent, applyPendingSelection, revertToBackupSelection, runInteraction
     popup.js                                          requestOriginalButtonClick, requestClosePopup, setCommitUiState, restorePopupSelection
     routeInteraction.js                               appendDiagnostic, resolveInteractionInstance, handleResolvedInteraction

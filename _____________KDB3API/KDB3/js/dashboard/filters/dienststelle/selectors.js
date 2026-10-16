@@ -59,7 +59,14 @@ define(["./state.js"], function (_state) {
     };
   }
 
+  // The action types other modules dispatch to dienststelle (sicht -> dienststelle).
+  var actionTypes = Object.freeze({
+    SICHT_CHANGED: _state.ACTIONS.SICHT_CHANGED,
+    HISTORY_REPLAY_REQUESTED: _state.ACTIONS.HISTORY_REPLAY_REQUESTED
+  });
+
   return {
+    actionTypes: actionTypes,
     readDienststelleState: readDienststelleState,
     readActiveDienststelleContext: readActiveDienststelleContext,
     readDienststelleSnapshot: readDienststelleSnapshot

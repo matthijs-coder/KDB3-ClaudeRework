@@ -1,7 +1,9 @@
 define([
   "./state.js",
+  "../_core/filterDefinitions.js",
+  "../_core/ownerPolicy.js",
   "../../../core/utils/getKennzahlenSource.js"
-], function (_state, _getKennzahlenSource) {
+], function (_state, _definitions, _ownerPolicy, _getKennzahlenSource) {
   "use strict";
 
   var stripTabpanel = _state.stripTabpanel;
@@ -24,89 +26,22 @@ define([
 
   // ---------- filter definitions (claim) ----------
 
-  function normalize(_value) {
-    return _value == null ? "" : String(_value).trim();
-  }
-
-  function readLegacyDefinition(_sourceConfig, _scopeType, _itemName) {
-    var definitions = _scopeType === "global"
-      ? _sourceConfig && _sourceConfig.globalFilters
-      : _sourceConfig && _sourceConfig.pageContextFilters;
-    return definitions && definitions[_itemName] ? definitions[_itemName] : null;
-  }
-
-  function dedupeEquivalent(_entries) {
-    var bySignature = {};
-    _entries.forEach(function (_entry) {
-      var signature = JSON.stringify({
-        scopeType: _entry.scopeType || null,
-        filterLabel: _entry.filterLabel || null,
-        itemName: _entry.itemName || null,
-        itemId: _entry.itemId || null,
-        instanceKey: _entry.instanceKey || null,
-        condition: _entry.condition || null,
-        isSingleSelect: _entry.isSingleSelect || null,
-        isHierarchy: _entry.isHierarchy || null,
-        isNative: _entry.isNative || null,
-        cascade: _entry.cascade || null
-      });
-      if (!bySignature[signature]) { bySignature[signature] = _entry; }
-    });
-    return Object.keys(bySignature).map(function (_key) { return bySignature[_key]; });
-  }
-
-  function claimKey(_scopeType, _itemName) {
-    return _scopeType + "\u0000" + _itemName;
+  function claimOptions(_KDB) {
+    return Object.assign({}, _definitions.NATIVE_DEFINITION_OPTIONS, { source: _getKennzahlenSource(_KDB) });
   }
 
   // Definitions of the active source grouped by scope type and item name, in the order of filterInstances.
   // Callers that classify many descriptors build it once per scan.
   function createClaimIndex(_KDB) {
-    var root = _KDB && _KDB.properties ? _KDB.properties.filterPropObj : null;
-    var source = _getKennzahlenSource(_KDB);
-    var sourceConfig = root && source ? root[source] : null;
-    var definitions = (sourceConfig && sourceConfig.filterInstances) || {};
-    var byKey = {};
-    Object.keys(definitions).forEach(function (_key) {
-      var entry = definitions[_key];
-      var key;
-      if (!entry) { return; }
-      key = claimKey(normalize(entry.scopeType), normalize(entry.itemName || entry.filterLabel));
-      (byKey[key] = byKey[key] || []).push(entry);
-    });
-    return { sourceConfig: sourceConfig, byKey: byKey };
+    return _definitions.createDefinitionIndex(_KDB, claimOptions(_KDB));
   }
 
   function readClaimDefinition(_KDB, _scopeType, _itemName, _itemId, _index) {
-    var claimIndex = _index || createClaimIndex(_KDB);
-    var itemName = normalize(_itemName);
-    var itemId = normalize(_itemId);
-    var key = claimKey(_scopeType, itemName);
-    var matches = Object.prototype.hasOwnProperty.call(claimIndex.byKey, key) ? claimIndex.byKey[key] : [];
-    var legacy;
-    matches = dedupeEquivalent(matches.filter(function (_entry) {
-      return !(_entry.itemId && itemId && normalize(_entry.itemId) !== itemId);
-    }));
-    if (matches.length === 1) { return { status: "ok", definition: matches[0] }; }
-    if (matches.length > 1) { return { status: "ambiguous", definition: null }; }
-    legacy = readLegacyDefinition(claimIndex.sourceConfig, _scopeType, itemName);
-    return legacy ? { status: "ok", definition: legacy } : { status: "missing", definition: null };
+    // The source is read once per scan (createClaimIndex); only a call without an index needs the options.
+    return _definitions.readDefinition(_KDB, _scopeType, _itemName, _itemId, _index, _index ? undefined : claimOptions(_KDB));
   }
 
   // ---------- ownership policy ----------
-
-  function normalized(_value) {
-    return _value == null ? "" : String(_value).trim().toLowerCase();
-  }
-
-  function isTrueish(_value) {
-    return _value === true || normalized(_value) === "true" || normalized(_value) === "trueish";
-  }
-
-  function hasOwnFlag(_definition, _key) {
-    return _definition != null && Object.prototype.hasOwnProperty.call(_definition, _key) &&
-      _definition[_key] != null && normalized(_definition[_key]) !== "";
-  }
 
   // Ownership policy over a flat descriptor. This is KDB domain logic and stays with the owner: the cognosHost
   // filters facet only translates host items into descriptors, it does not decide which filter belongs to which owner.
@@ -119,16 +54,10 @@ define([
       if (!scope) { return false; }
       var scopeType = stripTabpanel(scope) === "global" ? "global" : "pageContext";
       var itemName = String(descriptor.itemName || "");
-      if (normalized(itemName).indexOf("dienststelle") === 0) { return false; }
-      var definitionResult = readClaimDefinition(_KDB, scopeType, itemName, itemId, _claimIndex);
-      if (definitionResult.status !== "ok" || !definitionResult.definition) { return true; }
-      var definition = definitionResult.definition;
-      if (isTrueish(definition.isHierarchy) || normalized(definition.cascade) === "downstream") { return false; }
-      if (normalized(definition.condition) === "personengruppe" || normalized(definition.condition) === "dienststellenleitung") { return false; }
-      if (isTrueish(definition.isSingleSelect)) { return false; }
-      if (isTrueish(definition.isNative)) { return true; }
-      if (!hasOwnFlag(definition, "isHierarchy") && !hasOwnFlag(definition, "isSingleSelect")) { return false; }
-      return true;
+      return _ownerPolicy.isClaimedByNativeMultiSelect(
+        readClaimDefinition(_KDB, scopeType, itemName, itemId, _claimIndex),
+        itemName
+      );
     } catch (error) {
       console.error("[nativeMultiSelect.isUnownedFilterDescriptor] failed", error);
       return false;

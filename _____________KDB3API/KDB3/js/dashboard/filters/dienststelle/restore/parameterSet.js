@@ -3,6 +3,7 @@ define([
   "../config.js",
   "../selectors.js",
   "../../../../core/utils/kit/runtime.js",
+  "../../_core/parameterSetRun.js",
   "../effects/hostScope/apply.js",
   "../effects/hostScope/clear.js",
   "../effects/reconcile/runReconcile.js",
@@ -16,6 +17,7 @@ define([
   _config,
   _selectors,
   _kitRuntime,
+  _runGuard,
   _applyScope,
   _clearScope,
   _runReconcile,
@@ -59,33 +61,17 @@ define([
   }
 
   function guardRun(_controller, _payload) {
-    var runId = _payload && _payload.runId;
-    var runtime;
-    if (typeof runId !== "number" || !isFinite(runId)) {
-      return {
-        ok: false,
-        diagnostics: [{ code: CODES.CANCELLED, message: "dienststelle parameterSet action requires a numeric runId" }]
-      };
-    }
+    var rejection;
     _controller.runtime = _controller.runtime ||
       _kitRuntime.ensureRuntime(_controller._KDB, "dienststelle", _config.createRuntimeDefaults());
-    runtime = _controller.runtime;
-    if (typeof runtime.parameterSetRunId === "number" && runId < runtime.parameterSetRunId) {
-      return {
-        ok: false,
-        diagnostics: [{
-          code: CODES.CANCELLED,
-          message: "stale parameterSet runId " + runId + " superseded by " + runtime.parameterSetRunId
-        }]
-      };
-    }
-    runtime.parameterSetRunId = runId;
-    return null;
+    rejection = _runGuard.claimParameterSetRun(_controller.runtime, _payload && _payload.runId, {
+      invalidMessage: "dienststelle parameterSet action requires a numeric runId"
+    });
+    return rejection ? { ok: false, diagnostics: [{ code: CODES.CANCELLED, message: rejection.message }] } : null;
   }
 
   function isStale(_controller, _runId) {
-    var runtime = _controller.runtime;
-    return !!(runtime && typeof runtime.parameterSetRunId === "number" && _runId < runtime.parameterSetRunId);
+    return _runGuard.isStaleParameterSetRun(_controller.runtime, _runId);
   }
 
   function createParameterSetContext(_controller, _dispatch, _dispatchInternal) {

@@ -8,8 +8,8 @@ define([
   "./effects/dispatchRoute.js",
   "./effects/hierarchySnapshot.js",
   "./effects/reconcile/runReconcile.js",
-  "../../../core/services/tableData/events/eventNames.js",
-  "../../../core/utils/kit/data.js",
+  "../_core/ownerController.js",
+  "../_core/tableDataWatcher.js",
   "../../../core/utils/kit/runtime.js",
   "../../../core/utils/kit/errors.js",
   "../../../core/utils/kit/history.js"
@@ -23,8 +23,8 @@ define([
   _dispatchRoute,
   _hierarchySnapshot,
   _runReconcile,
-  _tableDataEvents,
-  _kitData,
+  _ownerController,
+  _tableDataWatcher,
   _kitRuntime,
   _kitErrors,
   _kitHistory
@@ -45,22 +45,17 @@ define([
     return service && service[_name] ? service[_name] : null;
   }
 
-  function subscribeTableDataChanges(_KDB, _api) {
-    var events = _KDB && _KDB.events;
-    if (!events || typeof events.subscribe !== "function") {
-      return null;
-    }
-    return events.subscribe(_tableDataEvents.LOAD_FINISHED, function (_payload) {
-      var tableName = _payload && _payload.tableName;
-      if (!_config.isRelevantTableName(_KDB, tableName)) {
-        return;
-      }
-      _api.dispatch({
-        type: ACTIONS.TABLE_DATA_CHANGED,
-        payload: { tableName: tableName, rowCount: _payload.rowCount, source: "tableData" }
-      });
-    });
+  function disposedTabMutationResult(_action) {
+    return _tabMutation.disposedResult(_action.payload);
   }
+
+  var DISPOSED_RESULTS = {};
+  DISPOSED_RESULTS[ACTIONS.PARAMETER_SET_CLEAR_REQUESTED] = _parameterSet.disposedResult;
+  DISPOSED_RESULTS[ACTIONS.PARAMETER_SET_RESTORE_REQUESTED] = _parameterSet.disposedResult;
+  DISPOSED_RESULTS[ACTIONS.PREPARE_TAB_MUTATION] = disposedTabMutationResult;
+  DISPOSED_RESULTS[ACTIONS.APPLY_TAB_MUTATION] = disposedTabMutationResult;
+  DISPOSED_RESULTS[ACTIONS.RESTORE_TAB_MUTATION_SNAPSHOT] = disposedTabMutationResult;
+  DISPOSED_RESULTS[ACTIONS.RESYNC_TAB_MUTATION_HOST] = disposedTabMutationResult;
 
   function createDienststelleController(_deps) {
     var controller = {
@@ -70,14 +65,8 @@ define([
       runtime: null
     };
     var guard = _kitErrors.createDisposedGuard("dienststelle");
+    var dispatchInternal = _ownerController.createStateWriter(controller._KDB, "dienststelle", _state.reduceDienststelle);
     var api;
-
-    function dispatchInternal(_action) {
-      var filtersState = controller._KDB.state && controller._KDB.state.filters;
-      if (filtersState) {
-        filtersState.dienststelle = _state.reduceDienststelle(filtersState.dienststelle, _action);
-      }
-    }
 
     function reportError(_error) {
       dispatchInternal({
@@ -89,57 +78,36 @@ define([
       });
     }
 
+    function dispatchPublic(_action) {
+      return api.dispatch(_action);
+    }
+
+    function buildTableDataPayload(_tableName, _eventPayload) {
+      return { tableName: _tableName, rowCount: _eventPayload.rowCount, source: "tableData" };
+    }
+
     function mount(_options) {
-      var existingUnsubscribe;
-      if (guard.blocked("mount")) {
-        return false;
-      }
-      try {
-        controller.runtime = ensureDienststelleRuntime(controller._KDB);
-        controller.options = Object.assign({}, controller.options, _options || {});
-        dispatchInternal({ type: ACTIONS.MOUNT_READY, payload: { mountedAt: Date.now() } });
-        existingUnsubscribe = controller.runtime.subscriptions.tableDataLoadFinished;
-        if (typeof existingUnsubscribe === "function") {
-          existingUnsubscribe();
-        }
-        controller.runtime.subscriptions.tableDataLoadFinished = subscribeTableDataChanges(controller._KDB, api);
-        return true;
-      } catch (error) {
-        console.error("[dienststelle.mount] failed", error);
-        return false;
-      }
+      controller.runtime = ensureDienststelleRuntime(controller._KDB);
+      controller.options = Object.assign({}, controller.options, _options || {});
+      dispatchInternal({ type: ACTIONS.MOUNT_READY, payload: { mountedAt: Date.now() } });
+      _tableDataWatcher.watchTableData(controller._KDB, {
+        runtime: controller.runtime,
+        isRelevant: _config.isRelevantTableName,
+        dispatch: dispatchPublic,
+        actionType: ACTIONS.TABLE_DATA_CHANGED,
+        buildPayload: buildTableDataPayload
+      });
     }
 
-    function destroy() {
-      var runtime;
-      if (guard.isDisposed()) {
-        return;
+    function teardown() {
+      var runtime = controller.runtime || controller._KDB.runtime.dienststelle;
+      if (runtime) {
+        _kitRuntime.disposeRuntimeBuckets(runtime).forEach(function (error) {
+          console.warn("[dienststelle.destroy] runtime release failed", error);
+        });
+        runtime.tabMutationRunId = 0;
+        runtime.tabMutationSnapshots = {};
       }
-      guard.dispose();
-      try {
-        runtime = controller.runtime || controller._KDB.runtime.dienststelle;
-        if (runtime) {
-          _kitRuntime.disposeRuntimeBuckets(runtime).forEach(function (error) {
-            console.warn("[dienststelle.destroy] runtime release failed", error);
-          });
-          runtime.tabMutationRunId = 0;
-          runtime.tabMutationSnapshots = {};
-          runtime.historyReplayHandlerContribution = null;
-        }
-        dispatchInternal({ type: ACTIONS.DESTROY, payload: {} });
-      } catch (error) {
-        console.error("[dienststelle.destroy] failed", error);
-      }
-    }
-
-    function dispatchDisposed(_action) {
-      if (_parameterSet.isParameterSetAction(_action.type)) {
-        return _parameterSet.disposedResult();
-      }
-      if (_tabMutation.isTabMutationAction(_action.type)) {
-        return _tabMutation.disposedResult(_action.payload);
-      }
-      return undefined;
     }
 
     function dispatchRouted(_action) {
@@ -163,62 +131,49 @@ define([
       return _selectors.readDienststelleState(controller._KDB);
     }
 
-    function dispatch(_action) {
-      var action = _action || {};
-      if (guard.blocked("dispatch")) {
-        return dispatchDisposed(action);
+    function route(_action) {
+      if (_parameterSet.isParameterSetAction(_action.type)) {
+        return _parameterSet.routeParameterSetAction(
+          _parameterSet.createParameterSetContext(controller, dispatchPublic, dispatchInternal),
+          _action
+        );
       }
-      try {
-        if (_parameterSet.isParameterSetAction(action.type)) {
-          return _parameterSet.routeParameterSetAction(
-            _parameterSet.createParameterSetContext(controller, dispatch, dispatchInternal),
-            action
-          );
-        }
-        if (_tabMutation.isTabMutationAction(action.type)) {
-          // No filtersFacet on purpose: the tab-mutation effects resolve it through the module's host
-          // choke point (contracts/cognosHostService.md section 7).
-          return _tabMutation.routeTabMutationAction({
-            _KDB: controller._KDB,
-            runtime: controller.runtime || ensureDienststelleRuntime(controller._KDB),
-            dispatchInternal: dispatchInternal
-          }, action);
-        }
-        return dispatchRouted(action);
-      } catch (error) {
-        console.error("[dienststelle.dispatch] failed", error);
-        reportError(error);
-        return undefined;
+      if (_tabMutation.isTabMutationAction(_action.type)) {
+        // No filtersFacet on purpose: the tab-mutation effects resolve it through the module's host
+        // choke point (contracts/cognosHostService.md section 7).
+        return _tabMutation.routeTabMutationAction({
+          _KDB: controller._KDB,
+          runtime: controller.runtime || ensureDienststelleRuntime(controller._KDB),
+          dispatchInternal: dispatchInternal
+        }, _action);
       }
+      return dispatchRouted(_action);
     }
 
-    function getState() {
-      return guard.isDisposed() ? undefined : _kitData.cloneJson(_selectors.readDienststelleState(controller._KDB));
-    }
-
-    function getCurrentHierarchySnapshot(_options) {
-      return guard.isDisposed() ? undefined : _hierarchySnapshot.readCurrentHierarchySnapshot(controller._KDB, _options);
-    }
-
-    api = {
+    api = Object.assign(_ownerController.createOwnerController({
+      _KDB: controller._KDB,
+      name: "dienststelle",
+      guard: guard,
+      reduce: dispatchInternal,
       mount: mount,
-      destroy: destroy,
-      dispatch: dispatch,
-      getState: getState,
-      getCurrentHierarchySnapshot: getCurrentHierarchySnapshot
-    };
+      teardown: teardown,
+      route: route,
+      destroyAction: ACTIONS.DESTROY,
+      clearsReplayContribution: true,
+      disposedResults: DISPOSED_RESULTS,
+      onDispatchError: reportError
+    }), {
+      getCurrentHierarchySnapshot: function getCurrentHierarchySnapshot(_options) {
+        return guard.isDisposed() ? undefined : _hierarchySnapshot.readCurrentHierarchySnapshot(controller._KDB, _options);
+      }
+    });
     return api;
   }
 
   function registerDienststelle(_KDB, _options) {
     var runtime;
     var controllerApi;
-    _KDB.state = _KDB.state || {};
-    _KDB.state.filters = _KDB.state.filters || {};
-    _KDB.api = _KDB.api || {};
-    if (!_KDB.state.filters.dienststelle) {
-      _KDB.state.filters.dienststelle = _state.createInitialState();
-    }
+    _ownerController.prepareOwnerNamespaces(_KDB, "dienststelle", { createInitialState: _state.createInitialState });
     runtime = ensureDienststelleRuntime(_KDB);
     runtime.tabsFacet = readHostFacet(_KDB, "tabs");
 

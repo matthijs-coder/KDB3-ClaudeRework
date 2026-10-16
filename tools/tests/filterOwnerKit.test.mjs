@@ -173,6 +173,17 @@ test("controller: disposed results answer per action type, warn once, unknown ty
   assert.deepEqual(con.logged.warn.map((a) => a[0]), ["[demo.dispatch] called after destroy"]);
 });
 
+test("controller: a payload-only disposed factory is adapted by the owner (the kit passes the whole action)", async () => {
+  const payloadOnly = (payload) => Promise.resolve({ ok: false, operationId: (payload || {}).operationId || null });
+  const { api } = makeOwner({
+    disposedResults: { "demo/tab": (action) => payloadOnly(action.payload), "demo/raw": payloadOnly }
+  });
+  api.destroy();
+  assert.deepEqual(await api.dispatch({ type: "demo/tab", payload: { operationId: "op-1" } }), { ok: false, operationId: "op-1" });
+  assert.deepEqual(await api.dispatch({ type: "demo/tab" }), { ok: false, operationId: null });
+  assert.deepEqual(await api.dispatch({ type: "demo/raw", payload: { operationId: "op-1" } }), { ok: false, operationId: null });
+});
+
 test("controller (nativeMultiSelect style): warnOnDisposedResult:false warns only for types without a result", () => {
   const con = makeConsole();
   const { api } = makeOwner({

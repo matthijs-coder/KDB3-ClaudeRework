@@ -1,4 +1,7 @@
-define(["../config.js"], function (_config) {
+define([
+  "../config.js",
+  "../../filterDock/selectors.js"
+], function (_config, _filterDockSelectors) {
   "use strict";
 
   var SELECTORS = _config.DOM_SELECTORS;
@@ -62,8 +65,7 @@ define(["../config.js"], function (_config) {
   }
 
   function readMatchingActiveFilterEl(_KDB, _activeFilterKey) {
-    var refs = _KDB && _KDB.runtime && _KDB.runtime.filterDock ? _KDB.runtime.filterDock.domRefs : null;
-    var activeFilterEl = refs ? refs.activeFilterEl : null;
+    var activeFilterEl = _filterDockSelectors.readActiveFilterEl(_KDB);
     var attr = SELECTORS.filterDataIdAttr;
     var hits;
     if (!activeFilterEl || !activeFilterEl.isConnected || !activeFilterEl.closest) {
