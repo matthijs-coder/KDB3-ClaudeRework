@@ -110,10 +110,10 @@ no `wgts` / page-`filt` rows for those hidden indexes.
 - Live clear sites (all must honor that allow-list):
   - NMS `dashboard/filters/nativeMultiSelect/restore.js` (`parameterSetClear`) `collectScopeIds` — today every
     `tabIdxToScopeId` key. May filter keys at SET dispatch **or** in this file.
-  - Dienststelle `clearDienststelleHostFilter.js` — today `global` + every
+  - Dienststelle `dashboard/filters/dienststelle/effects/hostScope/clear.js` (`clearHostFilter`) — today `global` + every
     `listPageContextScopes` id; **`tabIdxToScopeId` unused**. Must skip host
     scopes that map to a hidden unnamed `tabIdx`.
-  - SingleSelect `clearParameterSetInstances.js` — today every active
+  - SingleSelect `dashboard/filters/singleSelect/restore/clear.js` (`clearInstances`) — today every active
     instance whenever `filt` is present; **`tabIdxToScopeId` unused**. Must
     skip page instances on hidden unnamed tabs.
 - Step 9 widget reset stays “all owned on-canvas” (decision 6b). Step 23
@@ -144,14 +144,14 @@ no `wgts` / page-`filt` rows for those hidden indexes.
 - `core/services/writeback/set/effects/filters/runFilterRestore.js` — same allow-list; step 18 still activates payload-named hidden `tabIdx`s
 - `dashboard/filters/nativeMultiSelect/restore.js` (`parameterSetClear`) — `collectScopeIds` honor allow-list
 - `dashboard/filters/nativeMultiSelect/restore.js` (`parameterSetClear`)
-- `KDB3/js/dashboard/filters/dienststelle/effects/clearDienststelleHostFilter.js` — do not clear unlisted hidden host scopes
+- `KDB3/js/dashboard/filters/dienststelle/effects/hostScope/clear.js` (`clearHostFilter`) — do not clear unlisted hidden host scopes
 - `dashboard/filters/singleSelect/restore/clear.js` (`handleParameterSetClear`)
-- `KDB3/js/dashboard/filters/singleSelect/actions/parameterSet/clearParameterSetInstances.js` — skip page instances on hidden unnamed tabs
+- `KDB3/js/dashboard/filters/singleSelect/restore/clear.js` (`clearInstances`) — skip page instances on hidden unnamed tabs
 
 **SET JS — keep (do not edit in this WP)**
 
 - `KDB3/js/core/services/writeback/set/effects/runNormalRestore.js` — step 9 park-all; step 28 `visibleDashboard`
-- `KDB3/js/dashboard/widgets/widgetBase/actions/handleParameterSetReset.js` — park all `onCanvas`
+- `KDB3/js/dashboard/widgets/widgetBase/restore.js` (`handleParameterSetReset`) — park all `onCanvas`
 - `KDB3/js/core/services/writeback/set/effects/runWidgetRestore.js` — step 23 still `includeHidden` for named `wgts.tab`
 - `core/services/writeback/set/effects/filters/filterRestoreTargets.js` — stay full identity map
 - `dashboard/tabs/selectors.js` (`buildTabTargets`) — stay full (every dashboard slot + `visible`)

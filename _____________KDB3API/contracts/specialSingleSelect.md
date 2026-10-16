@@ -488,7 +488,7 @@ Optional splits are allowed in the execution spec to keep file sizes under limit
 
 Expected integration after CP-1 approval:
 
-- `KDB.js` or a future parent `dashboard/filters/__orchestratorFilters.js` registers `_KDB.api.specialSingleSelect`.
+- `KDB.js` or a future parent filters orchestrator (not built) registers `_KDB.api.specialSingleSelect`.
 - `filterDock` routes `filterType: "specialSingleSelect"` to `_KDB.api.specialSingleSelect`, not directly to `_KDB.api.singleSelect`.
 - `specialSingleSelect` delegates generic popup/user behavior to `_KDB.api.singleSelect`.
 - `sicht` or a parent filters orchestrator dispatches confirmed Sicht changes to `_KDB.api.specialSingleSelect`.
@@ -545,7 +545,7 @@ Q4. Approve mandatory `selectionSource: "user"` notification from `singleSelect`
 
 Q5. Approve direct API/dispatch from `sicht` or a parent filters orchestrator to `specialSingleSelect`, with no event catalog change in this tranche?
 
-Q6. Decide exact integration hook owner: should `sicht` call `_KDB.api.specialSingleSelect.dispatch(...)` directly, or should a parent `dashboard/filters/__orchestratorFilters.js` route confirmed Sicht changes?
+Q6. Decide exact integration hook owner: should `sicht` call `_KDB.api.specialSingleSelect.dispatch(...)` directly, or should a parent filters orchestrator (not built) route confirmed Sicht changes?
 
 Q7. Decide exact Cognos set/clear API names for automatic special selection.
 

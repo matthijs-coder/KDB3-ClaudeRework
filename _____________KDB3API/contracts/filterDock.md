@@ -58,7 +58,7 @@ Naming decision:
 | `filterDock/getFilterConfig.js` | Lookup of filter config by scope and label. |
 | `filterDock/resolveFilterCapabilities.js` | Single-select, hierarchy/dienststelle, upstream/sicht, Alle-option and condition detection. |
 | `filterDock/resolveKennzahlenSource.js` | Legacy utility wrapper; production uses AMD import of `core/utils/getKennzahlenSource.js` in `getFilterConfig.js`. |
-| `filters/__filtersOrchestrator.js` | Current legacy startup shape: wait for dock, attach filterDock, route to type modules. |
+| `legacy-redesign2:js/dashboard/filters/__filtersOrchestrator.js` | Legacy startup shape only: wait for dock, attach filterDock, route to type modules. Not present in production. |
 | `dashboard/filters/singleSelect/dockHandoff/popup.js` (`restorePopupSelection`) | Evidence of local popup `MutationObserver` and out-click handling that future Mode 3 may delegate/remove. |
 | `sicht/restorePopupSelection.js` | REDESIGN2/legacy evidence only (not a production Sicht file). Live Sicht popup sync: `sicht/effects/syncSichtOptionAvailability.js`. Do not invent Sicht `restorePopupSelection.js`. |
 | `singleSelect/__singleSelectOrchestrator.js`, `sicht/__sichtOrchestrator.js`, `stelleHierarchy/__stelleHierarchyOrchestrator.js` | Evidence for future owner reactions and direct API integration targets. |
@@ -67,7 +67,7 @@ Production evidence:
 
 - `_____________KDB3API/KDB3/js/dashboard/filters/filterDock/` exists (Mode 2 port).
 - `_____________KDB3API/contracts/filterDock.md` and `filterDock-port-execution-spec.md` govern this tranche.
-- `KDB.js` registers and mounts `_KDB.api.filterDock` via `__orchestratorFilterDock.js` (no `__orchestratorFilters.js` yet).
+- `KDB.js` registers and mounts `_KDB.api.filterDock` via `__orchestratorFilterDock.js` (there is no parent filters orchestrator).
 
 ## 2. Purpose
 
@@ -99,7 +99,7 @@ Bootstrap (current):
 
 Future bootstrap recommendation:
 
-- When `singleSelect`, `sicht`, and `dienststelle` exist, a shared `dashboard/filters/__orchestratorFilters.js` may replace direct `KDB.js` imports of each filter submodule.
+- When `singleSelect`, `sicht`, and `dienststelle` exist, a shared parent filters orchestrator (not built) could replace direct `KDB.js` imports of each filter submodule.
 
 ## 4. Ownership
 
@@ -581,7 +581,7 @@ Implemented:
 
 Future integration target:
 
-- Optional `KDB3/js/dashboard/filters/__orchestratorFilters.js` when `singleSelect`, `sicht`, and `dienststelle` are ported; that orchestrator would register/mount all filter submodules and `KDB.js` would import only the filters orchestrator.
+- Optional parent filters orchestrator (not built) when `singleSelect`, `sicht`, and `dienststelle` are ported; that orchestrator would register/mount all filter submodules and `KDB.js` would import only the filters orchestrator.
 
 ## 14. Out Of Scope
 

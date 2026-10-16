@@ -28,7 +28,7 @@
 | Payload | **None.** No query, hash, board id, user, filters, PDF export, postMessage |
 | Iframe / `widget.js` | **Forbidden.** PO 2026-09-13: dead end for WienKI chat *and* WienBot. Do not reopen |
 | Geometry | Named popup, right, ~420px, top flush. **Right/bottom hairline accepted** (Chrome work-area clamp + Windows DWM). Do not retune overshoot / `resizeTo` / window name for flush |
-| Chat vs bot URL | PO decides. Switch only via `baseLinks.wienKiUrl`. KDB does not send the handbook |
+| Chat vs bot URL | PO decides. Switch only via `links.wienKiUrl` in `core/config/dashboardSettings.js`. KDB does not send the handbook |
 | Visual order | **Share \| WienKI \| PDF \| History** |
 | Share patch | `placeShareControls.readLeftmostAnchor` must include `[data-kdb-wien-ki-controls]` |
 | Icon | Speech-bubble + letters **KI** (German). Not “AI”. Inline SVG `currentColor` (no PNG pair) |
@@ -229,7 +229,7 @@ Empty / non-https URL at `finishMount`: `serviceAvailable: false`, root `is-unav
 
 ## 14. Open questions
 
-PO is choosing WienKI chat vs WienBot and will ingest the KDB handbook there. When the start URL is known, change **only** `baseLinks.wienKiUrl` (absolute `https:`). No other module work for that switch.
+PO is choosing WienKI chat vs WienBot and will ingest the KDB handbook there. When the start URL is known, change **only** `links.wienKiUrl` in `core/config/dashboardSettings.js` (absolute `https:`). No other module work for that switch.
 
 ---
 

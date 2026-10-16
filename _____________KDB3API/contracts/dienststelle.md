@@ -495,7 +495,7 @@ Contract decision: a targeted `filterDock`-owned `popupDisplayResync` observer/r
 Expected future dispatch site:
 
 ```txt
-KDB3/js/dashboard/filters/sicht/effects/commitConfirmedSicht.js
+KDB3/js/dashboard/filters/sicht/commit.js
 ```
 
 Expected action:
@@ -896,7 +896,7 @@ Optional splits are allowed in the execution spec to keep file sizes under limit
 
 Expected integration after CP-1 approval:
 
-- `KDB.js` or a future parent `dashboard/filters/__orchestratorFilters.js` registers `_KDB.api.dienststelle`.
+- `KDB.js` registers `_KDB.api.dienststelle` via `dienststelle/__orchestratorDienststelle.js`.
 - `filterDock/effects/dispatchFilterHandoff.js` routes `dienststelle` to `_KDB.api.dienststelle`.
 - `dashboard/filters/sicht/commit.js` (`commitConfirmedSicht`) dispatches confirmed Sicht changes to `_KDB.api.dienststelle`.
 - History replay collection registers `filter_dienststelle` handler.
@@ -904,7 +904,7 @@ Expected integration after CP-1 approval:
 
 Parent orchestrator:
 
-- There is no current production `dashboard/filters/__filtersOrchestrator.js`.
+- There is no parent filters orchestrator; `KDB.js` imports each filter orchestrator directly.
 - Creating a parent filters orchestrator is not required for this tranche unless CP-1 expands scope.
 
 Bootstrap ordering:

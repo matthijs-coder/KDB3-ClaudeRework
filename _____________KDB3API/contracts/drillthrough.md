@@ -41,7 +41,7 @@ Target report: **PER125 Personalkennzahlen-Analysetool** via dxportal `pathRef`.
 | `contracts/widgetVis.md` / `widgetVis-port-execution-spec.md` | Icon DOM (T1 + S2), click, spec assembly, service **call**, F1c consume via stamped `visualizationFacet`. |
 | `contracts/dienststelle.md` | `getCurrentHierarchySnapshot()` is planner `useValue[]` only. Not enough for BW/DEZPV tree walk. |
 | `KDB3/js/core/config/tables.js` | Hierarchy table keys `dienststelle_bw_hierarchy` / `dienststelle_dezpv_hierarchy`. |
-| `KDB3/js/core/config/baseLinks.js` | Existing home for `_KDB.config.links` URL strings. |
+| `KDB3/js/core/config/dashboardSettings.js` (`links`) | Existing home for `_KDB.config.links` URL strings. |
 
 Deliberate deltas versus live `addPkzDrillthrough.js`:
 
@@ -527,7 +527,7 @@ No dependencies on `_KDB.api.*`, `_KDB.events`, `_KDB.cognosAPI.*`, `_KDB.runtim
 
 | Concern | Home | Why |
 |---|---|---|
-| Env report URLs (`pathRef`) | `_KDB.config.links.pkzAnalysetool.{dev,test,prod}` | Existing links owner (`core/config/baseLinks.js`). |
+| Env report URLs (`pathRef`) | `_KDB.config.links.pkzAnalysetool.{dev,test,prod}` | Existing links owner (`core/config/dashboardSettings.js`, `links`). |
 | `p_datenart` hash | service `core/services/drillthrough/config.js` (`datenart`) | Prompt constant, not a navigable URL. |
 | Prompt catalog, aufriss maps, month labels, dummy constants | service `config/` | Encoder/assembler policy. |
 

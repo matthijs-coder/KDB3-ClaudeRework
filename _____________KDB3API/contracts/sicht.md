@@ -529,38 +529,25 @@ No live DOM nodes are stored in `_KDB.state`. Runtime refs belong under `_KDB.ru
 
 ## 17. Folder Layout
 
-Production target after CP-1 and execution-spec approval:
+As built (`KDB3/js/dashboard/filters/sicht/`, 14 files):
 
 ```txt
 KDB3/js/dashboard/filters/sicht/
-  __orchestratorSicht.js
-  createSichtController.js
-  config/
-    actions.js
-    sichtDefinitions.js
-    selectors.js
-  state/
-    initialState.js
-    createSichtReducer.js
-    selectors.js
-  effects/
-    mapFilterDockHandoff.js
-    readSichtAvailabilityFromTableData.js
-    evaluateSichtOptions.js
-    syncSichtOptionAvailability.js
-    delegateToSingleSelect.js
-    commitConfirmedSicht.js
-    notifySpecialSingleSelect.js
-    ensureSichtRuntime.js
-    cleanupSichtRuntime.js
-  history/
-    buildCommittedStep.js
-    readDependencySnapshots.js
-    applySichtHistoryReplay.js
-    createSichtHistoryReplayHandler.js
+  __orchestratorSicht.js   one-line shim over index.js (imported by KDB.js)
+  index.js                 createSichtController + ROUTES table + tableData subscription; registerSicht
+  config.js                Sicht action/selector/class constants (chrome selectors from _KDB.elements.selectors)
+  state.js                 actions, createInitialState, createSichtReducer
+  state/selectors.js       readSichtState, readActiveSichtValue, readConfirmedSichtSelection, findOptionByDisplay, findOptionByUse
+  availability.js          readSichtAvailabilityFromTableData, evaluateSichtOptions, evaluateAndStoreSichtOptions
+  options.js               routeSyncAction, selectStartupSichtDefault (startup default)
+  view.js                  syncSichtOptionAvailability (popup option DOM sync)
+  delegation.js            filterDock handoff mapping and delegation to singleSelect
+  validation.js            singleSelect draft/commit payload validation (applySingleSelectDraft)
+  commit.js                applySingleSelectCommit, commitConfirmedSicht, notifySpecialSingleSelect
+  operations.js            delegated operation ids (register / begin commit / mark committed / abandon)
+  restore.js               parameter-set clear / restore / downstream visibility
+  history.js               history replay handler, dependency snapshots, committed-step builder
 ```
-
-Optional splits are allowed in the execution spec to keep file sizes under limits. Do not create vague folders such as `helpers`, `common`, `misc`, `manager`, or `shared`.
 
 ## 18. Bootstrap And Integration
 
@@ -576,7 +563,7 @@ This tranche includes bootstrap and CSS registration after CP-1 approval:
 
 Future integration target:
 
-- A parent `dashboard/filters/__orchestratorFilters.js` may later own registration / mounting of `filterDock`, `singleSelect`, `specialSingleSelect`, `sicht`, and `dienststelle`.
+- A parent filters orchestrator (not built) may later own registration / mounting of `filterDock`, `singleSelect`, `specialSingleSelect`, `sicht`, and `dienststelle`.
 - That parent orchestrator is not created in this tranche unless a later CP-1 changes scope.
 
 ## 19. Performance Decision

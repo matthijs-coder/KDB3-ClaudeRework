@@ -487,7 +487,7 @@ Default recommendation:
 
 - `singleSelect` contract and implementation are prepared first.
 - Production `filterDock` dispatch wiring is deferred to a small integration tranche unless CP-1 explicitly bundles exact filterDock changes.
-- A future `dashboard/filters/__orchestratorFilters.js` may mount `filterDock` and filter owner modules together, but is not required for this CP-1 unless the user chooses to bundle parent wiring.
+- A future parent filters orchestrator (not built) may mount `filterDock` and filter owner modules together, but is not required for this CP-1 unless the user chooses to bundle parent wiring.
 
 Documented future route:
 
@@ -508,7 +508,7 @@ No `KDB.js` or parent orchestrator edit is included unless CP-1 explicitly expan
 ## 16. Out Of Scope
 
 - `specialRights/**` unless CP-1 explicitly includes it with exact files and state/runtime/API decisions.
-- Full port of `filterDock`, `sicht`, `stelleHierarchy` / `dienststelle`, or a parent `__orchestratorFilters.js`.
+- Full port of `filterDock`, `sicht`, `stelleHierarchy` / `dienststelle`, or a parent filters orchestrator.
 - Modifying production `filterDock` except a CP-1-approved handoff integration delta with exact file list.
 - Adding dock-level listeners or long-lived dock observers in `singleSelect`.
 - Reading `_KDB.runtime.filterDock`.
@@ -532,7 +532,7 @@ No `KDB.js` or parent orchestrator edit is included unless CP-1 explicitly expan
 | filterDock integration decision | Default: plan direct API actions and handoff shape; defer production filterDock dispatch wiring to an integration tranche. If bundled, use `singleSelect/filterDockStateChanged` and `singleSelect/filterDockPopupReady`; no events. |
 | History integration decision | Default: include commit-only `pushCommittedStep` when `_KDB.services.history` exists; defer replay adapter registration. |
 | specialRights decision | Deferred to a separate future module contract for `specialRights` / `specialSingleSelect`; not part of core `singleSelect`. |
-| Bootstrap/parent orchestrator decision | Default: document required future wiring; do not edit `KDB.js` or create `__orchestratorFilters.js` unless CP-1 expands scope. |
+| Bootstrap/parent orchestrator decision | Default: document required future wiring; do not edit `KDB.js` or create a parent filters orchestrator unless CP-1 expands scope. |
 | Known behavior-preservation risks | Alle must be explicit in handoff; missing Cognos wrappers may block full confirm/replay; programmatic OK/Cancel may require narrow filterDock owner method; specialRights deferral limits rights-driven filters; event catalog deferral omits legacy `filter:applied`; scope keying must remain `filterScope` not tab id. |
 
 ## 18. Open Questions For CP-1
@@ -559,7 +559,7 @@ Q10. Should history be commit-only in this tranche, with replay adapter registra
 
 Q11. Resolved at CP-1: `specialRights/**` remains deferred and becomes its own future module / `specialSingleSelect` contract.
 
-Q12. Should a parent `dashboard/filters/__orchestratorFilters.js` be created now, or should bootstrap/parent wiring be deferred?
+Q12. Should a parent filters orchestrator (not built) be created now, or should bootstrap/parent wiring be deferred?
 
 ## Approval Log
 

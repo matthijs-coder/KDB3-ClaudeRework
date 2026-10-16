@@ -377,7 +377,7 @@ sicht/effects/delegateToSingleSelect.js
 sicht/actions/handleSingleSelectDraftChanged.js
 sicht/actions/handleSingleSelectDraftReverted.js
 sicht/actions/handleSingleSelectCommitted.js
-sicht/effects/commitConfirmedSicht.js
+sicht/commit.js
 sicht/effects/commitStartupSichtDefault.js
 sicht/actions/handleParameterSetRestore.js
 sicht/actions/handleParameterSetDownstreamVisibility.js
