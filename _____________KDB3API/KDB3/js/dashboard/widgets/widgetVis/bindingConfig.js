@@ -6,30 +6,17 @@ define([
 ], function (_visTypes, _visSorting, _parameterMap, _topNHelperConfig) {
   "use strict";
 
-  function readSortingByProfile(_KDB) {
-    var visConfig = _visTypes.readVisualizationsConfig(_KDB);
-    return visConfig.sortingByProfile || _visSorting.sortingByProfile || {};
-  }
-
   function resolveSortingProfileKey(_visualizationType, _KDB) {
     var bucket = _visTypes.resolveVisPropBucketKey(_visualizationType, _KDB);
-    if (bucket === "Line") {
-      return "line";
-    }
-    if (bucket === "List") {
-      return "list";
-    }
-    if (bucket === "com.ibm.vis.custom.prognoseyearlinechart") {
-      return "prognose";
-    }
-    return null;
+    var profiles = _visSorting.profileByBucket;
+    return typeof bucket === "string" && Object.prototype.hasOwnProperty.call(profiles, bucket) ? profiles[bucket] : null;
   }
 
   function resolveSortingConfig(_visualizationType, _KDB, _tableConfig) {
     var tableConfig = _tableConfig || {};
     var visConfig = _visTypes.readVisualizationsConfig(_KDB);
     var profileKey = resolveSortingProfileKey(_visualizationType, _KDB);
-    var sortingByProfile = readSortingByProfile(_KDB);
+    var sortingByProfile = _visSorting.sortingByProfile;
     if (profileKey && sortingByProfile[profileKey]) {
       return sortingByProfile[profileKey];
     }

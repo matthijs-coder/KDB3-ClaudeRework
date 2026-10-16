@@ -50,6 +50,11 @@ define([], function () {
   LIST_SORTING[COLUMN_MONAT] = { order: MONTH_ASC, priority: 2 };
 
   return {
+    profileByBucket: {
+      "Line": "line",
+      "List": "list",
+      "com.ibm.vis.custom.prognoseyearlinechart": "prognose"
+    },
     sorting: LINE_PROGNOSE_SORTING,
     sortingByProfile: {
       line: LINE_PROGNOSE_SORTING,
