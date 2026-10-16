@@ -1,4 +1,8 @@
-define(["../config.js", "../runtime.js"], function (_config, _singleSelectRuntime) {
+define([
+  "../config.js",
+  "../runtime.js",
+  "../../_core/parameterSetRun.js"
+], function (_config, _singleSelectRuntime, _parameterSetRun) {
   "use strict";
 
   var RUN_FINISH_OUTCOMES = Object.freeze({
@@ -111,22 +115,15 @@ define(["../config.js", "../runtime.js"], function (_config, _singleSelectRuntim
   function guardRun(_KDB, _payload) {
     var payload = _payload || {};
     var runtime = ensureRuntime(_KDB);
-    if (typeof payload.runId !== "number" || !isFinite(payload.runId)) {
-      return cancelled("singleSelect parameterSet action requires a numeric runId");
-    }
-    if (typeof runtime.parameterSetRunId === "number" && payload.runId < runtime.parameterSetRunId) {
-      return cancelled("stale parameterSet runId " + payload.runId + " superseded by " + runtime.parameterSetRunId);
-    }
-    if (typeof runtime.parameterSetRunId === "number" && payload.runId > runtime.parameterSetRunId) {
-      runtime.pendingPromises.parameterSetRuns = {};
-    }
-    runtime.parameterSetRunId = payload.runId;
-    return null;
+    var rejection = _parameterSetRun.claimParameterSetRun(runtime, payload.runId, {
+      invalidMessage: "singleSelect parameterSet action requires a numeric runId",
+      onAdvance: function () { runtime.pendingPromises.parameterSetRuns = {}; }
+    });
+    return rejection ? cancelled(rejection.message) : null;
   }
 
   function isStale(_KDB, _runId) {
-    var runtime = ensureRuntime(_KDB);
-    return typeof runtime.parameterSetRunId === "number" && _runId < runtime.parameterSetRunId;
+    return _parameterSetRun.isStaleParameterSetRun(ensureRuntime(_KDB), _runId);
   }
 
   function cancelledResult() {
