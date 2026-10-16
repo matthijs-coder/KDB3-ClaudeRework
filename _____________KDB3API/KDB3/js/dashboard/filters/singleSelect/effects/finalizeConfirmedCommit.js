@@ -1,6 +1,6 @@
 define([
   "../state/selection.js",
-  "./notifyOwnerAfterCommit.js",
+  "../commit/ownerNotify.js",
   "./pushSingleSelectHistory.js",
   "../state/instance.js",
   "../config.js",

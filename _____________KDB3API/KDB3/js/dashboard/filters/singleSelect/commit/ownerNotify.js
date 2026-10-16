@@ -1,6 +1,10 @@
 define(["../config.js"], function (_config) {
   "use strict";
 
+  function isNegativeAck(_ack) {
+    return _ack === false || (_ack && _ack.ok === false) || (_ack && _ack.acknowledged === false);
+  }
+
   function resolveOwnerApi(_KDB, _filterType) {
     var apiRoot = _KDB && _KDB.api ? _KDB.api : null;
     if (!apiRoot) { return null; }
@@ -36,10 +40,6 @@ define(["../config.js"], function (_config) {
     return payload;
   }
 
-  function isNegativeAck(_ack) {
-    return _ack === false || (_ack && _ack.ok === false) || (_ack && _ack.acknowledged === false);
-  }
-
   async function notifyOwnerCommit(_KDB, _handoffContext, _selection) {
     try {
       var filterType = _handoffContext ? _handoffContext.filterType : "";
@@ -69,7 +69,7 @@ define(["../config.js"], function (_config) {
       }
       return { ok: true, applicable: true };
     } catch (error) {
-      console.error("[singleSelect.notifyOwnerAfterCommit] failed", error);
+      console.error("[singleSelect.notifyOwnerCommit] failed", error);
       return {
         ok: false,
         applicable: true,
@@ -80,6 +80,7 @@ define(["../config.js"], function (_config) {
   }
 
   return {
+    isNegativeAck: isNegativeAck,
     notifyOwnerCommit: notifyOwnerCommit
   };
 });
