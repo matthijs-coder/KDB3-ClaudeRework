@@ -211,6 +211,22 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Tab duplicate/move/delete with Dienststelle set. Expected: values follow the tab; undo/redo works.
 - [ ] Console stays quiet during a Dienststelle change (no repeated lines, no `[sicht-jahr]`).
 
+WS-I details. In the console use `const getKDB = window.top.getKDB;`.
+- [ ] Boot (BW): `getKDB().runtime.dienststelle` has the 7 buckets plus `parameterSetRunId`, `tabMutationRunId`, `tabMutationSnapshots` and `tabsFacet`. `typeof getKDB().runtime.dienststelle.historyReplayHandlerContribution.apply === "function"`.
+- [ ] Open the Dienststelle popup (BW, then DEZPV): labels stay hidden until sanitized, then show without `#`/`|` artefacts (DEZPV option display sanitized). `#filterDockContainer` has `KDB_dienststelleActive_<Sicht>` and matches `getKDB().state.filters.dienststelle.activeFilterKey`.
+- [ ] Confirm a global selection. Charts update after the ~600 ms widget notify. During that window `getKDB().runtime.dienststelle.timers.userNotify` looks like `{kind:"timeout", id:…}`; afterwards the key is gone. Exactly one Undo step; Undo and Redo restore chip and charts.
+- [ ] Confirm a page-scoped selection on tab 2, switch tabs and back: only tab 2 shows it. The writeback GET (save Set A) contains it for that tab.
+- [ ] Clear the selection, then OK: the anchored message "Für den Dienststelle-Filter ist mindestens eine Auswahl erforderlich…" appears and the default is reapplied.
+- [ ] Switch Sicht BW <-> DEZPV three times quickly: no stale chip; the hierarchy reloads once per switch; no console errors.
+- [ ] Restore Set A and Set B. The old BW label maps (diagnostic `WRITEBACK_DIENSTSTELLE_BW_LABEL_MAPPED` in the writeback result). An invalid value gives the same fallback info message as baseline.
+- [ ] Tab duplicate, move, and delete + undo with page-scoped values: the values follow the tab.
+- [ ] Start a tab mutation and trigger a table reload: no Dienststelle reconcile runs while `getKDB().runtime.tabs.pendingPromises.tabMutation` is set.
+- [ ] Drillthrough from a vis widget: the org values match baseline. In the console, `getKDB().api.dienststelle.getCurrentHierarchySnapshot({pageScopeId:"active"})` has the same keys as baseline.
+- [ ] PDF export: the attachment rows list Dienststelle global and per-tab values as on baseline.
+- [ ] `const s = getKDB().api.dienststelle.getState(); s !== getKDB().state.filters.dienststelle` (still a copy). `getKDB().api.dienststelle.dispatch({type:"dienststelle/syncRequested",payload:{}}) === getKDB().state.filters.dienststelle` (now the live reference, intentional).
+- [ ] Destroy: `getKDB().api.dienststelle.destroy()` within 600 ms after a confirm has finished (inside the deferred widget-notify window). The pending `userNotify` timer is cancelled: no widget notify and no errors afterwards. A `destroy()` issued synchronously in the same tick as the confirm is not covered; the reconcile chain still completes and notifies, as on baseline. `Object.keys(getKDB().runtime.dienststelle.timers).length === 0`, `historyReplayHandlerContribution === null`. A second `destroy()` is silent. `dispatch(...)` warns once `[dienststelle.dispatch] called after destroy`.
+- [ ] Console during all of the above: no `[dienststelle.history] push skipped`, no `[dienststelle.widgetVis.dispatch]` info lines.
+
 ### WS-J Sicht + specialSingleSelect
 - [ ] Sicht BW and DEZPV: option list, default selection and table loads match baseline.
 - [ ] Personengruppe popup (only available for Sicht BW): open, select, confirm, "Alle", cancel; switch Sicht to DEZPV. Expected: the filter is hidden/disabled as on baseline.
