@@ -9,6 +9,13 @@ define(["../../../core/utils/kit/data.js", "../widgetBase/state/selectors.js"], 
     return _data.cloneJson(readTopNState(_KDB));
   }
 
+  // Copy of one owner record (no clone of the other owners); undefined for a missing owner and after destroy.
+  function readOwnerState(_KDB, _ownerVisId) {
+    var state = readTopNState(_KDB);
+    var record = state && state.lifecycle !== "disposed" && state.byOwner && _ownerVisId ? state.byOwner[_ownerVisId] : undefined;
+    return record ? _data.cloneJson(record) : undefined;
+  }
+
   function readOwnerClaim(_KDB, _ownerVisId) {
     var state = readTopNState(_KDB);
     var record = state && state.byOwner ? state.byOwner[_ownerVisId] : null;
@@ -36,6 +43,7 @@ define(["../../../core/utils/kit/data.js", "../widgetBase/state/selectors.js"], 
   return {
     isOwnerRemoved: isOwnerRemoved,
     readWidgetTopNState: readWidgetTopNState,
+    readOwnerState: readOwnerState,
     readOwnerClaim: readOwnerClaim,
     isHelperClaimedByOtherOwner: isHelperClaimedByOtherOwner
   };

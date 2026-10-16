@@ -5,9 +5,10 @@ define([
   "../config.js",
   "../results.js",
   "./periodPin.js",
+  "../../widgetTopN/selectors.js",
   "../../../../core/utils/normalizeDefaultValue.js",
   "../../../../core/utils/kit/data.js"
-], function (_gates, _spec, _bindingConfig, _config, _results, _periodPin, _normalizeDefaultValue, _data) {
+], function (_gates, _spec, _bindingConfig, _config, _results, _periodPin, _topNSelectors, _normalizeDefaultValue, _data) {
   "use strict";
 
   var CLEANUP_STATUSES = ["pending", "success", "error"];
@@ -45,11 +46,10 @@ define([
   async function dispatchTopNCleanupWhenDimensionAbsent(_context, _widgetId) {
     try {
       var api = _context && _context._KDB && _context._KDB.api ? _context._KDB.api.widgetTopN : null;
-      if (!api || typeof api.getState !== "function" || typeof api.dispatch !== "function") {
+      if (!api || typeof api.dispatch !== "function") {
         return;
       }
-      var state = api.getState();
-      var record = state && typeof state === "object" && state.byOwner ? state.byOwner[_widgetId] : null;
+      var record = _topNSelectors.readOwnerState(_context._KDB, _widgetId);
       if (!record || CLEANUP_STATUSES.indexOf(record.resolutionStatus) === -1) {
         return;
       }
