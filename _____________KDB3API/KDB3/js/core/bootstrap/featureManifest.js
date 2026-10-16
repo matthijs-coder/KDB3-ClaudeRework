@@ -142,9 +142,10 @@ define([
   ];
 
   // _KDB.services keys in teardown order; cognosHost goes last because consumers may still see a live (but already
-  // aborting) host adapter during their own teardown.
+  // aborting) host adapter during their own teardown. drillthrough goes first: its pending wait windows hang on a
+  // tableData load, so they are released before tableData (and anything else) can settle or reject that load.
   var serviceDestroyOrder = [
-    "writebackBridge", "writebackSet", "writebackGet", "writebackMap", "dashboardPdf", "widgetBindingApply", "history",
+    "drillthrough", "writebackBridge", "writebackSet", "writebackGet", "writebackMap", "dashboardPdf", "widgetBindingApply", "history",
     "message", "loading", "tableData", "cognosHost"
   ];
 
