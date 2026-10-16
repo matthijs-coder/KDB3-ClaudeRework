@@ -1,4 +1,6 @@
-// W2 metricsTree view: render wait ends when the tree is destroyed before jstree reports ready. Run: node --test tools/tests/w2-metricstree-view.test.mjs
+// W2 metricsTree view: render wait ends when the tree is destroyed before jstree reports ready; search handlers have a boundary catch.
+// Run: node --test tools/tests/w2-metricstree-view.test.mjs
+// have a boundary catch. Run: node --test tools/tests/w2-metricstree-view.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
@@ -78,4 +80,15 @@ test("render wait: jstree ready still resolves the wait and drops the waiter", a
   fake.record.oneHandlers.forEach((entry) => entry.handler());
   assert.equal(await settled(rendered), "settled");
   assert.deepStrictEqual(Object.keys(kdb.runtime.metricsTree.subscriptions || {}), []);
+});
+
+test("search handlers: a failing search is logged at the boundary and does not throw into the event", () => {
+  const fake = makeFakeJquery({ instance: { search() { throw new Error("jstree boom"); }, clear_search() {} } });
+  const errors = [];
+  const view = loadView(fake, { console: { error: (...args) => errors.push(String(args[0])), log() {}, warn() {}, debug() {} } });
+  const kdb = makeKdb(["s"]);
+  view.renderMetricsTrees(kdb);
+  view.bindMetricsTreeSearch(kdb);
+  assert.doesNotThrow(() => fake.record.handlers["click.kdbMetricsTreeSearch"]());
+  assert.deepStrictEqual(errors, ["[metricsTree.search] failed"]);
 });

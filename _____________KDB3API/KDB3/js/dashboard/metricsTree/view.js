@@ -200,7 +200,13 @@ define([
 
   function bindSourceSearch(runtime, sourceKey, $tree, $input, $icon) {
     const timerKey = "search:" + sourceKey;
-    const run = function () { runSearch($tree, $input); };
+    const run = function () {
+      try {
+        runSearch($tree, $input);
+      } catch (error) {
+        console.error("[metricsTree.search] failed", { sourceKey: sourceKey }, error);
+      }
+    };
 
     $input.off(".kdbMetricsTreeSearch");
     $icon.off(".kdbMetricsTreeSearch");
