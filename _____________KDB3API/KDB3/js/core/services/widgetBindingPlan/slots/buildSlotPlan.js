@@ -1,14 +1,74 @@
 define([
-  "../config/slotNames.js",
+  "../config.js",
   "./resolveSlotColumnIds.js",
   "./resolveSlotSortSpecs.js",
-  "./slotActivity.js",
-  "./topBottomOptions.js",
-], function (_slotNames, _resolveSlotColumnIds, _resolveSlotSortSpecs, _slotActivity, _topBottomOptions) {
+], function (_config, _resolveSlotColumnIds, _resolveSlotSortSpecs) {
   "use strict";
 
+  function slotRawIsActive(_rawValue) {
+    if (_rawValue == null) {
+      return false;
+    }
+    if (typeof _rawValue === "string") {
+      return _rawValue.trim() !== "";
+    }
+    if (Array.isArray(_rawValue)) {
+      return _rawValue.length > 0;
+    }
+    if (typeof _rawValue === "object") {
+      return Object.keys(_rawValue).length > 0;
+    }
+    return true;
+  }
+
+  function hasHierarchyPolicy(_visTypeConfig, _slotName) {
+    var composition = _visTypeConfig && _visTypeConfig.slotComposition;
+    var slotPolicy = composition && composition[_slotName];
+    return !!(slotPolicy && slotPolicy.hierarchy);
+  }
+
+  function collectActiveSlotNames(_visTypeConfig) {
+    var active = [];
+    var visTypeConfig = _visTypeConfig && typeof _visTypeConfig === "object" ? _visTypeConfig : {};
+    for (var index = 0; index < _config.ALL_SLOT_NAMES.length; index += 1) {
+      var slotName = _config.ALL_SLOT_NAMES[index];
+      if (slotRawIsActive(visTypeConfig[slotName]) || hasHierarchyPolicy(visTypeConfig, slotName)) {
+        active.push(slotName);
+      }
+    }
+    var affects = visTypeConfig.dimensionSelectionAffects;
+    if (typeof affects === "string" && affects && active.indexOf(affects) < 0 && _config.ALL_SLOT_NAMES.indexOf(affects) >= 0) {
+      active.push(affects);
+    }
+    return active;
+  }
+
+  function shouldAddTopBottom(_spec, _parsedTopN, _slotName) {
+    return _spec.targetKind === "topNHelper"
+      && _slotName === "grid_cols"
+      && _parsedTopN.kind === "count"
+      && typeof _parsedTopN.n === "number"
+      && _parsedTopN.n > 0;
+  }
+
+  function addTopBottomOption(_slotItem, _parsedTopN) {
+    var columnIds = _slotItem.columnIds;
+    var valueItemId = columnIds.length ? columnIds[columnIds.length - 1] : null;
+    if (!valueItemId) {
+      return;
+    }
+    _slotItem.options = Object.assign({}, _slotItem.options, {
+      topBottom: {
+        type: "topcount",
+        value: _parsedTopN.n,
+        rank: false,
+        valueItemId: valueItemId,
+      },
+    });
+  }
+
   function isRequiredSlot(_slotName) {
-    return _slotNames.REQUIRED_SLOTS.indexOf(_slotName) >= 0;
+    return _config.REQUIRED_SLOTS.indexOf(_slotName) >= 0;
   }
 
   function pushWarning(_diagnostics, _code, _message, _field) {
@@ -22,10 +82,10 @@ define([
     });
   }
 
-  function __controller(_spec, _parsedTopN, _diagnostics) {
+  function buildSlotPlan(_spec, _parsedTopN, _diagnostics) {
     var dataConfig = _spec.dataConfig || {};
     var visTypeConfig = dataConfig.visTypeConfig || {};
-    var activeSlots = _slotActivity.collectActiveSlotNames(visTypeConfig);
+    var activeSlots = collectActiveSlotNames(visTypeConfig);
     var slots = [];
     var filterPropObj = _spec.config && _spec.config.filterPropObj;
 
@@ -44,7 +104,6 @@ define([
         return {
           ok: false,
           errorCode: resolved.errorCode || "WIDGET_BINDING_PLAN_SLOT_FAILED",
-          legacyError: resolved.legacyError || "buildSlotPlanFailed",
           slotName: slotName,
         };
       }
@@ -55,7 +114,6 @@ define([
           return {
             ok: false,
             errorCode: "WIDGET_BINDING_PLAN_SLOT_REQUIRED_EMPTY",
-            legacyError: "requiredSlotEmpty",
             slotName: slotName,
           };
         }
@@ -92,8 +150,8 @@ define([
       if (sortMeta.sortByColumn) {
         slotItem.sortByColumn = sortMeta.sortByColumn;
       }
-      if (_topBottomOptions.shouldAddTopBottom(_spec, _parsedTopN, slotName)) {
-        _topBottomOptions.addTopBottomOption(slotItem, _parsedTopN);
+      if (shouldAddTopBottom(_spec, _parsedTopN, slotName)) {
+        addTopBottomOption(slotItem, _parsedTopN);
       }
       slots.push(slotItem);
     }
@@ -101,5 +159,5 @@ define([
     return { ok: true, slots: slots };
   }
 
-  return __controller;
+  return buildSlotPlan;
 });

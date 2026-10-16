@@ -80,6 +80,16 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] PDF export (1.13) works.
 - [ ] Listener count: `getEventListeners(document)` before and after adding and removing 5 widgets - same totals as before (no growth). Console: `window.top.getKDB().runtime.cognosHost` still exists.
 - [ ] Rapid filter changes (5 clicks in 2 s). Expected: final state correct, no stuck spinner; no `timeout` errors earlier than baseline.
+- [ ] Console helpers (pure-Cognos layer kept): `Object.keys(getKDB().cognosAPI)` lists 10 themes; `getKDB().cognosAPI.visualization.getLocalFiltersList(<widgetId>)` and `getKDB().cognosAPI.widgets.getWidget(<id>)` still work.
+- [ ] Console: `var s=getKDB().services.cognosHost; s.filters===s.filters && s.widgets===s.widgets` is true; `Object.keys(s.visualization).length` is 16; `Object.keys(s.widgets)` has no `getWidgetType`.
+- [ ] Table with a slow query (> 2 s): loads, no `DATAQUERY_WAIT_TIMEOUT` in the console, time to first rows not visibly slower (the poll now backs off from 100 ms up to 1 s).
+- [ ] Toggle a vis widget's selection 10x, switch tabs 5x, duplicate and delete a vis widget 5x, switch dashboard edit/consume mode 3x: `getKDB().runtime.cognosHostService.subscriptions.length` returns to its start value; selection-driven features and the KDB authoring state still follow; no `[cognosHost.*]` errors.
+- [ ] Rapid filter changes (10 within 3 s) during a tab switch (page-context wait): no `FILTERS_*` errors; a heap snapshot before/after shows a flat "EventListener" count.
+- [ ] Table/vis widgets load after a tab switch (canvas waits); no `CANVAS_WAIT_*` in the console. Rename a tab and reload: the name persists.
+- [ ] Share link (board id, BI base URL), footer user name and PDF file name still show; PDF export on 2 different tabs (capture root).
+- [ ] Remove one required chrome selector via DevTools before load (e.g. rename the toolbar class): one alert appears once; optional misses only log `console.debug`.
+- [ ] Home dialog: the BI home perspective and app view open; the cubes-unavailable message still shows with an errored data source.
+- [ ] Teardown + reopen the dashboard: no `[cognosHost.*]` errors.
 
 ### WS-B Binding plan/apply + tableData
 - [ ] For each chart type (`Line`, `Pie`, `StackedBar`, `StackedColumn`, `List`, and the Prognose line chart): add, then change dimension, then change Kennzahl. Expected: renders identically to baseline. Console check, if you want to compare: `window.top.getKDB().services.widgetBindingPlan` is present.
@@ -87,6 +97,12 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] TopN: set TopN, then "Ohne" (clear-only path). Expected: chart same as baseline; helper restored (see 2.3/2.4).
 - [ ] Forced timeout: while a widget renders, switch to another tab. Expected: no hang; same message (if any) as baseline.
 - [ ] All tables load on boot (same table count as baseline; `getKDB().state.tableData` shows all `lifecycle` = `ready` and the same `rowCount` per table, see 1.7); Dienststelle/Sicht popups and the metrics tree are populated.
+- [ ] Zeitebene/grain: on a Line and a List widget switch Zeitebene (Jahr, Stichtag, Stichtag pro Jahr). Expected: same filters and data as baseline.
+- [ ] Hierarchy filter: with a Dienststelle selected below the top level, add a vis widget. Expected: the chart is filtered to that org as on baseline; with an unconfirmed selection no filter is applied.
+- [ ] Empty data: pick a Kennzahl/filter combination without data. Expected: the same empty hint as baseline.
+- [ ] Change a filter that triggers a table reload (Sicht/Stichtag/Dienststelle): the dependent table returns to `ready` with the same `rowCount` as baseline, and the parked widget (table with `parkFilter`) gets its local filter back.
+- [ ] Failing table (rename a table widget title, hard reload): one toast "Tabellendaten konnten nicht geladen werden: <name>", entry `lifecycle: "error"`, other tables load normally.
+- [ ] `getKDB().services.tableData.readTableState()` returns the whole map; after destroy/re-open there are no console errors from `tableData`.
 
 ### WS-C Writeback + properties
 - [ ] Save/load round-trip for **every vis type** (Line, Pie, StackedBar, StackedColumn, List, Prognose) and every Zeitebene (grain, e.g. Jahr / Stichtag / Stichtag pro Jahr). Expected: after save + reload the widgets are identical.
@@ -221,6 +237,10 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Place 20 widgets, delete them, undo the deletes. Expected: `getEventListeners(document).pointerdown.length` returns to the baseline value; `Object.keys(window.top.getKDB().runtime.widgetSettings.domRefs)` is empty only after **all** widgets are deleted (while some remain, it lists those).
 - [ ] Tab duplicate / delete / move with mixed widgets (vis, text, TopN, table). Expected: widgets and settings follow; forced shortage (more widgets than slots) shows the same toast and rolls back as baseline.
 - [ ] TopN without a grouping dimension: the message "Um die Top-N Funktion zu verwenden, muss zuerst eine Gruppierungsdimension gewählt werden." appears.
+- [ ] `window.top.getKDB().api.widgetBase.dispatch({type:"widgetBase/remove", widgetId:"<id>", payload:{reason:"user"}})`. Expected: `runtime.widgetSettings.domRefs["<id>"]`, `abortControllers["panel:<id>"]` and `abortControllers["toolbar:<id>"]` are gone; undo restores the widget with its settings panel working.
+- [ ] Load a parameter set that has styled widgets (colour, font size, TopN, visType). Expected: the widgets and their settings match the set, and the console shows no `[widgetBase.` / `[widgetSettings.` errors.
+- [ ] Move a widget launchpad->canvas and canvas->launchpad, then undo/redo each. Expected: the settings panel and toolbar are restored and respond on every step.
+- [ ] After a successful tab duplicate/delete/move: `Object.keys(window.top.getKDB().runtime.widgetBase.tabMutationSnapshots)` is empty.
 
 ### WS-M widgetVis + widgetDataTable
 - [ ] Drillthrough header icon and datapoint icon: compare URLs for 3-4 org/year combinations (see WS-D).
