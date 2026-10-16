@@ -165,6 +165,14 @@ test("waitFor: a throwing check counts as not ready", async () => {
   await assert.rejects(waitFor(() => { throw new Error("always"); }, { interval: 5, timeoutMs: 30 }), (e) => e.code === "WAITFOR_TIMEOUT");
 });
 
+test("waitFor: an aborted signal rejects with ABORTED, interval/timeout defaults keep working", async () => {
+  const waitFor = createLoader()("core/utils/waitFor.js");
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), 20);
+  await assert.rejects(waitFor(() => null, { interval: 5, signal: controller.signal }), (e) => e.code === "ABORTED");
+  assert.equal(await waitFor(() => "now"), "now");
+});
+
 test("getKennzahlenSource: personal, then per, then first key", () => {
   const get = createLoader()("core/utils/getKennzahlenSource.js");
   const withKeys = (keys) => ({ properties: { kennzahlenTablesPropObj: Object.fromEntries(keys.map((k) => [k, 1])) } });
@@ -232,12 +240,11 @@ test("readElementScale", () => {
   assert.deepEqual(scale({ offsetWidth: 0, offsetHeight: 0, getBoundingClientRect: () => ({ width: 5, height: 5 }) }), { scaleX: 1, scaleY: 1 });
 });
 
-test("utils orchestrator publishes the readers", () => {
+test("utils orchestrator publishes exactly the six readers", () => {
   const orchestrator = createLoader()("core/utils/__orchestratorUtils.js");
   const _KDB = {};
   const utils = orchestrator(_KDB);
   assert.equal(utils, _KDB.utils);
-  for (const name of ["convertUnitToPx", "getTableConfigObject", "readCurrentTab", "readableTextColorForHex", "waitFor", "waitForElObserver"]) {
-    assert.equal(typeof utils[name], "function", name);
-  }
+  assert.deepEqual(Object.keys(utils).sort(),
+    ["convertUnitToPx", "getTableConfigObject", "readCurrentTab", "readableTextColorForHex", "waitFor", "waitForElObserver"]);
 });
