@@ -28,8 +28,8 @@ define([
       if (result && Array.isArray(result.diagnostics)) {
         result.diagnostics.forEach(function (diag) { diagnostics.push(diag); });
       }
-      // Fail-visible (remediation B3): een gecrashte snapshot (ok: false) mag de
-      // pcfs-sectie niet stil weglaten; de marker breekt de save af.
+      // Fail-visible (remediation B3): a crashed snapshot (ok: false) must not
+      // silently drop the pcfs section; the marker aborts the save.
       if (!result || result.ok !== true) {
         diagnostics.push(_errorCodes.makeDiagnostic(
           _errorCodes.codes.WRITEBACK_COLLECTOR_FAILED,

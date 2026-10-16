@@ -1,82 +1,51 @@
-define(["../settings/config/settingsDimensionConfig", "../settings/config/settingsColorDefaults"], function (_dimCfg, _colorDefaults) {
-
+define(["../config/settingsDefaults.js"], function (_defaults) {
   "use strict";
 
+  // Default export is read by core/services/writeback/get/collectors/collectCanvasSettings.js (`initialState().settings`).
   function initialState() {
-
+    var dimensions = _defaults.dimensions;
+    var colors = _defaults.colorInputs;
     return {
-
       lifecycle: "idle",
-
       framework: {
-
         activeTopPanel: "metrics",
-
         openSectionId: null,
-
         isCollapsed: false,
-
         placeholderInputs: {},
-
-        /* CP-1: dashboard chrome toggles live in settings.dashboard booleans only. */
-
-        placeholderSelections: {},
-
+        // Dashboard chrome toggles live in settings.dashboard booleans only.
+        placeholderSelections: {}
       },
-
       toolbox: {},
-
       settings: {
-
         dashboard: {
-
-          width: _dimCfg.dashboard.width.default,
-
-          height: _dimCfg.dashboard.height.default,
-
-          backgroundColor: _colorDefaults.colorInputs.dashboardBg,
-
+          width: dimensions.dashboard.width.default,
+          height: dimensions.dashboard.height.default,
+          backgroundColor: colors.dashboardBg,
           hideWidgetSettingsButtons: true,
-
-          isDeveloperMode: false,
-
+          isDeveloperMode: false
         },
-
         controlPanel: {
-
-          backgroundColor: _colorDefaults.colorInputs.panelBg,
-
-          buttonColor: _colorDefaults.colorInputs.panelButton,
-
-          actionButtonColor: _colorDefaults.colorInputs.panelActionButton,
-          innerBackgroundColor: _colorDefaults.colorInputs.panelInnerBg,
-
+          backgroundColor: colors.panelBg,
+          buttonColor: colors.panelButton,
+          actionButtonColor: colors.panelActionButton,
+          innerBackgroundColor: colors.panelInnerBg
         },
-
         defaultsNew: {
-
           visualization: {
-            width: _dimCfg.visualization.width.default,
-            height: _dimCfg.visualization.height.default,
-            backgroundColor: _colorDefaults.colorInputs.graphBg,
+            width: dimensions.visualization.width.default,
+            height: dimensions.visualization.height.default,
+            backgroundColor: colors.graphBg
           },
-
           comment: {
-            width: _dimCfg.comment.width.default,
-            height: _dimCfg.comment.height.default,
-            backgroundColor: _colorDefaults.colorInputs.commentBg,
-          },
-
-        },
-
+            width: dimensions.comment.width.default,
+            height: dimensions.comment.height.default,
+            backgroundColor: colors.commentBg
+          }
+        }
       },
-
-      authoringMode: {},
-
+      authoringMode: {}
     };
-
   }
 
   return initialState;
-
 });

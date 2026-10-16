@@ -1,0 +1,258 @@
+{
+  "realistic": {
+    "ok": true,
+    "v3": {
+      "v": 3,
+      "pkg": "Personal_KDB",
+      "canv": {
+        "w": 1000,
+        "h": 800
+      },
+      "filt": {
+        "sicht": "BW",
+        "dstl": {
+          "key": "Dienststelle_BW",
+          "glob": [
+            "MAG",
+            "Unbekannte Dienststelle"
+          ],
+          "byTab": {
+            "0": [
+              "MAG"
+            ]
+          }
+        },
+        "sels": [
+          {
+            "key": "Berufsfamilie",
+            "vals": [
+              "Technik"
+            ]
+          },
+          {
+            "key": "Geschlecht",
+            "vals": [
+              "Weiblich"
+            ],
+            "tab": 0
+          }
+        ],
+        "pcfs": [
+          {
+            "nm": "Jahr",
+            "vals": [
+              {
+                "d": "2023",
+                "u": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]->:[TMR].[Jahr_flach].[Jahr_flach].[Jahr]"
+              }
+            ]
+          }
+        ]
+      },
+      "tabs": [
+        {
+          "name": "Tab A"
+        }
+      ]
+    },
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_DIENSTSTELLE_BW_LABEL_UNMAPPED",
+        "phase": "map",
+        "message": "Dienststelle BW label has no bwOldToNewMap entry; label kept on payload",
+        "details": {
+          "label": "Unbekannte Dienststelle"
+        }
+      }
+    ]
+  },
+  "keyEqualsName": {
+    "ok": true,
+    "v3": {
+      "v": 3,
+      "pkg": "Personal_KDB",
+      "canv": {
+        "w": 1000,
+        "h": 800
+      },
+      "filt": {
+        "pcfs": [
+          {
+            "nm": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "vals": [
+              {
+                "d": "2023",
+                "u": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]->:[TMR].[Jahr_flach].[Jahr_flach].[Jahr]"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+        "phase": "map",
+        "message": "v2 filter kind is not supported in v3 map",
+        "details": {
+          "name": "[Personal_Berechtigung_Dienststelle_KDB_TM1].[Dienststelle].[Dienststelle].[Dienststelle].[Sicht]"
+        }
+      },
+      {
+        "code": "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+        "phase": "map",
+        "message": "v2 filter kind is not supported in v3 map",
+        "details": {
+          "name": "[Personal_Berechtigung_Dienststelle_KDB_TM1].[Dienststelle].[Dienststelle_BW]"
+        }
+      }
+    ]
+  },
+  "nameIsKid": {
+    "ok": true,
+    "v3": {
+      "v": 3,
+      "pkg": "Personal_KDB",
+      "canv": {
+        "w": 1000,
+        "h": 800
+      }
+    },
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+        "phase": "map",
+        "message": "v2 filter kind is not supported in v3 map",
+        "details": {
+          "name": "[Personal_Berechtigung_Dienststelle_KDB_TM1].[Dienststelle].[Dienststelle].[Dienststelle].[Sicht]"
+        }
+      },
+      {
+        "code": "WRITEBACK_FILTER_KIND_UNSUPPORTED",
+        "phase": "map",
+        "message": "v2 filter kind is not supported in v3 map",
+        "details": {
+          "name": "[Personal_Berechtigung_Dienststelle_KDB_TM1].[Dienststelle].[Dienststelle_BW]"
+        }
+      }
+    ]
+  },
+  "realisticDezpv": {
+    "ok": true,
+    "v3": {
+      "v": 3,
+      "pkg": "Personal_KDB",
+      "canv": {
+        "w": 1000,
+        "h": 800
+      },
+      "filt": {
+        "sicht": "DEZPV",
+        "dstl": {
+          "key": "Dienststelle_DEZPV",
+          "glob": [
+            "Referat A"
+          ]
+        }
+      }
+    },
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_DIENSTSTELLE_BW_LABEL_UNMAPPED",
+        "phase": "map",
+        "message": "Dienststelle BW label has no bwOldToNewMap entry; label kept on payload",
+        "details": {
+          "label": "Referat A"
+        }
+      }
+    ]
+  },
+  "mixedPackages": {
+    "ok": true,
+    "v3": {
+      "v": 3,
+      "pkg": "Personal_KDB",
+      "canv": {
+        "w": 1000,
+        "h": 800
+      },
+      "filt": {
+        "sicht": "BW",
+        "dstl": {
+          "key": "Dienststelle_BW",
+          "glob": [
+            "MAG",
+            "Unbekannte Dienststelle"
+          ],
+          "byTab": {
+            "0": [
+              "MAG"
+            ]
+          }
+        },
+        "sels": [
+          {
+            "key": "Berufsfamilie",
+            "vals": [
+              "Technik"
+            ]
+          },
+          {
+            "key": "Geschlecht",
+            "vals": [
+              "Weiblich"
+            ],
+            "tab": 0
+          }
+        ],
+        "pcfs": [
+          {
+            "nm": "Jahr",
+            "vals": [
+              {
+                "d": "2023",
+                "u": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]->:[TMR].[Jahr_flach].[Jahr_flach].[Jahr]"
+              }
+            ]
+          }
+        ]
+      },
+      "tabs": [
+        {
+          "name": "Tab A"
+        }
+      ]
+    },
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_DIENSTSTELLE_BW_LABEL_UNMAPPED",
+        "phase": "map",
+        "message": "Dienststelle BW label has no bwOldToNewMap entry; label kept on payload",
+        "details": {
+          "label": "Unbekannte Dienststelle"
+        }
+      }
+    ]
+  },
+  "samePackageControl": {
+    "ok": true,
+    "v3": {
+      "v": 3,
+      "pkg": "Personal_KDB",
+      "canv": {
+        "w": 1000,
+        "h": 800
+      },
+      "filt": {
+        "sicht": "BW",
+        "dstl": {
+          "key": "Dienststelle_BW",
+          "glob": [
+            "MAG"
+          ]
+        }
+      }
+    },
+    "diagnostics": []
+  }
+}

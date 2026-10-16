@@ -1,14 +1,16 @@
-define([], function () {
+define(["../config.js"], function (_config) {
   "use strict";
+
+  var ALLE = _config.ALLE;
 
   function normalizeDisplayValue(_displayValue) {
     var displayValue = _displayValue == null ? "" : String(_displayValue).trim();
-    return displayValue || "Alle";
+    return displayValue || ALLE;
   }
 
   function normalizeUseValue(_useValue, _displayValue) {
     var displayValue = normalizeDisplayValue(_displayValue);
-    if (displayValue === "Alle") {
+    if (displayValue === ALLE) {
       return "";
     }
     return _useValue == null ? "" : String(_useValue).trim();
@@ -73,7 +75,7 @@ define([], function () {
       : Object.assign(createConfirmedSelection(nextDisplay, nextUse), { displaySource: displaySource });
     _filterState.currentSelection = normalized;
     _filterState.backupSelection = Object.assign({}, normalized);
-    _filterState.pendingSelection = createPendingSelection(nextDisplay === null ? "Alle" : nextDisplay);
+    _filterState.pendingSelection = createPendingSelection(nextDisplay === null ? ALLE : nextDisplay);
     _filterState.lastConfirmedTs = Date.now();
     if (_filterState.timestamps) { _filterState.timestamps.confirmedAt = _filterState.lastConfirmedTs; }
     _singleSelectRoot.lastConfirmedAt = _filterState.lastConfirmedTs;
@@ -84,7 +86,7 @@ define([], function () {
     _filterState.currentSelection = Object.assign({}, previous);
     _filterState.backupSelection = Object.assign({}, previous);
     _filterState.pendingSelection = createPendingSelection(
-      previous.displayValue === null ? "Alle" : previous.displayValue
+      previous.displayValue === null ? ALLE : previous.displayValue
     );
   }
 

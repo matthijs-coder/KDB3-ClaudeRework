@@ -3,12 +3,14 @@ define([
   "../schema/errorCodes.js",
   "./state/createRunContext.js",
   "./effects/executeRestoreRun.js",
-  "./effects/skipDefaultRestoreForUrlParameterId.js",
+  "../urlShare/skipDefaultRestoreForUrlParameterId.js",
   "./effects/waitForRootLifecycleReady.js",
-  "./effects/whenUrlShareRestoreSettled.js",
-  "./effects/presentPendingUrlShareMessage.js",
+  "../urlShare/whenUrlShareRestoreSettled.js",
+  "../urlShare/presentPendingUrlShareMessage.js",
   "./state/buildRestoreResult.js",
-  "./state/ensureWritebackRuntime.js"
+  "./state/ensureWritebackRuntime.js",
+  "../../../utils/kit/runtime.js",
+  "../../../utils/kit/errors.js"
 ], function (
   _constants,
   _errorCodes,
@@ -19,34 +21,32 @@ define([
   _whenUrlShareRestoreSettled,
   _presentPendingUrlShareMessage,
   _buildRestoreResult,
-  _ensureWritebackRuntime
+  _ensureWritebackRuntime,
+  _runtimeKit,
+  _errorsKit
 ) {
   "use strict";
 
+  // The writeback runtime buckets are shared with writebackGet, which KDB
+  // destroys after this service; its pending promises must survive here.
   function clearWritebackRuntime(_runtime) {
-    var key, bucket;
-    if (!_runtime) return;
-    bucket = _runtime.abortControllers;
-    if (bucket && typeof bucket === "object") {
-      for (key in bucket) {
-        if (Object.prototype.hasOwnProperty.call(bucket, key) && bucket[key] && typeof bucket[key].abort === "function") {
-          try { bucket[key].abort(); } catch (_error) { /* destroy abort is best-effort */ }
-        }
-      }
+    const pendingPromises = _runtime.pendingPromises;
+    const errors = _runtimeKit.disposeRuntimeBuckets(_runtime);
+    if (pendingPromises && typeof pendingPromises === "object") {
+      _runtime.pendingPromises = pendingPromises;
     }
-    bucket = _runtime.timers;
-    if (bucket && typeof bucket === "object") {
-      for (key in bucket) {
-        if (Object.prototype.hasOwnProperty.call(bucket, key)) clearTimeout(bucket[key]);
-      }
+    if (errors.length > 0) {
+      console.warn("[writebackSet.destroy] runtime cleanup errors", errors);
     }
-    _runtime.abortControllers = {};
-    _runtime.timers = {};
+    _runtime.parameterSetRestoreActive = false;
+    _runtime.parameterSetRestoreActiveCount = 0;
+    _runtime.pendingRunId = null;
     _runtime.pendingUrlShareMessage = null;
     _runtime.pendingRestoreFailure = false;
     _runtime.pendingRestoreInfo = null;
     _runtime.urlShareBootOverlayActive = false;
     _runtime.urlShareRestoreWaiter = null;
+    _runtime.urlShareStartupPromise = null;
   }
 
   function throwDefaultOverlap(_activeRun, _rawStatus) {
@@ -59,16 +59,17 @@ define([
 
   function createWritebackSetService(deps) {
     const _KDB = deps._KDB;
-    let _isDisposed = false;
+    const _guard = _errorsKit.createDisposedGuard("writebackSet");
     let _activeRun = null;
+    let _activeSettled = null;
 
     async function restore(v3, status, options) {
-      if (_isDisposed) {
+      if (_guard.isDisposed()) {
         throw _errorCodes.createWritebackError(
           _errorCodes.codes.WRITEBACK_RESTORE_CANCELLED, "set", "writebackSet service is disposed"
         );
       }
-      const rawStatus = status === undefined || status === null ? "notDefaultParamSet" : String(status);
+      const rawStatus = _constants.normalizeStatus(status);
       const statusKind = _constants.STATUS_TABLE[rawStatus];
       if (!statusKind) {
         throw _errorCodes.createWritebackError(
@@ -89,16 +90,12 @@ define([
       if (_activeRun) {
         if (statusKind === "default") throwDefaultOverlap(_activeRun, rawStatus);
         _activeRun.cancelRequested = true;
-        try { await _activeRun.settled; } catch (_error) { /* previous run settles itself */ }
+        await _activeSettled;
       }
       const run = _createRunContext(_KDB, rawStatus, statusKind, options);
       let resolveSettled;
-      _activeRun = {
-        runId: run.runId,
-        get cancelRequested() { return run.cancelRequested; },
-        set cancelRequested(value) { run.cancelRequested = value === true; },
-        settled: new Promise(function (resolve) { resolveSettled = resolve; })
-      };
+      _activeRun = run;
+      _activeSettled = new Promise(function (resolve) { resolveSettled = resolve; });
       try {
         if (statusKind === "default") {
           const ready = await _waitForRootLifecycleReady(_KDB, run);
@@ -106,34 +103,28 @@ define([
         }
         return await _executeRestoreRun(_KDB, run, v3);
       } finally {
-        if (_activeRun && _activeRun.runId === run.runId) _activeRun = null;
+        if (_activeRun === run) {
+          _activeRun = null;
+          _activeSettled = null;
+        }
         resolveSettled();
       }
     }
 
     function destroy() {
-      _isDisposed = true;
-      clearWritebackRuntime(_ensureWritebackRuntime(_KDB));
+      _guard.dispose();
       if (_activeRun) _activeRun.cancelRequested = true;
+      clearWritebackRuntime(_ensureWritebackRuntime(_KDB));
     }
 
     function whenUrlShareRestoreSettled() {
-      try {
-        if (_isDisposed) return Promise.resolve({ kind: "failed", parameterId: null });
-        return _whenUrlShareRestoreSettled(_KDB);
-      } catch (error) {
-        console.error("[writebackSet.whenUrlShareRestoreSettled] failed", error);
-        return Promise.resolve({ kind: "failed", parameterId: null });
-      }
+      if (_guard.isDisposed()) return Promise.resolve({ kind: "failed", parameterId: null });
+      return _whenUrlShareRestoreSettled(_KDB);
     }
 
     function presentPendingUrlShareMessage() {
-      try {
-        if (_isDisposed) return undefined;
-        return _presentPendingUrlShareMessage(_KDB);
-      } catch (error) {
-        console.error("[writebackSet.presentPendingUrlShareMessage] failed", error);
-      }
+      if (_guard.isDisposed()) return undefined;
+      return _presentPendingUrlShareMessage(_KDB);
     }
 
     return {

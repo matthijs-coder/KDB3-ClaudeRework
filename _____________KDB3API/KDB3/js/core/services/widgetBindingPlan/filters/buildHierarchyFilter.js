@@ -1,9 +1,49 @@
 define([
-  "../filters/matchFilterPropEntry.js",
-  "../sourceTokens/rewriteUniqueNameSourceToken.js",
-  "./sanitizeWidgetDownstreamDisplayValues.js",
-], function (_matchFilterPropEntry, _rewriteUniqueNameSourceToken, _sanitizeWidgetDownstreamDisplayValues) {
+  "./filterItemIds.js",
+], function (_filterItemIds) {
   "use strict";
+
+  var PIPE_SPLIT = /\s*(?:\||\u00A0\||\u2007\||\u202F\|)\s*/;
+
+  function stripHashPrefix(_token) {
+    var token = typeof _token === "string" ? _token.trim() : "";
+    if (!token) {
+      return "";
+    }
+    var hashIndex = token.indexOf("#");
+    if (hashIndex >= 0) {
+      return token.slice(hashIndex + 1).trim();
+    }
+    return token;
+  }
+
+  function sanitizeDownstreamValue(_value) {
+    var raw = typeof _value === "string" ? _value.trim() : String(_value == null ? "" : _value).trim();
+    if (!raw) {
+      return "";
+    }
+    var parts = raw.split(PIPE_SPLIT);
+    var cleaned = [];
+    for (var index = 0; index < parts.length; index += 1) {
+      var part = stripHashPrefix(parts[index]);
+      if (part) {
+        cleaned.push(part);
+      }
+    }
+    return cleaned.join(" | ");
+  }
+
+  function sanitizeDownstreamDisplayValues(_values) {
+    var source = Array.isArray(_values) ? _values : [];
+    var result = [];
+    for (var index = 0; index < source.length; index += 1) {
+      var sanitized = sanitizeDownstreamValue(source[index]);
+      if (sanitized) {
+        result.push(sanitized);
+      }
+    }
+    return result;
+  }
 
   function collectHierarchyValues(_resolution) {
     var values = [];
@@ -47,11 +87,7 @@ define([
     };
   }
 
-  function resolveTargetSourceToken(_dataConfig) {
-    return _dataConfig.datasourceName || _dataConfig.datasourceId || _dataConfig.kennzahlenTable || "";
-  }
-
-  function __controller(_spec) {
+  function buildHierarchyFilter(_spec) {
     var snapshot = _spec.hierarchySnapshot;
     if (!snapshot) {
       return { ok: true, descriptor: null };
@@ -72,38 +108,33 @@ define([
       return {
         ok: false,
         errorCode: "WIDGET_BINDING_PLAN_HIERARCHY_VALUES",
-        legacyError: "missingHierarchyValues",
       };
     }
 
     var dataConfig = _spec.dataConfig || {};
     var filterPropObj = _spec.config && _spec.config.filterPropObj;
-    var matched = _matchFilterPropEntry(filterPropObj, snapshot.activeDownstreamName, dataConfig);
+    var matched = _filterItemIds.matchFilterPropEntry(filterPropObj, snapshot.activeDownstreamName, dataConfig);
     if (!matched || !matched.entry) {
       return {
         ok: false,
         errorCode: "WIDGET_BINDING_PLAN_HIERARCHY_SOURCE",
-        legacyError: "missingHierarchySourceConfig",
       };
     }
     if (!matched.entry.itemId) {
       return {
         ok: false,
         errorCode: "WIDGET_BINDING_PLAN_HIERARCHY_ITEM",
-        legacyError: "missingHierarchyItemId",
       };
     }
 
-    var targetToken = resolveTargetSourceToken(dataConfig);
-    var itemId = _rewriteUniqueNameSourceToken(String(matched.entry.itemId), matched.sourceKey, targetToken);
+    var itemId = _filterItemIds.resolveHierarchyItemId(matched, dataConfig);
     var values = _spec.targetKind === "topNHelper"
       ? collectTopNHelperHierarchyValues(snapshot.resolution)
-      : _sanitizeWidgetDownstreamDisplayValues(rawValues);
+      : sanitizeDownstreamDisplayValues(rawValues);
     if (!values.length) {
       return {
         ok: false,
         errorCode: "WIDGET_BINDING_PLAN_HIERARCHY_VALUES",
-        legacyError: "missingHierarchyValues",
       };
     }
 
@@ -119,5 +150,5 @@ define([
     };
   }
 
-  return __controller;
+  return buildHierarchyFilter;
 });

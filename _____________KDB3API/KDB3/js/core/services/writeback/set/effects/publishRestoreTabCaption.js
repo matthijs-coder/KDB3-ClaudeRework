@@ -3,7 +3,7 @@ define([
 ], function (_selectors) {
   "use strict";
 
-  function __controller(_KDB, _run, _request) {
+  function publishRestoreTabCaption(_KDB, _run, _request) {
     try {
       const loading = _KDB && _KDB.services ? _KDB.services.loading : null;
       let caption;
@@ -43,13 +43,9 @@ define([
   }
 
   function replaceTokenOnce(message, token, value) {
-    try {
-      const at = typeof message === "string" ? message.indexOf(token) : -1;
-      if (value == null || at < 0) { return message; }
-      return message.slice(0, at) + String(value) + message.slice(at + token.length);
-    } catch (error) {
-      throw error;
-    }
+    const at = typeof message === "string" ? message.indexOf(token) : -1;
+    if (value == null || at < 0) { return message; }
+    return message.slice(0, at) + String(value) + message.slice(at + token.length);
   }
 
   function resolveCaption(_KDB, _request) {
@@ -125,17 +121,13 @@ define([
   }
 
   function visiblePosition(visibleTabs, physicalIndex) {
-    try {
-      let index;
-      if (physicalIndex == null || !visibleTabs) { return -1; }
-      for (index = 0; index < visibleTabs.length; index += 1) {
-        if (visibleTabs[index] && visibleTabs[index].index === physicalIndex) { return index; }
-      }
-      return -1;
-    } catch (error) {
-      throw error;
+    let index;
+    if (physicalIndex == null || !visibleTabs) { return -1; }
+    for (index = 0; index < visibleTabs.length; index += 1) {
+      if (visibleTabs[index] && visibleTabs[index].index === physicalIndex) { return index; }
     }
+    return -1;
   }
 
-  return __controller;
+  return publishRestoreTabCaption;
 });

@@ -1,128 +1,89 @@
 define([
-  "./resolveDashboardHostApi.js",
-  "./read/buildUiStateSnapshot.js",
-  "./isDashboardFacetStale.js",
-  "../../runtime/ensureCognosHostRuntime.js"
-], function (
-  _resolveDashboardHostApi,
-  _buildUiStateSnapshot,
-  _isDashboardFacetStale,
-  _ensureCognosHostRuntime
-) {
+  "../../hostAccess.js",
+  "../../runtime.js",
+  "./read.js"
+], function (_hostAccess, _runtime, _read) {
   "use strict";
+
+  // subscribeUiState(callback): the callback receives flat { authoring, mode } snapshots, first
+  // the current state (get-then-subscribe), then one per host change. Live uiState objects and
+  // host Promises stay in ring 1. Returns an idempotent unsubscribe (a noop when nothing was armed).
 
   function noopUnsubscribe() {}
 
-  function detachHostSubscription(_handle) {
-    if (!_handle) {
+  function emitSnapshot(_ctx, _subscription, _uiState) {
+    var snapshot;
+    if (_subscription.released || !_subscription.callback || _hostAccess.isFacetStale(_ctx)) {
       return;
     }
-    if (typeof _handle.then === "function") {
-      _handle.then(detachHostSubscription, function ignoreHostPromise() {});
-      return;
-    }
-    if (typeof _handle.remove === "function") {
-      _handle.remove();
-      return;
-    }
-    if (typeof _handle.off === "function") {
-      _handle.off();
-      return;
-    }
-    if (typeof _handle.unsubscribe === "function") {
-      _handle.unsubscribe();
-      return;
-    }
-    if (typeof _handle.dispose === "function") {
-      _handle.dispose();
-      return;
-    }
-    if (typeof _handle === "function") {
-      _handle();
+    snapshot = _read.buildUiStateSnapshot(_uiState, _hostAccess.resolveHostApi(_ctx._KDB, "dashboard"));
+    try {
+      _subscription.callback(snapshot);
+    } catch (callbackError) {
+      console.error("[cognosHost.dashboard.subscribeUiState] callback failed", callbackError);
     }
   }
 
-  function storeUnsubscribe(_ctx, _unsubscribe) {
-    var runtime = _ensureCognosHostRuntime(_ctx._KDB);
-    if (!runtime || !Array.isArray(runtime.subscriptions)) {
-      return false;
+  function emitCurrentSnapshot(_ctx, _subscription, _dashboardApi) {
+    var currentUiState;
+    if (typeof _dashboardApi.getCurrentDashboardUiState !== "function") {
+      return;
     }
-    runtime.subscriptions.push(_unsubscribe);
-    return true;
+    try {
+      currentUiState = _dashboardApi.getCurrentDashboardUiState();
+      if (!_hostAccess.isThenable(currentUiState)) {
+        emitSnapshot(_ctx, _subscription, currentUiState);
+      }
+    } catch (bootError) {
+      console.error("[cognosHost.dashboard.subscribeUiState] boot snapshot failed", bootError);
+    }
+  }
+
+  function releaseSubscription(_ctx, _subscription) {
+    if (_subscription.released) {
+      return;
+    }
+    _subscription.released = true;
+    _subscription.callback = null;
+    // Redundant for correctness since clearRuntime iterates a copy; kept so destroy does not
+    // re-create and prune the runtime bucket once per subscription.
+    if (!_ctx.isDisposed()) {
+      _runtime.pruneSubscription(_ctx._KDB, _subscription.unsubscribe);
+    }
+    try {
+      _hostAccess.detachHostSubscription(_subscription.handle);
+    } catch (detachError) {
+      console.error("[cognosHost.dashboard.subscribeUiState] unsubscribe failed", detachError);
+    }
   }
 
   function subscribeUiState(_ctx, _callback) {
+    var subscription = { callback: _callback, released: false, handle: undefined, unsubscribe: null };
     var dashboardApi;
-    var handle;
-    var box;
-    var released;
     var unsubscribe;
-    var currentUiState;
-    var emitMappedSnapshot;
-    if (typeof _callback !== "function" || _isDashboardFacetStale(_ctx)) {
+    if (typeof _callback !== "function" || _hostAccess.isFacetStale(_ctx)) {
       return noopUnsubscribe;
     }
     try {
-      dashboardApi = _resolveDashboardHostApi(_ctx._KDB);
+      dashboardApi = _hostAccess.resolveHostApi(_ctx._KDB, "dashboard");
       if (!dashboardApi || typeof dashboardApi.onDashboardUiStateChange !== "function") {
         return noopUnsubscribe;
       }
-      box = { callback: _callback };
-      released = false;
-      // Flat DTO only. Live uiState and host Promises stay in ring 1.
-      emitMappedSnapshot = function emitMappedSnapshot(_uiState) {
-        var liveDashboardApi;
-        var snapshot;
-        if (released || !box.callback || _isDashboardFacetStale(_ctx)) {
-          return;
-        }
-        liveDashboardApi = _resolveDashboardHostApi(_ctx._KDB);
-        snapshot = _buildUiStateSnapshot(_uiState, liveDashboardApi);
-        try {
-          box.callback(snapshot);
-        } catch (callbackError) {
-          console.error("[cognosHost.dashboard.subscribeUiState] callback failed", callbackError);
-        }
-      };
-      // Get-then-subscribe (authoring boot): emit the current snapshot before
-      // attaching onDashboardUiStateChange and before returning unsubscribe.
-      if (typeof dashboardApi.getCurrentDashboardUiState === "function") {
-        try {
-          currentUiState = dashboardApi.getCurrentDashboardUiState();
-          if (!(currentUiState && typeof currentUiState.then === "function")) {
-            emitMappedSnapshot(currentUiState);
-          }
-        } catch (bootError) {
-          console.error("[cognosHost.dashboard.subscribeUiState] boot snapshot failed", bootError);
-        }
-        if (released || _isDashboardFacetStale(_ctx)) {
-          return noopUnsubscribe;
-        }
-      }
-      handle = dashboardApi.onDashboardUiStateChange(function onHostUiState(uiState) {
-        emitMappedSnapshot(uiState);
-      });
-      unsubscribe = function unsubscribeUiState() {
-        if (released) {
-          return;
-        }
-        released = true;
-        box.callback = null;
-        try {
-          detachHostSubscription(handle);
-        } catch (detachError) {
-          console.error("[cognosHost.dashboard.subscribeUiState] unsubscribe failed", detachError);
-        }
-      };
-      if (!storeUnsubscribe(_ctx, unsubscribe)) {
-        unsubscribe();
+      emitCurrentSnapshot(_ctx, subscription, dashboardApi);
+      if (_hostAccess.isFacetStale(_ctx)) {
         return noopUnsubscribe;
       }
+      subscription.handle = dashboardApi.onDashboardUiStateChange(function onHostUiState(uiState) {
+        emitSnapshot(_ctx, subscription, uiState);
+      });
+      unsubscribe = releaseSubscription.bind(null, _ctx, subscription);
+      subscription.unsubscribe = unsubscribe;
+      _runtime.addSubscription(_ctx._KDB, unsubscribe);
       return unsubscribe;
     } catch (error) {
       console.error("[cognosHost.dashboard.subscribeUiState] failed", error);
       try {
-        detachHostSubscription(handle);
+        _hostAccess.detachHostSubscription(subscription.handle);
       } catch (_detachError) {
         // Host detach after a failed subscribe must not throw across the facet.
       }

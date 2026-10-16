@@ -1,8 +1,7 @@
 define([
   "../config/restoreConstants.js",
   "../../schema/errorCodes.js",
-  "./reensureTabWidgetsRouted.js",
-], function (_constants, _errorCodes, _reensureTabWidgetsRouted) {
+], function (_constants, _errorCodes) {
   "use strict";
 
   // §6.4 step 23 precondition (amended 2026-07-11) / §6.6 /
@@ -23,6 +22,9 @@ define([
   const PHASE_NAME = "tabWidgetsEnsureRouted";
   const OWNER = "widgetBase";
   const TYPE = "widgetBase/ensureTabWidgetsRouted";
+  // Bounded extra ensure dispatches while leftover shells keep the tab unrouted.
+  // Cap 2 extra (3 total including the first). Hard failure is not retried.
+  const EXTRA_ENSURE_CAP = 2;
 
   async function ensureTabWidgetsRouted(_KDB, run, tabIdx, tabTargets) {
     run.assertStillCurrent();
@@ -45,7 +47,7 @@ define([
 
     let result = null;
     try {
-      result = await _reensureTabWidgetsRouted(api, run, tabId);
+      result = await reensureTabWidgetsRouted(api, run, tabId);
     } catch (error) {
       if (error === _constants.CANCELLED) {
         run.recordPhase(PHASE_NAME, OWNER, false, false);
@@ -96,29 +98,47 @@ define([
     throw _constants.ABORT;
   }
 
-  function recordRoutedPhase(run, tabIdx, tabId, result) {
-    try {
-      const missingShells = readCount(result && result.missingShells);
-      let phaseDiagnostics;
-      if (missingShells > 0) {
-        const diagnostic = _errorCodes.makeDiagnostic(
-          _errorCodes.codes.WRITEBACK_SKIPPED_BY_DESIGN,
-          "restore",
-          "ensure reported leftover launchpad shells after bounded re-ensure",
-          { missingShells: missingShells, tabIdx: tabIdx, tabId: tabId, nonDegrading: true },
-          run.runId
-        );
-        phaseDiagnostics = [diagnostic];
-        run.diagnostics.push(diagnostic);
-      }
-      const entry = run.recordPhase(PHASE_NAME, OWNER, true, false, phaseDiagnostics);
-      entry.missingShells = missingShells;
-    } catch (error) {
-      console.error("[writebackSet.ensureTabWidgetsRouted] recordRoutedPhase failed", {
-        tabIdx: tabIdx, tabId: tabId
-      }, error);
-      throw error;
+  async function reensureTabWidgetsRouted(api, run, tabId) {
+    let result = await dispatchEnsure(api, run, tabId);
+    let extraEnsures = 0;
+    while (shouldReensure(result) && extraEnsures < EXTRA_ENSURE_CAP) {
+      extraEnsures += 1;
+      result = await dispatchEnsure(api, run, tabId);
     }
+    return result;
+  }
+
+  async function dispatchEnsure(api, run, tabId) {
+    const result = await api.dispatch({
+      type: TYPE,
+      payload: { tabId: tabId, reason: "writebackSet", runId: run.runId },
+    });
+    run.assertStillCurrent();
+    return result;
+  }
+
+  function shouldReensure(result) {
+    return !!(result && result.ok === true
+      && readCount(result.missingShells) > 0
+      && result.alreadyRouted !== true);
+  }
+
+  function recordRoutedPhase(run, tabIdx, tabId, result) {
+    const missingShells = readCount(result && result.missingShells);
+    let phaseDiagnostics;
+    if (missingShells > 0) {
+      const diagnostic = _errorCodes.makeDiagnostic(
+        _errorCodes.codes.WRITEBACK_SKIPPED_BY_DESIGN,
+        "restore",
+        "ensure reported leftover launchpad shells after bounded re-ensure",
+        { missingShells: missingShells, tabIdx: tabIdx, tabId: tabId, nonDegrading: true },
+        run.runId
+      );
+      phaseDiagnostics = [diagnostic];
+      run.diagnostics.push(diagnostic);
+    }
+    const entry = run.recordPhase(PHASE_NAME, OWNER, true, false, phaseDiagnostics);
+    entry.missingShells = missingShells;
   }
 
   function readCount(value) {

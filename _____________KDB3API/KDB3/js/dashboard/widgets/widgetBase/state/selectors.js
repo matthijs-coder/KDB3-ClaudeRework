@@ -1,4 +1,4 @@
-define(["./cloneSerializable.js"], function (_cloneSerializable) {
+define(["../../../../core/utils/kit/data.js"], function (_data) {
   function readBaseRoot(_KDB) {
     if (!_KDB || !_KDB.state || !_KDB.state.widgets || !_KDB.state.widgets.base) {
       return undefined;
@@ -8,7 +8,7 @@ define(["./cloneSerializable.js"], function (_cloneSerializable) {
 
   function readWidgetBaseState(_KDB) {
     const base = readBaseRoot(_KDB);
-    return base ? _cloneSerializable(base) : undefined;
+    return base ? _data.cloneJson(base) : undefined;
   }
 
   function readFrame(_KDB, _widgetId) {
@@ -16,7 +16,7 @@ define(["./cloneSerializable.js"], function (_cloneSerializable) {
     if (!base || !base.byId || !base.byId[_widgetId]) {
       return undefined;
     }
-    return _cloneSerializable(base.byId[_widgetId]);
+    return _data.cloneJson(base.byId[_widgetId]);
   }
 
   function readWidgetsByTab(_KDB, _tabId) {
@@ -30,7 +30,7 @@ define(["./cloneSerializable.js"], function (_cloneSerializable) {
     while (index < ids.length) {
       const frame = base.byId[ids[index]];
       if (frame && frame.tabId === _tabId) {
-        frames.push(_cloneSerializable(frame));
+        frames.push(_data.cloneJson(frame));
       }
       index += 1;
     }
@@ -48,7 +48,7 @@ define(["./cloneSerializable.js"], function (_cloneSerializable) {
     while (index < ids.length) {
       const frame = base.byId[ids[index]];
       if (frame && frame.tabId === _tabId && frame.placement === "onCanvas" && frame.lifecycle !== "disposed") {
-        frames.push(_cloneSerializable(frame));
+        frames.push(_data.cloneJson(frame));
       }
       index += 1;
     }
@@ -65,7 +65,7 @@ define(["./cloneSerializable.js"], function (_cloneSerializable) {
       placement: frame.placement,
       launchpadPad: frame.launchpadPad,
       launchpadSlotKey: frame.launchpadSlotKey,
-      layout: _cloneSerializable(frame.layout)
+      layout: _data.cloneJson(frame.layout)
     };
   }
 

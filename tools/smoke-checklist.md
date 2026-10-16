@@ -80,6 +80,16 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] PDF export (1.13) works.
 - [ ] Listener count: `getEventListeners(document)` before and after adding and removing 5 widgets - same totals as before (no growth). Console: `window.top.getKDB().runtime.cognosHost` still exists.
 - [ ] Rapid filter changes (5 clicks in 2 s). Expected: final state correct, no stuck spinner; no `timeout` errors earlier than baseline.
+- [ ] Console helpers (pure-Cognos layer kept): `Object.keys(getKDB().cognosAPI)` lists 10 themes; `getKDB().cognosAPI.visualization.getLocalFiltersList(<widgetId>)` and `getKDB().cognosAPI.widgets.getWidget(<id>)` still work.
+- [ ] Console: `var s=getKDB().services.cognosHost; s.filters===s.filters && s.widgets===s.widgets` is true; `Object.keys(s.visualization).length` is 16; `Object.keys(s.widgets)` has no `getWidgetType`.
+- [ ] Table with a slow query (> 2 s): loads, no `DATAQUERY_WAIT_TIMEOUT` in the console, time to first rows not visibly slower (the poll now backs off from 100 ms up to 1 s).
+- [ ] Toggle a vis widget's selection 10x, switch tabs 5x, duplicate and delete a vis widget 5x, switch dashboard edit/consume mode 3x: `getKDB().runtime.cognosHostService.subscriptions.length` returns to its start value; selection-driven features and the KDB authoring state still follow; no `[cognosHost.*]` errors.
+- [ ] Rapid filter changes (10 within 3 s) during a tab switch (page-context wait): no `FILTERS_*` errors; a heap snapshot before/after shows a flat "EventListener" count.
+- [ ] Table/vis widgets load after a tab switch (canvas waits); no `CANVAS_WAIT_*` in the console. Rename a tab and reload: the name persists.
+- [ ] Share link (board id, BI base URL), footer user name and PDF file name still show; PDF export on 2 different tabs (capture root).
+- [ ] Remove one required chrome selector via DevTools before load (e.g. rename the toolbar class): one alert appears once; optional misses only log `console.debug`.
+- [ ] Home dialog: the BI home perspective and app view open; the cubes-unavailable message still shows with an errored data source.
+- [ ] Teardown + reopen the dashboard: no `[cognosHost.*]` errors.
 
 ### WS-B Binding plan/apply + tableData
 - [ ] For each chart type (`Line`, `Pie`, `StackedBar`, `StackedColumn`, `List`, and the Prognose line chart): add, then change dimension, then change Kennzahl. Expected: renders identically to baseline. Console check, if you want to compare: `window.top.getKDB().services.widgetBindingPlan` is present.
@@ -87,6 +97,12 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] TopN: set TopN, then "Ohne" (clear-only path). Expected: chart same as baseline; helper restored (see 2.3/2.4).
 - [ ] Forced timeout: while a widget renders, switch to another tab. Expected: no hang; same message (if any) as baseline.
 - [ ] All tables load on boot (same table count as baseline; `getKDB().state.tableData` shows all `lifecycle` = `ready` and the same `rowCount` per table, see 1.7); Dienststelle/Sicht popups and the metrics tree are populated.
+- [ ] Zeitebene/grain: on a Line and a List widget switch Zeitebene (Jahr, Stichtag, Stichtag pro Jahr). Expected: same filters and data as baseline.
+- [ ] Hierarchy filter: with a Dienststelle selected below the top level, add a vis widget. Expected: the chart is filtered to that org as on baseline; with an unconfirmed selection no filter is applied.
+- [ ] Empty data: pick a Kennzahl/filter combination without data. Expected: the same empty hint as baseline.
+- [ ] Change a filter that triggers a table reload (Sicht/Stichtag/Dienststelle): the dependent table returns to `ready` with the same `rowCount` as baseline, and the parked widget (table with `parkFilter`) gets its local filter back.
+- [ ] Failing table (rename a table widget title, hard reload): one toast "Tabellendaten konnten nicht geladen werden: <name>", entry `lifecycle: "error"`, other tables load normally.
+- [ ] `getKDB().services.tableData.readTableState()` returns the whole map; after destroy/re-open there are no console errors from `tableData`.
 
 ### WS-C Writeback + properties
 - [ ] Save/load round-trip for **every vis type** (Line, Pie, StackedBar, StackedColumn, List, Prognose) and every Zeitebene (grain, e.g. Jahr / Stichtag / Stichtag pro Jahr). Expected: after save + reload the widgets are identical.
@@ -95,6 +111,18 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Save while a **non-first tab** is active; reopen. Expected: lands on the same tab as baseline.
 - [ ] Destroy + re-boot 3x in one browser tab (close/reopen the dashboard). Expected: no growth in console warnings, restore still works on the 3rd time (see 4.3).
 - [ ] `spec.json` properties still readable: header title/subtitle come from the saved header property.
+- [ ] Save, then immediately switch tabs or close the dashboard: the save overlay disappears without lag and there is no console error from persist landing after destroy.
+- [ ] Save in a dashboard with 2+ visible tabs while on the second tab: the host lands on the first tab for the Cognos save popup, then returns to the second tab; the overlay is gone afterwards.
+- [ ] Load parameter set A, then quickly load B before A finishes: A ends `cancelled`, B is applied, the loading overlay disappears and undo/redo is not polluted.
+- [ ] Destroy the dashboard while a restore or the URL-share startup is running: no console errors after destroy, and the save overlay still disappears.
+- [ ] Default restore with a stalled lifecycle (DevTools breakpoint before `ready`): after 180 s the console shows `WRITEBACK_TIMEOUT` and the outcome is `cancelled`. Without the block a normal boot restores as baseline.
+- [ ] Destroy + re-boot 3x without reload: `top.WBParameterGetFunction.__kdbOwner` is set on the live boot; a kept reference from a destroyed boot reads `null`. Heap snapshot shows one live `_KDB`.
+- [ ] "Ein neues Dashboard erstellen" is the first option of `#selectParameterSet`, also after the select re-renders and when the save/load slot mounts late (up to 0.5 s). No KDB `MutationObserver` on `document.body`.
+- [ ] Discard-confirm cancel reverts the select and restores nothing.
+- [ ] Developer mode on/off follows `KDB_developerMode`; after destroy and re-boot there is at most one `[data-kdb-hidedata-hint]` badge.
+- [ ] One save + one load cycle: no duplicate console lines for the same failure compared with baseline.
+- [ ] Share link with a valid id restores that set (it overrides the default); an invalid id shows the info message once; a read-only share link (no save/load slot) works and shows no console errors.
+- [ ] v2 (Set B) load produces the same dashboard as baseline.
 
 ### WS-D Feature services (message, loading, history, PDF, drillthrough)
 - [ ] Toasts/dialogs: trigger an info message (restore with fallback), a share dialog and a confirm dialog ("discard unsaved changes"). Expected: placement unchanged; scroll/resize keeps them in place; closing leaves no dark backdrop.
@@ -102,6 +130,19 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Undo/redo after header edit, widget move, tab rename, filter change; double-click undo quickly. Expected: stack steps correctly; after loading a parameter set the undo stack is empty (`window.top.getKDB().services.history.getSnapshot().stack.length === 0`).
 - [ ] PDF export with 1 tab, with 5+ tabs, with a widget in focus mode (Vollbild), with legend charts (swatch colours/shapes in the PDF), and cancel/abort mid-export. Expected: output equals baseline; class `kdb-pdf-capturing` removed afterwards; the original tab is selected again.
 - [ ] Drillthrough: click a header icon and a datapoint on a line/pie/table widget for 3-4 org/year combinations (BW and DEZPV). Expected: the target URL (Network tab or `window.open` target) equals baseline.
+- [ ] Toast storm: trigger 5 anchored + 2 global notifications (e.g. repeated restore fallback). Run `kdbCount` (section 0) while open and after all closed. Expected: while open at most +1 `scroll` and +1 `resize` on `window`; after close back to baseline.
+- [ ] Anchored toast whose anchor disappears (switch tab while it shows). Expected: it moves to the global position within a frame, no console error.
+- [ ] Open and close a confirm dialog 10 times (Esc, Abbrechen, OK). Expected: no `.kdb-message-backdrop` left in Elements; `getKDB().runtime.messageService.queues.activeModalRequest === null`.
+- [ ] Spinner watchdog (optional): `getKDB().services.loading.startLoading({mountKey:"smoke-test", watchdogMs:2000})`. Expected: the spinner disappears after ~2 s; no dialog (non-boot key).
+- [ ] Boot watchdog dialog still appears once if boot hangs (throttle the network to "Offline" right after load start): same title/text as baseline.
+- [ ] Per-widget spinners during a full tab render: spinners appear and disappear as before; the page does not jump.
+- [ ] History: 6 header edits -> Undo possible exactly 5 times. `getKDB().services.history.isWritebackRestoreActive()` is `false` when idle and `true` while a parameter-set load spinner shows.
+- [ ] PDF long export with abort: start a 5+ tab export, wait 10 s, abort. Expected: at most one `[dashboardPdf.*]` console line for the abort, button usable, class `kdb-pdf-capturing` gone, original tab active.
+- [ ] PDF vendor path (dynamic `require`): export once. Expected: the PDF downloads; Network shows `jspdf.umd.min.js` and `html2canvas.min.js` loaded from `core/libraries/` with HTTP 200 (a wrong path shows the alert "PDF vendors are not available.").
+- [ ] PDF vendor failure: block `html2canvas.min.js` in DevTools Network and export. Expected: alert "PDF vendors are not available." (as baseline); after unblocking, a second export works.
+- [ ] PDF content: title page, one page per visible tab (footer "Seite n: <tab>"), "Anhang" with filter rows, legend swatches as coloured chips, no maximize/PKZ buttons; after exporting with a maximized widget, the widget is maximized again.
+- [ ] Drillthrough: the console no longer shows a `[drillthrough.openDrillthrough]` URL log line (intended); the opened URL equals baseline.
+- [ ] Drillthrough icon click before the hierarchy is loaded (reload, click immediately): wait window "Bitte einen Moment Geduld..." then navigates to the PKZ report.
 
 ### WS-E Toolbar controls (wienKi, pdf, history, share)
 - [ ] Button order and icons in the toolbar are unchanged from baseline. DOM order, left to right: Share (Teilen), WienKI, PDF, History (Undo/Redo). Confirm the visual order once in Cognos. Test with the dark and the light Cognos theme (icon inversion).
@@ -144,6 +185,18 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] In a widget settings panel / header editor: colour inputs (typing a hex value, picking from the palette), palette closes on outside-click, toggle switches (Ein/Aus) and radios work as on baseline.
 - [ ] Close/reopen the dashboard, then `getEventListeners(document).mousedown.length` is the same as after a first boot (no extra listener).
 
+#### G (kdbControl restructure)
+- [ ] Control panel opens with the same layout and texts: header "Dashboard-Steuerung" with settings and info icons, toggles "Kennzahlen"/"Toolbox", sections Kommentar / Tab / Kopfzeile/Fußzeile, and Dashboard / Diagramme / Kommentare / Steuerungspanel (settings icon opens the settings panel; clicking Toolbox twice returns to Kennzahlen).
+- [ ] Collapse arrow: click and Enter/Space collapse and expand the panel; arrow glyph flips.
+- [ ] Settings panel, all 13 inputs: width/height accept `300mm`, `20cm`, `800px`; a value below the minimum (e.g. `1px`) is raised to the minimum with an info message; `abc`, `12` (no unit) and `0mm` show a warning and change nothing. Colour inputs update on typing/picking; palette opens on focus/click, closes on Esc, outside click and focus-out; picking a swatch fills the input and the dashboard/panel colour changes.
+- [ ] Toolbox, Kopfzeile/Fußzeile: header/footer/subtitle switches follow the real header/footer state (also after a header edit or undo); the "Titel bearbeiten" radios start title/subtitle editing.
+- [ ] Toolbox, Tab: "Tab hinzufügen" adds a tab (blocked message at the maximum); the "Tab 1..5" radios follow the visible tabs and select the tab edit target (one request per click, not two).
+- [ ] Toolbox, Kommentar: click/drag the Kommentar button onto the canvas creates a text widget on the first, a lazily loaded and the last tab.
+- [ ] Settings undo/redo: change dashboard width, background colour, panel colour, "Buttons verstecken" and developer mode; undo and redo each (values and panel colours follow).
+- [ ] Parameter-set restore (Set A / Set B / "new dashboard"): canvas size, colours, switches come back; no extra undo steps afterwards.
+- [ ] Switching tabs moves the control panel with the active tab (also on a tab that renders late); during startup traversal it does not hop between tabs.
+- [ ] Close and reopen the dashboard: one control panel only; `getEventListeners(document).mousedown.length` equals the first boot; no `#kdb-control-root` left behind after close.
+
 ### WS-H singleSelect + nativeMultiSelect
 - [ ] Single-select popup (Geschlecht / Altersgruppe / Berufsfamilie): commit with OK, with "Alle", cancel, and click outside the popup (out-click reverts). Expected: values and dependent charts as baseline.
 - [ ] Native multi-select (Jahr): select 2 years, confirm; clear; confirm again. Expected: charts reflect the years; header/filter dock text updated.
@@ -179,6 +232,14 @@ WS-I details. In the console use `const getKDB = window.top.getKDB;`.
 - [ ] Personengruppe popup (only available for Sicht BW): open, select, confirm, "Alle", cancel; switch Sicht to DEZPV. Expected: the filter is hidden/disabled as on baseline.
 - [ ] Dienststellenleitung popup: same flow as Personengruppe.
 - [ ] Restore Set A / Set B with Sicht = DEZPV and with Personengruppe set. Expected: same values as saved.
+- [ ] Boot: console shows no `[sicht.` / `[specialSingleSelect.` errors or warnings. `getKDB().api.sicht.getState().lifecycle` and `getKDB().api.specialSingleSelect.getState().lifecycle` = `ready` (same as baseline).
+- [ ] Startup default: fresh boot with no parameter set. Expected: Sicht shows the same default (BW or DEZPV) as baseline; Dienststelle follows; no history step is created (Undo button stays disabled).
+- [ ] Sicht popup: open it. Expected: the BW/DEZPV options carry `KDB_sichtOptionBw` / `KDB_sichtOptionDezpv`, "Alle" is hidden (`KDB_sichtHideAlle`), duplicate options are hidden, unavailable options are greyed (`KDB_sichtOptionDisabled`) exactly as on baseline.
+- [ ] Switch Sicht BW -> DEZPV -> BW, then Undo twice and Redo twice. Expected: Sicht, Dienststelle and Personengruppe/Dienststellenleitung follow each step as on baseline; `#filterDockContainer` carries `KDB_sssSicht_BW` when Sicht = BW and `KDB_sssSicht_DEZPV` when DEZPV.
+- [ ] Rapid switch: change Sicht 3 times within ~2 s. Expected: the special filters end in the state matching the last Sicht (no stale visibility), console quiet.
+- [ ] Parameter set "Neues Dashboard" / clear: Sicht resets as on baseline; restore Set A (Sicht = DEZPV): Sicht, Dienststelle, special filters restored; no `WRITEBACK_SICHT_*` warning that baseline does not show.
+- [ ] Share URL (`?parameterId=` Set A): same values as on baseline after load.
+- [ ] Destroy/re-boot (section 4.3 recipe): after destroy, `getKDB().api.sicht.getState()` and `.api.specialSingleSelect.getState()` return `undefined`; `getKDB().api.sicht.dispatch({type:"sicht/syncRequested"})` logs exactly one `[sicht.dispatch] called after destroy` warning; after re-boot everything works again and listener counts match section 0.
 
 ### WS-K filterDock + metricsTree
 - [ ] Performance tab: record 10 s while hovering the filter dock. Expected: scripting time not higher than baseline.
@@ -192,6 +253,14 @@ WS-I details. In the console use `const getKDB = window.top.getKDB;`.
 - [ ] Place 20 widgets, delete them, undo the deletes. Expected: `getEventListeners(document).pointerdown.length` returns to the baseline value; `Object.keys(window.top.getKDB().runtime.widgetSettings.domRefs)` is empty only after **all** widgets are deleted (while some remain, it lists those).
 - [ ] Tab duplicate / delete / move with mixed widgets (vis, text, TopN, table). Expected: widgets and settings follow; forced shortage (more widgets than slots) shows the same toast and rolls back as baseline.
 - [ ] TopN without a grouping dimension: the message "Um die Top-N Funktion zu verwenden, muss zuerst eine Gruppierungsdimension gewählt werden." appears.
+- [ ] With 10 widgets placed, `getEventListeners(document).pointerdown.length` equals the baseline + 1 (not + 10).
+- [ ] Open a dropdown in a widget's settings panel, then click empty canvas (KDB edit mode off). Expected: the dropdown closes, and move/resize mode turns off for widgets not under the pointer. With edit mode on, the modes stay.
+- [ ] Load a parameter set that has styled widgets (colour, font size, TopN, visType). Expected: the widgets and their settings match the set, and the console shows no `[widgetBase.` / `[widgetSettings.` errors.
+- [ ] Focus mode: click the info icon (also the one in the main settings panel) and change one dropdown. Expected: no new console error (the info kind returns `WIDGET_SETTINGS_KIND_UNSUPPORTED` without dispatch), and the dropdown applies.
+- [ ] Change a widget's dropdown option (for example Diagrammtyp), then undo and redo. Expected: the option and the widget follow each step. Repeat with a Dimension change that clears TopN (coupled Dimension -> TopN clear): one undo restores both the Dimension and the TopN choice, one redo clears TopN again.
+- [ ] `window.top.getKDB().api.widgetBase.dispatch({type:"widgetBase/remove", widgetId:"<id>", payload:{reason:"user"}})`. Expected: `runtime.widgetSettings.domRefs["<id>"]`, `abortControllers["panel:<id>"]` and `abortControllers["toolbar:<id>"]` are gone; undo restores the widget with its settings panel working.
+- [ ] Move a widget launchpad->canvas and canvas->launchpad, then undo/redo each. Expected: the settings panel and toolbar are restored and respond on every step.
+- [ ] After a successful tab duplicate/delete/move: `Object.keys(window.top.getKDB().runtime.widgetBase.tabMutationSnapshots)` is empty.
 
 ### WS-M widgetVis + widgetDataTable
 - [ ] Drillthrough header icon and datapoint icon: compare URLs for 3-4 org/year combinations (see WS-D).
@@ -207,6 +276,10 @@ WS-I details. In the console use `const getKDB = window.top.getKDB;`.
 - [ ] Footer: created-by user and update date show; after a parameter-set restore the footer is as saved.
 - [ ] Text widget: add, edit text, font size (Schriftgröße), colour, background colour (Hintergrundfarbe), alignment (Zentriert), border presets (Rahmen); delete it. Expected: no leftover `<style>` tags (check Elements: search `kdb` in `<head>`), no `contenteditable` left after leaving edit mode or after close/reopen.
 - [ ] TopN widget flows (see 2.3/2.4) unchanged.
+
+#### N1 widgetTopN
+- [ ] **N1.1 Owner chart no longer waits for the helper cleanup (intended change) + lease outcome.** Prepare: a tab with 2-3 TopN vis widgets and one spare LIST in `#KDB_topNPad`; record the pad children first: `[...document.querySelectorAll('#KDB_topNPad [data-kdb-launchpad-pad="topN"] > *')].map(e => e.id)`. Then (a) set "Top 5" on one chart, (b) change Top 5 -> Top 10 -> Top 3 quickly, (c) confirm a different global Jahr (wave over all TopN charts on the tab). Time each from the click to the chart showing the new values (stopwatch or DevTools Performance) and compare with the same steps on the baseline build. Expected: each chart appears about the helper cleanup render time (up to ~5 s per chart, serial in the Jahr wave) earlier than baseline, never later; values as baseline. Lease outcome after each step (wait ~5 s for the background cleanup): the pad snippet returns the same helper ids as recorded; `Object.values(getKDB().runtime.widgetTopN.byOwner).map(r => r.helperPlacement)` is all `null`; `Object.keys(getKDB().runtime.widgetTopN.pendingPromises)` is `[]` (no cleanup left running); after (a) and (b) `byOwner[visId].lastHelperPlan === null` for the changed chart; no chart shows `WIDGET_TOPN_NO_HELPER_AVAILABLE`; the console shows no `[widgetTopN.placeHelperAfterOwner] restore failed`, no `[widgetTopN.postResolutionCleanup] cleanup failed` and no `[widgetTopN.settleHelperCleanup] helper cleanup did not settle` warning. Repeat (c) and reload the dashboard during the wave once: no console error from widgetTopN.
+- [ ] **N1.2 widgetTopN module conversion (no behaviour change).** On a vis widget: set a dimension and Top 5 (values appear, the helper is back in its pad slot, no title editor is left open on the helper), change N to Top 10, set "Ohne", change the grouping dimension, then undo/redo the TopN steps. Expected: same charts and same values as baseline. Console: no widgetTopN error, no `[widgetTopN.dismissHelperTitleEdit] dismiss failed` warning, and `getKDB().api.widgetTopN.getState()` returns an object with `lifecycle: "ready"` and one `byOwner` entry per TopN chart. Not covered here: deleting a TopN chart does not release its helper claim (known leak, Phase 2).
 
 #### N2 widgetText
 - [ ] Add a text widget from the launchpad: the default text ("Text hier eingeben") shows. Click the title icon to edit: the text is selected, typing works. Click outside (blur) commits; the new text stays. Start an edit again, type, press Esc: the original text returns and `contenteditable` is gone.
@@ -311,6 +384,21 @@ Optional but useful: Network HAR export (for 404/403/timeouts), and a heap snaps
 
 ---
 
+## WS-K filterDock
+
+Run section 1 first. "Baseline" = the same step on `main` before the merge.
+
+- [ ] After boot: `window.top.getKDB().api.filterDock.getState()` returns `lifecycle: "ready"`, `filtersReady: true`, `errorCode: null`. `window.top.getKDB().runtime.filterDock.diagnostics` shows `mutationBatches` and `evaluations` counters that grow while you hover or click in the dock (`state.observedChildren` and `state.pendingSignals.mutationCount` stay at their initial values by design).
+- [ ] Hover over every filter header in the dock for 10 s with no popup open. Expected: no console errors; Performance scripting time not above baseline.
+- [ ] singleSelect popup: open, pick an option, "Alle", OK; re-open the **same** filter right away. Expected: custom popup and the selected-option highlight appear every time.
+- [ ] Sicht and special single select (Personengruppe): open, select, OK; open, Cancel. Expected: the popup renders the custom options each time.
+- [ ] Dienststelle with Sicht BW and with DEZPV: open the popup, wait 1 s, close it. Expected: hierarchy labels as baseline (BW: no popup-label resync; DEZPV: labels resynced); committed display text under the filter as baseline.
+- [ ] Native multi-select (Jahr): open, tick 2 values, OK. Expected: values commit; click outside the dock while Jahr is the last-clicked filter produces no console error.
+- [ ] Load Set A and the share URL (1.12). Expected: restore finishes in normal time (writeback waits for `filtersReady`; no stall of about 68 s).
+- [ ] Filters with a double quote or backslash in the Dienststelle/filter name (if the data has any): open the popup. Expected: no `SyntaxError` in the console, the popup renders.
+- [ ] Reload the dashboard with the Cognos filter dock disabled or hidden (or block it in the page): after about 30 s the console shows `[filterDock.mount] filter dock wait failed` once, `getKDB().api.filterDock.getState().errorCode` is `FILTER_DOCK_CHROME_WAIT_TIMEOUT`, and the dashboard stays usable.
+- [ ] Close the dashboard and re-open it 3 times: no console errors; `getEventListeners(document).click.length` returns to baseline (the outside-click listener is removed on destroy).
+
 ## 6) WS-K metricsTree
 
 Run after the WS-K metricsTree PR is merged. Baseline = the same dashboard on `main` before the merge. The jstree options changed (`force_text`) and drag markers are now set through node attributes, so check both.
@@ -322,3 +410,30 @@ Run after the WS-K metricsTree PR is merged. Baseline = the same dashboard on `m
 - [ ] Console: `getKDB().api.metricsTree.resolveMetricByCode("<known code>")` returns `resolved: true`; `("  <known code>  ")` also resolves (input is trimmed); an unknown code returns `resolved: false` with empty strings. `getKDB().api.metricsTree.getState().lifecycle` is `"ready"`.
 - [ ] Run once as a user **with** and once **without** the superuser right. Expected: Kennzahlen with `FREIGABE = 0` appear only for the superuser (with the "(Beta)" tooltip suffix); the loading overlay clears in both cases.
 - [ ] Close and reopen the dashboard (see 4.3). Expected: no console errors; `getKDB().api.metricsTree.getState()` is `undefined` on the disposed instance; after a reopen the tree is populated again.
+
+---
+
+## 7) WS-H singleSelect + nativeMultiSelect
+
+Run after the WS-H singleSelect and nativeMultiSelect PRs are merged. Baseline = the same dashboard on `main` before the merge. The checks in section 3 (WS-H) still apply; these cover what the refactor changed.
+
+- [ ] **Out-click after reconcile**: open Geschlecht, pick a value, click outside the popup: the value reverts. Switch to another tab and back (this runs a reconcile), open Geschlecht again, pick a value, click outside: it reverts again (the old build could revert a stale record the second time). Then run `getEventListeners(document.querySelector(getKDB().elements.selectors.singleSelect.outClickCatcherSelector) || document.body)` in the console: the `click` count is 1 or less after 20 open/close cycles.
+- [ ] **Tab mutation snapshots**: on tab 2 set one singleSelect value and two Jahr values. Delete tab 2 and undo, move tab 1 with tab 3, duplicate tab 2. After each step the filters follow the tab, and `getKDB().runtime.singleSelect.tabMutationSnapshots` and `getKDB().runtime.nativeMultiSelect.tabMutationSnapshots` are both `{}`.
+- [ ] **Writeback round-trip**: save Set C with Geschlecht = a value and Jahr = 2 years (global and page level). Load Set A, then load Set C: both filters are restored. "New dashboard" clears: Geschlecht = "Alle", Jahr empty. Console: no `WRITEBACK_*` codes, and at most one log line per failure.
+- [ ] **History**: change Geschlecht, then Jahr. Undo twice and redo twice: the values follow. A visible special filter follows the Geschlecht undo.
+- [ ] **PDF export** right after boot (reconcile path): the export works and there is no `DASHBOARD_PDF_FILTER_PREPARATION_FAILED`.
+- [ ] **Destroy and reopen** (section 4.3 cycle): after the reopen, `getKDB().runtime.singleSelect.timers` and `.abortControllers` are `{}` or hold only live entries, and `getKDB().runtime.nativeMultiSelect` has the 7 buckets (`domRefs`, `listeners`, `subscriptions`, `abortControllers`, `observers`, `timers`, `pendingPromises`).
+- [ ] **Committed display chip**: after a commit, the filter dock chip text matches the value, on a global filter and on a page filter. Try a filter label that contains a quote character if one exists.
+
+### 7b) WS-H singleSelect behaviour changes (B1 core, C-final wiring)
+
+Run after the singleSelect C-final PR is merged. Baseline = the same dashboard on the commit before the WS-H singleSelect PRs. Each step lists what to do in Cognos and what to expect. Use `const getKDB = window.top.getKDB; const ss = () => getKDB().state.filters.singleSelect;` in the console.
+
+- [ ] **Out-click revert after reconcile (L2 rebind)**: open Geschlecht, pick a value, click outside the popup. Expected: the value reverts to the previous one and the popup closes. Switch to another tab and back (this runs a reconcile), open Geschlecht again, pick another value, click outside. Expected: it reverts again, and `ss().instancesById` has no entry whose `pendingSelection` still holds the abandoned value. Repeat on a tab-scoped singleSelect. Console: no `[singleSelect.outClickRevert] failed`.
+- [ ] **Delegated commit**: change Sicht (delegates to Dienststelle), then a special filter (Personengruppe), then commit a plain singleSelect in the same session. Expected: each commit lands once (dock chip text, charts and Dienststelle hierarchy follow, no second write), `ss().errorCode` is `null`, `getKDB().runtime.singleSelect.delegatedOperationIds` has one entry per delegated commit (never more than 100) and does not grow on a repeated OK click, and a repeated click on OK within 1 s does not commit twice.
+- [ ] **Chip text with a double quote**: use a singleSelect option whose label contains `"` (for example `Test "A"`; add one to the options table on a test dashboard if the data has none). Open the popup, select it, press OK. Expected: no `SyntaxError` or `Failed to execute 'querySelector'` in the console, the dock chip shows the full label with the quote, and re-opening the popup highlights that option.
+- [ ] **Undo and redo of a singleSelect change**: change Geschlecht (A to B), then Altersgruppe, then Jahr. Press undo three times, then redo three times. Expected: after each step the host filter, the dock chip and the charts follow in order, no extra undo step is created by the replay (the undo stack count equals the number of changes), and `ss().errorCode` stays `null`. Undo the Geschlecht change while a Sicht-dependent special filter is visible: it follows. Do one change, undo it, then do a different change: redo is no longer available.
+- [ ] **Boot reconcile (L1 timeout and abort)**: (a) Normal boot: reload the dashboard, wait for the filter dock, run `ss().inventory`. Expected: `freshness: "fresh"`, `errorCode: null`, no `SINGLE_SELECT_RECONCILE_TIMEOUT` in the console. (b) Slow dock: throttle CPU 6x (DevTools -> Performance -> CPU) and reload. Expected: either the same result as (a) (the inventory retries until the dock is there) or, if the dock needs more than the timeout (default 3 s, at most 10 s), `ss().inventory.errorCode === "SINGLE_SELECT_RECONCILE_TIMEOUT"` with `freshness: "stale"` and no stack trace loop; running `getKDB().api.singleSelect.dispatch({ type: "singleSelect/reconcileFilterInstances", payload: { reason: "filtersReady" } })` afterwards (CPU back to normal; prefix the call with `await` or use `.then(console.log)`) resolves to `ok: true`. (c) Abort: reload and close the dashboard within 1 s of the start. Expected: no console error after the close, no timer left (`getKDB().runtime` is gone or `runtime.singleSelect.abortControllers` is `{}`).
+- [ ] **Destroy and reopen the dashboard**: open the dashboard, change one singleSelect, close it, reopen it, repeat 3 times (section 4.3). Expected: `getKDB().api.singleSelect.getState()` after the close is `undefined` and `dispatch` of any singleSelect action on the old controller does not throw; after the reopen `ss().lifecycle` is `"ready"`, `getKDB().runtime.singleSelect.abortControllers` and `.timers` are `{}` or hold only live entries, `getEventListeners(document).click.length` equals the first boot, and the history replay still works (undo after reopen restores the value).
+- [ ] **Commit verification rollback (C8)**: in the console, wrap the host writer so it writes nothing: `const f = getKDB().services.cognosHost.filters; const w = f.writeFilter; f.writeFilter = async () => ({ ok: true });`. Open Geschlecht, pick a different value, press OK. Expected: the commit does not stick, the chip and the host filter keep the previous value, `ss().errorCode === "SINGLE_SELECT_COMMIT_VERIFICATION_MISMATCH"`, the console shows one `[singleSelect.commitConfirmedSelection] commit failed` line, and no stuck popup or `isCommitInProgress: true` (check `Object.values(ss().instancesById).some(i => i.isCommitInProgress)` is `false`). Then make the rollback fail too: `f.writeFilter = async () => { throw new Error("offline"); };` and commit again. Expected: `ss().errorCode === "SINGLE_SELECT_HOST_ROLLBACK_UNVERIFIED"` with an errorMessage naming the uncertain owner state, and still no stuck popup. Restore the writer: `f.writeFilter = w;`, reload, and confirm a normal commit works and `ss().errorCode` is `null`.
+- [ ] **Tab mutation rollback with a singleSelect parameter**: on tab 2 set Geschlecht (tab-scoped) to a non-default value and one global singleSelect to another value. Delete tab 2, then restore it with undo. Expected: the tab is back, Geschlecht on tab 2 shows the value from before the delete, the global value is unchanged, and `getKDB().runtime.singleSelect.tabMutationSnapshots` is `{}`. Now force a failed rollback: delete tab 2 again and, before undo, go offline (DevTools -> Network -> Offline), press undo, then go back online. Expected: no stuck loading overlay, the console shows at most `TABS_MUTATION_ROLLBACK_INCOMPLETE` diagnostics (one log line per failure, no repeated errors), `tabMutationSnapshots` is `{}`, and after going online `ss().inventory.freshness` returns to `"fresh"` once you switch tabs; Geschlecht on tab 2 equals either the restored value or the default, never an empty or stale chip.
