@@ -17,18 +17,23 @@
  * `collectWidgets` reads the whole `byWidget` map once per save).
  *
  * This file is also the one published facade other widget folders import (widgetVis focus panel and render loading,
- * widgetBase slot stock and effects); they never import widgetSettings `config/`, `view/` or `effects/` files:
+ * widgetBase slot stock and effects); they never import widgetSettings `config/`, `view/` or `effects/` files.
  *
+ * Constants (stay):
  *   ACTION_TYPES                      -> the widgetSettings action type strings
  *   domSelectors                      -> the settings panel DOM selector registry (class names, attributes, selector builders)
  *   focusOnlyControls                 -> control definitions of the focus-mode only icons (`{ unmaximize: {...} }`)
+ *
+ * TRANSITIONAL panel kit (not reads; `feature-structure.mdc` allows it only until the focus panel is hosted by
+ * widgetSettings and the two intent dispatches and the render loading go through `api.widgetSettings.dispatch`;
+ * do not add to this list):
  *   buildSettingsIcon(_KDB, def, table?) -> settings icon element for a control definition
  *   markSelectedOption(optionEl)      -> marks one dropdown option as selected (and clears its siblings)
  *   shouldKeepDropdownsOpen(panel, target, iconSelector) -> pointer target lies inside a dropdown / on its owning icon
+ *   resolveWidgetEl(_KDB, widgetId)   -> widget shell element (owner document, else the render root) | null
  *   dispatchDropdownOptionIntent(_KDB, panel, optionEl, { isHistoryReplay }) -> routes a dropdown choice like the settings panel
  *   dispatchIconIntent(_KDB, panel, iconEl, { isHistoryReplay })             -> routes an icon click like the settings panel
  *   startWidgetRenderLoading(_KDB, context)                                 -> starts the per-widget render loading overlay
- *   resolveWidgetEl(_KDB, widgetId)   -> widget shell element (owner document, else the render root) | null
  */
 define([
   "../../../core/utils/kit/data.js",
