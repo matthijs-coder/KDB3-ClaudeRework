@@ -308,11 +308,94 @@ test("a destroy remove sends the destroy reason and pushes no history step", asy
   });
 });
 
-test("remove of a text widget creates no TopN record", async () => {
+test("a release for an owner whose frame is removed prunes its records", async () => {
   await withEnv({}, async (env) => {
+    await env.resolve("o1", 1);
+    await env.settle();
+    await env.remove("o1");
+    const released = await env.topN().dispatch({
+      type: "widgetTopN/cleanup",
+      widgetId: "o1",
+      payload: { ownerVisId: "o1", reason: "remove", clearHelperBinding: true, releaseClaim: true }
+    });
+    assert.equal(released.ok, true);
+    assert.equal(env.ownerState("o1"), undefined, "state record pruned");
+    assert.equal(env.ownerRuntime("o1"), undefined, "runtime record pruned");
+    assert.deepEqual(env.helperAttrs("h1"), [null, null]);
+    const second = await env.resolve("o2", 1);
+    assert.equal(second.status, "success");
+  });
+});
+
+test("two overlapping releases of a removed owner leave no records", async () => {
+  await withEnv({ cleanupMs: 100 }, async (env) => {
+    await env.resolve("o1", 1);
+    await waitUntil(() => env.applyStarts.some((e) => e.kind === "cleanup"));
+    await env.remove("o1");
+    const release = () => env.topN().dispatch({
+      type: "widgetTopN/cleanup",
+      widgetId: "o1",
+      payload: { ownerVisId: "o1", reason: "remove", clearHelperBinding: true, releaseClaim: true }
+    });
+    const first = release();
+    await sleep(10);
+    const results = await Promise.all([first, release()]);
+    await env.settle();
+    assert.deepEqual(results.map((r) => r.ok), [true, true]);
+    assert.equal(env.ownerRuntime("o1"), undefined);
+    assert.equal(env.ownerState("o1"), undefined, "state record pruned");
+    assert.deepEqual(env.helperAttrs("h1"), [null, null]);
+  });
+});
+
+test("a remove/destroy release whose helper clear cannot be planned still releases the claim", async () => {
+  await withEnv({ applyMs: 300 }, async (env) => {
+    const running = env.resolve("o1", 1);
+    await sleep(30);
+    assert.equal(env.ownerRuntime("o1").lastHelperDataConfig, null);
+    const released = await env.topN().dispatch({
+      type: "widgetTopN/cleanup",
+      widgetId: "o1",
+      payload: { ownerVisId: "o1", reason: "remove", clearHelperBinding: true, releaseClaim: true }
+    });
+    await running;
+    await env.settle();
+    assert.equal(released.ok, false, "the failure is still reported");
+    assert.equal(released.errorCode, "WIDGET_TOPN_CLEANUP_FAILED");
+    assert.equal(env.ownerState("o1").helperWidgetId, null, "claim released in state");
+    assert.equal(env.ownerRuntime("o1").claimToken, null, "claim released in runtime");
+    assert.deepEqual(env.helperAttrs("h1"), [null, null], "mirror cleared");
+    const second = await env.resolve("o2", 1);
+    assert.equal(second.status, "success");
+  });
+});
+
+test("an explicit clear that cannot be planned keeps the claim (only remove and destroy release anyway)", async () => {
+  await withEnv({ applyMs: 300 }, async (env) => {
+    const running = env.resolve("o1", 1);
+    await sleep(30);
+    const cleared = await env.topN().dispatch({
+      type: "widgetTopN/cleanup",
+      widgetId: "o1",
+      payload: { ownerVisId: "o1", reason: "cleanup", clearHelperBinding: true, releaseClaim: true }
+    });
+    await running;
+    await env.settle();
+    assert.equal(cleared.ok, false);
+    assert.equal(env.ownerState("o1").helperWidgetId, "h1");
+    assert.equal(env.helperAttrs("h1")[0], "o1");
+  });
+});
+
+test("remove of a text widget sends no TopN cleanup and creates no TopN record", async () => {
+  await withEnv({}, async (env) => {
+    const calls = [];
+    const topNDispatch = env.topN().dispatch;
+    env._KDB.api.widgetTopN = Object.assign({}, env.topN(), { dispatch: (action) => (calls.push(action), topNDispatch(action)) });
     const removed = await env.remove("txt1");
     assert.equal(removed.ok, true);
     await env.settle();
+    assert.deepEqual(calls, []);
     assert.equal(env.ownerState("txt1"), undefined);
     assert.equal(env.ownerRuntime("txt1"), undefined);
   });
