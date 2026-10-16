@@ -1,18 +1,22 @@
 define([
   "../config/restoreConstants.js",
   "../../schema/errorCodes.js",
-  "./restoreRunState.js",
-  "./restoreRunGuards.js",
-  "./restoreRunBranches.js",
+  "../state/ensureWritebackRuntime.js",
+  "../state/buildRestoreResult.js",
+  "./runGuards.js",
+  "./runNormalRestore.js",
+  "./runNewDashboardReset.js",
   "./executeRestoreRunCleanup.js",
   "./notifyRestoreOutcome.js",
   "../../bridge/parameterSetSelectConstants.js"
 ], function (
   _constants,
   _errorCodes,
-  _restoreRunState,
-  _restoreRunGuards,
-  _restoreRunBranches,
+  _ensureWritebackRuntime,
+  _buildRestoreResult,
+  _runGuards,
+  _runNormalRestore,
+  _runNewDashboardReset,
   _executeRestoreRunCleanup,
   _notifyRestoreOutcome,
   _parameterSetSelectConstants
@@ -47,27 +51,27 @@ define([
     let capturedId = null;
 
     try {
-      runtime = _restoreRunState.ensureWritebackRuntime(_KDB);
+      runtime = _ensureWritebackRuntime(_KDB);
       capturedId = captureParameterSetSelectId();
       runtime.parameterSetRestoreActive = true;
       runtime.parameterSetRestoreActiveCount += 1;
       runtime.pendingRunId = run.runId;
 
-      loadingStarted = _restoreRunGuards.startLoadingGuarded(_KDB, run) === true;
+      loadingStarted = _runGuards.startLoadingGuarded(_KDB, run) === true;
 
       // Step 6: history begin before any owner dispatch (history delta §3).
       // Without a successful begin, no owner dispatch may run at all.
-      historyBegun = _restoreRunGuards.historyBeginGuarded(_KDB, run);
+      historyBegun = _runGuards.historyBeginGuarded(_KDB, run);
       if (!historyBegun) {
         throw _constants.ABORT;
       }
 
       if (run.statusKind === "newDashboard") {
-        outcome = await _restoreRunBranches.runNewDashboardReset(_KDB, run);
-        baseline = _restoreRunState.captureBaseline(run, "newDashboardReset");
+        outcome = await _runNewDashboardReset(_KDB, run);
+        baseline = _buildRestoreResult.captureBaseline(run, "newDashboardReset");
       } else {
-        outcome = await _restoreRunBranches.runNormalRestore(_KDB, run, v3);
-        baseline = _restoreRunState.captureBaseline(run, "postRestore");
+        outcome = await _runNormalRestore(_KDB, run, v3);
+        baseline = _buildRestoreResult.captureBaseline(run, "postRestore");
       }
     } catch (signal) {
       if (signal === _constants.CANCELLED) {
@@ -87,7 +91,7 @@ define([
     }
 
     _notifyRestoreOutcome(_KDB, run, outcome);
-    var result = _restoreRunState.buildRestoreResult(run, outcome, baseline);
+    var result = _buildRestoreResult.buildRestoreResult(run, outcome, baseline);
     if (result && result.ok === true && runtime) {
       runtime.lastConfirmedParameterSetId = capturedId;
     }
