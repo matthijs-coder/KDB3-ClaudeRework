@@ -45,7 +45,7 @@ define([
 
   function shouldAddTopBottom(_spec, _parsedTopN, _slotName) {
     return _spec.targetKind === "topNHelper"
-      && _slotName === "grid_cols"
+      && _config.slotRule(_slotName).carriesTopBottom === true
       && _parsedTopN.kind === "count"
       && typeof _parsedTopN.n === "number"
       && _parsedTopN.n > 0;
