@@ -1,7 +1,7 @@
 define([], function () {
   "use strict";
 
-  return {
+  var links = {
     kdbControlHandbookUrl: "https://www.intern.magwien.gv.at/web/md-pr/konfigurierbares-personaldashboard",
     userManualUrl: "https://www.intern.magwien.gv.at/web/md-pr/konfigurierbares-personaldashboard",
     wienKiUrl: "https://wienki.intern.wien.gv.at/assistant/#/chat",
@@ -12,4 +12,21 @@ define([], function () {
       prod: "https://bi.digital-wien.gv.at/dxportal/bi/?pathRef=.public_folders%2FPersonal%2FPKZ%2F10_Standardberichte%2FPER125%2BPersonalkennzahlen-Analysetool"
     }
   };
+
+  var tabs = {
+    "0": { role: "dashboard" },
+    "1": { role: "dashboard" },
+    "2": { role: "dashboard" },
+    "3": { role: "dashboard" },
+    "4": { role: "dashboard" },
+    "5": { role: "helper" }
+  };
+
+  var dataSources = {
+    metrics: {
+      default: { name: "Personal_KDB", prefix: "Personal_KDB_TM1" }
+    }
+  };
+
+  return { links: links, tabs: tabs, dataSources: dataSources };
 });

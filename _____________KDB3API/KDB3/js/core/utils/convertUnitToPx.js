@@ -1,7 +1,7 @@
 define([], function () {
   "use strict";
 
-  function __controller(_value) {
+  function convertUnitToPx(_value) {
     return convertUnitToPxNumber(_value);
   }
 
@@ -43,5 +43,5 @@ define([], function () {
     return null;
   }
 
-  return __controller;
+  return convertUnitToPx;
 });
