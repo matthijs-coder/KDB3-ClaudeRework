@@ -61,16 +61,16 @@ Mapped REDESIGN2 files:
 | REDESIGN2 file | Evidence used | Production mapping |
 |---|---|---|
 | `__stelleHierarchyOrchestrator.js` | Interaction state machine for open / cancel / clear / option / confirm; confirm reads Cognos values through reconcile. | `__orchestratorDienststelle.js` plus controller/effects split. |
-| `setupStelleHierarchy.js` | Setup for widget bridge subscription and label sanitizing bootstrap. | `mount` / setup effects, with observer lifecycle adjusted to current `filterDock` ownership. |
-| `ensureHierarchyState.js` | Root and per-filter state shape. | `state/initialState.js`, reducer and selectors for `_KDB.state.filters.dienststelle`. |
-| `reconcileConfirmedHierarchy.js` | Core commit/reconcile, defaults, Cognos writes, dominance, sticky sync, event emit. | `effects/reconcileConfirmedDienststelle.js` split into focused helpers. |
-| `restoreHierarchyPopupSelection.js` | DOM-only popup checkbox restore on cancel/close. | `view/syncDienststelleViewFromState.js` or a focused popup-sync effect if approved by execution spec. |
+| `setupStelleHierarchy.js` | Setup for widget bridge subscription and label sanitizing bootstrap. | `index.js` mount/setup, with observer lifecycle adjusted to current `filterDock` ownership. |
+| `ensureHierarchyState.js` | Root and per-filter state shape. | `state.js` (`createInitialState`, `reduceDienststelle`) and `selectors.js` for `_KDB.state.filters.dienststelle`. |
+| `reconcileConfirmedHierarchy.js` | Core commit/reconcile, defaults, Cognos writes, dominance, sticky sync, event emit. | `effects/reconcile/runReconcile.js` (`reconcileConfirmed`) with `hostScopes.js`, `pageScopes.js`, `defaults.js`, `widgetVisNotify.js`. |
+| `restoreHierarchyPopupSelection.js` | DOM-only popup checkbox restore on cancel/close. | `view/syncView.js` (`syncViewFromState`). |
 | `dashboard/filters/dienststelle/history.js` (`buildCommittedStep`) | History step payload for hierarchy commits. | `dashboard/filters/dienststelle/history.js` (`buildCommittedStep`) with `filter_dienststelle`. |
-| `__stelleHierarchyHistoryAdapter.js` | Replay of direct hierarchy history steps. | `history/applyDienststelleHistoryReplay.js` and replay handler. |
-| `dashboard/filters/dienststelle/effects/reconcile/defaults.js` (`readDefaultValue`) | Reads default table row from `{filterName}Default`. | `effects/readDefaultDienststelleValue.js` using `tableDataService` / configured table keys. |
-| `awaitHierarchyDataReady.js` | Polls hierarchy semantics readiness. | `effects/awaitDienststelleDataReady.js`. |
-| `resolveHierarchyDataKey.js` | Maps active filter to hierarchy data key. | `config/dienststelleDefinitions.js` and `effects/resolveDienststelleDataKey.js`. |
-| `isValueAvailableInHierarchyData.js` | Validates default/restored value against hierarchy semantics. | `effects/isDienststelleValueAvailable.js`. |
+| `__stelleHierarchyHistoryAdapter.js` | Replay of direct hierarchy history steps. | `history.js` (`applyReplay`) and `effects/historyReplay.js`. |
+| `dashboard/filters/dienststelle/effects/reconcile/defaults.js` (`readDefaultValue`) | Reads default table row from `{filterName}Default`. | `effects/reconcile/defaults.js` (`readDefaultValue`) using `tableDataService` / configured table keys. |
+| `awaitHierarchyDataReady.js` | Polls hierarchy semantics readiness. | `effects/reconcile/runReconcile.js` (`awaitDataReady`). |
+| `resolveHierarchyDataKey.js` | Maps active filter to hierarchy data key. | `config.js` (`DEFINITIONS`, `resolveDefinition`). |
+| `isValueAvailableInHierarchyData.js` | Validates default/restored value against hierarchy semantics. | Folded into `effects/reconcile/defaults.js` (default apply) and `restore/hierarchyIndex.js` (`hasUseValue`, restore). |
 | `applyWidgetDownstreamEffects.js`, `applyWidgetDownstreamEffect.js`, `applySingleWidgetDownstreamEffect.js`, `resolveRelevantVisualizationWidgetTarget.js` | REDESIGN2 widget propagation logic. | Deferred to future visual widget owner API boundary; no direct widget state/runtime writes in this contract. |
 | `setupHierarchyVisibleLabelSanitizing.js`, `sanitizeVisibleHierarchyLabel.js`, `sanitizeWidgetDownstreamDisplayValues.js` | Label sanitizing rules. | Pure sanitizer functions owned by `dienststelle`; lifecycle trigger owned by `filterDock` unless CP-1 later approves another route. |
 
@@ -231,8 +231,8 @@ Dienststelle has one user-facing label and multiple internal active filter keys.
 Active-filter switching rule:
 
 - `dienststelle/sichtChanged` is the canonical trigger that changes the active Dienststelle variant.
-- `activeSichtValue: "BW"` resolves through `dienststelleDefinitions.js` to `activeFilterKey: "Dienststelle_BW"`.
-- `activeSichtValue: "DEZPV"` resolves through `dienststelleDefinitions.js` to `activeFilterKey: "Dienststelle_DEZPV"`.
+- `activeSichtValue: "BW"` resolves through `config.js` (`DEFINITIONS`) to `activeFilterKey: "Dienststelle_BW"`.
+- `activeSichtValue: "DEZPV"` resolves through `config.js` (`DEFINITIONS`) to `activeFilterKey: "Dienststelle_DEZPV"`.
 - The matching `byFilter[activeFilterKey]` entry is active; non-matching Dienststelle filter entries are inactive.
 - FilterDock confirm/reconcile uses the last known owner context (`activeFilterKey`, table keys and scope state) and must not re-derive host identity from `visibleFilterLabel`.
 
@@ -367,7 +367,7 @@ Rules:
 - `filterDock` may dispatch a one-shot filters-ready notification when at least one `.filterItemWrapper` exists in the filterDock root; this is generic dock readiness, not Dienststelle-specific lookup.
 - `dienststelle` must not read `_KDB.runtime.filterDock`.
 - No event is introduced for this known-owner route.
-- `filterDock/effects/dispatchFilterHandoff.js` is the exact future route-map insertion point after CP-1.
+- `filterDock/ownerRouter.js` / `ownerRoutes.js` (`OWNER_ROUTE_MAP`) is the exact future route-map insertion point after CP-1.
 - `dienststelle/filterDockPopupReady` is included because it is the established Route B for owner popup sync in current `filterDock`.
 
 Current handoff payload fields available:
@@ -412,7 +412,7 @@ Label sanitizing is Dienststelle-specific transformation logic, but popup observ
 
 DEZPV display sanitizing decision:
 
-- `dienststelleDefinitions.js` owns a per-variant boolean, `shouldSanitizeOptionDisplay`.
+- `config.js` (`DEFINITIONS`) owns a per-variant boolean, `shouldSanitizeOptionDisplay`.
 - `BW` sets `shouldSanitizeOptionDisplay: false`.
 - `DEZPV` sets `shouldSanitizeOptionDisplay: true`.
 - The flag controls user-facing display sanitizing for popup option text and committed / closed filter display text.
@@ -524,7 +524,7 @@ Rules:
 Module-local config should map active Sicht to Dienststelle table keys:
 
 ```txt
-dashboard/filters/dienststelle/config/dienststelleDefinitions.js
+dashboard/filters/dienststelle/config.js
 ```
 
 Draft shape:
@@ -581,7 +581,7 @@ Investigation evidence:
 
 - `laatsteOriginal/KDB2/js/filters/hierarchy/helpers/hierarchyPopupInteractionHelpers.js` and `hierarchyDefaultsHelpers.js` are the primary semantic source for user empty-commit behavior.
 - The REDESIGN2 `stelleHierarchy` reconcile pipeline is delta evidence only; its pad-style organization may inform the production shape, but REDESIGN2 multi-scan/sticky forcing does not override the production contract.
-- Current production architecture already provides committed host reads through `dienststelle/effects/readDienststelleHostSelection.js` (`lookupFilterRef`, `readFilterValues`, `listPageContextScopes`) and `_KDB.cognosAPI.filters`; do not port legacy OK polling unless CP-2 proves current reads are stale.
+- Current production architecture already provides committed host reads through `dienststelle/effects/hostScope/filterRef.js` (`lookupFilterRef`, `listPageContextScopes`) and `hostScope/selection.js` (`readFilterValues`) and `_KDB.cognosAPI.filters`; do not port legacy OK polling unless CP-2 proves current reads are stale.
 
 Minimum-selection invariant:
 
@@ -611,7 +611,7 @@ Scope-empty decision:
 
 Default source:
 
-- Default values come from `readDefaultDienststelleValue.js` through `_KDB.services.tableData` and the active `dienststelleDefinitions.js` default table key.
+- Default values come from `effects/reconcile/defaults.js` (`readDefaultValue`) through `_KDB.services.tableData` and the active `config.js` (`DEFINITIONS`) default table key.
 - The active table keys remain `dienststelle_bw_default` / `dienststelle_dezpv_default` for defaults and `dienststelle_bw_hierarchy` / `dienststelle_dezpv_hierarchy` for hierarchy data.
 - The empty-commit path may read the default on demand through the existing production helper; it must not reintroduce legacy `_KDB.dienststelleHierarchyData`, `_KDB.data.tables.byName`, or `{filterName}Default` string construction.
 
@@ -837,12 +837,7 @@ REDESIGN2 confirm model:
 
 ## 17. DOM And View Discipline
 
-Potential folders:
-
-```txt
-view/
-  syncDienststelleViewFromState.js
-```
+As built, the view code is in `view/` (`syncView.js`, `chromeClasses.js`, `dockNames.js`, `filterDom.js`, `labels.js`); see section 18.
 
 Rules:
 
@@ -857,47 +852,57 @@ Rules:
 
 Production target after CP-1 and execution-spec approval:
 
+As built (exports per file). `__orchestratorDienststelle.js` is a shim over `index.js` (controller + `registerDienststelle`). `effects/` holds reconcile, host-scope and Sicht-sync work, `restore/` the parameter-set restore, `view/` the DOM sync.
+
 ```txt
-_____________KDB3API/KDB3/js/dashboard/filters/dienststelle/
-  __orchestratorDienststelle.js
-  createDienststelleController.js
-  config/
-    actions.js
-    dienststelleDefinitions.js
-  state/
-    initialState.js
-    createDienststelleReducer.js
-    selectors.js
+dashboard/filters/dienststelle/
+  __orchestratorDienststelle.js                       shim over index.js (path kept for KDB.js)
+  config.js                                           FILTER_KEYS, DEFINITIONS, LABELS, PARAMETER_SET_CODES, DOM_SELECTORS, createRuntimeDefaults, resolveDefinition, ...
+  history.js                                          buildCommittedStep, pushDienststelleHistoryStep, applyReplay, normalizeReplayTargetSnapshot, readDominantStoredSelection
+  index.js                                            registerDienststelle
+  selectors.js                                        readDienststelleState, readActiveDienststelleContext, readDienststelleSnapshot
+  state.js                                            ACTIONS, createInitialState, reduceDienststelle, copyValueEntries
+  tabMutation.js                                      isTabMutationAction, disposedResult, routeTabMutationAction
+  tabMutationScopes.js                                guardRun, isStale, cancelled, readSnapshot, deleteSnapshot, failed, pushUnique, ...
   effects/
-    mapFilterDockHandoff.js
-    reconcileConfirmedDienststelle.js
-    readDefaultDienststelleValue.js
-    awaitDienststelleDataReady.js
-    resolveDienststelleDataKey.js
-    isDienststelleValueAvailable.js
-    applyDienststelleDefault.js
-    syncDienststelleFromSicht.js
+    alignedDisplays.js                                extractUseValues, extractDisplayValues, collectAlignedHostDisplays, uniqueAlignedUseDisplayValues
+    dispatchRoute.js                                  routeDienststelleDispatch
+    hierarchySnapshot.js                              readCurrentHierarchySnapshot
+    historyReplay.js                                  handleHistoryReplay, readConfirmHistorySnapshot
+    sichtSync.js                                      abortPreviousHierarchyWarmup, syncFromSicht
+    viewSync.js                                       scheduleViewSync
+    hostScope/
+      apply.js                                        toCognosValues, mapClearResult, toAppliedResult, expectedForScope, resolveReplayApplyOrder, applyStoredScopeValues
+      clear.js                                        clearFilterScope, clearHostFilter, deactivateInactiveVariants
+      filterRef.js                                    readFiltersFacet, lookupFilterRef, listPageContextScopes, normalizeScopeId, resolveRawPageContextScope, listTabDescriptors, listDashboardTabScopeIds, ...
+      selection.js                                    readFilterValues, waitForStableScopeValues
+    reconcile/
+      defaults.js                                     readDefaultValue, applyDefault, notifyEmptyOk
+      hostScopes.js                                   reconcileHostScopes
+      pageScopes.js                                   hasMemberList, dispatchScopeAction, resolveDefaultTargets, defaultScope, walkPageScopes
+      runReconcile.js                                 reconcileConfirmed, runReconcile, awaitDataReady
+      widgetVisNotify.js                              readEffectiveSelection, notifyWidgetChanged
+  restore/
+    hierarchyIndex.js                                 buildHierarchyIndex, hasUseValue, resolveRestorePair
+    parameterSet.js                                   isParameterSetAction, disposedResult, createParameterSetContext, routeParameterSetAction
+    scopePlan.js                                      buildRestoreScopePlan
+    scopeTargets.js                                   readRows, waitForData, resolveScopeId, lookupScopeFilterRef
   view/
-    sanitizeDienststelleVisibleLabel.js
-    syncDienststelleViewFromState.js
-  history/
-    buildCommittedStep.js
-    readDependencySnapshot.js
-    applyDienststelleHistoryReplay.js
-    createDienststelleHistoryReplayHandler.js
-    stageDienststelleHistoryReplayHandler.js
+    chromeClasses.js                                  syncDienststelleWrapperClasses
+    dockNames.js                                      syncFilterDockNames
+    filterDom.js                                      escapeAttributeValue, findScopedFilterWrapper, findScopedPopupMount, resolveUniqueOtherDockFilterWrapper
+    labels.js                                         sanitizeVisibleLabel, sanitizePopupLabelsInRoot, sanitizeCommittedDisplay
+    syncView.js                                       syncViewFromState
 ```
 
-Optional splits are allowed in the execution spec to keep file sizes under limits. Do not create vague folders such as `helpers`, `common`, `misc`, `manager`, or `shared`.
-
-`events/` is not created unless CP-1 later approves a cataloged event.
+Do not add vague folders such as `helpers`, `common`, `misc`, `manager`, or `shared`. No `events/` folder exists.
 
 ## 19. Bootstrap And Integration
 
 Expected integration after CP-1 approval:
 
 - `KDB.js` registers `_KDB.api.dienststelle` via `dienststelle/__orchestratorDienststelle.js`.
-- `filterDock/effects/dispatchFilterHandoff.js` routes `dienststelle` to `_KDB.api.dienststelle`.
+- `filterDock/ownerRouter.js` / `ownerRoutes.js` (`OWNER_ROUTE_MAP`) routes `dienststelle` to `_KDB.api.dienststelle`.
 - `dashboard/filters/sicht/commit.js` (`commitConfirmedSicht`) dispatches confirmed Sicht changes to `_KDB.api.dienststelle`.
 - History replay collection registers `filter_dienststelle` handler.
 - `sicht` dependency snapshots may use Dienststelle public snapshot after it exists.
@@ -964,7 +969,7 @@ Startup dispatch rule:
 | Inactive variant after Sicht switch | Normal path is clear empty values + UI hide + handoff guard, not Cognos remove/recreate. Hidden empty shells may remain to preserve filterDock position. |
 | Multi-scan | Do not copy pageContext values across tabs; use defaults for missing tabs. |
 | REDESIGN2 sticky/scan | Reject `scanNonEmptyPageContexts`, `pageContextStickyByScopeId`, and `pageRestoredAfterGlobalClear` Cognos forcing for this tranche. |
-| Default/tableData contract | Default source is `readDefaultDienststelleValue.js` through `_KDB.services.tableData` and active `dienststelleDefinitions.js` table keys. No legacy `_KDB.data.tables.byName` or `_KDB.dienststelleHierarchyData`. |
+| Default/tableData contract | Default source is `effects/reconcile/defaults.js` (`readDefaultValue`) through `_KDB.services.tableData` and active `config.js` (`DEFINITIONS`) table keys. No legacy `_KDB.data.tables.byName` or `_KDB.dienststelleHierarchyData`. |
 | DEZPV display sanitizing | Variant-gated by `shouldSanitizeOptionDisplay`; DEZPV popup options use the legacy `#` / `|` / `" - "` display transform on wrapper chrome. DEZPV leftover closed-chip chrome may use this-scope `hostDisplay` as strip source. BW remains unchanged. |
 | Manual commit display sync | After Dienststelle OK/confirm, committed display sync uses the handoff scope and may defer with bounded `requestAnimationFrame`. Leftover closed chip on `#filterDock__other` may then take current-host `hostDisplay`. Popup observer does not own closed-display correction. Empty global leftover caption is not success and must not receive the tab caption. |
 | Widget downstream | After successful user OK, Sicht-driven default/reconcile, or history replay, send the serializable Dienststelle change payload to `_KDB.api.widgetVis.dispatch` when available; until then log `[dienststelle.widgetVis.dispatch]`. No direct widget state/runtime writes. Downstream stays `widgetVis` + `hierarchySnapshot`; do not retarget to `visualizationWidget`. |

@@ -224,7 +224,7 @@ Public action types accepted by `dispatch` in this contract:
 | `singleSelect/filterDockStateChanged` | Future `filterDock` direct API dispatch | Handles a click-observed handoff: open, option, alle, confirm, cancel, clear, close, unknown. |
 | `singleSelect/filterDockPopupReady` | Future `filterDock` direct API dispatch | Handles observer-confirmed popup readiness for option injection, hydration and UI sync. |
 | `singleSelect/filterDockCommittedDisplayObserved` | `filterDock` committed-display observer | Overlay closed chip text from owner caption when `displaySource === "table"`. No public method. Not `processFilterDockHandoff`. |
-| `singleSelect/sichtHistoryReplayCommitted` | `sicht` history replay (`applySichtHistoryReplay.js`) | Syncs delegated `singleSelect` state after Sicht history replay. Gated to `payload.filterType === "sicht"` and `payload.filterLabel === "Sicht"`. Updates only `_KDB.state.filters.singleSelect`; no Cognos call, no callback to `sicht`, no generic `filter_singleSelect` history push. |
+| `singleSelect/sichtHistoryReplayCommitted` | `sicht` history replay (`sicht/history.js`, `createSichtReplayHandler`) | Syncs delegated `singleSelect` state after Sicht history replay. Gated to `payload.filterType === "sicht"` and `payload.filterLabel === "Sicht"`. Updates only `_KDB.state.filters.singleSelect`; no Cognos call, no callback to `sicht`, no generic `filter_singleSelect` history push. |
 | `singleSelect/error` | Internal boundary catch | Records owned error state. |
 | `singleSelect/destroy` | `destroy()` | Marks lifecycle disposed and clears transient serializable state as specified by reducer. |
 
@@ -335,7 +335,7 @@ Legacy payload:
 
 If CP-1 approves event scope:
 
-- add `singleSelect/events/eventNames.js`;
+- (not built) no `events` file exists in `singleSelect`;
 - add `filter:applied` or a renamed canonical event to `architecture/eventSubscribe.md`;
 - emit only after confirmed state and Cognos commit are successful.
 
@@ -377,7 +377,7 @@ Accepted commit order in `dashboard/filters/singleSelect/commit/commitSelection.
 5. Apply confirmed state **by lookup** of the live instance (M4), owner notification (`sicht` / `specialSingleSelect`), generic `filter_singleSelect` history (except `filterType: "sicht"`).
 6. Close popup on success only; reset commit UI and `inFlight` in `finally` on the live object.
 
-Removed from baseline: `syncNativePopupToPending.js` (commit-only native Cognos option clicks).
+Removed from baseline: the legacy `syncNativePopupToPending.js` (legacy only) (commit-only native Cognos option clicks).
 
 Open separate CP decision: whether `verifyCommitFilterValue` should later become warn-only or Alle-only. Current production remains strict.
 
@@ -421,7 +421,7 @@ Default CP-1 recommendation:
 
 If CP-1 includes replay:
 
-- create `history/singleSelectHistoryAdapter.js`;
+- history replay is `singleSelect/historyReplay.js` (`createHistoryReplayHandler`);
 - register it through the approved history replay handler mechanism;
 - ensure replay delegates through `singleSelect` owner logic and does not write foreign state.
 
@@ -450,36 +450,58 @@ If the `filterDock` handoff cannot supply the live DOM context needed for origin
 
 Production target after CP-1 and execution-spec approval:
 
+As built (exports per file). `__orchestratorSingleSelect.js` is a shim over `index.js`; `index.js` holds the controller (`register`). The folders group the concerns: `commit/` (confirmed selection + owner notify), `dockHandoff/` (filterDock handoff, popup interaction), `inventory/` (live filter instance inventory), `restore/` (parameter-set clear/restore/resync), `state/` (reducer, selectors, instance identity), `tabMutation/` (tab move/delete/duplicate).
+
 ```txt
-KDB3/js/dashboard/filters/singleSelect/
-  __orchestratorSingleSelect.js
-  createSingleSelectController.js
-  config/
-    actions.js
+dashboard/filters/singleSelect/
+  __orchestratorSingleSelect.js                       shim over index.js (path kept for KDB.js)
+  config.js                                           ALLE, DELEGATED_OPERATION_WINDOW, DIAGNOSTICS_LIMIT, actions, errorCodes, parameterSetCodes, historyReplayCodes, ...
+  history.js                                          normalizeStepValue, sameInstance, buildCommittedStep, pushCommittedSelectionStep, recordHistoryReplayDiagnostic
+  historyReplay.js                                    createHistoryReplayHandler, applyHistoryReplay, resolveHistoryTarget, replayCommittedSelection
+  hostFilterIo.js                                     resolveFilterRef, isWriteReady, readValues, writeValues, verifySelection, writeVerified, writeInstanceSelection, ...
+  index.js                                            register
+  runtime.js                                          ensureSingleSelectRuntime, resetSingleSelectRuntime, readFiltersFacet, inFlight, begin, end, isActive, ...
+  view.js                                             handleCommittedDisplay, applyCommittedDisplay
+  commit/
+    commitSelection.js                                commitConfirmedSelection
+    ownerNotify.js                                    isNegativeAck, notifyOwnerCommit
+    ownerSelection.js                                 applyOwnerSelection
+    specialPolicy.js                                  applySpecialSelectionPolicy
+    tableValues.js                                    resolveFilterOptionsTableKey, findMatchingRowValue, findMatchingUseValue, resolveFilterValueFromTable
+  dockHandoff/
+    handoff.js                                        mapFilterDockHandoff, processFilterDockHandoff
+    interaction.js                                    deriveInteractionIntent, applyPendingSelection, revertToBackupSelection, runInteraction
+    popup.js                                          requestOriginalButtonClick, requestClosePopup, setCommitUiState, restorePopupSelection
+    routeInteraction.js                               appendDiagnostic, resolveInteractionInstance, handleResolvedInteraction
+    sichtDraft.js                                     dispatchAfterInteraction
+  inventory/
+    definitions.js                                    createDefinitionIndex, readFilterDefinition, classifyFilterInstance
+    enumerate.js                                      enumerateFilterInstances, waitForFilterInventory
+    identity.js                                       reconcileFilterInstanceState
+    ownerAck.js                                       notifyInventoryReconciledOwners
+    reconcile.js                                      reconcileFilterInstances
+  restore/
+    applySelection.js                                 applyRestoreSelection, resolveRestoreSelectionPair
+    clear.js                                          handleParameterSetClear
+    generationGuards.js                               ensureWritebackPinnedGeneration, validateMutationGuard
+    restore.js                                        handleParameterSetRestore
+    resync.js                                         handleParameterSetResync
+    runs.js                                           ensureRunRegistry, resetAppliedPageContext, registerAppliedPageContext, readAppliedPageContext, isRunFinishOutcome, buildRunReleaseAck, settleParameterSetRun, ...
   state/
-    initialState.js
-    selectionState.js
-    ensureFilterState.js
-    createSingleSelectReducer.js
-    selectors.js
-  effects/
-    mapFilterDockHandoff.js
-    deriveInteractionIntent.js
-    runSingleSelectInteraction.js
-    applyPendingSelection.js
-    revertToBackupSelection.js
-    restorePopupSelection.js
-    commitConfirmedSelection.js
-  history/
-    buildCommittedStep.js
-    singleSelectHistoryAdapter.js        // deferred unless CP-1 includes replay
-  events/
-    eventNames.js                        // deferred unless CP-1 approves event catalog scope
+    instance.js                                       buildFilterInstanceId, readSelectionFromValues, createFilterInstanceState, ensureFilterState, lookupLiveFilterState
+    reducer.js                                        initialState, createSingleSelectReducer
+    selection.js                                      createConfirmedSelection, createPendingSelection, normalizeConfirmedSelection, normalizePendingSelection, getConfirmedDisplayValue, getConfirmedUseValue, getPendingDisplayValue, ...
+    selectors.js                                      readSingleSelectState, readFilterInstances, readFilterInstance, readFilterInstancesByScope, readInventoryGeneration, readSingleSelectFilterState, readCurrentSelection, ...
+  tabMutation/
+    apply.js                                          applyTabMutation
+    guard.js                                          guardRun, cancelled, isStaleRun, resolveScope, diagnostic, semanticKey, instancesInScope, ...
+    prepare.js                                        prepareTabMutation
+    restore.js                                        restoreTabMutationSnapshot
+    resync.js                                         resyncTabMutationHost
+    transfers.js                                      buildTabMutationTransfers
 ```
 
-`specialRights/` is deferred and is not created in this core tranche. CP-1 decides that `specialRights` / `specialSingleSelect` will get its own later module contract instead of being bundled under the core `singleSelect` module.
-
-The execution spec may split large effect files further to satisfy file-size/import-count limits; it must not create vague folders such as `helpers`, `common`, or `misc`.
+`specialRights` was not created; special filters live in `specialSingleSelect` (`contracts/specialSingleSelect.md`). No `events.js` exists in this module. Do not add vague folders such as `helpers`, `common`, or `misc`.
 
 ## 15. Bootstrap And Parent Filters Orchestrator
 

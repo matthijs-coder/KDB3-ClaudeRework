@@ -18,7 +18,7 @@
 
 Production `filterDock` is the central dock-level integration owner:
 
-- one dock-level click listener (`effects/bindDockClickListener.js`);
+- one dock-level click listener (`interaction/dockClick.js`, `bindDockClick`);
 - one long-lived dock `MutationObserver` (`dashboard/filters/filterDock/observation/dockObserver.js` (`bindDockObserver`));
 - serializable observed state under `_KDB.state.filters.filterDock`;
 - live DOM refs only under `_KDB.runtime.filterDock.domRefs`;
@@ -95,7 +95,7 @@ Bootstrap (current):
 
 - `KDB.js` imports `dashboard/filters/filterDock/__orchestratorFilterDock.js` and registers `_KDB.api.filterDock` during `setupCore`.
 - First `filterDock.mount()` runs in `finishDashboardInitialization` **after** `await whenUrlShareRestoreSettled` (absent / SET / recovery / failed) and **before** `presentPendingUrlShareMessage`. It does **not** run from `startModules` / `mountFeatureModules`. Cognos does not create `#filterDockContainer` while the boot spinner is mounted; inbound canvas+select can occupy the post-lift window, so a 30s wait started in `startModules` expires before host dock chrome exists (PO Cognos 2026-08-29).
-- Cognos dock selector keys live in `core/config/elements.js` and are copied into `_KDB.elements.selectors.filterDock` at register time.
+- Cognos dock selector keys live in `core/cognosHost/config/filterDockChromeSelectors.js` and are copied into `_KDB.elements.selectors.filterDock` at register time.
 
 Future bootstrap recommendation:
 
@@ -211,7 +211,7 @@ Contract sync (describes implemented behavior, not a behavior change):
 
 ### Filter type resolution
 
-Resolved in `effects/readFilterIdentity.js` (`resolveFilterType`) from capabilities (`compat/resolveFilterCapabilities.js`) and config `condition` (special keys compared case-insensitively). `isUpstream` / `isDownstream` derive from `filterPropObj.cascade` (`upstream` / `downstream`).
+Resolved in `identity.js` (`resolveFilterType`) from capabilities (`readFilterCapabilities` in `identity.js`) and config `condition` (special keys compared case-insensitively). `isUpstream` / `isDownstream` derive from `filterPropObj.cascade` (`upstream` / `downstream`).
 
 | Order | Rule | `filterType` |
 |---|---|---|
@@ -298,7 +298,7 @@ Method contracts:
 
 | Method | Contract |
 |---|---|
-| `mount(options)` | Async: waits for dock root + global + pageContext selectors (`effects/waitForFilterDockReady.js`, 30s), then initializes state/runtime, click listener, and long-lived MutationObserver. Returns `true` when mount is started or already pending; `finishMount` returns `false` if bind fails. First production call is after `whenUrl` settlement (see Bootstrap); do not arm this wait under the boot spinner. |
+| `mount(options)` | Async: waits for dock root + global + pageContext selectors (`chromeWait.js`, `waitForDockChrome`, 30s), then initializes state/runtime, click listener, and long-lived MutationObserver. Returns `true` when mount is started or already pending; `finishMount` returns `false` if bind fails. First production call is after `whenUrl` settlement (see Bootstrap); do not arm this wait under the boot spinner. |
 | `destroy()` | Idempotent teardown. Sets `_isDisposed = true` first, disconnects observer, aborts/removes listeners, cancels scheduled evaluation, clears runtime refs, dispatches disposed state. |
 | `dispatch(action)` | Public owner action entry point for future owner-approved commands; current tranche mainly uses internal dispatch from controller/effects. |
 | `getState()` | Returns full `_KDB.state.filters.filterDock` snapshot; after disposal returns `undefined`. |
@@ -307,7 +307,7 @@ Disposed-state discipline follows `module-public-api.mdc`: every public method c
 
 DOM readiness boundary:
 
-- `filterDock.mount()` owns bounded wait-for-dock readiness via `_KDB.utils.waitForElObserver` on root, global, and pageContext selectors (registered from `core/config/elements.js`).
+- `filterDock.mount()` owns bounded wait-for-dock readiness via `_KDB.utils.waitForElObserver` on root, global, and pageContext selectors (registered from `core/cognosHost/config/filterDockChromeSelectors.js`).
 - `filterDock` also owns a generic batch-level `filtersReady` observation: after at least one `.filterItemWrapper` exists inside the filterDock root, the wrapper count must not increase for `500` ms (`FILTERS_READY_STABILITY_MS`); if the count keeps growing, dispatch is capped at `30000` ms (`FILTERS_READY_MAX_WAIT_MS`) with payload source `filterDockFiltersReadyTimeout`.
 - `filtersReady` is not per filter id and not per scope. It does not prove that every Cognos filter exists; it only proves that the initial filter wrapper batch has stabilized enough for owner modules to run their own scoped/idempotent DOM sync.
 - `filterDock` may detect `filtersReady` by an immediate dock-root query after mount and by the existing long-lived dock observer's coalesced evaluation. No extra owner-specific observer is approved for this condition.
@@ -357,7 +357,7 @@ Central click listener:
 - It builds a serializable interaction object after every handled click.
 - Native kale confirm adds `confirmedLabels` (selected option labels on the popup mount; `null` if the mount is missing).
 - It dispatches `filterDock/clickObserved` and stores `lastInteraction` / `lastClickedFilter`.
-- It routes supported owner handoffs through `effects/dispatchFilterHandoff.js`.
+- It routes supported owner handoffs through `ownerRouter.js` (`dispatchHandoffToOwner`).
 - It does not write sibling state and does not call Cognos filter value APIs.
 
 Long-lived observer:
@@ -396,7 +396,7 @@ Popup display resync observer delta:
 
 ### 9.1 Current owner routing
 
-Implemented in `effects/dispatchFilterHandoff.js` (click, popup-ready, and filters-ready paths share the same route map):
+Implemented in `ownerRouter.js` (`dispatchHandoffToOwner`) (click, popup-ready, and filters-ready paths share the same route map):
 
 | `filterType` | Target API | Click action | Popup-ready action | Filters-ready action |
 |---|---|---|---|---|
@@ -488,7 +488,7 @@ Equivalent patches apply for `_KDB.api.singleSelect.dispatch` and `_KDB.api.sich
 - DOM selectors from `_KDB.elements.selectors.filterDock`.
 - `_KDB.properties.filterPropObj` for filter config lookup (flat paths such as `filterPropObj.Personal_KDB.globalFilters.<label>`).
 - `condition` values use production naming (`Dienststellenleitung`, not legacy `dstleitung`).
-- `compat/getFilterConfig.js` resolves kennzahlen source via explicit AMD import of `core/utils/getKennzahlenSource.js` (optional explicit `_kennzahlenSource` argument overrides).
+- `identity.js` (`readFilterConfig`) resolves kennzahlen source via explicit AMD import of `core/utils/getKennzahlenSource.js` (optional explicit `_kennzahlenSource` argument overrides).
 - No runtime `_KDB.utils.getKennzahlenSource` service-locator lookup under `filterDock/compat`.
 - Owner public APIs: `_KDB.api.singleSelect`, `_KDB.api.specialSingleSelect`, `_KDB.api.sicht` (read-only dispatch calls from `filterDock`; no foreign state writes).
 - `_KDB.api.dienststelle` is deferred until the owner module exists and is approved.
@@ -497,7 +497,7 @@ Deep files must not discover dependencies through `window._KDB`, `window.top.get
 
 ## 11. DOM Discipline
 
-Selector config belongs under `_KDB.elements.selectors.filterDock`, populated at register time from `core/config/elements.js` keys `filterDock`, `filterDockGlobal`, `filterDockPageContext`.
+Selector config belongs under `_KDB.elements.selectors.filterDock`, populated at register time from `core/cognosHost/config/filterDockChromeSelectors.js` keys `filterDock`, `filterDockGlobal`, `filterDockPageContext`.
 
 Default selectors:
 
@@ -533,45 +533,37 @@ Live refs belong under `_KDB.runtime.filterDock.domRefs` and must be cleared on 
 
 Production target after CP-1 and execution-spec approval:
 
+As built (flat entry files plus `interaction/` and `observation/`; exports per file). `__orchestratorFilterDock.js` is a shim over `index.js`.
+
 ```txt
-KDB3/js/dashboard/filters/filterDock/
-  __orchestratorFilterDock.js
-  createFilterDockController.js
-  config/
-    actions.js
-    selectors.js
-  state/
-    initialState.js
-    createFilterDockReducer.js
-    selectors.js
-  effects/
-    bindDockClickListener.js
-    dispatchFilterHandoff.js
-    resolveFilterInteraction.js
-    readConfirmedNativeSelectLabels.js
-    waitForFilterDockReady.js
-  runtime/
-    ensureFilterDockRuntime.js
-    cleanupFilterDockRuntime.js
-    readDockRoot.js
+dashboard/filters/filterDock/
+  __orchestratorFilterDock.js                         shim over index.js (path kept for KDB.js)
+  chromeWait.js                                       waitForDockChrome
+  config.js                                           CHROME, DOCK_SELECTOR_DEFAULTS, FILTERS_READY_STABILITY_MS, FILTERS_READY_MAX_WAIT_MS, POPUP_DISPLAY_RESYNC_CONFIRM_DELAYS_MS, CHROME_WAIT_TIMEOUT_MS, ERROR_CHROME_WAIT_TIMEOUT, ...
+  identity.js                                         readFilterLabel, readScopeContext, readRuntimeScope, readFilterConfig, readFilterCapabilities, toHandoffCapabilities, resolveFilterType, ...
+  index.js                                            registerFilterDock
+  ownerRouter.js                                      buildOwnerPayload, dispatchHandoffToOwner, dispatchFiltersReadyToOwners, dispatchHeaderObservedToOwners, dispatchCommittedDisplayObservedToOwners
+  ownerRoutes.js                                      OWNER_ROUTE_MAP, readOwnerRoute, ownerNeedsPopupDisplayResync, isSingleSelectFamily, receivesOutsideDockClicks, isKdbOwnedClassName, skipsPopupDisplayResync, ...
+  selectors.js                                        readFilterDockState, readLastClickedFilter, readLastInteraction, readPopupState, readFiltersReadyFlag, readDockSelectors, readDockRuntime
+  state.js                                            ACTIONS, createInitialFilterDockState, reduceFilterDockState
+  interaction/
+    clickInteraction.js                               resolveClickInteraction, buildHandoff, buildClickResolution
+    dockClick.js                                      bindDockClick, unbindDockClick, onDockClick
+    dockDom.js                                        readDockRoot, resolvePopupMount, resolveScopedPopupMount, buildScopeContext, resolveHostDataId, readPopupSnapshot, isNativeSelected, ...
+    popupCommands.js                                  runPopupCommand
   observation/
-    bindDockObserver.js
-    dispatchPopupReadyHandoff.js
-    scheduleObservedStateEvaluation.js
-    evaluateObservedDockState.js
-    normalizeMutationSignals.js
-  compat/
-    getFilterConfig.js
-    resolveFilterCapabilities.js
+    dockObserver.js                                   bindDockObserver, unbindDockObserver, scheduleDockEvaluation, runDockEvaluation
+    evaluateDock.js                                   evaluateDockState
+    filtersReady.js                                   detectFiltersReady, clearFiltersReadyWatch
+    mutationSummary.js                                buildElementSignature, isKdbOwnedMutationTarget, summarizeMutations, createPendingSummary, mergePendingSummary
+    ownerResync.js                                    readFilterWrapperCount, dockHasCommittedDisplay, evaluateHeaderResync, evaluateCommittedDisplayResync
+    popupDisplayResync.js                             attachPopupDisplayResyncOnOpen, attachPopupDisplayResync, detachPopupDisplayResync, onPopupDisplayMutations, shouldSelfDetach, isRelevantMutation, hasRelevantCharacterDataMutation
+    popupDisplayResyncDispatch.js                     schedulePopupDisplayResync, clearPopupDisplayResyncTimers, dispatchPopupDisplayResync
+    popupReadyHandoff.js                              buildPopupReadyHandoff, dispatchPopupReadyHandoff
+    popupReadySession.js                              ensurePopupReadyState, clearReadySession, resetPopupReadyState, resetSessionOnSingleSelectClick, isPopupReady, readActiveFilterKey, popupMatchesActiveFilter, ...
 ```
 
-`observation/` is the canonical folder name. Do not create both `observation/` and `observers/`.
-
-`compat/` contains rule-aligned compatibility readers only. It must not contain copied legacy orchestration or DOM mutation logic.
-
-`compat/resolveKennzahlenSource.js` is obsolete (removed from `getFilterConfig` dependency path); kennzahlen source resolution uses `core/utils/getKennzahlenSource.js` directly.
-
-No `events/eventNames.js` is created in this tranche.
+`observation/` is the canonical folder name; do not create an `observers/` folder. Filter config and capability lookup (`readFilterConfig`, `readFilterCapabilities`) live in `identity.js`; kennzahlen source resolution uses `core/utils/getKennzahlenSource.js` directly. No `events.js` exists in this module.
 
 ## 13. Bootstrap Registration
 
@@ -620,9 +612,9 @@ Future integration target:
 | Date | Status change | Approver | Notes |
 |---|---|---|---|
 | 2026-05-21 | `Draft` (scope/filterType delta) | — | `scopeType`/`scope`, `specialSingleSelect`, `resolveFilterType`, `Dienststellenleitung` mapping, bootstrap/KDB.js. |
-| 2026-05-22 | `Draft` (contract sync) | — | `filterKey` vs `filterId`, `resolveFilterType` table matches `readFilterIdentity.js`; popup-ready dedupe requires non-empty `filterKey`. |
+| 2026-05-22 | `Draft` (contract sync) | — | `filterKey` vs `filterId`, `resolveFilterType` table matches `identity.js`; popup-ready dedupe requires non-empty `filterKey`. |
 | 2026-05-26 | `Draft` (integration phase sync) | — | Promoted to observer + router + popup-ready phase; direct API routing documented; `specialSingleSelect` → `_KDB.api.specialSingleSelect`; removed mandatory `[filterDock.click]` log; deferred `dispatchSingleSelectHandoff` rename. |
-| 2026-05-26 | `Draft` (handoff dispatcher rename) | — | Renamed `effects/dispatchSingleSelectHandoff.js` to `effects/dispatchFilterHandoff.js`; behavior unchanged. |
+| 2026-05-26 | `Draft` (handoff dispatcher rename) | — | Renamed the single-select handoff dispatcher to a generic filter handoff dispatcher (historical file names; now `ownerRouter.js`, `dispatchHandoffToOwner`); behavior unchanged. |
 | 2026-05-30 | `Draft` (Dienststelle popup observer delta) | user | Approved filterDock-owned Dienststelle popup observer/re-dispatch lifecycle for Cognos hierarchy display sanitizing; transform remains Dienststelle-owned. |
 | 2026-05-30 | `Draft` (`popupDisplayResync` generalization) | user | Generalized the Dienststelle-specific observer concept into route-map capability `needsPopupDisplayResync`; runtime keys and helper naming should use `popupDisplayResync`. |
 | 2026-06-03 | `Draft` (`filtersReady` readiness delta) | user | Approved generic batch-level filterDock readiness once at least one `.filterItemWrapper` exists; Dienststelle may opt in through `needsFilterDockFiltersReady`. |
