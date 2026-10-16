@@ -16,7 +16,7 @@
  * `api.widgetSettings.getState()` is unchanged (full copy) and stays the read for the bulk case (writeback
  * `collectWidgets` reads the whole `byWidget` map once per save).
  */
-define(["../../../core/utils/kit/data.js"], function (_data) {
+define(["../../../core/utils/kit/data.js", "./config/actionTypes.js"], function (_data, _actionTypes) {
   "use strict";
 
   function readSettingsRoot(_KDB) {
@@ -34,6 +34,7 @@ define(["../../../core/utils/kit/data.js"], function (_data) {
   }
 
   return {
+    ACTION_TYPES: _actionTypes,
     readWidgetSettings: readWidgetSettings
   };
 });

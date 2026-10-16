@@ -37,7 +37,6 @@ function loadCore() {
 
 function loadShims() {
   return {
-    actionTypes: load(W + "config/actionTypes.js"),
     bindingConfigFacade: load(W + "config/resolveVisualizationBindingConfig.js"),
     visTypeIdentity: load(W + "config/visTypes/resolveVisTypeIdentity.js")
   };
@@ -732,8 +731,8 @@ test("config shims: same objects and functions as the leaves", () => {
   const state = load(W + "state.js");
   const visTypes = load(W + "visTypes.js");
   const shims = loadShims();
-  assert.equal(load(W + "config/actionTypes.js", { modules: { "../state.js": state } }), state.ACTION_TYPES);
-  assert.deepStrictEqual(json(shims.actionTypes), json(state.ACTION_TYPES));
+  const published = load(W + "selectors.js");
+  assert.deepStrictEqual(json(published.ACTION_TYPES), json(state.ACTION_TYPES));
   const facade = load(W + "config/resolveVisualizationBindingConfig.js", { modules: { "../visTypes.js": visTypes } });
   assert.deepStrictEqual(Object.keys(facade), ["resolveVisPropBucketKey"]);
   assert.equal(facade.resolveVisPropBucketKey, visTypes.resolveVisPropBucketKey);

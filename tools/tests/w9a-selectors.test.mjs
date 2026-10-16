@@ -60,3 +60,29 @@ test("widgetSettings downstream maximize intent: nextMaximized from the widgetVi
   assert.equal(nextOf(_KDB, "on", "unmaximize"), false);
   assert.equal(nextOf({ state: {}, api: {} }, "on", "maximize"), true);
 });
+
+test("owners publish their action types through selectors.js (used by widgetBase slot stock)", () => {
+  const json = (value) => JSON.parse(JSON.stringify(value));
+  const vis = load("dashboard/widgets/widgetVis/selectors.js");
+  const text = load("dashboard/widgets/widgetText/selectors.js");
+  const settings = load("dashboard/widgets/widgetSettings/selectors.js");
+  assert.deepStrictEqual(json(vis.ACTION_TYPES), json(load("dashboard/widgets/widgetVis/state.js").ACTION_TYPES));
+  assert.deepStrictEqual(json(text.ACTION_TYPES), json(load("dashboard/widgets/widgetText/config/actionTypes.js")));
+  assert.deepStrictEqual(json(settings.ACTION_TYPES), json(load("dashboard/widgets/widgetSettings/config/actionTypes.js")));
+  assert.equal(vis.ACTION_TYPES.CONTENT_CREATE, "widgetVis/contentCreate");
+  assert.equal(vis.ACTION_TYPES.PARAMETER_SET_BINDING, "widgetVis/parameterSetBindingRequested");
+  assert.equal(text.ACTION_TYPES.CONTENT_CREATE, "widgetText/contentCreate");
+  assert.equal(text.ACTION_TYPES.PARAMETER_SET_RESTORE, "widgetText/parameterSetRestoreRequested");
+  assert.equal(settings.ACTION_TYPES.PARAMETER_SET_RESTORE_BATCH, "widgetSettings/parameterSetRestoreBatchRequested");
+});
+
+test("widgetVis readVisPropBucketKey equals visTypes.resolveVisPropBucketKey for the configured bindingSpecs", () => {
+  const _KDB = { config: { options: {} }, api: {}, properties: {}, state: {}, runtime: {} };
+  load("core/config/__orchestratorConfig.js")(_KDB);
+  const vis = load("dashboard/widgets/widgetVis/selectors.js");
+  const visTypes = load("dashboard/widgets/widgetVis/visTypes.js");
+  const types = ["Line", "line", "Pie", "pie", "List", "StackedBar", "StackedColumn", "Prognose", "prognose", "Bar", "", null, undefined];
+  types.forEach((type) => assert.equal(vis.readVisPropBucketKey(_KDB, type), visTypes.resolveVisPropBucketKey(type, _KDB), String(type)));
+  assert.equal(typeof vis.readVisPropBucketKey(_KDB, "Line"), "string");
+  assert.equal(vis.readVisPropBucketKey({}, "Line"), visTypes.resolveVisPropBucketKey("Line", {}));
+});

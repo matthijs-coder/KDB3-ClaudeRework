@@ -6,12 +6,13 @@
  *   readTextRecord(_KDB, id)      -> clone of one widget record | undefined
  *   readTextContent(_KDB, id)     -> the stored text | undefined
  *   readTextPending(_KDB, id)     -> clone of the pending edit | undefined
+ *   ACTION_TYPES                  -> the widgetText action type strings (same object as config/actionTypes.js)
  *
  * Writeback collectors and widgetBase `serializeWidgetFrame` read `(api.widgetText.getState() || {}).byId[widgetId]`
  * today: `readTextRecord` is that read for one widget without cloning the whole subtree per widget, `readTextById`
  * is the bulk form. After destroy the subtree is reset, so both return the same empty results as getState() does.
  */
-define(["../../../core/utils/kit/data.js"], function (_data) {
+define(["../../../core/utils/kit/data.js", "./config/actionTypes.js"], function (_data, _actionTypes) {
   "use strict";
 
   function readTextRoot(_KDB) {
@@ -47,6 +48,7 @@ define(["../../../core/utils/kit/data.js"], function (_data) {
   }
 
   return {
+    ACTION_TYPES: _actionTypes,
     readWidgetTextState: readWidgetTextState,
     readTextById: readTextById,
     readTextRecord: readTextRecord,
