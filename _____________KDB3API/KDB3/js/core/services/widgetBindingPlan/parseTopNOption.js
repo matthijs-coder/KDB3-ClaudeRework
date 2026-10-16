@@ -1,5 +1,5 @@
 define([
-  "../defaults/normalizeDefaultValue.js",
+  "./defaults/normalizeDefaultValue.js",
 ], function (_normalizeDefaultValue) {
   "use strict";
 
@@ -44,7 +44,7 @@ define([
     return null;
   }
 
-  function __controller(_rawValue, _topNOptions) {
+  function parseTopNOption(_rawValue, _topNOptions) {
     var key = normalizeTopNKey(_rawValue);
     if (key == null) {
       return { kind: "default" };
@@ -56,5 +56,5 @@ define([
     return { kind: "unknown", value: String(_rawValue) };
   }
 
-  return __controller;
+  return parseTopNOption;
 });

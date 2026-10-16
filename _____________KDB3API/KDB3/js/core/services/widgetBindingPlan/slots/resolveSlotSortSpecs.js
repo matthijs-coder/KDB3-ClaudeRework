@@ -22,7 +22,7 @@ define([], function () {
       return null;
     }
     if (isNonEmptyStringArray(_entry)) {
-      return _entry;
+      return _entry.slice();
     }
     if (isNonEmptyString(_entry)) {
       return _entry.trim();
@@ -30,7 +30,7 @@ define([], function () {
     if (typeof _entry === "object" && !Array.isArray(_entry)) {
       var order = _entry.order;
       if (isNonEmptyStringArray(order)) {
-        return order;
+        return order.slice();
       }
       if (isNonEmptyString(order)) {
         var lower = order.toLowerCase();
@@ -104,7 +104,7 @@ define([], function () {
     return true;
   }
 
-  function __controller(_slotName, _columnIds, _dataTableConfig, _options) {
+  function resolveSlotSortSpecs(_slotName, _columnIds, _dataTableConfig, _options) {
     var columnIds = Array.isArray(_columnIds) ? _columnIds.slice() : [];
     var dataTableConfig = _dataTableConfig && typeof _dataTableConfig === "object" ? _dataTableConfig : {};
     var options = _options && typeof _options === "object" ? _options : {};
@@ -122,5 +122,5 @@ define([], function () {
     return { sortSpecs: sortSpecs, sortByColumn: sortByColumn };
   }
 
-  return __controller;
+  return resolveSlotSortSpecs;
 });
