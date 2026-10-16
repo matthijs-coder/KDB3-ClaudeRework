@@ -548,7 +548,7 @@ Behavior:
 2. If `clearBinding`, run the same `buildPlan -> applyBinding -> render wait -> confirmed result` pipeline used by settings actions. Generic cleanup maps to canonical `BindingPlanSpec.emptyIntent: { enabled: true, reason }` and remains **semantic empty** via `localFilters[{ kind:"emptyData", mode:"forceEmpty" }]`; it does **not** bulk-clear Cognos slots unless the plan explicitly sets `slotsChanged:true` or `slotsToClear:["all"]`.
 3. `reason:"settingsDelete"` with `clearBinding:true` is not semantic empty. It maps to technical reset-only binding cleanup while the Cognos widget still has valid datasource/model context: `BindingPlanSpec.emptyIntent: { enabled:false, reason:null, itemId:null, value:null }` plus `BindingPlanSpec.resetIntent: { enabled:true, scope:"visTarget", clearAllSlots:true, clearAllLocalFilters:true, reason:"settingsDelete" }`. `widgetBindingPlan` must translate that into a reset-only plan with no slot re-additions. Missing `widgetBindingApply` on required cleanup (`settingsDelete`, `clearBinding:true`) is **`ok:false`** (not `skipped:true`).
 4. After confirmed cleanup apply (or when `clearBinding:false` but decoration flags are set), call `cleanupVisualizationContent` — not normal post-render title/legend/tooltip sync.
-5. If `clearDrillthrough`, remove T1 + S2 PKZ icons and clicks, and call stored `listeners.drillthrough*` unsubs, via `cleanupDrillthroughDecorations.js`. T1 never installed `content.on`; T2 teardown is the stamped-facet unsubscribe. Capture keys may be cleared if present.
+5. If `clearDrillthrough`, remove T1 + S2 PKZ icons and clicks, and call stored `listeners.drillthrough*` unsubs, via `cleanupDrillthroughDecorations` (`drillthrough/install.js`). T1 never installed `content.on`; T2 teardown is the stamped-facet unsubscribe. Capture keys may be cleared if present.
 6. If `clearDomDecorations`, remove title-link/legend/tooltip decorations owned by `widgetVis` and disconnect legend observers/timers.
 7. On confirmed semantic empty-apply success, clear `pending`/`errorCode`, clear `derived.topNResultValues`, set `derived.emptyStatus: "intentional"`, store the serializable `emptyReason`, and keep diagnostics distinct from no-data or binding-failure diagnostics. For `settingsDelete` reset-only cleanup, clear visual TopN/runtime coordination without writing intentional-empty derived status. Replace runtime `managedFilterItemIds` with `plan.managedFilterItemIds` (often the stop-filter id for force-empty plans, empty for reset-only plans) and clear `lastSuccessfulPlan`.
 
@@ -623,7 +623,7 @@ Declarative config keys per visualization type in `_KDB.config.visualizations.de
 
 | Key | Meaning | Cognos touchpoint |
 |---|---|---|
-| `propertyValues` | Chart/content properties applied immediately after `visualizationType` is set | stamped `visualizationFacet.setContentProperty` (ring 1 `setContentProperty.js` → host `setContentPropertyValue`). Feature files: no `_KDB.cognosAPI` |
+| `propertyValues` | Chart/content properties applied immediately after `visualizationType` is set | stamped `visualizationFacet.setContentProperty` (ring 1 `setContentProperty` in `core/services/cognosHost/facets/visualization/properties.js` → host `setContentPropertyValue`). Feature files: no `_KDB.cognosAPI` |
 | `layoutPropertyValues` | Additional layout/content properties for the active visualization type | same facet op. Overlay `valueLabels.visible` / `labels.visible` from explicit `settings.showValues` or catalog inherit; when those values are shown, also overlay `contrast.label.color` + `valueLabels.color` = `true`; skip those keys for List (`contracts/_archive/widgetVis-show-values-contractdelta.md` §6.1a) |
 
 Source of truth: `_KDB.config.visualizations.definitions`. Deep `widgetVis` files must not read that config directly; they consume `config/resolveVisualizationBindingConfig.js` only.
@@ -771,7 +771,7 @@ Mapping rules:
 | `cleanupContent(reason:"settingsDelete", clearBinding:true)` | `emptyIntent: { enabled:false, reason:null, itemId:null, value:null }` and `resetIntent: { enabled:true, scope:"visTarget", clearAllSlots:true, clearAllLocalFilters:true, reason:"settingsDelete" }` |
 | `widgetId`, `ownerWidgetId`, `opSeq` | Diagnostic echo fields on `BindingPlanSpec` and `BindingTarget`; stale handling remains caller-owned |
 
-Required `BindingPlan` fields consumed by `widgetVis`: `ok`, `status`, `errorCode`, `errorMessage`, `legacyError`, `reason`, `targetKind`, `widgetId`, `ownerWidgetId`, `opSeq`, `datasource`, `visualization`, `slotsChanged`, `slotsToClear`, `slots[]`, `localFilters[]`, `managedFilterItemIds[]`, `emptyIntent`, `resetIntent`, `mirrorPatch`, and `diagnostics`.
+Required `BindingPlan` fields consumed by `widgetVis`: `ok`, `status`, `errorCode`, `errorMessage`, `reason`, `targetKind`, `widgetId`, `ownerWidgetId`, `opSeq`, `datasource`, `visualization`, `slotsChanged`, `slotsToClear`, `slots[]`, `localFilters[]`, `managedFilterItemIds[]`, `emptyIntent`, `resetIntent`, `mirrorPatch`, and `diagnostics`.
 
 Intentional emptying rules:
 
@@ -846,15 +846,14 @@ Outcome rules:
 
 ## 8. Readers / Writers
 
-Published selectors from `widgetVis/state/selectors.js`:
+Published selectors from `widgetVis/selectors.js`. They return the stored record itself (no clone): callers must treat it as read-only.
 
 | Selector | Reads | Returns |
 |---|---|---|
-| `readWidgetVisState(_KDB)` | `_KDB.state.widgets.vis` | Cloned vis subtree or `undefined`. |
-| `readVisRecord(_KDB, widgetId)` | `byId[widgetId]` | Cloned per-widget visual record or `undefined`. |
-| `readVisDerived(_KDB, widgetId)` | `byId[widgetId].derived` | Cloned derived object or `undefined`. |
-| `readVisPending(_KDB, widgetId)` | `byId[widgetId].pending` | Cloned pending marker or `undefined`. |
+| `readVisRecord(_KDB, widgetId)` | `_KDB.state.widgets.vis.byId[widgetId]` | Per-widget visual record (`derived`, `pending`, `maximized`, ...) or `undefined`. |
 | `readVisMaximized(_KDB, widgetId)` | `byId[widgetId].maximized` | Boolean confirmed focus-mode mirror; `false` when no record exists. |
+
+The whole subtree is available through `_KDB.api.widgetVis.getState()` (cloned).
 
 Internal reducer actions:
 
@@ -899,7 +898,7 @@ No `events/eventNames.js` is created unless a real fact-event consumer appears a
 - `_KDB.services.widgetBindingPlan.buildPlan`.
 - `_KDB.services.widgetBindingApply.applyBinding`; cleanup that intentionally empties a visual still uses the canonical `applyBinding` path with an empty plan.
 - `_KDB.services.tableData` only when needed for data identity reads; no direct tableData state reads.
-- `_KDB.cognosAPI.widgets.*` and `_KDB.cognosAPI.visualization.*` through binding services for binding/render, and directly from `widgetVis` for title, declarative visualization properties (`setVisType`, `setContentPropertyValue`), focus-mode or post-render cleanup touchpoints not owned by the services. Drillthrough host reads use injected cognosHost facets only (`visualizationFacet` including F1c `getSelections` / `subscribeSelections`, `filtersFacet`, existing stamps); URL open goes through `_KDB.services.drillthrough`. Deep files read `visualizationFacet` through `effects/readVisualizationFacet.js`. No `_KDB.cognosAPI` / `content.on` in widgetVis for selections.
+- `_KDB.cognosAPI.widgets.* and `_KDB.cognosAPI.visualization.*` through binding services for binding/render, and directly from `widgetVis` for title, declarative visualization properties (`setVisType`, `setContentPropertyValue`), focus-mode or post-render cleanup touchpoints not owned by the services. Drillthrough host reads use injected cognosHost facets only (`visualizationFacet` including F1c `getSelections` / `subscribeSelections`, `filtersFacet`, existing stamps); URL open goes through `_KDB.services.drillthrough`. Deep files read `visualizationFacet` through `effects/readVisualizationFacet.js`. No `_KDB.cognosAPI` / `content.on` in widgetVis for selections.
 - `_KDB.services.drillthrough` for PKZ URL build/open from the T1 icon click and the T2 datapoint click.
 - `_KDB.api.sicht.getState()` for drillthrough spec assembly (`currentSelection` / `activeSichtValue`).
 - `KDB3/images/pkzDrillthrough.png` and `.kdb_hyperlink_icon` for the T1 header drillthrough icon. S2 paints `KDB3/images/datapoint_pkzDrillthrough.png` on the same class under `.kdb-datapoint-pkz`.
@@ -964,8 +963,8 @@ Title link and tooltip (implemented 2026-07-14, legacy `alterVisTitle`/`addLinkT
 Legend/tooltip behavior:
 
 - **Title-header tooltip** (the `title` attribute on `.widgetHeader .widgetTitle`) stays as §13 above (including the 2026-09-01 aggregation suffix). Legend deltas do not rewrite it.
-- **Chart tooltip metadata** (`view/syncTooltipMetadata.js`) stays as-is: it annotates Cognos tooltip nodes with `data-kdb-pipe-parts`. This delta does not rewrite chart tooltip text.
-- **Legend captions** are rewritten by `runLegendSanitizers` (immediate post-success sweep, then again in `applyPostRenderCleanup`) and by the legend `MutationObserver` (`sanitizeLegendCaptionMutation`, then caption-only subtree sanitize). Both call `sanitizeLegendCaptionText` from `view/legend/legendCaptionText.js`. Non-observer sweeps on BEM content may toggle legend-title `KDB_visible`. Sweeps whose query root is the widget shell are captions-only (no `KDB_visible`). The observer must not toggle `KDB_visible`.
+- **Chart tooltip metadata** (`syncTooltipMetadata` in `render/postRender.js`) stays as-is: it annotates Cognos tooltip nodes with `data-kdb-pipe-parts`. This delta does not rewrite chart tooltip text.
+- **Legend captions** are rewritten by `runLegendSanitizers` (immediate post-success sweep, then again in `applyPostRenderCleanup`) and by the legend `MutationObserver` (`sanitizeLegendCaptionMutation`, then caption-only subtree sanitize). Both call `sanitizeLegendCaptionText` from `legend/captionText.js`. Non-observer sweeps on BEM content may toggle legend-title `KDB_visible`. Sweeps whose query root is the widget shell are captions-only (no `KDB_visible`). The observer must not toggle `KDB_visible`.
 - Caption pipeline (not vis-type config): (1) hash-segment normalization for `#` / `ALLE` / `BEENDET` **per segment** on every vis type including List (Gesamt/Beendet flags are segment-local); (2) return the hashed spaced-pipe string in Cognos order (keep-order); (3) for non-List vis types, collapse exactly-two prefix dim tokens (`m | Männlich` → `m`). Exception — Prognose only (`normalizeVisualizationType === "Prognose"` or exact IBM ids): when hashed `parts.length >= 5` and `parts[n-2]` is a 4-digit year, reserve n-1 Stichtag, n-2 Jahr, n-3 DST (keep) then exact-2 on prefix `slice(0, n-3)`; do not run dual-era on that result. Authority: `widgetVis-prognose-jahr-before-stichtag-segmentindex-contractdelta.md`. List stays hash-only (both dim tokens). Historical compose assembler removed 2026-09-02 (`contracts/_archive/widgetVis-legend-compose-dead-code-cleanup-contractdelta.md`). Legend parts split only on spaced pipe `/[\s\u00A0\u2007\u202F]+\|[\s\u00A0\u2007\u202F]+/`; bare `|` inside a token is the marker delimiter. Hash vectors 1–11: `contracts/_archive/widgetVis-legend-normalization-contractdelta.md`. Keep-order assemble: `contracts/_archive/widgetVis-legend-keep-order-non-list-contractdelta.md`. Dim-token collapse: `contracts/_archive/widgetVis-legend-dim-token-collapse-contractdelta.md`. LINE titles: `contracts/_archive/widgetVis-legend-line-dst-first-contractdelta.md`.
 - **Observer** watches BEM content when present, otherwise the widget shell (subtree), armed **before** `applyBinding` so captions that paint during `renderWidget` are rewritten as they appear. It does not wait for `.Legend`. `mutationNeedsLegendSanitize` is caption-only: `characterData` on a caption-host parent; `childList` on a caption host, legend root, or added/removed caption/legend element (no `querySelector` inside `svg`/`g`/`path`; optional descendant query only on non-SVG added/removed elements); `attributes`+`id` keeps caption-child behavior. Sequencing: `contracts/_archive/widgetVis-legend-caption-flash-contractdelta.md`.
 - **Observer writes (load icon flash, 2026-08-26; shell observe 2026-08-27):** the callback MUST NOT `classList.add`/`remove` `KDB_visible` and MUST NOT call `runLegendSanitizers(queryRoot)`. After a failed in-place mutation sanitize, rewrite caption text in the mutation target / added subtree only (inner selectors when the scan root is `.Legend` / `.legend`; include the root when it is a caption host). Do not query the whole query root and do not scan the observe root itself as a full-widget fallback. Observe BEM when present, otherwise the shell, so restore paint still rewrites captions. `resolveVisualizationContent` shell fallback stays for `contentCreate` / title. Companion CSS (icon cap, hideSpot id case) is owned by `widgetSettings.css` / `widgets/widgetHiding.css` (former `hideSpot.css`), not widgetVis JS.
@@ -973,7 +972,7 @@ Legend/tooltip behavior:
 - **Do not (legend, future agents)**
   - Do not skip legend observe/sweep because the query root is the widget shell (`observe_root_is_shell` is not a skip). Prefer BEM content when present, otherwise the shell. Details: `contracts/_archive/widgetVis-legend-caption-flash-contractdelta.md`.
   - Do not toggle `KDB_visible` from the legend observer (global `.KDB_visible { display: block }` restyles the dashboard and flashes icons). Shell sweeps are captions-only. Do not call `runLegendSanitizers` from the observer.
-  - Do not change the caption string pipeline (`legendCaptionText.js` / hash keep-order then non-List dim collapse) to fix timing or icon flash. Pipeline rules: `contracts/_archive/widgetVis-legend-normalization-contractdelta.md` (hash vectors 1–11), `contracts/_archive/widgetVis-legend-keep-order-non-list-contractdelta.md`, and `contracts/_archive/widgetVis-legend-dim-token-collapse-contractdelta.md`. LINE titles: `contracts/_archive/widgetVis-legend-line-dst-first-contractdelta.md`.
+  - Do not change the caption string pipeline (`legend/captionText.js` / hash keep-order then non-List dim collapse) to fix timing or icon flash. Pipeline rules: `contracts/_archive/widgetVis-legend-normalization-contractdelta.md` (hash vectors 1–11), `contracts/_archive/widgetVis-legend-keep-order-non-list-contractdelta.md`, and `contracts/_archive/widgetVis-legend-dim-token-collapse-contractdelta.md`. LINE titles: `contracts/_archive/widgetVis-legend-line-dst-first-contractdelta.md`.
 - Legend-item hover follows the caption `textContent` (Cognos default). Do not set caption `title` or `aria-label` in this tranche.
 
 Drillthrough behavior (T1 header icon unchanged; T2 F1c + S2, PO 2026-08-30):
@@ -983,7 +982,7 @@ Drillthrough behavior (T1 header icon unchanged; T2 F1c + S2, PO 2026-08-30):
 - Subscribe drives chrome; peek is source of truth at click. Capture keys may be reused as a last-selection buffer only.
 - Title `.kdb_hyperlink` stays the metric-URL feature; do not conflate it with the PKZ icon.
 - T1 icon + T2 S2 + `listeners.drillthrough*` are installed after content create, confirmed render, unpark (`ensureObservers`), and **focus exit** (normal unmaximize only); removed by `cleanupContent`/`destroy`. No `content.on` / `_KDB.cognosAPI` in widgetVis.
-- Do not grow `installDrillthrough.js` (~135 already). New `view/` builder + placer for S2. Never `widget.querySelector(".kdb_hyperlink_icon")`.
+- Keep the datapoint (S2) icon builder/placer in `drillthrough/icon.js` and `drillthrough/datapointChrome.js`; do not grow `drillthrough/install.js`. Never `widget.querySelector(".kdb_hyperlink_icon")`.
 - Opening the URL is the drillthrough service, not widgetVis `window.open` / `_KDB.cognosAPI`. Effect only: no history or settings write.
 - Focus: T1 + S2 plant on `.kdb-expand-drillthrough-column` after `.collapseSvg.focusMode` (Ausblenden). S2 only when peek/subscribe reports real categories. Hide cloned copies still on expand `.widgetIcons` / clone root. Maximize proxy stays hidden in expand. Do not clone either icon onto `.KDB_focusModeSettingsPanel`. Do not mutate the Ausblenden button (`contracts/_archive/widgetVis-drillthrough-focus-restore-contractdelta.md`).
 - Keep the 2×2 crush on `.resizeEdge.topRight`. Do not uncrush native `#maximize_32_v7`. Hide native maximize chrome visually; the node must remain for `widgetsFacet.enterFocusMode`. Canvas maximize proxy is a separate always-on plant (not F1c, not `enableDrillthrough`). Click: `_KDB.api.widgetVis.dispatch({ type: "widgetVis/maximizeToggle", widgetId, payload: { source: "user" } })` — omit `nextMaximized` so the handler toggles, same as settings maximize. Do not `.click()` settings DOM or `.resizeEdge.topRight`. Do not grow `installDrillthrough.js` / `installAllDrillthrough.js`.
@@ -1041,76 +1040,71 @@ Abortable work stores its controller under the per-widget `abortControllers` buc
 
 ## 17. Folder Layout
 
+As built after the Phase 1 module-template rework (53 files, one concern per file; `widgetVis` emits no events, so there is no `events/` folder):
+
 ```txt
 KDB3/js/dashboard/widgets/widgetVis/
-  __orchestratorWidgetVis.js
-  createWidgetVisController.js
+  __orchestratorWidgetVis.js  # shim: re-exports index.js (path kept for KDB.js)
+  index.js            # registerWidgetVis: controller, ROUTES table, host facet stamps, mount/dispatch/destroy
+  config.js           # timeouts, class names, focus-mode poll values, GROUPINGS
   config/
-    actionTypes.js
-    defaults.js
-  state/
-    initialState.js
-    createWidgetVisReducer.js
-    selectors.js
-    cloneSerializable.js
-  actions/
-    handleContentCreate.js
-    handleWaitUntilContentReady.js
-    handleApplySetting.js
-    handleDienststelleChanged.js
-    handleTopNResolved.js
-    handleCleanupContent.js
-    handleMaximizeToggle.js
-    normalizeDispatchResult.js
-  effects/
-    buildBindingSpec.js
-    runBindingPipeline.js
-    applyVisualizationProperties.js
-    applyPostRenderCleanup.js
-    syncVisualizationTitle.js
-    buildVisualizationTitleText.js
-    resolveTitleAggregationLabel.js  # 2026-09-01 title aggregation lookup; Implemented PO green 2026-09-02
-    installDrillthrough.js            # T1 only; do not grow for S2
-    syncDrillthroughAfterFocusExit.js # canvas T1+S2 re-install after unmaximize
-    assembleDrillthroughSpec.js
-    cleanupDrillthroughDecorations.js
-    installDatapointDrillthrough.js  # T2 coordinator (name equivalent OK)
-    installCanvasMaximize.js         # canvas maximize proxy; do not fold into drillthrough merger
-    cleanupCanvasMaximize.js
-    cleanupVisualizationContent.js
-    widgetFocusMode.js
-    reportApplyResult.js
-  view/
-    resolveVisualizationContent.js
-    syncLegendVisibility.js
-    sweepLegendCaptions.js           # 2026-08-26 content-root sweep + observer
-    isVisualizationContentRoot.js    # 2026-08-26 BEM / data-kdb-widget-content check
-    resolveLegendQueryRoot.js        # 2026-08-27 legend observe/sweep; BEM or shell
-    syncTooltipMetadata.js
-    renderDrillthroughIcon.js         # T1 header
-    ensureExpandDrillthroughHost.js  # focus column after Ausblenden
-    buildDatapointDrillthroughIcon.js  # T2 S2 builder
-    placeDatapointDrillthroughIcon.js  # T2 S2 placer
-    buildCanvasMaximizeIcon.js
-    placeCanvasMaximizeIcon.js
-    syncTitleLink.js
-    legend/                          # as-built 2026-08-17 size-split; public AMD paths unchanged
-      legendCaptionText.js           # public: sanitizeLegendCaptionText, replaceTooltipInLegendTitle, sanitizeLegendTitleLine
-      normalizeLegendHashSegment.js  # 2026-08-26 caption pipeline step 1
-      collapseLegendCaptionDimParts.js  # 2026-09-02 non-List exact-2 prefix collapse
-      matchLegendCaptionHost.js      # 2026-08-26 shared caption/legend host matchers
-      mutationNeedsLegendSanitize.js # 2026-08-26 caption-only mutation filter
-      legendCaptionDom.js
-      sanitizeLegendCaptionMutation.js
-      sanitizeLegendCaptionSubtree.js # 2026-08-26 observer caption-only subtree
-      runLegendSanitizers.js
-      installLegendTextObserver.js
-      disconnectLegendTextObserver.js
-      onLegendTextObserverRecords.js
-      observeLegendCaptionRoots.js
+    actionTypes.js                       # widgetVis/* action type constants (frozen external path)
+    resolveVisualizationBindingConfig.js # re-export shim over visTypes.js (resolveVisPropBucketKey; external importers)
+    visTypes/resolveVisTypeIdentity.js   # re-export shim over visTypes.js (external importers)
+  state.js            # ACTION_TYPES, initial state, reducer, metric identity helpers
+  selectors.js        # readVisRecord, readVisMaximized
+  runtime.js          # runtime buckets, per-widget runtime, content-ready waiters, readHostFacet
+  context.js          # buildContext, action validation, opSeq helpers
+  results.js          # normalizeDispatchResult, finalizePipelineResult, reportApplyResult
+  dom.js              # shell / visualization content / query-root resolution
+  lifecycle.js        # contentCreate, waitUntilContentReady, ensureObservers, disposeWidgetRuntime, module dispose
+  settings.js         # applyDimension / applyVisType / applyTopNChoice / applyGrouping, applyStartupSettings
+  settingsSnapshot.js # effective settings snapshot for binding
+  cleanup.js          # cleanupContent (binding cleanup, decoration cleanup)
+  restore.js          # parameterSet binding batch and cancel
+  bindingConfig.js    # binding config resolution (dimensions, sorting, data table, empty filter, TopN list)
+  visTypes.js         # visualization type/definition/property resolution, Kennzahl defaults
+  years.js            # year parsing helpers
+  binding/
+    spec.js               # buildBindingSpec (tokens, widget filters, grain overlay)
+    pipeline.js           # validateSettings, prerequisites, runBindingPipeline
+    gates.js              # prerequisite gate waiters (Dienststelle/hierarchy)
+    applyResult.js        # apply success/failure handling, derived patch
+    dienststelleChanged.js# widgetVis/dienststelleChanged handling and broadcast
+  topN/
+    gate.js               # TopN prerequisite and widgetVis/topNResolved
+    periodPin.js          # period/Stichtag pin and readConfirmedJahrYear
+    wave.js               # TopN filter-confirm wave (runTopNFilterConfirmWave)
+  render/
+    visProperties.js      # applyVisualizationProperties (declarative property application)
+    displayOptions.js     # showValues / iterator / zoom / caption display options
+    postRender.js         # applyPostRenderCleanup, tooltip metadata, decoration cleanup
+    title.js              # visualization title text and title link
+  legend/
+    captionText.js        # legend caption string pipeline (sanitizeLegendCaptionText)
+    captionDom.js         # legend host/caption DOM predicates
+    sanitize.js           # runLegendSanitizers: caption/subtree sanitizing
+    observer.js           # legend text MutationObserver
+    sweep.js              # sweepLegendCaptions, install observer before apply
+  drillthrough/
+    install.js            # installDrillthrough, installContentDecorations, syncDrillthroughAfterFocusExit, cleanup
+    spec.js               # assembleDrillthroughSpec / datapoint spec
+    orgTree.js            # org hierarchy tree from cells/rows
+    year.js               # drillthrough Jahr resolution
+    icon.js               # header and datapoint icon DOM
+    datapointChrome.js    # datapoint (S2) icon sync from selections
+    click.js              # click binding
+  focus/
+    focusMode.js          # enter/exit focus mode
+    observer.js           # shared focus-state observer
+    panel.js              # focus panel clone and pointer handling
+    domQueries.js         # focus-mode DOM queries
+    maximizeIcon.js       # canvas maximize icon plant/cleanup
+    maximizeToggle.js     # widgetVis/maximizeToggle handler
+  actions/runTopNFilterConfirmWave.js   # re-export shim over topN/wave.js (external importers)
+  effects/applyVisualizationProperties.js # re-export shim over render/visProperties.js (external importers)
+  effects/readConfirmedJahrYear.js        # re-export shim over topN/periodPin.js (external importers)
 ```
-
-No `events/eventNames.js` is created in this tranche because `widgetVis` emits no events. Split drillthrough effects (`installDrillthrough.js`, `assembleDrillthroughSpec.js`, `view/renderDrillthroughIcon.js`, T2 `view/` builder+placer, T2 coordinator) before 150 lines. Do not grow `installDrillthrough.js` for S2.
 
 ## 18. Bootstrap And Integration
 
