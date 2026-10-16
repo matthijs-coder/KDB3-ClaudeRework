@@ -32,6 +32,7 @@ define([
       this._isDisposed = false;
       this._teardownComplete = false;
       this._renderPromise = null;
+      this._renderParent = undefined;
       this.version = "2026.10.16 HH03.30";
     }
 
@@ -86,7 +87,13 @@ define([
         return Promise.resolve(false);
       }
       if (!this._renderPromise) {
+        this._renderParent = _renderOptions ? _renderOptions.parent : undefined;
         this._renderPromise = this._runRender(_renderOptions);
+        return this._renderPromise;
+      }
+      const ignoredParent = _renderOptions ? _renderOptions.parent : undefined;
+      if (ignoredParent !== this._renderParent) {
+        console.warn("[core.renderKDB] second render() ignored: it passed a different parent than the first call", ignoredParent);
       }
       return this._renderPromise;
     }

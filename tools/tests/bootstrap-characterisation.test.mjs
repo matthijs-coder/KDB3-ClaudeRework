@@ -142,6 +142,25 @@ test('render() twice, sequentially: the second call returns the first promise an
   assert.equal(countOf(h.log, 'loading.start:kdb-root-loading-animation-mount'), 1);
 });
 
+test('render() twice with a different parent: still the first promise, one warning naming the ignored parent', async () => {
+  const h = createHarness();
+  const kdb = h.createKdb();
+  const parentA = { id: 'a' };
+  const parentB = { id: 'b' };
+  const first = kdb.renderKDB({ parent: parentA });
+  assert.equal(kdb.renderKDB({ parent: parentA }), first);
+  assert.equal(kdb.renderKDB(), first);
+  assert.deepEqual(h.consoleCalls.warn.filter((w) => /second render/.test(w[0])).length, 1, 'same parent stays silent; a missing parent differs');
+  h.consoleCalls.warn.length = 0;
+  assert.equal(kdb.renderKDB({ parent: parentB }), first);
+  assert.equal(h.consoleCalls.warn.length, 1);
+  assert.equal(h.consoleCalls.warn[0][0], '[core.renderKDB] second render() ignored: it passed a different parent than the first call');
+  assert.equal(h.consoleCalls.warn[0][1], parentB);
+  await first;
+  assert.equal(h.log.filter((line) => line === 'register:header').length, 1);
+  assert.equal(kdb.runtime.core.domRefs.renderParentEl, parentA);
+});
+
 test('render() twice, concurrently: one run', async () => {
   const h = createHarness();
   const kdb = h.createKdb();
