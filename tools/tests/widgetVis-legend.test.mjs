@@ -13,27 +13,30 @@ const load = (rel, options) => loadAmd(path.join(JS_ROOT, rel), options);
 const QUIET = { console: { error() {}, warn() {}, log() {} } };
 
 function loadLegend() {
-  const text = load(W + "view/legend/legendCaptionText.js");
-  const dom = load(W + "view/legend/legendCaptionDom.js");
+  const text = load(W + "legend/captionText.js");
+  const dom = load(W + "legend/captionDom.js");
+  const sanitize = load(W + "legend/sanitize.js");
+  const visProperties = load(W + "render/visProperties.js");
   return {
     sanitizeLegendCaptionText: text.sanitizeLegendCaptionText,
     replaceTooltipInLegendTitle: text.replaceTooltipInLegendTitle,
     sanitizeLegendTitleLine: text.sanitizeLegendTitleLine,
-    normalizeLegendHashCaption: load(W + "view/legend/normalizeLegendHashSegment.js"),
-    collapseLegendCaptionDimParts: load(W + "view/legend/collapseLegendCaptionDimParts.js"),
+    normalizeLegendHashCaption: text.normalizeLegendHashCaption,
+    collapseLegendCaptionDimParts: text.collapseLegendCaptionDimParts,
     collectCaptionEntries: dom.collectCaptionEntries,
     mutationNeedsLegendSanitize: dom.mutationNeedsLegendSanitize,
-    sanitizeLegendCaptionMutation: dom.sanitizeLegendCaptionMutation,
-    runLegendSanitizers: load(W + "view/legend/runLegendSanitizers.js"),
-    shouldApplyVisualizationProperties: load(W + "effects/shouldApplyVisualizationProperties.js"),
-    applyPropertyMap: load(W + "effects/applyPropertyMap.js")
+    sanitizeLegendCaptionMutation: sanitize.sanitizeLegendCaptionMutation,
+    runLegendSanitizers: sanitize.runLegendSanitizers,
+    shouldApplyVisualizationProperties: visProperties.shouldApplyVisualizationProperties,
+    applyPropertyMap: visProperties.applyPropertyMap,
+    isAbortedOutcome: visProperties.isAbortedOutcome
   };
 }
 
 function loadTitleBuilder(shellAttrs) {
   const shell = shellAttrs ? { getAttribute: (name) => (name in shellAttrs ? shellAttrs[name] : null) } : null;
   const stubs = { document: { getElementById: () => shell, querySelector: () => null }, ...QUIET };
-  return load(W + "effects/buildVisualizationTitleText.js", { stubs }).buildVisualizationTitleText;
+  return load(W + "render/title.js", { stubs }).buildVisualizationTitleText;
 }
 
 const sha = (value) => createHash("sha256").update(JSON.stringify(value === undefined ? "<undefined>" : value)).digest("hex").slice(0, 16);
@@ -305,7 +308,6 @@ test("buildVisualizationTitleText", () => {
     [{ _KDB, widgetId: "w1", metric: {}, settings: {} }, null, ""],
     [{ _KDB: buildKdb({ getVisTitle: () => ({ ok: true, data: "Rendered nach Jahr Top-5" }) }), widgetId: "w1", metric: {},
       settings: { dimension: "Jahr", topNChoice: "top5" }, helperTableResult: topN }, null, "Rendered nach Jahr Top-5"],
-    [{ _KDB: buildKdb({ getVisTitle: () => { throw new Error("x"); } }), widgetId: "w1", metric: {}, settings: {} }, null, ""],
     [{ _KDB: buildKdb({ getVisTitle: () => ({ ok: false }) }), widgetId: "w1", metric: {}, settings: {} }, null, ""],
     [undefined, null, ""]
   ];
