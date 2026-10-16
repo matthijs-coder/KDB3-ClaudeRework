@@ -275,7 +275,7 @@ define([
   }
 
   // Wait windows whose hierarchy load is still pending are closed on destroy; their timers are cancelled
-  // and a late fulfilment no longer navigates.
+  // and a late fulfilment is ignored.
   function destroySession(_session) {
     var contexts = _session.contexts.slice();
     _session.disposed = true;

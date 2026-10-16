@@ -31,7 +31,7 @@ define([
   var RESIZE_FRAME_KEY = "windowResizeAfterRefit";
 
   // Cognos re-fits automatic text on window resize, so a refit dispatches a global resize event. Several refits
-  // in one frame (restore, undo) share one dispatch on the next animation frame instead of one each.
+  // in one frame (restore, undo) share a single dispatch on the next animation frame.
   function scheduleWindowResize(_KDB) {
     var timers = _widgetRuntime.readRuntimeRoot(_KDB).timers;
     if (timers[RESIZE_FRAME_KEY]) {
