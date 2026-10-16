@@ -1,24 +1,24 @@
 define([
   "./waitForBridgeSetSettlement.js",
-  "./waitForParameterSetSelectReady.js",
+  "./hostParameterSetSelect.js",
   "../set/state/ensureWritebackRuntime.js",
   "../schema/errorCodes.js"
-], function (_waitForBridgeSetSettlement, _waitForParameterSetSelectReady, _ensureWritebackRuntime, _errorCodes) {
+], function (_waitForBridgeSetSettlement, _hostParameterSetSelect, _ensureWritebackRuntime, _errorCodes) {
   "use strict";
 
   var DEFAULT_TIMEOUT_MS = 30000;
 
-  function abortController(_controller) {
-    if (_controller && typeof _controller.abort === "function") _controller.abort();
-  }
-
-  function bindParentAbort(_parentSignal, _controller) {
-    if (!_parentSignal) return;
+  // Aborts `_controller` with the parent signal; returns the unlink function.
+  function linkParentAbort(_parentSignal, _controller) {
+    var onAbort;
+    if (!_parentSignal) return function () {};
     if (_parentSignal.aborted) {
-      abortController(_controller);
-      return;
+      _controller.abort();
+      return function () {};
     }
-    _parentSignal.addEventListener("abort", abortController.bind(null, _controller), { once: true });
+    onAbort = _controller.abort.bind(_controller);
+    _parentSignal.addEventListener("abort", onAbort, { once: true });
+    return function () { _parentSignal.removeEventListener("abort", onAbort); };
   }
 
   function findMatchingOption(_select, _parameterId) {
@@ -44,24 +44,19 @@ define([
 
   async function selectParameterSetById(_KDB, _parameterId, _options) {
     var startedAt = Date.now();
-    var runtime;
-    var controller;
-    var parentSignal;
-    var timeoutMs;
-    var remainingMs;
+    var runtime = _ensureWritebackRuntime(_KDB);
+    var timeoutMs = _options && typeof _options.timeoutMs === "number" ? _options.timeoutMs : DEFAULT_TIMEOUT_MS;
+    var controller = new AbortController();
+    var unlinkParent = linkParentAbort(_options && _options.signal ? _options.signal : null, controller);
     var phaseWait;
     var changeTime;
     var settle;
     var didSetSkipFlag = false;
+    runtime.abortControllers.optionWait = controller;
     try {
-      runtime = _ensureWritebackRuntime(_KDB);
-      timeoutMs = _options && typeof _options.timeoutMs === "number" ? _options.timeoutMs : DEFAULT_TIMEOUT_MS;
-      parentSignal = _options && _options.signal ? _options.signal : null;
-      controller = new AbortController();
-      runtime.abortControllers.optionWait = controller;
-      bindParentAbort(parentSignal, controller);
-      remainingMs = remainingBudget(startedAt, timeoutMs);
-      phaseWait = await _waitForParameterSetSelectReady(_KDB, remainingMs, controller.signal);
+      phaseWait = await _hostParameterSetSelect.waitForParameterSetSelectReady(
+        remainingBudget(startedAt, timeoutMs), controller.signal
+      );
       if (phaseWait.aborted || controller.signal.aborted || phaseWait.timedOut || !phaseWait.select) {
         return mapPhase2Fail(phaseWait, phaseWait.aborted || controller.signal.aborted);
       }
@@ -74,9 +69,8 @@ define([
       didSetSkipFlag = true;
       changeTime = Date.now();
       phaseWait.select.dispatchEvent(new Event("change", { bubbles: true }));
-      remainingMs = remainingBudget(startedAt, timeoutMs);
       settle = await _waitForBridgeSetSettlement.armWaiter(
-        _KDB, changeTime, remainingMs, controller.signal
+        _KDB, changeTime, remainingBudget(startedAt, timeoutMs), controller.signal
       );
       if (settle && settle.aborted) {
         return { aborted: true };
@@ -95,11 +89,12 @@ define([
         { parameterId: String(_parameterId) }
       ));
       return { ok: false, found: true, hostListReady: true, timedOut: true };
-    } catch (error) {
-      console.error("[writebackBridge.selectParameterSetById] failed", error);
-      throw error;
     } finally {
-      if (didSetSkipFlag === true && runtime) {
+      unlinkParent();
+      if (runtime.abortControllers.optionWait === controller) {
+        delete runtime.abortControllers.optionWait;
+      }
+      if (didSetSkipFlag === true) {
         runtime.skipDiscardConfirmOnce = false;
       }
     }

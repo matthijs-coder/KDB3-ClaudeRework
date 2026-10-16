@@ -4,7 +4,7 @@ define([
   "./set/state/ensureWritebackRuntime.js",
   "./bridge/hostGlobals.js",
   "./bridge/bridgeResult.js",
-  "./bridge/readSelectedParameterSet.js",
+  "./bridge/hostParameterSetSelect.js",
   "./bridge/selectParameterSetById.js",
   "./bridge/runBridgeSetRestore.js"
 ], function (
@@ -13,7 +13,7 @@ define([
   _ensureWritebackRuntime,
   _hostGlobals,
   _bridgeResult,
-  _readSelectedParameterSet,
+  _hostParameterSetSelect,
   _selectParameterSetById,
   _runBridgeSetRestore
 ) {
@@ -155,7 +155,7 @@ define([
     function readSelectedParameterSet() {
       if (guard.blocked("readSelectedParameterSet") || isGone()) return undefined;
       try {
-        return _readSelectedParameterSet();
+        return _hostParameterSetSelect.readSelectedParameterSet();
       } catch (error) {
         console.error("[writebackBridge.readSelectedParameterSet] failed", error);
         return { id: null, label: null };

@@ -340,6 +340,42 @@ test("selectParameterSetById times out when the host select never gets options",
   assert.equal(result.timedOut, true);
 });
 
+test("selectParameterSetById waits for a real option, dispatches change and resolves with the settled restore", async () => {
+  const env = makeEnv();
+  const kdb = makeKdb();
+  const bridge = loadBridgeFactory(env)({ _KDB: kdb });
+  bridge.install();
+  const select = {
+    value: "-",
+    options: [{ value: "-" }],
+    dispatchEvent() { env.top.WBParameterSetFunction(V3, "notDefaultParamSet"); return true; },
+  };
+  env.doc.byId.selectParameterSet = select;
+  setTimeout(() => { select.options.push({ value: "p1" }); }, 120);
+  const result = await bridge.selectParameterSetById("p1", { timeoutMs: 2000 });
+  assert.equal(result.ok, true);
+  assert.equal(result.found, true);
+  assert.equal(result.hostListReady, true);
+  assert.equal(result.restoreResult.outcome, "committed");
+  assert.equal(select.value, "p1");
+  assert.equal(kdb.runtime.writeback.skipDiscardConfirmOnce, false);
+  assert.equal(kdb.runtime.writeback.abortControllers.optionWait, undefined);
+});
+
+test("selectParameterSetById reports found:false for an unknown id and aborts with the parent signal", async () => {
+  const env = makeEnv();
+  const kdb = makeKdb();
+  const bridge = loadBridgeFactory(env)({ _KDB: kdb });
+  env.doc.byId.selectParameterSet = { value: "-", options: [{ value: "-" }, { value: "p1" }], dispatchEvent() { return true; } };
+  assert.deepEqual(await bridge.selectParameterSetById("nope", { timeoutMs: 500 }), { ok: false, found: false, hostListReady: true });
+  env.doc.byId.selectParameterSet = null;
+  const parent = new AbortController();
+  setTimeout(() => parent.abort(), 80);
+  const aborted = await bridge.selectParameterSetById("p1", { timeoutMs: 5000, signal: parent.signal });
+  assert.deepEqual(aborted, { ok: false, found: false, hostListReady: false, aborted: true });
+  assert.equal(kdb.runtime.writeback.abortControllers.optionWait, undefined);
+});
+
 test("ensureWritebackRuntime seeds every flag, keeps one object and never overwrites set values", () => {
   const env = makeEnv();
   const ensure = loadAmd(path.join(WB, "set/state/ensureWritebackRuntime.js"), { stubs: env.stubs });

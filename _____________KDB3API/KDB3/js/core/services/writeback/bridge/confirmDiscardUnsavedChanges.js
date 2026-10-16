@@ -1,20 +1,8 @@
 define([
   "../set/state/ensureWritebackRuntime.js",
-  "./parameterSetSelectConstants.js"
-], function (_ensureWritebackRuntime, _parameterSetSelectConstants) {
+  "./hostParameterSetSelect.js"
+], function (_ensureWritebackRuntime, _hostParameterSetSelect) {
   "use strict";
-
-  function revertSelect(_runtime) {
-    var select;
-    try {
-      select = document.getElementById(_parameterSetSelectConstants.SELECT_ID);
-      if (select) {
-        select.value = _runtime.lastConfirmedParameterSetId || "-";
-      }
-    } catch (error) {
-      console.error("[writeback.revertSelect] failed", error);
-    }
-  }
 
   async function confirmDiscardUnsavedChanges(_KDB, _statusKind) {
     try {
@@ -43,7 +31,7 @@ define([
       svc = _KDB.services && _KDB.services.message;
       if (!svc || typeof svc.confirm !== "function") {
         console.warn("[writeback.confirmDiscardUnsavedChanges] messageService unavailable — restore blocked (fail closed)");
-        revertSelect(runtime);
+        _hostParameterSetSelect.revertSelect(runtime);
         return false;
       }
       runtime.discardConfirmInFlight = true;
@@ -57,13 +45,13 @@ define([
           cancelLabel: labels && labels.discardUnsavedCancel
         });
         if (!result || result.confirmed !== true) {
-          revertSelect(runtime);
+          _hostParameterSetSelect.revertSelect(runtime);
           return false;
         }
         return true;
       } catch (error) {
         console.warn("[writeback.confirmDiscardUnsavedChanges] confirm rejected", error);
-        revertSelect(runtime);
+        _hostParameterSetSelect.revertSelect(runtime);
         return false;
       } finally {
         runtime.discardConfirmInFlight = false;
@@ -71,7 +59,7 @@ define([
     } catch (error) {
       console.error("[writeback.confirmDiscardUnsavedChanges] failed", error);
       if (runtime) {
-        revertSelect(runtime);
+        _hostParameterSetSelect.revertSelect(runtime);
       }
       return false;
     }
