@@ -184,7 +184,7 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] CSS links: `[...document.querySelectorAll('link[rel=stylesheet][href*="ext/KDB3/css"]')].map(l=>l.getAttribute('href'))` returns exactly the 20 entries of `core/css/config/cssHrefList.js`, in the same order; no 404 and no request for `libraries/all.min.css` (Font Awesome removed).
 - [ ] `.sr-only` still hides: `[...document.querySelectorAll('.sr-only')].map(e=>getComputedStyle(e).position)` is all `absolute` (or empty); no stray screen-reader text visible in Cognos toolbars or dialogs.
 - [ ] kdbControl panel (merged `kdb-control/shell.css` + `controls.css`): collapse/expand arrow, every section, text-input focus outline, toggles, radios, action buttons; authoring mode shows the orange border.
-- [ ] Toolbar buttons (merged `customButtons/toolbarControls.css`): Undo/Redo/Teilen/PDF/Wien-KI look as baseline in light and dark theme.
+- [ ] Toolbar buttons (merged `customButtons/toolbarControls.css`): Undo/Redo/Teilen/PDF/Wien-KI look and hover as baseline.
 - [ ] Filters (merged `filters/filters.css`): Jahr filter shows no "Gesamt"; Sicht popup hides duplicates and "Alle" as before; Dienststelle and special single-select look as baseline.
 - [ ] Widgets: outside developer mode non-KDB Cognos widgets stay hidden (`widgets/hostWidgets.css`); list widget columns 0/1 are 65px wide; during PDF export the widget chrome is hidden (`widgets/widgetHiding.css`); the launchpad hide spot is invisible.
 - [ ] Vendor re-encoding (UTF-16 -> UTF-8): PDF export with an attachment page succeeds and umlauts render; no `SyntaxError` from `jspdf.umd.min.js` / `html2canvas.min.js`; metrics tree shows the jstree icons (`32px.png` sprites), drag and search work.

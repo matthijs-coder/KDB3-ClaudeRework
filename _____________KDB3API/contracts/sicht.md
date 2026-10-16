@@ -501,21 +501,21 @@ Owned class names:
 | `KDB_sichtSingleSelect` | Sicht semantic/delta marker for the filter wrapper. |
 | `KDB_sichtHideAlle` | Native Alle option row hidden for Sicht. |
 | `KDB_sichtOptionDisabled` | Option is visible but disabled because its Dienststelle default is not ready. |
-| `KDB_sichtOptionBw` | Per-option marker for BW; also keep-first sibling hide key in `sichtSingleSelect.css`. |
-| `KDB_sichtOptionDezpv` | Per-option marker for DEZPV; also keep-first sibling hide key in `sichtSingleSelect.css`. |
+| `KDB_sichtOptionBw` | Per-option marker for BW; also keep-first sibling hide key in `filters/filters.css` (former `sichtSingleSelect.css` section). |
+| `KDB_sichtOptionDezpv` | Per-option marker for DEZPV; also keep-first sibling hide key in `filters/filters.css` (former `sichtSingleSelect.css` section). |
 
 CSS behavior:
 
 - Hide `"Alle"` option by default for Sicht via `KDB_sichtHideAlle`.
-- Subsequent same owned option-class rows (`.KDB_sichtOptionBw ~ .KDB_sichtOptionBw` and `.KDB_sichtOptionDezpv ~ .KDB_sichtOptionDezpv`) may be hidden in `sichtSingleSelect.css`; still scoped to `.KDB_sichtSingleSelect`.
+- Subsequent same owned option-class rows (`.KDB_sichtOptionBw ~ .KDB_sichtOptionBw` and `.KDB_sichtOptionDezpv ~ .KDB_sichtOptionDezpv`) may be hidden in `filters/filters.css` (former `sichtSingleSelect.css` section); still scoped to `.KDB_sichtSingleSelect`.
 - Sicht must always keep one normal option selected.
 - Re-click on the current selected option must not toggle to an empty / Alle state.
-- Do not duplicate generic singleSelect CSS into `sichtSingleSelect.css`.
+- Do not duplicate generic singleSelect CSS into `filters/filters.css` (former `sichtSingleSelect.css` section).
 - Do not apply `KDB_cascadingFilter` to Sicht.
 
 Bounded native CSS exception:
 
-- `sichtSingleSelect.css` may hide Cognos duplicate marker rows via `.ba-common-listItem-wrapper:has([aria-label="duplicates"])`.
+- `filters/filters.css` (former `sichtSingleSelect.css` section) may hide Cognos duplicate marker rows via `.ba-common-listItem-wrapper:has([aria-label="duplicates"])`.
 - This complements JS duplicate hiding in `hideDuplicateSichtOptions.js`; it is not replaced by JS alone.
 - Scope is limited to `.KDB_sichtSingleSelect`; no additional native selectors in CSS without contract update.
 

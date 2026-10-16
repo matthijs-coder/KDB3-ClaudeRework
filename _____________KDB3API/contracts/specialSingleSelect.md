@@ -332,7 +332,7 @@ Restore overlay (`specialSingleSelect-parameterSetRestore-rights-notify-contract
 Visibility CSS (Optie C — root class + static CSS):
 
 - Active Sicht is encoded once on `#filterDockContainer` via mutually exclusive root classes `KDB_sssSicht_BW` or `KDB_sssSicht_DEZPV` (or neither when unknown).
-- Static CSS in `specialSingleSelect.css` drives wrapper show/hide for **both** `#filterDock__global` and `#filterDock__other` using root class + wrapper rights marker + `:has([data-id="…"])` filter identity.
+- Static CSS in `filters/filters.css` (former `specialSingleSelect.css` section) drives wrapper show/hide for **both** `#filterDock__global` and `#filterDock__other` using root class + wrapper rights marker + `:has([data-id="…"])` filter identity.
 - A special filter wrapper is hidden by default (pre-JS hide via `:has([data-id="Personengruppe"|"Dienststellenleitung"])`).
 - A wrapper is visible only when root carries an allowed Sicht class (e.g. `KDB_sssSicht_BW`) **and** the wrapper has `KDB_SSS_right`.
 - Sicht classes must **not** be placed on individual wrappers; they are root-only.
@@ -492,7 +492,7 @@ Expected integration after CP-1 approval:
 - `filterDock` routes `filterType: "specialSingleSelect"` to `_KDB.api.specialSingleSelect`, not directly to `_KDB.api.singleSelect`.
 - `specialSingleSelect` delegates generic popup/user behavior to `_KDB.api.singleSelect`.
 - `sicht` or a parent filters orchestrator dispatches confirmed Sicht changes to `_KDB.api.specialSingleSelect`.
-- CSS load list includes `specialSingleSelect.css`.
+- CSS load list includes `filters/filters.css` (former `specialSingleSelect.css` section).
 
 Open CP-1 item: decide whether this tranche modifies `KDB.js`, `filterDock`, and/or a future parent filters orchestrator, or whether those hooks are deferred to a separate integration tranche.
 

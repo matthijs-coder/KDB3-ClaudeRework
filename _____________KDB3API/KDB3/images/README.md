@@ -24,5 +24,7 @@ Policy: keep all files until the production property values (`headerWidgetPropId
 Run from `KDB3/`:
 
 ```bash
-for f in images/*; do n=$(basename "$f"); rg -qF -- "$n" js css spec.json || echo "$n"; done
+for f in images/*; do n=$(basename "$f"); [ "$n" = README.md ] && continue; rg -qF -- "$n" js css spec.json || echo "$n"; done
 ```
+
+`Stadt-wien.png` is expected in the output: it is the default header icon, built from `DEFAULT_ICON_KEY` + `".png"`.

@@ -230,7 +230,7 @@ Empty / non-https URL at `finishMount`: `serviceAvailable: false`, root `is-unav
 - Dashboard PDF export — `pdfExportControls` / `dashboardPdf`
 - Header / kdbControl Benutzerhandbuch links — those owners
 - Read-only share hide-set (toolbar icon stays; no panel to hide)
-- `pdfCapture.css` (action bar is outside capture root)
+- `widgets/widgetHiding.css` (former `pdfCapture.css`) (action bar is outside capture root)
 - Cognos facet ops
 - Closing or tracking the popup on `destroy`
 - Calling `message.destroy()` from this module
