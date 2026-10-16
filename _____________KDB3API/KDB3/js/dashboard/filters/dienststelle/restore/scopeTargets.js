@@ -1,7 +1,8 @@
 define([
   "../config.js",
-  "../effects/hostScope/filterRef.js"
-], function (_config, _filterRef) {
+  "../effects/hostScope/filterRef.js",
+  "../../_core/tabMutationScopes.js"
+], function (_config, _filterRef, _kitScopes) {
   "use strict";
 
   function readRows(_KDB, _tableKey) {
@@ -38,27 +39,10 @@ define([
     });
   }
 
-  // Match tabId/pageId against listTabs DTOs. Return the layout id (descriptor.id).
-  // pageId is the first-child page id, or the layout id when the tab has no child.
-  function matchLayoutScopeId(_KDB, _tabId, _pageId) {
-    var items;
-    var idx;
-    var item;
-    var containerId;
-    var pageId;
+  // The tab descriptors of the layout; a failing facet reads as no tabs and is logged.
+  function readTabs(_KDB) {
     try {
-      items = _filterRef.listTabDescriptors(_KDB);
-      for (idx = 0; idx < items.length; idx += 1) {
-        item = items[idx];
-        containerId = item && item.id != null ? String(item.id) : null;
-        if (!containerId) { continue; }
-        pageId = item.pageId != null ? String(item.pageId) : null;
-        if ((_tabId != null && containerId === String(_tabId)) ||
-            (_pageId != null && (containerId === String(_pageId) || pageId === String(_pageId)))) {
-          return containerId;
-        }
-      }
-      return null;
+      return _filterRef.listTabDescriptors(_KDB);
     } catch (error) {
       console.error("[dienststelle.matchLayoutScopeId] failed", error);
       return null;
@@ -67,18 +51,7 @@ define([
 
   // Deterministic scopeId resolution: use the target's scopeId when present, otherwise match the
   // target's tabId/pageId against the Cognos layout containers. Never index tabs positionally by tabIdx.
-  function resolveScopeId(_KDB, _tabIdxToScopeId, _tabIdx) {
-    var target = _tabIdxToScopeId && _tabIdxToScopeId[String(_tabIdx)];
-    var matched;
-    if (target && typeof target.scopeId === "string" && target.scopeId !== "") {
-      return { ok: true, scopeId: target.scopeId, fromTarget: true };
-    }
-    matched = target ? matchLayoutScopeId(_KDB, target.tabId, target.pageId) : null;
-    if (matched) {
-      return { ok: true, scopeId: matched, fromTarget: false };
-    }
-    return { ok: false, scopeId: null, fromTarget: false };
-  }
+  var resolveScopeId = _kitScopes.createScopeIdResolver({ readTabs: readTabs });
 
   function lookupScopeFilterRef(_KDB, _filterKey, _scope) {
     return _scope === "global"
