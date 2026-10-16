@@ -16,6 +16,7 @@ const DIRECT_IMPORT = fs.readFileSync(path.join(NMS, "commit.js"), "utf8").inclu
 const JAHR_COL = "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]";
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
+const keySet = (payload) => Object.keys(payload).sort();
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 function consoleSpy() {
@@ -32,8 +33,10 @@ function createBus() {
 function createWave(trace, behaviour) {
   const wave = {
     calls: [],
+    keys: [],
     run(_KDB, payload) {
       wave.calls.push(clone(payload));
+      wave.keys.push(keySet(payload));
       trace.push("wave");
       if (behaviour === "throw") { throw new Error("wave exploded"); }
       if (behaviour === "reject") { return Promise.reject(new Error("wave rejected")); }
@@ -119,6 +122,7 @@ test("singleSelect commit: wave starts after owner notify, state apply and histo
   assert.equal(run.result, true);
   assert.deepEqual(run.trace, ["notify", "apply", "history", "wave", "close"]);
   assert.deepEqual(run.wave.calls, [{ scopeType: "global", tabId: "t1", isJahr: false, filterType: "singleSelect" }]);
+  assert.deepEqual(run.wave.keys, [["filterType", "isJahr", "scopeType", "tabId"]]);
 });
 
 test("singleSelect commit: pageContext payload; tabId falls back to null", async () => {
@@ -126,6 +130,7 @@ test("singleSelect commit: pageContext payload; tabId falls back to null", async
   assert.deepEqual(page.wave.calls, [{ scopeType: "pageContext", tabId: "t2", isJahr: false, filterType: "singleSelect" }]);
   const global = await runSsCommit({ filterScope: "global" });
   assert.deepEqual(global.wave.calls, [{ scopeType: "global", tabId: null, isJahr: false, filterType: "singleSelect" }]);
+  assert.deepEqual(global.wave.keys, [["filterType", "isJahr", "scopeType", "tabId"]]);
 });
 
 test("singleSelect commit: sicht commits and tab-less page commits start no wave", async () => {
@@ -202,6 +207,7 @@ test("singleSelect replay: wave starts after the apply with the Jahr flag of the
   assert.equal(jahr.result, true);
   assert.deepEqual(jahr.trace, ["apply", "wave"]);
   assert.deepEqual(jahr.wave.calls, [{ scopeType: "global", scopeId: "", isJahr: true, filterType: "singleSelect" }]);
+  assert.deepEqual(jahr.wave.keys, [["filterType", "isJahr", "scopeId", "scopeType"]]);
   const other = await runSsReplay({ itemId: "[TM1].[Dim].[Land]", target: { itemId: "[TM1].[Dim].[Land]" } });
   assert.deepEqual(other.wave.calls, [{ scopeType: "global", scopeId: "", isJahr: false, filterType: "singleSelect" }]);
 });
@@ -279,7 +285,7 @@ function bootNms(behaviour) {
   const modules = wireWave(KDB, wave, spy);
   const register = loadAmd(path.join(NMS, "__orchestratorNativeMultiSelect.js"), { stubs: { console: spy.console }, modules });
   const api = register(KDB, {});
-  return { api, trace, wave, spy };
+  return { api, trace, wave, spy, KDB };
 }
 
 const confirm = (b, payload) => b.api.dispatch({
@@ -292,6 +298,8 @@ test("nativeMultiSelect confirm: wave starts before the history push; payload pe
   await confirm(b, { filterLabel: "Jahr", scopeType: "global", itemIdHint: JAHR_COL, tabId: "t1" });
   assert.deepEqual(b.trace, ["wave", "history"]);
   assert.deepEqual(b.wave.calls, [{ scopeType: "global", tabId: null, scopeId: null, isJahr: true, selectedYearKnown: true, selectedYear: 2024, filterType: "nativeMultiSelect" }]);
+  const NMS_KEYS = ["filterType", "isJahr", "scopeId", "scopeType", "selectedYear", "selectedYearKnown", "tabId"];
+  assert.deepEqual(b.wave.keys, [NMS_KEYS]);
   b.wave.calls.length = 0;
   await confirm(b, { filterLabel: "Land", scopeId: "page1_tabpanel", filterConfig: { itemId: LAND_ID }, tabId: "t1" });
   assert.deepEqual(b.wave.calls, [{ scopeType: "pageContext", tabId: "t1", scopeId: "page1_tabpanel", isJahr: false, selectedYearKnown: false, selectedYear: null, filterType: "nativeMultiSelect" }]);
@@ -332,4 +340,12 @@ test("nativeMultiSelect replay: wave starts after the scope write with the repla
   assert.equal(b.wave.calls[0].scopeType, "global");
   assert.equal(b.wave.calls[0].selectedYearKnown, b.wave.calls[0].isJahr);
   assert.equal(b.wave.calls[0].selectedYear, b.wave.calls[0].isJahr ? 2021 : null);
+  assert.deepEqual(b.wave.keys[0], ["filterType", "isJahr", "scopeId", "scopeType", "selectedYear", "selectedYearKnown", "tabId"], "tabId is present (undefined) on replay");
+});
+
+test("nativeMultiSelect confirm: subscribers get their own copy of the confirmed values", { skip: DIRECT_IMPORT }, async () => {
+  const b = bootNms();
+  b.KDB.events.subscribe("filters:confirmed", (event) => { event.confirmedValues[0].d = "mutated"; event.confirmedValues.length = 0; });
+  await confirm(b, { filterLabel: "Jahr", scopeType: "global", itemIdHint: NMS_JAHR_ID, tabId: "t1" });
+  assert.deepEqual(b.trace, ["wave", "history"], "the history step is still pushed after a subscriber emptied its copy");
 });

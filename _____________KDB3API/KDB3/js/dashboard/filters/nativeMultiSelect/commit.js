@@ -219,16 +219,23 @@ define([
     return _historyKit.pushHistoryStep(_KDB, buildCommittedStep(_oldSnapshot, _newSnapshot, Date.now()));
   }
 
-  // ---------- TopN wave ----------
+  // ---------- filters:confirmed ----------
 
-  function startTopNWave(_KDB, _scopeKey, _columnId, _tabId, _values) {
+  // Subscribers get their own copy: the commit keeps using the same array for the history step.
+  function copyConfirmedValues(_values) {
+    return Array.isArray(_values) ? _values.map(function (_value) {
+      return _value && typeof _value === "object" ? Object.assign({}, _value) : _value;
+    }) : [];
+  }
+
+  function emitFilterConfirmed(_KDB, _scopeKey, _columnId, _tabId, _values) {
     _filterEvents.emitConfirmed(_KDB, {
       filterType: "nativeMultiSelect",
       scopeType: _scopeKey === "global" ? "global" : "pageContext",
       tabId: _tabId,
       scopeId: _scopeKey === "global" ? null : _scopeKey,
       columnId: _columnId,
-      confirmedValues: Array.isArray(_values) ? _values : []
+      confirmedValues: copyConfirmedValues(_values)
     });
   }
 
@@ -265,7 +272,8 @@ define([
       });
       skipsHistory = payload.skipHistory === true || payload.isHistoryReplay === true;
       if (!skipsHistory) {
-        startTopNWave(_ctx._KDB, scopeKey, payload.itemIdHint || (payload.filterConfig && payload.filterConfig.itemId) || "",
+        // Emitted before the history push, where the former direct wave call ran (the wave's synchronous part must stay ahead of it).
+        emitFilterConfirmed(_ctx._KDB, scopeKey, payload.itemIdHint || (payload.filterConfig && payload.filterConfig.itemId) || "",
           scopeKey === "global" ? null : payload.tabId, prepared.newValues);
       }
       if (prepared.newValues.length === 0 || skipsHistory) {
@@ -286,7 +294,7 @@ define([
     mapConfirmedValues: mapConfirmedValues,
     prepareConfirmWrite: prepareConfirmWrite,
     buildCommittedStep: buildCommittedStep,
-    startTopNWave: startTopNWave,
+    emitFilterConfirmed: emitFilterConfirmed,
     findByName: findByName
   };
 });

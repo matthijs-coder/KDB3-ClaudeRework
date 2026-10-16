@@ -90,7 +90,7 @@ define([
     }
   }
 
-  function startTopNWave(_KDB, _handoff) {
+  function emitFilterConfirmed(_KDB, _handoff) {
     var handoff = _handoff || {};
     if (handoff.filterType === "sicht") {
       return;
@@ -122,7 +122,7 @@ define([
       _next
     );
     _history.pushCommittedSelectionStep(_KDB, _handoff, _previous, _next);
-    startTopNWave(_KDB, _handoff);
+    emitFilterConfirmed(_KDB, _handoff);
     return true;
   }
 

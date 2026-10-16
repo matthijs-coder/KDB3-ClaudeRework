@@ -366,7 +366,7 @@ define([
     return { ok: true };
   }
 
-  function startTopNWave(_KDB, _record) {
+  function emitFilterConfirmed(_KDB, _record) {
     if (_record.scopeType === "pageContext" && !_record.scopeId) {
       return;
     }
@@ -440,7 +440,7 @@ define([
         "replay apply failed"
       );
     }
-    startTopNWave(_KDB, resolved.record);
+    emitFilterConfirmed(_KDB, resolved.record);
     return true;
   }
 

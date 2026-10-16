@@ -238,3 +238,16 @@ test("labels: registered on config.labels.de.tableData, existing values win, the
   await assert.rejects(custom.service.reloadTable([{ tableName: "T1" }]), /E1/);
   assert.deepEqual(custom.toasts, [{ severity: "error", message: "Eigener Text: Tabelle 1" }]);
 });
+
+test("labels: a non-object existing value is ignored; the toast falls back to the config text when config.labels is gone", async () => {
+  const odd = makeEnv({ config: { labels: { de: { tableData: "abc" } } } });
+  assert.deepEqual({ ...odd.KDB.config.labels.de.tableData }, { loadFailedToast: TOAST_TEXT, unknownTable: UNKNOWN_TABLE_TEXT });
+  const gone = makeEnv({ query: () => ({ ok: false, errorCode: "E1" }) });
+  delete gone.KDB.config.labels;
+  await assert.rejects(gone.service.reloadTable([{ tableName: "T1" }]), /E1/);
+  assert.deepEqual(gone.toasts, [{ severity: "error", message: TOAST_TEXT + "Tabelle 1" }]);
+  const replaced = makeEnv({ query: () => ({ ok: false, errorCode: "E1" }) });
+  replaced.KDB.config.labels = { de: { tableData: { loadFailedToast: 42 } } };
+  await assert.rejects(replaced.service.reloadTable([{ tableName: "T1" }]), /E1/);
+  assert.deepEqual(replaced.toasts, [{ severity: "error", message: TOAST_TEXT + "Tabelle 1" }]);
+});

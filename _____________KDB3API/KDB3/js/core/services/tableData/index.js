@@ -23,7 +23,8 @@ define([
     _KDB.config = _KDB.config || {};
     _KDB.config.labels = _KDB.config.labels || {};
     _KDB.config.labels.de = _KDB.config.labels.de || {};
-    _KDB.config.labels.de.tableData = Object.assign({}, _config.tableDataLabels, _KDB.config.labels.de.tableData || {});
+    const existing = _KDB.config.labels.de.tableData;
+    _KDB.config.labels.de.tableData = Object.assign({}, _config.tableDataLabels, existing && typeof existing === "object" ? existing : {});
   }
 
   function resetRuntime(runtime) {
