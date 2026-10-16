@@ -12,6 +12,7 @@ define([
   "use strict";
 
   var ACTIONS = _state.ACTIONS;
+  var APPLY_OPERATIONS = ["delete", "move", "duplicate", "restoreDeleted"];
   var CODES = _tabMutation.CODES;
   var base = _scopes.tabMutationBase;
   var slotOfMove = _kitScopes.slotOfMove;
@@ -200,6 +201,7 @@ define([
   // Only restoreDeleted converts a thrown error into a result; the other operations let it reach the caller.
   var applyTabMutation = _tabMutation.createApply(base, {
     unsupportedMessage: "dienststelle apply supports delete, move, duplicate, and restoreDeleted",
+    isSupported: function (_operation) { return APPLY_OPERATIONS.indexOf(_operation) !== -1; },
     operations: {
       delete: applyDeleteMutation,
       move: applyMoveMutation,

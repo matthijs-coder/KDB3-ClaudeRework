@@ -4,10 +4,12 @@
  *
  * pushUnique(list, value)
  * slotOfMove(move, "from" | "to") -> { tabIdx, tabId }
- * createScopeIdResolver({ readTabs }) -> resolveScopeId(KDB, tabIdxToScopeId, tabIdx)
+ * createScopeIdResolver({ readTabs, onMatchError }) -> resolveScopeId(KDB, tabIdxToScopeId, tabIdx)
  *     { ok:true, scopeId, fromTarget } when the saga target carries a scopeId, or when tabId/pageId matches a tab
  *     descriptor from readTabs(KDB) (array of { id, pageId }; the owner decides what a failing facet means and
  *     returns [] or null); { ok:false, scopeId:null, fromTarget:false } otherwise. Never indexes tabs by position.
+ *     With onMatchError(error) the whole lookup (readTabs and the match) is guarded: an error is passed to it and
+ *     reads as no match; without it only the owner's own readTabs handling applies.
  * createSlotScopeResolver({ resolveScopeId, isGlobalScope }) -> resolveScopeIdForSlot(KDB, tabTargets, slot)
  *     { ok:true, scopeId } | { ok:true, skip:true, scopeId:null } (isGlobalScope(scopeId): nothing per tab to move)
  *     | { ok:false, diagnostics:[PREPARE_FAILED] }.
@@ -48,13 +50,25 @@ define([
     return null;
   }
 
+  function matchTarget(_spec, _KDB, _target) {
+    if (typeof _spec.onMatchError !== "function") {
+      return findLayoutScopeId(_spec.readTabs(_KDB), _target.tabId, _target.pageId);
+    }
+    try {
+      return findLayoutScopeId(_spec.readTabs(_KDB), _target.tabId, _target.pageId);
+    } catch (error) {
+      _spec.onMatchError(error);
+      return null;
+    }
+  }
+
   function createScopeIdResolver(_spec) {
     return function resolveScopeId(_KDB, _tabIdxToScopeId, _tabIdx) {
       var target = _tabIdxToScopeId && _tabIdxToScopeId[String(_tabIdx)];
       if (target && typeof target.scopeId === "string" && target.scopeId !== "") {
         return { ok: true, scopeId: target.scopeId, fromTarget: true };
       }
-      var matched = target ? findLayoutScopeId(_spec.readTabs(_KDB), target.tabId, target.pageId) : null;
+      var matched = target ? matchTarget(_spec, _KDB, target) : null;
       if (matched) {
         return { ok: true, scopeId: matched, fromTarget: false };
       }

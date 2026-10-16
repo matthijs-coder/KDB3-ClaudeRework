@@ -39,19 +39,15 @@ define([
     });
   }
 
-  // The tab descriptors of the layout; a failing facet reads as no tabs and is logged.
-  function readTabs(_KDB) {
-    try {
-      return _filterRef.listTabDescriptors(_KDB);
-    } catch (error) {
-      console.error("[dienststelle.matchLayoutScopeId] failed", error);
-      return null;
-    }
-  }
-
   // Deterministic scopeId resolution: use the target's scopeId when present, otherwise match the
   // target's tabId/pageId against the Cognos layout containers. Never index tabs positionally by tabIdx.
-  var resolveScopeId = _kitScopes.createScopeIdResolver({ readTabs: readTabs });
+  // A failing facet or an unreadable descriptor reads as no match and is logged.
+  var resolveScopeId = _kitScopes.createScopeIdResolver({
+    readTabs: _filterRef.listTabDescriptors,
+    onMatchError: function (_error) {
+      console.error("[dienststelle.matchLayoutScopeId] failed", _error);
+    }
+  });
 
   function lookupScopeFilterRef(_KDB, _filterKey, _scope) {
     return _scope === "global"

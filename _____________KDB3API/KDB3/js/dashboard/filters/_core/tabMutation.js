@@ -30,7 +30,8 @@
  *     hooks.logOperationId                    true: the failure log also carries { operationId }
  * createApply(base, hooks) -> async (ctx, payload) -> result
  *     run guard, then hooks.run(ctx, payload), or hooks.operations[plan.operation](ctx, payload) with
- *     hooks.unsupportedMessage for a missing or unknown operation. hooks.onError(error, payload) turns a thrown error
+ *     hooks.unsupportedMessage for a missing or unknown operation (hooks.isSupported(operation) replaces the own-key
+ *     test of the table, for an owner that accepts strings only). hooks.onError(error, payload) turns a thrown error
  *     into a result; without it the error propagates to the dispatch caller.
  *     hooks.rejected(guardResult, payload)    default: apply failure carrying the guard diagnostics
  * createRestore(base, hooks) -> async (ctx, payload) -> result
@@ -189,7 +190,8 @@ define([
     function run(_ctx, _payload) {
       if (_hooks.run) { return _hooks.run(_ctx, _payload); }
       var operation = _payload.plan && _payload.plan.operation;
-      if (!_payload.plan || !hasOwn(_hooks.operations, operation)) {
+      var supported = _hooks.isSupported ? _hooks.isSupported(operation) : hasOwn(_hooks.operations, operation);
+      if (!_payload.plan || !supported) {
         return applyFailure(_payload.operationId, [], [], [{ code: CODES.APPLY_FAILED, message: _hooks.unsupportedMessage }]);
       }
       return _hooks.operations[operation](_ctx, _payload);
