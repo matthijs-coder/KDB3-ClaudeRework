@@ -1,5 +1,6 @@
 // W2 metricsTree view: render wait ends when the tree is destroyed before jstree reports ready; search handlers have a boundary catch.
 // Run: node --test tools/tests/w2-metricstree-view.test.mjs
+// have a boundary catch. Run: node --test tools/tests/w2-metricstree-view.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
