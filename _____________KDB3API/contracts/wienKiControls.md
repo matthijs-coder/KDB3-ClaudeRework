@@ -24,7 +24,7 @@
 | Public surface | `{ mount, destroy }` — named lifecycle, no `dispatch` / `getState` |
 | State | No `_KDB.state.wienKiControls` |
 | Click | Toolbar: instruction `showCopyable` (not `window.open`). Named popup only from action `whenDone` `{ action: "selected" }`. Law: `wienKiControls-instruction-dialog-contractdelta.md` |
-| URL | `_KDB.config.links.wienKiUrl` from `baseLinks.js`. Default: `https://wienki.intern.wien.gv.at/assistant/#/chat`. **Absolute `https:` only** (parse without a base). Empty / non-https → unavailable |
+| URL | `_KDB.config.links.wienKiUrl` from `core/config/dashboardSettings.js`. Default: `https://wienki.intern.wien.gv.at/assistant/#/chat`. **Absolute `https:` only** (parse without a base). Empty / non-https → unavailable |
 | Payload | **None.** No query, hash, board id, user, filters, PDF export, postMessage |
 | Iframe / `widget.js` | **Forbidden.** PO 2026-09-13: dead end for WienKI chat *and* WienBot. Do not reopen |
 | Geometry | Named popup, right, ~420px, top flush. **Right/bottom hairline accepted** (Chrome work-area clamp + Windows DWM). Do not retune overshoot / `resizeTo` / window name for flush |
@@ -125,31 +125,20 @@ No `cognosHost`, no `dashboardPdf`.
 ## 9. Folder Layout
 
 ```txt
-wienKiControls/
-  config/
-    domSelectors.js
-    wienKiLabels.js
-    popupFeatures.js        // windowName, widthPx, insets, frameOvershootPx, chromeFeatures
-  view/
-    buildWienKiControls.js
-    placeWienKiControls.js  // always move existing root immediately before [data-kdb-pdf-export-controls="true"] (else history / firstChild). Do not copy PDF remount-skip.
-    syncWienKiControlsView.js
-  effects/
-    waitForWienKiToolbar.js
-    bindWienKiClick.js
-    openWienKiInstructionDialog.js  // labels + showCopyable; openWienKiPopup only from whenDone
-    computeWienKiPopupBox.js
-    placeWienKiPopupBox.js
-    openWienKiPopup.js      // window.open only; no Cognos reads
-  observation/
-    bindToolbarObserver.js
-  runtime/
-    cleanupWienKiControlsRuntime.js
-  createWienKiControlsController.js
-  __orchestratorWienKiControls.js
+controls/
+  wienKiControls/__orchestratorWienKiControls.js   # shim: re-exports toolbarControls/wienKiButton.js (path kept for KDB.js)
+  toolbarControls/
+    index.js          # shared controller: { mount, destroy } per button
+    config.js         # BUTTON_ORDER, BUTTONS.wienKi, WIEN_KI_POPUP (windowName, widthPx, insets, chromeFeatures), labels
+    toolbarHost.js    # shared toolbar wait, observer, ordered placement (Share | WienKI | PDF | History)
+    toolbarButton.js  # button instance and view-model sync
+    wienKiButton.js   # wienKi definition: inline SVG speech-bubble icon, instruction dialog click handler
+    wienKiPopup.js    # URL read (absolute https only), popup box compute/place, openWienKiPopup, instruction labels
 ```
 
 No `state/`, no `events/`, no `adapters/` (inline SVG, no luminance PNG helper).
+
+**As built (Phase 1):** all four toolbar buttons (share, wienKi, pdf, history) share one controller and one toolbar host in `KDB3/js/dashboard/controls/toolbarControls/`. Runtime is the shared `_KDB.runtime.toolbarControls` (kit buckets: `abortControllers.hostWait` plus one `<id>Bind` abort controller per button, `pendingPromises.hostWait`, `observers.toolbar`, `timers.toolbarSync`, `domRefs.toolbarHostEl`; fields `buttons`, `isHostReady`, `dashboardFacet`), not a per-button namespace. One toolbar wait (30 s) and one `MutationObserver` serve all buttons, reference counted by mount/destroy; button order is `BUTTON_ORDER` in `config.js`. `_KDB.api.<apiName>` exposes `{ mount, destroy }` (share also `applyReadOnlyChrome`). The `__orchestrator*Controls.js` files under the per-button folders are shims that re-export the button file.
 
 CSS: `KDB3/css/customButtons/toolbarControls.css` — clone PDF button chrome (32×32 button, clipped label, `is-unavailable` on **root**). Icon box is **24×24** (not 16×16): speech-bubble + `KI` needs more pixels than a silhouette PNG. Register in `cssHrefList.js` next to share/pdf.
 
@@ -160,7 +149,7 @@ CSS: `KDB3/css/customButtons/toolbarControls.css` — clone PDF button chrome (3
 `openWienKiPopup(_KDB)`:
 
 1. Read `url = _KDB.config.links.wienKiUrl`. Trim. Parse with `new URL(trimmed)` **without a base**. Accept only `protocol === "https:"`. Otherwise no-op (button already unavailable).
-2. Geometry from `popupFeatures.js` + `screen.availLeft` / `availTop` / `availWidth` / `availHeight` (iframe `window.screen` is the monitor, not the iframe box). Goal: **maximum vertical work area** (PO 2026-09-13): from just below the host browser chrome when that is readable, otherwise from the top of the Windows work area, down to the taskbar.
+2. Geometry from `WIEN_KI_POPUP` in `toolbarControls/config.js` + `screen.availLeft` / `availTop` / `availWidth` / `availHeight` (iframe `window.screen` is the monitor, not the iframe box). Goal: **maximum vertical work area** (PO 2026-09-13): from just below the host browser chrome when that is readable, otherwise from the top of the Windows work area, down to the taskbar.
    - `width = widthPx` (420), clamped to `availWidth`
    - Default work edges: `workRight = availLeft + availWidth`, `workBottom = availTop + availHeight`. If `window.top.screenX` / `screenY` / `outerWidth` / `outerHeight` are readable and finite and outer size `> 0`, **replace** those edges with the host outer box (`screenX+outerWidth`, `screenY+outerHeight`). A maximized Cognos window already includes the Windows DWM overhang; copying it is what can meet the visual screen edge. `try/catch` — cross-origin failure keeps `avail*`.
    - `overshoot = 0` when host outer edges were used, else `frameOvershootPx` (16). `left = workRight - width - rightInsetPx + overshoot`. Clamp `left` against **`availLeft`**, not `0`. `rightInsetPx` default **0**.
@@ -193,9 +182,9 @@ Empty / non-https URL at `finishMount`: `serviceAvailable: false`, root `is-unav
 - `mountFeatureModules`: `_KDB.api.wienKiControls.mount({})` **after PDF, before Share** (Share remount re-asserts leftmost)
 - `destroyRegisteredFeatures`: next to `pdfExportControls` / `shareControls`, **before** message / cognosHost teardown
 
-`baseLinks.js`: `wienKiUrl: "https://wienki.intern.wien.gv.at/assistant/#/chat"`
+`core/config/dashboardSettings.js`: `wienKiUrl: "https://wienki.intern.wien.gv.at/assistant/#/chat"`
 
-`shareControls.md` + `placeShareControls.js`: leftmost set = **WienKI + PDF + History** (leftmost-in-document-order). Visual **Share \| WienKI \| PDF \| History**.
+`shareControls.md` + `toolbarControls/toolbarHost.js` (`BUTTON_ORDER`): leftmost set = **WienKI + PDF + History** (leftmost-in-document-order). Visual **Share \| WienKI \| PDF \| History**.
 
 ---
 

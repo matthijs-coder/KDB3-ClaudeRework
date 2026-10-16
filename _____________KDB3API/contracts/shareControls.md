@@ -54,8 +54,11 @@
 
 - Owner namespace: `_KDB.runtime.shareControls`
 - Buckets: `domRefs`, `listeners`, `observers`, `abortControllers`, `timers` (remount debounce, same job as PDF `remountTimer`), `pendingPromises.mount`
-- Runtime `adapters` unused; luminance lives in folder `adapters/resolveShareIconHref.js`
+- Runtime `adapters` unused; luminance lives in `toolbarControls/iconHref.js` (`readToolbarIconTone`, `pickToneIconHref`)
 - Stamp: `dashboardFacet` — set once by the orchestrator from `_KDB.services.cognosHost.dashboard`. `mount` / runtime normalize **must preserve** this stamp.
+
+**As built (Phase 1):** all four toolbar buttons (share, wienKi, pdf, history) share one controller and one toolbar host in `KDB3/js/dashboard/controls/toolbarControls/`. Runtime is the shared `_KDB.runtime.toolbarControls` (kit buckets: `abortControllers.hostWait` plus one `<id>Bind` abort controller per button, `pendingPromises.hostWait`, `observers.toolbar`, `timers.toolbarSync`, `domRefs.toolbarHostEl`; fields `buttons`, `isHostReady`, `dashboardFacet`), not a per-button namespace. One toolbar wait (30 s) and one `MutationObserver` serve all buttons, reference counted by mount/destroy; button order is `BUTTON_ORDER` in `config.js`. `_KDB.api.<apiName>` exposes `{ mount, destroy }` (share also `applyReadOnlyChrome`). The `__orchestrator*Controls.js` files under the per-button folders are shims that re-export the button file.
+
 - Cleanup: `destroy()` — abort mount wait, disconnect observer, clear timers, remove listeners, detach placed DOM, reset the runtime bucket (keep stamp-preservation rules on normalize, not on destroy)
 - Overlay / URL restore runtime lives on writeback, not here
 
@@ -69,7 +72,7 @@
 - Style: **named lifecycle** (deviation from feature/UI dispatch default)
 - Methods: `mount`, `destroy`, `applyReadOnlyChrome` (`applyReadOnlyChrome` is idempotent class reconcile; `KDB.js` calls it in `finishDashboardInitialization` immediately before `whenUrlShareRestoreSettled`)
 - Orchestrator AMD id: `./dashboard/controls/shareControls/__orchestratorShareControls.js`
-- `mount` returns `true` / `false` like live `pdfExportControls` / `waitForPdfToolbar.js`: `true` when the 30s wait is **armed** or already pending; `false` when disposed / missing `waitForElObserver` / missing selector. `true` is not “placed”. Abort is not a synchronous `false`. `KDB.js` ignores the return.
+- `mount` returns `true` / `false` like live `pdfExportControls` (shared toolbar wait in `toolbarControls/toolbarHost.js`): `true` when the 30s wait is **armed** or already pending; `false` when disposed / missing `waitForElObserver` / missing selector. `true` is not “placed”. Abort is not a synchronous `false`. `KDB.js` ignores the return.
 
 ```js
 _KDB.api.shareControls = {
@@ -134,41 +137,23 @@ If `writebackBridge.readSelectedParameterSet`, `message.showCopyable` / `showAle
 ## 9. Folder layout
 
 ```txt
-KDB3/js/dashboard/controls/shareControls/
-  config/
-    domSelectors.js
-    iconAssets.js
-    shareLabels.js          // German strings → _KDB.config.labels.de.shareControls
-    shareLinkHashKeys.js    // perspective/action/mode (Cognos view-hash constants)
-    shareReadOnlyToken.js   // TOKEN_KEY / TOKEN_VALUE (not in shareLinkHashKeys)
-    shareReadOnlyClass.js   // SHARE_READ_ONLY_CLASS = kdb-share-read-only
-  view/
-    buildShareControls.js
-    placeShareControls.js
-    syncShareControlsView.js
-  effects/
-    waitForShareToolbar.js
-    bindShareClick.js              // imports readDashboardFacet + openShareCopyDialog (controller stays ≤6 AMD)
-    readDashboardFacet.js
-    buildShareDashboardLink.js
-    openShareCopyDialog.js         // dual URL + showCopyable toggle
-    applyShareReadOnlyChrome.js    // classList add/remove on #main
-    readShareReadOnlyTokenPresent.js // A-then-B query-then-hash; do not import readUrlParameterId
-  observation/
-    bindToolbarObserver.js
-  runtime/
-    cleanupShareControlsRuntime.js
-  adapters/
-    resolveShareIconHref.js // luminance, same job as PDF (not SDK)
-  createShareControlsController.js
-  __orchestratorShareControls.js
+KDB3/js/dashboard/controls/
+  shareControls/__orchestratorShareControls.js   # shim: re-exports toolbarControls/shareButton.js (path kept for KDB.js)
+  toolbarControls/
+    index.js          # createToolbarController / registerToolbarButton: { mount, destroy } per button, onRegister/extendApi hooks
+    config.js         # BUTTON_ORDER, BUTTONS (apiName, class/data prefixes), ICON_ASSETS, LABELS (share, ...), selectors, readOnlyClass kdb-share-read-only
+    toolbarHost.js    # shared toolbar wait, MutationObserver, placement in declared order, tone reader
+    toolbarButton.js  # button instance, view model sync, label/icon reads, click wrapper, single-button DOM build
+    iconHref.js       # toolbar luminance -> icon href (same formula as pdf)
+    shareButton.js    # share definition: dashboardFacet stamp (onRegister), click handler, applyReadOnlyChrome API
+    shareLink.js      # buildShareDashboardLink, openShareCopyDialog, read-only token read, applyShareReadOnlyChrome
 ```
 
 CSS: disk file `KDB3/css/customButtons/toolbarControls.css` (button chrome plus the `#main.kdb-share-read-only` hide-set); `cssHrefList.js` entry **`./v1/ext/KDB3/css/customButtons/toolbarControls.css`** (do not copy the repo-relative disk path into the href list).
 
-Icons: canonical asset is `KDB3/images/share.png` (512×512 ARGB, ~3KB). Runtime href: `./v1/ext/KDB3/images/share.png` (same `./v1/ext/` prefix as PDF). `resolveShareIconHref` uses the same toolbar-host luminance formula as `pdfExportControls`. Do **not** ship the bulky AI `share-black.png` / `share-white.png` (1024×1024, 24bpp opaque, baked light background, ~700–800KB). Implementation may either (a) luminance-select between two **tiny ARGB** copies derived from `share.png` whose filenames are **not** `share-black.png` / `share-white.png`, or (b) one `share.png` href plus CSS luminance invert when the host foreground is light (legacy). Missing `share.png` is the asset blocker, not the generated pair.
+Icons: canonical asset is `KDB3/images/share.png` (512×512 ARGB, ~3KB). Runtime href: `./v1/ext/KDB3/images/share.png` (same `./v1/ext/` prefix as PDF). `iconHref.js` uses the same toolbar-host luminance formula as `pdfExportControls`. Do **not** ship the bulky AI `share-black.png` / `share-white.png` (1024×1024, 24bpp opaque, baked light background, ~700–800KB). Implementation may either (a) luminance-select between two **tiny ARGB** copies derived from `share.png` whose filenames are **not** `share-black.png` / `share-white.png`, or (b) one `share.png` href plus CSS luminance invert when the host foreground is light (legacy). Missing `share.png` is the asset blocker, not the generated pair.
 
-Labels merge (orchestrator): `Object.assign({}, shareLabels, existing)` onto `_KDB.config.labels.de.shareControls`; do not replace `labels.de`. Existing wins, same as messageService.
+Labels: defaults live in `toolbarControls/config.js` (`LABELS.share`); `readButtonLabels` merges `Object.assign({}, LABELS.share, _KDB.config.labels.de.shareControls)`, so configured labels win (same as messageService).
 
 Bootstrap (`KDB.js`, allowed 500-line wiring exception):
 
@@ -195,7 +180,7 @@ Bootstrap (`KDB.js`, allowed 500-line wiring exception):
 2. `getBoardId` / `getDashboardBiBaseUrl`. Treat both primitives with the **same** predicate: `ok === true` and non-empty string `data`. Facet `ok` + `data: null` (inner `null`, e.g. location unavailable) is **missing**, not success — a `!ok`-only check would skip the alert and concatenate a broken URL. If **boardId** fails that predicate: `showAlert({ title: boardIdMissingTitle, message: boardIdMissingMessage, severity: "error" })`; no dialog. If boardId is present and **bi-base** fails that predicate: `showAlert({ title: biBaseMissingTitle, message: biBaseMissingMessage, severity: "error" })`; no dialog. Pass an options object, not a string (live PDF/tabs).
 3. Build **two** URLs: concatenate **`biBase + "#" + params.toString()`**. Hash payload is the raw `URLSearchParams` string. **No** `{` `}` around the hash. Keys: `perspective=dashboard`, `action=view`, `mode=dashboard`, `id=<boardId>`, `objRef=<boardId>`, optional `parameterId` **only** when `id != null`, `parameterLabel` **always** (`URLSearchParams`; spaces as `+`). `parameterLabel` value is bridge `label` when non-empty, else `emptyParameterLabel`. When `isKdbReadOnly === true`, **after** `parameterLabel` set readable `readOnly=1` (~12 extra characters). Off = no extra key.
 4. Dialog title from §10.3 keys (do not hardcode German here): with id → `dialogTitleWithSet` replacing `{label}` (if `id != null` and `label` is empty, still `dialogTitleWithSet` and substitute `emptyParameterLabel`; do not print `"undefined"`); without id → `dialogTitleWithoutSet`.
-5. `_KDB.services.message.showCopyable({ title, message: "", copyText: readOnlyUrl, toggle: { label: readOnlyToggleLabel, title: readOnlyToggleTitle, isChecked: true, copyTextChecked: readOnlyUrl, copyTextUnchecked: editUrl } })` via `openShareCopyDialog.js` (not the controller). Copy/close labels use messageService German defaults.
+5. `_KDB.services.message.showCopyable({ title, message: "", copyText: readOnlyUrl, toggle: { label: readOnlyToggleLabel, title: readOnlyToggleTitle, isChecked: true, copyTextChecked: readOnlyUrl, copyTextUnchecked: editUrl } })` via `openShareCopyDialog` (not the controller). Copy/close labels use messageService German defaults.
 
 No mutation of `location` / `history`. The URL is a string for the dialog only.
 
@@ -223,7 +208,7 @@ Do not invent Dutch or English UI strings. `{label}` in `dialogTitleWithSet` is 
 
 ### 10.4 Inbound chrome (not restore)
 
-`applyShareReadOnlyChrome` runs (1) in `__orchestratorShareControls` after facet stamp and (2) from `KDB.js` `finishDashboardInitialization` immediately before `whenUrlShareRestoreSettled` (same URL snapshot as SET `parameterId`). Parse: navigation `name` then `location.href`; per candidate query then hash; exact `readOnly=1`. **Add** `kdb-share-read-only` on `#main` when present; **remove** otherwise. Destroy does **not** `classList` `#main`. Not SET restore. Hide-set unchanged.
+`applyShareReadOnlyChrome` (`toolbarControls/shareLink.js`) runs (1) from `shareButton.js` `onRegister` after the facet stamp and (2) from `KDB.js` `finishDashboardInitialization` immediately before `whenUrlShareRestoreSettled` (same URL snapshot as SET `parameterId`). Parse: navigation `name` then `location.href`; per candidate query then hash; exact `readOnly=1`. **Add** `kdb-share-read-only` on `#main` when present; **remove** otherwise. Destroy does **not** `classList` `#main`. Not SET restore. Hide-set unchanged.
 
 ---
 
