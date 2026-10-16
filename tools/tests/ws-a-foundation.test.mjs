@@ -48,7 +48,7 @@ test("errorCodes: nine frozen tables, values are <PREFIX>_<KEY>", () => {
   assert.equal(Object.keys(errorCodes.tabs).length, 6);
   assert.equal(Object.keys(errorCodes.dataQuery).length, 6);
   assert.equal(Object.keys(errorCodes.dashboard).length, 5);
-  assert.equal(Object.keys(errorCodes.dataSources).length, 3);
+  assert.equal(Object.keys(errorCodes.dataSources).length, 2);
   assert.equal(Object.keys(errorCodes.messages).length, 3);
 });
 
