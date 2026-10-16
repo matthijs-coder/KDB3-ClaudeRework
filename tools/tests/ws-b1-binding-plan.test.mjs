@@ -177,6 +177,19 @@ const FIXTURES = {
   "vis-list-dimension": () => visSpec("List", { dataConfig: { dimension: "Geschlecht" } }),
   "vis-list-dimension-multi-rules": () => visSpec("List", { dataConfig: { dimension: "Alter" } }),
   "vis-list-dimension-include-reverse": () => visSpec("List", { dataConfig: { dimension: "Eintritt" } }),
+  "vis-list-sorting-array-order": () => visSpec("List", {
+    dataConfig: {
+      dimension: "Geschlecht",
+      dataTableConfig: {
+        ...dataTableConfig(),
+        sorting: {
+          [GESCHLECHT]: { order: ["captionAscending", "x"], priority: 2 },
+          [`${TM1}.[Monat_flach].[Monat_flach].[Monat]`]: ["a", "b"],
+          [`${TM1}.[Jahr_flach].[Jahr_flach].[Jahr]`]: " descending ",
+        },
+      },
+    },
+  }),
   "vis-list-dimension-no-itemid": () => visSpec("List", { dataConfig: { dimension: "Ohne" } }),
   "vis-list-grain-jahr": () => visSpec("List", { dataConfig: { grouping: "jahr", dimension: "Geschlecht" } }),
   "vis-pie-geschlecht": () => visSpec("pie", {
