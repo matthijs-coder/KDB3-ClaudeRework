@@ -9,7 +9,7 @@ define([
   "./view/controls.js",
   "./view/optionMarking.js",
   "./view/resolveWidgetPlacementContext.js",
-  "../widgetVis/config/visTypes/resolveVisTypeIdentity.js",
+  "../widgetVis/selectors.js",
   "../../../core/config/visualizations/visTypeRules.js"
 ], function (
   _dropdownDefaults,
@@ -22,7 +22,7 @@ define([
   _controls,
   _optionMarking,
   _placementContext,
-  _resolveVisTypeIdentity,
+  _visSelectors,
   _visTypeRules
 ) {
   "use strict";
@@ -193,7 +193,7 @@ define([
         commitDirect(_KDB, _widgetId, pair[1], _entry[pair[0]] === 1);
       }
     });
-    if (hasField(_entry, "grp") && _visTypeRules.isAllowedGrain(_resolveVisTypeIdentity.resolveVisPropBucketKey(_entry.type, _KDB), _entry.grp)) {
+    if (hasField(_entry, "grp") && _visTypeRules.isAllowedGrain(_visSelectors.readVisPropBucketKey(_KDB, _entry.type), _entry.grp)) {
       commitDirect(_KDB, _widgetId, "grouping", _entry.grp);
     }
     stampPanelIfMounted(_KDB, _widgetId);

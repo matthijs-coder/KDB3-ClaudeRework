@@ -35,13 +35,6 @@ function loadCore() {
   };
 }
 
-function loadShims() {
-  return {
-    bindingConfigFacade: load(W + "config/resolveVisualizationBindingConfig.js"),
-    visTypeIdentity: load(W + "config/visTypes/resolveVisTypeIdentity.js")
-  };
-}
-
 function loadDataTable() {
   return load("dashboard/widgets/widgetDataTable/__orchestratorWidgetDataTable.js", {
     stubs: { console: { error() {}, warn() {}, log() {} } }
@@ -727,22 +720,12 @@ test("years: parseYear first vs last, parseYearFromCell cells, first equals read
     [null, null, null, 2020, 2020, 2021, 2021, 2019, null, 2022, null, 1900, 2100, null, null, null, 2018, 2017, 2005, null, 2016, 2012]);
 });
 
-test("config shims: same objects and functions as the leaves", () => {
+test("published selectors: action types and bucket key equal the leaves", () => {
   const state = load(W + "state.js");
   const visTypes = load(W + "visTypes.js");
-  const shims = loadShims();
   const published = load(W + "selectors.js");
   assert.deepStrictEqual(json(published.ACTION_TYPES), json(state.ACTION_TYPES));
-  const facade = load(W + "config/resolveVisualizationBindingConfig.js", { modules: { "../visTypes.js": visTypes } });
-  assert.deepStrictEqual(Object.keys(facade), ["resolveVisPropBucketKey"]);
-  assert.equal(facade.resolveVisPropBucketKey, visTypes.resolveVisPropBucketKey);
-  const identityKeys = ["resolveVisPropBucketKey", "resolveCognosVisualizationTypeId", "resolveVisTypeConfig", "resolveDefaultGrain",
-    "resolveGrainOverlay", "resolveEffectiveGrain", "resolveKennzahlPack"];
-  const identity = load(W + "config/visTypes/resolveVisTypeIdentity.js", { modules: { "../../visTypes.js": visTypes } });
-  assert.deepStrictEqual(Object.keys(identity), identityKeys);
-  for (const key of identityKeys) assert.equal(identity[key], visTypes[key], key);
-  assert.deepStrictEqual(Object.keys(shims.visTypeIdentity), identityKeys);
-  assert.equal(shims.bindingConfigFacade.resolveVisPropBucketKey("columnChart", "jahr"), visTypes.resolveVisPropBucketKey("columnChart", "jahr"));
+  assert.equal(published.readVisPropBucketKey({}, "Line"), visTypes.resolveVisPropBucketKey("Line", {}));
 });
 
 test("widgetDataTable: mount, dispatch, destroy, dispatch after destroy, getState", () => {
