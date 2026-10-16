@@ -11,29 +11,24 @@ define([
     var input = _input && typeof _input === "object" ? _input : {};
     var parameterId;
     var run;
-    try {
-      if (input.activeRun) {
-        return { kind: "throwOverlap" };
-      }
-      parameterId = _readUrlParameterId();
-      if (parameterId == null) {
-        return { kind: "proceed" };
-      }
-      run = _createRunContext(_KDB, input.rawStatus, input.statusKind, input.options);
-      run.addDiagnostic(
-        _errorCodes.codes.WRITEBACK_URL_PARAMETER_ID_PRECEDENCE,
-        "set",
-        "default restore skipped because URL parameterId is present",
-        { parameterId: parameterId }
-      );
-      return {
-        kind: "skipped",
-        restoreResult: _buildRestoreResult.buildRestoreResult(run, "cancelled")
-      };
-    } catch (error) {
-      console.error("[writebackSet.skipDefaultRestoreForUrlParameterId] failed", error);
-      throw error;
+    if (input.activeRun) {
+      return { kind: "throwOverlap" };
     }
+    parameterId = _readUrlParameterId();
+    if (parameterId == null) {
+      return { kind: "proceed" };
+    }
+    run = _createRunContext(_KDB, input.rawStatus, input.statusKind, input.options);
+    run.addDiagnostic(
+      _errorCodes.codes.WRITEBACK_URL_PARAMETER_ID_PRECEDENCE,
+      "set",
+      "default restore skipped because URL parameterId is present",
+      { parameterId: parameterId }
+    );
+    return {
+      kind: "skipped",
+      restoreResult: _buildRestoreResult.buildRestoreResult(run, "cancelled")
+    };
   }
 
   return skipDefaultRestoreForUrlParameterId;
