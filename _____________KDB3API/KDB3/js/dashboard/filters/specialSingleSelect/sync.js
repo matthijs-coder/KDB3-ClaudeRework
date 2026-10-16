@@ -21,16 +21,19 @@ define([
     }
   }
 
-  function beginSyncAbortController(_ctx, _syncOptions) {
-    var runtime = _ctx.runtime;
-    var previous = runtime.abortControllers.sync;
-    if (previous && typeof previous.abort === "function") {
-      previous.abort();
+  function beginSyncRequest(_ctx, _syncOptions) {
+    var abortController = new AbortController();
+    if (_ctx.syncRequest) {
+      _ctx.syncRequest.abortController.abort();
     }
-    runtime.abortControllers.sync = new AbortController();
-    runtime.abortControllers.sync.syncOptions = Object.assign({}, _syncOptions || {});
-    runtime.abortControllers.sync.syncInput = _syncOptions || null;
-    return runtime.abortControllers.sync;
+    _ctx.syncRequest = {
+      abortController: abortController,
+      signal: abortController.signal,
+      options: Object.assign({}, _syncOptions || {}),
+      input: _syncOptions || null
+    };
+    _ctx.runtime.abortControllers.sync = abortController;
+    return _ctx.syncRequest;
   }
 
   function buildSyncFailure(_syncOptions, _error) {
@@ -48,7 +51,7 @@ define([
 
   async function runQueuedSync(_ctx, _request) {
     try {
-      return await performSync(_ctx, _request.signal, _request.syncOptions);
+      return await performSync(_ctx, _request.signal, _request.options);
     } catch (_error) {
       if (_ctx.guard.isDisposed()) {
         return undefined;
@@ -61,19 +64,19 @@ define([
           errorMessage: _error && _error.message ? _error.message : String(_error)
         }
       });
-      return buildSyncFailure(_request.syncOptions, _error);
+      return buildSyncFailure(_request.options, _error);
     }
   }
 
   async function drainSyncQueue(_ctx) {
     var result;
     while (!_ctx.guard.isDisposed()) {
-      var request = _ctx.runtime.abortControllers.sync;
+      var request = _ctx.syncRequest;
       if (!request) {
         return result;
       }
       result = await runQueuedSync(_ctx, request);
-      if (_ctx.runtime.abortControllers.sync === request) {
+      if (_ctx.syncRequest === request) {
         return result;
       }
     }
@@ -82,12 +85,11 @@ define([
 
   function scheduleSync(_ctx, _syncOptions) {
     var runtime = _ctx.runtime;
-    var previous = runtime.abortControllers.sync;
-    if (_syncOptions && previous && previous.syncInput === _syncOptions &&
+    if (_syncOptions && _ctx.syncRequest && _ctx.syncRequest.input === _syncOptions &&
       runtime.pendingPromises.sync) {
       return runtime.pendingPromises.sync;
     }
-    beginSyncAbortController(_ctx, _syncOptions);
+    beginSyncRequest(_ctx, _syncOptions);
     if (runtime.pendingPromises.sync) {
       return runtime.pendingPromises.sync;
     }

@@ -117,6 +117,7 @@ define([
       reducer: _state.createSpecialSingleSelectReducer(),
       runtime: _runtime.ensureRuntime(_KDB, "specialSingleSelect"),
       guard: _errors.createDisposedGuard("specialSingleSelect"),
+      syncRequest: null,
       pendingInventoryGeneration: null,
       inventorySyncToken: null,
       lastInventoryGeneration: null,
@@ -148,6 +149,7 @@ define([
       ctx.guard.dispose();
       try {
         var errors = _runtime.disposeRuntimeBuckets(ctx.runtime);
+        ctx.syncRequest = null;
         if (errors.length) {
           console.warn("[specialSingleSelect.destroy] runtime cleanup", errors);
         }
