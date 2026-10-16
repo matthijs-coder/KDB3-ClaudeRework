@@ -97,6 +97,12 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] TopN: set TopN, then "Ohne" (clear-only path). Expected: chart same as baseline; helper restored (see 2.3/2.4).
 - [ ] Forced timeout: while a widget renders, switch to another tab. Expected: no hang; same message (if any) as baseline.
 - [ ] All tables load on boot (same table count as baseline; `getKDB().state.tableData` shows all `lifecycle` = `ready` and the same `rowCount` per table, see 1.7); Dienststelle/Sicht popups and the metrics tree are populated.
+- [ ] Zeitebene/grain: on a Line and a List widget switch Zeitebene (Jahr, Stichtag, Stichtag pro Jahr). Expected: same filters and data as baseline.
+- [ ] Hierarchy filter: with a Dienststelle selected below the top level, add a vis widget. Expected: the chart is filtered to that org as on baseline; with an unconfirmed selection no filter is applied.
+- [ ] Empty data: pick a Kennzahl/filter combination without data. Expected: the same empty hint as baseline.
+- [ ] Change a filter that triggers a table reload (Sicht/Stichtag/Dienststelle): the dependent table returns to `ready` with the same `rowCount` as baseline, and the parked widget (table with `parkFilter`) gets its local filter back.
+- [ ] Failing table (rename a table widget title, hard reload): one toast "Tabellendaten konnten nicht geladen werden: <name>", entry `lifecycle: "error"`, other tables load normally.
+- [ ] `getKDB().services.tableData.readTableState()` returns the whole map; after destroy/re-open there are no console errors from `tableData`.
 
 ### WS-C Writeback + properties
 - [ ] Save/load round-trip for **every vis type** (Line, Pie, StackedBar, StackedColumn, List, Prognose) and every Zeitebene (grain, e.g. Jahr / Stichtag / Stichtag pro Jahr). Expected: after save + reload the widgets are identical.

@@ -1,0 +1,6347 @@
+{
+  "vis-line-default": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+      },
+      {
+        "slotName": "series",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "Line",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-line-dimension": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+      },
+      {
+        "slotName": "series",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": "descending",
+            "priority": 1
+          },
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 2
+          }
+        ],
+        "options": {
+          "source": "mixed",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "Line",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 4,
+        "managedFilterCount": 4
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-line-grain-jahr": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+      },
+      {
+        "slotName": "series",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "Line",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-line-grain-jahrstichtag": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+      },
+      {
+        "slotName": "series",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "Line",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-line-extra-filter": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+      },
+      {
+        "slotName": "series",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "exclude",
+        "itemId": "Jahr",
+        "values": [
+          "2025"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "Jahr"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "Line",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 4,
+        "managedFilterCount": 4
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-list-default": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag",
+          "Anzahl im Zeitraum"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "List",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 2,
+        "managedFilterCount": 2
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-list-dimension": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": "descending",
+            "priority": 1
+          },
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 2
+          }
+        ],
+        "options": {
+          "source": "mixed",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag",
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "List",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-list-dimension-multi-rules": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+          "[Personal_KDB_TM1].[Alter].[Alter].[Alter]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          },
+          {
+            "columnId": "[Personal_KDB_TM1].[Alter].[Alter].[Alter]",
+            "order": "captionAscending",
+            "priority": 2
+          }
+        ],
+        "options": {
+          "source": "mixed",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Alter].[Alter].[Alter]",
+            "label": "Alter"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag",
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "includeExcludeOr",
+        "itemId": "[Personal_KDB_TM1].[Alter].[Alter].[Alter]",
+        "values": [
+          "A",
+          {
+            "d": "B",
+            "u": "b"
+          },
+          "Z"
+        ],
+        "options": {
+          "includeValues": [
+            "A",
+            {
+              "d": "B",
+              "u": "b"
+            }
+          ],
+          "excludeValues": [
+            "Z"
+          ]
+        }
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Alter].[Alter].[Alter]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "List",
+      "dimension": "Alter",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-list-dimension-include-reverse": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+          "[Personal_KDB_TM1].[Eintritt].[Eintritt].[Eintritt]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          },
+          {
+            "columnId": "[Personal_KDB_TM1].[Eintritt].[Eintritt].[Eintritt]",
+            "order": "captionAscending",
+            "priority": 2
+          }
+        ],
+        "options": {
+          "source": "mixed",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Eintritt].[Eintritt].[Eintritt]",
+            "label": "Eintritt"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag",
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "reverse",
+        "itemId": "[Personal_KDB_TM1].[Eintritt].[Eintritt].[Eintritt]",
+        "values": [
+          "E9"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Eintritt].[Eintritt].[Eintritt]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "List",
+      "dimension": "Eintritt",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-list-sorting-array-order": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": [
+              "captionAscending",
+              "x"
+            ],
+            "priority": 2
+          },
+          {
+            "columnId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+            "order": [
+              "a",
+              "b"
+            ],
+            "priority": 2
+          }
+        ],
+        "options": {
+          "source": "mixed",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag",
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "List",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-list-dimension-no-itemid": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_ITEM",
+    "errorMessage": "Slot planning failed.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "buildSlots",
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-list-grain-jahr": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": "descending",
+            "priority": 1
+          },
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 2
+          }
+        ],
+        "options": {
+          "source": "mixed",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "List",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-pie-geschlecht": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "pie",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Pie"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": "descending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "dimension",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      },
+      {
+        "slotName": "repeatHorizontal",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Anzahl im Zeitraum"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "pie",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_OPTIONAL_SLOT_EMPTY",
+          "message": "Optional slot resolved to no column ids and was skipped.",
+          "field": "repeatVertical"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-pie-no-param-mapping": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_FILTER_PARAM_MAP",
+    "errorMessage": "Filter planning failed.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "pie",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Pie"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "buildFilters",
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_OPTIONAL_SLOT_EMPTY",
+          "message": "Optional slot resolved to no column ids and was skipped.",
+          "field": "repeatVertical"
+        }
+      ],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-stackedbar-dimension": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "StackedBar",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "StackedBar"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      },
+      {
+        "slotName": "color",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": "descending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "dimension",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "StackedBar",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-stackedcolumn-default": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "StackedColumn",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "StackedColumn"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Anzahl im Zeitraum"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "StackedColumn",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_OPTIONAL_SLOT_EMPTY",
+          "message": "Optional slot resolved to no column ids and was skipped.",
+          "field": "color"
+        }
+      ],
+      "counts": {
+        "slotCount": 2,
+        "localFilterCount": 2,
+        "managedFilterCount": 2
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "vis-prognose-stichtag": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Prognose",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "com.ibm.vis.custom.prognoseyearlinechart"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+      },
+      {
+        "slotName": "series",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Stichtag].[Stichtag].[Stichtag]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": "descending",
+            "priority": 1
+          },
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 2
+          }
+        ],
+        "options": {
+          "source": "mixed",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[Stichtag].[Stichtag].[Stichtag]",
+        "values": [
+          "PKZ",
+          "PKZ inkl. Prognose"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Stichtag].[Stichtag].[Stichtag]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "Prognose",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 5,
+        "managedFilterCount": 5
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "topn-line-dimension-helper-ok": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "topn",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+      },
+      {
+        "slotName": "series",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": "descending",
+            "priority": 1
+          },
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 2
+          }
+        ],
+        "options": {
+          "source": "mixed",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "topN",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          {
+            "d": "m",
+            "u": "m"
+          },
+          {
+            "d": "w",
+            "u": "W"
+          }
+        ],
+        "options": {
+          "source": "helperTable",
+          "n": 5
+        }
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "Line",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "top-5",
+      "topNResultValues": [
+        {
+          "d": "m",
+          "u": "m"
+        },
+        {
+          "d": "w",
+          "u": "W"
+        }
+      ],
+      "topNExcludeItemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "topn",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 4,
+        "managedFilterCount": 4
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "topn-list-case-insensitive-option": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "topn",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": "descending",
+            "priority": 1
+          },
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 2
+          }
+        ],
+        "options": {
+          "source": "mixed",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag",
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "topN",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          {
+            "d": "m",
+            "u": "m"
+          },
+          {
+            "d": "w",
+            "u": "W"
+          }
+        ],
+        "options": {
+          "source": "helperTable",
+          "n": 3
+        }
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "List",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "top-3",
+      "topNResultValues": [
+        {
+          "d": "m",
+          "u": "m"
+        },
+        {
+          "d": "w",
+          "u": "W"
+        }
+      ],
+      "topNExcludeItemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "topn",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "topn-helper-failed": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_TOPN_HELPER_FAILED",
+    "errorMessage": "Filter planning failed.",
+    "reason": "topn",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "topn",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "buildFilters",
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "topn-helper-missing": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_TOPN_HELPER_MISSING",
+    "errorMessage": "Filter planning failed.",
+    "reason": "topn",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "topn",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "buildFilters",
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "topn-helper-empty-values": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_TOPN_HELPER_MISSING",
+    "errorMessage": "Filter planning failed.",
+    "reason": "topn",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "topn",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "buildFilters",
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "topn-unknown": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_TOPN_UNKNOWN",
+    "errorMessage": "Filter planning failed.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "buildFilters",
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "topn-default-without-dimension": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+      },
+      {
+        "slotName": "series",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "topN",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          {
+            "d": "m",
+            "u": "m"
+          },
+          {
+            "d": "w",
+            "u": "W"
+          }
+        ],
+        "options": {
+          "source": "helperTable",
+          "n": 5
+        }
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "Line",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 4,
+        "managedFilterCount": 4
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "topn-sentinel-default": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+      },
+      {
+        "slotName": "series",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": "descending",
+            "priority": 1
+          },
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 2
+          }
+        ],
+        "options": {
+          "source": "mixed",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "Line",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 4,
+        "managedFilterCount": 4
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "hierarchy-list-confirmed": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "hierarchy",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+          "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]",
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": "descending",
+            "priority": 1
+          },
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 2
+          }
+        ],
+        "options": {
+          "source": "mixed",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag",
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "hierarchy",
+        "mode": "hierarchyKeepexclude",
+        "itemId": "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]",
+        "values": [
+          "101 | Amt A",
+          "102 | Amt B"
+        ],
+        "options": {
+          "overrideHierarchyDefaultSelection": true,
+          "action": "keepexclude",
+          "sourceKey": "Personal_KDB_TM1",
+          "skipDisplayType": false
+        }
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+      "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "List",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "hierarchy",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 4,
+        "managedFilterCount": 4
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "hierarchy-line-confirmed-rewrite-token": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "hierarchyfilter",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+      },
+      {
+        "slotName": "series",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]",
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "hierarchy"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "hierarchy",
+        "mode": "hierarchyKeepexclude",
+        "itemId": "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]",
+        "values": [
+          "5 | X | 6 | Y",
+          "plain"
+        ],
+        "options": {
+          "overrideHierarchyDefaultSelection": true,
+          "action": "keepexclude",
+          "sourceKey": "Dienststelle_TM1",
+          "skipDisplayType": false
+        }
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "Line",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "hierarchyfilter",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 4,
+        "managedFilterCount": 4
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "hierarchy-list-not-confirmed": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag",
+          "Anzahl im Zeitraum"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "List",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_HIERARCHY_NOT_CONFIRMED",
+          "message": "Hierarchy snapshot exists but has no confirmed selection, so no hierarchy filter is planned."
+        }
+      ],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 2,
+        "managedFilterCount": 2
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "hierarchy-list-no-values": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_HIERARCHY_VALUES",
+    "errorMessage": "Filter planning failed.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "buildFilters",
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "hierarchy-list-no-source": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_HIERARCHY_SOURCE",
+    "errorMessage": "Filter planning failed.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "buildFilters",
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "hierarchy-pie-slot-policy": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "pie",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Pie"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": "descending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "dimension",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      },
+      {
+        "slotName": "repeatHorizontal",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      },
+      {
+        "slotName": "repeatVertical",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "hierarchy"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]"
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "hierarchy",
+        "mode": "hierarchyKeepexclude",
+        "itemId": "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]",
+        "values": [
+          "101 | Amt A",
+          "102 | Amt B"
+        ],
+        "options": {
+          "overrideHierarchyDefaultSelection": true,
+          "action": "keepexclude",
+          "sourceKey": "Personal_KDB_TM1",
+          "skipDisplayType": false
+        }
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "pie",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "repeatVertical"
+        }
+      ],
+      "counts": {
+        "slotCount": 4,
+        "localFilterCount": 4,
+        "managedFilterCount": 4
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "hierarchy-stackedbar-no-policy": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "StackedBar",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "StackedBar"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      },
+      {
+        "slotName": "color",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "hierarchy"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]"
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "hierarchy",
+        "mode": "hierarchyKeepexclude",
+        "itemId": "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]",
+        "values": [
+          "101 | Amt A",
+          "102 | Amt B"
+        ],
+        "options": {
+          "overrideHierarchyDefaultSelection": true,
+          "action": "keepexclude",
+          "sourceKey": "Personal_KDB_TM1",
+          "skipDisplayType": false
+        }
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "StackedBar",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "color"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "intent-empty-forceempty": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "cleanup",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+      },
+      {
+        "slotName": "series",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "emptyData",
+        "mode": "forceEmpty",
+        "itemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]",
+        "values": [
+          "1"
+        ],
+        "reason": "noData"
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]"
+    ],
+    "emptyIntent": {
+      "enabled": true,
+      "reason": "noData",
+      "itemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]",
+      "value": "1"
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "Line",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "cleanup",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": true,
+        "reason": "noData",
+        "itemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]",
+        "value": "1"
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 4,
+        "managedFilterCount": 4
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "intent-empty-config-item": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag",
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "emptyData",
+        "mode": "forceEmpty",
+        "itemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]",
+        "values": [
+          "1"
+        ],
+        "reason": "noData"
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]"
+    ],
+    "emptyIntent": {
+      "enabled": true,
+      "reason": "noData",
+      "itemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]",
+      "value": "1"
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "List",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": true,
+        "reason": "noData",
+        "itemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]",
+        "value": "1"
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "intent-empty-missing-item": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_EMPTY_DATA_FILTER_MISSING",
+    "errorMessage": "Stop-filter item id is missing for intentional emptying.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": true,
+        "reason": "noData",
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "buildFilters",
+      "warnings": [],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      }
+    }
+  },
+  "intent-empty-invalid-value": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_EMPTY_DATA_FILTER_INVALID",
+    "errorMessage": "Stop-filter force-empty value is missing or invalid.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": true,
+        "reason": null,
+        "itemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]",
+        "value": null
+      },
+      "failedStage": "buildFilters",
+      "warnings": [],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      }
+    }
+  },
+  "intent-reset-settings-delete": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "cleanup",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": true,
+      "scope": "visTarget",
+      "clearAllSlots": true,
+      "clearAllLocalFilters": true,
+      "reason": "settingsDelete",
+      "rebuildAfterClear": true
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "cleanup",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": true,
+        "scope": "visTarget",
+        "clearAllSlots": true,
+        "clearAllLocalFilters": true,
+        "reason": "settingsDelete",
+        "rebuildAfterClear": true
+      }
+    }
+  },
+  "intent-reset-param-set-reset": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "parameterSetReset",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "values",
+        "columnIds": [
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+      },
+      {
+        "slotName": "categories",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default"
+        },
+        "sortByColumn": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]"
+      },
+      {
+        "slotName": "series",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "Gesamt",
+          "ALLE"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": true,
+      "scope": "visTarget",
+      "clearAllSlots": true,
+      "clearAllLocalFilters": true,
+      "reason": "parameterSetReset",
+      "rebuildAfterClear": false
+    },
+    "mirrorPatch": {
+      "visualizationType": "Line",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "parameterSetReset",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 3,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": true,
+        "scope": "visTarget",
+        "clearAllSlots": true,
+        "clearAllLocalFilters": true,
+        "reason": "parameterSetReset",
+        "rebuildAfterClear": false
+      }
+    }
+  },
+  "intent-reset-defaults": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "cleanup",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+            "order": "ascending",
+            "priority": 1
+          }
+        ],
+        "options": {
+          "source": "default"
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag",
+          "Anzahl im Zeitraum"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": true,
+      "scope": "helperTarget",
+      "clearAllSlots": true,
+      "clearAllLocalFilters": true,
+      "reason": null,
+      "rebuildAfterClear": true
+    },
+    "mirrorPatch": {
+      "visualizationType": "List",
+      "dimension": "default",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "cleanup",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 2,
+        "managedFilterCount": 2
+      },
+      "resetIntent": {
+        "enabled": true,
+        "scope": "helperTarget",
+        "clearAllSlots": true,
+        "clearAllLocalFilters": true,
+        "reason": null,
+        "rebuildAfterClear": true
+      }
+    }
+  },
+  "helper-pre-apply-top5": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "topN",
+    "targetKind": "topNHelper",
+    "widgetId": "helper1",
+    "ownerWidgetId": "w1",
+    "opSeq": 11,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "TopN",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default",
+          "topBottom": {
+            "type": "topcount",
+            "value": 5,
+            "rank": false,
+            "valueItemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "2025"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "JAN"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt",
+          "ALLE",
+          "^"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": true,
+      "scope": "helperTarget",
+      "clearAllSlots": true,
+      "clearAllLocalFilters": true,
+      "reason": "topNHelperPreApply",
+      "rebuildAfterClear": true
+    },
+    "mirrorPatch": {
+      "visualizationType": "TopN",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "top-5"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "topN",
+      "targetKind": "topNHelper",
+      "widgetId": "helper1",
+      "ownerWidgetId": "w1",
+      "opSeq": 11,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 4,
+        "managedFilterCount": 4
+      },
+      "resetIntent": {
+        "enabled": true,
+        "scope": "helperTarget",
+        "clearAllSlots": true,
+        "clearAllLocalFilters": true,
+        "reason": "topNHelperPreApply",
+        "rebuildAfterClear": true
+      }
+    }
+  },
+  "helper-pre-apply-top10-hierarchy": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "topN",
+    "targetKind": "topNHelper",
+    "widgetId": "helper1",
+    "ownerWidgetId": "w1",
+    "opSeq": 11,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "TopN",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default",
+          "topBottom": {
+            "type": "topcount",
+            "value": 10,
+            "rank": false,
+            "valueItemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "2025"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "JAN"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt",
+          "ALLE",
+          "^"
+        ]
+      },
+      {
+        "kind": "hierarchy",
+        "mode": "hierarchyKeepexclude",
+        "itemId": "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]",
+        "values": [
+          {
+            "d": "Host A",
+            "u": "#101 | Amt A"
+          },
+          {
+            "d": "Amt B",
+            "u": "  #102 | Amt B  "
+          }
+        ],
+        "options": {
+          "overrideHierarchyDefaultSelection": true,
+          "action": "keepexclude",
+          "sourceKey": "Personal_KDB_TM1",
+          "skipDisplayType": true
+        }
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+      "[Personal_KDB_TM1].[Organisation].[Organisation].[Organisation]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": true,
+      "scope": "helperTarget",
+      "clearAllSlots": true,
+      "clearAllLocalFilters": true,
+      "reason": "topNHelperPreApply",
+      "rebuildAfterClear": true
+    },
+    "mirrorPatch": {
+      "visualizationType": "TopN",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "top-10"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "topN",
+      "targetKind": "topNHelper",
+      "widgetId": "helper1",
+      "ownerWidgetId": "w1",
+      "opSeq": 11,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 5,
+        "managedFilterCount": 5
+      },
+      "resetIntent": {
+        "enabled": true,
+        "scope": "helperTarget",
+        "clearAllSlots": true,
+        "clearAllLocalFilters": true,
+        "reason": "topNHelperPreApply",
+        "rebuildAfterClear": true
+      }
+    }
+  },
+  "helper-pre-apply-unknown-topn": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_TOPN_UNKNOWN",
+    "errorMessage": "Filter planning failed.",
+    "reason": "topN",
+    "targetKind": "topNHelper",
+    "widgetId": "helper1",
+    "ownerWidgetId": "w1",
+    "opSeq": 11,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "TopN",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "topN",
+      "targetKind": "topNHelper",
+      "widgetId": "helper1",
+      "ownerWidgetId": "w1",
+      "opSeq": 11,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "buildFilters",
+      "warnings": [],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": true,
+        "scope": "helperTarget",
+        "clearAllSlots": true,
+        "clearAllLocalFilters": true,
+        "reason": "topNHelperPreApply",
+        "rebuildAfterClear": true
+      }
+    }
+  },
+  "helper-cleanup": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "cleanup",
+    "targetKind": "topNHelper",
+    "widgetId": "helper1",
+    "ownerWidgetId": "w1",
+    "opSeq": 11,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "TopN",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": true,
+      "scope": "helperTarget",
+      "clearAllSlots": true,
+      "clearAllLocalFilters": true,
+      "reason": "postResolution",
+      "rebuildAfterClear": true
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "cleanup",
+      "targetKind": "topNHelper",
+      "widgetId": "helper1",
+      "ownerWidgetId": "w1",
+      "opSeq": 11,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": true,
+        "scope": "helperTarget",
+        "clearAllSlots": true,
+        "clearAllLocalFilters": true,
+        "reason": "postResolution",
+        "rebuildAfterClear": true
+      }
+    }
+  },
+  "failure-invalid-target-kind": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_INVALID_TARGET",
+    "errorMessage": "targetKind is missing or unsupported.",
+    "reason": "contentCreate",
+    "targetKind": "nope",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": null,
+    "visualization": null,
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "nope",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "validateSpec",
+      "warnings": [],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      }
+    }
+  },
+  "failure-missing-data-config": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_MISSING_SPEC",
+    "errorMessage": "dataConfig is required.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": null,
+    "visualization": null,
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "validateSpec",
+      "warnings": [],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      }
+    }
+  },
+  "failure-missing-datasource": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_MISSING_DATASOURCE",
+    "errorMessage": "dataConfig.datasourceId is required.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": null,
+    "visualization": null,
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "validateSpec",
+      "warnings": [],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      }
+    }
+  },
+  "failure-missing-vis-config": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_MISSING_VISUALIZATION",
+    "errorMessage": "visualizationType and visTypeConfig are required.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": null,
+    "visualization": null,
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "validateSpec",
+      "warnings": [],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      }
+    }
+  },
+  "failure-missing-config-snapshots": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_MISSING_SPEC",
+    "errorMessage": "config snapshots are required.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": null,
+    "visualization": null,
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "validateSpec",
+      "warnings": [],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      }
+    }
+  },
+  "failure-required-slot-empty": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_SLOT_REQUIRED_EMPTY",
+    "errorMessage": "Slot planning failed.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "Line",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "Line"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "buildSlots",
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "values"
+        },
+        {
+          "code": "WIDGET_BINDING_PLAN_LEGACY_SORT_FALLBACK",
+          "message": "Legacy single sortByColumn was emitted because no full sortSpecs could be built.",
+          "field": "categories"
+        }
+      ],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "failure-dimension-missing-affects": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_AFFECTS",
+    "errorMessage": "Slot planning failed.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "buildSlots",
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
+  "failure-null-spec": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_MISSING_SPEC",
+    "errorMessage": "Binding plan spec is required.",
+    "reason": null,
+    "targetKind": "vis",
+    "widgetId": null,
+    "ownerWidgetId": null,
+    "opSeq": null,
+    "datasource": null,
+    "visualization": null,
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": null,
+      "targetKind": "",
+      "widgetId": null,
+      "ownerWidgetId": null,
+      "opSeq": null,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "validateSpec",
+      "warnings": [],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      }
+    }
+  },
+  "failure-non-object-spec": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_MISSING_SPEC",
+    "errorMessage": "Binding plan spec is required.",
+    "reason": null,
+    "targetKind": "vis",
+    "widgetId": null,
+    "ownerWidgetId": null,
+    "opSeq": null,
+    "datasource": null,
+    "visualization": null,
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": null,
+      "targetKind": "",
+      "widgetId": null,
+      "ownerWidgetId": null,
+      "opSeq": null,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": "validateSpec",
+      "warnings": [],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      }
+    }
+  },
+  "failure-internal-throw": {
+    "ok": false,
+    "status": "error",
+    "errorCode": "WIDGET_BINDING_PLAN_INTERNAL",
+    "errorMessage": "Unexpected binding plan failure.",
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": null,
+    "visualization": null,
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [],
+    "localFilters": [],
+    "managedFilterItemIds": [],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {},
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 0,
+        "localFilterCount": 0,
+        "managedFilterCount": 0
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  }
+}
