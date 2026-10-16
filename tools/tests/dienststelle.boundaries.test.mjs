@@ -123,3 +123,25 @@ test("dienststelle selectors publish the action types sicht dispatches; they equ
   assert.equal(selectors.actionTypes.HISTORY_REPLAY_REQUESTED, state.ACTIONS.HISTORY_REPLAY_REQUESTED);
   assert.equal(Object.isFrozen(selectors.actionTypes), true);
 });
+
+test("chromeClasses: variant wrappers carry the marker and active classes only (the unused KDB_Sicht_* classes are gone)", () => {
+  const config = load("dienststelle/config.js");
+  assert.equal("sichtClassByValue" in config.DOM_SELECTORS, false);
+  const wrappers = {};
+  const filterDom = {
+    findScopedFilterWrapper(key, scope) {
+      const id = key + "/" + scope;
+      wrappers[id] = wrappers[id] || { toggles: [], classList: { toggle(name, on) { wrappers[id].toggles.push([name, on]); } } };
+      return wrappers[id];
+    }
+  };
+  const chrome = load("dienststelle/view/chromeClasses.js", {
+    stubs: { console: quietConsole, document: { querySelector: () => null } },
+    modules: { "./filterDom.js": filterDom, "./dockNames.js": { syncFilterDockNames() {} } }
+  });
+  chrome.syncDienststelleWrapperClasses(config.DEFINITIONS.BW, null);
+  const bw = wrappers["Dienststelle_BW/global"];
+  assert.deepEqual(bw.toggles, [[config.DOM_SELECTORS.markerClass, true], [config.DOM_SELECTORS.activeClass, true]]);
+  const dezpv = wrappers["Dienststelle_DEZPV/pageContext"];
+  assert.deepEqual(dezpv.toggles, [[config.DOM_SELECTORS.markerClass, true], [config.DOM_SELECTORS.activeClass, false]]);
+});

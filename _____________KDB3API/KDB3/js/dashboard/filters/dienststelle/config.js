@@ -56,10 +56,6 @@ define([
       DEZPV: "KDB_dienststelleActive_DEZPV"
     },
     rootActiveClassValues: ["KDB_dienststelleActive_BW", "KDB_dienststelleActive_DEZPV"],
-    sichtClassByValue: {
-      BW: "KDB_Sicht_BW",
-      DEZPV: "KDB_Sicht_DEZPV"
-    },
     popupMountSelector: chrome.popupMountSelector,
     popupLabelsReadyClass: "KDB_dienststelle_popupLabelsReady",
     listItemWrapperSelector: chrome.listItemWrapperSelector,
