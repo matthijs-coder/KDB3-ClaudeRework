@@ -35,7 +35,7 @@ const flush = () => new Promise((resolve) => setImmediate(resolve));
 
 test("register: surface, labels merge, a new service on every registration", () => {
   const { _KDB, service, register } = setup({ labels: { dashboard: "Eigen" } });
-  assert.deepEqual(Object.keys(service).sort(), ["destroy", "finishLoading", "registerWatchdogHandler", "startLoading", "updateLoadingMessage"]);
+  assert.deepEqual(Object.keys(service).sort(), ["destroy", "finishLoading", "isLoading", "registerWatchdogHandler", "startLoading", "updateLoadingMessage"]);
   assert.equal(_KDB.services.loading, service);
   assert.equal(_KDB.config.labels.de.loading.dashboard, "Eigen");
   assert.equal(_KDB.config.labels.de.loading.chart, "Diagramm wird geladen");
@@ -109,6 +109,21 @@ test("nested start/finish keeps one spinner until the last finish; state entries
   assert.deepEqual(_KDB.state.loading.k, { activeCount: 0, isActive: false });
   service.finishLoading({ handle: first });
   assert.equal(_KDB.state.loading.k.activeCount, 0);
+});
+
+test("isLoading: true while a mount key is loading, false for finished, unknown and destroyed keys", () => {
+  const { service } = setup();
+  assert.equal(service.isLoading("k"), false);
+  service.startLoading({ mountKey: "k" });
+  service.startLoading({ mountKey: "k" });
+  assert.equal(service.isLoading("k"), true);
+  service.finishLoading({ mountKey: "k" });
+  assert.equal(service.isLoading("k"), true);
+  service.finishLoading({ mountKey: "k" });
+  assert.equal(service.isLoading("k"), false);
+  service.startLoading({ mountKey: "k" });
+  service.destroy();
+  assert.equal(service.isLoading("k"), false);
 });
 
 test("finishLoading accepts mountEl, mountKey or handle", () => {

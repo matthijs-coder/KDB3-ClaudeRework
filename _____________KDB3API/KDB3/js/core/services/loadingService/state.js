@@ -36,6 +36,11 @@ define(["../../utils/kit/runtime.js"], function (_rt) {
     return entry;
   }
 
+  function isLoadingActive(_KDB, mountKey) {
+    var entry = _KDB.state && _KDB.state.loading ? _KDB.state.loading[mountKey] : null;
+    return !!entry && entry.isActive === true;
+  }
+
   function markAllLoadingDisposed(_KDB) {
     var loading = _KDB.state && _KDB.state.loading;
     Object.keys(loading || {}).forEach(function (mountKey) {
@@ -45,6 +50,7 @@ define(["../../utils/kit/runtime.js"], function (_rt) {
   }
 
   return {
+    isLoadingActive: isLoadingActive,
     ensureLoadingRuntime: ensureLoadingRuntime,
     markAllLoadingDisposed: markAllLoadingDisposed,
     markLoadingFinished: markLoadingFinished,
