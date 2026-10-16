@@ -69,7 +69,7 @@ define([
     prependSentinel(_state, _select);
   }
 
-  // The select lives inside the KDB-owned slot; observing only the slot (never document.body) keeps
+  // The select lives inside the KDB-owned slot; observing only the slot (never the whole page) keeps
   // the cost of the subtree observer bounded.
   function bindSlotObserver(_state, _slot) {
     var select;
