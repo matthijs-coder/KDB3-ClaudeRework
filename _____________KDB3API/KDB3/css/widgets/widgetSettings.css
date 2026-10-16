@@ -384,8 +384,7 @@ input.svgIcon {
 }
 
 .liveWidget .KDB_widgetSettings .KDB_fontSizeButton,
-.liveWidget .KDB_widgetSettings .KDB_textButton,
-.liveWidget .KDB_widgetSettings .KDB_titleButton {
+.liveWidget .KDB_widgetSettings .KDB_textButton {
   display: none;
 }
 
@@ -403,7 +402,6 @@ input.svgIcon {
   display: none;
 }
 
-.textWidget .KDB_widgetSettings .KDB_titleButton,
 .textWidget .KDB_widgetSettings .KDB_visualizationsButton,
 .textWidget .KDB_widgetSettings .KDB_dimensionsButton,
 .textWidget .KDB_widgetSettings .KDB_topNButton,
