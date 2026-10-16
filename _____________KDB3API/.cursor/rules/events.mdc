@@ -1,156 +1,48 @@
 ---
-description: KDB3 events: bus surface, direct API vs request-events vs fact-events, naming, subscriber discipline
-globs:
-  - KDB3/js/**/*.js
-alwaysApply: true
+description: KDB3 event bus (_KDB.events). When to use direct API calls vs fact-events vs request-events, event naming, constants, payloads, subscriber rules, catalog.
+globs: KDB3/js/**/events/**/*.js, KDB3/js/**/events.js, KDB3/js/core/events/**/*.js, architecture/eventSubscribe.md
+alwaysApply: false
 ---
 
-# Event Rules
-
-`_KDB.events` is the in-app event bus. Per `kdb-object.mdc` it is its own top-level namespace and is not a service.
-
-The bus exposes a small surface:
+# Events
 
 ```js
-_KDB.events.emit(eventName, payload);
-const unsubscribe = _KDB.events.subscribe(eventName, handler, options);
-_KDB.events.unsubscribe(eventName, handler);
+_KDB.events.emit(EVENTS.CHANGED, payload);
+var unsubscribe = _KDB.events.subscribe(EVENTS.CHANGED, handler, { signal: scope.signal });
 ```
 
-Event-name constants live in **one canonical home per constant**, owned by the emitter:
+`emit` calls handlers synchronously and isolates them: a throwing handler is logged and does not stop the others. The bus is one-way: no callbacks or acknowledgements in payloads.
 
-- **Default for new code**: `<emitterModule>/events/eventNames.js` for events emitted by that module (per `feature-structure.mdc`).
-- **Legacy exception**: `KDB3/js/core/events/<region>.js` remains valid for cross-region shared event families that span multiple emitter-owners; new code prefers per-module ownership and does not duplicate string literals.
+## Which mechanism
 
-Subscribers import the constant from the emitter's canonical home. Subscription cleanup records live in `_KDB.runtime.<owner>.subscriptions` per `runtime.mdc`.
-
-Events do not transfer state ownership: a subscriber that wants to mutate another module's state calls that module's public API, never writes the foreign subtree directly.
-
-## Communication Choice
-
-Cross-module communication has three allowed means: direct public API call, request-event, fact-event. The choice is not taste; it follows from who the owner is and how many consumers must react.
-
-### Defaults
-
-| Intent | Default |
+| Intent | Use |
 |---|---|
-| Command to a known owner | direct API: `_KDB.api.<owner>.dispatch(...)` for dispatch-style modules, or `_KDB.services.<service>.<method>(...)` for named-method services |
-| Notification that something happened | fact-event |
-| Command without a known or fixed owner | request-event (exception, requires motivation) |
+| Command to a known owner | direct call: `_KDB.api.<owner>.dispatch(...)` or `_KDB.services.<service>.<method>(...)` (return value, stack trace, awaitable) |
+| Tell others something happened | fact-event emitted by the owner |
+| Command whose handler must stay unknown | request-event (rare) |
 
-### Direct API Vs Request-Event
+A request-event is allowed only when the handler is genuinely polymorphic, the caller must not depend on the owner (for example `core` asking `dashboard`), or several owners must each react. Never use events to avoid an import or as a hidden RPC channel.
 
-| Aspect | Direct API | Request-Event |
-|---|---|---|
-| Return value | yes | no |
-| `await` / `try/catch` | yes | no |
-| Stacktrace | full | broken at subscriber |
-| Owner coupling | explicit | implicit (caller picks the event name) |
-| Debug | direct | indirect (via catalog) |
+## Fact-events
 
-Default is the direct API. A caller that picks a specific event name such as `launchpad:moveWidgetRequested` practically already knows the owner; in that case `_KDB.api.launchpad.dispatch({ type: "launchpad/moveWidget", payload })` (dispatch-style) or `_KDB.services.tableData.reloadTable(...)` (named-method service) is shorter, faster to debug and returns a value.
+- Emitted only by the owner, after the change is applied and recorded in its state.
+- Only when another module actually reacts; no "just in case" events.
+- Subscribers change only their own state and call other modules through their APIs.
 
-### When A Request-Event Is Allowed
-
-A request-event is allowed only when at least one of these holds:
-
-- the owner is genuinely polymorphic — multiple independent modules may fulfil the request;
-- the caller architecturally must not know the owner, for example because `core/` may not import from `dashboard/`;
-- the request triggers multiple independent side-effects at different owners that must each react on their own.
-
-A request-event is not allowed to:
-
-- avoid imports or dependency injection;
-- suggest loose coupling while the owner is in fact fixed;
-- disguise a direct API call because it "feels modern".
-
-Treating the event bus as a hidden service locator or as an RPC channel is forbidden.
-
-## Fact-Events
-
-A fact-event signals that something has happened. It is emitted by the owner of the state or effect, after successful processing.
-
-```js
-_KDB.events.emit("launchpad:widgetMoved", { widgetId, fromSlot, toSlot });
-_KDB.events.emit("filters:applied", { filterScope, itemId, useValue });
-_KDB.events.emit("header:toggled", { isVisible });
-```
-
-Rules:
-
-- emit only at documented confirmation points; a confirmation point may itself be a lifecycle transition (for example `idle → loading`) when that transition is documented in the catalog;
-- emit only when at least one module outside the owner must react independently;
-- subscribers may write only their own state subtree or run their own effects;
-- subscribers never mutate foreign state — for a foreign change, call the owner's public API or its `dispatch`.
-
-A fact-event without consumers is event pollution. Add the fact-event when a real consumer appears, not "just in case".
-
-## Subscriber Discipline
-
-Subscribers obey the same ownership rules as any other consumer:
-
-- subscribe through `_KDB.events.subscribe(eventName, handler, options)`;
-- store the unsubscribe handle (or AbortController) in `_KDB.runtime.<owner>.subscriptions` per `runtime.mdc`;
-- unsubscribe on module destroy or region cleanup;
-- write only the subscriber's own `_KDB.state.<owner>` subtree;
-- call other modules through their public API (`_KDB.api.<owner>` or `_KDB.services.<service>`) when a foreign change is required;
-- publish a follow-up fact-event only as the owner of that subsequent fact.
-
-Subscribers that need to call back to the emitter use the emitter's public API. Events do not carry callbacks or acknowledgement channels; the bus is one-way and fire-and-forget per emit.
-
-## Naming Summary
-
-The authoritative naming patterns live in `naming.mdc`. Summary for quick reference:
+## Naming
 
 | Type | Pattern | Example |
 |---|---|---|
-| Fact, region operates on entity | `<region>:<entity><VerbPast>` | `launchpad:widgetMoved`, `widgets:widgetSelected` |
-| Fact, region is the subject | `<region>:<VerbPast>` | `header:toggled`, `dashboard:initialized` |
-| Request | `<region>:<verb><Entity>Requested` | `launchpad:moveWidgetRequested`, `widgets:removeWidgetRequested` |
+| Fact about an entity | `<region>:<entity><VerbPast>` | `tableData:loadFinished`, `canvas:dropValidated` |
+| Fact about the region | `<region>:<verbPast>` | `tabs:changed`, `authoring:entered` |
+| Request | `<region>:<verb><Entity>Requested` | `header:toggleRequested` |
 
-Visual distinction between fact and request is mandatory: facts in past tense, requests end with `Requested`. Event entity segments use `camelCase`.
+Event names are part of the frozen contract: do not rename existing ones.
 
-Event-name constants are imported from the emitter's canonical home — by default `<emitterModule>/events/eventNames.js`, or `KDB3/js/core/events/<region>.js` for legacy cross-region shared families. Modules do not hardcode event-name string literals at emit/subscribe sites and do not duplicate the same string across multiple files.
+## Constants and catalog
 
-## Catalog
-
-Every new or changed event is recorded in:
-
-```txt
-_____________KDB3API/architecture/eventSubscribe.md
-```
-
-Each entry contains: event name, type (fact or request), emitter, subscribers, payload contract, teardown owner when not obvious. An event that is not in the catalog is not considered published.
-
-## When AI Must Ask
-
-The AI must explicitly ask the user when at least one of these triggers applies:
-
-- a caller wants to emit a request-event while the owner is explicitly known in the code context (direct API is the likely correct choice);
-- a new event could plausibly be modelled as either a fact or a request and the semantics are not obvious;
-- multiple possible owners exist for the same request — ask which owner primarily handles it and whether polymorphism is actually needed;
-- a new fact-event is proposed while no consumer is known yet — ask whether the event is needed now or when the first consumer arrives;
-- a payload field carries a function, a DOM node or another non-serialisable value.
-
-Do not ask when:
-
-- an existing fact-event is being emitted by its documented owner at a documented confirmation point;
-- an existing subscriber is being moved to a new module while the event itself is unchanged;
-- the change is purely a payload refinement that stays JSON-serialisable.
-
-Ask-template: *"For `<goal>` I propose `<direct API | request-event | fact-event>` because `<reason + which triggers apply>`. Acceptable?"*
-
-## Anti-Goals
-
-- No events to avoid imports or dependency injection.
-- No request-events when a direct API call would do.
-- No fact-events without a known consumer.
-- No subscribers that mutate foreign state directly.
-- No "event with callback" or "event with acknowledgement" hybrids; the bus is one-way.
-- No hardcoded event-name string literals at emit or subscribe sites; use the constants from the emitter's canonical home (`<emitterModule>/events/eventNames.js`, or `KDB3/js/core/events/<region>.js` for legacy shared families).
-- No duplicating the same event-name string across multiple `events/` files; each constant has exactly one canonical home.
-- No payloads carrying functions, DOM nodes, jQuery objects, Cognos API objects or other non-serialisable values; payloads are JSON-serialisable.
-- No subscription handles stored outside `_KDB.runtime.<owner>.subscriptions`.
-- No emission on undocumented pending or intermediate state; emit only documented lifecycle facts at documented confirmation points (catalog-required).
-
-See also: `_____________KDB3API/architecture/stateOwnership.md`, `_____________KDB3API/architecture/projectStructureRules.md`, `module-public-api.mdc`, `runtime.mdc`, `naming.mdc`.
+- Each name has one constant in the emitter's home: the module's `events.js` (template) or, in existing modules, `<module>/events/eventNames.js`. Shared families live in `core/events/<region>.js`.
+- Subscribers import the constant; no string literals at emit or subscribe sites.
+- Payloads are JSON-serialisable: no functions, DOM nodes, jQuery or Cognos objects.
+- Subscriptions use `{ signal }` or store the unsubscribe function in `_KDB.runtime.<owner>.subscriptions` (see `runtime.mdc`).
+- New or changed events are recorded in `architecture/eventSubscribe.md` (name, fact/request, emitter, subscribers, payload).

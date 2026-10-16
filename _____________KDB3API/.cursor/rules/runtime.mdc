@@ -1,150 +1,52 @@
 ---
-description: KDB3 _KDB.runtime discipline: per-owner technical resources, cleanup, no serialisation
-globs:
-  - KDB3/js/dashboard/**/*.js
-  - KDB3/js/core/bootstrap/**/*.js
-  - KDB3/js/core/services/**/*.js
-  - KDB3/js/core/cognosAPI/**/*.js
-alwaysApply: true
+description: KDB3 _KDB.runtime discipline. Owner-private technical resources, standard bucket names, cleanup in destroy, AbortController and { signal } listener hygiene, no serialisation.
+globs: KDB3/js/**/runtime/**/*.js, KDB3/js/**/index.js, KDB3/js/**/__orchestrator*.js, KDB3/js/**/create*Controller.js, KDB3/js/**/create*Service.js
+alwaysApply: false
 ---
 
-# Runtime Rules
+# Runtime
 
-`_KDB.runtime` holds technical runtime objects that are not part of dashboard/session state. Runtime is per-session, not serialisable, and never restored from persisted state.
+`_KDB.runtime.<owner>` holds per-session technical objects of one owner: live DOM and jQuery refs, listener records, bus unsubscribe handles, AbortControllers, observers, timer ids, pending promises, Cognos facet stamps, transient drag mechanics. It is never serialised, persisted, written back or restored. A value that must survive the session belongs in `_KDB.state` with a canonical writer.
 
-Resources live under their owning module:
+## Standard buckets
 
-```js
-_KDB.runtime.<owner>
-```
-
-Every owner managing runtime resources also manages their cleanup. Creating a resource without a cleanup path is forbidden.
-
-## What Belongs In `_KDB.runtime`
-
-- live DOM nodes, jQuery objects and host element references;
-- DOM listener cleanup records or listener descriptors;
-- event-bus unsubscribe handles or subscription cleanup records;
-- AbortController instances and their signals;
-- observers (MutationObserver, ResizeObserver, IntersectionObserver, custom);
-- timeout and interval ids;
-- in-flight coordination references for Promises whose underlying operations may need to be aborted on cleanup;
-- Cognos API objects and adapter instances;
-- transient drag implementation details (pointer position, drag-image node, hover target);
-- custom-control runtime nodes registered through module APIs;
-- any other per-session technical object that cannot be JSON-serialised.
-
-## What Does Not Belong In `_KDB.runtime`
-
-- selected values, settings and durable user choices (use `_KDB.state`);
-- declarative options or labels (use `_KDB.dropdownOptions`, `_KDB.config`);
-- Cognos dashboard spec values (use `_KDB.properties`);
-- thin host wrappers themselves (use `_KDB.cognosAPI.<theme>.<function>`);
-- functions intended to be called from other modules (use `_KDB.api.<module>` or `_KDB.services.<service>`);
-- snapshots of state for restore (use `_KDB.state`).
-
-A value that fits in both `_KDB.state` and `_KDB.runtime` is a sign that the value is two values under one name: split it.
-
-## Standard Resource Buckets Per Owner
-
-Use the following bucket names when the resource fits. Do not invent synonyms.
+Use these names; do not invent synonyms.
 
 | Bucket | Holds |
 |---|---|
-| `listeners` | DOM listener cleanup records or listener descriptors |
-| `subscriptions` | event-bus unsubscribe handles or subscription cleanup records |
-| `abortControllers` | AbortController instances |
-| `observers` | MutationObserver, ResizeObserver, IntersectionObserver, etc. |
-| `timers` | timeout and interval ids |
-| `domRefs` | live DOM nodes or jQuery objects the module mounted itself |
-| `adapters` | live adapter instances created at mount time |
-| `pendingPromises` | in-flight coordination references; cleanup must abort the underlying operation where possible and ignore stale results |
-| `customControls` | per-control runtime registered via custom-control APIs |
+| `abortControllers` | AbortControllers (preferred cleanup mechanism) |
+| `listeners` | DOM listener records when `{ signal }` cannot be used |
+| `subscriptions` | `_KDB.events` unsubscribe functions when `{ signal }` is not used |
+| `observers` | MutationObserver, ResizeObserver, IntersectionObserver |
+| `timers` | timeout, interval and rAF ids; store the kind with the id so cleanup calls the matching clear function |
+| `domRefs` | DOM nodes the module mounted or resolved |
+| `pendingPromises` | in-flight work; cleanup aborts it and ignores late results |
+| `adapters`, `customControls` | live instances created at mount |
 
-Examples:
+The kit's `disposeRuntimeBuckets` cleans all of these. Use it instead of a per-module cleanup loop.
 
-```js
-_KDB.runtime.kdbControl.subscriptions
-_KDB.runtime.widgets[widgetId].listeners
-_KDB.runtime.header.abortControllers
-_KDB.runtime.launchpad.observers
-```
+## Cleanup
 
-A module that needs a bucket not in this list either (a) reuses an existing bucket semantically, or (b) stops and asks for a new bucket name.
-
-## Cleanup Ownership
-
-Every owner cleans up its own runtime resources.
-
-- Module destroy or region cleanup unsubscribes all entries under `_KDB.runtime.<owner>.subscriptions`, removes listeners, aborts controllers, disconnects observers, clears timers, releases DOM references and clears `pendingPromises`.
-- Widget cleanup removes everything under `_KDB.runtime.widgets[widgetId].*` before transitioning lifecycle state.
-- Bootstrap-owned resources are torn down by bootstrap, not by feature code.
-
-Creating a listener, subscription, observer, timer or controller without a registered cleanup path is forbidden. "We will clean up later" is not a cleanup path.
-
-## AbortController Preference
-
-Where the platform supports it, prefer a single `AbortController` per logical scope over tracking individual handles.
+- Every listener, subscription, observer, timer and controller has a cleanup path that runs in `destroy` (and on re-render for per-render resources). "Clean up later" is not a path.
+- Prefer one AbortController per scope (module mount, popup open, drag session):
 
 ```js
-const controller = new AbortController();
-_KDB.runtime.kdbControl.abortControllers.main = controller;
-
-document.addEventListener("click", onDocumentClick, { signal: controller.signal });
-
-// On cleanup:
-controller.abort();
-delete _KDB.runtime.kdbControl.abortControllers.main;
+var scope = new AbortController();
+_KDB.runtime.kdbControl.abortControllers.panel = scope;
+document.addEventListener("mousedown", onOutsideClick, { signal: scope.signal });
+_KDB.events.subscribe(_tabsEvents.CHANGED, onTabsChanged, { signal: scope.signal });
+// cleanup
+scope.abort();
 ```
 
-Native DOM APIs accept `{ signal }` directly. Whether `_KDB.events.subscribe` accepts a signal depends on the eventBus implementation; when it does not, store the unsubscribe handle in `_KDB.runtime.<owner>.subscriptions` and call it at cleanup. Mixing the two patterns is fine as long as every resource has a cleanup path.
+- `_KDB.events.subscribe` accepts `{ signal }` and also returns an unsubscribe function.
+- Replacing a resource (re-open, re-bind) aborts or clears the old one first.
+- Widget-scoped resources are cleared when the widget is removed, before its lifecycle changes.
+- Bootstrap resources in `_KDB.runtime.core` belong to `KDB.js`.
+- Waits use timeouts and the signal (kit `sleep`, `pollUntil`); abort listeners are removed when the wait ends.
 
-When `AbortController` cannot be used (legacy listener or external API), store the listener descriptor or unsubscribe handle and call the matching `remove*`, `off*` or `unsubscribe` at cleanup.
+## Owner-private
 
-## Live DOM And jQuery
+Other modules do not read or write `_KDB.runtime.<owner>`. They use the owner's API, selectors or events. Known existing violations (`runtime.cognosHost.chromeChecks`, `runtime.tabs.pendingPromises`, `runtime.<owner>.historyReplayHandlerContribution`, `runtime.history.writebackRestore`, `runtime.core.domRefs`) are scheduled to become real APIs in Phase 2. Do not add new ones.
 
-Live DOM and jQuery references live only in `_KDB.runtime.<owner>.domRefs` or in scoped local variables resolved per render cycle. They do not live in `_KDB.state`, and they do not live in `_KDB.elements` (which holds selectors only).
-
-After a re-render or DOM rebuild, old `domRefs` are stale and must be re-resolved against the new DOM. Do not cache long-lived references to volatile DOM.
-
-## No Serialisation
-
-`_KDB.runtime` is never serialised, persisted or restored:
-
-- not via `JSON.stringify`;
-- not via writeback to a Cognos parameter set;
-- not via diagnostics dump that is read back as input.
-
-If a value needs to survive a session, it does not belong in `_KDB.runtime`; promote it to `_KDB.state` with a canonical writer.
-
-## Cross-Module Access
-
-Other modules do not read or write into `_KDB.runtime.<owner>`. Runtime is owner-private. Cross-module coordination goes through:
-
-- the owner's public API (`_KDB.api.<owner>` or `_KDB.services.<service>`);
-- the event bus (`_KDB.events`);
-- shared services that expose deliberate read methods.
-
-Reading another module's runtime to "just see what is going on" is forbidden.
-
-## When AI Must Ask
-
-The AI must explicitly ask the user when at least one of these triggers applies:
-
-- a runtime resource needs a bucket name that is not on the standard list;
-- two owners legitimately need to share a runtime resource (rare; usually means one of them is misclassified);
-- cleanup ownership is unclear (resource created by module A, lifecycle controlled by module B);
-- legacy code stores a runtime object in `_KDB.state.*` and the safe migration target is not obvious.
-
-Ask-template: *"For runtime resource `<X>` I propose placement under `_KDB.runtime.<owner>.<bucket>` because `<reason>`. Acceptable, or should we discuss ownership?"*
-
-## Anti-Goals
-
-- No technical runtime objects in `_KDB.state`.
-- No live DOM in `_KDB.elements`; selectors only there.
-- No resource created without a matching cleanup path.
-- No cross-module access to another module's runtime subtree.
-- No serialisation, persistence or restore of `_KDB.runtime`.
-- No ad hoc bucket names; use the standard list or ask for a new bucket.
-
-See also: `_____________KDB3API/architecture/stateOwnership.md`, `_____________KDB3API/architecture/projectStructureRules.md`.
+DOM refs are valid for one render cycle; after a rebuild, resolve them again from selectors.

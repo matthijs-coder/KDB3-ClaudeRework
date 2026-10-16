@@ -1,33 +1,31 @@
 ---
-description: How features consume Cognos — three rings, facet stamp, no invented ops
-globs:
-  - KDB3/js/**/*.js
-  - _____________KDB3API/contracts/**/*.md
-alwaysApply: true
+description: How KDB3 code reaches Cognos. Three rings (cognosAPI, cognosHost service facets, chrome), facet stamps, Outcome results, allowed exceptions. Use whenever code touches the Cognos SDK, Cognos DOM or a cognosHost facet.
+globs: KDB3/js/core/cognosAPI/**/*.js, KDB3/js/core/services/cognosHost/**/*.js, KDB3/js/core/cognosHost/**/*.js, KDB3/js/**/read*Facet.js
+alwaysApply: false
 ---
 
 # Cognos adapter (consume, do not invent)
 
-How-to + owner catalogue: `_____________KDB3API/contracts/cognosHostService.md` **§0**. Catalogue of who stamps which facet: **§7**. Design origin (outside this root): `ADAPTER_ONTWERP_2026-08-20.md`.
+Three folders named "cognos" are three different layers. Do not merge them. (Under review: folding `core/cognosAPI` into ring 1 is an optional Phase 2 change; until it is decided, this clause holds.)
 
-Three folders named “cognos” are not one layer. Do not merge them.
-
-| Layer | Folder | May call | Must not |
+| Layer | Folder / namespace | May call | Must not |
 |---|---|---|---|
-| Inner ring | `core/cognosAPI/` | `__getDashboardAPI()` | feature flow, state |
-| Ring 1 | `core/services/cognosHost/` | `_KDB.cognosAPI.*` | `__getDashboardAPI()` |
-| Chrome | `core/cognosHost/` | selectors / chrome checks | SDK / facets |
-| Feature, writeback `get/` `set/` `effects/`, other services | owner module | stamped `_KDB.runtime.<owner>.*Facet` via `effects/read*Facet.js` | `_KDB.cognosAPI`, `__getDashboardAPI()`, deep `_KDB.services.cognosHost` lookup |
+| Inner ring | `core/cognosAPI/` → `_KDB.cognosAPI.<theme>.<fn>` | `__getDashboardAPI()`, Cognos SDK objects | feature flow, state |
+| Ring 1 | `core/services/cognosHost/` → `_KDB.services.cognosHost.<facet>` | `_KDB.cognosAPI.*` | `__getDashboardAPI()` |
+| Chrome | `core/cognosHost/` → `_KDB.elements.selectors.<group>` + chrome checks | Cognos DOM selectors | SDK, facets |
+| Features, writeback, other services | owner module | the stamped facet `_KDB.runtime.<owner>.<x>Facet` | `_KDB.cognosAPI`, `__getDashboardAPI()` |
 
 ```js
-// orchestrator (once)
+// index.js / orchestrator, once at registration
 _KDB.runtime.widgetVis.dataQueryFacet = _KDB.services.cognosHost.dataQuery;
 
-// effect — read the stamp, not the service
-var facet = (_KDB.runtime.widgetVis || {}).dataQueryFacet;
-facet.peekQueryRows(/* ids/DTOs */); // Outcome, never a host Promise/handle
+// effect: use the stamp
+var outcome = await _KDB.runtime.widgetVis.dataQueryFacet.readQueryRows(widgetId, { signal: signal });
+if (!outcome.ok) { /* outcome.outcome is "failed" or "aborted"; outcome.errorCode */ }
 ```
 
-Exceptions (do not copy): PDF `captureTabPage.js` → `resolveCaptureRoot`; `KDB.js` namespace mount/unmount; dienststelle’s **one** named filters choke in §7.
-
-Do **not** add a facet or facet op without PO + contract + a live `KDB3/js/**` caller (D4). Stale feature-contract sentences that still say “call `_KDB.cognosAPI`” lose to this rule and to §0. `runtime.<owner>.adapters` is not the Cognos facet path.
+- Facet operations take ids and plain data and return an Outcome `{ ok, outcome, data?, errorCode?, reason?, diagnostics? }`, never a raw Cognos promise or handle.
+- A separate `read<X>Facet.js` file per facet is not needed; read the stamp where it is used. The stamp names stay stable (other modules and the writeback depend on them). Phase 2 may replace stamping with direct injection.
+- Allowed exceptions (do not copy): PDF capture root (`core/services/dashboardPdf/effects/captureTabPage.js`), and `KDB.js` creating and clearing the `_KDB.cognosAPI` namespace.
+- Do not add a facet or facet operation without a real caller in `KDB3/js`. Do not add per-module wrappers around `_KDB.cognosAPI`. `_KDB.runtime.<owner>.adapters` is not the facet path.
+- Inner-ring functions without callers are deleted in the cognos workstream, not ad hoc.

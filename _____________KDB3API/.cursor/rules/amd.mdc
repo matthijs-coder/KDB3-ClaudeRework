@@ -1,236 +1,37 @@
 ---
-description: KDB3 AMD module shape: define() factories, full-compact form, no ES modules in production
-globs:
-  - KDB3/js/**/*.js
-alwaysApply: true
+description: KDB3 AMD module shape for production code. define() form, what a module returns, dependency injection, forbidden forms, tools outside KDB3/js.
+globs: KDB3/js/**/*.js
+alwaysApply: false
 ---
 
-# AMD Module Rules
+# AMD modules
 
-Production code in `KDB3/js/**` ships as AMD modules. Cognos loads our production code through RequireJS; the host does not understand ES module `import` / `export`. This rule fixes the module shape and forbids forms that would silently fail in the host.
-
-## Define Shape
-
-Every production file consists of exactly one top-level `define(...)` call:
+Cognos loads `KDB3/js/**` through its RequireJS. The host does not understand ES modules, so every production file is exactly one AMD module:
 
 ```js
-define([
-  "module/path/createKdbControlController.js",
-  "module/path/createHistoryService.js"
-], function (_createKdbControlController, _createHistoryService) {
-  function __orchestrator(_KDB, _options) {
-    const controller = _createKdbControlController({ /* deps */ });
-    const historyService = _createHistoryService({ /* deps */ });
-    return controller;
-  }
+define(["../tabs/state/selectors.js"], function (_tabsSelectors) {
+  "use strict";
 
-  return __orchestrator;
+  function readHeaderVisible(_KDB) { return _KDB.state.header.status === "active"; }
+  function readHeaderTabId(_KDB) { return _tabsSelectors.readActiveTabId(_KDB); }
+
+  return { readHeaderVisible: readHeaderVisible, readHeaderTabId: readHeaderTabId };
 });
 ```
 
-The factory function returns exactly one value: the orchestrator function, the controller factory, the service factory, an object literal, or a single helper function. A `define` factory that returns multiple unrelated exports is a code-smell and must be split.
+- Dependency paths are relative and end in `.js`; the array order matches the parameter order.
+- A module returns one value: a function, a factory, or an object of **related** named exports (`selectors.js`, `state.js`, `config.js`, a kit file). Not a grab bag of unrelated functions.
+- Declare helpers as named function declarations at factory scope. Short inline callbacks (`map`, `filter`, listeners that call one function) are fine. A controller factory defines its API methods as closures inside the factory (see the `index.js` skeleton in `feature-structure.mdc`); do not nest further function definitions inside those methods.
+- Start async work in a named function that takes `_KDB`, its arguments and an `AbortSignal`; no inline `async` IIFEs inside methods.
+- Runtime dependencies (`_KDB`, services, facets) are passed in by the registering code or read from `_KDB` namespaces; code dependencies come through AMD imports. Deep files never use `window._KDB` or `window.top.getKDB()`.
+- Many imports in one file are a hint that it holds more than one concept; there is no fixed limit.
 
-AMD import bindings carry the underscore prefix for boundary inputs per `naming.mdc`. The dependency array order matches the parameter order one-to-one.
+## Forbidden in `KDB3/js/**`
 
-## Full-Compact Form
+- `import` / `export`, CommonJS `require(...)`, the simplified `define(function (require, exports, module) {...})` wrapper.
+- More than one `define` per file; conditional or dynamic `define`.
+- Side effects at file top level outside `define`; module-level mutable state that outlives one `_KDB` instance (per-instance state lives in the controller closure, `_KDB.state` or `_KDB.runtime`).
 
-The factory body is compact: it wires named helpers and returns. Inline or nested subfunction definitions inside the returned entry function, controller body, callbacks or executable flow are forbidden. **Named helper functions and the named entry function itself may live at AMD factory scope below or above the entry function, or in separate files.** Factory scope is everything directly inside the `function (...) { ... }` passed to `define`, but outside the entry function's body.
+## Outside `KDB3/js`
 
-### Allowed: named functions at AMD factory scope
-
-```js
-// Allowed: the entry function (__controller) and a helper (buildRowView)
-// are BOTH named function declarations at AMD factory scope. Neither lives
-// inside the other.
-define(["./readWidgetData.js"], function (_readWidgetData) {
-  function __controller(_KDB, _widgetId) {
-    const rows = _readWidgetData(_KDB, _widgetId);
-    return rows.map(row => buildRowView(row));
-  }
-
-  function buildRowView(row) {
-    return { id: row.id, label: row.title };
-  }
-
-  return __controller;
-});
-```
-
-A factory may contain multiple named helpers at factory scope. Naming them as `function declarations` (not `const fn = function () {}` and not `const fn = () => {}`) keeps hoisting predictable and signals "this is a module-scope helper, not local logic".
-
-### Allowed: factory-scope async helper for fire-and-forget effect chains
-
-A named method on a service or controller that starts an async effect (Cognos call, fetch, long-running coordination) must not inline an `async function () { ... }()` IIFE inside the method body. Lift the async work into a named factory-scope helper that takes `_KDB`, the method arguments and the `AbortSignal` as parameters:
-
-```js
-define([
-  "./effects/loadTableFromCognos.js",
-  "./state/writers/markTableLoading.js",
-  "./state/writers/markTableLoaded.js",
-  "./state/writers/markTableFailed.js",
-  "./events/eventNames.js"
-], function (_loadTableFromCognos, _markTableLoading, _markTableLoaded, _markTableFailed, _eventNames) {
-  async function runReloadTableLoadWork(_KDB, tableName, signal) {
-    try {
-      const result = await _loadTableFromCognos(_KDB, { tableName, signal });
-      _markTableLoaded(_KDB, { tableName, rows: result.rows, rowCount: result.rows.length });
-      _KDB.events.emit(_eventNames.LOAD_FINISHED, { tableName, rowCount: result.rows.length });
-      return result.rows;
-    } catch (err) {
-      _markTableFailed(_KDB, { tableName, errorCode: "loadFailed", errorMessage: String(err) });
-      _KDB.events.emit(_eventNames.LOAD_FAILED, { tableName, errorCode: "loadFailed", errorMessage: String(err) });
-      throw err;
-    } finally {
-      delete _KDB.runtime.tableData.pendingLoads[tableName];
-      delete _KDB.runtime.tableData.listeners[tableName];
-    }
-  }
-
-  function createTableDataService(_KDB) {
-    function reloadTable(tableName) {
-      _markTableLoading(_KDB, { tableName });
-      const controller = new AbortController();
-      _KDB.runtime.tableData.listeners[tableName] = controller;
-      const p = runReloadTableLoadWork(_KDB, tableName, controller.signal);
-      _KDB.runtime.tableData.pendingLoads[tableName] = p;
-      return p;
-    }
-    return { reloadTable };
-  }
-
-  return createTableDataService;
-});
-```
-
-The named method (`reloadTable`) stays a thin orchestration step: setup runtime entry, start the work, record the promise, return. The async helper (`runReloadTableLoadWork`) carries the `try / catch / finally` that closes over the work's state transitions and cleanup. Both live at factory scope; neither is nested inside the other.
-
-### Forbidden: subfunction definitions inside the entry function or its callbacks
-
-```js
-// Forbidden: subfunction definition inside the factory's return path.
-define(["./readWidgetData.js"], function (_readWidgetData) {
-  return function (_KDB, _widgetId) {
-    const buildRowView = function (row) { return { id: row.id, label: row.title }; };
-    const rows = _readWidgetData(_KDB, _widgetId);
-    return rows.map(row => buildRowView(row));
-  };
-});
-```
-
-```js
-// Forbidden: subfunction definition inside a callback passed to a method on
-// the entry function's return value or anywhere in the executable flow.
-define(["./readWidgetData.js"], function (_readWidgetData) {
-  function __controller(_KDB, _widgetId) {
-    const rows = _readWidgetData(_KDB, _widgetId);
-    return rows.map(function (row) {
-      function buildRowView(r) { return { id: r.id, label: r.title }; }
-      return buildRowView(row);
-    });
-  }
-  return __controller;
-});
-```
-
-Helpers extracted to module scope keep the entry function short, testable and easy to read for both humans and AI. The rule of thumb: **declare functions at factory scope, call them from inside the entry function**, never the other way around.
-
-## Entry Function Names
-
-Per `naming.mdc` and `feature-structure.mdc`:
-
-| Role | Entry function name | Factory file name |
-|---|---|---|
-| Folder orchestrator | `__orchestrator` | `__orchestrator<FolderName>.js` |
-| Normal executable file | `__controller` | `verb + noun.js` (e.g. `readWidgetData.js`) |
-| Module controller factory | `createKdbControlController` | `createKdbControlController.js` |
-| Service factory | `createTableDataService` | `createTableDataService.js` |
-| Adapter factory (ring 1 only) | `createCognosHostService` | `createCognosHostService.js` |
-
-A factory file's `define` returns the corresponding factory function. An orchestrator's `define` returns the `__orchestrator` function. A normal executable file's `define` returns its `__controller`.
-
-## Dependency Injection
-
-Dependencies enter a factory in two ways, used together:
-
-- **AMD imports** for code dependencies (other factories, pure helpers, constants).
-- **Options object** for runtime dependencies the orchestrator wires (`_KDB`, services, adapters, event bus).
-
-```js
-define([
-  "./state/createInitialState.js",
-  "./effects/applyKdbControlEffects.js"
-], function (_createInitialState, _applyKdbControlEffects) {
-  function createKdbControlController(_deps) {
-    const { _KDB, eventBus, historyService, tableDataService } = _deps;
-    // ...
-  }
-
-  return createKdbControlController;
-});
-```
-
-Deep files do not reach for `window._KDB`, `window.top.getKDB()` or `_KDB.services.<x>` to discover dependencies. Dependencies are explicit per `_____________KDB3API/architecture/projectStructureRules.md`.
-
-A file with more than 6 AMD imports is a smell; more than 10 requires restructuring per `feature-structure.mdc`. Thin orchestrators may approach the limit when they only coordinate clearly named steps.
-
-## Forbidden Forms
-
-ES module syntax does not appear anywhere in production code:
-
-```js
-// Forbidden in KDB3/js/**:
-import { something } from "./foo.js";
-export function bar() { /* ... */ }
-export default function () { /* ... */ }
-```
-
-Other forbidden shapes:
-
-- **Multiple `define` calls in one file.** One module per file.
-- **CommonJS `require(...)` calls** mixed with AMD `define`.
-- **`define` with the simplified CommonJS wrapper** (`define(function (require, exports, module) { ... })`); use the explicit dependency-array form.
-- **Conditional or dynamic `define` calls** (`if (cond) define(...);`).
-- **Side-effects at module top level** outside the `define` factory; all initialisation runs inside the factory or through an orchestrator entry call.
-- **Module-level state on the factory closure** that survives multiple instantiations; per-instance state lives on the controller instance, per-session state lives in `_KDB.state` / `_KDB.runtime`.
-
-## Harness Exception
-
-Files outside `KDB3/js/**` — local harnesses, test scaffolding, build-time tooling — may use ES modules when the harness runs in a non-AMD environment (Node, Vite, esbuild, plain `<script type="module">`). The boundary is hard: nothing inside `KDB3/js/**` imports from or exports to a harness file using ES module syntax.
-
-A harness that exercises a production module imports it through the same AMD path the host uses (RequireJS in the harness page) or through a thin AMD-aware shim. Direct ES `import` of a production AMD file is forbidden.
-
-## When AI Must Ask
-
-The AI must explicitly ask the user when at least one of these triggers applies:
-
-- a planned factory file would return more than one unrelated export;
-- a needed shape does not fit `__orchestrator`, `__controller`, `create<Module>Controller`, `create<Service>Service` or `create<Adapter>Adapter`;
-- inline subfunctions inside the factory cannot easily be lifted to module scope;
-- a file is approaching the 6/10 import-count threshold and a clean split is non-obvious;
-- existing legacy code uses the simplified CommonJS wrapper or multiple `define` calls and the safe migration target is unclear;
-- a harness needs to interact with a production module in a way that is not covered by the AMD-aware shim approach.
-
-Do not ask when:
-
-- the file follows the canonical `define([...], function (...) { ... })` shape and returns one value;
-- the entry function name matches the canonical role suffix;
-- the dependencies fit the AMD-imports + options-object pattern.
-
-Ask-template: *"For `<X>` I propose `<AMD shape | factory split | harness boundary>` because `<reason>`. Acceptable?"*
-
-## Anti-Goals
-
-- No ES module `import` / `export` in `KDB3/js/**`.
-- No multiple `define` calls in one file; one module per file.
-- No simplified CommonJS-style `define` wrapper.
-- No conditional or dynamic `define` calls.
-- No side-effects at module top level outside the `define` factory.
-- No inline or nested subfunction definitions inside the entry function, callbacks or return path; extract to named AMD-factory-scope helpers or separate files.
-- No inline `async function () { ... }()` IIFE inside a named method body; lift the async work into a named factory-scope helper that takes `_KDB`, the method arguments and the `AbortSignal` as parameters.
-- No `define` factory that returns multiple unrelated exports; split into separate files.
-- No deep files reaching for `window._KDB`, `window.top.getKDB()` or other globals to discover dependencies; injection comes from the orchestrator via the options object.
-- No mixed AMD + CommonJS `require(...)` in production code.
-- No module-level state on the factory closure that survives multiple instantiations.
-- No direct ES `import` of a production AMD file from a harness.
-
-See also: `_____________KDB3API/architecture/projectStructureRules.md`, `_____________KDB3API/architecture/stateOwnership.md`, `feature-structure.mdc`, `naming.mdc`, `module-public-api.mdc`.
+`tools/` (repo root) is Node ESM (`.mjs`, no npm dependencies). Tools load production files through an AMD shim, never through ES `import`, and production code never imports from `tools/`.
