@@ -482,7 +482,7 @@ test("waitForRootLifecycleReady: ready, terminal lifecycle, cancel request and a
   assert.equal(aborted._KDB.runtime.writeback.timers.readyWait, undefined);
 });
 
-test("waitForRootLifecycleReady: gives up after 180 s with WRITEBACK_TIMEOUT", { todo: "C2 step 3" }, async (t) => {
+test("waitForRootLifecycleReady: gives up after 180 s with WRITEBACK_TIMEOUT", async (t) => {
   const waitForRootLifecycleReady = load("waitForRootLifecycleReady");
   const createRunContext = load("createRunContext");
   const kdb = createKdb({ lifecycle: "booting" });
