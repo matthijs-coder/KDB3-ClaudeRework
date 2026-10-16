@@ -2,9 +2,13 @@ define([
   "../state/cloneSerializable.js",
   "./effectResultHelpers.js",
   "./releaseTopNClaim.js",
-  "./dismissHelperTitleEdit.js"
-], function (_cloneSerializable, _helpers, _releaseTopNClaim, _dismissHelperTitleEdit) {
+  "./dismissHelperTitleEdit.js",
+  "../runtime/ensureWidgetTopNRuntime.js"
+], function (_cloneSerializable, _helpers, _releaseTopNClaim, _dismissHelperTitleEdit, _runtime) {
   "use strict";
+
+  var CLEANUP_KEY_PREFIX = "helperCleanup:";
+  var CLEANUP_SETTLE_TIMEOUT_MS = 5000;
 
   async function __controller(_deps, _context) {
     try {
@@ -24,6 +28,85 @@ define([
       }
       console.error("[widgetTopN.cleanupTopNHelper] failed", { ownerVisId: _context && _context.ownerVisId }, err);
       return _helpers.failure("WIDGET_TOPN_CLEANUP_FAILED", _helpers.messageFromError(err));
+    }
+  }
+
+  // At most one cleanup runs per helper. A newer cleanup or a claimant aborts
+  // the running one and waits until it has settled, so no other op touches the
+  // helper while a cleanup apply is still in flight. The claimant's own
+  // pre-apply reset replaces an aborted cleanup (contract §8.3).
+  function runExclusiveHelperCleanup(_deps, _context) {
+    var runtime = _runtime.ensureRuntime(_deps._KDB);
+    var key = CLEANUP_KEY_PREFIX + _context.helperWidgetId;
+    var previous = runtime.pendingPromises[key] || null;
+    var controller = new AbortController();
+    if (runtime.abortControllers[key]) {
+      runtime.abortControllers[key].abort();
+    }
+    runtime.abortControllers[key] = controller;
+    var record = { controller: controller, promise: null };
+    record.promise = runCleanupAfter(_deps, _context, previous, controller.signal);
+    runtime.pendingPromises[key] = record;
+    var release = releaseCleanupRecord.bind(null, runtime, key, record);
+    record.promise.then(release, release);
+    return record.promise;
+  }
+
+  async function runCleanupAfter(_deps, _context, previous, signal) {
+    if (previous) {
+      await waitForSettle(previous, null, _context.helperWidgetId);
+    }
+    return __controller(_deps, Object.assign({}, _context, { signal: signal }));
+  }
+
+  // Resolves true when no cleanup runs on the helper (any more), false when
+  // _signal aborted the wait. A cleanup that does not settle in time is logged
+  // and the caller proceeds, as before this gate existed.
+  async function settleHelperCleanup(_KDB, _helperWidgetId, _signal) {
+    var runtime = _runtime.ensureRuntime(_KDB);
+    var record = _helperWidgetId ? runtime.pendingPromises[CLEANUP_KEY_PREFIX + _helperWidgetId] : null;
+    if (!record) {
+      return true;
+    }
+    record.controller.abort();
+    return (await waitForSettle(record, _signal, _helperWidgetId)) !== "aborted";
+  }
+
+  function waitForSettle(record, signal, helperWidgetId) {
+    var listenable = !!signal && typeof signal.addEventListener === "function";
+    return new Promise(function (resolve) {
+      var timerId = setTimeout(onTimeout, CLEANUP_SETTLE_TIMEOUT_MS);
+      function finish(outcome) {
+        clearTimeout(timerId);
+        if (listenable) {
+          signal.removeEventListener("abort", onAbort);
+        }
+        resolve(outcome);
+      }
+      function onAbort() {
+        finish("aborted");
+      }
+      function onTimeout() {
+        console.warn("[widgetTopN.settleHelperCleanup] helper cleanup did not settle", { helperWidgetId: helperWidgetId });
+        finish("timeout");
+      }
+      if (signal && signal.aborted) {
+        finish("aborted");
+        return;
+      }
+      if (listenable) {
+        signal.addEventListener("abort", onAbort);
+      }
+      record.promise.then(finish.bind(null, "settled"), finish.bind(null, "settled"));
+    });
+  }
+
+  function releaseCleanupRecord(runtime, key, record) {
+    if (runtime.pendingPromises[key] === record) {
+      delete runtime.pendingPromises[key];
+    }
+    if (runtime.abortControllers[key] === record.controller) {
+      delete runtime.abortControllers[key];
     }
   }
 
@@ -62,7 +145,9 @@ define([
     if (!result || result.status !== "success") {
       return _helpers.failure("WIDGET_TOPN_CLEANUP_FAILED", _helpers.readApplyError(result), { plan: plan, applyResult: result });
     }
-    writeCleanupRuntime(_context.ownerRuntime, plan);
+    if (!isStaleCleanup(_context) && isOwnersCurrentHelper(_context)) {
+      writeCleanupRuntime(_context.ownerRuntime, plan);
+    }
     return { ok: true, status: "success", diagnostics: result.diagnostics || null };
   }
 
@@ -96,6 +181,10 @@ define([
     ownerRuntime.lastHelperPlan = null;
   }
 
+  function isOwnersCurrentHelper(_context) {
+    return !_context.ownerRuntime || _context.ownerRuntime.helperWidgetId === _context.helperWidgetId;
+  }
+
   function readSignal(_context) {
     return _context.signal || { aborted: false };
   }
@@ -108,5 +197,9 @@ define([
     return ownerRuntime.opSeq !== _context.opSeq || readSignal(_context).aborted === true;
   }
 
-  return __controller;
+  return {
+    cleanupTopNHelper: __controller,
+    runExclusiveHelperCleanup: runExclusiveHelperCleanup,
+    settleHelperCleanup: settleHelperCleanup
+  };
 });

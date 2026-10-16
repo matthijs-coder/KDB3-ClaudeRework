@@ -2,8 +2,9 @@ define([
   "../config/actionTypes.js",
   "./mirrorTopNHelperClaim.js",
   "./placeHelperAfterOwner.js",
-  "./effectResultHelpers.js"
-], function (_actionTypes, _mirrorTopNHelperClaim, _placeHelper, _helpers) {
+  "./effectResultHelpers.js",
+  "./cleanupTopNHelper.js"
+], function (_actionTypes, _mirrorTopNHelperClaim, _placeHelper, _helpers, _cleanup) {
   "use strict";
 
   var CLAIM_CONFIRM_MS = 50;
@@ -31,6 +32,9 @@ define([
         _mirrorTopNHelperClaim.clearMirrorIfMatch(_deps._KDB, helperWidgetId, _context.ownerVisId, claimToken);
         return options.retryOnFailure ? { ok: false, status: "retry" } : null;
       }
+      // The claim is ours: a cleanup still running on this helper is moot and
+      // must settle before this op moves or rebinds the helper.
+      await _cleanup.settleHelperCleanup(_deps._KDB, helperWidgetId, _context.signal);
       return { ok: true, helperWidgetId: helperWidgetId, claimToken: claimToken };
     } catch (err) {
       console.error("[widgetTopN.confirmTopNHelperClaim] claim failed", { ownerVisId: _context && _context.ownerVisId, helperWidgetId: helperWidgetId }, err);

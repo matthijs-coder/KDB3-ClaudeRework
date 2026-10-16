@@ -3,7 +3,7 @@ define([
   "./validateOwnerVisId.js",
   "../runtime/ensureWidgetTopNRuntime.js",
   "../effects/effectResultHelpers.js"
-], function (_cleanupTopNHelper, _validateOwnerVisId, _runtime, _helpers) {
+], function (_cleanup, _validateOwnerVisId, _runtime, _helpers) {
   "use strict";
 
   async function __controller(_context, _action) {
@@ -15,7 +15,7 @@ define([
       var ownerRuntime = _context.readOwnerRuntime(request.ownerVisId);
       _runtime.abortOwnerResolve(ownerRuntime);
       if (request.clearHelperBinding === true || request.releaseClaim === true) {
-        var cleanup = await _cleanupTopNHelper({ _KDB: _context._KDB }, buildCleanupContext(request, ownerRuntime));
+        var cleanup = await runCleanup(_context, buildCleanupContext(request, ownerRuntime));
         if (cleanup.ok !== true && cleanup.status !== "aborted") {
           _context.dispatchInternal({
             type: _context.actionTypes.ERROR_RECORDED,
@@ -53,6 +53,16 @@ define([
       dataConfig: payload.dataConfig || null,
       config: payload.config || {}
     };
+  }
+
+  // A release-only cleanup (Jahr wave) does no helper work and must not abort a
+  // running post-resolution cleanup; the next claimant settles that one.
+  function runCleanup(_context, cleanupContext) {
+    var deps = { _KDB: _context._KDB };
+    if (cleanupContext.clearHelperBinding === true) {
+      return _cleanup.runExclusiveHelperCleanup(deps, cleanupContext);
+    }
+    return _cleanup.cleanupTopNHelper(deps, cleanupContext);
   }
 
   function buildCleanupContext(request, ownerRuntime) {

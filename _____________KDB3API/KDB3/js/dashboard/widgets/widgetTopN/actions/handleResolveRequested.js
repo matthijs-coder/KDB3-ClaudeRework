@@ -93,7 +93,15 @@ define([
   }
 
   function buildClaimContext(context, request, opSeq, ownerRuntime) {
-    return { ownerVisId: request.ownerVisId, opSeq: opSeq, ownerRuntime: ownerRuntime, dispatchInternal: context.dispatchInternal, tabId: request.tabId || null };
+    var resolveController = ownerRuntime.abortControllers ? ownerRuntime.abortControllers.resolve : null;
+    return {
+      ownerVisId: request.ownerVisId,
+      opSeq: opSeq,
+      ownerRuntime: ownerRuntime,
+      dispatchInternal: context.dispatchInternal,
+      tabId: request.tabId || null,
+      signal: resolveController ? resolveController.signal : null
+    };
   }
 
   function buildSpecContext(request, opSeq, ownerRuntime, helperWidgetId) {
