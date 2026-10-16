@@ -293,3 +293,23 @@ test("the position decision is made once per active overlay on a mount", () => {
   assert.equal(reads, 2);
   assert.equal(widgetEl.style.position, "relative");
 });
+
+test("finishLoading resolves a non-string mountKey like the old code (truthy key, stored mount lookup)", () => {
+  const { env, _KDB, service, widgetEl } = setup();
+  service.startLoading({ mountKey: "7" });
+  service.finishLoading({ mountKey: 7 });
+  env.clock.advance(0);
+  assert.equal(spinnerOf(widgetEl), null);
+  assert.deepEqual(_KDB.state.loading["7"], { activeCount: 0, isActive: false });
+  assert.equal(_KDB.state.loading["kdb-root-loading"], undefined);
+});
+
+test("watchdog callback failure is logged and does not escape the timer", async () => {
+  const { env, _KDB, service, homeChoices } = setup();
+  service.startLoading({ mountKey: BOOT_KEY, watchdogMs: 10 });
+  _KDB.services.loading.finishLoading = () => { throw new Error("boom"); };
+  assert.doesNotThrow(() => env.clock.advance(10));
+  await flush();
+  assert.equal(env.console.calls.error.length, 1);
+  assert.equal(homeChoices.length, 0);
+});

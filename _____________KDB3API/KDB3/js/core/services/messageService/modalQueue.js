@@ -55,8 +55,9 @@ define(["./copyable.js", "./dialog.js"], function (_copyable, _dialog) {
 
   // Dialog event callback: a failure here must not leave the queue stuck on the active request.
   function handleAction(context, payload) {
-    var request = context._KDB.runtime.messageService.queues.activeModalRequest;
+    var request;
     try {
+      request = context._KDB.runtime.messageService.queues.activeModalRequest;
       if (!request) return;
       if (request.kind === "copyable" && payload.action === "copy") {
         _copyable.copyActiveRequestText(context, request.id);

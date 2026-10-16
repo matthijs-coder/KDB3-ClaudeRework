@@ -37,11 +37,12 @@ define([
     } else {
       mountEl = (_KDB.elements && _KDB.elements.kdbWidget) || null;
     }
-    return { mountEl: mountEl, mountKey: resolveMountKey(mountEl, opts, handle) };
+    return { mountEl: mountEl, mountKey: resolveMountKey(mountEl, opts, handle, !!runtime) };
   }
 
-  function resolveMountKey(mountEl, opts, handle) {
-    if (typeof opts.mountKey === "string" && opts.mountKey.length > 0) {
+  // Start and reconcile accept only a non-empty string key; finish accepts any truthy key (as before).
+  function resolveMountKey(mountEl, opts, handle, isFinish) {
+    if (isFinish ? opts.mountKey : typeof opts.mountKey === "string" && opts.mountKey.length > 0) {
       return opts.mountKey;
     }
     if (handle && handle.mountKey) {

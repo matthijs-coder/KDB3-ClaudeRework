@@ -30,8 +30,13 @@ define(["../../utils/kit/runtime.js", "./config.js", "./state.js"], function (_r
 
   function runWatchdog(_KDB, mountEl, mountKey) {
     var loading = _KDB.services && _KDB.services.loading;
-    if (loading && typeof loading.finishLoading === "function") {
-      loading.finishLoading({ mountEl: mountEl, mountKey: mountKey, removeDelayMs: 0 });
+    try {
+      if (loading && typeof loading.finishLoading === "function") {
+        loading.finishLoading({ mountEl: mountEl, mountKey: mountKey, removeDelayMs: 0 });
+      }
+    } catch (error) {
+      console.error("[loadingService.runWatchdog] failed", { mountKey: mountKey }, error);
+      return;
     }
     if (mountKey === _config.BOOT_MOUNT_KEY) {
       presentWatchdog(_KDB);

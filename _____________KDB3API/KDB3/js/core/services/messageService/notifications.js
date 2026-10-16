@@ -168,10 +168,32 @@ define([
       _rt.addListener(runtime.listeners, "windowResize", window, "resize", schedule, false);
       _rt.addListener(runtime.listeners, "windowScroll", window, "scroll", schedule, true);
     }
-    if (anchorDocument && !runtime.observers.reposition && typeof MutationObserver === "function") {
-      observer = new MutationObserver(schedule);
-      observer.observe(anchorDocument.documentElement, { childList: true, subtree: true });
-      runtime.observers.reposition = observer;
+    if (!anchorDocument || typeof MutationObserver !== "function") {
+      return;
+    }
+    runtime.observers.reposition = runtime.observers.reposition || [];
+    if (runtime.observers.reposition.some(function (entry) { return entry.observedDocument === anchorDocument; })) {
+      return;
+    }
+    observer = new MutationObserver(schedule);
+    observer.observedDocument = anchorDocument;
+    observer.observe(anchorDocument.documentElement, { childList: true, subtree: true });
+    runtime.observers.reposition.push(observer);
+  }
+
+  // One observer per anchor document; an observer goes when no open anchored toast lives in its document.
+  function releaseIdleObservers(runtime) {
+    var anchored = runtime.domRefs.anchoredNotifications;
+    var observers = runtime.observers.reposition || [];
+    runtime.observers.reposition = observers.filter(function (observer) {
+      var isUsed = anchored.some(function (record) { return record.anchor.ownerDocument === observer.observedDocument; });
+      if (!isUsed) {
+        observer.disconnect();
+      }
+      return isUsed;
+    });
+    if (runtime.observers.reposition.length === 0) {
+      delete runtime.observers.reposition;
     }
   }
 
@@ -179,9 +201,8 @@ define([
     var runtime = _KDB.runtime.messageService;
     var hasAnchored = runtime.domRefs.anchoredNotifications.length > 0;
     var hasGlobal = runtime.domRefs.globalNotifications.length > 0;
-    if (!hasAnchored && runtime.observers.reposition) {
-      runtime.observers.reposition.disconnect();
-      delete runtime.observers.reposition;
+    if (runtime.observers.reposition) {
+      releaseIdleObservers(runtime);
     }
     if (!hasAnchored && !hasGlobal) {
       removeWindowListener(runtime.listeners, "windowResize");
@@ -246,6 +267,15 @@ define([
     return false;
   }
 
+  // Close button and auto-close timer call this; a failure must not leave the toast half removed.
+  function closeNotification(_KDB, record) {
+    try {
+      removeNotification(_KDB, record);
+    } catch (error) {
+      console.error("[messageService.closeNotification] failed", error);
+    }
+  }
+
   function openNotification(_KDB, options, list, extra) {
     var runtime = _KDB.runtime.messageService;
     var portalEl = _runtime.ensureMessageRoot(_KDB);
@@ -260,14 +290,14 @@ define([
     list.push(record);
     closeButton = record.notificationEl.querySelector(".kdb-message-notification__close");
     if (closeButton) {
-      closeButton.addEventListener("click", removeNotification.bind(null, _KDB, record), false);
+      closeButton.addEventListener("click", closeNotification.bind(null, _KDB, record), false);
     }
     return record;
   }
 
   function scheduleClose(_KDB, record, durationMs) {
     if (durationMs > 0) {
-      _rt.scheduleTimeout(_KDB.runtime.messageService.timers, record.id, removeNotification.bind(null, _KDB, record), durationMs);
+      _rt.scheduleTimeout(_KDB.runtime.messageService.timers, record.id, closeNotification.bind(null, _KDB, record), durationMs);
     }
   }
 
