@@ -1,6 +1,6 @@
 define([
-  "../config/restoreConstants.js",
-  "../../schema/errorCodes.js",
+  "../../config/restoreConstants.js",
+  "../../../schema/errorCodes.js",
 ], function (_constants, _errorCodes) {
   "use strict";
 

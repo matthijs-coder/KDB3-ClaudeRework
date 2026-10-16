@@ -17,9 +17,9 @@ const MODULES = {
   service: "set/createWritebackSetService.js",
   waitForRootLifecycleReady: "set/effects/waitForRootLifecycleReady.js",
   ensureTabWidgetsRouted: "set/effects/ensureTabWidgetsRouted.js",
-  whenUrlShareRestoreSettled: "set/effects/whenUrlShareRestoreSettled.js",
-  waitForSingleSelectInventoryQuiet: "set/effects/waitForSingleSelectInventoryQuiet.js",
-  mapUrlShareSelectResult: "set/effects/mapUrlShareSelectResult.js",
+  whenUrlShareRestoreSettled: "urlShare/whenUrlShareRestoreSettled.js",
+  waitForSingleSelectInventoryQuiet: "urlShare/waitForSingleSelectInventoryQuiet.js",
+  mapUrlShareSelectResult: "urlShare/mapUrlShareSelectResult.js",
 };
 
 function createConsole() {

@@ -1,8 +1,8 @@
 define([
-  "../../bridge/readUrlParameterId.js",
-  "../state/createRunContext.js",
-  "../../schema/errorCodes.js",
-  "../state/buildRestoreResult.js"
+  "./readUrlParameterId.js",
+  "../set/state/createRunContext.js",
+  "../schema/errorCodes.js",
+  "../set/state/buildRestoreResult.js"
 ], function (_readUrlParameterId, _createRunContext, _errorCodes, _buildRestoreResult) {
   "use strict";
 

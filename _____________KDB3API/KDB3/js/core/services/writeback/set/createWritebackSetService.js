@@ -3,10 +3,10 @@ define([
   "../schema/errorCodes.js",
   "./state/createRunContext.js",
   "./effects/executeRestoreRun.js",
-  "./effects/skipDefaultRestoreForUrlParameterId.js",
+  "../urlShare/skipDefaultRestoreForUrlParameterId.js",
   "./effects/waitForRootLifecycleReady.js",
-  "./effects/whenUrlShareRestoreSettled.js",
-  "./effects/presentPendingUrlShareMessage.js",
+  "../urlShare/whenUrlShareRestoreSettled.js",
+  "../urlShare/presentPendingUrlShareMessage.js",
   "./state/buildRestoreResult.js",
   "./state/ensureWritebackRuntime.js"
 ], function (
