@@ -1,122 +1,66 @@
 define([
-  "../../../tabs/events/eventNames",
-], function (_tabsEventNames) {
-
+  "../../../tabs/events/eventNames.js",
+  "../../../../core/utils/kit/runtime.js"
+], function (_tabsEventNames, _rt) {
   "use strict";
 
-  // Bounded lazy-render retry per contracts/kdbControl-tabFollow-contractdelta.md
-  // §2 (bugfix sync 2026-07-12): a first tab activation can render the page
-  // well after a single settle delay, so retry until ~4s before giving up.
+  // Bounded lazy-render retry (contracts/kdbControl-tabFollow-contractdelta.md section 2): a first tab activation can render
+  // the page well after a single settle delay, so retry for about 4 s before giving up.
   var RETRY_DELAY_MS = 400;
   var MAX_RETRIES = 10;
+  var RETRY_TIMER_KEY = "tabFollowRetry";
 
-  function readKdbControlRuntime(_KDB) {
-    return (_KDB.runtime && _KDB.runtime.kdbControl) || null;
-  }
-
-  // The KDB3Widget host exists exactly once in the document; moving it moves
-  // the control shell and the launchpad in one go (contract §3).
+  // The KDB3Widget host exists exactly once in the document; moving it moves the control shell and the launchpad together.
   function resolveKdbWidgetHost(_KDB) {
     var selectors = _KDB.elements && _KDB.elements.selectors;
     var widgetSelector = selectors && selectors.root && selectors.root.kdbWidget;
-    var host = null;
-    if (widgetSelector && typeof document !== "undefined" && document.querySelector) {
-      host = document.querySelector(widgetSelector);
-    }
+    var host = widgetSelector ? document.querySelector(widgetSelector) : null;
     return host || (_KDB.elements && _KDB.elements.kdbWidget) || null;
   }
 
-  function clearRetryTimer(_KDB) {
-    var rt = readKdbControlRuntime(_KDB);
-    if (!rt || !rt.timers || rt.timers.tabFollowRetry == null) return;
-    clearTimeout(rt.timers.tabFollowRetry);
-    delete rt.timers.tabFollowRetry;
-  }
-
-  function scheduleRetry(_KDB, _pageId, _attempt) {
-    var rt = readKdbControlRuntime(_KDB);
+  // Pure DOM placement: re-parents the host into the active tab's page element (element id === tabs pageId).
+  // Commits no kdbControl state. Runs from bus events and retry timers, so errors are logged here.
+  function moveHostToActiveTab(_KDB, pageId, attempt) {
+    var rt = _KDB.runtime && _KDB.runtime.kdbControl;
     if (!rt) return;
-    clearRetryTimer(_KDB);
-    rt.timers = rt.timers || {};
-    rt.timers.tabFollowRetry = setTimeout(
-      moveHostToActiveTab.bind(null, _KDB, _pageId, _attempt),
-      RETRY_DELAY_MS
-    );
-  }
-
-  // Pure DOM-placement effect: re-parents the KDB3Widget host into the active
-  // tab's page/dropbox element (element id === tabs pageId). Commits no
-  // kdbControl state and never throws into the event bus (contract §2 / §4).
-  function moveHostToActiveTab(_KDB, _pageId, _attempt) {
     try {
-      // A newer activation supersedes any pending retry for a previous tab.
-      clearRetryTimer(_KDB);
-      if (typeof document === "undefined" || !document.getElementById) return;
-      var pageEl = document.getElementById(_pageId);
+      _rt.clearTimer(rt.timers, RETRY_TIMER_KEY);
+      var pageEl = document.getElementById(pageId);
       var host = resolveKdbWidgetHost(_KDB);
       if (pageEl && host) {
         if (host.parentNode !== pageEl) pageEl.appendChild(host);
         return;
       }
-      if (_attempt < MAX_RETRIES) {
-        scheduleRetry(_KDB, _pageId, _attempt + 1);
+      if (attempt < MAX_RETRIES) {
+        _rt.scheduleTimeout(rt.timers, RETRY_TIMER_KEY, function () {
+          moveHostToActiveTab(_KDB, pageId, attempt + 1);
+        }, RETRY_DELAY_MS);
         return;
       }
-      console.warn("[kdbControl.followActiveTab] page element or KDB3Widget host not found; host left in place", _pageId);
+      console.warn("[kdbControl.followActiveTab] page element or KDB3Widget host not found; host left in place", pageId);
     } catch (err) {
       console.error("[kdbControl.followActiveTab] host move failed", err);
     }
   }
 
-  // Mechanical traversals (startup hydrate, writeback restore) click through
-  // every tab; chasing each activation is useless DOM churn and left the host
-  // stranded on an intermediate tab. The tabs owner emits one final
-  // tabs:changed for the landing tab after a post-restore traverse (bugfix
-  // sync 2026-07-13), so skipping in-flight traversal events is safe.
-  function isTraversalInFlight(_KDB) {
-    var pendingPromises = _KDB.runtime && _KDB.runtime.tabs && _KDB.runtime.tabs.pendingPromises;
-    return !!(pendingPromises && (pendingPromises.traverse || pendingPromises.startup || pendingPromises.tabMutation));
+  // Mechanical traversals (startup hydrate, writeback restore) click through every tab; chasing each activation is useless
+  // DOM churn. The tabs owner emits one final tabs:changed for the landing tab after a post-restore traverse.
+  function onTabsEvent(_KDB, payload) {
+    var pageId = payload && typeof payload.pageId === "string" && payload.pageId !== "" ? payload.pageId : null;
+    if (!pageId || _rt.readTabsBusy(_KDB)) return;
+    moveHostToActiveTab(_KDB, pageId, 0);
   }
 
-  function onTabsChanged(_KDB, _payload) {
-    try {
-      var pageId = _payload && typeof _payload.pageId === "string" && _payload.pageId !== "" ? _payload.pageId : null;
-      if (!pageId) return;
-      if (isTraversalInFlight(_KDB)) return;
-      moveHostToActiveTab(_KDB, pageId, 0);
-    } catch (err) {
-      console.error("[kdbControl.followActiveTab] tabs event failed", err);
+  function followActiveTab(_KDB) {
+    var rt = _KDB.runtime.kdbControl;
+    var bus = _KDB.events;
+    if (!bus || typeof bus.subscribe !== "function") return;
+    function onEvent(payload) {
+      onTabsEvent(_KDB, payload);
     }
+    if (_tabsEventNames.CHANGED) rt.subscriptions.tabsChanged = bus.subscribe(_tabsEventNames.CHANGED, onEvent);
+    if (_tabsEventNames.ACTIVATION_STARTED) rt.subscriptions.tabsActivationStarted = bus.subscribe(_tabsEventNames.ACTIVATION_STARTED, onEvent);
   }
 
-  function runTabsChangedCleanup(_KDB, _unsubscribe) {
-    clearRetryTimer(_KDB);
-    if (typeof _unsubscribe === "function") _unsubscribe();
-  }
-
-  function __controller(_KDB) {
-    try {
-      var rt = readKdbControlRuntime(_KDB);
-      var bus = _KDB.events;
-      if (!rt || !bus || typeof bus.subscribe !== "function") return;
-      rt.subscriptions = rt.subscriptions || {};
-      subscribeFollowEvent(_KDB, bus, rt, _tabsEventNames.CHANGED, "tabsChanged");
-      subscribeFollowEvent(_KDB, bus, rt, _tabsEventNames.ACTIVATION_STARTED, "tabsActivationStarted");
-    } catch (err) {
-      console.error("[kdbControl.followActiveTab] subscribe failed", err);
-    }
-  }
-
-  function subscribeFollowEvent(_KDB, _bus, _rt, _eventName, _slot) {
-    try {
-      if (_rt.subscriptions[_slot] || !_eventName) return;
-      var unsubscribe = _bus.subscribe(_eventName, onTabsChanged.bind(null, _KDB));
-      _rt.subscriptions[_slot] = runTabsChangedCleanup.bind(null, _KDB, unsubscribe);
-    } catch (err) {
-      console.error("[kdbControl.followActiveTab] subscribeFollowEvent failed", _slot, err);
-    }
-  }
-
-  return __controller;
-
+  return followActiveTab;
 });
