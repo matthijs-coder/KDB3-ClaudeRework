@@ -319,34 +319,18 @@ The widget geodata warning remains a widget-owned Cognos-popover integration bec
 
 Target production tree after CP-1 approval:
 
-```text
-KDB3/js/core/services/messageService/
-  config/
-    domSelectors.js
-    messageLabels.js
-  effects/
-    buildMessageResult.js
-    copyMessageText.js
-    createModalQueue.js
-    handleCopyableCopy.js
-    showCopyable.js
-    showGlassToast.js
-  runtime/
-    clearMessageRuntime.js
-    ensureMessageRuntime.js
-  view/
-    bindMessageDialog.js
-    bindCopyableToggle.js
-    appendCopyableToggle.js
-    buildMessageDialog.js
-    createAnchoredNotification.js
-    createMessageRoot.js
-    renderMessageDialog.js
-    renderAnchoredNotification.js
-    positionAnchoredNotification.js
-  createMessageService.js
-  __orchestratorMessageService.js
-KDB3/css/messageService.css
+As built (7 files, exports per file; the stylesheet is `KDB3/css/messageService.css`). `__orchestratorMessageService.js` is a shim over `index.js` (`registerMessageService`).
+
+```txt
+core/services/messageService/
+  __orchestratorMessageService.js                     shim over index.js (path kept for KDB.js)
+  config.js                                           ANCHORED_DURATION_MS, GLOBAL_DURATION_MS, ROOT_ID, STACK_GAP_PX, messageLabels
+  copyable.js                                         appendCopyableToggle, bindCopyableToggle, copyActiveRequestText, readActionLabel, showCopyable
+  dialog.js                                           bindDialog, cleanupDialog, mountDialog
+  index.js                                            registerMessageService
+  modalQueue.js                                       createModalQueue
+  notifications.js                                    presentNotify, renderAnchoredNotification
+  runtime.js                                          clearMessageRuntime, ensureMessageRoot, ensureMessageRuntime
 ```
 
 Only files needed by the approved implementation are created. No empty `state/`, `events/`, `adapters/`, `helpers/`, `common/`, `manager/` or `shared/` folders.

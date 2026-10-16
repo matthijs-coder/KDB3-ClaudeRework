@@ -34,7 +34,7 @@ CP-1 recommendations captured in this draft:
 
 | Question | Decision |
 |---|---|
-| Factory name | Use canonical shared-service name `createHistoryService.js`; do not carry legacy `createHistoryApi.js`. |
+| Factory name | Canonical shared-service factory name `createHistoryService` (now a function in `historyService/index.js`); do not carry legacy `createHistoryApi`. |
 | Replay delegation | Do not import legacy feature adapters in this tranche; feature-specific replay delegation is deferred until owner APIs/dispatch surfaces exist. |
 | Event catalog | Recommended: approve a narrow `eventSubscribe.md` catalog update for `history:changed` in this tranche. |
 | Pending-step API | Do not expose `beginPendingStep`, `cancelPendingStep`, or `finalizePendingStep` in this direct port; keep `pendingStep: null` in state as reserved shape only. |
@@ -246,25 +246,16 @@ Legacy handler imports are intentionally not ported into `historyService` in thi
 
 Production target after CP-1 and execution-spec approval:
 
+As built (exports per file). `__orchestratorHistoryService.js` is a shim over `index.js` (`registerHistoryService`).
+
 ```txt
-KDB3/js/core/services/historyService/
-  __orchestratorHistoryService.js
-  createHistoryService.js
-  config/
-    defaults.js
-  state/
-    initialState.js
-    cloneSerializable.js
-    areSerializableEqual.js
-    createHistoryReducer.js
-    normalizeHistoryStep.js
-  effects/
-    emitHistoryChanged.js
-  replay/
-    resolveHistoryHandler.js
-    applyHistoryStep.js
+core/services/historyService/
+  __orchestratorHistoryService.js                     shim over index.js (path kept for KDB.js)
+  index.js                                            registerHistoryService
+  replay.js                                           readHistoryState, readWritebackRestoreFlag, isHistoryLocked, emitHistoryChanged, runReplay
+  state.js                                            DEFAULT_HISTORY_LIMIT, createInitialState, normalizeHistoryState, normalizeHistoryStep, areSameJson, reduceHistory
   events/
-    eventNames.js
+    eventNames.js                                     HISTORY_CHANGED
 ```
 
 `replay/` is justified because undo/redo apply semantics are the boundary between history state ownership and feature-owner effects. It prevents `core/services/historyService/index.js` (`createHistoryService`) from importing dashboard modules or becoming a god service.

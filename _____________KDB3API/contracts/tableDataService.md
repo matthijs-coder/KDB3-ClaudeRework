@@ -185,8 +185,8 @@ Both emitted events are catalogued in [_____________KDB3API/architecture/eventSu
 
 - `_KDB` (always).
 - `_KDB.events` (emit only).
-- `_KDB.runtime.tableData.canvasFacet` — stamped by `__orchestratorTableData` from `_KDB.services.cognosHost.canvas` (slice 2). `resolveTableWidgetId` reads it through `effects/readCanvasFacet.js`.
-- `_KDB.runtime.tableData.dataQueryFacet` — stamped by `__orchestratorTableData` from `_KDB.services.cognosHost.dataQuery` (slice 4). `readTableQueryResult` reads it through `effects/readDataQueryFacet.js`. `waitForTableQueryResult.js` is dead (not on the load path; do not revive). Deep files do not look up `_KDB.services.cognosHost`.
+- `_KDB.runtime.tableData.canvasFacet` — stamped by `__orchestratorTableData` from `_KDB.services.cognosHost.canvas` (slice 2). `resolveTableWidgetId.js` reads it directly from the runtime bucket.
+- `_KDB.runtime.tableData.dataQueryFacet` — stamped by `__orchestratorTableData` from `_KDB.services.cognosHost.dataQuery` (slice 4). `readTableQueryResult` (`queryRead.js`) reads it from the runtime bucket. The former `waitForTableQueryResult.js` is gone (it was dead and not on the load path; do not revive it). Deep files do not look up `_KDB.services.cognosHost`.
 - `_KDB.runtime.tableData.visualizationFacet` / `_KDB.runtime.tableData.widgetsFacet` — stamped by `__orchestratorTableData` from existing `cognosHost.visualization` / `cognosHost.widgets` (not a new facet/op). Leftover Hierarchy `HideData` park wrap only: unpark instance ids `HideData` / `_none` / `_1`; body live `containsignorecase` `"b"`; repark then unsignaled `renderWidget` gated by `shouldRestorePark`. Authority: `tableData-hierarchy-park-filter-contractdelta.md`.
 - Table-name source — see **Q3**: either `_KDB.properties.loadingTablesPropObj` (REDESIGN2 pattern, name-based) or `_KDB.config.tables` (KDB3 pattern, handle-based).
 
@@ -198,7 +198,7 @@ tableData does **not** call `_KDB.cognosAPI` after slice 4. Host access is ring 
 
 - `effects/readDataQueryFacet.js` — owner choke point for `_KDB.runtime.tableData.dataQueryFacet`.
 - `core/services/tableData/queryRead.js` (`readTableQueryResult`) — calls `dataQueryFacet.readQueryRows(widgetId, {budgetMs: 60000, intervalMs: 100, signal})` and maps Outcome → owner dialect `{status:"ready"|"failed"|"aborted"|"empty", result}`. `result` is `TableRowsResult` (`{ columns, columnNames, rowCount }`), never a live query handle. `"empty"` is owner-only (`!widgetId` before the facet is called). Timeout / flatten / host failure map to `"failed"` (B4), not `"empty"`.
-- `effects/waitForTableQueryResult.js` — **dead.** Not imported. Load path is `readParkedTableQueryResult` → `readTableQueryResult` → `dataQueryFacet.readQueryRows`. Do not revive this wait; do not route park through `waitForQueryResult`.
+- The former `waitForTableQueryResult.js` — **removed (was dead).** Not imported. Load path is `readParkedTableQueryResult` → `readTableQueryResult` → `dataQueryFacet.readQueryRows`. Do not revive this wait; do not route park through `waitForQueryResult`.
 - `effects/readCanvasFacet.js` — canvas DTO for widget-id resolution (slice 2). `visType` / `visTitle` arrive on that DTO; tableData does not call `_KDB.cognosAPI.visualization` or `.canvas`.
 - `core/services/tableData/loadLifecycle.js` (`runLoadTableWork`) — consumes the flattened DTO from `readParkedTableQueryResult` (park-listed leftovers) or plain `readTableQueryResult` inside that wrap. AMD 10→9: `normalizeTableData.js` is no longer imported (file left on disk unused). Failed query still takes `markTableFailed` + toast (B4 / D2 dedupe). Abort is silent. Park protocol: `tableData-hierarchy-park-filter-contractdelta.md`.
 
@@ -208,23 +208,22 @@ tableData does **not** call `_KDB.cognosAPI` after slice 4. Host access is ring 
 
 Target tree for port / skeleton (under `TEST/tableDataService-port/` for the litmustest; under `KDB3/js/core/services/tableData/` for production). Per Q5, no `config/actionTypes.js` and no internal reducer.
 
+As built (production tree `core/services/tableData/`, exports per file). `__orchestratorTableData.js` is a shim over `index.js` (`registerTableData`).
+
 ```txt
-tableData/
-  __orchestratorTableData.js
-  createTableDataService.js
-  state/
-    initialState.js
-    writers/
-      markTableLoading.js
-      markTableLoaded.js
-      markTableFailed.js
-      markTableStale.js
-      markTableDisposed.js
-  effects/
-    __orchestratorEffects.js
-    loadTableFromCognos.js
+core/services/tableData/
+  __orchestratorTableData.js                          shim over index.js (path kept for KDB.js)
+  config.js                                           READ_BUDGET_MS, POLL_INTERVAL_MS, DEFAULT_PICK, LOAD_FAILED_TOAST, UNKNOWN_TABLE_LABEL, LOAD_FAILED_CODE, LOAD_FAILED_MESSAGE, ...
+  index.js                                            registerTableData
+  loadLifecycle.js                                    startTableLoad, abortTableLoad, abortAllLoads
+  queryRead.js                                        readParkedTableQueryResult
+  resolveTableWidgetId.js                             resolveTableWidgetId
+  shapeTableRows.js                                   shapeTableRows
+  tableInputs.js                                      normalizeTableInputs, resolveTableKey, mapInputs, mapInputsAsync
+  tableOperations.js                                  loadTable, reloadTable, ensureFreshRows, waitForRows, readRows, readTableState, readPendingLoad, ...
+  tableState.js                                       readString, readRowCount, initialTableState, markTableLoading, markTableLoaded, markTableFailed, markTableDisposed
   events/
-    eventNames.js
+    eventNames.js                                     LOAD_FINISHED, LOAD_FAILED
 ```
 
 ## 10. Out Of Scope

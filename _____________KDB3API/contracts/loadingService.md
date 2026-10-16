@@ -189,23 +189,17 @@ The service manipulates browser DOM only. It performs no `_KDB.cognosAPI.<theme>
 
 Target production tree, pending CP-1:
 
+As built (exports per file). `__orchestratorLoadingService.js` is a shim over `index.js` (`registerLoadingService`).
+
 ```txt
-loadingService/
-  __orchestratorLoadingService.js
-  createLoadingService.js
-  runtime/
-    ensureLoadingRuntime.js
-    clearLoadingRuntime.js
-  state/
-    ensureLoadingEntry.js
-    markLoadingStarted.js
-    markLoadingFinished.js
-    markAllLoadingDisposed.js
-  effects/
-    applyLoadingOverlay.js
-    removeLoadingOverlay.js
-    scheduleLoadingWatchdog.js
-    scheduleOverlayRemoval.js
+core/services/loadingService/
+  __orchestratorLoadingService.js                     shim over index.js (path kept for KDB.js)
+  caption.js                                          resolveLoadingMessage, syncLoadingCaption, syncLoadingSessionCaption, updateLoadingMessage
+  config.js                                           BOOT_MOUNT_KEY, DEFAULT_REMOVE_DELAY_MS, ROOT_MOUNT_KEY, WATCHDOG_MS, loadingLabels
+  index.js                                            registerLoadingService
+  overlay.js                                          clearOverlays, finishOverlay, reconcilePendingRemoval, startOverlay
+  state.js                                            ensureLoadingRuntime, markAllLoadingDisposed, markLoadingFinished, markLoadingStarted
+  watchdog.js                                         clearWatchdog, scheduleLoadingWatchdog
 ```
 
 Rationale:
