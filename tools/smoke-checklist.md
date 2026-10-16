@@ -218,3 +218,17 @@ Paste the following into the PR or chat. Short is fine, but all five points:
 5. **Parameter set**: name of the set and the JSON of the set (Set A/B or a new one); for share-URL problems, the URL (remove tokens). Add the build id (branch / commit SHA) and browser version.
 
 Optional but useful: Network HAR export (for 404/403/timeouts), and a heap snapshot file for leak failures (4.3).
+
+---
+
+## 6) WS-K metricsTree
+
+Run after the WS-K metricsTree PR is merged. Baseline = the same dashboard on `main` before the merge. The jstree options changed (`force_text`) and drag markers are now set through node attributes, so check both.
+
+- [ ] Expand group nodes, search, clear the search, then try to drag a **group** row (expected: no drag ghost, nothing is dropped) and a **leaf** (expected: drag works and the widget receives the Kennzahl). Repeat after collapsing/expanding a group and after a search (leaf drag still works, group drag still blocked).
+- [ ] Search for a Kennzahl by short text and by a word from its tooltip (langtext); type quickly and press Enter, click the magnifier icon, press Enter/Space on the icon. Expected: filtering as baseline.
+- [ ] Search a name that contains `&`, `<` or an umlaut (for example `A&B <x>`). Expected: it is shown as literal text (no HTML interpreted, no `&amp;` artefacts for plain `&`); compare labels with the baseline.
+- [ ] Restore a dashboard with 10+ vis widgets. Expected: widget titles, tooltips (langtext) and title links (URL) as baseline; boot time not longer than baseline.
+- [ ] Console: `getKDB().api.metricsTree.resolveMetricByCode("<known code>")` returns `resolved: true`; `("  <known code>  ")` also resolves (input is trimmed); an unknown code returns `resolved: false` with empty strings. `getKDB().api.metricsTree.getState().lifecycle` is `"ready"`.
+- [ ] Run once as a user **with** and once **without** the superuser right. Expected: Kennzahlen with `FREIGABE = 0` appear only for the superuser (with the "(Beta)" tooltip suffix); the loading overlay clears in both cases.
+- [ ] Close and reopen the dashboard (see 4.3). Expected: no console errors; `getKDB().api.metricsTree.getState()` is `undefined` on the disposed instance; after a reopen the tree is populated again.
