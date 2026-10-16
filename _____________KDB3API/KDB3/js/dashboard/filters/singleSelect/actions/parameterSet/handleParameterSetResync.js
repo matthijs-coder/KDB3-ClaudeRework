@@ -1,13 +1,13 @@
 define([
   "../../config.js",
   "./parameterSetRuntime.js",
-  "../reconcileFilterInstances.js",
+  "../../inventory/reconcile.js",
   "./parameterSetResyncApply.js",
   "../../effects/handleFilterDockCommittedDisplayObserved.js"
 ], function (
   _config,
   _runtime,
-  _reconcileFilterInstances,
+  _reconcileInventory,
   _resyncApply,
   _handleCommittedDisplay
 ) {
@@ -47,7 +47,7 @@ define([
             });
             result = _resyncApply.settleResult(diagnostics, null, progress);
           } else {
-            var reconcileResult = await _reconcileFilterInstances(
+            var reconcileResult = await _reconcileInventory.reconcileFilterInstances(
               _KDB,
               _runtimeState,
               { reason: "parameterRestore", runId: payload.runId }

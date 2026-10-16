@@ -2,10 +2,10 @@ define([
   "./guardTabMutation.js",
   "./buildTabMutationTransfers.js",
   "./applyTabMutationWrites.js",
-  "../reconcileFilterInstances.js",
+  "../../inventory/reconcile.js",
   "../../hostFilterIo.js",
   "../../config.js"
-], function (_support, _buildTransfers, _writes, _reconcile, _hostFilterIo, _config) {
+], function (_support, _buildTransfers, _writes, _reconcileInventory, _hostFilterIo, _config) {
   "use strict";
 
   function selectionToHostValues(_selection) {
@@ -88,7 +88,7 @@ define([
         // filter APIs are stale; reconcile refreshes them before the committed
         // selections (captured above, because reconcile adopts host values into
         // currentSelection) are re-pushed and overlaid back into state.
-        var reconciled = await _reconcile(_KDB, _runtime,
+        var reconciled = await _reconcileInventory.reconcileFilterInstances(_KDB, _runtime,
           { reason: "tabMutation", runId: payload.runId });
         if (!reconciled.ok || _runtime.tabMutationRunId !== payload.runId) {
           diagnostics.push(_writes.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED,

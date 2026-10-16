@@ -2,10 +2,10 @@ define([
   "./guardTabMutation.js",
   "./buildTabMutationTransfers.js",
   "./applyTabMutationWrites.js",
-  "../reconcileFilterInstances.js",
+  "../../inventory/reconcile.js",
   "./applyTabMutationRestoreDeleted.js",
   "../../config.js"
-], function (_support, _buildTransfers, _writes, _reconcile, _restoreDeleted, _config) {
+], function (_support, _buildTransfers, _writes, _reconcileInventory, _restoreDeleted, _config) {
   "use strict";
 
   function applyOverlay(_root, _targetId, _sourceSnapshot) {
@@ -62,7 +62,7 @@ define([
       if (diagnostics.length > 0) {
         return { ok: false, operationId: payload.operationId, appliedScopes: appliedScopes, clearedScopes: clearedScopes, diagnostics: diagnostics };
       }
-      var reconciled = await _reconcile(_KDB, _runtime, { reason: "tabMutation", runId: payload.runId });
+      var reconciled = await _reconcileInventory.reconcileFilterInstances(_KDB, _runtime, { reason: "tabMutation", runId: payload.runId });
       if (!reconciled.ok || _runtime.tabMutationRunId !== payload.runId) {
         return _support.cancelled("tab mutation reconcile failed or was superseded");
       }

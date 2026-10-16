@@ -2,9 +2,9 @@ define([
   "../../config.js",
   "./parameterSetRuntime.js",
   "./restoreEntryHandlers.js",
-  "../reconcileFilterInstances.js",
+  "../../inventory/reconcile.js",
   "./recordRestoreOutcome.js"
-], function (_config, _runtime, _entryHandlers, _reconcileFilterInstances, _results) {
+], function (_config, _runtime, _entryHandlers, _reconcileInventory, _results) {
   "use strict";
 
   async function runParameterSetRestore(_KDB, _payload, _runtimeState) {
@@ -64,7 +64,7 @@ define([
       if (writebackGate.shouldBypassReconcile === true) {
         return result;
       }
-      var reconcileResult = await _reconcileFilterInstances(
+      var reconcileResult = await _reconcileInventory.reconcileFilterInstances(
         _KDB,
         _runtimeState,
         { reason: "parameterRestore", runId: payload.runId }

@@ -2,9 +2,9 @@ define([
   "./guardTabMutation.js",
   "./resolveTabMutationSnapshotTarget.js",
   "../../hostFilterIo.js",
-  "../reconcileFilterInstances.js",
+  "../../inventory/reconcile.js",
   "../../config.js"
-], function (_support, _resolveSnapshotTarget, _hostFilterIo, _reconcile, _config) {
+], function (_support, _resolveSnapshotTarget, _hostFilterIo, _reconcileInventory, _config) {
   "use strict";
 
   function restoreStateFields(_record, _snapshotRecord) {
@@ -65,7 +65,7 @@ define([
           });
         }
       }
-      var reconciled = await _reconcile(
+      var reconciled = await _reconcileInventory.reconcileFilterInstances(
         _KDB, _runtime, { reason: "tabMutation", runId: payload.runId }
       );
       if (!reconciled.ok) {
