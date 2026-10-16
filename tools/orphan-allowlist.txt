@@ -13,6 +13,3 @@ _____________KDB3API/KDB3/js/core/properties/selectors.js
 _____________KDB3API/KDB3/js/core/utils/readHostFacet.js
 _____________KDB3API/KDB3/js/dashboard/canvas/kdbControl/selectors.js
 _____________KDB3API/KDB3/js/dashboard/launchpad/selectors.js
-
-# Phase 2 W6b: kit scope helpers until nativeMultiSelect and dienststelle adopt them (next commits of the same PR).
-_____________KDB3API/KDB3/js/dashboard/filters/_core/tabMutationScopes.js

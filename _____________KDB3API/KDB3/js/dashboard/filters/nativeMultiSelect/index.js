@@ -8,16 +8,16 @@ define([
   "./tabMutation/apply.js",
   "./tabMutation/hostScopes.js",
   "../_core/ownerController.js",
+  "../_core/tabMutation.js",
   "../../../core/utils/kit/runtime.js",
   "../../../core/utils/kit/errors.js"
-], function (_config, _state, _commit, _history, _restore, _snapshot, _apply, _hostScopes, _ownerController, _runtime, _errors) {
+], function (_config, _state, _commit, _history, _restore, _snapshot, _apply, _hostScopes, _ownerController, _tabMutation, _runtime, _errors) {
   "use strict";
 
   // Lifecycle terms for NativeMultiSelect: idle, ready, error, disposed.
 
   var actions = _config.actions;
   var codes = _config.parameterSetCodes;
-  var tabCodes = _config.tabMutationCodes;
 
   var HANDLERS = {};
   HANDLERS[actions.COLLECT_WRITEBACK_SNAPSHOT_REQUESTED] = _restore.collectWritebackSnapshot;
@@ -37,14 +37,7 @@ define([
     });
   }
 
-  function disposedTabMutationResult(_action) {
-    var payload = _action.payload || {};
-    return Promise.resolve({
-      ok: false,
-      operationId: payload.operationId || null,
-      diagnostics: [{ code: tabCodes.CANCELLED, message: "NativeMultiSelect controller is disposed" }]
-    });
-  }
+  var disposedTabMutationResult = _tabMutation.createDisposedResult("NativeMultiSelect controller is disposed");
 
   // Results for the families whose callers wait for an answer. Every other action type warns once and returns undefined.
   var DISPOSED_RESULTS = {};
