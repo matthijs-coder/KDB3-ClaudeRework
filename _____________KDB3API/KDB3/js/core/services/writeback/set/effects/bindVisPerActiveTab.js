@@ -51,33 +51,28 @@ define([
   }
 
   function groupVisByTab(_correlation) {
-    try {
-      if (!_correlation || typeof _correlation !== "object") { return []; }
-      const keys = Object.keys(_correlation).sort(compareNumericKeys);
-      const groups = [];
-      for (let keyIndex = 0; keyIndex < keys.length; keyIndex += 1) {
-        const key = keys[keyIndex];
-        const entry = _correlation[key];
-        if (entry && entry.kind === "vis" && entry.widgetId && typeof entry.tabIdx === "number") {
-          let group = null;
-          for (let groupIndex = 0; groupIndex < groups.length; groupIndex += 1) {
-            if (groups[groupIndex].tabIdx === entry.tabIdx) {
-              group = groups[groupIndex];
-              break;
-            }
+    if (!_correlation || typeof _correlation !== "object") { return []; }
+    const keys = Object.keys(_correlation).sort(compareNumericKeys);
+    const groups = [];
+    for (let keyIndex = 0; keyIndex < keys.length; keyIndex += 1) {
+      const key = keys[keyIndex];
+      const entry = _correlation[key];
+      if (entry && entry.kind === "vis" && entry.widgetId && typeof entry.tabIdx === "number") {
+        let group = null;
+        for (let groupIndex = 0; groupIndex < groups.length; groupIndex += 1) {
+          if (groups[groupIndex].tabIdx === entry.tabIdx) {
+            group = groups[groupIndex];
+            break;
           }
-          if (!group) {
-            group = { tabIdx: entry.tabIdx, entries: {} };
-            groups.push(group);
-          }
-          group.entries[key] = entry;
         }
+        if (!group) {
+          group = { tabIdx: entry.tabIdx, entries: {} };
+          groups.push(group);
+        }
+        group.entries[key] = entry;
       }
-      return groups;
-    } catch (err) {
-      console.error("[writeback.bindVisPerActiveTab] grouping failed", err);
-      throw err;
     }
+    return groups;
   }
 
   function compareNumericKeys(a, b) {
