@@ -1403,6 +1403,154 @@
       }
     }
   },
+  "vis-list-sorting-array-order": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "contentCreate",
+    "targetKind": "vis",
+    "widgetId": "w1",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "List",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": true,
+    "slotsToClear": [
+      "all"
+    ],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+          "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [
+          {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "order": [
+              "captionAscending",
+              "x"
+            ],
+            "priority": 2
+          },
+          {
+            "columnId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+            "order": [
+              "a",
+              "b"
+            ],
+            "priority": 2
+          }
+        ],
+        "options": {
+          "source": "mixed",
+          "customLabel": {
+            "columnId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+            "label": "Geschlecht"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "ALLE",
+          "Gesamt"
+        ]
+      },
+      {
+        "kind": "kennzahlDefault",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag",
+          "Anzahl im Zeitraum"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": false,
+      "scope": null,
+      "clearAllSlots": false,
+      "clearAllLocalFilters": false,
+      "reason": null
+    },
+    "mirrorPatch": {
+      "visualizationType": "List",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "default"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "contentCreate",
+      "targetKind": "vis",
+      "widgetId": "w1",
+      "ownerWidgetId": null,
+      "opSeq": 7,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [
+        {
+          "code": "WIDGET_BINDING_PLAN_TOPN_DEFAULTED",
+          "message": "TopN input collapsed to default/none.",
+          "field": "dataConfig.topN"
+        }
+      ],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 3,
+        "managedFilterCount": 3
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      }
+    }
+  },
   "vis-list-dimension-no-itemid": {
     "ok": false,
     "status": "error",
