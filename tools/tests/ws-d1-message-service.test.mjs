@@ -365,3 +365,72 @@ test("destroy: pending dialogs resolve destroyed, service disposed, methods guar
   fresh.notify({ message: "again" });
   assert.equal(notifications(env).length, 1);
 });
+
+test("notifications share one scroll listener, one resize listener and one observer; scroll bursts coalesce into one frame", () => {
+  const { env, service } = setup();
+  const anchor = createAnchor(env);
+  for (let i = 0; i < 5; i += 1) service.notifyAnchored({ anchor, message: "a" + i, durationMs: 1000 });
+  service.notify({ message: "g1", durationMs: 1000 });
+  service.notify({ message: "g2", durationMs: 1000 });
+  assert.equal(notifications(env).length, 7);
+  assert.equal(env.window.countListeners("scroll"), 1);
+  assert.equal(env.window.countListeners("resize"), 1);
+  assert.equal(env.FakeMutationObserver.instances.filter((o) => o.connected).length, 1);
+
+  env.window.dispatch({ type: "scroll" });
+  env.window.dispatch({ type: "scroll" });
+  env.window.dispatch({ type: "resize" });
+  assert.equal(env.clock.pendingFrames(), 1);
+  env.clock.flushFrames();
+  assert.equal(env.clock.pendingFrames(), 0);
+
+  env.clock.advance(1000);
+  assert.equal(notifications(env).length, 0);
+  assert.equal(env.window.countListeners("scroll"), 0);
+  assert.equal(env.window.countListeners("resize"), 0);
+  assert.equal(env.FakeMutationObserver.instances.filter((o) => o.connected).length, 0);
+});
+
+test("global-only notifications do not attach a document observer", () => {
+  const { env, service } = setup();
+  service.notify({ message: "g1", durationMs: 1000 });
+  assert.equal(env.FakeMutationObserver.instances.filter((o) => o.connected).length, 0);
+  assert.equal(env.window.countListeners("scroll"), 1);
+});
+
+test("a scroll repositions stacked notifications after the frame", () => {
+  const { env, service } = setup();
+  const anchor = createAnchor(env, { left: 10, top: 10, right: 210, bottom: 50, width: 200, height: 40 });
+  service.notifyAnchored({ anchor, message: "A" });
+  assert.equal(notifications(env)[0].style.top, "58px");
+  anchor.rect = { left: 10, top: -30, right: 210, bottom: 10, width: 200, height: 40 };
+  env.window.dispatch({ type: "scroll" });
+  env.clock.flushFrames();
+  assert.equal(notifications(env)[0].style.top, "18px");
+});
+
+test("modal bind failure removes the backdrop and resolves unavailable", async () => {
+  const { env, service } = setup();
+  const createElement = env.document.createElement;
+  env.document.createElement = (tag) => {
+    const el = createElement(tag);
+    if (tag === "button") el.focus = function () { if (this.getAttribute("data-kdb-message-action") === "cancel") throw new Error("focus failed"); };
+    return el;
+  };
+  const result = await service.confirm({ message: "x" });
+  assert.deepEqual(result, { confirmed: false, reason: "unavailable" });
+  assert.equal(backdrops(env).length, 0);
+  assert.equal(env.console.calls.error.length, 1);
+  env.document.createElement = createElement;
+  const next = service.confirm({ message: "again" });
+  clickButton(env, button(env, "confirm"));
+  assert.deepEqual(await next, { confirmed: true, reason: "selected" });
+});
+
+test("a rejecting facet toast is logged once and not left unhandled", async () => {
+  const { env, service, facet } = setup();
+  facet.showToast = () => Promise.reject(new Error("facet down"));
+  service.notify({ message: "x", severity: "error" });
+  await flushMicrotasks();
+  assert.equal(env.console.calls.error.length, 1);
+});
