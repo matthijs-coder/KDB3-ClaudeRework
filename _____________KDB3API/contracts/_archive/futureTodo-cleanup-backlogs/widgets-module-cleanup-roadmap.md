@@ -36,7 +36,7 @@ Binding services (`widgetBindingPlan`, `widgetBindingApply`) are done; caller mo
 ### `widgetSettings`
 
 - Contract: `contracts/widgetSettings.md` (STUB → full CP-1 sync after cleanup if API stable).
-- Split oversize: `handleSeedDefaults.js`, `runtime/cleanupWidgetControls.js`, `config/applyConfiguredDefault.js`.
+- Split oversize: `dashboard/widgets/widgetSettings/seed.js` (`handleSeedDefaults`), `dashboard/widgets/widgetSettings/view/controls.js` (`cleanupWidgetControls`), `dashboard/widgets/widgetSettings/config.js` (`applyConfiguredDefault`).
 - Dedupe: dropdown builders, intent dispatch, panel/toolbar placement.
 - History replay boundaries (option steps vs base transfer).
 - Intent → `widgetVis` / `widgetBase` dispatch map consolidation.

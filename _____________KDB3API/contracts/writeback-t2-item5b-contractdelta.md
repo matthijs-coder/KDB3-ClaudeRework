@@ -129,7 +129,7 @@ Return: `Promise<{ ok: boolean, diagnostics }>`.
 
 ### 4.2 Handler
 
-File: `tabs/actions/parameterSetAbortLanding.js`.
+File: `dashboard/tabs/restore/parameterSetLanding.js` (`parameterSetAbortLanding`).
 
 1. `guardParameterSetRun` (hydrated tabs). Guard failure returns immediately.
 2. `await waitForInflightTraversals`; stale → `cancelledResult()`.
@@ -152,7 +152,7 @@ The new type **must** be an explicit `if` and must be listed on
 `isParameterSetAction`. Missing that fires a full `widgetsRendered` traverse
 on abort.
 
-`createTabsController.js`: no new AMD import (already at 10). Routing stays
+`dashboard/tabs/index.js` (`createTabsController`): no new AMD import (already at 10). Routing stays
 `isParameterSetAction` → `routeParameterSetAction`.
 
 `disposedResult`: same cancelled shape as other parameterSet* types.
@@ -166,13 +166,13 @@ on abort.
 - `writeback/set/state/createRunContext.js`
 - `writeback/set/effects/dispatchOwnerPhase.js`
 - `writeback/set/effects/executeRestoreRunCleanup.js`
-- `tabs/actions/parameterSetActivateTab.js` (`clicked`)
+- `dashboard/tabs/restore/parameterSetActivation.js` (`parameterSetActivateTab`) (`clicked`)
 - `tabs/actions/routeParameterSetAction.js`
 - `tabs/config/actionTypes.js`
 
 **New** (verb+noun)
 
-- `tabs/actions/parameterSetAbortLanding.js`
+- `dashboard/tabs/restore/parameterSetLanding.js` (`parameterSetAbortLanding`)
 - `writeback/set/effects/restoreAbortActiveTab.js`
 
 **Must not change**
@@ -181,7 +181,7 @@ on abort.
 - 5a restore/reset wait
 - `runFilterRestore.js` / `runWidgetRestore.js` activate payloads
 - `createWritebackSetService.js` overlap `await settled`
-- `createTabsController.js` import list
+- `dashboard/tabs/index.js` (`createTabsController`) import list
 - item 4 header/icon; T1 history; NMS; 5c canvasReady
 
 Line budget: JS ≤150, controller fn ≤60, ≤10 AMD imports. No `handle*` /

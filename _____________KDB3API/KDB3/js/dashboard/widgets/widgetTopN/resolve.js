@@ -1,5 +1,6 @@
 define([
   "./state.js",
+  "./selectors.js",
   "./results.js",
   "./helperClaim.js",
   "./helperSpec.js",
@@ -7,7 +8,7 @@ define([
   "./helperPlacement.js",
   "./extractTopNResult.js",
   "./cleanup.js"
-], function (_state, _results, _claim, _spec, _binding, _placement, _extractTopNResult, _cleanup) {
+], function (_state, _selectors, _results, _claim, _spec, _binding, _placement, _extractTopNResult, _cleanup) {
   "use strict";
 
   // widgetTopN/resolveRequested: claim a helper, bind and read it parked beside
@@ -19,6 +20,9 @@ define([
     var request = _state.validateResolveRequest(_action);
     if (request.ok !== true) {
       return request;
+    }
+    if (_selectors.isOwnerRemoved(_context._KDB, request.ownerVisId)) {
+      return _results.staleOperation(request.ownerVisId, _action.opSeq);
     }
     var opSeq = _context.beginOwnerOperation(request.ownerVisId, _action.opSeq);
     if (_context.isStaleOpSeq(request.ownerVisId, opSeq)) {

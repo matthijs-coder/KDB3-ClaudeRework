@@ -27,7 +27,7 @@ Debugger evidence at the throw (conditional breakpoint in Cognos `liveWidgetBund
 - Widget state: `_renderCount: 0`, `_isCurrentlyRendering: true`, `visModelManager` and `visAPI` not yet set. The widget is in its **first render** after tab activation.
 - Tab 3 was activated by step 18 (`activatedBy: "writebackSet"`); the Jahr write followed while that tab's widgets were still initialising. The write itself lands; Cognos' listener throws synchronously inside `replaceFilterContext`.
 
-Current activate semantics (`parameterSetActivateTab.js`): click + 150 ms click margin + inner-frame DOM poll (cap 4000 ms). No Cognos widget-ready signal. `tabs-writeback-readiness-contractdelta.md` §8/§11 already states that activation does not guarantee widget readiness; `writeback.md` steps 18/19 nevertheless treat activation as sufficient before page-context writes.
+Current activate semantics (`dashboard/tabs/restore/parameterSetActivation.js` (`parameterSetActivateTab`)): click + 150 ms click margin + inner-frame DOM poll (cap 4000 ms). No Cognos widget-ready signal. `tabs-writeback-readiness-contractdelta.md` §8/§11 already states that activation does not guarantee widget readiness; `writeback.md` steps 18/19 nevertheless treat activation as sufficient before page-context writes.
 
 Supporting run: a console observer that armed `getWidgetWhenReady(id)` (and polled `getWidget(id).getVisApi()`) for **every** live widget on tab 3 during the restore made `nativeMultiSelectRestore` pass. An earlier observer on a single widget did not prevent the throw. This is circumstantial: it does not separate "waiting" from "touching" (see Q4).
 
@@ -102,7 +102,7 @@ The action does **not** set `result.degraded`: that would turn the whole restore
 - `WRITEBACK_WIDGET_BINDING_DEGRADED` "binding completed with diagnostics" on every successful bind: verified code deviation (`handleParameterSetBinding.js:96` tests truthiness of the always-present apply trace, `reportApplyResult.js:18-31`), against `widgetBindingApply.md` §diagnostics and `widgetVis-parameterSetRestore-contractdelta.md`. Separate fix.
 - `tabs-writeback-readiness-contractdelta.md` §4.1 calls `pageId` / `scopeId` aliases of `tabId`; code treats `tabId` = `scopeId` = layout item id and `pageId` = first child. Text drift, separate.
 - `writeback.md:241` outcome enum lacks `"abortedByOwner"` (emitted by `executeRestoreRun.js:75-76`). Text drift, separate.
-- Diagnostic Log A in `writeFilter.js` (separate, agreed as permanent failure-only log; own step).
+- Diagnostic Log A in `core/services/cognosHost/facets/filters/write.js` (`writeFilter`) (separate, agreed as permanent failure-only log; own step).
 - Colour bugs (`sett "Default"`, `backgroundColor` → `bgcol`), deferred.
 
 ## 7. Decisions (PO vastenburg, 2026-10-06)
@@ -118,7 +118,7 @@ The action does **not** set `result.degraded`: that would turn the whole restore
 1. **`tabId` match:** holds when the widget's `getContainer().getId()` is the layout item id or a direct child (`…_00000004` under layout item `…_00000003`) → descriptor `tabId` `…_00000003` == `slot.tabId` == `scopeId` (`readCanvasItemIdentity.js:47-57, 102-119`). Deeper containers miss (see §3 blind spots). Not unit-tested; verified live in acceptance 2.
 2. **Inventory during first render:** not provable from KDB3 code; `findContent()` has no rendered/visible filter. The debugger thrower already existed in the content model. Verified live in acceptance 2.
 3. **Reader:** no tabs `read*Facet.js` exists → new `effects/readCanvasFacet.js`.
-4. **Placement / budget:** body in new `effects/waitForTabLiveWidgetsReady.js`; called at the three `ok: true` returns of `parameterSetActivateTab.js` (skip at ~46 and ~54, click success at ~100), each followed by the existing `isStale` check. File is 118 lines / 6 imports → ~7 imports, must stay ≤ 150 lines; if not, extract the success-return builder. Orchestrator untouched.
+4. **Placement / budget:** body in new `dashboard/tabs/restore/parameterSetActivation.js` (`waitForTabLiveWidgetsReady`); called at the three `ok: true` returns of `dashboard/tabs/restore/parameterSetActivation.js` (`parameterSetActivateTab`) (skip at ~46 and ~54, click success at ~100), each followed by the existing `isStale` check. File is 118 lines / 6 imports → ~7 imports, must stay ≤ 150 lines; if not, extract the success-return builder. Orchestrator untouched.
 5. **Callers:** only step 18 (`runFilterRestore.js:55-61`) and step 23 (`runWidgetRestore.js:20-27`), both `required: true`. Neither reads extra fields.
 
 ## 9. Acceptance

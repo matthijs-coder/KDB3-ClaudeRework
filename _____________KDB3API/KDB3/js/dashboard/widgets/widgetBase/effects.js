@@ -17,7 +17,8 @@ define([
   }
 
   // Fire-and-forget call into another owner's public API; a missing API or widgetId is a silent no-op.
-  function dispatchFireAndForget(label, _KDB, ownerKey, action) {
+  // onResult sees the settled result of a promise-returning dispatch and must not throw.
+  function dispatchFireAndForget(label, _KDB, ownerKey, action, onResult) {
     try {
       const api = _KDB && _KDB.api && _KDB.api[ownerKey];
       if (!api || typeof api.dispatch !== "function" || !action.widgetId) {
@@ -25,7 +26,7 @@ define([
       }
       const result = api.dispatch(action);
       if (result && typeof result.then === "function") {
-        result.catch(function (err) {
+        result.then(onResult, function (err) {
           console.error("[widgetBase." + label + "] failed", { type: action.type, widgetId: action.widgetId }, err);
         });
       }
@@ -45,6 +46,21 @@ define([
 
   function dispatchWidgetVisDispose(_KDB, _request) {
     dispatchToWidgetVis(_KDB, "widgetVis/disposeWidgetRuntime", _request);
+  }
+
+  // A removed owner gives up its TopN helper claim. Not awaited: remove does not wait for the helper clear (up to the 5 s
+  // render wait). The claim is held until that clear finishes, so another owner resolving in that window finds no free helper.
+  function dispatchWidgetTopNCleanup(_KDB, _request) {
+    const widgetId = _request && _request.widgetId;
+    dispatchFireAndForget("dispatchWidgetTopNCleanup", _KDB, "widgetTopN", {
+      type: "widgetTopN/cleanup",
+      widgetId: widgetId,
+      payload: { ownerVisId: widgetId, reason: _request.reason, clearHelperBinding: true, releaseClaim: true }
+    }, function (result) {
+      if (result && result.ok === false && result.reason !== "disposed" && result.status !== "aborted") {
+        console.warn("[widgetBase.dispatchWidgetTopNCleanup] cleanup failed", { widgetId: widgetId, errorCode: result.errorCode || null });
+      }
+    });
   }
 
   function dispatchWidgetVisEnsureObservers(_KDB, _request) {
@@ -297,6 +313,7 @@ define([
   return {
     readHostFacet: readHostFacet,
     dispatchWidgetVisDispose: dispatchWidgetVisDispose,
+    dispatchWidgetTopNCleanup: dispatchWidgetTopNCleanup,
     dispatchWidgetVisEnsureObservers: dispatchWidgetVisEnsureObservers,
     dispatchWidgetSettingsCleanup: dispatchWidgetSettingsCleanup,
     dispatchWidgetSettingsPlaceControls: dispatchWidgetSettingsPlaceControls,

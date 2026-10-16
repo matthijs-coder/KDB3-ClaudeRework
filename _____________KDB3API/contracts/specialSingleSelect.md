@@ -39,8 +39,8 @@ Reports used:
 Legacy source paths for mapping only:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/filters/singleSelect/specialRights/
-_______REDESIGN2/KDB3/js/dashboard/filters/singleSelect/
+legacy-redesign2:js/dashboard/filters/singleSelect/specialRights/
+legacy-redesign2:js/dashboard/filters/singleSelect/
 laatsteOriginal/KDB2/js/filters/
 laatsteOriginal/KDB2/js/filters/singleSelect/
 ```
@@ -253,7 +253,7 @@ Config lives inside the module, not in `core/config/tables.js` and not in a broa
 Planned file:
 
 ```txt
-dashboard/filters/specialSingleSelect/config/specialFilterDefinitions.js
+dashboard/filters/specialSingleSelect/config.js
 ```
 
 Draft shape:
@@ -283,7 +283,7 @@ Draft shape:
 
 Stable config ids are lowercase (`personengruppe`, `dienststellenleitung`). Labels and conditions are fields, not keys.
 
-Display values such as `BW` and `DEZPV` must not be hardcoded outside module config. `activeSichtValue` is the normalized confirmed Sicht display value unless a later CP-1 approves use-value matching; mapping from raw Sicht selection to a config key stays centralized in `specialFilterDefinitions.js`.
+Display values such as `BW` and `DEZPV` must not be hardcoded outside module config. `activeSichtValue` is the normalized confirmed Sicht display value unless a later CP-1 approves use-value matching; mapping from raw Sicht selection to a config key stays centralized in `config.js` (`DEFINITIONS_BY_ID`).
 
 Root Sicht class mapping lives in `config/selectors.js` (not per-filter definitions):
 
@@ -344,7 +344,7 @@ Per-filter rights / Alle marker classes target the respective `.filterItemWrappe
 
 ## 10. Readers / Writers
 
-Published selectors from `specialSingleSelect/state/selectors.js`:
+Published selectors from `dashboard/filters/specialSingleSelect/selectors.js`:
 
 | Selector | Reads | Returns |
 |---|---|---|
@@ -418,7 +418,7 @@ Rules:
 
 - Exactly one root Sicht class at a time, or none when `activeSichtValue` is unknown.
 - Sync is idempotent: remove all `rootSichtClassValues`, then add the class for the current `activeSichtValue`.
-- Root sync runs once per sync cycle in `effects/syncSpecialSingleSelectRootClass.js` (pattern: Dienststelle `syncDienststelleRootClass.js`).
+- Root sync runs once per sync cycle in `dashboard/filters/specialSingleSelect/view.js` (`syncSpecialSingleSelectRootClass`) (pattern: Dienststelle `dashboard/filters/dienststelle/view/chromeClasses.js` (`syncDienststelleRootClass`)).
 - Document-level `document.querySelector("#filterDockContainer")` is permitted for root class sync only; wrapper queries must be scoped to `#filterDockContainer` and return all matches.
 
 ### Wrapper classes (rights / module marker)
@@ -457,38 +457,31 @@ No live DOM nodes are stored in `_KDB.state`. Runtime refs belong under `_KDB.ru
 
 Production target after CP-1 and execution-spec approval:
 
+As built (11 files, exports per file). `__orchestratorSpecialSingleSelect.js` is a shim over `index.js`.
+
 ```txt
-KDB3/js/dashboard/filters/specialSingleSelect/
-  __orchestratorSpecialSingleSelect.js
-  createSpecialSingleSelectController.js
-  config/
-    actions.js
-    specialFilterDefinitions.js
-  state/
-    initialState.js
-    createSpecialSingleSelectReducer.js
-    selectors.js
-  effects/
-    mapFilterDockHandoff.js
-    readSpecialRightsFromTableData.js
-    readDefaultOptionFromTableData.js
-    evaluateSpecialFilterVisibility.js
-    syncSpecialFilterClasses.js
-    syncSpecialSingleSelectRootClass.js
-    applyAutomaticSpecialSelection.js
-    delegateToSingleSelect.js
-  runtime/
-    ensureSpecialSingleSelectRuntime.js
-    cleanupSpecialSingleSelectRuntime.js
+dashboard/filters/specialSingleSelect/
+  __orchestratorSpecialSingleSelect.js                shim over index.js (path kept for KDB.js)
+  config.js                                           SPECIAL_FILTER_VARIANTS, DEFINITIONS_BY_ID, DEFINITIONS_BY_LABEL, TABLE_KEYS, ERROR_CODES, SELECTORS, resolveSpecialFilterId
+  delegation.js                                       handleFilterDockHandoff, normalizeUserSelectionCommittedPayload, reduceCommittedPayload, buildOwnerAck, buildTargetScopedAck, mapFilterDockHandoff
+  index.js                                            registerSpecialSingleSelect
+  instances.js                                        resolveLiveSpecialInstances
+  inventory.js                                        routeInventoryReconciled, routeSyncRequested
+  policy.js                                           applyAutomaticSpecialSelection
+  selectors.js                                        readSpecialSingleSelectState, readSpecialFilterEntry
+  state.js                                            actions, createInitialState, createSpecialSingleSelectReducer, cloneParkedSelections, cloneSelectionSources
+  sync.js                                             dispatchInternal, scheduleSync, evaluateSpecialFilterVisibility
+  tableData.js                                        isRelevantTableName, readRightFromTableData, readAlleRightFromTableData, readFirstValidOptionRow
+  view.js                                             syncSpecialFilterClasses, syncSpecialSingleSelectRootClass
 ```
 
-Optional splits are allowed in the execution spec to keep file sizes under limits. Do not create vague folders such as `helpers`, `common`, `misc`, `manager`, or `shared`.
+Do not add vague folders such as `helpers`, `common`, `misc`, `manager`, or `shared`.
 
 ## 16. Bootstrap And Integration
 
 Expected integration after CP-1 approval:
 
-- `KDB.js` or a future parent `dashboard/filters/__orchestratorFilters.js` registers `_KDB.api.specialSingleSelect`.
+- `KDB.js` or a future parent filters orchestrator (not built) registers `_KDB.api.specialSingleSelect`.
 - `filterDock` routes `filterType: "specialSingleSelect"` to `_KDB.api.specialSingleSelect`, not directly to `_KDB.api.singleSelect`.
 - `specialSingleSelect` delegates generic popup/user behavior to `_KDB.api.singleSelect`.
 - `sicht` or a parent filters orchestrator dispatches confirmed Sicht changes to `_KDB.api.specialSingleSelect`.
@@ -537,7 +530,7 @@ Open CP-1 item: decide whether this tranche modifies `KDB.js`, `filterDock`, and
 
 Q1. Approve standalone `_KDB.api.specialSingleSelect` with dispatch + reducer, rather than folding this back into `singleSelect`?
 
-Q2. Approve module-local config file `config/specialFilterDefinitions.js` with stable ids `personengruppe` and `dienststellenleitung`?
+Q2. Approve module-local config file `config.js` with stable ids `personengruppe` and `dienststellenleitung`?
 
 Q3. Approve the hidden-filter safety policy: when a special filter is hidden by Sicht incompatibility or denied rights, `specialSingleSelect` clears / neutralizes the active Cognos value, parking user-owned selections in state when needed?
 
@@ -545,7 +538,7 @@ Q4. Approve mandatory `selectionSource: "user"` notification from `singleSelect`
 
 Q5. Approve direct API/dispatch from `sicht` or a parent filters orchestrator to `specialSingleSelect`, with no event catalog change in this tranche?
 
-Q6. Decide exact integration hook owner: should `sicht` call `_KDB.api.specialSingleSelect.dispatch(...)` directly, or should a parent `dashboard/filters/__orchestratorFilters.js` route confirmed Sicht changes?
+Q6. Decide exact integration hook owner: should `sicht` call `_KDB.api.specialSingleSelect.dispatch(...)` directly, or should a parent filters orchestrator (not built) route confirmed Sicht changes?
 
 Q7. Decide exact Cognos set/clear API names for automatic special selection.
 

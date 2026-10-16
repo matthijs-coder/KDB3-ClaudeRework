@@ -32,7 +32,7 @@
 Source:
 
 ```txt
-_______REDESIGN2/KDB3/js/dashboard/historyControls/
+legacy-redesign2:js/dashboard/historyControls/
 ```
 
 Read-only evidence:
@@ -217,14 +217,14 @@ Subscribed events:
 
 - `history:changed` from `historyService/events/eventNames.js`.
 - Handler syncs the button enabled/disabled state from the event payload when present, or from service `canUndo()` / `canRedo()` as fallback.
-- Unsubscribe handle lives at `_KDB.runtime.historyControls.subscriptions.historyChanged`.
+- The subscription is bound with an `AbortSignal` from `_KDB.runtime.toolbarControls.abortControllers.historyBind`; there is no `subscriptions.historyChanged` handle.
 - Teardown owner: `historyControls.destroy()`.
 
 `architecture/eventSubscribe.md` update required:
 
 - Replace the current `history:changed` subscriber placeholder with `historyControls`.
-- Subscriber file: `KDB3/js/dashboard/controls/historyControls/effects/subscribeHistoryChanged.js`.
-- Teardown: `_KDB.api.historyControls.destroy()` clears `_KDB.runtime.historyControls.subscriptions.historyChanged`.
+- Subscriber file: `KDB3/js/dashboard/controls/toolbarControls/historyButton.js` (`bindHistoryRoot`).
+- Teardown: `_KDB.api.historyControls.destroy()` aborts the button's `historyBind` abort controller (`_KDB.runtime.toolbarControls.abortControllers`), which removes the subscription.
 
 ## 10. Dependencies
 
@@ -288,25 +288,17 @@ Those native Cognos plugin controls are out of scope. **2026-09-03:** they stay 
 ## 13. Folder Layout
 
 ```txt
-KDB3/js/dashboard/controls/historyControls/
-  __orchestratorHistoryControls.js
-  createHistoryControlsController.js
-  config/
-    domSelectors.js
-  view/
-    buildHistoryControls.js
-    placeHistoryControls.js
-    syncHistoryControlsView.js
-  effects/
-    bindHistoryControlsClick.js
-    subscribeHistoryChanged.js
-  observation/
-    bindToolbarObserver.js
-  runtime/
-    cleanupHistoryControlsRuntime.js
+KDB3/js/dashboard/controls/
+  historyControls/__orchestratorHistoryControls.js   # shim: re-exports toolbarControls/historyButton.js (path kept for KDB.js)
+  toolbarControls/
+    index.js          # shared controller: { mount, destroy } per button
+    config.js         # BUTTON_ORDER, BUTTONS, labels, selectors (history: kdb-history-controls)
+    toolbarHost.js    # shared toolbar wait, observer, placement
+    toolbarButton.js  # button instance and view-model sync
+    historyButton.js  # history definition: undo/redo DOM, enabled-state sync, click handler, history:changed subscription
 ```
 
-No state folder is created because no state is owned.
+No state folder is created because no state is owned. **As built (Phase 1):** all four toolbar buttons (share, wienKi, pdf, history) share one controller and one toolbar host in `KDB3/js/dashboard/controls/toolbarControls/`. Runtime is the shared `_KDB.runtime.toolbarControls` (kit buckets: `abortControllers.hostWait` plus one `<id>Bind` abort controller per button, `pendingPromises.hostWait`, `observers.toolbar`, `timers.toolbarSync`, `domRefs.toolbarHostEl`; fields `buttons`, `isHostReady`, `dashboardFacet`), not a per-button namespace. One toolbar wait (30 s) and one `MutationObserver` serve all buttons, reference counted by mount/destroy; button order is `BUTTON_ORDER` in `config.js`. `_KDB.api.<apiName>` exposes `{ mount, destroy }` (share also `applyReadOnlyChrome`). The `__orchestrator*Controls.js` files under the per-button folders are shims that re-export the button file.
 
 No events folder is created because this module emits no events.
 

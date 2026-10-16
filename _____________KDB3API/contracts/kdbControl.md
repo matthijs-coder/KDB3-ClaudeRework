@@ -15,7 +15,7 @@ Collapsed hit target: while `kdb-control_collapsed` is on `#kdb-control-root`, `
 | **Q1** | **Deferred:** no `controlDefinitions[]` in the skeleton (no UI in skeleton; adds noise). Revisit in Phase 4 when builders need a serialisable data source. |
 | **Q2** | **Nested state:** `_KDB.state.kdbControl` uses `{ framework, toolbox, settings, authoringMode }` plus top-level `lifecycle` (and any other documented top-level fields). Aligns with canonical-writer / subsystem ownership. **CP-1 addendum:** the canonical dashboard authoring boolean **`isAuthoring`** is **not** owned under `_KDB.state.kdbControl`; it lives under **`_KDB.state.authoring`** (writer: **`authoring`** module). Any `authoringMode` subtree under `kdbControl` must not duplicate that truth — see [kdbControl-authoring-mode-contractdelta.md](./_archive/kdbControl-authoring-mode-contractdelta.md). |
 | **Q3** | **Superseded by CP-1 authoring (2026-05-13):** the 2026-05-12 decision *“`authoringMode` remains a kdbControl subsystem”* is **replaced**. **Canonical authoring mode** is owned by the dashboard-level **`authoring`** module (`_KDB.state.authoring`, `_KDB.api.authoring`). **`kdbControl` is consumer only:** initial sync via **`readIsAuthoring(_KDB)`** from **`authoring/state/selectors.js`**, subscribe to **`authoring:entered`** / **`authoring:exited`**, store unsubscribe fns under **`_KDB.runtime.kdbControl.subscriptions`** keys **`authoringEntered`** / **`authoringExited`**, teardown in **`kdbControl.destroy()`**. Full contract: [kdbControl-authoring-mode-contractdelta.md](./_archive/kdbControl-authoring-mode-contractdelta.md). |
-| **Q4** | **Per-subsystem orchestrators only:** `framework/`, `toolbox/`, `settings/`, `authoringMode/` each have their own `__orchestrator*.js`. **Omit** `view/__orchestratorView.js` (would duplicate `__orchestratorKdbControl`). **CP-1:** an `authoringMode/` orchestrator may exist only as **port glue / subscriber wiring** to the **`authoring`** module (events + selectors); it does **not** own `_KDB.state.authoring.isAuthoring`. |
+| **Q4** | **Per-subsystem orchestrators only (superseded by the as-built layout in §9):** `framework/`, `toolbox/`, `settings/`, `authoringMode/` each have their own `__orchestrator*.js`. **Omit** `view/__orchestratorView.js` (would duplicate `__orchestratorKdbControl`). **CP-1:** an `authoringMode/` orchestrator may exist only as **port glue / subscriber wiring** to the **`authoring`** module (events + selectors); it does **not** own `_KDB.state.authoring.isAuthoring`. |
 | **S1** | **CP-1 settings (2026-05-13):** Dashboard / visualization defaults / comment defaults / control-panel colors live under **`_KDB.state.kdbControl.settings`** with reducer actions and published selectors per [_archive/kdbControl-settings-cp1-contractdelta.md](./_archive/kdbControl-settings-cp1-contractdelta.md). No persistence, no foreign writes, no placeholder mirror for those fields. **2026-09-02:** SU/developer-mode slice superseded by [kdbControl-developer-mode-toggle-contractdelta.md](./_archive/kdbControl-developer-mode-toggle-contractdelta.md). |
 | **S2** | **Settings refinement — canvas intents (2026-05-13):** na reducer-commit voor dashboard breedte/hoogte/achtergrond en **Settings-Buttons** (`hideWidgetSettingsButtons`) is **not** a canvas intent. kdbControl toggles class `kdb-widget-chrome-always` on `.dashboardFrame` per [kdbControl-widget-chrome-always-contractdelta.md](./_archive/kdbControl-widget-chrome-always-contractdelta.md). Width, height and background may still call **`_KDB.api.canvas.dispatch({ type, payload })`** as a placeholder; missing hook → one `console.warn`; no writes to `_KDB.state.dashboard` / `canvas`. Zie [_archive/kdbControl-settings-cp1-contractdelta.md](./_archive/kdbControl-settings-cp1-contractdelta.md) §2b. **SU / developer-mode is not a canvas intent** — [kdbControl-developer-mode-toggle-contractdelta.md](./_archive/kdbControl-developer-mode-toggle-contractdelta.md). Steuerungspanel-kleuren blijven **shell-only**. Hintergrundfarbe paints `#kdb-control-content`; Button-Farbe paints the collapse arrow, top toggles and section heads; Aktionsbutton-Farbe paints `.kdb-control_action-button`. **innere Farbe** (`innerBackgroundColor`) paints the inner containers only — [kdbControl-inner-color-contractdelta.md](./_archive/kdbControl-inner-color-contractdelta.md). |
 
@@ -180,7 +180,7 @@ Before any later tranche emits `tabs:toolRequested` or reintroduces `header:*Req
 
 **CP-1 settings slice:** no **`_KDB.properties` writes** and no **Cognos** calls for settings commits **except** the developer-mode toggle, which calls **`_KDB.api.properties.applyDeveloperMode`** and does not write the Cognos spec — [kdbControl-developer-mode-toggle-contractdelta.md](./_archive/kdbControl-developer-mode-toggle-contractdelta.md). `_KDB.config.options` reads (e.g. color palette) may remain as today for harness-only gallery behavior. Remaining settings shape: [_archive/kdbControl-settings-cp1-contractdelta.md](./_archive/kdbControl-settings-cp1-contractdelta.md).
 
-**Canvas intents (S2, receiver is pageSurface):** after a successful reducer commit for dashboard width, height, or background, kdbControl calls **`_KDB.api.canvas.dispatch`** with the archive §2b intent types. kdbControl does not paint the page and does not call Cognos. The apply owner is [pageSurface.md](./pageSurface.md). **`hideWidgetSettingsButtons`** still stamps `.dashboardFrame` ([kdbControl-widget-chrome-always-contractdelta.md](./_archive/kdbControl-widget-chrome-always-contractdelta.md)). No `_KDB.state.dashboard`. If **`dispatch` is missing**, **one** `console.warn` per load. **Not** for developer mode. Do not edit `settingsPostDispatchSideEffects.js` for this slice.
+**Canvas intents (S2, receiver is pageSurface):** after a successful reducer commit for dashboard width, height, or background, kdbControl calls **`_KDB.api.canvas.dispatch`** (`effects.js`, `dispatchCanvasIntent`) with the archive §2b intent types. kdbControl does not paint the page and does not call Cognos. The apply owner is [pageSurface.md](./pageSurface.md). **`hideWidgetSettingsButtons`** still stamps `.dashboardFrame` ([kdbControl-widget-chrome-always-contractdelta.md](./_archive/kdbControl-widget-chrome-always-contractdelta.md)). No `_KDB.state.dashboard`. If **`dispatch` is missing**, **one** `console.warn` per load. **Not** for developer mode. Do not edit `settingsPostDispatchSideEffects.js` for this slice.
 
 **Framework tranche 1 dependencies:** `_KDB`, `_KDB.elements.selectors.kdbControl`, `_KDB.state.kdbControl.framework`, `_KDB.runtime.kdbControl`, placeholder framework config, and local DOM APIs only.
 
@@ -204,68 +204,46 @@ Framework tranche 1 has no Cognos touchpoints.
 
 ## 9. Folder layout
 
-Target tree for port / skeleton (under consumer app or `TEST/kdbControl-port/` for harness). **Reflects Q1/Q4:** no `config/controlDefinitions.js`, no `view/__orchestratorView.js`. **`authoringMode/`** may remain as **port glue** only; **CP-1** canonical authoring ownership is **`authoring`** (see contractdelta). **Superseded:** Q3 “authoringMode stays inside kdbControl as subsystem owner of truth.”
+As built after the Phase 1 module-template rework (33 files). `authoringMode/` no longer exists inside kdbControl: canonical authoring ownership is the `authoring` module (see the CP-1 contractdelta). There are no per-subsystem `__orchestrator*.js` files; only `__orchestratorKdbControl.js` (a shim over `index.js`).
 
-**As-built 2026-08-17:** `framework/buildControlMainBlocks.js` remains the public AMD hub for toolbox/settings DOM construction; section and row builders live in sibling job files under `framework/`.
-
-```
-kdbControl/
-  __orchestratorKdbControl.js
-  createKdbControlController.js
+```txt
+KDB3/js/dashboard/canvas/kdbControl/
+  __orchestratorKdbControl.js  # shim: re-exports index.js (path kept for KDB.js)
+  index.js            # createKdbControlController / registerKdbControl: { mount, destroy, dispatch, getState, syncView }
+  actions.js          # dispatch action runner: settings commits, dimension gate, framework view sync decision
+  dimensionGate.js    # dashboard width/height validation before commit
+  effects.js          # owner dispatches (dispatchCanvasIntent -> _KDB.api.canvas), developer-mode apply, paint, authoring subscriptions
+  settingsForm.js     # settings input read/dispatch and bindSettingsForm
+  history.js          # settings history steps and replay handler
+  restore.js          # parameterSet restore of kdbControl settings
   state/
-    initialState.js
-    copyState.js
-    createKdbControlReducer.js
-    reduceFrameworkActions.js
-    reduceSettingsActions.js
-    selectors.js
-    writers/
-      writeFrameworkView.js
-  effects/
-    __orchestratorEffects.js
-    settingsPostDispatchSideEffects.js
-  events/
-    eventNames.js
+    actionTypes.js    # kdbControl/* action type constants
+    initialState.js   # { lifecycle, framework, toolbox, settings, ... }
+    reducer.js        # pure reducer (framework + settings actions)
+    selectors.js      # published selectors (settings, defaults, framework panel/section/collapsed)
+  config/
+    domSelectors.js   # DOM selectors for the control shell
+    icons.js          # icon asset paths
+    labels.js         # labels and handbook URL
+    settingsDefaults.js # default settings values
+    settingsInputs.js # settings input specs and action builders
   framework/
-    config/
-      placeholderControlOptions.js
-    __orchestratorFramework.js
-    buildControlShell.js
-    buildControlHeader.js
-    buildControlMainToggles.js
-    buildControlMainBlocks.js
-    appendTwoInputSplit.js
-    appendSettingsChromeBlock.js
-    createExpandableSection.js
-    buildDimensionInputs.js
-    fillDashboardSettings.js
-    fillGraphSettings.js
-    fillCommentSettings.js
-    fillControlPanelSettings.js
-    fillToolboxComments.js
-    fillToolboxTabs.js
-    fillToolboxHeaderFooter.js
-    buildToolboxBlock.js
-    buildSettingsBlock.js
-    buildControlPrimitiveGallery.js
+    index.js            # mountFramework: place shell, bind view, follow active tab, header/footer read-sync subscription
+    buildControlShell.js# shell, header, main toggles, collapse arrow
+    buildSettingsPanel.js # settings panel sections (dashboard, charts, comments, control panel)
+    buildToolboxPanel.js  # toolbox panel sections (comments, tabs, header/footer)
+    settingsRows.js     # two/one-input rows, dimension inputs
     createFrameworkElement.js
-    placeControlShell.js
-    bindFrameworkView.js
-    bindFrameworkCollapse.js
-    bindFrameworkTopToggles.js
-    bindFrameworkSectionToggles.js
-    bindFrameworkPrimitiveVisuals.js
-    syncFrameworkViewFromState.js
-  toolbox/
-    __orchestratorToolbox.js
-  settings/
-    __orchestratorSettings.js
-    bindSettingsForm.js
-  authoringMode/
-    __orchestratorAuthoringMode.js
+    bindPanelToggles.js # panel/section toggle activation
+    bindControlInputs.js# input and switch bindings
+    bindToolboxActions.js # toolbox buttons, tab edit, comment drag source
+    syncView.js         # syncFrameworkViewFromState (sections, panel chrome)
+    syncFormControls.js # form control sync from state
+    followActiveTab.js  # re-parent the KDB3 widget host to the active tab page
+    primitives/         # colorField.js, colorPalette.js, formRows.js, toggleSwitch.js
 ```
 
-**As-built size-split:** `createKdbControlController.js` remains the AMD path for `__orchestratorKdbControl.js` and still returns `{ mount, destroy, dispatch, getState, syncView }`. Mount/dispatch/cleanup live in `effects/mountKdbControlController.js`, `actions/dispatchKdbControlAction.js`, `actions/applySettingsAction.js`, `runtime/cleanupKdbControlRuntime.js`; history registration in `history/registerKdbControlHistoryReplayHandler.js`; view-sync helper in `effects/tryFrameworkSyncView.js`.
+CSS for the shell lives in `KDB3/css/kdb-control/` (`shell.css`, `panels.css`, `controls.css`).
 
 ---
 
@@ -294,146 +272,9 @@ Framework tranche 1 F1-Q1 through F1-Q4 are resolved in **User decisions (framew
 
 ---
 
-## 12. Framework tranche 1 hand-off
+## 12. Framework tranches 1 and 2 (archived)
 
-**Status:** CP-2 green on 2026-05-12 after browser-level harness verification by the user.
-
-**Delivered in sandbox:**
-
-- Static kdbControl framework shell under `TEST/kdbControl-port/kdbControl/framework/`.
-- Inert DOM primitives: buttons, input, radio group, dropdown, expandable groups, top-panel toggles and collapse control.
-- Framework state under `_KDB.state.kdbControl.framework`: `activeTopPanel`, `openSectionId`, `isCollapsed`, `placeholderInputs`, `placeholderSelections`.
-- Runtime ownership under `_KDB.runtime.kdbControl`: DOM refs in `domRefs`, AbortController in `abortControllers.frameworkView`, framework bind context under `frameworkBindContext`.
-- Harness flow in `TEST/kdbControl-port/harness/index.html`: mount, toggle panels, open/close sections, collapse/expand, edit placeholders, log state, destroy.
-
-**Review / fix history:**
-
-- Initial execution matched the contract shape but needed one focused fix for line limits, nested listener functions inside `__controller`, and DOM expando context storage.
-- A second user-approved focused fix removed `WeakMap` context storage and made handlers read the authoritative context from `_KDB.runtime.kdbControl.frameworkBindContext`.
-- Final review found no `WeakMap`, no DOM context expandos, no German technical names, no event emits, no Cognos/service calls, no foreign state writes, and clean `ReadLints`.
-
-**Out of scope remains:**
-
-- Visual parity with the original kdbControl styling.
-- Real settings/toolbox content and business actions.
-- `controlDefinitions[]`.
-- `registerControl` / `registerCustomControl`.
-- Header/footer/tabs/widget/filter/launchpad integration.
-- Cognos, persistence, writeback, history, tableDataService and Top N logic.
-
-**Recommended next tranche:** framework visual parity and layout/CSS alignment against the legacy kdbControl shell, still inert unless a new contract delta approves behavior.
-
----
-
-## 13. Framework tranche 2 visual parity delta
-
-**Status:** CP-1 approved for execution (Strategy B); see [kdbControl-framework-visual-parity-execution-spec.md](./_archive/kdbControl-framework-visual-parity-execution-spec.md).
-
-**Purpose:** make the sandbox framework visually resemble the legacy kdbControl shell while preserving tranche 1 behavior boundaries. This tranche targets layout and styling only: shell grid, collapse strip, header chrome, top toggles, selected/visible panel states, and basic toolbox/settings panel chrome.
-
-**Approved strategy candidate:** Strategy B — keep redesigned English technical state, ids and classes, and rewrite / slice the needed legacy CSS concepts onto the current sandbox DOM. Do not add legacy classes as compatibility shims. German remains user-facing label text only.
-
-**Legacy read-only sources:**
-
-- `_______KDB3/KDB3/css/kdbControl.css` — primary shell, header, toggle, panel and collapsed-state styling reference.
-- `_______KDB3/KDB3/css/toggleButton.css` — toggle-button styling reference when needed.
-- `_______KDB3/KDB3/js/dashboard/canvas/kdbControl/framework/buildControlShell.js` — legacy shell structure reference.
-- `_______KDB3/KDB3/js/dashboard/canvas/kdbControl/framework/buildControlHeader.js` — legacy header structure reference.
-- `_______KDB3/KDB3/js/dashboard/canvas/kdbControl/framework/buildControlMainToggles.js` — legacy top toggle structure and classes.
-- `_______KDB3/KDB3/js/dashboard/canvas/kdbControl/framework/buildControlMainBlocks.js` — legacy panel block structure.
-- Legacy `syncFrameworkInitialView.js` / bind framework files may be read only to understand class application; behavior is not ported wholesale.
-- `_____________KDB3API/contracts/_archive/kdbControl-framework-visual-parity-mapping.md` — mapping from legacy selectors / structure to current sandbox selectors / structure.
-
-**Allowed changes for tranche 2:**
-
-- Add CSS under `TEST/kdbControl-port/harness/css/` or `TEST/kdbControl-port/kdbControl/framework/css/`; the execution spec must choose one location and document why.
-- Update `TEST/kdbControl-port/harness/index.html` to load the chosen CSS file(s).
-- Update framework builders and `syncFrameworkViewFromState.js` only when the current sandbox structure is missing an element that is required for visual parity; prefer CSS mapped to current selectors over legacy class aliases.
-- Preserve current framework state shape and reducer action set unless a later CP-1 delta explicitly approves a change.
-
-**Forbidden in tranche 2:**
-
-- No Cognos API calls.
-- No header/footer/tabs/widget/filter/launchpad integration.
-- No new public API methods.
-- No `registerControl`, `registerCustomControl` or `controlDefinitions[]`.
-- No real business behavior behind buttons, inputs, radio buttons, dropdowns, section toggles or collapse.
-- No persistence, writeback, tableDataService, Top N or history commits.
-- No legacy file modification, deletion or movement.
-- No adding legacy classes as duplicate compatibility classes when a current sandbox selector can express the same visual role.
-
-**Execution-spec requirements:**
-
-- Write `_____________KDB3API/contracts/_archive/kdbControl-framework-visual-parity-execution-spec.md` after CP-1 approval.
-- Include Section A pre-flight echo and per-file `Rules to apply` checklists.
-- Scope the CSS port in slices: shell/collapse first, header/toggles second, panel chrome third; do not attempt full `kdbControl.css` wholesale.
-- Use `kdbControl-framework-visual-parity-mapping.md` as the selector translation source: every CSS slice must state which legacy selector concept it maps to and which current selector implements it.
-- Acceptance must include side-by-side visual checkpoints at a fixed viewport, plus anti-D1 (`mount` / `destroy` try/catch) and anti-D2 (runtime cleanup order and `abortControllers.frameworkView`).
-
-**CP-1 question:** resolved — Strategy B and tranche 2 scope approved for execution; parity CSS and harness wiring follow the execution spec.
-
----
-
-## 14. Framework visual parity reset delta
-
-**Status:** CP-1 approved for execution; see [kdbControl-framework-visual-parity-reset-spec.md](./_archive/kdbControl-framework-visual-parity-reset-spec.md).
-
-**Purpose:** recover visual parity by resetting the sandbox framework DOM and CSS to legacy-equivalent layout geometry before applying more screenshot polish. The current tranche-2 CSS/fix path corrected individual symptoms but left the sandbox as a flex-card layout, while legacy `kdbControl` is a grid shell with fixed content row slots, a full-height 30px collapse strip, a settings outer row and section grids.
-
-**Approved strategy:** Strategy B remains binding. The implementation maps legacy DOM/CSS concepts onto current sandbox selectors and current English technical names. It must not add legacy class aliases solely to make old CSS apply, and it must not introduce German technical ids/classes/values.
-
-**Legacy read-only sources:**
-
-- `_______KDB3/KDB3/css/kdbControl.css` — primary geometry reference: shell grid, content rows, collapse strip, header, main toggles, section panel sizing.
-- `_______KDB3/KDB3/css/toggleButton.css` — toggle switch geometry reference for later deep subcontainers only.
-- `_______KDB3/KDB3/js/dashboard/canvas/kdbControl/framework/buildControlShell.js` — canonical legacy DOM order.
-- `_______KDB3/KDB3/js/dashboard/canvas/kdbControl/framework/buildControlHeader.js` — header title/actions/icon order.
-- `_______KDB3/KDB3/js/dashboard/canvas/kdbControl/framework/buildControlMainToggles.js` — two visible main toggles.
-- `_______KDB3/KDB3/js/dashboard/canvas/kdbControl/framework/buildControlMainBlocks.js` — main block wrapper and metrics/toolbox containers.
-- `_______KDB3/KDB3/js/dashboard/canvas/kdbControl/framework/buildControlSettingsSkeleton.js` and `buildControlToolboxSkeleton.js` — button-then-container section pairing.
-- Toolbox/settings content builders may be read only for later visual subcontainer planning; this reset tranche does not port their business content.
-
-**Required structural target:**
-
-- `#kdb-control-root.kdb-control` represents legacy `#kdb-control_top-level_container` and uses CSS grid with a right collapse column of `30px`.
-- `#kdb-control-content.kdb-control__content` represents legacy `#kdb-control_content_container` and owns legacy-equivalent row slots: header, settings outer, save/load spacer, main toggles and main blocks.
-- A current-named settings outer wrapper represents legacy `#kdb-control_settings_outer-container`; the settings panel opens in that row and is not just another main-panel card.
-- A current-named save/load spacer slot represents legacy `#kdb-control_save-load_container`; empty until the foreign extension injects children. Scoped loading overlay until first child: `loadingService-overlay-coverage-contractdelta.md`.
-- A current-named main blocks wrapper represents legacy `#kdb-control_main-toggles-block_outer-container`.
-- Main toggles remain exactly two visible buttons: user-facing `Kennzahlen` for technical `metrics`, and user-facing `Toolbox` for technical `toolbox`. Settings remains reachable through the header settings icon.
-- Toolbox/settings section rows remain inert button-then-container pairs. Bodies are empty or neutral placeholders in this reset; deep content is later work.
-
-**Allowed changes for the reset tranche:**
-
-- Update `TEST/kdbControl-port/kdbControl/framework/buildControlShell.js` to emit the legacy-equivalent current-named wrappers.
-- Update `TEST/kdbControl-port/kdbControl/framework/buildControlMainBlocks.js` to return panels/wrappers needed by the shell reset while preserving current technical ids.
-- Update `TEST/kdbControl-port/kdbControl/framework/syncFrameworkViewFromState.js` only for wrapper class syncing (`kdb-control_settings-open`, collapsed/content-hidden state and section selected/open classes).
-- Update `TEST/kdbControl-port/kdbControl/framework/placeControlShell.js` only if the new wrappers require additional `domRefs`.
-- Update harness CSS slices under `TEST/kdbControl-port/harness/css/` to express the reset geometry.
-- Update `TEST/kdbControl-port/harness/index.html` only for CSS wiring or viewport sizing notes.
-
-**Forbidden in the reset tranche:**
-
-- No Cognos calls.
-- No real business actions.
-- No API surface changes.
-- No reducer action or state shape changes.
-- No `controlDefinitions[]`, `registerControl` or `registerCustomControl`.
-- No header/footer/tabs/widget/filter/launchpad integration.
-- No persistence, writeback, tableDataService, Top N or history commits.
-- No legacy file modification, deletion or movement.
-- No deep toolbox/settings content port unless a later CP-1 approves that visual slice.
-
-**Execution-spec requirements:**
-
-- Use `kdbControl-framework-visual-parity-reset-spec.md`.
-- Include Section A pre-flight echo and per-file `Rules to apply` checklists.
-- Make acceptance structural first: shell grid, content row slots, settings outer placement, save/load spacer, main blocks wrapper, full-height collapse strip, section button/body geometry.
-- Require browser-level CP-2 visual verification after execution.
-
-**CP-1 questions:** resolved — VR1 and VR2 above.
-
----
+The sandbox framework hand-off, visual parity delta and visual parity reset delta (formerly §12-§14) are archived in [_archive/kdbControl-framework-tranches-historical.md](./_archive/kdbControl-framework-tranches-historical.md). They describe the legacy and sandbox trees and no longer match the current layout.
 
 ## Approval log
 

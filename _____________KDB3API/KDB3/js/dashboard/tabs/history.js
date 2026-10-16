@@ -1,9 +1,10 @@
 define([
   "./config/defaults.js",
   "./slots.js",
+  "./tabMutation/slotStock/ledger.js",
   "../../core/utils/kit/history.js",
   "../../core/utils/kit/data.js"
-], function (_defaults, _slots, _kitHistory, _data) {
+], function (_defaults, _slots, _ledger, _kitHistory, _data) {
   "use strict";
 
   // Step keys and old/new shapes are persisted history; keep them stable.
@@ -85,18 +86,9 @@ define([
     return {
       key: "tabs_duplicate",
       timestamp: Date.now(),
-      old: { tabIndex: insertSlot.tabIdx, tabId: insertSlot.tabId, widgetRebuild: true, serializedByTabId: readDuplicateRollback(_KDB, plan) },
+      old: { tabIndex: insertSlot.tabIdx, tabId: insertSlot.tabId, widgetRebuild: true, serializedByTabId: _ledger.readRollbackByTabId(_KDB, plan.operationId) },
       new: { replayDuplicate: true, sourceTabId: sourceSlot.tabId, sourceTabIndex: sourceSlot.tabIdx }
     };
-  }
-
-  // The duplicate's rollback lives in the widgetBase prepare snapshot of this operation.
-  function readDuplicateRollback(_KDB, plan) {
-    const runtime = _KDB && _KDB.runtime && _KDB.runtime.widgetBase;
-    const snapshots = runtime && runtime.tabMutationSnapshots;
-    const snapshot = snapshots && plan.operationId ? snapshots[plan.operationId] : null;
-    const map = snapshot && snapshot.rollbackByTabId;
-    return map && typeof map === "object" ? map : {};
   }
 
   function pushRenameHistoryStep(_KDB, _payload, previousName, confirmedName) {

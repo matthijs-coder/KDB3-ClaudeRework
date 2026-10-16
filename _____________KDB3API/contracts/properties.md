@@ -19,24 +19,24 @@ Primary legacy source used:
 
 | Legacy file | Role |
 |---|---|
-| `_______KDB3/KDB3/js/core/bootstrap/loadProperties/__orchestratorLoadProperties.js` | Bootstrap orchestrator that resets `_KDB.properties`, loads object and toggle properties, and emits `properties:reloaded`. |
-| `_______KDB3/KDB3/js/core/bootstrap/loadProperties/loadObjectProperties.js` | Reads object-style property values, parses wrapped JSON input, and writes runtime keys on `_KDB.properties`. |
-| `_______KDB3/KDB3/js/core/bootstrap/loadProperties/loadToggleProperties.js` | Reads boolean-like toggle properties, normalizes them, and writes runtime keys on `_KDB.properties`. |
-| `_______KDB3/KDB3/js/core/bootstrap/loadProperties/readPropertyValue.js` | Reads a property from legacy `_KDB.apiContent.kdbWidgetContent.getPropertyValue(propertyId)`. |
-| `_______KDB3/KDB3/js/core/bootstrap/loadProperties/parsePropertyInput.js` | Parses wrapper-object property input and rejects malformed values. |
-| `_______KDB3/KDB3/js/core/bootstrap/loadProperties/config/getObjectPropertyDefinitions.js` | Defines object property ids and `_KDB.properties` runtime keys. |
-| `_______KDB3/KDB3/js/core/bootstrap/loadProperties/config/getTogglePropertyDefinitions.js` | Defines toggle property ids and `_KDB.properties` runtime keys. |
-| `_______KDB3/KDB3/js/core/events/widgetProperties.js` | Defines legacy `properties:reloaded` and `properties:hideWidgetsToggled` constants. |
-| `_______KDB3/KDB3/js/core/bootstrap/subscribeProperties/__orchestratorSubscribeProperties.js` | Bootstrap orchestrator for property-change subscriptions. |
-| `_______KDB3/KDB3/js/core/bootstrap/subscribeProperties/subscribeHideWidgetsProperty.js` | Subscribes to `change:property:KDBHideWidgetsToggle`, updates `_KDB.properties.KDBHideWidgetsToggle`, and emits `properties:hideWidgetsToggled`. |
+| `legacy:js/core/bootstrap/loadProperties/__orchestratorLoadProperties.js` | Bootstrap orchestrator that resets `_KDB.properties`, loads object and toggle properties, and emits `properties:reloaded`. |
+| `legacy:js/core/bootstrap/loadProperties/loadObjectProperties.js` | Reads object-style property values, parses wrapped JSON input, and writes runtime keys on `_KDB.properties`. |
+| `legacy:js/core/bootstrap/loadProperties/loadToggleProperties.js` | Reads boolean-like toggle properties, normalizes them, and writes runtime keys on `_KDB.properties`. |
+| `legacy:js/core/bootstrap/loadProperties/readPropertyValue.js` | Reads a property from legacy `_KDB.apiContent.kdbWidgetContent.getPropertyValue(propertyId)`. |
+| `legacy:js/core/bootstrap/loadProperties/parsePropertyInput.js` | Parses wrapper-object property input and rejects malformed values. |
+| `legacy:js/core/bootstrap/loadProperties/config/getObjectPropertyDefinitions.js` | Defines object property ids and `_KDB.properties` runtime keys. |
+| `legacy:js/core/bootstrap/loadProperties/config/getTogglePropertyDefinitions.js` | Defines toggle property ids and `_KDB.properties` runtime keys. |
+| `legacy:js/core/events/widgetProperties.js` | Defines legacy `properties:reloaded` and `properties:hideWidgetsToggled` constants. |
+| `legacy:js/core/bootstrap/subscribeProperties/__orchestratorSubscribeProperties.js` | Bootstrap orchestrator for property-change subscriptions. |
+| `legacy:js/core/bootstrap/subscribeProperties/subscribeHideWidgetsProperty.js` | Subscribes to `change:property:KDBHideWidgetsToggle`, updates `_KDB.properties.KDBHideWidgetsToggle`, and emits `properties:hideWidgetsToggled`. |
 
 Context-only legacy sources:
 
 | Legacy file | Reason |
 |---|---|
 | `architecture/eventSubscribe.md` | Documents `properties:reloaded` as emitted by the loader with no subscribers yet, and `properties:hideWidgetsToggled` as part of the separate property-subscription workflow. |
-| `_______KDB3/KDB3/js/dashboard/launchpad/subscribeHideWidgetsToggle.js` | Legacy consumer of `properties:hideWidgetsToggled`; used to understand the downstream behavior, not copied as-is unless CP-1 chooses event fanout. |
-| `_______KDB3/KDB3/js/KDB.js` | Shows setup ordering and downstream reads of `_KDB.properties.KDBReadyToggle`, `KDBPlayLoadingImageToggle`, and `KDBLoadingImageTransparentToggle`. |
+| `legacy:js/dashboard/launchpad/subscribeHideWidgetsToggle.js` | Legacy consumer of `properties:hideWidgetsToggled`; used to understand the downstream behavior, not copied as-is unless CP-1 chooses event fanout. |
+| `legacy:js/KDB.js` | Shows setup ordering and downstream reads of `_KDB.properties.KDBReadyToggle`, `KDBPlayLoadingImageToggle`, and `KDBLoadingImageTransparentToggle`. |
 
 Legacy behavior summary:
 
@@ -172,12 +172,9 @@ Post-disposal behavior is root-owned. The bootstrap-local controller should stil
 
 **Internal writers / loaders:**
 
-- `loadObjectProperties(_KDB)` — writes object property runtime keys on `_KDB.properties`.
-- `loadToggleProperties(_KDB)` — writes toggle runtime keys on `_KDB.properties`.
-- `parsePropertyInput(propertyId, rawInput)` — pure parser returning parsed value or `undefined`.
-- `readPropertyValue(_KDB, propertyId)` — host-bound read helper; returns raw property value or `undefined`.
-- `subscribeHideWidgetsToggleProperty(_KDB, deps)` — registers the `change:property:KDBHideWidgetsToggle` host listener.
-- `applyHideWidgetsToggleChange(_KDB, payload)` — re-reads, normalizes and writes `_KDB.properties.KDBHideWidgetsToggle`; then routes the confirmed change to the known owner or emits an approved fact-event.
+- `loadProperties(_KDB)` (`loadProperties.js`) — reads, parses (`parsePropertyInput`) and writes object property runtime keys and normalised toggle keys on `_KDB.properties`.
+- `subscribePropertyChanges(_KDB, apply)` (`developerMode.js`) — registers the `change:property:KDBHideWidgetsToggle` host listener on the content adapter.
+- `setHideWidgetsToggle` / `applyDeveloperMode` (`developerMode.js`) — re-read the property, write `_KDB.properties.KDBHideWidgetsToggle` and mirror it onto the developer-mode class. As built there is no launchpad routing and no `properties:*` event: the toggle only drives the developer-mode class.
 
 Internal loaders are not exposed through `_KDB.services` or `_KDB.api`.
 
@@ -248,40 +245,27 @@ No service dependency is required.
 - Host subscription: `content.on("change:property:<propertyId>", handler)` on the same content object for approved property ids.
 - Mirror owner: `properties` writes `_KDB.properties`.
 
-No `_KDB.cognosAPI.<theme>.<function>` wrapper exists yet for property reads. CP-1 recommendation is to keep `readPropertyValue.js` as the narrow local host-bound helper for this direct port. If a future second module needs property reads, promote that access to a thin `_KDB.cognosAPI.properties.getPropertyValue` wrapper under a separate contract/update.
+No `_KDB.cognosAPI.<theme>.<function>` wrapper exists yet for property reads. CP-1 recommendation is to keep `core/properties/loadProperties.js` (`readPropertyValue`) as the narrow local host-bound helper for this direct port. If a future second module needs property reads, promote that access to a thin `_KDB.cognosAPI.properties.getPropertyValue` wrapper under a separate contract/update.
 
 ## 9. Folder Layout
 
-Target production tree, pending CP-1:
+As built (6 files). The target tree sketched in earlier drafts (per-function files, `config/`, `runtime/`) was folded into these files:
 
 ```txt
-properties/
-  __orchestratorProperties.js
-  loadObjectProperties.js
-  loadToggleProperties.js
-  parsePropertyInput.js
-  readPropertyValue.js
-  subscribePropertyChanges.js
-  subscribeHideWidgetsToggleProperty.js
-  applyHideWidgetsToggleChange.js
-  config/
-    getObjectPropertyDefinitions.js
-    getTogglePropertyDefinitions.js
-    getPropertySubscriptionDefinitions.js
-  runtime/
-    ensurePropertiesRuntime.js
-    clearPropertiesRuntime.js
-  events/
-    eventNames.js              // only if CP-1 chooses an event option B
+KDB3/js/core/properties/
+  __orchestratorProperties.js  # shim: path kept for KDB.js
+  index.js                # __orchestrator: label merge, controller { loadProperties, subscribePropertyChanges, applyDeveloperMode, destroy }, _KDB.api.properties.applyDeveloperMode
+  propertyDefinitions.js  # object and toggle property id -> _KDB.properties runtime key tables, developer-mode labels
+  loadProperties.js       # read + parse + normalise property values into _KDB.properties
+  developerMode.js        # developer-mode class, KDBHideWidgetsToggle handling, property-change subscription
+  hideDataHint.js         # personal "hide data" hint badge
 ```
 
 Rationale:
 
 - `properties/` is a core ownership folder for `_KDB.properties`, not a service folder.
-- `config/` holds property-id definitions because they are declarative mappings.
-- `runtime/` is needed once property-change listeners are in scope, because host listener cleanup is technical runtime.
 - No `state/` folder is created because `_KDB.properties` is config/spec data, not `_KDB.state`.
-- `events/` is conditional because event emission requires catalog approval.
+- No `events/` folder: the module emits no events from this layout.
 
 ## 10. Out Of Scope
 

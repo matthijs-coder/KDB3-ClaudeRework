@@ -11,7 +11,7 @@ Copy works. Undo and redo usually place every widget. Rarely some widgets are mi
 
 **(c) for the silent miss the PO saw.** Place and vis bind return `ok`. `deferRenderWait` skips the paint wait (`continueBindingPlanAndApply.js` sets `waitForStart` and `waitForComplete` to false). The next destination traverse, then the landing traverse, leaves the page before Cognos finishes painting. A later undo/redo of a redo (fresh duplicate) paints because the page is already mounted. No toast, no console error. The info-toast change does not catch this path.
 
-**(b) remains for a real claim or fill miss.** Undo is a `widgetRebuild` delete. `runTabMutationSaga.js` now marks that `degraded` when `degradedEntries` is non-empty. History replay of duplicate undo/redo notifies `TAB_MUTATION_DEGRADED_TEXT`. Those widgets are still not rebuilt. A second Undo click does not retry the same step.
+**(b) remains for a real claim or fill miss.** Undo is a `widgetRebuild` delete. `dashboard/tabs/tabMutation/saga.js` (`runTabMutationSaga`) now marks that `degraded` when `degradedEntries` is non-empty. History replay of duplicate undo/redo notifies `TAB_MUTATION_DEGRADED_TEXT`. Those widgets are still not rebuilt. A second Undo click does not retry the same step.
 
 ## Not scheduled
 

@@ -7,6 +7,7 @@
 ---
 
 **Status:** `Draft`
+**As-built note:** the phase-1 deferral of delete, duplicate and move below is superseded. `tabs/delete`, `tabs/duplicate`, `tabs/restoreDeleted` and `tabs/move` (plus `tabs/reorder`) are live and run through `dashboard/tabs/tabMutation/` (`actions.js` routes, `plans.js` builds the plans, `saga.js` `runTabMutationSaga` runs them, `owners.js` dispatches to the widget/filter owners). See `kdbControl-tabsCrud-contractdelta.md` and `dashboard/tabs/config/actionTypes.js`. The file layout is in section 18.
 **Owner module / service:** `tabs`
 **Type:** `feature module`
 **Authoring AI:** GPT-5.5, 2026-06-18
@@ -41,11 +42,11 @@ Investigation results used for this contract:
 
 | Source | Evidence used |
 |---|---|
-| `_______REDESIGN2/KDB3/js/dashboard/tabs/` | State-driven tab visibility, helper-tab conventions, authoring visibility, startup DOM sync/hydration, optional traversal API, add/rename pattern. |
-| `_______REDESIGN2/KDB3/js/dashboard/canvas/kdbControl/` | kdbControl as UI/event layer rather than tabs owner. |
+| `legacy-redesign2:js/dashboard/tabs/` | State-driven tab visibility, helper-tab conventions, authoring visibility, startup DOM sync/hydration, optional traversal API, add/rename pattern. |
+| `legacy-redesign2:js/dashboard/canvas/kdbControl/` | kdbControl as UI/event layer rather than tabs owner. |
 | `laatsteOriginal/KDB2/js/controlContainer/configurationFunctions/helpers/configurationToolboxHelpers.js` | Working legacy business behavior for rename, soft-delete, duplicate, move and writeback remapping. Only rename is in phase 1. |
-| Current `_____________KDB3API/KDB3/js/dashboard/canvas/kdbControl/framework/bindFrameworkToolboxPlaceholderApis.js` | Existing production kdbControl already expects `_KDB.api.tabs.dispatch(...)`. |
-| Current `_____________KDB3API/KDB3/js/dashboard/canvas/kdbControl/framework/syncFrameworkViewFromState.js` | Existing production kdbControl already expects `_KDB.api.tabs.getState()` projections for toolbox tab-edit UI. |
+| Current `_____________KDB3API/KDB3/js/dashboard/canvas/kdbControl/framework/bindToolboxActions.js` | Existing production kdbControl already expects `_KDB.api.tabs.dispatch(...)`. |
+| Current `dashboard/canvas/kdbControl/framework/syncView.js` (`syncFrameworkViewFromState`) | Existing production kdbControl already expects `_KDB.api.tabs.getState()` projections for toolbox tab-edit UI. |
 | Current `_____________KDB3API/KDB3/js/core/cognosAPI/tabs.js` | Inner-ring wrappers for `getTabsContainers`, `getTabsContent`, `getTabName`, `setTabName`. Called from ring 1 only; not the tabs module wrapping target. |
 
 Legacy code must not be treated as the design. It is evidence for behavior and edge cases only.
@@ -206,6 +207,7 @@ Runtime roles:
 | `pendingPromises` | In-flight mount, hydrate, traverse, rename or wait actions. |
 | `adapters` | Injected/local Cognos tabs adapter and future persistence adapter references. |
 | `historyReplayHandlerContribution` | Deferred until tabs history replay is approved. |
+| `slotStock` | Not a bucket (survives `disposeRuntimeBuckets`, replaced on `destroy`): `{ snapshots, runId }`, the tab-mutation slot-stock ledger. `snapshots[operationId]` holds the widget owner's rollback data for one mutation (opaque to tabs); `runId` is the widget side's stale-run guard. Written by the engine in `tabs/tabMutation/slotStock/` (prepare/apply/rollback, driven through the widgetBase port), released by the saga after every outcome (`finally`) and by `destroy`. Replaces `runtime.widgetBase.tabMutationSnapshots` / `tabMutationRunId`. Debug read: `getKDB().runtime.tabs.slotStock.snapshots` is `{}` when no mutation runs. |
 
 Phase 1 may populate only `adapters.cognos`. It must not create a persistence/writeback adapter slot with behavior, and it must leave `historyReplayHandlerContribution` as `null`.
 
@@ -220,7 +222,10 @@ _KDB.api.tabs = {
   mount: mount,
   destroy: destroy,
   dispatch: dispatch,
-  getState: getState
+  getState: getState,
+  isMutationRunning: isMutationRunning,
+  isBusy: isBusy,
+  readCurrentTab: readCurrentTab
 };
 ```
 
@@ -234,6 +239,9 @@ Method contracts:
 | `destroy()` | Idempotent teardown of tabs-owned runtime resources and subscriptions. |
 | `dispatch(action)` | Sole public command path. State-changing actions go through reducer/effects. May return a Promise for async commands such as traverse or rename. |
 | `getState()` | Returns a cloned/coarse projection of `_KDB.state.tabs` for cross-module UI sync. It must include fields consumed by kdbControl and launchpad. |
+| `isMutationRunning()` | Read-only boolean: a tab mutation (delete/duplicate/move/restoreDeleted) is in flight, i.e. `runtime.tabs.pendingPromises.tabMutation` is set. Same answer as kit `readTabsBusy(_KDB, ["tabMutation"])`. `false` after destroy. |
+| `isBusy()` | Read-only boolean: a traverse, the startup traversal or a tab mutation is pending (`pendingPromises.traverse`, `.startup`, `.tabMutation`). Same answer as kit `readTabsBusy(_KDB)` with its default keys. `false` after destroy. |
+| `readCurrentTab(root?)` | `{ index, id }` of the tab selected in the Cognos chrome (`index` is `-1` and `id` is `null` when none, and after destroy); `id` comes from the cognosHost tabs facet. `_KDB.utils.readCurrentTab` is bound to the same reader while tabs is mounted (compatibility for existing callers, restored on destroy unless another owner replaced it). |
 
 Disposed-state discipline follows `module-public-api.mdc`: after destroy, `getState()` returns `undefined`; `dispatch()` is a no-op and logs once via `console.warn("[tabs.dispatch] called after destroy")`; `mount()` is a no-op and logs once via `console.warn("[tabs.mount] called after destroy; obtain a fresh instance from the factory")`; `destroy()` remains idempotent. No disposed guard throws synchronously. The factory/orchestrator is the canonical revive path.
 
@@ -259,6 +267,8 @@ Action names are slash-style.
 | `tabs/destroy` | `destroy()` | Transition lifecycle and clear owned transient state. |
 
 ### 7.2 Deferred Actions
+
+Status note (Phase 2): `tabs/delete`, `tabs/duplicate`, `tabs/move` and `tabs/restoreDeleted` are implemented by the tab-mutation saga (`tabs/tabMutation/`) and no longer return `false`; only `tabs/reorder` is still unimplemented. The table below is the original phase-1 reservation.
 
 These action names may be reserved but must not perform persistent behavior in phase 1:
 
@@ -286,7 +296,7 @@ Required selectors:
 | `readTabByIndex(_KDB, tabIndex)` | Cloned descriptor or `null`. |
 | `readTabEditTarget(_KDB)` | Current explicit physical edit target `{ tabIndex, tabId }` or `null`; phase 1 normally returns `null` because current kdbControl selects tools, not physical tabs. |
 | `readTabsForLaunchpad(_KDB)` | Ordered visible non-helper descriptors `{ tabId, pageId, index, name, isActive }[]`. |
-| `readTabsForKdbControl(_KDB)` | Projection `{ visibleTabs, toolboxTabEditLineIndex, selectedTool, canAdd, actions }`. |
+| `readTabsForKdbControl(_KDB)` | Projection `{ visibleTabs, visibleEditTabIndexes, toolboxTabEditLineIndex, selectedTool, canAdd, editUi, actions }`. |
 
 `getState()` must expose a stable projection including at least:
 
@@ -305,15 +315,11 @@ Required selectors:
 }
 ```
 
-Phase-1 `actions` shape:
+`actions` shape (only `rename` is reported; the `delete`, `duplicate`, `move` and `reorder` entries that were constant `{ enabled: false, reason: "deferred" }` were removed in Phase 2 W6a, nothing read them):
 
 ```js
 {
-  rename: { enabled: true, reason: null },
-  delete: { enabled: false, reason: "deferred" },
-  duplicate: { enabled: false, reason: "deferred" },
-  move: { enabled: false, reason: "deferred" },
-  reorder: { enabled: false, reason: "deferred" }
+  rename: { enabled: true, reason: null }   // reason "noTarget" when disabled
 }
 ```
 
@@ -362,7 +368,7 @@ For the current production kdbControl, `payload.tabIndex` in `tabs/selectEditTar
 | `3` | `move` deferred |
 | `4` | `reorder` deferred |
 
-Selecting line `0` sets `selectedTool: "rename"`. Selecting lines `1..4` may update `toolboxTabEditLineIndex` for UI parity, but `actions.*.enabled` for those tools remains `false` with reason `"deferred"` and dispatching the corresponding action returns `false`.
+Selecting line `0` sets `selectedTool: "rename"`. Selecting lines `1..4` may update `toolboxTabEditLineIndex` for UI parity, but the toolbox lines themselves select no tool (`actions` reports `rename` only). Delete, duplicate and move run through the edit icons and the tab-mutation saga (`tabs/delete`, `tabs/duplicate`, `tabs/move`, `tabs/restoreDeleted`).
 
 Rename execution must enter through `_KDB.api.tabs.dispatch({ type: "tabs/rename", payload })`. The current production kdbControl line `0` only selects the rename tool; it does not yet provide a committed new name. A future kdbControl delta may add the UI that gathers the name and dispatches `tabs/rename`, but it must not dispatch delete/duplicate/move/reorder execution in phase 1.
 
@@ -513,20 +519,61 @@ Before using request events such as `tabs:toolRequested`, the contract must docu
 
 ## 18. Module Shape
 
-Expected production folder shape:
+As built (exports per file; shims keep legacy import paths). `__orchestratorTabs.js` is a shim over `index.js` (controller + `registerTabs`).
 
 ```txt
-KDB3/js/dashboard/tabs/
+dashboard/tabs/
+  __orchestratorTabs.js                               shim over index.js (path kept for KDB.js)
+  chrome.js                                           hasTabInnerFrame, readTabItemIndex, readTabButtons, readPrimaryTabButtons, resolveTabWrapper, resolveLabelNode, resolveTabListElement, ...
+  config.js                                           selectors, filterScopeCodes, parameterSetCodes, mutationOwners, mutationUi, editIcons
+  effects.js                                          applyTabsEffects, createCognosTabsAdapter
+  history.js                                          pushTabMutationHistoryStep, pushRenameHistoryStep, createTabsHistoryReplayHandler
+  index.js                                            registerTabs
+  observe.js                                          startActiveTabObserver
+  pageLoading.js                                      start, finish
+  reducer.js                                          reduceTabsAction, commitTabsState
+  selectors.js                                        readTabsState, readTabTargets, readActiveTabId, readActiveTabIndex, readVisibleTabs, readTabByIndex, readTabById, ...
+  slots.js                                            isDashboardTab, isVisibleUserTab, isRenamableUserTab, findTabById, listDashboardSlots, resolveDashboardOrderIndex, countVisible, ...
+  state.js                                            createInitialTabsState, createEditUiState, cloneByIndex, cloneTab, cloneHelperTab, buildVisibleOrder, phaseToLifecycle, ...
+  view.js                                             syncDomFromState, syncKdbControlView
+  actions/
+    guardParameterSetRun.js                           shim over ../restore/guard.js (path kept for external imports)
   config/
-  state/
+    actionTypes.js                                    INITIALIZE, SYNC_FROM_DOM, ACTIVE_TAB_OBSERVED, HYDRATE_DOM, TRAVERSE, ADD, SELECT_EDIT_TARGET, ...
+    defaults.js                                       MAX_USER_TABS, HELPER_TAB_INDEX, MIN_VISIBLE_USER_TABS, VISIBLE_CLASS, USER_TAB_BUTTON_CLASS, HELPER_TAB_BUTTON_CLASS, HELPER_TAB_CONTENT_CLASS, ...
+    mutationCodes.js                                  CONFLICT, CANCELLED, MIN_VISIBLE, MAX_VISIBLE, PREPARE_FAILED, KIND_UNSUPPORTED, STOCK_SHORT, ...
+  editUi/
+    confirm.js                                        confirmAndDispatchTabMutation, isTabMutationInFlight
+    icons.js                                          renderTabEditIcons, removeTabEditIcons, bindIconClick
+    reduce.js                                         addVisibleTab, selectEditTarget, setSelectedTool, updateRename, cancelEditSession, recomputeEditUi
+    renameActions.js                                  buildPendingRename, applyRenameEffects
+    session.js                                        startEditSession, commitOutgoingEditSession, cleanupEditSession
   effects/
+    hasTabInnerFrame.js                               shim over ../chrome.js (path kept for external imports)
   events/
-  adapters/
-  createTabsController.js
-  __orchestratorTabs.js
+    eventNames.js                                     CHANGED, ACTIVATION_STARTED, RENAMED, TRAVERSED, ERROR
+  restore/
+    filterScopeTargets.js                             resolveFilterScopeTargets, disposedResult, readResolvedFilterScopeTargets
+    guard.js                                          guardParameterSetRun, isStale, cancelledResult, waitForInflightTraversals
+    parameterSetActivation.js                         parameterSetActivateTab
+    parameterSetLanding.js                            parameterSetAbortLanding, postParameterSetRestoreTraverse, writebackGetPersistLanding
+    parameterSetRestore.js                            routeParameterSetAction, isParameterSetAction, disposedResult
+    reduce.js                                         reduceParameterSetApply
+  state/
+    selectors.js                                      shim over ../selectors.js (path kept for external imports)
+  tabMutation/
+    actions.js                                        routeTabMutationAction, isTabMutationAction, disposedResult
+    loadingFrame.js                                   startMutationFrame, finishMutationFrame, syncTraverseLine
+    owners.js                                         ok, failed, dispatchOwner, captureOriginalActive, mapTabIdxByTabId, ensureSlots, restoreOriginalActiveTab, ...
+    plans.js                                          buildDeletePlan, buildDuplicatePlan, buildMovePlan, buildRestoreDeletedPlan
+    reduce.js                                         reduceTabMutationApply
+    saga.js                                           runTabMutationSaga, buildMutationResult
+  traverse/
+    traverse.js                                       dispatchTabsTraverse, traverseTabs
+    traverseOptions.js                                normalizeTraverseOptions, buildTraverseKey, collectTargetIndexes, shouldTraverseTab, buildConfirmedPayload, buildFailedPayload
 ```
 
-Only create folders with real content. `view/` may be added only if tabs creates its own DOM; phase 1 can keep button visibility under `effects/` if it only mutates existing Cognos tab buttons.
+Only create folders with real content. DOM sync of the existing Cognos tab buttons is in `view.js` and `effects.js`; the tab edit-mode UI is in `editUi/`.
 
 ## 19. Integration Boundaries
 

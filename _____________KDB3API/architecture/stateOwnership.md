@@ -295,7 +295,7 @@ Effects perform outside-world actions:
 - dashboard DOM effect;
 - async side effect.
 
-Avoid one large `effects/` dumping ground. Split by responsibility when needed:
+Avoid one large `effects/` dumping ground. Split by responsibility when needed (illustrative file names):
 
 ```txt
 effects/
@@ -437,6 +437,8 @@ Benefits:
 - future modules can register controls through the public API.
 
 ### Recommended folder structure
+
+Illustrative template only, not the as-built tree. The real kdbControl layout is in `contracts/kdbControl.md` §9; module file layouts in general are in `architecture/jsModuleMap.md`.
 
 ```txt
 kdbControl/

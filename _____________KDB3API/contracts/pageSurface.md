@@ -18,7 +18,7 @@ widgetBase keeps widget x/y/width/height. Tabs, header, and footer stay out. `de
 
 ## 3. Runtime
 
-`_KDB.runtime.pageSurface.canvasFacet` — stamp of `_KDB.services.cognosHost.canvas` once in the orchestrator. Deep files read it only through `effects/readCanvasFacet.js`.
+`_KDB.runtime.pageSurface.canvasFacet` — stamp of `_KDB.services.cognosHost.canvas` once in the orchestrator. Code reads it only through `rt.canvasFacet` (set in `index.js`).
 
 `_KDB.runtime.pageSurface.pending` — last width, height, and background strings received before the first post-ready flush (including after `mount` until that flush). Not serialized. Cleared on flush and on `destroy`.
 
@@ -48,11 +48,11 @@ Disposed: `dispatch` and `mount` warn once and return. `destroy` is idempotent. 
 
 **Background.** Set `backgroundColor` on every `.dashboardFrame .page.pagegenericPage` that is not inside `#KDB_bottomFooterWrapper`. Empty or whitespace removes the inline property. Do not paint `.dashboardFrame` itself and do not paint the footer.
 
-Also paint one surround node, `.ba-common-container.ba-common-tabList__innerContainer`, with the same RGB at alpha `0.75` (`rgba(r,g,b,0.75)`) when the color matches `#RRGGBB`. Any other value, including empty and `#00000000`, removes that node's inline `background-color`. The page node still receives the raw string. Do not paint `.pagecontainer`. The helper stays in `applyPageSurface.js`. Do not change the PDF overlay on that node.
+Also paint one surround node, `.ba-common-container.ba-common-tabList__innerContainer`, with the same RGB at alpha `0.75` (`rgba(r,g,b,0.75)`) when the color matches `#RRGGBB`. Any other value, including empty and `#00000000`, removes that node's inline `background-color`. The page node still receives the raw string. Do not paint `.pagecontainer`. The helper stays in `effects.js`. Do not change the PDF overlay on that node.
 
 **Page size.** Convert the setting string to px with `core/utils/convertUnitToPx.js` (`Math.round` + `"px"`). Call the stamped facet `setCanvasPageSize("width"|"height", cssPx)`. Do not send `mm` or `cm` to Cognos. A failed Outcome is logged once per call and does not throw into kdbControl. Do not retile widgets.
 
-**Mount.** Set mounted and arm `canvasFacet.whenCanvasReady({ signal })` with no `budgetMs` (`effects/applyPageSurfaceWhenReady.js`). Do not size the Cognos page in that turn. After the waiter settles: abort/dispose/`outcome === "aborted"` → no flush; any other settle (ready, wait-fail, missing `whenCanvasReady`) → **exactly one** flush (pending axes first, then kdbControl `settings.dashboard` for axes not in pending). Wait-fail still attempts `setCanvasPageSize` once. kdbControl mount does not emit these intents, so the flush read is the first paint.
+**Mount.** Set mounted and arm `canvasFacet.whenCanvasReady({ signal })` with no `budgetMs` (`index.js`, the post-ready wait). Do not size the Cognos page in that turn. After the waiter settles: abort/dispose/`outcome === "aborted"` → no flush; any other settle (ready, wait-fail, missing `whenCanvasReady`) → **exactly one** flush (pending axes first, then kdbControl `settings.dashboard` for axes not in pending). Wait-fail still attempts `setCanvasPageSize` once. kdbControl mount does not emit these intents, so the flush read is the first paint.
 
 ## 6. Boot
 
@@ -62,7 +62,7 @@ Also paint one surround node, `.ba-common-container.ba-common-tabList__innerCont
 - `mountFeatureModules`: `_KDB.api.canvas.mount({})` immediately after `_KDB.api.kdbControl.mount({})`.
 - `destroyRegisteredFeatures`: `api.canvas` immediately before `api.kdbControl`.
 
-Do not edit `settingsPostDispatchSideEffects.js`.
+The kdbControl settings side effects (`kdbControl/effects.js`) dispatch the canvas intents; this module does not edit them.
 
 ## 7. Cognos
 
@@ -70,13 +70,13 @@ Two ops on the existing canvas stamp: `setCanvasPageSize` (sync) and `whenCanvas
 
 ## 8. Folder
 
+As built (3 files):
+
 ```txt
 dashboard/canvas/pageSurface/
-  __orchestratorPageSurface.js
-  createPageSurfaceController.js
-  effects/applyPageSurface.js
-  effects/applyPageSurfaceWhenReady.js
-  effects/readCanvasFacet.js
+  __orchestratorPageSurface.js   shim over index.js (path kept for KDB.js)
+  index.js                       registerPageSurface: mount/dispatch/destroy, canvasFacet stamp, whenCanvasReady wait
+  effects.js                     applyAxis, flushPendingAndSettings, writePending (page size px, page/surround background)
 ```
 
 No `state/`. No new CSS file.

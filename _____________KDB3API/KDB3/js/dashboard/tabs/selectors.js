@@ -136,13 +136,7 @@ define([
     const editUi = state.editUi || {};
     const renamePayload = typeof editUi.sessionTabIndex === "number" ? { tabIndex: editUi.sessionTabIndex } : {};
     const canRename = !!resolveRenameTarget(state, renamePayload);
-    return {
-      rename: { enabled: canRename, reason: canRename ? null : "noTarget" },
-      delete: { enabled: false, reason: "deferred" },
-      duplicate: { enabled: false, reason: "deferred" },
-      move: { enabled: false, reason: "deferred" },
-      reorder: { enabled: false, reason: "deferred" }
-    };
+    return { rename: { enabled: canRename, reason: canRename ? null : "noTarget" } };
   }
 
   function resolveRenameTarget(state, payload) {
