@@ -16,6 +16,19 @@ define([], function () {
     return match ? String(match[1] || "").trim() : "";
   }
 
+  // Last "[token]" over the whole string, untrimmed (newlines do not matter); "" when there is none. Restore
+  // lookups compare full use values, so unlike extractLastBracketToken whitespace is significant here.
+  function extractUniqueNameLeaf(_value) {
+    var text = String(_value == null ? "" : _value);
+    var re = /\[([^\]]+)\]/g;
+    var last = "";
+    var match;
+    while ((match = re.exec(text)) !== null) {
+      last = match[1];
+    }
+    return last;
+  }
+
   // Hierarchy level number of a unique name such as "[Org].[level02].[x]"; null when there is none.
   function parseLevelNumber(_value) {
     var match = String(_value == null ? "" : _value).match(/level0*(\d+)/i);
@@ -75,6 +88,7 @@ define([], function () {
   return {
     parseHierarchyCell: parseHierarchyCell,
     extractLastBracketToken: extractLastBracketToken,
-    parseLevelNumber: parseLevelNumber
+    parseLevelNumber: parseLevelNumber,
+    extractUniqueNameLeaf: extractUniqueNameLeaf
   };
 });
