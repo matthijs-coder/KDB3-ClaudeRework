@@ -65,11 +65,64 @@ test("P2: dataQuery wait leaves no abort listener on the caller signal", async (
   assert.equal(counts.added, counts.removed);
 });
 
-test("P2: dataSources list wait does not register the same signal twice", async () => {
+test("P2: dataSources list wait balances abort listeners on its internal controller", async () => {
+  const counts = { added: 0, removed: 0 };
+  class CountingAbortController extends AbortController {
+    constructor() {
+      super();
+      const add = this.signal.addEventListener.bind(this.signal);
+      const remove = this.signal.removeEventListener.bind(this.signal);
+      this.signal.addEventListener = (type, ...rest) => { if (type === "abort") counts.added += 1; return add(type, ...rest); };
+      this.signal.removeEventListener = (type, ...rest) => { if (type === "abort") counts.removed += 1; return remove(type, ...rest); };
+    }
+  }
   let polls = 0;
   const state = (value) => ({ getState: () => value });
-  const { svc } = create({ dataSources: { getDataSourceList: () => (++polls < 3 ? [state("loading")] : [state("ready")]) } });
+  const { svc } = create(
+    { dataSources: { getDataSourceList: () => (++polls < 4 ? [state("loading")] : [state("ready")]) } },
+    { AbortController: CountingAbortController }
+  );
   assert.equal((await svc.dataSources.hasErrorDataSource()).data, false);
+  assert.ok(counts.added >= 3, "one listener per sleep, not two: " + counts.added);
+  assert.equal(counts.added, counts.removed, "every added listener is removed after its sleep");
+});
+
+test("clearRuntime releases every subscription even when each unsubscribe prunes itself (iterates a copy)", () => {
+  const { svc, _KDB } = create({});
+  const subscriptions = _KDB.runtime.cognosHostService.subscriptions;
+  let released = 0;
+  for (let n = 0; n < 4; n += 1) {
+    const unsubscribe = () => {
+      released += 1;
+      const at = subscriptions.indexOf(unsubscribe);
+      if (at !== -1) subscriptions.splice(at, 1);
+    };
+    subscriptions.push(unsubscribe);
+  }
+  svc.destroy();
+  assert.equal(released, 4);
+  assert.deepEqual(_KDB.runtime.cognosHostService.subscriptions, []);
+});
+
+test("clearFilter and writeFilter keep their distinct failure log texts", async () => {
+  const logged = [];
+  const saved = console.error;
+  console.error = (...args) => logged.push(args[0]);
+  try {
+    const item = { id: "p1", getScope: () => "tab1" };
+    const api = {
+      getFilterItemId: (i) => i.id, getFilterItemLabel: (i) => i.id, getFilterSourceId: () => "", getFilterValues: () => [],
+      getAllPageContextFilterItems: () => [item],
+      replaceFilterContext: () => { throw new Error("w"); },
+      clearPageContextFilter: () => { throw new Error("c"); }
+    };
+    const { svc } = create({ filters: api });
+    await svc.filters.writeFilter({ ref: { itemId: "p1", scopeId: "tab1" }, values: [] });
+    await svc.filters.clearFilter({ itemId: "p1", scopeId: "tab1" });
+  } finally {
+    console.error = saved;
+  }
+  assert.deepEqual(logged, ["[cognosHost.filters.writeFilter] host write failed", "[cognosHost.filters.clearFilter] host clear failed"]);
 });
 
 test("P3: dataQuery poll interval backs off x1.25 and is capped at max(intervalMs, 1000)", async () => {
