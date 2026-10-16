@@ -298,6 +298,29 @@ test('destroy releases the root namespaces and is idempotent', async () => {
   assert.deepEqual(h.log, []);
 });
 
+test('destroy removes the stylesheet links the boot added (DELTA: they used to stay in document.head)', async () => {
+  const h = createHarness({ realCss: true });
+  const kdb = h.createKdb();
+  await kdb.renderKDB({});
+  assert.ok(h.head.children.length > 10);
+  kdb.destroy();
+  assert.equal(h.head.children.length, 0);
+});
+
+test('double boot: destroying the first instance keeps the stylesheet links of the second', async () => {
+  const h = createHarness({ realCss: true });
+  const first = h.createKdb();
+  await first.renderKDB({});
+  const count = h.head.children.length;
+  const second = h.createKdb();
+  await second.renderKDB({});
+  assert.equal(h.head.children.length, count);
+  first.destroy();
+  assert.equal(h.head.children.length, count);
+  second.destroy();
+  assert.equal(h.head.children.length, 0);
+});
+
 test('destroy nulls runtime.homeDialog (DELTA: it was left stamped)', async () => {
   const h = createHarness();
   const kdb = h.createKdb();

@@ -4,6 +4,7 @@ define([
   "../properties/__orchestratorProperties.js",
   "../config/__orchestratorConfig.js",
   "../css/__orchestratorCss.js",
+  "../css/removeCssLinks.js",
   "../cognosAPI/__orchestratorCognosAPI.js",
   "../authoring/__orchestratorAuthoring.js",
   "../services/__orchestratorServices.js",
@@ -41,6 +42,7 @@ define([
   _orchestratorProperties,
   _orchestratorConfig,
   _orchestratorCss,
+  _removeCssLinks,
   _orchestratorCognosAPI,
   _orchestratorAuthoring,
   _orchestratorServices,
@@ -87,7 +89,7 @@ define([
     { name: "cognosHostSelectors", register: _registerCognosHostSelectors },
     { name: "properties", register: _orchestratorProperties, destroy: _teardownSteps.destroyPropertiesController },
     { name: "config", register: _orchestratorConfig },
-    { name: "css", register: _orchestratorCss },
+    { name: "css", register: _orchestratorCss, destroy: _removeCssLinks },
     { name: "cognosAPI", register: _orchestratorCognosAPI },
     { name: "services", register: _orchestratorServices },
     { name: "authoring", register: _orchestratorAuthoring, api: "authoring" },
@@ -136,7 +138,7 @@ define([
     "nativeMultiSelect", "specialSingleSelect", "sicht", "dienststelle", "singleSelect", "filterDock", "metricsTree",
     "pdfExportControls", "wienKiControls", "shareControls", "pageSurface", "authoring", "kdbControl", "tabs",
     "historyControls", "dragDrop", "widgetTopN", "widgetDataTable", "widgetVis", "widgetText", "widgetSettings", "widgetBase",
-    "launchpad", "footer", "header", "properties", "homeDialog"
+    "launchpad", "footer", "header", "properties", "homeDialog", "css"
   ];
 
   // _KDB.services keys in teardown order; cognosHost goes last because consumers may still see a live (but already

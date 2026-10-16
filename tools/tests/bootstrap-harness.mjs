@@ -74,13 +74,28 @@ export function deferred() {
 
 export const flush = () => new Promise((resolve) => setImmediate(resolve));
 
-export function createHarness({ realServices = false, props = {}, failMount = null, failDestroy = null, cubesGate = null } = {}) {
+export function createFakeHead() {
+  const head = {
+    children: [],
+    appendChild(el) { el.parentNode = head; head.children.push(el); return el; },
+    removeChild(el) { const i = head.children.indexOf(el); if (i >= 0) head.children.splice(i, 1); el.parentNode = null; return el; },
+    querySelectorAll() { return head.children.filter((el) => el.rel === 'stylesheet'); },
+  };
+  return head;
+}
+
+export function createHarness({ realCss = false, realServices = false, props = {}, failMount = null, failDestroy = null, cubesGate = null } = {}) {
   const log = [];
   const consoleCalls = { error: [], warn: [], log: [] };
   const alerts = [];
   const top = { document: {}, getKDB: undefined };
   const windowStub = { top };
-  const documentStub = { querySelector: (selector) => ({ selector }) };
+  const head = createFakeHead();
+  const documentStub = {
+    head,
+    querySelector: (selector) => ({ selector }),
+    createElement: () => ({ rel: '', href: '', parentNode: null, getAttribute(name) { return name === 'href' ? this.href : null; } }),
+  };
   const consoleStub = {
     error: (...a) => consoleCalls.error.push(a),
     warn: (...a) => consoleCalls.warn.push(a),
@@ -164,6 +179,7 @@ export function createHarness({ realServices = false, props = {}, failMount = nu
     kdb.properties.KDBLoadingImageTransparentToggle = props.transparent === true;
   };
   for (const name of ['config', 'css', 'cognosAPI', 'utils']) {
+    if (name === 'css' && realCss) continue;
     overrides[CORE_STEP_PATHS[name]] = () => { log.push('register:' + name); };
   }
   overrides[CORE_STEP_PATHS.authoring] = (kdb) => {
@@ -232,7 +248,7 @@ export function createHarness({ realServices = false, props = {}, failMount = nu
     return new KDB(options || { parent: { id: 'parent' }, content: { id: 'content' }, features: {} });
   }
 
-  return { KDB, createKdb, log, alerts, consoleCalls, top, contributions };
+  return { KDB, createKdb, log, alerts, consoleCalls, top, contributions, head };
 }
 
 export const idx = (log, entry) => log.indexOf(entry);
