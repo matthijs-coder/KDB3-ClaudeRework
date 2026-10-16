@@ -1,0 +1,726 @@
+{
+  "collectTabs": {
+    "mixed": {
+      "result": {
+        "tabs": [
+          {
+            "name": "Tab 0"
+          },
+          {
+            "name": "Tab 1",
+            "hide": 1
+          },
+          {
+            "name": "Tab 2"
+          }
+        ]
+      },
+      "diagnostics": []
+    },
+    "nameless": {
+      "result": {},
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_SKIPPED_BY_DESIGN",
+          "phase": "get",
+          "message": "tab without a name encountered; tabs omitted to keep positional entries valid",
+          "details": {
+            "tabIndex": 1
+          }
+        }
+      ]
+    },
+    "roleless": {
+      "result": {
+        "tabs": [
+          {
+            "name": "Tab 0"
+          },
+          {
+            "name": "Tab 1",
+            "hide": 1
+          }
+        ]
+      },
+      "diagnostics": []
+    },
+    "roleless_no_limits": {
+      "result": {
+        "tabs": [
+          {
+            "name": "Tab 0"
+          },
+          {
+            "name": "Tab 4"
+          }
+        ]
+      },
+      "diagnostics": []
+    },
+    "roleless_limit_two": {
+      "result": {
+        "tabs": [
+          {
+            "name": "Tab 0"
+          },
+          {
+            "name": "Tab 1"
+          }
+        ]
+      },
+      "diagnostics": []
+    },
+    "empty_state": {
+      "result": {},
+      "diagnostics": []
+    },
+    "no_tabs_owner": {
+      "result": {},
+      "diagnostics": []
+    }
+  },
+  "collectSingleSelectInstances": {
+    "globals": {
+      "result": [
+        {
+          "key": "Jahr",
+          "vals": [
+            "use-g1"
+          ],
+          "inst": "jahr"
+        },
+        {
+          "key": "Monat",
+          "vals": [
+            "use-g2"
+          ]
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_SINGLESELECT_USE_VALUE_MISSING",
+          "phase": "get",
+          "message": "singleSelect instance has a non-empty display selection but no useValue",
+          "details": {
+            "key": "Leer",
+            "inst": null,
+            "filterInstanceId": "noUse",
+            "scopeType": "global"
+          }
+        }
+      ]
+    },
+    "pageContext": {
+      "result": [
+        {
+          "key": "Seite",
+          "vals": [
+            "use-p1"
+          ],
+          "tab": 0
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "page-context scope cannot be mapped to one dashboard tab target",
+          "details": {
+            "key": "Seite",
+            "inst": null,
+            "filterInstanceId": "p2",
+            "scopeType": "pageContext",
+            "scopeId": "scope-b"
+          }
+        },
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "page-context scope cannot be mapped to one dashboard tab target",
+          "details": {
+            "key": "Fremd",
+            "inst": null,
+            "filterInstanceId": "p4",
+            "scopeType": "pageContext",
+            "scopeId": "NOPE"
+          }
+        },
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "alias-only tab scope evidence is unsafe for page-context writeback collection",
+          "details": {
+            "key": "Alias",
+            "inst": null,
+            "filterInstanceId": "p5",
+            "scopeType": "pageContext",
+            "scopeId": "tab1",
+            "evidence": "alias"
+          }
+        }
+      ]
+    },
+    "pageContext_no_targets": {
+      "result": null,
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "page-context instance skipped because live scope targets are unavailable",
+          "details": {
+            "key": "Seite",
+            "inst": null,
+            "filterInstanceId": "p1",
+            "scopeType": "pageContext"
+          }
+        },
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "page-context instance skipped because live scope targets are unavailable",
+          "details": {
+            "key": "Seite",
+            "inst": null,
+            "filterInstanceId": "p2",
+            "scopeType": "pageContext"
+          }
+        },
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "page-context instance skipped because live scope targets are unavailable",
+          "details": {
+            "key": "Versteckt",
+            "inst": null,
+            "filterInstanceId": "p3",
+            "scopeType": "pageContext"
+          }
+        },
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "page-context instance skipped because live scope targets are unavailable",
+          "details": {
+            "key": "Fremd",
+            "inst": null,
+            "filterInstanceId": "p4",
+            "scopeType": "pageContext"
+          }
+        },
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "page-context instance skipped because live scope targets are unavailable",
+          "details": {
+            "key": "Alias",
+            "inst": null,
+            "filterInstanceId": "p5",
+            "scopeType": "pageContext"
+          }
+        }
+      ]
+    },
+    "ambiguous_live_scope": {
+      "result": null,
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_AMBIGUOUS",
+          "phase": "get",
+          "message": "page-context scope maps to multiple dashboard tab targets",
+          "details": {
+            "key": "Zwilling",
+            "inst": null,
+            "filterInstanceId": "t1",
+            "scopeType": "pageContext",
+            "scopeId": "DUP",
+            "candidates": [
+              {
+                "tabId": "tab0",
+                "pageId": "page0",
+                "index": 0,
+                "tabIdx": 0,
+                "visible": true,
+                "name": "Tab 0"
+              },
+              {
+                "tabId": "tab1",
+                "pageId": "page1",
+                "index": 1,
+                "tabIdx": 1,
+                "visible": true,
+                "name": "Tab 1"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "same_key_twins": {
+      "result": null,
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_SINGLESELECT_INSTANCE_KEY_MISSING",
+          "phase": "get",
+          "message": "same key/scope singleSelect entries are ambiguous without unique semantic keys",
+          "details": {
+            "key": "Gleich",
+            "tab": null
+          }
+        }
+      ]
+    },
+    "stale_inventory": {
+      "error": {
+        "name": "WritebackError",
+        "diagnostic": {
+          "code": "WRITEBACK_SINGLESELECT_INVENTORY_STALE",
+          "phase": "get",
+          "message": "singleSelect inventory is not fresh for writeback collection",
+          "details": {
+            "freshness": "stale",
+            "generation": 9
+          }
+        },
+        "message": "[writeback] WRITEBACK_SINGLESELECT_INVENTORY_STALE: singleSelect inventory is not fresh for writeback collection"
+      },
+      "diagnostics": []
+    },
+    "inventory_without_freshness": {
+      "error": {
+        "name": "WritebackError",
+        "diagnostic": {
+          "code": "WRITEBACK_SINGLESELECT_INVENTORY_STALE",
+          "phase": "get",
+          "message": "singleSelect inventory is not fresh for writeback collection",
+          "details": {
+            "freshness": "stale",
+            "generation": null
+          }
+        },
+        "message": "[writeback] WRITEBACK_SINGLESELECT_INVENTORY_STALE: singleSelect inventory is not fresh for writeback collection"
+      },
+      "diagnostics": []
+    },
+    "no_singleSelect_owner": {
+      "error": {
+        "name": "WritebackError",
+        "diagnostic": {
+          "code": "WRITEBACK_SINGLESELECT_INVENTORY_STALE",
+          "phase": "get",
+          "message": "singleSelect inventory is not fresh for writeback collection",
+          "details": {
+            "freshness": "stale",
+            "generation": null
+          }
+        },
+        "message": "[writeback] WRITEBACK_SINGLESELECT_INVENTORY_STALE: singleSelect inventory is not fresh for writeback collection"
+      },
+      "diagnostics": []
+    },
+    "no_tabs_owner_page_context": {
+      "result": null,
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "page-context scope cannot be mapped to one dashboard tab target",
+          "details": {
+            "key": "Seite",
+            "inst": null,
+            "filterInstanceId": "p1",
+            "scopeType": "pageContext",
+            "scopeId": "SCOPE-A"
+          }
+        },
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "page-context scope cannot be mapped to one dashboard tab target",
+          "details": {
+            "key": "Seite",
+            "inst": null,
+            "filterInstanceId": "p2",
+            "scopeType": "pageContext",
+            "scopeId": "scope-b"
+          }
+        },
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "page-context scope cannot be mapped to one dashboard tab target",
+          "details": {
+            "key": "Versteckt",
+            "inst": null,
+            "filterInstanceId": "p3",
+            "scopeType": "pageContext",
+            "scopeId": "SCOPE-C"
+          }
+        },
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "page-context scope cannot be mapped to one dashboard tab target",
+          "details": {
+            "key": "Fremd",
+            "inst": null,
+            "filterInstanceId": "p4",
+            "scopeType": "pageContext",
+            "scopeId": "NOPE"
+          }
+        },
+        {
+          "code": "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
+          "phase": "get",
+          "message": "page-context scope cannot be mapped to one dashboard tab target",
+          "details": {
+            "key": "Alias",
+            "inst": null,
+            "filterInstanceId": "p5",
+            "scopeType": "pageContext",
+            "scopeId": "tab1"
+          }
+        }
+      ]
+    }
+  },
+  "collectWidgetsTraverse": {
+    "barrier_ok": {
+      "result": {},
+      "diagnostics": []
+    },
+    "barrier_not_ok": {
+      "result": {},
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_TABS_NOT_READY",
+          "phase": "get",
+          "message": "tabs traversal barrier failed; widgets on not-yet-loaded dashboard tabs may be missing"
+        }
+      ]
+    },
+    "barrier_throws": {
+      "result": {},
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_TABS_NOT_READY",
+          "phase": "get",
+          "message": "tabs traversal barrier failed; widgets on not-yet-loaded dashboard tabs may be missing"
+        }
+      ]
+    },
+    "no_dispatch": {
+      "result": {},
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_TABS_NOT_READY",
+          "phase": "get",
+          "message": "tabs traversal barrier failed; widgets on not-yet-loaded dashboard tabs may be missing"
+        }
+      ]
+    },
+    "already_traversed": {
+      "result": {},
+      "diagnostics": []
+    },
+    "no_tabs_owner": {
+      "result": {},
+      "diagnostics": []
+    },
+    "dispatched": [
+      {
+        "type": "tabs/traverse",
+        "payload": {
+          "source": "writebackGet",
+          "scope": "visibleDashboard",
+          "includeHiddenDashboardTabs": false,
+          "restoreActiveTab": true,
+          "waitFor": "canvas",
+          "timeoutMs": 30000
+        }
+      },
+      {
+        "type": "tabs/traverse",
+        "payload": {
+          "source": "writebackGet",
+          "scope": "visibleDashboard",
+          "includeHiddenDashboardTabs": false,
+          "restoreActiveTab": true,
+          "waitFor": "canvas",
+          "timeoutMs": 30000
+        }
+      }
+    ]
+  },
+  "filterRestoreGeneration": {
+    "reconcile_from_result": {
+      "value": 7,
+      "diagnostics": [
+        [
+          "phase",
+          "singleSelectPreRestoreReconcile",
+          "singleSelect/reconcileFilterInstances"
+        ]
+      ]
+    },
+    "reconcile_from_owner": {
+      "value": 5,
+      "diagnostics": [
+        [
+          "phase",
+          "singleSelectPreRestoreReconcile",
+          "singleSelect/reconcileFilterInstances"
+        ]
+      ]
+    },
+    "reconcile_owner_generation_zero": {
+      "value": 0,
+      "diagnostics": [
+        [
+          "phase",
+          "singleSelectPreRestoreReconcile",
+          "singleSelect/reconcileFilterInstances"
+        ]
+      ]
+    },
+    "reconcile_no_inventory": {
+      "threw": "ABORT",
+      "diagnostics": [
+        [
+          "phase",
+          "singleSelectPreRestoreReconcile",
+          "singleSelect/reconcileFilterInstances"
+        ],
+        [
+          "diag",
+          "WRITEBACK_SINGLESELECT_INVENTORY_STALE",
+          "restore",
+          "singleSelect pre-restore reconcile did not expose a numeric inventory generation"
+        ]
+      ]
+    },
+    "reconcile_no_owner": {
+      "threw": "ABORT",
+      "diagnostics": [
+        [
+          "phase",
+          "singleSelectPreRestoreReconcile",
+          "singleSelect/reconcileFilterInstances"
+        ],
+        [
+          "diag",
+          "WRITEBACK_SINGLESELECT_INVENTORY_STALE",
+          "restore",
+          "singleSelect pre-restore reconcile did not expose a numeric inventory generation"
+        ]
+      ]
+    },
+    "stable_ok": {
+      "diagnostics": []
+    },
+    "stable_changed": {
+      "threw": "ABORT",
+      "diagnostics": [
+        [
+          "diag",
+          "WRITEBACK_SINGLESELECT_INVENTORY_STALE",
+          "restore",
+          "singleSelect inventory generation changed during writeback restore run",
+          {
+            "phase": "p",
+            "expectedGeneration": 4,
+            "observedGeneration": 5,
+            "freshness": "fresh"
+          }
+        ]
+      ]
+    },
+    "stable_not_fresh": {
+      "threw": "ABORT",
+      "diagnostics": [
+        [
+          "diag",
+          "WRITEBACK_SINGLESELECT_INVENTORY_STALE",
+          "restore",
+          "singleSelect inventory freshness is not fresh during writeback restore run",
+          {
+            "phase": "p",
+            "expectedGeneration": 4,
+            "freshness": "stale"
+          }
+        ]
+      ]
+    },
+    "stable_no_owner": {
+      "threw": "ABORT",
+      "diagnostics": [
+        [
+          "diag",
+          "WRITEBACK_SINGLESELECT_INVENTORY_STALE",
+          "restore",
+          "singleSelect inventory generation changed during writeback restore run",
+          {
+            "phase": "p",
+            "expectedGeneration": 4,
+            "observedGeneration": null,
+            "freshness": "stale"
+          }
+        ]
+      ]
+    },
+    "stable_no_generation": {
+      "threw": "ABORT",
+      "diagnostics": [
+        [
+          "diag",
+          "WRITEBACK_SINGLESELECT_INVENTORY_STALE",
+          "restore",
+          "singleSelect inventory generation changed during writeback restore run",
+          {
+            "phase": "p",
+            "expectedGeneration": 4,
+            "observedGeneration": null,
+            "freshness": "fresh"
+          }
+        ]
+      ]
+    }
+  },
+  "publishRestoreTabCaption": {
+    "named_counted": {
+      "updates": [
+        {
+          "handle": {
+            "mountKey": "m"
+          },
+          "message": "Registerkarte 1 von 3: Alpha"
+        }
+      ],
+      "logs": []
+    },
+    "unnamed_counted": {
+      "updates": [
+        {
+          "handle": {
+            "mountKey": "m"
+          },
+          "message": "Registerkarte 2 von 3"
+        }
+      ],
+      "logs": []
+    },
+    "landing_first_visible": {
+      "updates": [
+        {
+          "handle": {
+            "mountKey": "m"
+          },
+          "message": "Registerkarte 1 von 3: Alpha"
+        }
+      ],
+      "logs": []
+    },
+    "hidden_tabs_not_counted": {
+      "updates": [
+        {
+          "handle": {
+            "mountKey": "m"
+          },
+          "message": "Registerkarte 2 von 2: C"
+        }
+      ],
+      "logs": []
+    },
+    "index_missed": {
+      "updates": [],
+      "logs": [
+        [
+          "warn",
+          "[writebackSet.publishRestoreTabCaption] tab index missed"
+        ]
+      ]
+    },
+    "role_missing": {
+      "updates": [],
+      "logs": [
+        [
+          "warn",
+          "[writebackSet.publishRestoreTabCaption] tab role missing"
+        ]
+      ]
+    },
+    "no_visible_landing": {
+      "updates": [
+        {
+          "handle": {
+            "mountKey": "m"
+          },
+          "message": ""
+        }
+      ],
+      "logs": []
+    },
+    "no_request_index": {
+      "updates": [],
+      "logs": []
+    },
+    "missing_label": {
+      "updates": [
+        {
+          "handle": {
+            "mountKey": "m"
+          },
+          "message": ""
+        }
+      ],
+      "logs": [
+        [
+          "error",
+          "[writebackSet.formatRestoreTabCaption] failed"
+        ]
+      ]
+    },
+    "no_tabs_owner": {
+      "updates": [],
+      "logs": [
+        [
+          "warn",
+          "[writebackSet.publishRestoreTabCaption] tab index missed"
+        ]
+      ]
+    },
+    "no_tabs_owner_landing": {
+      "updates": [
+        {
+          "handle": {
+            "mountKey": "m"
+          },
+          "message": ""
+        }
+      ],
+      "logs": []
+    }
+  },
+  "persistLanding": {
+    "landing": {
+      "subscribed": [
+        "tabs:changed",
+        "tabs:changed"
+      ],
+      "dispatched": [
+        {
+          "type": "tabs/writebackGetPersistLandingRequested",
+          "payload": {
+            "source": "writebackGet",
+            "tabIndex": 0,
+            "waitFor": "canvas"
+          }
+        }
+      ]
+    },
+    "overlay": {
+      "subscribed": [
+        "tabs:changed"
+      ]
+    }
+  }
+}
