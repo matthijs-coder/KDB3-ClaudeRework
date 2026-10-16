@@ -2,7 +2,7 @@ define([
   "./state/actionTypes.js",
   "../../../core/utils/isRightAllowed.js",
   "../../../core/utils/readFirstRowScalar.js",
-  "../../../core/authoring/state/selectors.js",
+  "../../../core/authoring/selectors.js",
   "../../../core/events/authoringMode.js",
   "../../../core/utils/kit/runtime.js"
 ], function (_types, _isRightAllowed, _readFirstRowScalar, _readIsAuthoring, _authoringEvents, _rt) {

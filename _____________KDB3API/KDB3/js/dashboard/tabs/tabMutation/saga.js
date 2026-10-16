@@ -41,7 +41,12 @@ define([
       };
       return await runPhases(_ctx, plan, payload, phases, runContext, _options);
     } finally {
-      if (loadingStarted) { _loadingFrame.finishMutationFrame(_ctx); }
+      // After every outcome, and only after rollbackOwners and the history step have read the snapshots.
+      try {
+        _owners.clearSnapshots(_ctx, plan.operationId);
+      } finally {
+        if (loadingStarted) { _loadingFrame.finishMutationFrame(_ctx); }
+      }
     }
   }
 
@@ -90,7 +95,6 @@ define([
     phases.finalize = _owners.ok();
     const result = buildMutationResult(plan.operationId, phases);
     _history.pushTabMutationHistoryStep(_ctx._KDB, plan, payload, result, runContext);
-    _owners.clearSnapshots(_ctx, plan.operationId);
     return result;
   }
 

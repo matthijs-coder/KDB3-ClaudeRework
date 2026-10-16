@@ -1,4 +1,4 @@
-// Golden tests for WS-O1: core/events, core/authoring, core/homeDialog, core/services/collectReplayHandlers.
+// Golden tests for WS-O1: core/events, core/authoring, core/homeDialog (replay registration lives in bootstrap-manifest.test.mjs).
 // Run: node --test tools/tests/ws-o1-core.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -102,10 +102,10 @@ test('bus: invalid subscribe arguments throw', () => {
   assert.throws(() => bus.subscribe('a', null), /Event handler/);
 });
 
-test('bus: public surface has no unsubscribe method', () => {
+test('bus: public surface is emit, subscribe, dispose (no unsubscribe method)', () => {
   const { console } = silentConsole();
   const bus = load('core/events/createEventBus.js', { stubs: { console } })();
-  assert.deepEqual(Object.keys(bus).sort(), ['emit', 'subscribe']);
+  assert.deepEqual(Object.keys(bus).sort(), ['dispose', 'emit', 'subscribe']);
 });
 
 test('authoringMode constants and selector keep their shape', () => {
@@ -113,10 +113,43 @@ test('authoringMode constants and selector keep their shape', () => {
     AUTHORING_ENTERED: 'authoring:entered',
     AUTHORING_EXITED: 'authoring:exited',
   });
-  const readIsAuthoring = load('core/authoring/state/selectors.js');
+  const readIsAuthoring = load('core/authoring/selectors.js');
   assert.equal(readIsAuthoring({ state: { authoring: { isAuthoring: true } } }), true);
   assert.equal(readIsAuthoring({ state: { authoring: { isAuthoring: 1 } } }), false);
   assert.equal(readIsAuthoring(null), false);
+});
+
+test('bus: dispose drops handlers and abort listeners; emit is inert and late subscribe is a no-op', () => {
+  const { console } = silentConsole();
+  const bus = load('core/events/createEventBus.js', { stubs: { console } })();
+  const seen = [];
+  const listeners = new Set();
+  const signal = {
+    aborted: false,
+    addEventListener: (type, fn) => listeners.add(fn),
+    removeEventListener: (type, fn) => listeners.delete(fn),
+  };
+  const off = bus.subscribe('a', (p) => seen.push(['a', p]), { signal });
+  bus.subscribe('b', (p) => seen.push(['b', p]));
+  assert.equal(listeners.size, 1);
+  bus.dispose();
+  assert.equal(listeners.size, 0);
+  bus.emit('a', 1);
+  bus.emit('b', 2);
+  assert.deepEqual(seen, []);
+  const late = bus.subscribe('a', (p) => seen.push(['late', p]));
+  assert.equal(typeof late, 'function');
+  bus.emit('a', 3);
+  assert.deepEqual(seen, []);
+  assert.doesNotThrow(() => { off(); late(); bus.dispose(); });
+});
+
+test('bus: dispose still validates subscribe arguments', () => {
+  const { console } = silentConsole();
+  const bus = load('core/events/createEventBus.js', { stubs: { console } })();
+  bus.dispose();
+  assert.throws(() => bus.subscribe('', () => {}), /non-empty string/);
+  assert.throws(() => bus.subscribe('a', null), /must be a function/);
 });
 
 // ------------------------------------------------------------- authoring
@@ -204,22 +237,13 @@ test('authoring: handshake with cognosHost present subscribes immediately', () =
   assert.equal(host.uiCallbacks.length, 1);
 });
 
-test('authoring: handshake without cognosHost leaves a one-shot pendingDashboardFacetStamp', () => {
+test('authoring: without a cognosHost service the facet stays null, nothing subscribes and no stamp hook is left', () => {
   const { kdb, host, orchestrator } = setupAuthoring({ withHost: false });
   orchestrator(kdb);
   assert.equal(kdb.runtime.authoring.dashboardFacet, null);
-  const stamp = kdb.runtime.authoring.pendingDashboardFacetStamp;
-  assert.equal(typeof stamp, 'function');
+  assert.equal('pendingDashboardFacetStamp' in kdb.runtime.authoring, false);
   assert.equal(host.uiCallbacks.length, 0);
-  kdb.services.cognosHost = {
-    dashboard: { subscribeUiState(cb) { host.uiCallbacks.push(cb); return () => { host.unsubscribed += 1; }; } },
-  };
-  stamp();
-  assert.equal(kdb.runtime.authoring.pendingDashboardFacetStamp, null);
-  assert.equal(kdb.runtime.authoring.dashboardFacet, kdb.services.cognosHost.dashboard);
-  assert.equal(host.uiCallbacks.length, 1);
-  stamp();
-  assert.equal(host.uiCallbacks.length, 1, 'second stamp must not subscribe again');
+  assert.equal(kdb.api.authoring.getState().isAuthoring, false);
 });
 
 test('authoring: a host facet without subscribeUiState is stamped but never subscribed', () => {
@@ -280,57 +304,9 @@ test('authoring: mount keeps an existing state slice', () => {
   assert.deepEqual(kdb.api.authoring.getState(), { isAuthoring: true });
 });
 
-// ------------------------------------------------------ collectReplayHandlers
-
-const REPLAY_KEYS = {
-  kdbControl: ['kdbControl_settingsChange'],
-  header: ['header_chromeChange', 'header_textChange'],
-  footer: ['footer_chromeChange'],
-  singleSelect: ['filter_singleSelect'],
-  sicht: ['filter_sicht'],
-  dienststelle: ['filter_dienststelle'],
-  nativeMultiSelect: ['filter_nativeMultiSelect'],
-  widgetBase: ['widget_canvasDrop', 'widget_launchpadTransfer', 'widget_layoutMove', 'widget_layoutResize'],
-  widgetSettings: ['widgetSettings_optionSelect'],
-  widgetText: ['widget_textEdit'],
-  tabs: ['tabs_move', 'tabs_delete', 'tabs_duplicate', 'tabs_rename'],
-};
-
-test('collectReplayHandlers: 18 keys from 11 owners, in registration order', () => {
-  const collect = load('core/services/collectReplayHandlers.js');
-  const runtime = {};
-  const contributions = {};
-  for (const owner of Object.keys(REPLAY_KEYS)) {
-    contributions[owner] = { apply() {} };
-    runtime[owner] = { historyReplayHandlerContribution: contributions[owner] };
-  }
-  const map = collect({ runtime });
-  const expectedKeys = Object.values(REPLAY_KEYS).flat();
-  assert.equal(expectedKeys.length, 18);
-  assert.deepEqual(Object.keys(map), expectedKeys);
-  for (const [owner, keys] of Object.entries(REPLAY_KEYS)) {
-    for (const key of keys) assert.equal(map[key], contributions[owner], key);
-  }
-});
-
-test('collectReplayHandlers: contributions without apply, missing owners and missing runtime are skipped', () => {
-  const collect = load('core/services/collectReplayHandlers.js');
-  assert.deepEqual(Object.keys(collect({})), []);
-  assert.deepEqual(Object.keys(collect({ runtime: {} })), []);
-  const map = collect({
-    runtime: {
-      header: { historyReplayHandlerContribution: {} },
-      tabs: { historyReplayHandlerContribution: { apply() {} } },
-      footer: {},
-      sicht: null,
-    },
-  });
-  assert.deepEqual(Object.keys(map), ['tabs_move', 'tabs_delete', 'tabs_duplicate', 'tabs_rename']);
-});
-
 // ------------------------------------------------------------ homeDialog
 
-test('homeDialog orchestrator: existing labels win, 4 runtime keys are set', () => {
+test('homeDialog orchestrator: existing labels win, the runtime keys are set', () => {
   const { console } = silentConsole();
   const kdb = { config: { labels: { de: { homeDialog: { closeLabel: 'Custom close' } } } }, services: {} };
   const dataSources = { hasErrorDataSource() {} };
@@ -354,6 +330,7 @@ test('homeDialog orchestrator: existing labels win, 4 runtime keys are set', () 
   assert.equal(runtime.dashboardFacet, dashboard);
   assert.equal(typeof runtime.presentHomeChoice, 'function');
   assert.equal(typeof runtime.presentCubesUnavailable, 'function');
+  assert.equal(runtime.unregisterWatchdog, null, 'no loading service: nothing registered');
 });
 
 test('homeDialog orchestrator: without cognosHost the facets are null; empty KDB works', () => {
@@ -362,7 +339,7 @@ test('homeDialog orchestrator: without cognosHost the facets are null; empty KDB
   const runtime = load('core/homeDialog/__orchestratorHomeDialog.js', { stubs: { console } })(kdb);
   assert.equal(runtime.dataSourcesFacet, null);
   assert.equal(runtime.dashboardFacet, null);
-  assert.deepEqual(Object.keys(runtime).sort(), ['dashboardFacet', 'dataSourcesFacet', 'presentCubesUnavailable', 'presentHomeChoice']);
+  assert.deepEqual(Object.keys(runtime).sort(), ['dashboardFacet', 'dataSourcesFacet', 'presentCubesUnavailable', 'presentHomeChoice', 'unregisterWatchdog']);
   assert.equal(kdb.config.labels.de.homeDialog.closeLabel, 'Dashboard schließen');
 });
 
@@ -462,4 +439,34 @@ test('presentCubesUnavailable: shows the choice only when a data source has an e
   await none.kdb.runtime.homeDialog.presentCubesUnavailable(none.kdb);
   assert.equal(none.choose.length, 0);
   assert.equal(none.calls.warn.length, 1);
+});
+
+test('homeDialog: registers the boot watchdog handler and forwards the payload to presentHomeChoice', async () => {
+  const { kdb, choose } = setupHomeDialog({ choice: null });
+  const registered = [];
+  const unregister = () => registered.push('unregistered');
+  kdb.services.loading = { registerWatchdogHandler: (key, fn) => { registered.push([key, fn]); return unregister; } };
+  const { console } = silentConsole();
+  load('core/homeDialog/__orchestratorHomeDialog.js', { stubs: { console } })(kdb);
+  assert.equal(registered.length, 1);
+  assert.equal(registered[0][0], 'kdb-root-loading-animation-mount');
+  assert.equal(kdb.runtime.homeDialog.unregisterWatchdog, unregister);
+  await registered[0][1]({ title: 'T', message: 'M', code: 'LOADING_WATCHDOG', severity: 'warning', mountKey: 'kdb-root-loading-animation-mount' });
+  assert.equal(choose.length, 1);
+  assert.deepEqual([choose[0].title, choose[0].code, choose[0].severity], ['T', 'LOADING_WATCHDOG', 'warning']);
+  assert.equal(choose[0].message, 'M\n\nWechseln Sie zur Startseite.');
+});
+
+test('homeDialog destroy: unregisters the watchdog handler and nulls runtime.homeDialog (safe without a runtime)', () => {
+  const destroy = load('core/homeDialog/destroyHomeDialog.js');
+  let unregistered = 0;
+  const kdb = { runtime: { homeDialog: { unregisterWatchdog: () => { unregistered += 1; } } } };
+  destroy(kdb);
+  assert.equal(unregistered, 1);
+  assert.equal(kdb.runtime.homeDialog, null);
+  assert.doesNotThrow(() => destroy(kdb));
+  assert.doesNotThrow(() => destroy({}));
+  const noUnregister = { runtime: { homeDialog: {} } };
+  destroy(noUnregister);
+  assert.equal(noUnregister.runtime.homeDialog, null);
 });

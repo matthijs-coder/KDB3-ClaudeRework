@@ -13,12 +13,10 @@ define([
   "./tabWidgets.js",
   "./state/selectors.js",
   "./restore.js",
-  "./slotStock/prepare.js",
-  "./slotStock/apply.js",
-  "./slotStock/rollback.js"
+  "./slotStock/tabMutationOwner.js"
 ], function (
   _data, _errors, _runtimeKit, _launchpadSelectors, _tabsEventNames, _config, _state, _runtime, _history, _canvas, _transfer, _tabWidgets,
-  _selectors, _restore, _prepare, _apply, _rollback
+  _selectors, _restore, _tabMutationOwner
 ) {
   "use strict";
 
@@ -44,9 +42,9 @@ define([
   ROUTES[TYPES.REMOVE] = _canvas.handleRemove;
   ROUTES[TYPES.PARAMETER_SET_RESET] = _restore.handleParameterSetReset;
   ROUTES[TYPES.PARAMETER_SET_RESTORE] = _restore.handleParameterSetRestore;
-  ROUTES[TYPES.PREPARE_TAB_MUTATION] = _prepare.handlePrepareTabMutation;
-  ROUTES[TYPES.APPLY_TAB_MUTATION] = _apply.handleApplyTabMutation;
-  ROUTES[TYPES.RESTORE_TAB_MUTATION_SNAPSHOT] = _rollback.handleRestoreTabMutationSnapshot;
+  ROUTES[TYPES.PREPARE_TAB_MUTATION] = _tabMutationOwner.handlePrepareTabMutation;
+  ROUTES[TYPES.APPLY_TAB_MUTATION] = _tabMutationOwner.handleApplyTabMutation;
+  ROUTES[TYPES.RESTORE_TAB_MUTATION_SNAPSHOT] = _tabMutationOwner.handleRestoreTabMutationSnapshot;
 
   function errorMessageOf(err) {
     return String(err && err.message ? err.message : err);
@@ -211,8 +209,7 @@ define([
       runtime.byId = {};
       runtime.routedTabIds = {};
       runtime.pendingRouteByTabId = {};
-      runtime.tabMutationSnapshots = {};
-      runtime.tabMutationRunId = 0;
+      _tabMutationOwner.resetOnDestroy(_KDB);
       runtime.historyReplayHandlerContribution = null;
     } catch (err) {
       console.error("[widgetBase.destroyWidgetBaseModule] destroy boundary failed", err);

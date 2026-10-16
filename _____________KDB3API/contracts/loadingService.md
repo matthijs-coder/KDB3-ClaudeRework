@@ -81,6 +81,7 @@ _KDB.state.loading = {
 
 State rules:
 
+- A mount key's entry is removed when its last loading finishes (`activeCount` reaches 0); an absent entry means "not loading". Use `services.loading.isLoading(mountKey)` instead of reading the subtree.
 - `activeCount` and `isActive` are serializable confirmed state and may remain in `_KDB.state.loading`.
 - DOM nodes, timer ids, original CSS position values and pending async handles do not live in `_KDB.state.loading`.
 - Foreign-write paths: none. Callers request changes through the approved service surface (`_KDB.services.loading` for direct-port compatibility, or `_KDB.services.loadingService` if CP-1 chooses naming uniformity).
@@ -123,6 +124,8 @@ _KDB.services.loading = {
   startLoading: startLoading,
   finishLoading: finishLoading,
   updateLoadingMessage: updateLoadingMessage,
+  isLoading: isLoading,
+  registerWatchdogHandler: registerWatchdogHandler,
   destroy: destroy
 };
 ```
@@ -134,6 +137,8 @@ Method contracts:
 | `startLoading(options)` | `({ mountEl?, mountKey?, transparent?, watchdogMs?, message?, messageKey?, sessionMessage?, sessionMessageKey? })` | loading handle or `null` | returns `null` and logs `console.warn` once. Caption: overlay-coverage delta; optional session line: `loadingService-dashboardPdf-progress-caption-sandwich-contractdelta.md`. |
 | `finishLoading(options)` | `({ mountEl?, mountKey?, handle?, removeDelayMs? })` | `undefined` | no-op with `console.warn` once. |
 | `updateLoadingMessage(options)` | `({ handle?, mountKey?, message?, messageKey? })` | `true` / `false` | returns `false` and logs `console.warn` once. Caption-only; see `loadingService-dashboardPdf-progress-caption-contractdelta.md`. |
+| `isLoading(mountKey)` | `(string)` | `boolean` | `true` while the key has `activeCount > 0`; `false` for unknown, finished and (after destroy) any key. Read-only, never warns. |
+| `registerWatchdogHandler(mountKey, handler)` | `(string, function)` | unregister function | returns a no-op unregister and logs `console.warn` once. Handlers run in registration order when the watchdog of that mount key fires. |
 | `destroy()` | `()` | `undefined` | idempotent no-op. |
 
 Handle shape pending CP-1:

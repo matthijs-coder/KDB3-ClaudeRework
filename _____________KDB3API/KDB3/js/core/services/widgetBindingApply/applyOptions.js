@@ -111,6 +111,11 @@ define([
     return { ok: false, errorCode: "WIDGET_BINDING_APPLY_INVALID_PLAN", errorMessage: _message };
   }
 
+  // renderWait.js listens on the signal, so a plain { aborted } object is rejected before any Cognos call.
+  function isListenableSignal(_signal) {
+    return !!_signal && typeof _signal.addEventListener === "function" && typeof _signal.removeEventListener === "function";
+  }
+
   function validateBindingApplyInputs(_runtime, _plan, _options) {
     if (!_plan) {
       return invalidInput("Missing plan.");
@@ -123,6 +128,9 @@ define([
     }
     if (!_options.signal) {
       return invalidInput("Missing AbortSignal.");
+    }
+    if (!isListenableSignal(_options.signal)) {
+      return invalidInput("Invalid AbortSignal: addEventListener and removeEventListener are required.");
     }
     if (missingFacetMethods(_runtime).length) {
       return {

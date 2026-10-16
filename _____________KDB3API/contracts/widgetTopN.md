@@ -265,6 +265,8 @@ _KDB.api.widgetVis.dispatch({
 });
 ```
 
+A `resolveRequested` for an owner whose widgetBase frame has `placement: "removed"` returns an aborted/stale result before any record, claim, helper work or terminal is created. A resolve aborted before the claim is written (cleanup or remove during helper discovery) writes no claim.
+
 Terminal rule: every non-stale `resolveRequested` must dispatch exactly one terminal result to `widgetVis` within bounded helper apply/read time. Stale/aborted older work dispatches no terminal result because a newer `opSeq` owns the terminal answer.
 
 ### `widgetTopN/cleanup`
@@ -299,6 +301,8 @@ Release defaults:
 | Visible widget destroy/remove | true | true |
 | Helper widget destroy/remove | false | true |
 | Module destroy | best effort | best effort |
+
+Release on remove/destroy: for cleanup reasons `remove` and `destroy` with `releaseClaim: true`, a helper clear that fails (for example no helper `dataConfig` yet because the first bind never finished) does not keep the claim: the claim, the TopN-owned mirror attributes and the owner records are released anyway and the result stays `ok: false` (`WIDGET_TOPN_CLEANUP_FAILED`). The next claimant resets the helper in its own pre-apply. Other reasons (explicit clear, Jahr wave) keep the claim on a failed clear. An owner whose widgetBase frame is missing or has `placement: "removed"` counts as gone and its records are pruned by a release; overlapping releases of the same owner prune the state record even if the runtime record is already gone.
 
 ### `widgetTopN/error`
 

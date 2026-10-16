@@ -95,6 +95,9 @@ define([
   // Resolves null for a failed reuse confirm, { status: "retry" } for a failed
   // fresh claim, and a stale result when the op is aborted during the wait.
   async function executeClaim(_KDB, _context, helperWidgetId, claimToken, isFreshClaim) {
+    if (_results.isAborted(_context.signal)) {
+      return _results.staleAborted();
+    }
     writePendingClaim(_context, helperWidgetId, claimToken);
     mirrorClaimOnShell(_KDB, helperWidgetId, _context.ownerVisId, claimToken);
     if (!(await _async.sleep(_config.CLAIM_CONFIRM_MS, _context.signal))) {

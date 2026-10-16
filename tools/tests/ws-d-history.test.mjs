@@ -43,7 +43,7 @@ test("registration: initial state, runtime shape, service surface, single instan
   const { register, _KDB, service, emitted } = setup();
   assert.deepStrictEqual(Object.keys(service).sort(), [
     "beginWritebackRestore", "canRedo", "canUndo", "destroy", "finishWritebackRestore",
-    "getSnapshot", "isWritebackRestoreActive", "pushCommittedStep", "redo", "undo",
+    "getSnapshot", "isWritebackRestoreActive", "pushCommittedStep", "redo", "registerReplayHandler", "undo",
   ]);
   assert.deepStrictEqual(_KDB.state.history, {
     lifecycle: "ready", stack: [], pointer: -1, limit: 5, pendingStep: null,
@@ -54,7 +54,7 @@ test("registration: initial state, runtime shape, service surface, single instan
     "abortControllers", "adapters", "domRefs", "listeners", "observers", "pendingPromises", "replay",
     "subscriptions", "timers", "writebackRestore",
   ]);
-  assert.equal(typeof rt.adapters.bindReplayHandlers, "function");
+  assert.deepStrictEqual(rt.adapters, {});
   assert.deepStrictEqual(rt.writebackRestore, { active: false, runId: null, source: null, status: null, lastFinish: null });
   assert.deepStrictEqual(rt.replay, { active: false, direction: null });
   assert.deepStrictEqual(emitted, [{ name: "history:changed", payload: payload(-1, 0, false, false) }]);
@@ -305,34 +305,68 @@ test("replay lock: second undo/redo while pending resolves false, flags and payl
   assert.deepStrictEqual(emitted.map((e) => e.payload), [payload(1, 2, false, false), payload(0, 2, true, true)]);
 });
 
-test("replay handlers: replaced wholesale by bindReplayHandlersOnly, service instance kept", async () => {
+test("registerReplayHandler: adds per key, latest registration wins, unregister only removes the current one", async () => {
   const log = [];
-  const { register, _KDB, service } = setup({ replayHandlers: { a: { apply: () => { log.push("a1"); return true; } } } });
+  const { service } = setup();
+  const a1 = { apply: () => { log.push("a1"); return true; } };
+  const a2 = { apply: () => { log.push("a2"); return true; } };
+  const unregisterA1 = service.registerReplayHandler("a", a1);
+  service.registerReplayHandler("b", { apply: () => { log.push("b"); return true; } });
   service.pushCommittedStep(step("a", { v: 0 }, { v: 1 }));
   service.pushCommittedStep(step("b", { v: 0 }, { v: 1 }));
-  const bound = register(_KDB, {
-    bindReplayHandlersOnly: true,
-    replayHandlers: { b: { apply: () => { log.push("b"); return true; } }, c: {}, d: { apply: "no" } },
-  });
-  assert.equal(bound, service);
   assert.equal(await service.undo(), true);
-  assert.deepStrictEqual(log, ["b"]);
-  assert.equal(await service.undo(), false);
-  register(_KDB, { bindReplayHandlersOnly: true, replayHandlers: { a: { apply: () => { log.push("a2"); return true; } } } });
   assert.equal(await service.undo(), true);
-  assert.deepStrictEqual(log, ["b", "a2"]);
-  register(_KDB, { bindReplayHandlersOnly: true });
-  assert.equal(await service.redo(), false);
+  assert.deepStrictEqual(log, ["b", "a1"]);
+  service.registerReplayHandler("a", a2);
+  unregisterA1();
+  assert.equal(await service.redo(), true);
+  assert.deepStrictEqual(log, ["b", "a1", "a2"]);
 });
 
-test("bindReplayHandlersOnly without a registered service warns and returns null", () => {
-  const con = quietConsole();
-  const register = loadAmd(ENTRY, { stubs: { console: con } });
-  const _KDB = {};
-  assert.equal(register(_KDB, { bindReplayHandlersOnly: true, replayHandlers: {} }), null);
-  assert.equal(con.calls.warn[0][0], "[historyService.register] bindReplayHandlersOnly requested but adapter or service is absent");
-  assert.equal(_KDB.services.history, undefined);
-  assert.equal(typeof _KDB.runtime.history, "object");
+test("registerReplayHandler: overwriting a different handler warns once; the same handler again is silent", () => {
+  const { service, con } = setup();
+  const a = { apply: () => true };
+  const b = { apply: () => true };
+  const overwriteWarnings = () => con.calls.warn.filter((w) => w[0] === "[historyService.registerReplayHandler] replacing the handler already registered for");
+  service.registerReplayHandler("k", a);
+  service.registerReplayHandler("k", a);
+  assert.equal(overwriteWarnings().length, 0);
+  service.registerReplayHandler("k", b);
+  assert.equal(overwriteWarnings().length, 1);
+  assert.equal(overwriteWarnings()[0][1], "k");
+  service.registerReplayHandler("other", a);
+  assert.equal(overwriteWarnings().length, 1);
+});
+
+test("registerReplayHandler: unregister removes the handler; undo then reports a missing handler", async () => {
+  const { service, con } = setup();
+  const unregister = service.registerReplayHandler("a", { apply: () => true });
+  service.pushCommittedStep(step("a", { v: 0 }, { v: 1 }));
+  unregister();
+  unregister();
+  assert.equal(await service.undo(), false);
+  assert.equal(con.calls.warn.some((w) => w[0] === "[historyService.applyHistoryStep] handler missing"), true);
+});
+
+test("registerReplayHandler: invalid key or handler is rejected with a warning and a no-op unregister", () => {
+  const { service, con } = setup();
+  for (const [key, handler] of [["", { apply() {} }], [null, { apply() {} }], ["k", {}], ["k", { apply: "no" }], ["k", null]]) {
+    const unregister = service.registerReplayHandler(key, handler);
+    assert.equal(typeof unregister, "function");
+    assert.doesNotThrow(unregister);
+  }
+  assert.equal(con.calls.warn.filter((w) => w[0] === "[historyService.registerReplayHandler] rejected: a string key and a handler with apply() are required").length, 5);
+});
+
+test("registerReplayHandler: handlers given at registration keep working; destroy clears them; late registration is blocked", async () => {
+  const { service, con } = setup({ replayHandlers: { k: { apply: () => true } } });
+  service.pushCommittedStep(step("k", { v: 0 }, { v: 1 }));
+  assert.equal(await service.undo(), true);
+  service.destroy();
+  const unregister = service.registerReplayHandler("k", { apply: () => true });
+  assert.equal(typeof unregister, "function");
+  assert.doesNotThrow(unregister);
+  assert.equal(con.calls.warn.some((w) => /registerReplayHandler/.test(String(w[0]))), true);
 });
 
 test("writeback restore: begin / finish, guard on push, baseline empties the stack", async () => {

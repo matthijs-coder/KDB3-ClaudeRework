@@ -29,7 +29,6 @@ define([], function () {
   };
 
   return {
-    BOOT_MOUNT_KEY: "kdb-root-loading-animation-mount",
     DEFAULT_REMOVE_DELAY_MS: 0,
     ROOT_MOUNT_KEY: "kdb-root-loading",
     WATCHDOG_MS: 300000,
