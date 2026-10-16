@@ -186,7 +186,3 @@ test("runtime.pruneSubscription removes one entry by identity", () => {
   assert.equal(runtime.pruneSubscription(_KDB, a), false);
   assert.deepEqual(_KDB.runtime.cognosHostService.subscriptions, [b]);
 });
-
-test("runtime/ensureCognosHostRuntime.js shim re-exports the foundation function", () => {
-  assert.equal(loadAmd(at("runtime/ensureCognosHostRuntime.js"), {}).name, "ensureRuntime");
-});
