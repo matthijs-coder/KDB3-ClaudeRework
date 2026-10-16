@@ -351,3 +351,27 @@ test("collectSingleSelectInstances reads tabs once for several page-context inst
   assert.deepStrictEqual(json(result).map((entry) => [entry.key, entry.tab]), [["A", 0], ["B", 1]]);
   assert.equal(reads, 1);
 });
+
+test("destroyed owners read as absent in the restore effects", async () => {
+  const gen = loadAmd(path.join(WB, "set/effects/filters/filterRestoreGeneration.js"));
+  const kdb = world({ singleSelect: buildSingleSelect([], { generation: 4 }) });
+  kdb.api.singleSelect.getState = () => undefined;
+  const diagnostics = [];
+  const run = { dispatchOwnerPhase: async () => ({ result: {} }), addDiagnostic: (...args) => diagnostics.push(json(args)) };
+  await assert.rejects(() => gen.reconcileSingleSelectInventory(kdb, run), (error) => error.writebackSetAbort === true);
+  assert.equal(diagnostics.length, 1);
+  assert.throws(() => gen.assertStableGeneration(kdb, run, 4, "p"), (error) => error.writebackSetAbort === true);
+  assert.deepStrictEqual(diagnostics[1][3], { phase: "p", expectedGeneration: 4, observedGeneration: null, freshness: "stale" });
+
+  const rec = recordingConsole();
+  const publish = loadAmd(path.join(WB, "set/effects/publishRestoreTabCaption.js"), { stubs: { console: rec.stub } });
+  const updates = [];
+  const tabsKdb = world({ tabs: buildTabs([tab(0, { name: "Alpha" })]), labels: LABELS });
+  tabsKdb.api.tabs.getState = () => undefined;
+  tabsKdb.services.loading = { updateLoadingMessage: (arg) => { updates.push(arg.message); return true; } };
+  const run2 = { loadingStarted: true, loadingHandle: { mountKey: "m" } };
+  publish(tabsKdb, run2, { landing: true });
+  publish(tabsKdb, run2, { tabIdx: 0 });
+  assert.deepStrictEqual(updates, [""]);
+  assert.deepStrictEqual(rec.calls, [["warn", "[writebackSet.publishRestoreTabCaption] tab index missed"]]);
+});

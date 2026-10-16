@@ -1,7 +1,12 @@
-define([
-  "../../../../../dashboard/tabs/state/selectors.js"
-], function (_selectors) {
+define([], function () {
   "use strict";
+
+  // Tabs state comes from the published tabs getState(), whose `visibleTabs` is the visible dashboard tab list;
+  // an absent or destroyed tabs owner reads as no tabs.
+  function readTabs(_KDB) {
+    const api = _KDB && _KDB.api ? _KDB.api.tabs : null;
+    return (api && typeof api.getState === "function" ? api.getState() : null) || {};
+  }
 
   function publishRestoreTabCaption(_KDB, _run, _request) {
     try {
@@ -53,7 +58,7 @@ define([
     let slot;
     let message;
     if (_request && _request.landing === true) {
-      visibleTabs = _selectors.readVisibleTabs(_KDB) || [];
+      visibleTabs = readTabs(_KDB).visibleTabs || [];
       if (visibleTabs.length === 0) { return { message: "" }; }
       message = messageForSlot(_KDB, visibleTabs[0], visibleTabs);
       return message == null ? { skip: true } : { message: message };
@@ -61,13 +66,13 @@ define([
     if (!_request || typeof _request.tabIdx !== "number") { return { skip: true }; }
     slot = readDashboardSlot(_KDB, _request.tabIdx);
     if (!slot) { return { skip: true }; }
-    visibleTabs = _selectors.readVisibleTabs(_KDB) || [];
+    visibleTabs = readTabs(_KDB).visibleTabs || [];
     message = messageForSlot(_KDB, slot, visibleTabs);
     return message == null ? { skip: true } : { message: message };
   }
 
   function readDashboardSlot(_KDB, _tabIdx) {
-    const state = _selectors.readTabsState(_KDB) || {};
+    const state = readTabs(_KDB);
     const order = Array.isArray(state.order) ? state.order : [];
     const byIndex = state.byIndex || {};
     const slots = [];
