@@ -1,4 +1,9 @@
-define([], function () {
+define([
+  "./config.js",
+  "./state/selection.js",
+  "./state/selectors.js",
+  "../../../core/utils/kit/history.js"
+], function (_config, _selectionState, _selectors, _kitHistory) {
   "use strict";
 
   // Maps a raw filter_singleSelect step-side value (old or new) to a shape-
@@ -96,7 +101,7 @@ define([], function () {
     return typeof _value.scopeType === "string" && !!_value.scopeType;
   }
 
-  function normalize(_value) {
+  function normalizeStepValue(_value) {
     if (!_value || typeof _value !== "object") { return { invalid: true }; }
     return looksLikeNewShape(_value) ? normalizeNewShape(_value) : normalizeLegacyShape(_value);
   }
@@ -120,5 +125,94 @@ define([], function () {
     return _left.isLegacy === true || _left.filterInstanceId === _right.filterInstanceId;
   }
 
-  return { normalize: normalize, sameInstance: sameInstance };
+  // Builder per historyService-filterInstanceIdentity-contractdelta.md §3/§4:
+  // both old and new carry the live identity tuple (filterInstanceId,
+  // scopeType, raw scopeId, itemId, semanticInstanceKey, filterLabel) plus
+  // independent displayValue/useValue/displaySource. Identity is read once
+  // from the live record so old/new can never disagree on which instance
+  // they describe.
+
+  function readIdentity(_KDB, _filterInstanceId) {
+    var record = _filterInstanceId ? _selectors.readFilterInstance(_KDB, _filterInstanceId) : null;
+    if (!record || record.selectionOwner !== "singleSelect") {
+      return null;
+    }
+    return {
+      filterInstanceId: record.filterInstanceId,
+      scopeType: record.scopeType,
+      scopeId: record.scopeId,
+      itemId: record.itemId == null ? null : record.itemId,
+      semanticInstanceKey: record.semanticInstanceKey || null,
+      filterLabel: record.filterLabel
+    };
+  }
+
+  function readDisplaySource(_selection) {
+    if (_selection.displaySource) { return _selection.displaySource; }
+    return _selection.displayValue === null ? "unavailable" : "cognos";
+  }
+
+  function createStepValue(_identity, _confirmedSelection) {
+    var selection = _selectionState.normalizeConfirmedSelection(_confirmedSelection);
+    return Object.assign({}, _identity, {
+      displayValue: selection.displayValue,
+      useValue: selection.useValue,
+      displaySource: readDisplaySource(selection)
+    });
+  }
+
+  function buildCommittedStep(_KDB, _handoffContext, _oldConfirmedSelection, _newConfirmedSelection) {
+    var handoff = _handoffContext || {};
+    var identity = readIdentity(_KDB, handoff.filterInstanceId);
+    if (!identity) {
+      console.warn("[singleSelect.buildCommittedStep] no live instance for history step; step skipped", {
+        filterInstanceId: handoff.filterInstanceId
+      });
+      return null;
+    }
+    return {
+      key: "filter_singleSelect",
+      timestamp: Date.now(),
+      old: createStepValue(identity, _oldConfirmedSelection),
+      new: createStepValue(identity, _newConfirmedSelection)
+    };
+  }
+
+  // Generic history stays excluded for delegated Sicht and automatic special
+  // policy (skipHistory: true); visible special user commits retain it
+  // (singleSelect-filterInstanceIdentity-contractdelta.md §7.3/§6.1).
+  function pushCommittedSelectionStep(_KDB, _handoffContext, _previousSelection, _nextSelection) {
+    var step;
+    if (!_handoffContext || _handoffContext.filterType === "sicht" || _handoffContext.skipHistory === true) {
+      return;
+    }
+    step = buildCommittedStep(_KDB, _handoffContext, _previousSelection, _nextSelection);
+    if (step) {
+      _kitHistory.pushHistoryStep(_KDB, step);
+    }
+  }
+
+  // Failure visibility (historyService-filterInstanceIdentity-contractdelta.md
+  // §5, amendment 2026-08-10): every replay failure is recorded visibly in the
+  // singleSelect owner state, not only in the returned result, while the
+  // history pointer itself stays unchanged.
+  function recordHistoryReplayDiagnostic(_KDB, _errorCode, _message, _filterInstanceId) {
+    var root = _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.singleSelect : null;
+    if (!root) { return; }
+    root.lastDiagnostics = (root.lastDiagnostics || []).concat([{
+      code: _errorCode,
+      filterInstanceId: _filterInstanceId || null,
+      message: _message || _errorCode
+    }]).slice(-_config.DIAGNOSTICS_LIMIT);
+    root.errorCode = _errorCode;
+    root.errorMessage = _message || _errorCode;
+  }
+
+  return {
+    normalizeStepValue: normalizeStepValue,
+    sameInstance: sameInstance,
+    buildCommittedStep: buildCommittedStep,
+    pushCommittedSelectionStep: pushCommittedSelectionStep,
+    recordHistoryReplayDiagnostic: recordHistoryReplayDiagnostic
+  };
 });

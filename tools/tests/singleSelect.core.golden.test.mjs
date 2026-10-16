@@ -59,7 +59,9 @@ function adapter() {
     applyPendingSelection: interaction ? interaction.applyPendingSelection : load("effects/applyPendingSelection.js"),
     revertToBackupSelection: interaction ? interaction.revertToBackupSelection : load("effects/revertToBackupSelection.js"),
     processFilterDockHandoff: handoff ? handoff.processFilterDockHandoff : load("effects/processFilterDockHandoff.js").processFilterDockHandoff,
-    stepValue: history || load("history/normalizeSingleSelectHistoryStepValue.js"),
+    stepValue: history
+      ? { normalize: history.normalizeStepValue, sameInstance: history.sameInstance }
+      : load("history/normalizeSingleSelectHistoryStepValue.js"),
     buildCommittedStep: history ? history.buildCommittedStep : load("history/buildCommittedStep.js"),
     pushGenericHistory: history ? history.pushCommittedSelectionStep : load("effects/pushSingleSelectHistory.js").pushGenericHistory,
     reducer: reducer

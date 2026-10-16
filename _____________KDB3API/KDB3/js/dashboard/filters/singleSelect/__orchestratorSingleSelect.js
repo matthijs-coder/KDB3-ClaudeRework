@@ -2,7 +2,7 @@ define([
   "./state/reducer.js",
   "./config.js",
   "./createSingleSelectController.js",
-  "./history/createSingleSelectHistoryReplayHandler.js",
+  "./historyReplay.js",
   "./runtime.js"
 ], function (_initialState, _config, _createSingleSelectController, _createHandler, _singleSelectRuntime) {
   "use strict";
@@ -14,7 +14,7 @@ define([
     if (!rt) {
       return null;
     }
-    var handler = _createHandler(_KDB);
+    var handler = _createHandler.createHistoryReplayHandler();
     rt.historyReplayHandlerContribution = handler;
     return handler;
   }

@@ -1,7 +1,7 @@
 define([
   "../state/selection.js",
   "../commit/ownerNotify.js",
-  "./pushSingleSelectHistory.js",
+  "../history.js",
   "../state/instance.js",
   "../config.js",
   "../../../widgets/widgetVis/actions/runTopNFilterConfirmWave.js"
@@ -31,7 +31,7 @@ define([
         _KDB.state.filters.singleSelect,
         _next
       );
-      _pushSingleSelectHistory.pushGenericHistory(_KDB, _handoff, _previous, _next);
+      _pushSingleSelectHistory.pushCommittedSelectionStep(_KDB, _handoff, _previous, _next);
       startTopNWave(_KDB, _handoff);
       return true;
     } catch (error) {
