@@ -292,14 +292,18 @@ test("open O8: window.open throws -> DRILLTHROUGH_OPEN_INTERNAL", () => {
   assert.equal(result.errorMessage, "popup exploded");
 });
 
-test("service: labels merged under existing, service shape", () => {
-  const con = quietConsole();
+test("service: labels merged under existing, service shape, no console.log on open", () => {
+  const logged = [];
+  const con = { log: (...args) => logged.push(args), warn() {}, info() {}, debug() {}, error() {} };
   const register = loadAmd(ENTRY, { stubs: { window: { location: { href: "https://x" }, open: () => ({}) }, console: con } });
   const KDB = { services: { tableData: { readRows: makeReadRows() } }, config: { links: LINKS, labels: { de: { drillthrough: { waitWindowTitle: "Eigener Titel" } } } } };
   const service = register(KDB);
   assert.equal(KDB.config.labels.de.drillthrough.waitWindowTitle, "Eigener Titel");
   assert.match(KDB.config.labels.de.drillthrough.loadFailedBody, /konnten nicht geladen werden/);
   assert.deepStrictEqual(Object.keys(service).sort(), ["buildDrillthroughUrl", "openDrillthrough"]);
+  service.openDrillthrough(OPEN_SPEC);
+  service.openDrillthrough(icon({ hostEnv: "dev", links: null }));
+  assert.deepStrictEqual(logged, []);
 });
 
 if (RECORD) {
