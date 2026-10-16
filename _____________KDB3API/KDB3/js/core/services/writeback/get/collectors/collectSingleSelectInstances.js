@@ -1,14 +1,30 @@
 define([
   "../../schema/errorCodes.js",
-  "../../../../../dashboard/filters/singleSelect/state/selectors.js",
-  "../../../../../dashboard/tabs/state/selectors.js",
+  "../../../../utils/tabSlots.js",
   "./collectorSupport.js",
   "./materializeSingleSelect.js",
-], function (_errorCodes, _singleSelectSelectors, _tabsSelectors, _support, _materializeSingleSelectEntries) {
+], function (_errorCodes, _tabSlots, _support, _materializeSingleSelectEntries) {
   "use strict";
 
+  // Owner reads go through the published getState() of singleSelect (and tabs below), like the other collectors; an
+  // absent or destroyed owner reads as an empty state, i.e. a stale inventory.
+  function projectInstance(record) {
+    const selection = record.currentSelection || null;
+    return {
+      filterInstanceId: record.filterInstanceId,
+      scopeType: record.scopeType,
+      scopeId: record.scopeId,
+      filterLabel: record.filterLabel,
+      itemName: record.itemName,
+      semanticInstanceKey: record.semanticInstanceKey,
+      filterType: record.filterType,
+      displayValue: selection ? selection.displayValue : null,
+      useValue: selection ? selection.useValue : null,
+    };
+  }
+
   function readInventoryInstances(_KDB) {
-    const state = _singleSelectSelectors.readSingleSelectState(_KDB) || {};
+    const state = _support.readApiState(_KDB, "singleSelect") || {};
     const inventory = state.inventory || {};
     const freshness = typeof inventory.freshness === "string" ? inventory.freshness : "stale";
     if (freshness !== "fresh") {
@@ -20,15 +36,17 @@ define([
       );
     }
 
-    return (_singleSelectSelectors.readFilterInstances(_KDB, {
-      status: "active",
-      hostStatus: "present",
-    }) || []).filter(function (instance) {
-      return instance &&
-        instance.selectionOwner === "singleSelect" &&
-        instance.filterType !== "sicht" &&
-        instance.filterType !== "dienststelle";
-    }).sort(function (left, right) {
+    const byId = state.instancesById || {};
+    return Object.keys(byId).sort().map(function (id) {
+      return byId[id];
+    }).filter(function (record) {
+      return record &&
+        record.status === "active" &&
+        record.hostStatus === "present" &&
+        record.selectionOwner === "singleSelect" &&
+        record.filterType !== "sicht" &&
+        record.filterType !== "dienststelle";
+    }).map(projectInstance).sort(function (left, right) {
       return String(left.filterInstanceId || "").localeCompare(String(right.filterInstanceId || ""));
     });
   }
@@ -37,14 +55,14 @@ define([
     _diagnostics.push(_errorCodes.makeDiagnostic(_errorCodes.codes[_code], "get", _message, _details));
   }
 
-  function resolvePageContextTabIdx(_KDB, _instance, _liveTabTargets, _diagnostics, _identityDetails) {
+  function resolvePageContextTabIdx(_readTabsState, _instance, _liveTabTargets, _diagnostics, _identityDetails) {
     if (!_liveTabTargets || typeof _liveTabTargets !== "object") {
       pushScopeIssue(_diagnostics, "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
         "page-context instance skipped because live scope targets are unavailable", _identityDetails);
       return { ok: false };
     }
 
-    const match = _tabsSelectors.readTabScopeMatch(_KDB, _instance.scopeId, _liveTabTargets);
+    const match = _tabSlots.matchTabScope(_readTabsState(), _instance.scopeId, _liveTabTargets);
     if (!match || match.status === "missing") {
       pushScopeIssue(_diagnostics, "WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING",
         "page-context scope cannot be mapped to one dashboard tab target",
@@ -80,6 +98,11 @@ define([
 
   function collectSingleSelectInstances(_KDB, diagnostics, liveTabTargets) {
     const instances = readInventoryInstances(_KDB);
+    let tabsState;
+    const readTabsState = function () {
+      if (tabsState === undefined) { tabsState = _support.readApiState(_KDB, "tabs"); }
+      return tabsState;
+    };
     const pending = [];
     const seenByFilterInstanceId = {};
 
@@ -109,7 +132,7 @@ define([
       }
 
       const identity = buildIdentityDetails(instance);
-      const tabResolution = resolvePageContextTabIdx(_KDB, instance, liveTabTargets, diagnostics, identity);
+      const tabResolution = resolvePageContextTabIdx(readTabsState, instance, liveTabTargets, diagnostics, identity);
       if (!tabResolution.ok) continue;
       pending.push(buildPendingEntry(filterKey, readSemanticInstanceKey(instance), useValue, tabResolution.tab));
     }

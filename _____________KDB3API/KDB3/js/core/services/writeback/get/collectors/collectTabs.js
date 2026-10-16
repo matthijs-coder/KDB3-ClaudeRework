@@ -1,8 +1,7 @@
 define([
   "../../schema/errorCodes.js",
-  "../../../../../dashboard/tabs/state/selectors.js",
   "./collectorSupport.js",
-], function (_errorCodes, _tabsSelectors, _support) {
+], function (_errorCodes, _support) {
   "use strict";
 
   // GET collector for v3 `tabs` per contracts/writeback.md §4.4 and
@@ -13,7 +12,7 @@ define([
   // Content collect lives in other GET collectors and is visible-only.
   // Never persists tabId/pageId (§4.4 caution).
   function collectTabs(_KDB, diagnostics) {
-    const state = _tabsSelectors.readTabsState(_KDB);
+    const state = _support.readApiState(_KDB, "tabs");
     if (!state || !state.byIndex || Object.keys(state.byIndex).length === 0) {
       return {};
     }

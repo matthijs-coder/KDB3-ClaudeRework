@@ -296,3 +296,58 @@ test("writeback owner reads: collectors, effects and persist landing match the r
   assert.deepStrictEqual(Object.keys(actual), Object.keys(expected));
   for (const name of Object.keys(expected)) assert.deepStrictEqual(actual[name], expected[name], name);
 });
+
+// After the layering change the owners are read through their published getState() only. A destroyed owner answers
+// undefined there (the old selector reads kept returning the retained state); these cases pin that new behaviour.
+test("destroyed owners read as empty: collectors answer like an absent owner", () => {
+  const destroyed = (_KDB, owners) => {
+    owners.forEach((name) => { _KDB.api[name].getState = () => undefined; });
+    return _KDB;
+  };
+  const collectTabs = loadAmd(path.join(WB, "get/collectors/collectTabs.js"));
+  const diagnostics = [];
+  const tabsWorldKdb = destroyed(world({ tabs: buildTabs([tab(0)]) }), ["tabs"]);
+  assert.deepStrictEqual(json(collectTabs(tabsWorldKdb, diagnostics)), {});
+  assert.deepStrictEqual(diagnostics, []);
+
+  const collect = loadAmd(path.join(WB, "get/collectors/collectSingleSelectInstances.js"), { stubs: { console: silent } });
+  const kdb = destroyed(world({ tabs: buildTabs([tab(0)]), singleSelect: buildSingleSelect([instance("g1")]) }), ["singleSelect"]);
+  assert.throws(() => collect(kdb, [], {}), (error) => {
+    assert.equal(error.diagnostic.code, "WRITEBACK_SINGLESELECT_INVENTORY_STALE");
+    assert.deepStrictEqual(json(error.diagnostic.details), { freshness: "stale", generation: null });
+    return true;
+  });
+
+  const pageKdb = destroyed(world({ tabs: buildTabs([tab(0)]),
+    singleSelect: buildSingleSelect([instance("p1", { scopeType: "pageContext", scopeId: "SCOPE-A", filterLabel: "Seite" })]) }), ["tabs"]);
+  const pageDiagnostics = [];
+  assert.equal(collect(pageKdb, pageDiagnostics, { 0: { scopeId: "SCOPE-A", visible: true } }), null);
+  assert.deepStrictEqual(pageDiagnostics.map((entry) => entry.code), ["WRITEBACK_SINGLESELECT_SCOPE_TARGET_MISSING"]);
+});
+
+test("collectSingleSelectInstances reads the tabs owner lazily and once per collect", () => {
+  const collect = loadAmd(path.join(WB, "get/collectors/collectSingleSelectInstances.js"), { stubs: { console: silent } });
+  const count = (_KDB) => {
+    let reads = 0;
+    const original = _KDB.api.tabs.getState;
+    _KDB.api.tabs.getState = () => { reads += 1; return original(); };
+    return () => reads;
+  };
+  const globalOnly = world({ tabs: buildTabs([tab(0)]), singleSelect: buildSingleSelect([instance("g1")]) });
+  const globalReads = count(globalOnly);
+  assert.equal(collect(globalOnly, [], {}).length, 1);
+  assert.equal(globalReads(), 0, "no page-context instance, no tabs read");
+});
+
+test("collectSingleSelectInstances reads tabs once for several page-context instances", () => {
+  const collect = loadAmd(path.join(WB, "get/collectors/collectSingleSelectInstances.js"), { stubs: { console: silent } });
+  const kdb = world({ tabs: buildTabs([tab(0), tab(1)]), singleSelect: buildSingleSelect([
+    instance("p1", { scopeType: "pageContext", scopeId: "SCOPE-A", filterLabel: "A" }),
+    instance("p2", { scopeType: "pageContext", scopeId: "SCOPE-B", filterLabel: "B" })]) });
+  let reads = 0;
+  const original = kdb.api.tabs.getState;
+  kdb.api.tabs.getState = () => { reads += 1; return original(); };
+  const result = collect(kdb, [], { 0: { scopeId: "SCOPE-A", visible: true }, 1: { scopeId: "SCOPE-B", visible: true } });
+  assert.deepStrictEqual(json(result).map((entry) => [entry.key, entry.tab]), [["A", 0], ["B", 1]]);
+  assert.equal(reads, 1);
+});
