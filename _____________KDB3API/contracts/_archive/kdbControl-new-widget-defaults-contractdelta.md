@@ -2,9 +2,9 @@
 
 **Status:** Live-verified (PO vastenburg, 2026-09-24, Cognos test groen). Approved earlier the same day after the final pass.
 **Datum:** 2026-09-24
-**Relatie:** This is the later delta that [\_archive/kdbControl-settings-cp1-contractdelta.md](./_archive/kdbControl-settings-cp1-contractdelta.md) §2b required before `defaultsNew.visualization` and `defaultsNew.comment` may be applied. It does not edit that archive file. It outranks the size source in `dragDrop.md` and the startup colour source in `widgetSettings.md` for **new** `visualization` and `text` widgets only.
+**Relatie:** This is the later delta that [\_archive/kdbControl-settings-cp1-contractdelta.md](./kdbControl-settings-cp1-contractdelta.md) §2b required before `defaultsNew.visualization` and `defaultsNew.comment` may be applied. It does not edit that archive file. It outranks the size source in `dragDrop.md` and the startup colour source in `widgetSettings.md` for **new** `visualization` and `text` widgets only.
 
-[kdbControl-inner-color-contractdelta.md](./kdbControl-inner-color-contractdelta.md), [pageSurface.md](./pageSurface.md), dashboard page size (`canv.w` / `canv.h`), page-background alpha, and kdbControl text contrast stay as they are. Do not apply this delta to those surfaces. `sett.dash.w` / `sett.dash.h` are not a widget-size source.
+[kdbControl-inner-color-contractdelta.md](./kdbControl-inner-color-contractdelta.md), [pageSurface.md](../pageSurface.md), dashboard page size (`canv.w` / `canv.h`), page-background alpha, and kdbControl text contrast stay as they are. Do not apply this delta to those surfaces. `sett.dash.w` / `sett.dash.h` are not a widget-size source.
 
 ---
 

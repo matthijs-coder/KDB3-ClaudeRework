@@ -518,13 +518,13 @@ Exact key names inside `sett` follow the schema map in `schema/v3Defaults.js`. T
 | `sett.dash.w` | `settings.dashboard.width` | number | `settingsDimensionConfig.dashboard.width.default` | omit when default |
 | `sett.dash.h` | `settings.dashboard.height` | number | `settingsDimensionConfig.dashboard.height.default` | omit when default |
 | `sett.dash.bg` | `settings.dashboard.backgroundColor` | colour string/token | `settingsColorDefaults.colorInputs.dashboardBg` | omit when default |
-| `sett.dash.hidWs` | `settings.dashboard.hideWidgetSettingsButtons` | `0 | 1` | `true` | omit when `1`; emit `0` when false ([kdbControl-widget-chrome-always-contractdelta.md](./kdbControl-widget-chrome-always-contractdelta.md)) |
+| `sett.dash.hidWs` | `settings.dashboard.hideWidgetSettingsButtons` | `0 | 1` | `true` | omit when `1`; emit `0` when false ([kdbControl-widget-chrome-always-contractdelta.md](./_archive/kdbControl-widget-chrome-always-contractdelta.md)) |
 | `sett.dash.devOn` | `settings.dashboard.isDeveloperMode` | `0 | 1` | `false` | omit when `0` |
 | `sett.dash.hidSu` | *(retired)* previously `hideSuButtons` | `0 | 1` | ignore | GET never emits; SET accepts and **ignores** (do not migrate to `devOn`) |
 | `sett.panel.bg` | `settings.controlPanel.backgroundColor` | colour string/token | `settingsColorDefaults.colorInputs.panelBg` | omit when default |
 | `sett.panel.btn` | `settings.controlPanel.buttonColor` | colour string/token | `settingsColorDefaults.colorInputs.panelButton` | omit when default |
 | `sett.panel.act` | `settings.controlPanel.actionButtonColor` | colour string/token | `settingsColorDefaults.colorInputs.panelActionButton` | omit when default |
-| `sett.panel.inBg` | `settings.controlPanel.innerBackgroundColor` | colour string/token | `settingsColorDefaults.colorInputs.panelInnerBg` | omit when default ([kdbControl-inner-color-contractdelta.md](./kdbControl-inner-color-contractdelta.md)) |
+| `sett.panel.inBg` | `settings.controlPanel.innerBackgroundColor` | colour string/token | `settingsColorDefaults.colorInputs.panelInnerBg` | omit when default ([kdbControl-inner-color-contractdelta.md](./_archive/kdbControl-inner-color-contractdelta.md)) |
 | `sett.newwg.vis.w` | `settings.defaultsNew.visualization.width` | number | `settingsDimensionConfig.visualization.width.default` | omit when default |
 | `sett.newwg.vis.h` | `settings.defaultsNew.visualization.height` | number | `settingsDimensionConfig.visualization.height.default` | omit when default |
 | `sett.newwg.vis.bg` | `settings.defaultsNew.visualization.backgroundColor` | colour string/token | `settingsColorDefaults.colorInputs.graphBg` | omit when default |

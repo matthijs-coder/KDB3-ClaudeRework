@@ -52,13 +52,6 @@ define([
     }
   }
 
-  function logPeriodOrDienststelle(_itemId, _widgetId, _filter) {
-    if (_itemId.indexOf("Dienststelle") === -1 && _itemId.indexOf("Jahr_flach") === -1 && _itemId.indexOf("Monat_flach") === -1) {
-      return;
-    }
-    console.info("[sicht-jahr] TEMP local filter", { widgetId: _widgetId, itemId: _itemId, filter: _filter });
-  }
-
   async function __controller(_ctx, _widgetId, _itemId, _filterObj, _filterOptions, _options) {
     var visualizationApi;
     var localFilters;
@@ -87,9 +80,7 @@ define([
         return _buildVisualizationOutcome.buildFailed(_visualizationErrorCodes.HOST_CAPABILITY_MISSING, []);
       }
       removeExisting(localFilters, itemId, removeSuffix1);
-      var stamped = filterForAdd(_filterObj, filterOptions);
-      logPeriodOrDienststelle(itemId, _widgetId, stamped);
-      await Promise.resolve(localFilters.addFilter({ itemId: itemId }, stamped));
+      await Promise.resolve(localFilters.addFilter({ itemId: itemId }, filterForAdd(_filterObj, filterOptions)));
       if (_ctx.isDisposed() || isAborted(_options)) {
         return _buildVisualizationOutcome.buildAborted("aborted-after-effect");
       }

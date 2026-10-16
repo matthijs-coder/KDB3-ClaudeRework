@@ -1,7 +1,7 @@
 ﻿# Execution spec: kdbControl framework visual parity reset
 
 **Status:** Ready for execution
-**Contract:** [kdbControl.md](./kdbControl.md) Section 14
+**Contract:** [kdbControl.md](../kdbControl.md) Section 14
 **Mapping:** [kdbControl-framework-visual-parity-mapping.md](./kdbControl-framework-visual-parity-mapping.md)
 **Authoring AI:** GPT-5.5, 2026-05-12
 **Executing AI:** cheap AI, next pass

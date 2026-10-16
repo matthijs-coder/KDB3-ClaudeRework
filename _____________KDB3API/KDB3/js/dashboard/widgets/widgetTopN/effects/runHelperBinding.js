@@ -19,7 +19,6 @@ define([
         return _helpers.failure("WIDGET_TOPN_HELPER_VISUALIZATION_PROPERTY_BLOCKED", "TopN helper visualization property apply blocked.", preProperties.diagnostics);
       }
       var plan = services.widgetBindingPlan.buildPlan(_context.spec);
-      logHelperPlan(_context, plan);
       if (!plan || plan.ok !== true || plan.status !== "success") {
         return _helpers.failure("WIDGET_TOPN_HELPER_PLAN_FAILED", _helpers.readPlanError(plan), { plan: plan, preProperties: preProperties });
       }
@@ -30,7 +29,6 @@ define([
       if (_helpers.isAborted(_context.signal) || isApplyAborted(applyResult)) {
         return aborted(plan, applyResult);
       }
-      logHelperApply(_context, applyResult);
       var normalized = normalizeApplyResult(plan, applyResult, preProperties);
       if (normalized.ok !== true) {
         return normalized;
@@ -97,38 +95,6 @@ define([
 
   function aborted(plan, applyResult) {
     return Object.assign(_helpers.staleAborted({ plan: plan, applyResult: applyResult || null }), { diagnostics: { plan: plan, applyResult: applyResult || null } });
-  }
-
-  function logHelperPlan(context, plan) {
-    try {
-      console.info("[widgetTopN.helperPlan] TEMP", {
-        ownerVisId: context && context.ownerVisId,
-        helperWidgetId: context && context.helperWidgetId,
-        ok: plan && plan.ok,
-        status: plan && plan.status,
-        errorCode: plan && plan.errorCode,
-        errorMessage: plan && plan.errorMessage,
-        slots: plan && plan.slots,
-        localFilters: plan && plan.localFilters
-      });
-    } catch (err) {
-      console.info("[widgetTopN.helperPlan] TEMP failed", err);
-    }
-  }
-
-  function logHelperApply(context, applyResult) {
-    try {
-      console.info("[widgetTopN.helperApply] TEMP", {
-        ownerVisId: context && context.ownerVisId,
-        helperWidgetId: context && context.helperWidgetId,
-        ok: applyResult && applyResult.ok,
-        status: applyResult && applyResult.status,
-        errorCode: applyResult && applyResult.errorCode,
-        errorMessage: applyResult && applyResult.errorMessage
-      });
-    } catch (err) {
-      console.info("[widgetTopN.helperApply] TEMP failed", err);
-    }
   }
 
   function isApplyAborted(result) {

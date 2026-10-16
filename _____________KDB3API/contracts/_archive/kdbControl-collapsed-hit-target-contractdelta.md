@@ -8,7 +8,7 @@
 **Status:** `Approved` — code in tree 2026-10-13, pending PO live test
 **Owner:** `kdbControl` (CSS on the shell; the host rule targets the Cognos widget that already wraps the shell)
 **Authoring AI:** Cursor coordinator, 2026-10-13
-**Related:** [kdbControl.md](./kdbControl.md), [kdbControl-framework-visual-parity-mapping.md](./kdbControl-framework-visual-parity-mapping.md), [widgetBase-parameterSetRestore-dropboxTarget-contractdelta.md](./widgetBase-parameterSetRestore-dropboxTarget-contractdelta.md) §4 D3
+**Related:** [kdbControl.md](../kdbControl.md), [kdbControl-framework-visual-parity-mapping.md](./kdbControl-framework-visual-parity-mapping.md), [widgetBase-parameterSetRestore-dropboxTarget-contractdelta.md](./widgetBase-parameterSetRestore-dropboxTarget-contractdelta.md) §4 D3
 
 ---
 

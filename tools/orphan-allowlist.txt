@@ -1,0 +1,8 @@
+# Orphans (files not reachable from KDB.js / spec.json roots) that are tolerated.
+# One glob per line, relative to the repo root. `*` = within a segment, `**` = across segments.
+# Stale entries (matching no file) only produce a warning; remove them when the file is gone.
+# Append `# keep` to an entry to suppress the stale warning (for patterns that are intentionally empty for now).
+# Vendored core/libraries/** files are reported separately and never need an entry.
+
+# Shared helper kit; imported by Phase 1 workstreams.
+_____________KDB3API/KDB3/js/core/utils/kit/** # keep: filled by the kit workstream

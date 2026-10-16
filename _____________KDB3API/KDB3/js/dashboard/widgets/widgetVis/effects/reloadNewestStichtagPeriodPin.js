@@ -34,7 +34,7 @@ define([
       if (!tableData || typeof tableData.reloadTable !== "function") {
         return rejectStichtagUnavailable("tableData.reloadTable is unavailable.");
       }
-      logStichtagReload("beforeRender", null, await tableData.reloadTable(input));
+      await tableData.reloadTable(input);
       tableState = tableData.readTableState([{ tableName: tableName }]);
       leftoverId = tableState && tableState.widgetId;
       if (!leftoverId) {
@@ -45,13 +45,10 @@ define([
         return rejectStichtagUnavailable("widgetsFacet.renderWidget is unavailable.");
       }
       outcome = await widgetsFacet.renderWidget(leftoverId);
-      logStichtagRender(leftoverId, outcome);
       if (!outcome || outcome.ok !== true) {
         return rejectStichtagUnavailable("widgetsFacet.renderWidget is unavailable.");
       }
-      var afterRender = await tableData.reloadTable(input);
-      logStichtagReload("afterRender", leftoverId, afterRender);
-      return afterRender;
+      return await tableData.reloadTable(input);
     } catch (err) {
       if (err && err.errorCode === STICHTAG_UNAVAILABLE) {
         return Promise.reject(err);
@@ -62,33 +59,6 @@ define([
           ? (err.errorMessage || err.message)
           : "NewestStichtag period pin is unavailable."
       );
-    }
-  }
-
-  function logStichtagRender(leftoverId, outcome) {
-    try {
-      console.info("[sicht-jahr] TEMP NewestStichtag render", {
-        leftoverId: leftoverId,
-        ok: !!(outcome && outcome.ok === true),
-        outcome: outcome && outcome.outcome,
-        reason: outcome && outcome.reason
-      });
-    } catch (err) {
-      console.info("[sicht-jahr] TEMP NewestStichtag render log failed", err);
-    }
-  }
-
-  function logStichtagReload(phase, leftoverId, rows) {
-    try {
-      var list = Array.isArray(rows) ? rows : [];
-      console.info("[sicht-jahr] TEMP NewestStichtag reload", {
-        phase: phase,
-        leftoverId: leftoverId,
-        rowCount: list.length,
-        firstRow: list.length ? list[0] : null
-      });
-    } catch (err) {
-      console.info("[widgetVis.NewestStichtag] TEMP reload failed", err);
     }
   }
 

@@ -87,7 +87,6 @@ define(["./effectResultHelpers.js", "./readWidgetsFacet.js"], function (_helpers
       rowCount: normalizedRows.length,
       colKeys: colKeys
     };
-    logHelperRead(diagnostics, normalizedRows);
     return {
       ok: true,
       status: "success",
@@ -99,20 +98,6 @@ define(["./effectResultHelpers.js", "./readWidgetsFacet.js"], function (_helpers
       },
       diagnostics: diagnostics
     };
-  }
-
-  function logHelperRead(diagnostics, rows) {
-    try {
-      console.info("[widgetTopN.helperRead] TEMP", {
-        helperWidgetId: diagnostics.targetWidgetId,
-        ownerVisId: diagnostics.ownerWidgetId,
-        rowCount: diagnostics.rowCount,
-        colKeys: diagnostics.colKeys,
-        firstRow: rows.length ? rows[0] : null
-      });
-    } catch (err) {
-      console.info("[widgetTopN.helperRead] TEMP failed", err);
-    }
   }
 
   function readColumnKeys(rows) {

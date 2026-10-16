@@ -1,7 +1,7 @@
 # Module contract: pageSurface
 
 **Type:** feature module. Public key `_KDB.api.canvas` (the receiver already named by kdbControl intents). Folder name is `pageSurface`.
-**Status:** Approved for this slice (PO vastenburg, 2026-09-24). Page-size wait: Implemented 2026-10-06 ([pageSurface-pageSize-host-ready-contractdelta.md](./pageSurface-pageSize-host-ready-contractdelta.md)).
+**Status:** Approved for this slice (PO vastenburg, 2026-09-24). Page-size wait: Implemented 2026-10-06 ([pageSurface-pageSize-host-ready-contractdelta.md](./_archive/pageSurface-pageSize-host-ready-contractdelta.md)).
 **Relatie:** [kdbControl.md](./kdbControl.md) S2, [cognosHostService.md](./cognosHostService.md) `setCanvasPageSize`, archive settings CP-1 §2b intent types.
 
 ---
