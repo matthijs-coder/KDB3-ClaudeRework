@@ -5,7 +5,7 @@ define([
   "./view.js",
   "./availability.js",
   "./operations.js",
-  "../singleSelect/state/selectors.js"
+  "../singleSelect/selectors.js"
 ], function (_config, _state, _selectors, _view, _availability, _operations, _singleSelectSelectors) {
   "use strict";
 

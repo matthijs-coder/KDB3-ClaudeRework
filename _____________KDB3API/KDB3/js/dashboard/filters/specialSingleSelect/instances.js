@@ -1,17 +1,23 @@
 define([
-  "../singleSelect/state/selectors.js",
+  "../singleSelect/selectors.js",
   "./config.js"
 ], function (_singleSelectSelectors, _config) {
   "use strict";
 
   var errorCodes = _config.ERROR_CODES;
+  var LIVE_SPECIAL_QUERY = {
+    status: "active",
+    hostStatus: "present",
+    filterType: "specialSingleSelect",
+    selectionOwner: "singleSelect"
+  };
 
   function normalizeValue(_value) {
     return _value == null ? "" : String(_value).trim().toLowerCase();
   }
 
-  function readInventoryStatus(_state, _inventoryGeneration) {
-    var inventory = _state.inventory || {};
+  function readInventoryStatus(_inventory, _inventoryGeneration) {
+    var inventory = _inventory || {};
     if (_inventoryGeneration != null && inventory.generation !== _inventoryGeneration) {
       return { ok: false, errorCode: errorCodes.INVENTORY_STALE };
     }
@@ -21,21 +27,14 @@ define([
     return { ok: true, generation: inventory.generation };
   }
 
-  function readLiveCandidates(_state) {
-    return Object.keys(_state.instancesById || {}).sort().map(function (_id) {
-      var entry = _state.instancesById[_id];
-      var selection = entry && entry.currentSelection;
-      return entry ? Object.assign({}, entry, {
+  function readLiveCandidates(_KDB) {
+    return _singleSelectSelectors.readLiveInstances(_KDB, LIVE_SPECIAL_QUERY).map(function (_entry) {
+      var selection = _entry.currentSelection;
+      return Object.assign({}, _entry, {
         displayValue: selection ? selection.displayValue : null,
         useValue: selection ? selection.useValue : null,
         displaySource: selection ? selection.displaySource || null : null
-      }) : null;
-    }).filter(function (_entry) {
-      return _entry &&
-        _entry.status === "active" &&
-        _entry.hostStatus === "present" &&
-        _entry.filterType === "specialSingleSelect" &&
-        _entry.selectionOwner === "singleSelect";
+      });
     });
   }
 
@@ -94,8 +93,7 @@ define([
 
   function resolveLiveSpecialInstances(_KDB, _definition, _inventoryGeneration) {
     try {
-      var singleSelectState = _singleSelectSelectors.readSingleSelectState(_KDB) || {};
-      var inventoryStatus = readInventoryStatus(singleSelectState, _inventoryGeneration);
+      var inventoryStatus = readInventoryStatus(_singleSelectSelectors.readInventoryStatus(_KDB), _inventoryGeneration);
       if (!inventoryStatus.ok) {
         return {
           ok: false,
@@ -104,7 +102,7 @@ define([
           items: []
         };
       }
-      var candidates = readLiveCandidates(singleSelectState);
+      var candidates = readLiveCandidates(_KDB);
       if (!normalizeValue(_definition && _definition.filterLabel) &&
         !normalizeValue(_definition && _definition.itemName)) {
         return {

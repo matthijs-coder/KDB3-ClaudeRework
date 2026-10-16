@@ -2,7 +2,7 @@ define([
   "./state/selectors.js",
   "./operations.js",
   "./delegation.js",
-  "../singleSelect/state/selectors.js",
+  "../singleSelect/selectors.js",
   "../../../core/utils/kit/data.js",
   "../../../core/utils/kit/history.js"
 ], function (_selectors, _operations, _delegation, _singleSelectSelectors, _kitData, _kitHistory) {
