@@ -298,7 +298,7 @@ test("a release for an owner whose frame is removed prunes its records", async (
   });
 });
 
-test("a remove/destroy release whose helper clear cannot be planned: result and claim", async () => {
+test("a remove/destroy release whose helper clear cannot be planned still releases the claim", async () => {
   await withEnv({ applyMs: 300 }, async (env) => {
     const running = env.resolve("o1", 1);
     await sleep(30);
@@ -310,13 +310,30 @@ test("a remove/destroy release whose helper clear cannot be planned: result and 
     });
     await running;
     await env.settle();
-    assert.equal(released.ok, false);
+    assert.equal(released.ok, false, "the failure is still reported");
     assert.equal(released.errorCode, "WIDGET_TOPN_CLEANUP_FAILED");
-    assert.equal(env.ownerState("o1").helperWidgetId, "h1", "claim kept in state");
-    assert.equal(env.ownerRuntime("o1").claimToken !== null, true, "claim kept in runtime");
-    assert.equal(env.helperAttrs("h1")[0], "o1", "mirror kept");
+    assert.equal(env.ownerState("o1").helperWidgetId, null, "claim released in state");
+    assert.equal(env.ownerRuntime("o1").claimToken, null, "claim released in runtime");
+    assert.deepEqual(env.helperAttrs("h1"), [null, null], "mirror cleared");
     const second = await env.resolve("o2", 1);
-    assert.equal(second.status, "noHelperAvailable");
+    assert.equal(second.status, "success");
+  });
+});
+
+test("an explicit clear that cannot be planned keeps the claim (only remove and destroy release anyway)", async () => {
+  await withEnv({ applyMs: 300 }, async (env) => {
+    const running = env.resolve("o1", 1);
+    await sleep(30);
+    const cleared = await env.topN().dispatch({
+      type: "widgetTopN/cleanup",
+      widgetId: "o1",
+      payload: { ownerVisId: "o1", reason: "cleanup", clearHelperBinding: true, releaseClaim: true }
+    });
+    await running;
+    await env.settle();
+    assert.equal(cleared.ok, false);
+    assert.equal(env.ownerState("o1").helperWidgetId, "h1");
+    assert.equal(env.helperAttrs("h1")[0], "o1");
   });
 });
 

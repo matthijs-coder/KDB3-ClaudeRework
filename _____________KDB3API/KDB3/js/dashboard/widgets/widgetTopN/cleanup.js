@@ -18,15 +18,22 @@ define([
     }
     var ownerRuntime = _context.readOwnerRuntime(request.ownerVisId);
     _context.abortOwnerOperation(ownerRuntime);
+    var failure = null;
     if (request.clearHelperBinding === true || request.releaseClaim === true) {
-      var cleanup = await runRequestedCleanup(_context._KDB, buildCleanupContext(request, ownerRuntime));
+      var cleanupContext = buildCleanupContext(request, ownerRuntime);
+      var cleanup = await runRequestedCleanup(_context._KDB, cleanupContext);
       if (cleanup.ok !== true && cleanup.status !== "aborted") {
         _context.dispatchInternal({
           type: _state.ACTION_TYPES.ERROR_RECORDED,
           widgetId: request.ownerVisId,
           payload: { errorCode: cleanup.errorCode || "WIDGET_TOPN_CLEANUP_FAILED", errorMessage: cleanup.errorMessage || null }
         });
-        return cleanupFailure(request, cleanup);
+        failure = cleanupFailure(request, cleanup);
+        if (!releasesDespiteFailure(request)) {
+          return failure;
+        }
+        // The next claimant resets the helper in its own pre-apply, so a clear that cannot run must not keep the claim.
+        _claim.releaseTopNClaim(_context._KDB, cleanupContext);
       }
     }
     resetOwnerRuntime(ownerRuntime, request.releaseClaim);
@@ -35,7 +42,7 @@ define([
       widgetId: request.ownerVisId,
       payload: { releaseClaim: request.releaseClaim }
     });
-    var result = {
+    var result = failure || {
       ok: true,
       ownerVisId: request.ownerVisId,
       helperWidgetId: request.releaseClaim ? null : ownerRuntime.helperWidgetId,
@@ -45,6 +52,10 @@ define([
       _context.removeOwner(request.ownerVisId, ownerRuntime);
     }
     return result;
+  }
+
+  function releasesDespiteFailure(request) {
+    return request.releaseClaim === true && (request.reason === "remove" || request.reason === "destroy");
   }
 
   // widgetBase keeps the frame of a removed widget with placement "removed".
