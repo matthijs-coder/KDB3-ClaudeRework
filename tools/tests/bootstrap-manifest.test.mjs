@@ -62,8 +62,9 @@ test('manifest: 18 replay keys, owners and order', () => {
 
 test('manifest: service teardown order', () => {
   assert.deepEqual(manifest.serviceDestroyOrder, [
-    'writebackBridge', 'writebackSet', 'writebackGet', 'writebackMap', 'dashboardPdf', 'widgetBindingApply', 'history', 'message', 'loading', 'tableData', 'cognosHost',
+    'drillthrough', 'writebackBridge', 'writebackSet', 'writebackGet', 'writebackMap', 'dashboardPdf', 'widgetBindingApply', 'history', 'message', 'loading', 'tableData', 'cognosHost',
   ]);
+  assert.ok(manifest.serviceDestroyOrder.indexOf('drillthrough') < manifest.serviceDestroyOrder.indexOf('tableData'));
 });
 
 function replayKit({ withHistory = true } = {}) {
