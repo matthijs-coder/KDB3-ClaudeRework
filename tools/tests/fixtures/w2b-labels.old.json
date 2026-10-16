@@ -1,0 +1,9 @@
+{
+  "history": {
+    "file": "core/services/historyService/replay.js",
+    "labels": {
+      "replayFailedUndo": "Rückgängig machen ist fehlgeschlagen; die Änderung wurde nicht zurückgenommen.",
+      "replayFailedRedo": "Wiederholen ist fehlgeschlagen; die Änderung wurde nicht erneut angewendet."
+    }
+  }
+}

@@ -56,7 +56,8 @@ const EXPECTED_DESTROY = [
   'destroy:widgetTopN', 'destroy:widgetDataTable', 'destroy:widgetVis', 'destroy:widgetText', 'destroy:widgetSettings',
   'destroy:widgetBase', 'destroy:launchpad', 'destroy:footer', 'destroy:header',
   'destroy:properties.controller',
-  'service.destroy:writebackBridge', 'service.destroy:writebackSet', 'service.destroy:writebackGet',
+  // DELTA (W2b): drillthrough is destroyed first among the services (it was never destroyed).
+  'service.destroy:drillthrough', 'service.destroy:writebackBridge', 'service.destroy:writebackSet', 'service.destroy:writebackGet',
   'service.destroy:writebackMap', 'service.destroy:dashboardPdf', 'service.destroy:widgetBindingApply',
   'service.destroy:history', 'service.destroy:message', 'service.destroy:loading', 'service.destroy:tableData',
   'service.destroy:cognosHost',
@@ -84,7 +85,7 @@ test('boot: ordered register, mount and destroy calls', async () => {
   h.log.length = 0;
   kdb.destroy();
   assert.deepEqual(h.log, EXPECTED_DESTROY);
-  assert.equal(h.log.includes('service.destroy:drillthrough'), false, 'drillthrough is not in the destroy list');
+  assert.equal(h.log.includes('service.destroy:drillthrough'), true, 'W2b: drillthrough is in the destroy list');
   assert.equal(h.log.includes('service.destroy:widgetBindingPlan'), false);
   assert.equal(kdb.state.rootLifecycle.lifecycle, 'disposed');
   assert.deepEqual([h.consoleCalls.error.length, h.consoleCalls.warn.length], [0, 0]);
@@ -361,7 +362,8 @@ test('teardown order: homeDialog and css go after the properties controller and 
   const at = (line) => h.log.indexOf(line);
   assert.ok(at('destroy:header') < at('destroy:properties.controller'));
   assert.ok(at('destroy:properties.controller') < at('homeDialog.unregisterWatchdog'));
-  assert.ok(at('homeDialog.unregisterWatchdog') < at('service.destroy:writebackBridge'));
+  assert.ok(at('homeDialog.unregisterWatchdog') < at('service.destroy:drillthrough'));
+  assert.ok(at('service.destroy:drillthrough') < at('service.destroy:writebackBridge'));
 });
 
 test('destroy nulls runtime.homeDialog (DELTA: it was left stamped)', async () => {

@@ -58,6 +58,12 @@ define([
       }
     }
 
+    // Read access to the per-mount loading state for other features; false for unknown keys and after destroy.
+    function isLoading(mountKey) {
+      if (guard.isDisposed()) return false;
+      return _state.isLoadingActive(_KDB, mountKey);
+    }
+
     function registerWatchdogHandler(mountKey, handler) {
       if (guard.blocked("registerWatchdogHandler")) return function noopUnregister() {};
       try {
@@ -84,6 +90,7 @@ define([
       startLoading: startLoading,
       finishLoading: finishLoading,
       updateLoadingMessage: updateLoadingMessage,
+      isLoading: isLoading,
       registerWatchdogHandler: registerWatchdogHandler,
       destroy: destroy
     };
