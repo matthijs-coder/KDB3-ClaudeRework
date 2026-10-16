@@ -15,7 +15,12 @@ define([
       ? _sichtSelectors.readConfirmedSichtSelection(_KDB)
       : null;
     if (!confirmed || !confirmed.displayValue) {
-      _diagnostics.push({ code: _config.parameterSetCodes.RESYNC_FAILED, key: assignmentEntry.key, tab: assignmentEntry.tab, message: "sicht confirmed selection unavailable for delegated resync" });
+      _diagnostics.push({
+        code: _config.parameterSetCodes.RESYNC_FAILED,
+        key: assignmentEntry.key,
+        tab: assignmentEntry.tab,
+        message: "sicht confirmed selection unavailable for delegated resync"
+      });
       return null;
     }
     if (confirmed.filterInstanceId &&

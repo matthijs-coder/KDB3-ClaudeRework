@@ -105,7 +105,11 @@ define([
         var result = await applyOne(_KDB, _runtime, payload, ids[i]);
         applied.push(result);
         if (result.ok !== true) {
-          diagnostics.push({ code: result.errorCode || _config.errorCodes.SPECIAL_POLICY_APPLY_FAILED, filterInstanceId: ids[i], message: "special selection policy apply failed" });
+          diagnostics.push({
+            code: result.errorCode || _config.errorCodes.SPECIAL_POLICY_APPLY_FAILED,
+            filterInstanceId: ids[i],
+            message: "special selection policy apply failed"
+          });
         }
       }
       return { ok: diagnostics.length === 0, degraded: diagnostics.length > 0, applied: applied, diagnostics: diagnostics };
