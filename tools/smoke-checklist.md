@@ -520,7 +520,7 @@ out.rootSelectors = k.elements.selectors.root.pageViewContent;                  
 out.widgetBinding = [Object.keys(k.services.widgetBinding).sort(), k.services.widgetBinding.checkAvailable()]; // [["checkAvailable","run"], {ok:true, missing:null}]
 // filterDock
 out.filterDock = [typeof k.api.filterDock.getActiveFilterEl(), k.api.filterDock.isFiltersReady()];    // ["object" (null before a click, element after), true]
-// kdbControl, launchpad, widgetText through AMD (the console has no AMD handle: use the API twins)
+// kdbControl, launchpad, widgetText through AMD (the AMD-only selectors `core/properties/selectors.js`, `core/utils/readHostFacet.js`, kdbControl and launchpad `selectors.js` have no console handle and are covered by the unit tests; the lines below read the API/state they wrap)
 out.kdbControlSyncView = typeof k.api.kdbControl.syncView;                               // "function"
 out.helperTabIds = k.state.launchpad.helperTabIds;                                       // array of strings (what readHelperTabIds copies)
 out.textState = Object.keys((k.api.widgetText.getState() || {}).byId || {}).length;      // number of text widgets (what readTextById holds)
