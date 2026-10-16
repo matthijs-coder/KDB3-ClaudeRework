@@ -191,7 +191,7 @@ test("double boot, reverse destroy order: boot 2 puts boot 1's live anchor back"
   assert.equal("WBParameterGetFunction" in env.top, false);
 });
 
-test("after destroy the anchor no longer retains its owner and a later boot never restores a disposed anchor", { todo: "fixed by C3 step 2 (__kdbOwner getter, owner nulled on destroy)" }, () => {
+test("after destroy the anchor no longer retains its owner and a later boot never restores a disposed anchor", () => {
   const env = makeEnv();
   const factory = loadBridgeFactory(env);
   const kdb1 = makeKdb();
@@ -206,6 +206,24 @@ test("after destroy the anchor no longer retains its owner and a later boot neve
   bridge2.destroy();
   assert.notEqual(env.top.WBParameterGetFunction, anchor1Get);
   assert.equal("WBParameterGetFunction" in env.top, false);
+});
+
+test("a boot over the anchor of an already disposed boot never keeps that anchor as its previous", () => {
+  const env = makeEnv();
+  const foreignSet = () => "foreign-set";
+  env.top.WBParameterSetFunction = foreignSet;
+  const factory = loadBridgeFactory(env);
+  const kdb1 = makeKdb();
+  boot(env, factory, kdb1);
+  const anchor1Get = env.top.WBParameterGetFunction;
+  kdb1._isDisposed = true;
+  const bridge2 = boot(env, factory, makeKdb());
+  assert.equal(env.top.WBParameterGetFunction.__kdbForeignPrevious, undefined);
+  assert.equal(env.top.WBParameterSetFunction.__kdbForeignPrevious, foreignSet);
+  bridge2.uninstall();
+  assert.notEqual(env.top.WBParameterGetFunction, anchor1Get);
+  assert.equal("WBParameterGetFunction" in env.top, false);
+  assert.equal(env.top.WBParameterSetFunction, foreignSet);
 });
 
 test("bridgeGet resolves the v3 JSON string and rejects when the collector fails", async () => {

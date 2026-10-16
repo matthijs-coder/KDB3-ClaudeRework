@@ -1,24 +1,37 @@
 define([
+  "../../utils/kit/errors.js",
   "./schema/errorCodes.js",
+  "./set/state/ensureWritebackRuntime.js",
+  "./bridge/hostGlobals.js",
+  "./bridge/bridgeResult.js",
   "./bridge/readSelectedParameterSet.js",
   "./bridge/selectParameterSetById.js",
   "./bridge/runBridgeSetRestore.js"
 ], function (
+  _kitErrors,
   _errorCodes,
+  _ensureWritebackRuntime,
+  _hostGlobals,
+  _bridgeResult,
   _readSelectedParameterSet,
   _selectParameterSetById,
   _runBridgeSetRestore
 ) {
   "use strict";
 
-  // Thin Cognos bridge (writeback.md §3). SET path: runBridgeSetRestore.
-  // GET stringify async; SET failures logged, never thrown. Default-installed
-  // unless options.installCognosBridge === false.
+  // Thin Cognos bridge (writeback.md §3). SET path: runBridgeSetRestore. GET stringifies asynchronously;
+  // SET failures are logged and resolved as a failed envelope, never thrown. Installed by default unless
+  // options.installCognosBridge === false.
   function createCognosWritebackBridge(deps) {
-    const _KDB = deps._KDB;
+    // Nulled in destroy() so the host anchors on window.top do not keep a destroyed KDB alive.
+    let _KDB = deps._KDB;
     let _installed = false;
-    let _previousGet;
-    let _previousSet;
+    const guard = _kitErrors.createDisposedGuard("writebackBridge");
+    const hostGlobals = _hostGlobals.createHostGlobals(bridgeGet, bridgeSet, function () { return _KDB; });
+
+    function isGone() {
+      return !_KDB || _KDB._isDisposed === true;
+    }
 
     function install() {
       if (_installed) {
@@ -31,62 +44,17 @@ define([
       }
       let topWindow;
       try {
-        topWindow = window.top;
-        void topWindow.document; // cross-origin access check
+        topWindow = _hostGlobals.readTopWindow();
       } catch (error) {
         logBridgeDiagnostic("install", "bridge install failed: window.top is not accessible", { error: String(error && error.message ? error.message : error) });
         return false;
       }
-      const existingGet = topWindow.WBParameterGetFunction;
-      const existingSet = topWindow.WBParameterSetFunction;
-      const foreignGet = typeof existingGet === "function" && existingGet.__kdbWritebackBridge !== true;
-      const foreignSet = typeof existingSet === "function" && existingSet.__kdbWritebackBridge !== true;
-      if (foreignGet || foreignSet) {
+      if (hostGlobals.install(topWindow)) {
         console.warn("[writebackBridge.install] overwriting existing WBParameter*Function globals (kept for uninstall restore)");
       }
-      _previousGet = existingGet;
-      _previousSet = existingSet;
-      bridgeGet.__kdbWritebackBridge = true;
-      bridgeSet.__kdbWritebackBridge = true;
-      bridgeGet.__kdbOwner = _KDB;
-      bridgeSet.__kdbOwner = _KDB;
-      // Echt-vreemde previous door boot-generaties heen doorgeven (dubbel-boot):
-      // een stale KDB-anker wordt bij uninstall nooit teruggezet, zijn vreemde
-      // previous wel (zie resolveRestorablePrevious).
-      bridgeGet.__kdbForeignPrevious = foreignGet ? existingGet : existingGet && existingGet.__kdbForeignPrevious;
-      bridgeSet.__kdbForeignPrevious = foreignSet ? existingSet : existingSet && existingSet.__kdbForeignPrevious;
-      topWindow.WBParameterGetFunction = bridgeGet;
-      topWindow.WBParameterSetFunction = bridgeSet;
       _installed = true;
-      _KDB.runtime = _KDB.runtime || {};
-      if (!_KDB.runtime.writeback || typeof _KDB.runtime.writeback !== "object") {
-        _KDB.runtime.writeback = {};
-      }
-      _KDB.runtime.writeback.ownedBridgeSet = bridgeSet;
+      _ensureWritebackRuntime(_KDB).ownedBridgeSet = bridgeSet;
       return true;
-    }
-
-    function resolveRestorablePrevious(previousFn) {
-      if (typeof previousFn !== "function" || previousFn.__kdbWritebackBridge !== true) {
-        return previousFn;
-      }
-      const previousOwner = previousFn.__kdbOwner;
-      if (previousOwner && previousOwner._isDisposed !== true) {
-        // KDB-anker van een nog levende boot (omgekeerde destroy-volgorde): terugzetten.
-        return previousFn;
-      }
-      // Disposed KDB-anker nooit terugzetten; wel diens vreemde previous.
-      return previousFn.__kdbForeignPrevious;
-    }
-
-    function restoreGlobal(topWindow, name, ownedFn, previousFn) {
-      // Eigenaarschapscheck (dubbel-boot): anker van een nieuwere boot niet aanraken.
-      if (topWindow[name] !== ownedFn) { return; }
-      const previous = resolveRestorablePrevious(previousFn);
-      topWindow[name] = previous;
-      if (previous === undefined) {
-        delete topWindow[name];
-      }
     }
 
     function uninstall() {
@@ -94,11 +62,9 @@ define([
         return false;
       }
       try {
-        const topWindow = window.top;
         const runtime = _KDB && _KDB.runtime && _KDB.runtime.writeback;
         const controller = runtime && runtime.abortControllers && runtime.abortControllers.newDashboardOption;
-        restoreGlobal(topWindow, "WBParameterGetFunction", bridgeGet, _previousGet);
-        restoreGlobal(topWindow, "WBParameterSetFunction", bridgeSet, _previousSet);
+        hostGlobals.uninstall(_hostGlobals.readTopWindow());
         if (controller && typeof controller.abort === "function") controller.abort();
         if (runtime && runtime.abortControllers) delete runtime.abortControllers.newDashboardOption;
         if (runtime) delete runtime.ownedBridgeSet;
@@ -106,8 +72,6 @@ define([
         logBridgeDiagnostic("uninstall", "bridge uninstall failed", { error: String(error && error.message ? error.message : error) });
         return false;
       }
-      _previousGet = undefined;
-      _previousSet = undefined;
       _installed = false;
       return true;
     }
@@ -116,10 +80,9 @@ define([
       return _installed;
     }
 
-    // Guard tegen aanroepen van een gecachte bridge-functie ná KDB.destroy():
-    // destroy nult _KDB.services; zonder guard zou dat een kale TypeError geven.
+    // A cached host function can be called after KDB.destroy(), which nulls _KDB.services.
     function assertBridgeUsable(phase) {
-      const services = _KDB && _KDB._isDisposed !== true ? _KDB.services : null;
+      const services = isGone() ? null : _KDB.services;
       if (services && services.writebackGet && services.writebackSet && services.writebackMap) {
         return;
       }
@@ -129,25 +92,23 @@ define([
       );
     }
 
-    // A4-diagnostiek (user-akkoord 2026-08-19): elke host-aanroep logt een
-    // console.debug (zichtbaar op DevTools-niveau "Verbose") met call-stack,
-    // zodat vreemde callers herleidbaar zijn. Bewust géén weigering: het
-    // Cognos-rapport is de legitieme caller en een heuristische block zou de
-    // save/restore-flow kunnen breken.
+    // Every host call logs a console.debug (DevTools level "Verbose") with its call stack so unknown callers
+    // can be traced. Approved by the user (2026-08-19). Deliberately no rejection: the Cognos report is the
+    // legitimate caller and a heuristic block could break the save/restore flow.
     function logBridgeCall(phase, details) {
       try {
         const info = {
           at: new Date().toISOString(),
           installed: _installed,
-          disposed: !!(_KDB && _KDB._isDisposed),
+          disposed: isGone(),
           stack: String(new Error().stack || "").split("\n").slice(2, 8).join("\n")
         };
         if (details) { info.details = details; }
         console.debug("[writebackBridge." + phase + "] host call", info);
-      } catch (ignoreDiagnosticError) { /* noop */ }
+      } catch (ignoreDiagnosticError) { /* diagnostics must never break a host call */ }
     }
 
-    // window.top.WBParameterGetFunction() -> Promise<string>
+    // window.top.WBParameterGetFunction() -> Promise<string>; GET callers parse the value and must see a failure.
     async function bridgeGet() {
       logBridgeCall("get");
       try {
@@ -155,43 +116,30 @@ define([
         const v3 = await _KDB.services.writebackGet.collect({ source: "bridge" });
         return JSON.stringify(v3);
       } catch (error) {
-        logBridgeError("get", error);
-        throw error; // GET callers parse the return value and must see the failure
+        return rejectLogged("get", error);
       }
     }
 
-    // window.top.WBParameterSetFunction(raw, status) -> Promise<RestoreResult | { ok: false, ... }>
+    // window.top.WBParameterSetFunction(raw, status) -> Promise<RestoreResult | failed envelope>; never rejects.
     async function bridgeSet(_raw, _status) {
-      const status = _status === undefined || _status === null ? "notDefaultParamSet" : String(_status);
+      const status = _bridgeResult.normalizeStatus(_status);
       logBridgeCall("set", { status: status });
       try {
         assertBridgeUsable("set");
         return await _runBridgeSetRestore(_KDB, _raw, _status);
       } catch (error) {
         logBridgeError("set", error);
-        return {
-          ok: false,
-          status: status,
-          runId: 0,
-          outcome: "failed",
-          diagnostics: [toBridgeDiagnostic(error)],
-          phases: []
-        };
+        return _bridgeResult.failureResult(status, [_bridgeResult.toBridgeDiagnostic(error)]);
       }
-    }
-
-    function toBridgeDiagnostic(error) {
-      if (error && error.diagnostic) {
-        return error.diagnostic;
-      }
-      return _errorCodes.makeDiagnostic(
-        _errorCodes.codes.WRITEBACK_INVALID_V3_PAYLOAD, "bridge",
-        String(error && error.message ? error.message : error), {}, 0
-      );
     }
 
     function logBridgeError(phase, error) {
       console.error("[writebackBridge." + phase + "]", error && error.diagnostic ? error.diagnostic : error);
+    }
+
+    function rejectLogged(phase, error) {
+      logBridgeError(phase, error);
+      return Promise.reject(error);
     }
 
     function logBridgeDiagnostic(phase, message, details) {
@@ -200,28 +148,25 @@ define([
 
     function destroy() {
       uninstall();
+      _KDB = null;
+      guard.dispose();
     }
 
     function readSelectedParameterSet() {
+      if (guard.blocked("readSelectedParameterSet") || isGone()) return undefined;
       try {
-        if (_KDB && _KDB._isDisposed === true) return undefined;
         return _readSelectedParameterSet();
       } catch (error) {
         console.error("[writebackBridge.readSelectedParameterSet] failed", error);
-        throw error;
+        return { id: null, label: null };
       }
     }
 
     function selectParameterSetById(parameterId, options) {
-      try {
-        if (_KDB && _KDB._isDisposed === true) {
-          return Promise.resolve({ ok: false, found: false, aborted: true });
-        }
-        return _selectParameterSetById(_KDB, parameterId, options);
-      } catch (error) {
-        console.error("[writebackBridge.selectParameterSetById] failed", error);
-        throw error;
+      if (guard.blocked("selectParameterSetById") || isGone()) {
+        return Promise.resolve({ ok: false, found: false, aborted: true });
       }
+      return _selectParameterSetById(_KDB, parameterId, options);
     }
 
     return {
