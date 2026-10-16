@@ -1,11 +1,11 @@
 define([
-  "../../config/parameterSetCodes.js",
+  "../../config.js",
   "./parameterSetRuntime.js",
   "../../effects/verifyCommitFilterValue.js",
   "../../effects/readFiltersFacet.js",
   "../../effects/hostFilterWrite.js",
   "../../effects/commitSelectionState.js"
-], function (_codes, _runtime, _verifyCommit, _readFiltersFacet, _hostWrite, _commitSelectionState) {
+], function (_config, _runtime, _verifyCommit, _readFiltersFacet, _hostWrite, _commitSelectionState) {
   "use strict";
 
   async function applyConfirmedPair(_KDB, _filterRef, _selection, _payload, _assignment, _filterInstanceId) {
@@ -98,7 +98,7 @@ define([
   function cancelledResult(_guard, _assignment, _filterInstanceId, _reason, _rollback) {
     var guardDiagnostic = _guard.diagnostics && _guard.diagnostics[0]
       ? _guard.diagnostics[0]
-      : { code: _codes.CANCELLED, message: "singleSelect resync superseded before canonical commit" };
+      : { code: _config.parameterSetCodes.CANCELLED, message: "singleSelect resync superseded before canonical commit" };
     return {
       cancelledResult: {
         ok: false,
@@ -110,7 +110,7 @@ define([
           reason: _reason
         }],
         diagnostics: [{
-          code: guardDiagnostic.code || _codes.CANCELLED,
+          code: guardDiagnostic.code || _config.parameterSetCodes.CANCELLED,
           key: _assignment && _assignment.key,
           tab: _assignment && _assignment.tab,
           message: String(guardDiagnostic.message || "") +

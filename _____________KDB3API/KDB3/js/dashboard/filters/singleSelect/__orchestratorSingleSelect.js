@@ -1,10 +1,10 @@
 define([
   "./state/initialState.js",
-  "./config/selectors.js",
+  "./config.js",
   "./createSingleSelectController.js",
   "./history/createSingleSelectHistoryReplayHandler.js",
   "./effects/ensureSingleSelectRuntime.js"
-], function (_initialState, _selectorConfig, _createSingleSelectController, _createHandler, _ensureRuntime) {
+], function (_initialState, _config, _createSingleSelectController, _createHandler, _ensureRuntime) {
   "use strict";
 
   // Lifecycle terms for singleSelect: idle, ready, error, disposed.
@@ -34,7 +34,7 @@ define([
       _KDB.api = _KDB.api || {};
       _KDB.elements = _KDB.elements || {};
       _KDB.elements.selectors = _KDB.elements.selectors || {};
-      _KDB.elements.selectors.singleSelect = _selectorConfig;
+      _KDB.elements.selectors.singleSelect = _config.domSelectors;
       if (!_KDB.state.filters.singleSelect) {
         _KDB.state.filters.singleSelect = _initialState();
       }

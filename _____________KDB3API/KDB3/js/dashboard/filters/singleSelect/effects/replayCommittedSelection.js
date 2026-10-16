@@ -3,13 +3,13 @@ define([
   "./restorePreviousConfirmedSelection.js",
   "./commitSelectionState.js",
   "../state/selectionState.js",
-  "../history/historyReplayCodes.js",
+  "../config.js",
   "../history/notifySpecialOwnerForReplay.js",
   "./resolveFilterRef.js",
   "./readFiltersFacet.js",
   "./hostFilterWrite.js"
 ], function (
-  _writes, _restorePrevious, _commitSelectionState, _selectionState, _codes, _notifySpecialOwner,
+  _writes, _restorePrevious, _commitSelectionState, _selectionState, _config, _notifySpecialOwner,
   _resolveFilterRef, _readFiltersFacet, _hostWrite
 ) {
   "use strict";
@@ -58,18 +58,18 @@ define([
     var rollbackVerified;
 
     if (!_record || !runtime || !singleSelectRoot || !_hostWrite.isWriteReady(filtersFacet)) {
-      return { ok: false, errorCode: _codes.REPLAY_FAILED };
+      return { ok: false, errorCode: _config.historyReplayCodes.REPLAY_FAILED };
     }
     // `_record` is the resolver's published (projected) descriptor and does
     // not carry the raw `currentSelection` object; the pre-write snapshot for
     // rollback must come from the owner's own live state, not the projection.
     priorFilterState = singleSelectRoot.instancesById ? singleSelectRoot.instancesById[_record.filterInstanceId] : null;
     if (!priorFilterState || priorFilterState.selectionOwner !== "singleSelect") {
-      return { ok: false, errorCode: _codes.INSTANCE_MISSING };
+      return { ok: false, errorCode: _config.historyReplayCodes.INSTANCE_MISSING };
     }
     filterRef = resolveFilterRef(_KDB, runtime, _record.filterInstanceId);
     if (!filterRef) {
-      return { ok: false, errorCode: _codes.INSTANCE_MISSING };
+      return { ok: false, errorCode: _config.historyReplayCodes.INSTANCE_MISSING };
     }
     previousHostValues = _hostWrite.readValues(filtersFacet, filterRef);
     previousSelection = _selectionState.normalizeConfirmedSelection(priorFilterState.currentSelection);
@@ -86,13 +86,13 @@ define([
     }
     if (!writeResult || writeResult.ok !== true) {
       rollbackVerified = await rollbackHost(_KDB, filterRef, previousSelection, previousHostValues);
-      return buildFailure(_codes.REPLAY_FAILED, rollbackVerified);
+      return buildFailure(_config.historyReplayCodes.REPLAY_FAILED, rollbackVerified);
     }
 
     filterState = singleSelectRoot.instancesById ? singleSelectRoot.instancesById[_record.filterInstanceId] : null;
     if (!filterState || filterState.selectionOwner !== "singleSelect") {
       rollbackVerified = await rollbackHost(_KDB, filterRef, previousSelection, previousHostValues);
-      return buildFailure(_codes.INSTANCE_MISSING, rollbackVerified);
+      return buildFailure(_config.historyReplayCodes.INSTANCE_MISSING, rollbackVerified);
     }
 
     try {
@@ -110,14 +110,14 @@ define([
         filterInstanceId: _record.filterInstanceId
       }, error);
       rollbackVerified = await rollbackHost(_KDB, filterRef, previousSelection, previousHostValues);
-      return buildFailure(_codes.REPLAY_FAILED, rollbackVerified);
+      return buildFailure(_config.historyReplayCodes.REPLAY_FAILED, rollbackVerified);
     }
 
     notifyResult = await _notifySpecialOwner(_KDB, _record, value);
     if (!notifyResult || notifyResult.ok !== true) {
       _commitSelectionState.revertFilterState(filterState, previousSelection);
       rollbackVerified = await rollbackHost(_KDB, filterRef, previousSelection, previousHostValues);
-      return buildFailure(_codes.OWNER_NOTIFY_FAILED, rollbackVerified);
+      return buildFailure(_config.historyReplayCodes.OWNER_NOTIFY_FAILED, rollbackVerified);
     }
 
     singleSelectRoot.errorCode = null;

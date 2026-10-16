@@ -1,5 +1,5 @@
 define([
-  "./config/actions.js",
+  "./config.js",
   "./state/createSingleSelectReducer.js",
   "./state/selectors.js",
   "./effects/guardInteractionFreshness.js",
@@ -7,7 +7,7 @@ define([
   "./effects/ensureSingleSelectRuntime.js",
   "./singleSelectControllerGuards.js"
 ], function (
-  _actions,
+  _config,
   _createSingleSelectReducer,
   _selectors,
   _guardInteractionFreshness,
@@ -40,16 +40,16 @@ define([
         generation: 0, freshness: "stale", reconciledAt: null, errorCode: null
       };
       delete _controller._KDB.state.filters.singleSelect.byScope;
-      _guards.dispatchInternal(_controller, { type: _actions.MOUNT_SUCCEEDED, payload: { mountedAt: Date.now() } });
+      _guards.dispatchInternal(_controller, { type: _config.actions.MOUNT_SUCCEEDED, payload: { mountedAt: Date.now() } });
       _dispatchAction(_controller._KDB, _ensureRuntime(_controller._KDB), {
-        type: _actions.RECONCILE_FILTER_INSTANCES,
+        type: _config.actions.RECONCILE_FILTER_INSTANCES,
         payload: { reason: "mount" }
       }, _controller.options, _guards.dispatchInternal.bind(null, _controller));
       return true;
     } catch (error) {
       console.error("[singleSelect.mount] failed", error);
       _guards.dispatchInternal(_controller, {
-        type: _actions.ERROR,
+        type: _config.actions.ERROR,
         payload: { errorCode: "SINGLE_SELECT_MOUNT_FAILED", errorMessage: String(error.message || error) }
       });
       return false;
@@ -67,7 +67,7 @@ define([
         _controller._KDB.runtime.singleSelect.historyReplayHandlerContribution = null;
       }
       if (_controller._KDB.state && _controller._KDB.state.filters) {
-        _guards.dispatchInternal(_controller, { type: _actions.DESTROY, payload: {} });
+        _guards.dispatchInternal(_controller, { type: _config.actions.DESTROY, payload: {} });
       }
     } catch (error) {
       console.error("[singleSelect.destroy] failed", error);
@@ -93,7 +93,7 @@ define([
     } catch (error) {
       console.error("[singleSelect.dispatch] failed", error);
       _guards.dispatchInternal(_controller, {
-        type: _actions.ERROR,
+        type: _config.actions.ERROR,
         payload: { errorCode: "SINGLE_SELECT_DISPATCH_FAILED", errorMessage: String(error.message || error) }
       });
       return undefined;

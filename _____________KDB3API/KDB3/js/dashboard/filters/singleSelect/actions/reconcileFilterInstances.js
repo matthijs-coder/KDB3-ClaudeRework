@@ -1,7 +1,7 @@
 define([
   "../effects/enumerateFilterInstances.js",
   "../effects/reconcileFilterInstanceState.js",
-  "../config/errorCodes.js",
+  "../config.js",
   "../effects/waitForFilterInventory.js",
   "./reconcileRunSupport.js",
   "./notifyInventoryReconciledOwners.js",
@@ -9,7 +9,7 @@ define([
 ], function (
   _enumerateFilterInstances,
   _reconcileState,
-  _codes,
+  _config,
   _waitForFilterInventory,
   _runSupport,
   _notifyInventoryReconciledOwners,
@@ -20,9 +20,9 @@ define([
   function buildReconcileOutcome(_root, _reconciled, _diagnostics) {
     return {
       ok: _diagnostics.every(function (_item) {
-        return _item.code !== _codes.IDENTITY_COLLISION &&
-          _item.code !== _codes.RECONCILE_FAILED &&
-          _item.code !== _codes.RECONCILE_TIMEOUT;
+        return _item.code !== _config.errorCodes.IDENTITY_COLLISION &&
+          _item.code !== _config.errorCodes.RECONCILE_FAILED &&
+          _item.code !== _config.errorCodes.RECONCILE_TIMEOUT;
       }),
       degraded: _diagnostics.length > 0,
       generation: _root.inventory.generation,
@@ -63,7 +63,7 @@ define([
         freshness: inventoryIncomplete ? "stale" : "fresh",
         reconcileInFlight: true,
         reconciledAt: Date.now(),
-        errorCode: inventoryIncomplete ? _codes.HOST_VALUE_READ_FAILED : null
+        errorCode: inventoryIncomplete ? _config.errorCodes.HOST_VALUE_READ_FAILED : null
       };
       root.lastDiagnostics = diagnostics.slice(0, 50);
       var result = buildReconcileOutcome(root, reconciled, diagnostics);

@@ -4,7 +4,7 @@ define([
   "../../effects/resolveFilterRef.js",
   "../../effects/resolveRestoreSelectionPair.js",
   "../../effects/hostFilterWrite.js",
-  "../../config/parameterSetCodes.js",
+  "../../config.js",
   "./commitRestoreSelection.js"
 ], function (
   _runtime,
@@ -12,7 +12,7 @@ define([
   _resolveFilterRef,
   _resolveRestorePair,
   _hostWrite,
-  _codes,
+  _config,
   _commitRestoreSelection
 ) {
   "use strict";
@@ -93,7 +93,7 @@ define([
   function toCancelled(_guard, _degraded, _rollback) {
     var diag = _guard && _guard.diagnostics && _guard.diagnostics[0]
       ? _guard.diagnostics[0]
-      : { code: _codes.CANCELLED, message: "singleSelect restore superseded before canonical commit" };
+      : { code: _config.parameterSetCodes.CANCELLED, message: "singleSelect restore superseded before canonical commit" };
     var suffix = _rollback ? "; rollback " + (_rollback.ok ? "succeeded" : "failed") : "";
     return {
       committed: false,

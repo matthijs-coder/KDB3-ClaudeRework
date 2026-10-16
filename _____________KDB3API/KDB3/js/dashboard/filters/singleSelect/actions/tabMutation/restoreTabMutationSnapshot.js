@@ -3,8 +3,8 @@ define([
   "./resolveTabMutationSnapshotTarget.js",
   "../../effects/writeAndVerifyInstanceSelection.js",
   "../reconcileFilterInstances.js",
-  "../../config/errorCodes.js"
-], function (_support, _resolveSnapshotTarget, _writeSelection, _reconcile, _codes) {
+  "../../config.js"
+], function (_support, _resolveSnapshotTarget, _writeSelection, _reconcile, _config) {
   "use strict";
 
   function restoreStateFields(_record, _snapshotRecord) {
@@ -41,7 +41,7 @@ define([
         if (target.status !== "ok") {
           unrecoverable.push(ids[i]);
           diagnostics.push({
-            code: _codes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
+            code: _config.errorCodes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
             filterInstanceId: ids[i],
             message: "snapshot rollback target " + target.status
           });
@@ -59,7 +59,7 @@ define([
         } else {
           unrecoverable.push(target.instance.filterInstanceId);
           diagnostics.push({
-            code: _codes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
+            code: _config.errorCodes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
             filterInstanceId: target.instance.filterInstanceId,
             message: "snapshot host pair could not be restored: " + written.errorCode
           });
@@ -70,7 +70,7 @@ define([
       );
       if (!reconciled.ok) {
         diagnostics.push({
-          code: _codes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
+          code: _config.errorCodes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
           message: "post-rollback inventory reconcile failed"
         });
       }
@@ -96,7 +96,7 @@ define([
         restored: restored,
         unrecoverable: unrecoverable,
         diagnostics: diagnostics.concat([{
-          code: _codes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
+          code: _config.errorCodes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
           message: String(error && error.message ? error.message : error)
         }])
       };

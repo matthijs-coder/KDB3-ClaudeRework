@@ -1,8 +1,8 @@
 define([
-  "../config/selectors.js",
+  "../config.js",
   "../state/selectionState.js",
   "./readPopupOptionLabel.js"
-], function (_selectors, _selectionState, _readPopupOptionLabel) {
+], function (_config, _selectionState, _readPopupOptionLabel) {
   "use strict";
 
   function setCheckboxState(_wrapper, _on) {
@@ -11,12 +11,12 @@ define([
     if (!_wrapper) {
       return;
     }
-    checkbox = _wrapper.querySelector(_selectors.checkboxInputSelector);
+    checkbox = _wrapper.querySelector(_config.domSelectors.checkboxInputSelector);
     if (checkbox) {
       checkbox.checked = _on === true;
       checkbox.setAttribute("aria-checked", _on ? "true" : "false");
     }
-    roleOption = _wrapper.querySelector(_selectors.roleOptionSelector);
+    roleOption = _wrapper.querySelector(_config.domSelectors.roleOptionSelector);
     if (roleOption) {
       roleOption.setAttribute("aria-selected", _on ? "true" : "false");
     }
@@ -27,7 +27,7 @@ define([
       return;
     }
     _wrapper.classList.toggle("KDB_selectedOption", _on);
-    _wrapper.classList.toggle(_selectors.selectedOptionClass, _on);
+    _wrapper.classList.toggle(_config.domSelectors.selectedOptionClass, _on);
     _wrapper.setAttribute("aria-selected", _on ? "true" : "false");
     setCheckboxState(_wrapper, _on);
   }
@@ -42,7 +42,7 @@ define([
       return;
     }
     want = _selectionState.getPendingDisplayValue(_filterState.pendingSelection);
-    options = _popupMount.querySelectorAll(_selectors.optionWrapperSelector);
+    options = _popupMount.querySelectorAll(_config.domSelectors.optionWrapperSelector);
     for (i = 0; i < options.length; i += 1) {
       setOptionSelected(options[i], false);
     }

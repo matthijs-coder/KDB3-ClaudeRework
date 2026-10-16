@@ -1,4 +1,4 @@
-define(["../config/errorCodes.js"], function (_codes) {
+define(["../config.js"], function (_config) {
   "use strict";
 
   function readSichtOwnerApi(_KDB) {
@@ -38,7 +38,7 @@ define(["../config/errorCodes.js"], function (_codes) {
       if (!api) {
         return {
           ok: false,
-          code: _codes.SICHT_DRAFT_DISPATCH_FAILED,
+          code: _config.errorCodes.SICHT_DRAFT_DISPATCH_FAILED,
           message: "sicht owner dispatch API unavailable for " + _type
         };
       }
@@ -49,7 +49,7 @@ define(["../config/errorCodes.js"], function (_codes) {
       if (isNegativeAck(ack)) {
         return {
           ok: false,
-          code: _codes.SICHT_DRAFT_DISPATCH_FAILED,
+          code: _config.errorCodes.SICHT_DRAFT_DISPATCH_FAILED,
           message: "sicht owner rejected " + _type
         };
       }
@@ -58,7 +58,7 @@ define(["../config/errorCodes.js"], function (_codes) {
       console.error("[singleSelect.sichtDraftEvents] failed", { type: _type }, error);
       return {
         ok: false,
-        code: _codes.SICHT_DRAFT_DISPATCH_FAILED,
+        code: _config.errorCodes.SICHT_DRAFT_DISPATCH_FAILED,
         message: "sicht owner dispatch threw for " + _type + ": " +
           String(error && error.message ? error.message : error)
       };

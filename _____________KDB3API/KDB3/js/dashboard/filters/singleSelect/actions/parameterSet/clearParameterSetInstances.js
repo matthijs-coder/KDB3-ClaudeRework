@@ -1,11 +1,11 @@
 define([
-  "../../config/parameterSetCodes.js",
+  "../../config.js",
   "./parameterSetRuntime.js",
   "../../effects/resolveFilterRef.js",
   "../../effects/verifyCommitFilterValue.js",
   "../../effects/hostFilterWrite.js",
   "../../../../../core/utils/normalizeCognosScopeId.js"
-], function (_codes, _runtime, _resolveFilterRef, _verifyCommit, _hostWrite, _normalizeScopeId) {
+], function (_config, _runtime, _resolveFilterRef, _verifyCommit, _hostWrite, _normalizeScopeId) {
   "use strict";
 
   function isInstanceOnAllowedTab(_rec, _payload) {
@@ -72,7 +72,7 @@ define([
       });
       if (!filterRef) {
         _diagnostics.push({
-          code: _codes.RESTORE_FAILED,
+          code: _config.parameterSetCodes.RESTORE_FAILED,
           key: _rec.filterLabel,
           message: "filter API not found during clear"
         });
@@ -92,7 +92,7 @@ define([
       if (!_verifyCommit(_filtersFacet, filterRef, { displayValue: "Alle", useValue: "" }).ok) {
         var rollbackMismatch = await _hostWrite.rollbackHostWrite(_filtersFacet, filterRef, rollbackInput);
         _diagnostics.push({
-          code: _codes.RESTORE_FAILED,
+          code: _config.parameterSetCodes.RESTORE_FAILED,
           key: _rec.filterLabel,
           message: "host clear verification mismatch; rollback " +
             (rollbackMismatch.ok ? "succeeded" : "failed")
@@ -104,7 +104,7 @@ define([
         var rollbackOutcome = await _hostWrite.rollbackHostWrite(_filtersFacet, filterRef, rollbackInput);
         var diag = postGuard.diagnostics && postGuard.diagnostics[0]
           ? postGuard.diagnostics[0]
-          : { code: _codes.CANCELLED, message: "singleSelect clear superseded after host write" };
+          : { code: _config.parameterSetCodes.CANCELLED, message: "singleSelect clear superseded after host write" };
         throw {
           cancelledResult: {
             ok: false,
@@ -112,7 +112,7 @@ define([
             applied: [],
             skipped: [],
             diagnostics: [{
-              code: diag.code || _codes.CANCELLED,
+              code: diag.code || _config.parameterSetCodes.CANCELLED,
               message: diag.message + "; rollback " + (rollbackOutcome.ok ? "succeeded" : "failed")
             }]
           }

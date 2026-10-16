@@ -1,8 +1,8 @@
 define([
   "./verifyCommitFilterValue.js",
   "./hostFilterWrite.js",
-  "../config/errorCodes.js"
-], function (_verifyCommitFilterValue, _hostWrite, _codes) {
+  "../config.js"
+], function (_verifyCommitFilterValue, _hostWrite, _config) {
   "use strict";
 
   function cloneValues(_values) {
@@ -26,7 +26,7 @@ define([
     try {
       var opts = _opts || {};
       if (!_hostWrite.isWriteReady(_filtersFacet) || !_filterRef) {
-        return fail(_codes.HOST_WRITE_FAILED, null, [], null);
+        return fail(_config.errorCodes.HOST_WRITE_FAILED, null, [], null);
       }
       var values = cloneValues(_values);
       previous = cloneValues(_hostWrite.readValues(_filtersFacet, _filterRef));
@@ -37,7 +37,7 @@ define([
           : { displayValue: "Alle", useValue: "" };
       }
       if (!(await _hostWrite.writeValues(_filtersFacet, _filterRef, values))) {
-        return fail(_codes.HOST_WRITE_FAILED, null, previous, null);
+        return fail(_config.errorCodes.HOST_WRITE_FAILED, null, previous, null);
       }
       var verified = _verifyCommitFilterValue(_filtersFacet, _filterRef, expected);
       if (verified.ok === true) {
@@ -52,18 +52,18 @@ define([
       try {
         if (!(await _hostWrite.writeValues(_filtersFacet, _filterRef, previous))) {
           if (opts.verifyRollback === true) {
-            return fail(_codes.HOST_ROLLBACK_UNVERIFIED, false, previous, verified.observed);
+            return fail(_config.errorCodes.HOST_ROLLBACK_UNVERIFIED, false, previous, verified.observed);
           }
-          return fail(_codes.HOST_WRITE_FAILED, null, previous, verified.observed);
+          return fail(_config.errorCodes.HOST_WRITE_FAILED, null, previous, verified.observed);
         }
       } catch (rollbackError) {
         if (opts.verifyRollback === true) {
-          return fail(_codes.HOST_ROLLBACK_UNVERIFIED, false, previous, verified.observed);
+          return fail(_config.errorCodes.HOST_ROLLBACK_UNVERIFIED, false, previous, verified.observed);
         }
         throw rollbackError;
       }
       if (opts.verifyRollback !== true) {
-        return fail(_codes.COMMIT_VERIFICATION_MISMATCH, null, previous, verified.observed);
+        return fail(_config.errorCodes.COMMIT_VERIFICATION_MISMATCH, null, previous, verified.observed);
       }
       var rollbackExpected = previous[0]
         ? { displayValue: previous[0].d, useValue: previous[0].u }
@@ -71,17 +71,17 @@ define([
       try {
         var rollbackOk = _verifyCommitFilterValue(_filtersFacet, _filterRef, rollbackExpected).ok === true;
         if (rollbackOk) {
-          return fail(_codes.COMMIT_VERIFICATION_MISMATCH, true, previous, verified.observed);
+          return fail(_config.errorCodes.COMMIT_VERIFICATION_MISMATCH, true, previous, verified.observed);
         }
-        return fail(_codes.HOST_ROLLBACK_UNVERIFIED, false, previous, verified.observed);
+        return fail(_config.errorCodes.HOST_ROLLBACK_UNVERIFIED, false, previous, verified.observed);
       } catch (rollbackVerifyError) {
-        return fail(_codes.HOST_ROLLBACK_UNVERIFIED, false, previous, verified.observed);
+        return fail(_config.errorCodes.HOST_ROLLBACK_UNVERIFIED, false, previous, verified.observed);
       }
     } catch (error) {
       console.error("[singleSelect.writeVerifiedSelection] failed", error);
       return {
         ok: false,
-        errorCode: _codes.HOST_WRITE_FAILED,
+        errorCode: _config.errorCodes.HOST_WRITE_FAILED,
         rollbackVerified: null,
         previous: previous || [],
         observed: null

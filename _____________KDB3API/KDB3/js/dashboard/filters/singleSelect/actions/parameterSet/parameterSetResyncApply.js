@@ -1,10 +1,10 @@
 define([
-  "../../config/parameterSetCodes.js",
+  "../../config.js",
   "./parameterSetRuntime.js",
   "../../effects/resolveFilterRef.js",
   "./parameterSetResyncApplyPair.js",
   "../../../sicht/state/selectors.js"
-], function (_codes, _runtime, _resolveFilterRef, _applyPair, _sichtSelectors) {
+], function (_config, _runtime, _resolveFilterRef, _applyPair, _sichtSelectors) {
   "use strict";
 
   function resolveConfirmedSelection(_KDB, _record, _assignment, _diagnostics) {
@@ -15,13 +15,13 @@ define([
       ? _sichtSelectors.readConfirmedSichtSelection(_KDB)
       : null;
     if (!confirmed || !confirmed.displayValue) {
-      _diagnostics.push({ code: _codes.RESYNC_FAILED, key: assignmentEntry.key, tab: assignmentEntry.tab, message: "sicht confirmed selection unavailable for delegated resync" });
+      _diagnostics.push({ code: _config.parameterSetCodes.RESYNC_FAILED, key: assignmentEntry.key, tab: assignmentEntry.tab, message: "sicht confirmed selection unavailable for delegated resync" });
       return null;
     }
     if (confirmed.filterInstanceId &&
       record.filterInstanceId &&
       String(confirmed.filterInstanceId) !== String(record.filterInstanceId)) {
-      _diagnostics.push({ code: _codes.RESYNC_FAILED, key: assignmentEntry.key, tab: assignmentEntry.tab, message: "sicht confirmed selection targets another delegated instance" });
+      _diagnostics.push({ code: _config.parameterSetCodes.RESYNC_FAILED, key: assignmentEntry.key, tab: assignmentEntry.tab, message: "sicht confirmed selection targets another delegated instance" });
       return null;
     }
     return {
@@ -49,7 +49,7 @@ define([
     var applied = Array.isArray(progress.applied) ? progress.applied.slice() : [];
     var skipped = Array.isArray(progress.skipped) ? progress.skipped.slice() : [];
     var hasHardFailure = diagnostics.some(function (diagnostic) {
-      return diagnostic.code === _codes.RESYNC_FAILED || diagnostic.code === _codes.CANCELLED;
+      return diagnostic.code === _config.parameterSetCodes.RESYNC_FAILED || diagnostic.code === _config.parameterSetCodes.CANCELLED;
     });
     if (_reconcileResult && _reconcileResult.ok === false) {
       hasHardFailure = true;
@@ -77,7 +77,7 @@ define([
         var rec = root.instancesById ? root.instancesById[ids[idx]] : null;
         var filterRef = _resolveFilterRef.resolveFilterRef(_KDB, _runtimeState, { filterInstanceId: ids[idx] });
         if (!rec || !filterRef) {
-          _diagnostics.push({ code: _codes.RESYNC_FAILED, key: assignment.key, tab: assignment.tab, message: "resync instance missing after restore" });
+          _diagnostics.push({ code: _config.parameterSetCodes.RESYNC_FAILED, key: assignment.key, tab: assignment.tab, message: "resync instance missing after restore" });
           _progress.skipped.push({ filterInstanceId: ids[idx], key: assignment.key, reason: "instanceMissing" });
           continue;
         }
@@ -97,7 +97,7 @@ define([
         _progress.applied.push({ filterInstanceId: ids[idx], key: assignment.key, ok: true });
       }
       if (ids.length === 0) {
-        _diagnostics.push({ code: _codes.RESYNC_UNREGISTERED, message: "no restore assignments were registered for this run" });
+        _diagnostics.push({ code: _config.parameterSetCodes.RESYNC_UNREGISTERED, message: "no restore assignments were registered for this run" });
         _progress.skipped.push({ filterInstanceId: null, reason: "noRegisteredAssignments" });
       }
       return { ok: true };

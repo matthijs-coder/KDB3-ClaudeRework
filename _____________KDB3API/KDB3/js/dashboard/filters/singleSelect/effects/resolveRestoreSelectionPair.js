@@ -2,8 +2,8 @@ define([
   "./readFilterDefinition.js",
   "../config/resolveFilterOptionsTableKey.js",
   "./parseFilterOptionTableRows.js",
-  "../config/errorCodes.js"
-], function (_readDefinition, _resolveTableKey, _parseRows, _codes) {
+  "../config.js"
+], function (_readDefinition, _resolveTableKey, _parseRows, _config) {
   "use strict";
 
   function readMapPair(_definition, _useValue) {
@@ -74,7 +74,7 @@ define([
         selection: { d: useValue, u: useValue },
         degraded: true,
         diagnostic: {
-          code: _codes.RESTORE_DISPLAY_DEGRADED,
+          code: _config.errorCodes.RESTORE_DISPLAY_DEGRADED,
           filterInstanceId: _instance.filterInstanceId,
           message: "real display unavailable; transport-only d=u used before mandatory reread"
         }

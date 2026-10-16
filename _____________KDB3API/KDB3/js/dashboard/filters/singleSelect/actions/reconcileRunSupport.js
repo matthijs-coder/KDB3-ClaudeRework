@@ -1,4 +1,4 @@
-define(["../config/errorCodes.js"], function (_codes) {
+define(["../config.js"], function (_config) {
   "use strict";
 
   function ensureRuntime(_runtime) {
@@ -34,14 +34,14 @@ define(["../config/errorCodes.js"], function (_codes) {
       discovered: [],
       updated: [],
       removed: [],
-      diagnostics: [{ code: _codes.RECONCILE_FAILED, message: "reconcile superseded by a newer run" }]
+      diagnostics: [{ code: _config.errorCodes.RECONCILE_FAILED, message: "reconcile superseded by a newer run" }]
     };
   }
 
   function failureResult(_KDB, _error) {
     var root = _KDB.state.filters.singleSelect;
-    var code = _error && _error.code === _codes.RECONCILE_TIMEOUT
-      ? _codes.RECONCILE_TIMEOUT : _codes.RECONCILE_FAILED;
+    var code = _error && _error.code === _config.errorCodes.RECONCILE_TIMEOUT
+      ? _config.errorCodes.RECONCILE_TIMEOUT : _config.errorCodes.RECONCILE_FAILED;
     root.inventory = Object.assign({}, root.inventory || {}, { freshness: "stale", errorCode: code });
     root.lastDiagnostics = [{ code: code, message: String(_error && _error.message ? _error.message : _error) }];
     return {
@@ -66,7 +66,7 @@ define(["../config/errorCodes.js"], function (_codes) {
     itemName = next.itemName == null ? "" : String(next.itemName).trim();
     if (itemId || itemName) { return; }
     _diagnostics.push({
-      code: _codes.RECONCILE_FAILED,
+      code: _config.errorCodes.RECONCILE_FAILED,
       filterInstanceId: _id,
       scopeId: next.scopeId || null,
       message: "retained active instance lost runtime filter API mapping"
@@ -112,7 +112,7 @@ define(["../config/errorCodes.js"], function (_codes) {
       updated: [],
       removed: [],
       diagnostics: [{
-        code: _codes.RECONCILE_REASON_INVALID,
+        code: _config.errorCodes.RECONCILE_REASON_INVALID,
         message: "singleSelect reconcile reason is invalid",
         reason: _reason
       }]

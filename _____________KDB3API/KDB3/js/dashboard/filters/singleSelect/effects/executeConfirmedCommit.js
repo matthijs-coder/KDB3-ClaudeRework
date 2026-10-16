@@ -4,14 +4,14 @@ define([
   "./verifyCommitFilterValue.js",
   "./readFiltersFacet.js",
   "./hostFilterWrite.js",
-  "../config/errorCodes.js"
+  "../config.js"
 ], function (
   _resolveFilterRef,
   _resolveFilterValue,
   _verifyCommit,
   _readFiltersFacet,
   _hostWrite,
-  _codes
+  _config
 ) {
   "use strict";
 
@@ -29,14 +29,14 @@ define([
       filtersFacet = _readFiltersFacet(_KDB, _runtime);
       filterRef = _resolveFilterRef.resolveFilterRef(_KDB, _runtime, _handoff);
       if (!_hostWrite.isWriteReady(filtersFacet) || !filterRef) {
-        throw codedError(_codes.HOST_WRITE_FAILED, "filter host writer unavailable");
+        throw codedError(_config.errorCodes.HOST_WRITE_FAILED, "filter host writer unavailable");
       }
       previousValues = _hostWrite.readValues(filtersFacet, filterRef);
       var selectedValue;
       if (_displayValue === "Alle") {
         selectedValue = { d: "Alle", u: "" };
         if (!(await _hostWrite.writeValues(filtersFacet, filterRef, []))) {
-          throw codedError(_codes.HOST_WRITE_FAILED, "filter host writer unavailable");
+          throw codedError(_config.errorCodes.HOST_WRITE_FAILED, "filter host writer unavailable");
         }
       } else {
         var resolved = await _resolveFilterValue.resolveFilterValueFromTable(
@@ -46,11 +46,11 @@ define([
           _handoff
         );
         if (!resolved || resolved.ok !== true) {
-          throw codedError(_codes.HOST_WRITE_FAILED, "selection pair resolution failed: " + (resolved && resolved.errorCode || "unknown"));
+          throw codedError(_config.errorCodes.HOST_WRITE_FAILED, "selection pair resolution failed: " + (resolved && resolved.errorCode || "unknown"));
         }
         selectedValue = resolved.selectedValue;
         if (!(await _hostWrite.writeValues(filtersFacet, filterRef, [selectedValue]))) {
-          throw codedError(_codes.HOST_WRITE_FAILED, "filter host writer unavailable");
+          throw codedError(_config.errorCodes.HOST_WRITE_FAILED, "filter host writer unavailable");
         }
       }
       var verified = _verifyCommit(filtersFacet, filterRef, {
@@ -58,7 +58,7 @@ define([
         useValue: selectedValue.u
       });
       if (verified.ok !== true) {
-        throw codedError(_codes.COMMIT_VERIFICATION_MISMATCH, "host reread did not confirm display/use pair");
+        throw codedError(_config.errorCodes.COMMIT_VERIFICATION_MISMATCH, "host reread did not confirm display/use pair");
       }
       return {
         filterRef: filterRef,

@@ -1,15 +1,15 @@
 define([
-  "../config/selectors.js",
+  "../config.js",
   "../state/selectionState.js",
   "./readPopupOptionLabel.js"
-], function (_selectors, _selectionState, _readPopupOptionLabel) {
+], function (_config, _selectionState, _readPopupOptionLabel) {
   "use strict";
 
   function findFirstCognosOption(_root) {
-    var a = _root.querySelectorAll(_selectors.optionWrapperSelector);
+    var a = _root.querySelectorAll(_config.domSelectors.optionWrapperSelector);
     var i;
     for (i = 0; i < a.length; i += 1) {
-      if (!a[i].classList.contains(_selectors.alleOptionClass)) {
+      if (!a[i].classList.contains(_config.domSelectors.alleOptionClass)) {
         return a[i];
       }
     }
@@ -32,12 +32,12 @@ define([
       _filterState.wasHydratedFromDom = true;
       return;
     }
-    a = _popupMount.querySelectorAll(_selectors.optionWrapperSelector);
+    a = _popupMount.querySelectorAll(_config.domSelectors.optionWrapperSelector);
     for (i = 0; i < a.length; i += 1) {
       el = a[i];
-      ro = el.querySelector(_selectors.roleOptionSelector);
+      ro = el.querySelector(_config.domSelectors.roleOptionSelector);
       if (
-        !el.classList.contains(_selectors.selectedOptionClass) &&
+        !el.classList.contains(_config.domSelectors.selectedOptionClass) &&
         !el.classList.contains("KDB_selectedOption") &&
         el.getAttribute("aria-selected") !== "true" &&
         (!ro || ro.getAttribute("aria-selected") !== "true")

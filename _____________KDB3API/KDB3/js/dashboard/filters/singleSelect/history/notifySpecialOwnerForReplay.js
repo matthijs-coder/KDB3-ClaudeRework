@@ -1,4 +1,4 @@
-define(["./historyReplayCodes.js"], function (_codes) {
+define(["../config.js"], function (_config) {
   "use strict";
 
   // Special owner notification (historyService-filterInstanceIdentity-
@@ -46,7 +46,7 @@ define(["./historyReplayCodes.js"], function (_codes) {
     }
     api = _KDB.api.specialSingleSelect;
     if (!api || typeof api.dispatch !== "function") {
-      return { ok: false, applicable: true, errorCode: _codes.OWNER_NOTIFY_FAILED };
+      return { ok: false, applicable: true, errorCode: _config.historyReplayCodes.OWNER_NOTIFY_FAILED };
     }
     try {
       ack = await api.dispatch({
@@ -68,10 +68,10 @@ define(["./historyReplayCodes.js"], function (_codes) {
       });
     } catch (error) {
       console.error("[singleSelect.notifySpecialOwnerForReplay] dispatch failed", error);
-      return { ok: false, applicable: true, errorCode: _codes.OWNER_NOTIFY_FAILED };
+      return { ok: false, applicable: true, errorCode: _config.historyReplayCodes.OWNER_NOTIFY_FAILED };
     }
     if (isNegativeAck(ack)) {
-      return { ok: false, applicable: true, errorCode: _codes.OWNER_NOTIFY_FAILED };
+      return { ok: false, applicable: true, errorCode: _config.historyReplayCodes.OWNER_NOTIFY_FAILED };
     }
     return { ok: true, applicable: true };
   }

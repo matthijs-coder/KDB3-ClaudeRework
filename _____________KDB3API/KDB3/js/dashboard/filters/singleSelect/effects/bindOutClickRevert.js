@@ -1,7 +1,7 @@
 define([
-  "../config/selectors.js",
+  "../config.js",
   "../state/selectionState.js"
-], function (_selectors, _selectionState) {
+], function (_config, _selectionState) {
   "use strict";
 
   function onOutClickRevert(_runtime, _filterState, _listenerKey) {
@@ -14,7 +14,7 @@ define([
   }
 
   function __controller(_runtime, _filterState) {
-    var catcher = document.querySelector(_selectors.outClickCatcherSelector);
+    var catcher = document.querySelector(_config.domSelectors.outClickCatcherSelector);
     var listenerKey = "outClick_" + (_filterState.filterKey || "default");
     var handler;
     if (!catcher || _runtime.listeners[listenerKey]) {

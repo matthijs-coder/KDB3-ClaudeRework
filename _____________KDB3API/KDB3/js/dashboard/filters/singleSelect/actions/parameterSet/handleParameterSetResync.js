@@ -1,11 +1,11 @@
 define([
-  "../../config/parameterSetCodes.js",
+  "../../config.js",
   "./parameterSetRuntime.js",
   "../reconcileFilterInstances.js",
   "./parameterSetResyncApply.js",
   "../../effects/handleFilterDockCommittedDisplayObserved.js"
 ], function (
-  _codes,
+  _config,
   _runtime,
   _reconcileFilterInstances,
   _resyncApply,
@@ -30,7 +30,7 @@ define([
             degraded: false,
             applied: [],
             skipped: [],
-            diagnostics: [{ code: writebackGate.code || _codes.INVENTORY_STALE, message: writebackGate.message }]
+            diagnostics: [{ code: writebackGate.code || _config.parameterSetCodes.INVENTORY_STALE, message: writebackGate.message }]
           });
         } else {
           var applyOutcome = await _resyncApply.resyncApplied(
@@ -40,7 +40,7 @@ define([
             result = _resyncApply.normalizeResult(applyOutcome.cancelledResult);
           } else if (applyOutcome && applyOutcome.ok === false) {
             diagnostics.push({
-              code: _codes.RESYNC_FAILED,
+              code: _config.parameterSetCodes.RESYNC_FAILED,
               message: "singleSelect resync apply failed: " + String(
                 applyOutcome.error && applyOutcome.error.message ? applyOutcome.error.message : applyOutcome.error
               )
@@ -81,7 +81,7 @@ define([
           applied: [],
           skipped: [],
           diagnostics: [{
-            code: _codes.RESYNC_FAILED,
+            code: _config.parameterSetCodes.RESYNC_FAILED,
             message: "singleSelect resync failed: " + String(error && error.message ? error.message : error)
           }]
         }, { reportAlreadyReleased: false }

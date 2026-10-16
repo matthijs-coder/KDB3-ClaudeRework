@@ -2,14 +2,14 @@ define([
   "./readSingleSelectCandidate.js",
   "./listSingleSelectHostDescriptors.js",
   "./readFiltersFacet.js",
-  "../config/errorCodes.js",
+  "../config.js",
   "../../../../core/utils/getKennzahlenSource.js"
-], function (_candidateReader, _listHostDescriptors, _readFiltersFacet, _codes, _getKennzahlenSource) {
+], function (_candidateReader, _listHostDescriptors, _readFiltersFacet, _config, _getKennzahlenSource) {
   "use strict";
 
   function buildUnknownDiagnostic(_itemName, _scopeId, _definitionResult) {
     return {
-      code: _codes.HOST_ITEM_UNKNOWN,
+      code: _config.errorCodes.HOST_ITEM_UNKNOWN,
       scopeId: _scopeId,
       message: "Host item \"" + _itemName + "\" is not a configured supported single-select" +
         (_definitionResult.status === "ambiguous" ? " (configuration ambiguous)" : "")
@@ -28,7 +28,7 @@ define([
       if (!semanticKey) {
         _candidate.blocked = true;
         _diagnostics.push({
-          code: _codes.SEMANTIC_INSTANCE_KEY_MISSING,
+          code: _config.errorCodes.SEMANTIC_INSTANCE_KEY_MISSING,
           filterInstanceId: _candidate.descriptor.filterInstanceId,
           scopeId: _candidate.descriptor.scopeId,
           message: "same-scope same-label siblings require unique semantic instanceKey"
@@ -43,7 +43,7 @@ define([
       seen[_semanticKey].forEach(function (_candidate) {
         _candidate.blocked = true;
         _diagnostics.push({
-          code: _codes.SEMANTIC_INSTANCE_KEY_DUPLICATE,
+          code: _config.errorCodes.SEMANTIC_INSTANCE_KEY_DUPLICATE,
           filterInstanceId: _candidate.descriptor.filterInstanceId,
           scopeId: _candidate.descriptor.scopeId,
           message: "duplicate semantic instanceKey \"" + _semanticKey + "\" for same-scope same-label siblings"
@@ -80,7 +80,7 @@ define([
       raw = candidate.rawDescriptor;
     } catch (rawError) {
       _diagnostics.push({
-        code: _codes.HOST_VALUE_READ_FAILED,
+        code: _config.errorCodes.HOST_VALUE_READ_FAILED,
         message: "host item scope/label could not be read: " +
           String(rawError && rawError.message ? rawError.message : rawError)
       });
@@ -99,7 +99,7 @@ define([
       }
       _candidates.push(candidate);
     } catch (error) {
-      _diagnostics.push({ code: _codes.RECONCILE_FAILED, message: String(error && error.message ? error.message : error) });
+      _diagnostics.push({ code: _config.errorCodes.RECONCILE_FAILED, message: String(error && error.message ? error.message : error) });
     }
     return false;
   }

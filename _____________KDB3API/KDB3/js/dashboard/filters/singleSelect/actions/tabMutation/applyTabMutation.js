@@ -4,8 +4,8 @@ define([
   "./applyTabMutationWrites.js",
   "../reconcileFilterInstances.js",
   "./applyTabMutationRestoreDeleted.js",
-  "../../config/errorCodes.js"
-], function (_support, _buildTransfers, _writes, _reconcile, _restoreDeleted, _codes) {
+  "../../config.js"
+], function (_support, _buildTransfers, _writes, _reconcile, _restoreDeleted, _config) {
   "use strict";
 
   function applyOverlay(_root, _targetId, _sourceSnapshot) {
@@ -30,7 +30,7 @@ define([
       var snapshot = _runtime.tabMutationSnapshots &&
         _runtime.tabMutationSnapshots[payload.operationId];
       if (!snapshot || snapshot.runId !== payload.runId) {
-        return { ok: false, operationId: payload.operationId, appliedScopes: [], clearedScopes: [], diagnostics: [_writes.diagnostic(_codes.TAB_MUTATION_APPLY_FAILED, "prepare snapshot missing")] };
+        return { ok: false, operationId: payload.operationId, appliedScopes: [], clearedScopes: [], diagnostics: [_writes.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED, "prepare snapshot missing")] };
       }
       var work = _buildTransfers(payload.plan);
       var overlays = {};
@@ -78,7 +78,7 @@ define([
       return { ok: true, operationId: payload.operationId, appliedScopes: appliedScopes, clearedScopes: clearedScopes, diagnostics: reconciled.diagnostics || [] };
     } catch (error) {
       console.error("[singleSelect.applyTabMutation] failed", { operationId: payload.operationId }, error);
-      diagnostics.push(_writes.diagnostic(_codes.TAB_MUTATION_APPLY_FAILED, String(error && error.message ? error.message : error)));
+      diagnostics.push(_writes.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED, String(error && error.message ? error.message : error)));
       return { ok: false, operationId: payload.operationId, appliedScopes: appliedScopes, clearedScopes: clearedScopes, diagnostics: diagnostics };
     }
   }

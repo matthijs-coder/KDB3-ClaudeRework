@@ -1,11 +1,11 @@
-define(["../config/selectors.js"], function (_selectors) {
+define(["../config.js"], function (_config) {
   "use strict";
 
   function resolveBucketSelector(_scopeType) {
     if (_scopeType === "global") {
-      return _selectors.globalDockBucketSelector;
+      return _config.domSelectors.globalDockBucketSelector;
     }
-    return _selectors.pageContextDockBucketSelector;
+    return _config.domSelectors.pageContextDockBucketSelector;
   }
 
   function findScopedWrapper(_filterLabel, _scopeType) {
@@ -16,7 +16,7 @@ define(["../config/selectors.js"], function (_selectors) {
     if (!_filterLabel || typeof document === "undefined") {
       return null;
     }
-    dockRoot = document.querySelector(_selectors.filterDockRootSelector);
+    dockRoot = document.querySelector(_config.domSelectors.filterDockRootSelector);
     if (!dockRoot) {
       return null;
     }
@@ -25,12 +25,12 @@ define(["../config/selectors.js"], function (_selectors) {
       return null;
     }
     hostEl = bucket.querySelector(
-      "[" + _selectors.filterDataIdAttr + '="' + _filterLabel + '"]'
+      "[" + _config.domSelectors.filterDataIdAttr + '="' + _filterLabel + '"]'
     );
     if (!hostEl) {
       return null;
     }
-    wrapper = hostEl.closest("." + _selectors.filterItemWrapperClass);
+    wrapper = hostEl.closest("." + _config.domSelectors.filterItemWrapperClass);
     return wrapper || null;
   }
 
@@ -45,7 +45,7 @@ define(["../config/selectors.js"], function (_selectors) {
     if (!_wrapperEl || !_wrapperEl.querySelector) {
       return false;
     }
-    chipEl = _wrapperEl.querySelector(_selectors.committedDisplaySelector);
+    chipEl = _wrapperEl.querySelector(_config.domSelectors.committedDisplaySelector);
     if (!chipEl || chipTextEquals(chipEl, _caption)) {
       return false;
     }

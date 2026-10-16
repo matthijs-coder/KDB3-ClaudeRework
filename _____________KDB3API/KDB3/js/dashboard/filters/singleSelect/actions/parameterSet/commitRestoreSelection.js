@@ -1,9 +1,9 @@
 define([
   "../../effects/commitSelectionState.js",
-  "../../config/parameterSetCodes.js"
+  "../../config.js"
 ], function (
   _commitSelectionState,
-  _codes
+  _config
 ) {
   "use strict";
 
@@ -56,7 +56,7 @@ define([
       committed: true,
       degraded: transportOnly || displayUnavailable,
       diagnostic: transportOnly ? resolved.diagnostic : (displayUnavailable ? {
-        code: _codes.DISPLAY_DEGRADED,
+        code: _config.parameterSetCodes.DISPLAY_DEGRADED,
         filterInstanceId: _args.filterInstanceId,
         message: "host reread confirmed use value without an independent display value"
       } : null)

@@ -1,8 +1,8 @@
 define([
   "../effects/verifyCommitFilterValue.js",
   "../effects/hostFilterWrite.js",
-  "../config/errorCodes.js"
-], function (_verifyCommitFilterValue, _hostWrite, _codes) {
+  "../config.js"
+], function (_verifyCommitFilterValue, _hostWrite, _config) {
   "use strict";
 
   async function rollbackToPreviousValues(_filtersFacet, _filterRef, _previousValues) {
@@ -30,7 +30,7 @@ define([
       var api = _KDB && _KDB.api && _KDB.api.sicht ? _KDB.api.sicht : null;
       if (!api || typeof api.dispatch !== "function") {
         return failureResult(
-          _codes.OWNER_SELECTION_INVALID,
+          _config.errorCodes.OWNER_SELECTION_INVALID,
           "sicht owner dispatch API unavailable"
         );
       }
@@ -53,14 +53,14 @@ define([
       });
       if (isNegativeAck(ack)) {
         return failureResult(
-          _codes.OWNER_SELECTION_INVALID,
+          _config.errorCodes.OWNER_SELECTION_INVALID,
           "sicht owner rejected delegated singleSelect commit notification"
         );
       }
       return { ok: true };
     } catch (error) {
       return failureResult(
-        _codes.OWNER_SELECTION_INVALID,
+        _config.errorCodes.OWNER_SELECTION_INVALID,
         "sicht owner dispatch failed: " +
           String(error && error.message ? error.message : error)
       );

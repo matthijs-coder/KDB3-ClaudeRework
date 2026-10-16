@@ -1,8 +1,8 @@
 define([
   "./guardTabMutation.js",
   "../../effects/writeAndVerifyInstanceSelection.js",
-  "../../config/errorCodes.js"
-], function (_support, _writeSelection, _codes) {
+  "../../config.js"
+], function (_support, _writeSelection, _config) {
   "use strict";
 
   function diagnostic(_code, _message, _record) {
@@ -43,26 +43,26 @@ define([
       var keys = Object.keys(restore);
       var i;
       if (insert.status !== "ok") {
-        return { ok: false, diagnostics: [diagnostic(_codes.SCOPE_TARGET_UNVERIFIED, "restore insert scope is unverified")] };
+        return { ok: false, diagnostics: [diagnostic(_config.errorCodes.SCOPE_TARGET_UNVERIFIED, "restore insert scope is unverified")] };
       }
       for (i = 0; i < keys.length; i += 1) {
         if (_support.isStaleRun(_runtime, _payload)) {
-          return { ok: false, diagnostics: [diagnostic(_codes.TAB_MUTATION_CANCELLED, "tab mutation run superseded before restore write")] };
+          return { ok: false, diagnostics: [diagnostic(_config.errorCodes.TAB_MUTATION_CANCELLED, "tab mutation run superseded before restore write")] };
         }
         var sourceSnapshot = restore[keys[i]];
         var targetMatch = matchBySemanticKey(instances, insert.scopeId, sourceSnapshot);
         if (!sourceSnapshot || targetMatch.status !== "ok") {
-          diagnostics.push(diagnostic(_codes.TAB_MUTATION_APPLY_FAILED, "semantic restore target " + (targetMatch.status || "missing"), sourceSnapshot));
+          diagnostics.push(diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED, "semantic restore target " + (targetMatch.status || "missing"), sourceSnapshot));
           continue;
         }
         var targetId = targetMatch.instance.filterInstanceId;
         if (_overlays[targetId]) {
-          diagnostics.push(diagnostic(_codes.IDENTITY_COLLISION, "target instance selected more than once", targetMatch.instance));
+          diagnostics.push(diagnostic(_config.errorCodes.IDENTITY_COLLISION, "target instance selected more than once", targetMatch.instance));
           continue;
         }
         var written = await _writeSelection(_KDB, _runtime, targetId, sourceSnapshot.hostValues);
         if (_support.isStaleRun(_runtime, _payload)) {
-          diagnostics.push(diagnostic(_codes.TAB_MUTATION_CANCELLED, "tab mutation run superseded during restore write", targetMatch.instance));
+          diagnostics.push(diagnostic(_config.errorCodes.TAB_MUTATION_CANCELLED, "tab mutation run superseded during restore write", targetMatch.instance));
           break;
         }
         if (!written.ok) {
@@ -74,7 +74,7 @@ define([
       return { ok: diagnostics.length === 0, scopeId: insert.scopeId, diagnostics: diagnostics };
     } catch (error) {
       console.error("[singleSelect.applyTabMutationRestoreDeleted] failed", error);
-      return { ok: false, diagnostics: [diagnostic(_codes.TAB_MUTATION_APPLY_FAILED, String(error && error.message ? error.message : error))] };
+      return { ok: false, diagnostics: [diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED, String(error && error.message ? error.message : error))] };
     }
   }
 

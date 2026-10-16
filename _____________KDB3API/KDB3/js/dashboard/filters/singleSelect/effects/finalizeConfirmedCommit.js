@@ -3,14 +3,14 @@ define([
   "./notifyOwnerAfterCommit.js",
   "./pushSingleSelectHistory.js",
   "./lookupLiveFilterState.js",
-  "../config/errorCodes.js",
+  "../config.js",
   "../../../widgets/widgetVis/actions/runTopNFilterConfirmWave.js"
 ], function (
   _commitSelectionState,
   _notifyOwnerAfterCommit,
   _pushSingleSelectHistory,
   _lookupLiveFilterState,
-  _codes,
+  _config,
   _runTopNFilterConfirmWave
 ) {
   "use strict";
@@ -20,7 +20,7 @@ define([
       var notifyResult = await _notifyOwnerAfterCommit.notifyOwnerCommit(_KDB, _handoff, _next);
       if (!notifyResult.ok) {
         var notifyError = new Error(notifyResult.message || "owner notification failed");
-        notifyError.code = notifyResult.code || _codes.OWNER_SELECTION_INVALID;
+        notifyError.code = notifyResult.code || _config.errorCodes.OWNER_SELECTION_INVALID;
         throw notifyError;
       }
       // Re-lookup after the owner-sync await (specialSingleSelect can wait on
