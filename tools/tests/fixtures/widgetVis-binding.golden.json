@@ -3961,40 +3961,6 @@
         }
       ]
     },
-    "helpers": {
-      "collect": [
-        [],
-        [],
-        [
-          "a",
-          "b"
-        ],
-        []
-      ],
-      "degraded": [
-        false,
-        true,
-        true,
-        true,
-        false
-      ],
-      "committed": [
-        {
-          "dimension": "Altersgruppe",
-          "visType": "Line",
-          "topNChoice": "none",
-          "showValues": true,
-          "iterator": false,
-          "grouping": "jahr"
-        },
-        {
-          "dimension": "Altersgruppe",
-          "visType": "Pie",
-          "topNChoice": "5"
-        },
-        null
-      ]
-    },
     "cancelNoRunId": {
       "ok": false,
       "status": "error",
@@ -4037,7 +4003,9 @@
     "cancelEffects": [
       true,
       "rejected",
-      {}
+      {
+        "cancelled": true
+      }
     ],
     "cancelStale": {
       "ok": false,

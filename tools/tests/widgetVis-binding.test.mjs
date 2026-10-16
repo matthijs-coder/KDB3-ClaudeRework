@@ -62,22 +62,24 @@ const flush = () => new Promise((resolve) => setImmediate(resolve));
 // ---- adapters: the only place that knows module paths -------------------------------------------------------------
 
 function loadBuildBindingSpec() {
-  return load(W + "effects/buildBindingSpec.js");
+  return load(W + "binding/spec.js").buildBindingSpec;
 }
 
 function loadGates(clock) {
   const stubs = { setTimeout: clock.setTimeout, clearTimeout: clock.clearTimeout, console: QUIET };
-  const dienststelle = load(W + "effects/gates/dienststelleGate.js", { stubs });
-  const topN = load(W + "effects/gates/topNGateWaiters.js", { stubs });
   const gates = load(W + "binding/gates.js", { stubs });
+  const topNGate = load(W + "topN/gate.js", { stubs });
+  const matchSeq = (widgetId, opSeq) => (waiter) => waiter.widgetId === widgetId && waiter.opSeq === opSeq;
   return {
-    waitDienststelle: (_KDB, widgetId, opSeq) => dienststelle.resolveDienststellePrerequisite(_KDB, { widgetId, opSeq }),
-    resolveDienststelle: (_KDB, snapshot) => dienststelle.resolveDienststelleGateWaiters(_KDB, snapshot),
-    isConfirmedHierarchy: dienststelle.isConfirmedHierarchy,
-    waitTopN: (_KDB, widgetId, opSeq) => topN.waitForTopN(_KDB, widgetId, opSeq),
-    resolveTopN: (_KDB, widgetId, opSeq, value) => topN.resolveTopNGateWaiter(_KDB, widgetId, opSeq, value),
-    cancelTopN: (_KDB, widgetId, opSeq) => topN.cancelTopNGateWaiter(_KDB, widgetId, opSeq),
-    isDefaultTopNChoice: topN.isDefaultTopNChoice,
+    waitDienststelle: (_KDB, widgetId, opSeq) => gates.resolveDienststellePrerequisite(_KDB, { widgetId, opSeq }),
+    resolveDienststelle: (_KDB, snapshot) => gates.resolveDienststelleGateWaiters(_KDB, snapshot),
+    isConfirmedHierarchy: gates.isConfirmedHierarchy,
+    waitTopN: (_KDB, widgetId, opSeq) => gates.topNWaiters.wait(_KDB, {
+      widgetId, opSeq, timeoutMs: 5000, timeoutReason: { timedOut: true, kind: "topN" }, replaceSameWidget: true
+    }),
+    resolveTopN: (_KDB, widgetId, opSeq, value) => gates.topNWaiters.resolveWhere(_KDB, matchSeq(widgetId, opSeq), value).length > 0,
+    cancelTopN: (_KDB, widgetId, opSeq) => gates.topNWaiters.rejectWhere(_KDB, matchSeq(widgetId, opSeq), { cancelled: true }) > 0,
+    isDefaultTopNChoice: topNGate.isDefaultTopNChoice,
     cancelForWidget: gates.cancelGateWaitersForWidget,
     rejectAll: gates.rejectAllGateWaiters
   };
@@ -86,21 +88,17 @@ function loadGates(clock) {
 function loadTopNGate(clock, fakes) {
   const stubs = { setTimeout: clock.setTimeout, clearTimeout: clock.clearTimeout, console: QUIET };
   const modules = {};
-  if (fakes && fakes.pin) modules["../applyTopNJahrMismatchPin.js"] = fakes.pin;
-  const gate = load(W + "effects/gates/topNGate.js", { stubs, modules });
-  const waiters = load(W + "effects/gates/topNGateWaiters.js", { stubs });
-  const cleanup = load(W + "effects/gates/dispatchTopNCleanupWhenDimensionAbsent.js", { stubs });
-  const resolved = load(W + "actions/handleTopNResolved.js", { stubs });
+  if (fakes && fakes.pin) modules["./periodPin.js"] = { applyTopNJahrMismatchPin: fakes.pin };
+  const gate = load(W + "topN/gate.js", { stubs, modules });
   return {
     runGate: async (context, input, settings, hierarchy) => {
       const out = await gate.resolveTopNPrerequisite(context, input, settings, hierarchy);
       if (out && out.blocked === true) return { blocked: true, result: out.result };
-      return { blocked: false, helperTableResult: out };
+      return { blocked: false, helperTableResult: out.helperTableResult };
     },
-    resolveTopN: waiters.resolveTopNGateWaiter,
-    cleanupWhenDimensionAbsent: cleanup,
+    runGateRaw: (context, input, settings, hierarchy) => gate.resolveTopNPrerequisite(context, input, settings, hierarchy),
     mapTopNPayloadToHelper: gate.mapTopNPayloadToHelper,
-    handleTopNResolved: resolved
+    handleTopNResolved: gate.handleTopNResolved
   };
 }
 
@@ -108,23 +106,28 @@ function loadPeriodPin(fakes) {
   const stubs = { console: QUIET };
   const modules = {};
   if (fakes && fakes.year) modules["../drillthrough/year.js"] = fakes.year;
+  const pin = load(W + "topN/periodPin.js", { stubs, modules });
+  const noYear = { readDrillthroughJahrYear: () => null };
+  const plain = fakes && fakes.year ? pin : load(W + "topN/periodPin.js", { stubs, modules: { "../drillthrough/year.js": noYear } });
   return {
-    resolveTopNJahrFilterValue: load(W + "effects/resolveTopNJahrFilterValue.js", { stubs }),
-    applyTopNJahrMismatchPin: load(W + "effects/applyTopNJahrMismatchPin.js", { stubs, modules }),
-    readConfirmedJahrYear: load(W + "effects/readConfirmedJahrYear.js", { stubs })
+    resolveTopNJahrFilterValue: (_KDB) => plain.applyTopNJahrMismatchPin(_KDB, "Personal_KDB", {}),
+    applyTopNJahrMismatchPin: pin.applyTopNJahrMismatchPin,
+    readConfirmedJahrYear: pin.readConfirmedJahrYear
   };
 }
 
 function loadWaveList() {
-  return load(W + "effects/listTopNWaveWidgets.js", { stubs: { console: QUIET } });
+  return load(W + "topN/wave.js", { stubs: { console: QUIET } }).listTopNWaveWidgets;
 }
 
 function loadWaveWithFakes(fakes) {
-  const fanOut = load(W + "effects/runTopNWaveFanOut.js", {
+  return load(W + "topN/wave.js", {
     stubs: { console: QUIET },
-    modules: { "./runBindingPipeline.js": fakes.pipeline, "./applyTopNJahrMismatchPin.js": fakes.pin }
-  });
-  return load(W + "actions/runTopNFilterConfirmWave.js", { stubs: { console: QUIET }, modules: { "../effects/runTopNWaveFanOut.js": fanOut } });
+    modules: {
+      "../binding/pipeline.js": { runBindingPipeline: fakes.pipeline },
+      "./periodPin.js": { applyTopNJahrMismatchPin: fakes.pin, readConfirmedJahrYear: () => null }
+    }
+  }).runTopNFilterConfirmWave;
 }
 
 function loadPipeline(clock, fakes) {
@@ -135,46 +138,35 @@ function loadPipeline(clock, fakes) {
     "../render/postRender.js": fakes.postRender,
     "../legend/sweep.js": fakes.legend
   };
-  return load(W + "effects/runBindingPipeline.js", { stubs, modules });
+  return load(W + "binding/pipeline.js", { stubs, modules }).runBindingPipeline;
 }
 
 function loadDienststelleChanged(fakes) {
-  return load(W + "actions/handleDienststelleChanged.js", {
+  return load(W + "binding/dienststelleChanged.js", {
     stubs: { console: QUIET },
-    modules: { "../effects/runBindingPipeline.js": fakes.pipeline }
+    modules: { "./pipeline.js": { runBindingPipeline: fakes.pipeline } }
   });
 }
 
 function loadSettings(fakes) {
   const modules = {
-    "../effects/runBindingPipeline.js": fakes.pipeline,
-    "../../widgetSettings/effects/startWidgetRenderLoading.js": fakes.startLoading,
-    "../../widgetSettings/view/resolveWidgetPlacementContext.js": { resolveWidgetEl: () => ({ nodeType: 1, id: "el" }) }
+    "./binding/pipeline.js": { runBindingPipeline: fakes.pipeline },
+    "../widgetSettings/effects/startWidgetRenderLoading.js": fakes.startLoading,
+    "../widgetSettings/view/resolveWidgetPlacementContext.js": { resolveWidgetEl: () => ({ nodeType: 1, id: "el" }) }
   };
-  const startupModules = { "../effects/runBindingPipeline.js": fakes.pipeline };
-  return {
-    handleApplySetting: load(W + "actions/handleApplySetting.js", { stubs: { console: QUIET }, modules }),
-    handleApplyStartupSettings: load(W + "actions/handleApplyStartupSettings.js", { stubs: { console: QUIET }, modules: startupModules })
-      .handleApplyStartupSettings
-  };
+  return load(W + "settings.js", { stubs: { console: QUIET }, modules });
 }
 
 function loadRestore(fakes) {
-  const startup = load(W + "actions/handleApplyStartupSettings.js", {
+  const restore = load(W + "restore.js", {
     stubs: { console: QUIET },
-    modules: { "../effects/runBindingPipeline.js": fakes.pipeline }
+    modules: {
+      "./lifecycle.js": fakes.lifecycle,
+      "./cleanup.js": fakes.cleanup,
+      "./settings.js": loadSettings(fakes)
+    }
   });
-  return {
-    handleParameterSetBinding: load(W + "actions/handleParameterSetBinding.js", {
-      stubs: { console: QUIET },
-      modules: { "../lifecycle.js": fakes.lifecycle, "./handleApplyStartupSettings.js": startup }
-    }),
-    handleParameterSetCancelBindings: load(W + "actions/handleParameterSetCancelBindings.js", {
-      stubs: { console: QUIET },
-      modules: { "../cleanup.js": fakes.cleanup }
-    }),
-    helpers: load(W + "actions/parameterSetBindingHelpers.js")
-  };
+  return { handleParameterSetBinding: restore.handleParameterSetBinding, handleParameterSetCancelBindings: restore.handleParameterSetCancelBindings };
 }
 
 // ---- fixtures -----------------------------------------------------------------------------------------------------
@@ -274,7 +266,8 @@ function computeSpecDetails() {
   const _KDB = buildKdb();
   const inputs = specInputs();
   const out = {};
-  for (const name of ["noDimension", "cleanupForceEmpty", "hierarchy", "hierarchyNoDownstream", "topNHelperResult", "grouping_jahr", "invalidGrouping", "noMetricTable"]) {
+  for (const name of ["noDimension", "cleanupForceEmpty", "hierarchy", "hierarchyNoDownstream", "topNHelperResult", "grouping_jahr", "invalidGrouping",
+    "noMetricTable"]) {
     out[name] = json(shortSpec(buildBindingSpec(_KDB, JSON.parse(JSON.stringify(inputs[name])))));
   }
   return out;
@@ -566,7 +559,8 @@ function createPipelineFakes(log) {
   return {
     visProperties: {
       applyVisualizationProperties: async (_KDB, opts) => {
-        record("visProperties", { widgetId: opts.widgetId, visualizationType: opts.visualizationType, phase: opts.phase, force: opts.force, reason: opts.input && opts.input.reason });
+        record("visProperties", { widgetId: opts.widgetId, visualizationType: opts.visualizationType, phase: opts.phase, force: opts.force,
+          reason: opts.input && opts.input.reason });
         return { diagnostics: { blockers: opts.blockers || [], phase: opts.phase } };
       }
     },
@@ -575,12 +569,15 @@ function createPipelineFakes(log) {
     },
     postRender: {
       applyPrognoseSeriesSegmentIndexes: async (_KDB, plan, widgetId) => { record("prognose", { widgetId, reason: plan.reason }); },
-      applyPostRenderCleanup: (opts) => { record("postRenderCleanup", { widgetId: opts.widgetId, opSeq: opts.opSeq }); return { titleText: "Title", diagnostics: { cleaned: true } }; },
+      applyPostRenderCleanup: (opts) => { record("postRenderCleanup", { widgetId: opts.widgetId, opSeq: opts.opSeq }); return { titleText: "Title",
+        diagnostics: { cleaned: true } }; },
       cleanupVisualizationContent: () => ({})
     },
     legend: {
-      installLegendObserverBeforeApply: (runtime, widgetId, options) => { record("legendInstall", { widgetId, opSeq: options.opSeq, dimension: options.dimension, visType: options.visType, mode: options.mode }); return {}; },
-      sweepLegendCaptions: (runtime, widgetId, ctx) => { record("legendSweep", { widgetId, opSeq: ctx.opSeq, reason: ctx.reason, dimension: ctx.dimension, visType: ctx.visType, mode: ctx.mode }); },
+      installLegendObserverBeforeApply: (runtime, widgetId, options) => { record("legendInstall", { widgetId, opSeq: options.opSeq, dimension: options.dimension,
+        visType: options.visType, mode: options.mode }); return {}; },
+      sweepLegendCaptions: (runtime, widgetId, ctx) => { record("legendSweep", { widgetId, opSeq: ctx.opSeq, reason: ctx.reason, dimension: ctx.dimension,
+        visType: ctx.visType, mode: ctx.mode }); },
       disconnectLegendTextObserver: () => ({ disconnected: false })
     }
   };
@@ -603,12 +600,14 @@ async function computePipelineFixtures() {
         widgetBindingPlan: {
           buildPlan: (spec) => {
             log.push(["buildPlan", { spec: sha(spec), reason: spec.reason, helperTableResult: json(spec.helperTableResult), grouping: spec.dataConfig.grouping }]);
-            return planResult.value || { ok: true, status: "success", reason: spec.reason, managedFilterItemIds: ["m1"], emptyIntent: spec.emptyIntent, mirrorPatch: { visualizationType: spec.dataConfig.visualizationType } };
+            return planResult.value || { ok: true, status: "success", reason: spec.reason, managedFilterItemIds: ["m1"], emptyIntent: spec.emptyIntent,
+              mirrorPatch: { visualizationType: spec.dataConfig.visualizationType } };
           }
         },
         widgetBindingApply: {
           applyBinding: async (plan, options) => {
-            log.push(["applyBinding", { target: options.target, previous: options.previousManagedFilterItemIds, profile: options.timeoutProfile, renderWait: options.renderWait, aborted: options.signal.aborted }]);
+            log.push(["applyBinding", { target: options.target, previous: options.previousManagedFilterItemIds, profile: options.timeoutProfile,
+              renderWait: options.renderWait, aborted: options.signal.aborted }]);
             if (applyResult.value instanceof Error) throw applyResult.value;
             return applyResult.value;
           }
@@ -631,7 +630,8 @@ async function computePipelineFixtures() {
     }, extra || {}));
     return _KDB;
   };
-  const input = (extra) => Object.assign({ widgetId: "w1", metric: METRIC, settings: SETTINGS, payload: { source: "user" }, reason: "dimension", control: "dimension" }, extra || {});
+  const input = (extra) => Object.assign({ widgetId: "w1", metric: METRIC, settings: SETTINGS, payload: { source: "user" }, reason: "dimension",
+    control: "dimension" }, extra || {});
   const runCase = async (name, _KDB, runInput, options) => {
     log.length = 0;
     topNActions.length = 0;
@@ -642,7 +642,8 @@ async function computePipelineFixtures() {
     out[name] = json({
       result, log: log.slice(), topNActionTypes: topNActions.map((a) => a.type), dispatched: dispatched.length,
       runtime: _KDB.runtime.widgetVis && _KDB.runtime.widgetVis.byId.w1
-        ? { managed: _KDB.runtime.widgetVis.byId.w1.managedFilterItemIds, lastPlan: !!_KDB.runtime.widgetVis.byId.w1.lastSuccessfulPlan, hasApplyController: !!_KDB.runtime.widgetVis.byId.w1.abortControllers.applyBinding }
+        ? { managed: _KDB.runtime.widgetVis.byId.w1.managedFilterItemIds, lastPlan: !!_KDB.runtime.widgetVis.byId.w1.lastSuccessfulPlan,
+          hasApplyController: !!_KDB.runtime.widgetVis.byId.w1.abortControllers.applyBinding }
         : null
     });
   };
@@ -734,7 +735,8 @@ async function computeWaveFixtures() {
   const pinCalls = [];
   const fakes = {
     pipeline: async (context, input) => { calls.push(json({ input, metric: context.readMetric(input.widgetId) })); return { ok: true }; },
-    pin: async (_KDB, table, request) => { pinCalls.push(json({ table, request })); return { jahrFilterValue: { d: "2024", u: "2024" }, monatFilterValue: { d: "Dez", u: "Dez" } }; }
+    pin: async (_KDB, table, request) => { pinCalls.push(json({ table, request })); return { jahrFilterValue: { d: "2024", u: "2024" }, monatFilterValue: { d: "Dez",
+      u: "Dez" } }; }
   };
   const subscribers = [];
   const settingsById = { a: { dimension: DIMENSION, topNChoice: "10" }, b: { dimension: DIMENSION, topNChoice: "5" } };
@@ -768,7 +770,8 @@ async function computeWaveFixtures() {
   out.deferredOtherTab = json(await wave(_KDB, { scopeType: "pageContext", tabId: "t2", isJahr: true, filterType: "jahr", selectedYearKnown: true, selectedYear: 2024 }));
   out.pendingAfterDefer = json(_KDB.runtime.widgetVis.pendingTopNWavesByTab);
   out.activeTabRun = json(await wave(_KDB, { scopeType: "pageContext", tabId: "t1", isJahr: true, filterType: "jahr" }));
-  out.activeTabCalls = calls.splice(0).map((c) => ({ reason: c.input.reason, widgetId: c.input.widgetId, payload: c.input.payload, hasPin: !!c.input.periodPin, metric: c.metric, settings: c.input.settings }));
+  out.activeTabCalls = calls.splice(0).map((c) => ({ reason: c.input.reason, widgetId: c.input.widgetId, payload: c.input.payload, hasPin: !!c.input.periodPin,
+    metric: c.metric, settings: c.input.settings }));
   out.activeTabTopN = topNDispatches.splice(0);
   out.pinCalls = pinCalls.splice(0);
   out.globalRun = json(await wave(_KDB, { scopeType: "global", filterType: "jahr", isJahr: true }));
@@ -781,7 +784,8 @@ async function computeWaveFixtures() {
   subscribers[0].fn({ tabId: "t2" });
   await flush();
   await flush();
-  out.tabShownReplay = [calls.splice(0).map((c) => c.input.widgetId), json(_KDB.runtime.widgetVis.pendingTopNWavesByTab), topNDispatches.splice(0).map((a) => a.payload.reason)];
+  out.tabShownReplay = [calls.splice(0).map((c) => c.input.widgetId), json(_KDB.runtime.widgetVis.pendingTopNWavesByTab),
+    topNDispatches.splice(0).map((a) => a.payload.reason)];
   subscribers[0].fn({ tabId: "unknown" });
   subscribers[0].fn(null);
   out.subscriptionsKept = Object.keys(_KDB.runtime.widgetVis.subscriptions);
@@ -805,15 +809,18 @@ async function computeHandlerFixtures() {
   const actions = {
     dimension: { type: "widgetVis/applyDimension", widgetId: "w1", opSeq: 2, payload: { settingsSnapshot: snapshot(), nextValue: "Geschlecht", source: "user" } },
     visTypeByKind: { type: "x", widgetId: "w1", opSeq: 3, payload: { kind: "visualization", settingsSnapshot: snapshot(), optionValue: "Pie" } },
-    topN: { type: "widgetVis/applyTopNChoice", widgetId: "w1", opSeq: 4, payload: { settingsSnapshot: snapshot(), nextValue: "10", widgetEl: { nodeType: 1, id: "given" } } },
+    topN: { type: "widgetVis/applyTopNChoice", widgetId: "w1", opSeq: 4, payload: { settingsSnapshot: snapshot(), nextValue: "10", widgetEl: { nodeType: 1,
+      id: "given" } } },
     grouping: { type: "x", widgetId: "w1", opSeq: 5, payload: { control: "grouping", settingsSnapshot: snapshot({ grouping: "jahr" }), nextValue: "stichtagProJahrV" } },
     groupingInherit: { type: "x", widgetId: "w1", opSeq: 6, payload: { control: "grouping", settingsSnapshot: snapshot({ grouping: "jahr" }), nextValue: "inherit" } },
     groupingInvalid: { type: "x", widgetId: "w1", opSeq: 7, payload: { control: "grouping", settingsSnapshot: snapshot({ grouping: "jahr" }), nextValue: "weird" } },
-    groupingKept: { type: "x", widgetId: "w1", opSeq: 8, payload: { control: "dimension", settingsSnapshot: snapshot({ grouping: "jahrStichtag", showValues: true }), nextValue: "Geschlecht" } },
+    groupingKept: { type: "x", widgetId: "w1", opSeq: 8, payload: { control: "dimension", settingsSnapshot: snapshot({ grouping: "jahrStichtag", showValues: true }),
+      nextValue: "Geschlecht" } },
     noSnapshot: { type: "widgetVis/applyDimension", widgetId: "w1", opSeq: 9, payload: { nextValue: "x" } },
     incomplete: { type: "widgetVis/applyDimension", widgetId: "w1", opSeq: 10, payload: { settingsSnapshot: { dimension: "x" } } },
     startupSource: { type: "x", widgetId: "w1", opSeq: 11, payload: { source: "startup", control: "dimension", metric: METRIC } },
-    replayFallback: { type: "x", widgetId: "w1", opSeq: 12, payload: { control: "visType", settingsSnapshot: snapshot(), nextValue: "Prognose", isHistoryReplay: true, source: "historyReplay" } }
+    replayFallback: { type: "x", widgetId: "w1", opSeq: 12, payload: { control: "visType", settingsSnapshot: snapshot(), nextValue: "Prognose", isHistoryReplay: true,
+      source: "historyReplay" } }
   };
   out.applySetting = {};
   for (const [name, action] of Object.entries(actions)) {
@@ -844,7 +851,8 @@ async function computeHandlerFixtures() {
   const startupCtx = makeContext(readyKdb);
   out.startup = {};
   const startupActions = {
-    startup: { widgetId: "w1", opSeq: 1, payload: { source: "startup", settingsSnapshot: snapshot({ grouping: "jahr", iterator: true, zoom: false, valueCaption: true, showValues: false }),
+    startup: { widgetId: "w1", opSeq: 1, payload: { source: "startup", settingsSnapshot: snapshot({ grouping: "jahr", iterator: true, zoom: false, valueCaption: true,
+      showValues: false }),
       changedControls: [{ kind: "k", control: "dimension", previousValue: "a", nextValue: "b", extra: 1 }] } },
     replay: { widgetId: "w1", opSeq: 2, payload: { source: "historyReplay", isHistoryReplay: true, settingsSnapshot: snapshot(), skipHistory: true } },
     badSource: { widgetId: "w1", opSeq: 3, payload: { source: "user", settingsSnapshot: snapshot() } },
@@ -864,7 +872,11 @@ async function computeHandlerFixtures() {
   out.startupNotReady = json(await settingsApi.handleApplyStartupSettings(notReady.context, Object.assign({ type: "t" }, startupActions.startup)));
 
   const dienst = loadDienststelleChanged(fakes);
-  const dKdb = buildKdb({ state: { widgets: { vis: { byId: { w1: {}, w2: {}, w3: {} } } } } });
+  const dKdb = buildKdb({ state: { widgets: { vis: { byId: { w1: {}, w2: {}, w3: {} } }, base: { byId: {
+    w1: { widgetId: "w1", kind: "vis", placement: "onCanvas", lifecycle: "mounted" },
+    w2: { widgetId: "w2", kind: "vis", placement: "inLaunchpad", lifecycle: "mounted" },
+    w3: { widgetId: "w3", kind: "vis", placement: "onCanvas", lifecycle: "mounted" }
+  } } } } });
   const dCtx = makeContext(dKdb);
   const gates = loadGates(createClock());
   const pending = track(gates.waitDienststelle(dKdb, "w2", 1));
@@ -926,13 +938,6 @@ async function computeRestoreFixtures() {
   behaviour.ready = () => ({ ok: true });
   _KDB.runtime.widgetVis.parameterSetRunId = 0;
 
-  out.helpers = json({
-    collect: [null, {}, correlation, { 1: { kind: "vis" } }].map((c) => restore.helpers.collectVisWidgets(c)),
-    degraded: [null, { status: "timeout" }, { errorCode: "WIDGET_VIS_TOPN_UNAVAILABLE" }, { errorCode: "WIDGET_VIS_BINDING_TIMEOUT" }, { errorCode: "OTHER" }]
-      .map((r) => restore.helpers.isDegradedFailure(r)),
-    committed: ["a", "b", "zz"].map((id) => restore.helpers.readCommittedSettings(makeKdb(), id))
-  });
-
   _KDB = makeKdb();
   _KDB.runtime.widgetVis.byId.a.abortControllers = { applyBinding: new AbortController() };
   const aborter = _KDB.runtime.widgetVis.byId.a.abortControllers.applyBinding;
@@ -981,4 +986,81 @@ test("widgetVis binding golden fixtures", async (t) => {
     await t.test(key, () => assert.deepStrictEqual(actual[key], FIXTURES[key]));
   }
   assert.deepStrictEqual(Object.keys(actual), Object.keys(FIXTURES));
+});
+
+
+test("pipeline spec reuse equals a fresh build and leaves the gate spec untouched", () => {
+  const buildBindingSpec = loadBuildBindingSpec();
+  const { resolvePipelineSpec } = load(W + "binding/spec.js");
+  const _KDB = buildKdb();
+  const helper = { ok: true, applied: true, topNResultValues: ["a", "b"], topNExcludeItemId: "e1", error: null };
+  for (const [name, input] of Object.entries(specInputs())) {
+    const base = JSON.parse(JSON.stringify(input));
+    delete base.helperTableResult;
+    const withHelper = Object.assign(JSON.parse(JSON.stringify(base)), { helperTableResult: JSON.parse(JSON.stringify(helper)) });
+    const gateSpec = buildBindingSpec(_KDB, JSON.parse(JSON.stringify(base)));
+    const gateJson = JSON.stringify(gateSpec);
+    const reused = resolvePipelineSpec(_KDB, withHelper, gateSpec);
+    assert.equal(JSON.stringify(reused), JSON.stringify(buildBindingSpec(_KDB, JSON.parse(JSON.stringify(withHelper)))), name);
+    assert.equal(JSON.stringify(gateSpec), gateJson, name + " gate spec mutated");
+    assert.notEqual(reused, gateSpec, name);
+  }
+  const fallback = resolvePipelineSpec(_KDB, JSON.parse(JSON.stringify(specInputs().dimension)), null);
+  assert.equal(JSON.stringify(fallback), JSON.stringify(buildBindingSpec(_KDB, JSON.parse(JSON.stringify(specInputs().dimension)))));
+});
+
+test("topN request payload is a deep copy of the plan spec", async () => {
+  const clock = createClock();
+  const actions = [];
+  const gates = loadGates(clock);
+  const topNApi = { getState: () => ({ byOwner: {} }), dispatch: null };
+  const _KDB = buildKdb({ api: { widgetTopN: topNApi } });
+  topNApi.dispatch = async (action) => {
+    actions.push(action);
+    gates.resolveTopN(_KDB, action.widgetId, action.opSeq, { ok: true, applied: true, topNResultValues: ["a"], topNExcludeItemId: null, error: null });
+    return { ok: true };
+  };
+  const gate = loadTopNGate(clock, { pin: async () => ({ jahrFilterValue: { d: "2024", u: "2024" }, monatFilterValue: { d: "Dez", u: "Dez" } }) });
+  const input = { widgetId: "w1", opSeq: 4, reason: "topN", metric: METRIC, payload: { source: "user" } };
+  const outcome = await gate.runGateRaw(makeContext(_KDB).context, input, Object.assign({}, SETTINGS, { topNChoice: "10" }), HIERARCHY);
+  const { payload } = actions[0];
+  assert.equal(outcome.blocked, false);
+  assert.deepStrictEqual(payload.dataConfig, outcome.spec.dataConfig);
+  assert.notStrictEqual(payload.dataConfig, outcome.spec.dataConfig);
+  assert.notStrictEqual(payload.config, outcome.spec.config);
+  assert.deepStrictEqual(Object.assign({}, payload.config, { topNHelperConfig: undefined }), Object.assign({}, outcome.spec.config, { topNHelperConfig: undefined }));
+  payload.dataConfig.dimension = "mutated";
+  assert.notEqual(outcome.spec.dataConfig.dimension, "mutated");
+});
+
+test("gate waiter buckets are independent per gate and per widget", async () => {
+  const clock = createClock();
+  const gates = loadGates(clock);
+  const _KDB = buildKdb();
+  const dienststelle = track(gates.waitDienststelle(_KDB, "w1", 1));
+  const topN = track(gates.waitTopN(_KDB, "w1", 1));
+  await flush();
+  assert.equal(gates.cancelTopN(_KDB, "w1", 1), true);
+  await flush();
+  assert.deepStrictEqual([dienststelle.state, topN.state], ["pending", "rejected"]);
+  assert.equal(clock.pending(), 1);
+  gates.resolveDienststelle(_KDB, { activeDownstreamName: "X", resolution: { hasConfirmedSelection: true, downstreamValues: ["A"] } });
+  await flush();
+  assert.equal(dienststelle.state, "resolved");
+  assert.equal(clock.pending(), 0);
+});
+
+test("dienststelle broadcast reaches only mounted vis frames on canvas or in the launchpad", async () => {
+  const calls = [];
+  const dienst = loadDienststelleChanged({ pipeline: async (context, input) => { calls.push(input.widgetId); return { ok: true }; } });
+  const frame = (kind, placement, lifecycle) => ({ kind, placement, lifecycle: lifecycle || "mounted" });
+  const vis = { byId: { canvas: {}, launchpad: {}, removed: {}, disposed: {}, text: {}, noFrame: {} } };
+  const base = { byId: {
+    canvas: frame("vis", "onCanvas"), launchpad: frame("vis", "inLaunchpad"), removed: frame("vis", "removed"),
+    disposed: frame("vis", "onCanvas", "disposed"), text: frame("text", "onCanvas")
+  } };
+  const { context } = makeContext(buildKdb({ state: { widgets: { vis, base } } }));
+  const result = await dienst.broadcastDienststelleChanged(context, { type: "x", payload: { hierarchySnapshot: HIERARCHY } });
+  assert.deepStrictEqual(calls.sort(), ["canvas", "launchpad"]);
+  assert.equal(result.diagnostics.succeeded, 2);
 });
