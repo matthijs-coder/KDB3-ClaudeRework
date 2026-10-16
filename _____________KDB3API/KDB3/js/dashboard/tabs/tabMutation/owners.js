@@ -224,7 +224,7 @@ define([
     });
   }
 
-  // Post-commit cleanup: a failing owner must not turn an applied mutation into a failure.
+  // Releases the operation's snapshots after any saga outcome; a failing owner must not change the mutation result.
   function clearSnapshots(_ctx, _operationId) {
     const runtime = _ctx && _ctx._KDB && _ctx._KDB.runtime;
     if (!runtime || _operationId == null || _operationId === "") { return; }

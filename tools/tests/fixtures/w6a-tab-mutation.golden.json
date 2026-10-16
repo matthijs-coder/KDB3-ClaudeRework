@@ -56,7 +56,7 @@
     "ownerCalls": [["widgetBase","widgetBase/ensureTabWidgetsRouted",null],["widgetBase","widgetBase/ensureTabWidgetsRouted",null],["widgetBase","widgetBase/prepareTabMutation",1]],
     "placements": [],
     "history": [],
-    "snapshotStores": {"widgetBase":["tabmut-T-1"],"singleSelect":[],"dienststelle":[],"nativeMultiSelect":[]},
+    "snapshotStores": {"widgetBase":[],"singleSelect":[],"dienststelle":[],"nativeMultiSelect":[]},
     "lock": []
   },
   "delete fails: singleSelect prepare": {
@@ -109,7 +109,7 @@
     "ownerCalls": [["widgetBase","widgetBase/ensureTabWidgetsRouted",null],["widgetBase","widgetBase/ensureTabWidgetsRouted",null],["widgetBase","widgetBase/prepareTabMutation",1],["singleSelect","singleSelect/prepareTabMutation",1],["dienststelle","dienststelle/prepareTabMutation",1],["nativeMultiSelect","nativeMultiSelect/prepareTabMutation",1],["singleSelect","singleSelect/applyTabMutation",1],["dienststelle","dienststelle/applyTabMutation",1],["nativeMultiSelect","nativeMultiSelect/applyTabMutation",1],["widgetBase","widgetBase/applyTabMutation",1],["widgetSettings","widgetSettings/parameterSetRestoreBatchRequested",3],["widgetText","widgetText/parameterSetRestoreRequested",3],["widgetVis","widgetVis/parameterSetBindingRequested",3],["singleSelect","singleSelect/resyncTabMutationHost",1],["dienststelle","dienststelle/resyncTabMutationHost",1],["nativeMultiSelect","nativeMultiSelect/resyncTabMutationHost",1],["threw","history exploded"]],
     "placements": [{"tabId":"t2","rows":[],"reason":"tabDelete","guardKind":"tabMutationRunId","parked":0},{"tabId":"t1","rows":["v2a","v2b","x2"],"reason":"tabDelete","guardKind":"tabMutationRunId","parked":0}],
     "history": [],
-    "snapshotStores": {"widgetBase":["tabmut-T-1"],"singleSelect":["tabmut-T-1"],"dienststelle":["tabmut-T-1"],"nativeMultiSelect":["tabmut-T-1"]},
+    "snapshotStores": {"widgetBase":[],"singleSelect":[],"dienststelle":[],"nativeMultiSelect":[]},
     "lock": []
   },
   "second mutation while one runs is refused": {

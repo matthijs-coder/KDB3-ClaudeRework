@@ -276,6 +276,10 @@ if (process.env.W6A_RECORD === "1") {
 } else {
   const golden = JSON.parse(readFileSync(FIXTURE, "utf8"));
   for (const name of Object.keys(SCENARIOS)) {
+    test("snapshots of the operation are released after every outcome: " + name, async () => {
+      const summary = await runScenario(name);
+      assert.deepStrictEqual(summary.snapshotStores, { widgetBase: [], singleSelect: [], dienststelle: [], nativeMultiSelect: [] });
+    });
     test("tab mutation saga over slot stock: " + name, async () => {
       assert.deepStrictEqual(await runScenario(name), golden[name]);
     });
