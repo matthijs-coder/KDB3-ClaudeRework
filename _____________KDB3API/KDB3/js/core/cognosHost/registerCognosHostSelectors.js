@@ -1,3 +1,11 @@
+/*
+ * Registers the Cognos chrome selector catalogue on `_KDB.elements.selectors.<group>` (strings only, same values as
+ * the `strings` of the config modules) and installs `runtime.cognosHost.chromeChecks`.
+ * Groups by config module: rootChromeSelectors -> root, toolbar, dashboardPdf (the module's `pdf`), footer;
+ * tabChromeSelectors -> tab, tabs; pageChromeSelectors -> dragDrop, page; filterDockChromeSelectors -> filterDock;
+ * widgetChromeSelectors -> widget, focusMode, legend. Features read the registry at call time; the config modules
+ * stay the single source of the values (tools/tests/w3-chrome-selectors.test.mjs pins the equality).
+ */
 define([
   "./config/rootChromeSelectors.js",
   "./config/tabChromeSelectors.js",

@@ -1,7 +1,8 @@
 /*
  * kit/history.js: thin owner-side wrappers over `_KDB.services.history`. Step keys, step shapes and the
- * historyService itself are unchanged; registration via runtime.<owner>.historyReplayHandlerContribution
- * and core/services/collectReplayHandlers.js is unchanged too.
+ * historyService itself are unchanged; replay handlers are registered through
+ * `services.history.registerReplayHandler` (the manifest in core/bootstrap collects each owner's
+ * runtime.<owner>.historyReplayHandlerContribution).
  *
  * pushHistoryStep(_KDB, step, options?)  boolean. Returns false without pushing when options.isHistoryReplay
  *                                        or options.skipHistory is true, or when the history service is missing;

@@ -26,6 +26,14 @@ define([
   "use strict";
 
   // Lifecycle terms for filterDock: idle, ready, error, disposed.
+  //
+  // Other modules read the dock through selectors.js (no clone, no extra API methods; a feature API publishes
+  // mount, destroy, dispatch and getState only):
+  //   readActiveFilterEl(_KDB)    -> the dock filter element of the last click, or null
+  //   readFiltersReadyFlag(_KDB)  -> true once the dock reported its filters ready
+  //   readFilterDockState(_KDB), readPopupState(_KDB), readLastClickedFilter(_KDB), readLastInteraction(_KDB)
+  // dispatch({type: "filterDock/clickOriginalButtonRequested"}) returns the usual state snapshot with an extra
+  // own property `ok` (true when the original popup button was clicked). All other actions return what they did.
 
   var OWNER_FIELDS = [
     "pendingEvaluationMerge",
@@ -60,8 +68,7 @@ define([
         (action.type === _state.ACTIONS.CLICK_ORIGINAL_BUTTON_REQUESTED ||
           action.type === _state.ACTIONS.CLOSE_ACTIVE_POPUP_REQUESTED)
       ) {
-        _popupCommands.runPopupCommand(_KDB, action);
-        return;
+        return _popupCommands.runPopupCommand(_KDB, action);
       }
       filtersState.filterDock = _state.reduceFilterDockState(filtersState.filterDock, action);
     }
@@ -165,8 +172,12 @@ define([
         return undefined;
       }
       try {
-        dispatchInternal(action);
-        return _selectors.readFilterDockState(_KDB);
+        var handled = dispatchInternal(action);
+        var snapshot = _selectors.readFilterDockState(_KDB);
+        if (action && action.type === _state.ACTIONS.CLICK_ORIGINAL_BUTTON_REQUESTED) {
+          return Object.assign(snapshot || {}, { ok: handled === true });
+        }
+        return snapshot;
       } catch (error) {
         handleBoundaryError("dispatch", error);
         return undefined;
