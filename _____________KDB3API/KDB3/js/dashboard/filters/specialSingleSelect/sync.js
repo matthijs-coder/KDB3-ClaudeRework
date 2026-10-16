@@ -21,19 +21,21 @@ define([
     }
   }
 
+  // The queue head lives on the shared runtime: a controller registered again on the same _KDB
+  // joins the running drain, which must then see the newer controller's request.
   function beginSyncRequest(_ctx, _syncOptions) {
     var abortController = new AbortController();
-    if (_ctx.syncRequest) {
-      _ctx.syncRequest.abortController.abort();
+    if (_ctx.runtime.syncRequest) {
+      _ctx.runtime.syncRequest.abortController.abort();
     }
-    _ctx.syncRequest = {
+    _ctx.runtime.syncRequest = {
       abortController: abortController,
       signal: abortController.signal,
       options: Object.assign({}, _syncOptions || {}),
       input: _syncOptions || null
     };
     _ctx.runtime.abortControllers.sync = abortController;
-    return _ctx.syncRequest;
+    return _ctx.runtime.syncRequest;
   }
 
   function buildSyncFailure(_syncOptions, _error) {
@@ -71,12 +73,12 @@ define([
   async function drainSyncQueue(_ctx) {
     var result;
     while (!_ctx.guard.isDisposed()) {
-      var request = _ctx.syncRequest;
+      var request = _ctx.runtime.syncRequest;
       if (!request) {
         return result;
       }
       result = await runQueuedSync(_ctx, request);
-      if (_ctx.syncRequest === request) {
+      if (_ctx.runtime.syncRequest === request) {
         return result;
       }
     }
@@ -85,7 +87,7 @@ define([
 
   function scheduleSync(_ctx, _syncOptions) {
     var runtime = _ctx.runtime;
-    if (_syncOptions && _ctx.syncRequest && _ctx.syncRequest.input === _syncOptions &&
+    if (_syncOptions && runtime.syncRequest && runtime.syncRequest.input === _syncOptions &&
       runtime.pendingPromises.sync) {
       return runtime.pendingPromises.sync;
     }
@@ -302,6 +304,6 @@ define([
   return {
     dispatchInternal: dispatchInternal,
     scheduleSync: scheduleSync,
-    evaluateSpecialFilterVisibility: evaluateSpecialFilterVisibility
+    evaluateSpecialFilterVisibility: evaluateSpecialFilterVisibility // also exported for tools/tests
   };
 });

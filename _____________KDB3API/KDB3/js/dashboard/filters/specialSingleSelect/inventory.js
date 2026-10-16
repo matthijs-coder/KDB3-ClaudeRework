@@ -225,9 +225,6 @@ define([
 
   return {
     routeInventoryReconciled: routeInventoryReconciled,
-    routeSyncRequested: routeSyncRequested,
-    validateInventoryPayload: validateInventoryPayload,
-    buildInventoryAck: buildInventoryAck,
-    buildStaleAck: buildStaleAck
+    routeSyncRequested: routeSyncRequested
   };
 });

@@ -250,6 +250,6 @@ define([
     reduceCommittedPayload: reduceCommittedPayload,
     buildOwnerAck: buildOwnerAck,
     buildTargetScopedAck: buildTargetScopedAck,
-    mapFilterDockHandoff: mapFilterDockHandoff
+    mapFilterDockHandoff: mapFilterDockHandoff // also exported for tools/tests
   };
 });

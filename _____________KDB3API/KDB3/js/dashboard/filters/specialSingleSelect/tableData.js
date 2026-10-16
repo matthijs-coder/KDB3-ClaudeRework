@@ -127,7 +127,6 @@ define([
 
   return {
     isRelevantTableName: isRelevantTableName,
-    buildTableInput: buildTableInput,
     readRightFromTableData: readRightFromTableData,
     readAlleRightFromTableData: readAlleRightFromTableData,
     readFirstValidOptionRow: readFirstValidOptionRow

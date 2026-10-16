@@ -88,7 +88,7 @@ define([
     _sync.scheduleSync(_ctx, _payload);
   }
 
-  var ROUTES = {};
+  var ROUTES = Object.create(null);
   ROUTES[actions.SICHT_CHANGED] = function (_ctx, _payload, _action) {
     _sync.dispatchInternal(_ctx, _action);
     _sync.scheduleSync(_ctx, _payload);
@@ -117,7 +117,6 @@ define([
       reducer: _state.createSpecialSingleSelectReducer(),
       runtime: _runtime.ensureRuntime(_KDB, "specialSingleSelect"),
       guard: _errors.createDisposedGuard("specialSingleSelect"),
-      syncRequest: null,
       pendingInventoryGeneration: null,
       inventorySyncToken: null,
       lastInventoryGeneration: null,
@@ -149,9 +148,9 @@ define([
       ctx.guard.dispose();
       try {
         var errors = _runtime.disposeRuntimeBuckets(ctx.runtime);
-        ctx.syncRequest = null;
+        ctx.runtime.syncRequest = null;
         if (errors.length) {
-          console.warn("[specialSingleSelect.destroy] runtime cleanup", errors);
+          console.error("[specialSingleSelect.destroy] cleanup errors", errors);
         }
         _sync.dispatchInternal(ctx, { type: actions.DESTROY, payload: {} });
       } catch (error) {

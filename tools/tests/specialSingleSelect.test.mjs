@@ -20,13 +20,11 @@ function loadUnits() {
   const state = load("state.js");
   const tableData = load("tableData.js");
   const delegation = load("delegation.js");
-  const inventory = load("inventory.js");
   return {
     definitions: config.DEFINITIONS_BY_ID,
     actions: state.actions,
     TABLE_KEYS: config.TABLE_KEYS,
     isRelevantTableName: tableData.isRelevantTableName,
-    buildTableInput: tableData.buildTableInput,
     resolveSpecialFilterId: config.resolveSpecialFilterId,
     normalizeUserSelectionCommittedPayload: delegation.normalizeUserSelectionCommittedPayload,
     mapFilterDockHandoff: delegation.mapFilterDockHandoff,
@@ -35,9 +33,6 @@ function loadUnits() {
     readRightFromTableData: tableData.readRightFromTableData,
     readFirstValidOptionRow: tableData.readFirstValidOptionRow,
     evaluateVisibility: load("sync.js").evaluateSpecialFilterVisibility,
-    validateInventoryPayload: inventory.validateInventoryPayload,
-    buildInventoryAck: inventory.buildInventoryAck,
-    buildStaleAck: inventory.buildStaleAck,
     buildTargetScopedAck: delegation.buildTargetScopedAck,
     reduceCommittedPayload: delegation.reduceCommittedPayload
   };
@@ -70,7 +65,7 @@ test("definitions: both special filters, frozen shape", () => {
   });
 });
 
-test("isRelevantTableName / buildTableInput", () => {
+test("isRelevantTableName", () => {
   const KDB = { config: { tables: { alle: { name: "Alle_Tbl", shape: "s", pick: "p" } } } };
   assert.equal(U.isRelevantTableName(KDB, "alle"), true);
   assert.equal(U.isRelevantTableName(KDB, " ALLE_TBL "), true);
@@ -78,9 +73,6 @@ test("isRelevantTableName / buildTableInput", () => {
   assert.equal(U.isRelevantTableName(KDB, "sicht_bw"), false);
   assert.equal(U.isRelevantTableName(KDB, ""), false);
   assert.equal(U.isRelevantTableName(null, "alle"), true);
-  assert.deepEqual(U.buildTableInput(KDB, "alle"), [{ tableName: "alle", shape: "s", pick: "p" }]);
-  assert.equal(U.buildTableInput(KDB, "personengruppe"), null);
-  assert.equal(U.buildTableInput(null, "alle"), null);
 });
 
 test("resolveSpecialFilterId: by id, condition, label; unknown -> null", () => {
@@ -302,35 +294,6 @@ test("evaluateSpecialFilterVisibility: sicht x right x default option", () => {
   assert.equal(run(" BW ", true, true, false, false, true).rightsUnknown, true);
 });
 
-test("inventory ack builders", () => {
-  assert.deepEqual(U.validateInventoryPayload({ inventoryGeneration: 1, source: "s" }), null);
-  const bad = {
-    code: "SPECIAL_SINGLE_SELECT_INVENTORY_PAYLOAD_INVALID",
-    message: "inventoryGeneration must be a non-negative integer"
-  };
-  assert.deepEqual(U.validateInventoryPayload({ inventoryGeneration: -1, source: "s" }), bad);
-  assert.deepEqual(U.validateInventoryPayload({ inventoryGeneration: 1.5, source: "s" }), bad);
-  assert.deepEqual(U.validateInventoryPayload({ source: "s" }), bad);
-  assert.deepEqual(U.validateInventoryPayload({ inventoryGeneration: 1, source: " " }), {
-    code: "SPECIAL_SINGLE_SELECT_INVENTORY_PAYLOAD_INVALID", message: "inventory reconcile source is required"
-  });
-  assert.deepEqual(
-    U.buildInventoryAck({ ok: true, diagnostics: [{ code: "c", message: "m" }] }, { inventoryGeneration: 2, source: "s" }),
-    { ok: true, acknowledged: true, degraded: false, disposed: false, inventoryGeneration: 2, source: "s", diagnostics: [{ code: "c", message: "m" }] }
-  );
-  assert.deepEqual(
-    U.buildInventoryAck({ ok: true, degraded: true }, { inventoryGeneration: 2, source: "s" }),
-    { ok: true, acknowledged: false, degraded: true, disposed: false, inventoryGeneration: 2, source: "s", diagnostics: [] }
-  );
-  assert.deepEqual(U.buildStaleAck({ inventoryGeneration: 1, source: "s" }), {
-    ok: false, acknowledged: false, degraded: true, disposed: false, inventoryGeneration: 1, source: "s",
-    diagnostics: [{
-      code: "SPECIAL_SINGLE_SELECT_INVENTORY_STALE",
-      message: "inventory generation is older than the latest scheduled generation"
-    }]
-  });
-});
-
 test("buildTargetScopedAck: ok / missing target / failed target / unrelated diagnostics", () => {
   const target = { filterId: "personengruppe", semanticSpecialFilterId: "personengruppe" };
   const ok = U.buildTargetScopedAck({ ok: true, results: [{ filterId: "personengruppe", ok: true }], diagnostics: [] }, target);
@@ -459,10 +422,11 @@ function createHarness(options) {
           policyCalls.push(clone(action));
           const payload = action.payload || {};
           if (opts.policyThrows) throw new Error("policy boom");
-          return Promise.resolve({
+          const delay = opts.policyDelayMs ? new Promise((resolve) => setTimeout(resolve, opts.policyDelayMs)) : Promise.resolve();
+          return delay.then(() => ({
             ok: true,
             applied: (payload.filterInstanceIds || []).map((id) => ({ filterInstanceId: id, ok: true }))
-          });
+          }));
         }
       }
     }
@@ -675,8 +639,18 @@ test("inventoryReconciled: validation, dedupe by generation, stale, skip, ack sh
   const repeat = await api.dispatch({ type: SSS + "singleSelectInventoryReconciled", payload: { inventoryGeneration: 3, source: "b" } });
   assert.deepEqual(repeat, Object.assign({}, first, { source: "b" }));
   const stale = await api.dispatch({ type: SSS + "singleSelectInventoryReconciled", payload: { inventoryGeneration: 2, source: "c" } });
-  assert.equal(stale.ok, false);
-  assert.equal(stale.diagnostics[0].code, "SPECIAL_SINGLE_SELECT_INVENTORY_STALE");
+  assert.deepEqual(stale, {
+    ok: false, acknowledged: false, degraded: true, disposed: false, inventoryGeneration: 2, source: "c",
+    diagnostics: [{
+      code: "SPECIAL_SINGLE_SELECT_INVENTORY_STALE",
+      message: "inventory generation is older than the latest scheduled generation"
+    }]
+  });
+  const invalidSource = await api.dispatch({ type: SSS + "singleSelectInventoryReconciled", payload: { inventoryGeneration: 3, source: " " } });
+  assert.deepEqual(invalidSource.diagnostics, [{
+    code: "SPECIAL_SINGLE_SELECT_INVENTORY_PAYLOAD_INVALID", message: "inventory reconcile source is required"
+  }]);
+  assert.equal(invalid.diagnostics[0].message, "inventoryGeneration must be a non-negative integer");
 });
 
 test("userSelectionCommitted: owner ack, target-scoped, invalid payload", async () => {
@@ -783,6 +757,7 @@ test("destroy: state undefined, subscription removed, buckets reset, disposed ac
     assert.deepEqual(rt[bucket], {}, bucket);
   });
   assert.equal(h.KDB.state.filters.specialSingleSelect.lifecycle, "disposed");
+  assert.equal(rt.syncRequest, null);
 
   assert.equal(api.dispatch({ type: SSS + "tableDataChanged", payload: {} }), undefined);
   const syncAck = api.dispatch({ type: SSS + "syncRequested", payload: { inventoryGeneration: 9 } });
@@ -823,12 +798,31 @@ test("re-register on the same _KDB keeps runtime object and replaces the subscri
   assert.equal(typeof h.subscribers["tableData:loadFinished"], "function");
 });
 
+test("re-register while a sync is running: the new controller's request still runs", async () => {
+  const h = createHarness({ policyDelayMs: 15 });
+  const api1 = bootWithSicht(h, "BW");
+  await new Promise((resolve) => setTimeout(resolve, 120));
+  assert.equal(api1.getState().byFilterId.personengruppe.isVisible, true);
+  h.reads.length = 0;
+  const running = api1.dispatch({ type: SSS + "syncRequested", payload: { reason: "running" } });
+  const api2 = h.register(h.KDB);
+  api2.dispatch({ type: SSS + "sichtChanged", payload: { activeSichtValue: "DEZPV" } });
+  await running;
+  await new Promise((resolve) => setTimeout(resolve, 120));
+  assert.equal(api2.getState().activeSichtValue, "DEZPV");
+  assert.equal(api2.getState().byFilterId.personengruppe.isVisible, false);
+  assert.deepEqual([...h.dom.root.classList.set], ["KDB_sssSicht_DEZPV"]);
+  assert.equal(h.reads.filter((n) => n === "alle").length, 2);
+});
+
 test("dispatch: unknown action returns the state, error action records the error", async () => {
   const h = createHarness();
   const api = bootWithSicht(h, "BW");
   await settle();
   const state = api.dispatch({ type: SSS + "unknown" });
   assert.equal(state.lifecycle, "ready");
+  assert.equal(api.dispatch({ type: "hasOwnProperty" }).lifecycle, "ready");
+  assert.equal(api.dispatch({ type: "__proto__" }).lifecycle, "ready");
   api.dispatch({ type: SSS + "error", payload: { errorCode: "E", errorMessage: "m" } });
   assert.equal(api.getState().lifecycle, "error");
   assert.equal(api.getState().errorCode, "E");
