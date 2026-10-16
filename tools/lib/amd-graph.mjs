@@ -35,6 +35,7 @@ export function readSource(absPath) {
 
 export function listJsFiles(root = JS_ROOT) {
   const out = [];
+  if (!fs.existsSync(root)) return out;
   const walk = (dir) => {
     for (const ent of fs.readdirSync(dir, { withFileTypes: true })) {
       const abs = path.join(dir, ent.name);
@@ -294,7 +295,28 @@ export function buildGraph() {
   return { files: fileList, nodes, edges, broken, nonPathDeps, noDefine, nonLiteralArrays, roots, specRoots, missingSpecRoots, reachable };
 }
 
-// Tarjan SCC over the static+dynamic file graph. Returns components with size > 1 or self-loops.
+// Tarjan SCC over the static+dynamic file graph. Returns [{ size, members, path }] for components
+// with size > 1 or self-loops; `path` is one concrete cycle (first member ... first member).
+function concreteCycle(graph, members) {
+  const inScc = new Set(members);
+  const start = members[0];
+  const parent = new Map([[start, null]]);
+  const queue = [start];
+  while (queue.length) {
+    const cur = queue.shift();
+    for (const w of graph.nodes.get(cur).deps) {
+      if (!inScc.has(w)) continue;
+      if (w === start) {
+        const chain = [start];
+        for (let at = cur; at !== null && at !== start; at = parent.get(at)) chain.splice(1, 0, at);
+        return [...chain, start];
+      }
+      if (!parent.has(w)) { parent.set(w, cur); queue.push(w); }
+    }
+  }
+  return [...members, members[0]];
+}
+
 export function findCycles(graph) {
   let index = 0;
   const idx = new Map();
@@ -313,7 +335,10 @@ export function findCycles(graph) {
       const comp = [];
       let w;
       do { w = stack.pop(); onStack.delete(w); comp.push(w); } while (w !== v);
-      if (comp.length > 1 || graph.nodes.get(v).deps.includes(v)) cycles.push(comp.sort());
+      if (comp.length > 1 || graph.nodes.get(v).deps.includes(v)) {
+        const members = comp.sort();
+        cycles.push({ size: members.length, members, path: concreteCycle(graph, members) });
+      }
     }
   };
   for (const v of graph.files) if (!idx.has(v)) strong(v);

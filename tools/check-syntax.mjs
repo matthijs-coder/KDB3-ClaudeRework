@@ -27,11 +27,13 @@ for (const rel of files) {
   }
 }
 
+const parsed = files.length - failures.length;
+if (files.length === 0) failures.push({ file: JS_ROOT_REPO_REL, line: 0, col: 0, message: 'no .js files found' });
 const pass = failures.length === 0;
 if (asJson) {
-  console.log(JSON.stringify({ pass, checked: files.length, passed: files.length - failures.length, failures }, null, 2));
+  console.log(JSON.stringify({ pass, checked: files.length, passed: parsed, failures }, null, 2));
 } else {
   for (const f of failures) console.log(`${f.file}:${f.line}:${f.col} ${f.message}`);
-  console.log(`check-syntax: ${pass ? 'PASS' : 'FAIL'} (${files.length - failures.length}/${files.length} files parsed)`);
+  console.log(`check-syntax: ${pass ? 'PASS' : 'FAIL'} (${parsed}/${files.length} files parsed)`);
 }
 process.exit(pass ? 0 : 1);

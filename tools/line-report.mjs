@@ -1,16 +1,26 @@
 #!/usr/bin/env node
 // Size report for KDB3/js (report only, exit 0). code lines = lines holding at least one token
 // (non-blank, non-comment). Vendored core/libraries/** is listed separately.
+// --module accepts a js-relative (dashboard/tabs) or repo-style (_____________KDB3API/KDB3/js/dashboard/tabs) directory or file prefix.
 // Usage: node tools/line-report.mjs [--json] [--module <path-prefix>] [--include-vendor] [--top N]
 import path from 'node:path';
-import { JS_ROOT, listJsFiles, readSource, tokenize, makeLineIndex, moduleOf, isVendored } from './lib/amd-graph.mjs';
+import { JS_ROOT, JS_ROOT_REPO_REL, listJsFiles, readSource, tokenize, makeLineIndex, moduleOf, isVendored } from './lib/amd-graph.mjs';
 
 const argv = process.argv.slice(2);
 const flag = (name) => argv.includes(name);
-const value = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : undefined);
+const value = (name) => {
+  const next = argv[argv.indexOf(name) + 1];
+  return argv.includes(name) && next !== undefined && !next.startsWith('--') ? next : undefined;
+};
 const asJson = flag('--json');
-const prefix = (value('--module') || '').replace(/^\/+|\/+$/g, '');
-const top = Number(value('--top') || 30);
+const rawModule = value('--module');
+if (flag('--module') && !rawModule) {
+  console.error('line-report: --module needs a path prefix');
+  process.exit(1);
+}
+const prefix = (rawModule || '').replace(/\\/g, '/').replace(/^\.?\/+/, '').replace(`${JS_ROOT_REPO_REL}/`, '').replace(/^_____________KDB3API\/KDB3\/js$/, '').replace(/\/+$/, '');
+const parsedTop = Number.parseInt(value('--top'), 10);
+const top = parsedTop > 0 ? parsedTop : 30;
 const LONG = 180;
 
 function measure(rel) {
@@ -30,10 +40,14 @@ function measure(rel) {
     if (l.length > maxLen) maxLen = l.length;
     if (l.length > LONG) long++;
   }
-  return { file: rel, module: moduleOf(rel), vendored: isVendored(rel), total: lines.length, code: codeLines.size, maxLineLength: maxLen, longLines: long };
+  return { file: `${JS_ROOT_REPO_REL}/${rel}`, module: moduleOf(rel), vendored: isVendored(rel), total: lines.length, code: codeLines.size, maxLineLength: maxLen, longLines: long };
 }
 
 const all = listJsFiles().filter((f) => !prefix || f === prefix || f.startsWith(`${prefix}/`)).map(measure);
+if (rawModule && all.length === 0) {
+  console.error(`line-report: no files match --module "${rawModule}" (use e.g. dashboard/tabs or ${JS_ROOT_REPO_REL}/dashboard/tabs)`);
+  process.exit(1);
+}
 const vendor = all.filter((f) => f.vendored);
 const files = flag('--include-vendor') ? all : all.filter((f) => !f.vendored);
 

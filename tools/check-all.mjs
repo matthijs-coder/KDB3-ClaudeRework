@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Runs check-syntax, check-imports and (if present) `node --test tools/tests/`. Exit 1 if any fail.
+// Runs check-syntax, check-imports and (if any tools/tests/*.test.mjs exist) `node --test tools/tests/*.test.mjs`. Exit 1 if any fail.
 // Usage: node tools/check-all.mjs [--verbose]   (--verbose prints each check's full output)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -15,7 +15,8 @@ const checks = [
   { name: 'check-imports', args: [path.join(toolsDir, 'check-imports.mjs')] },
 ];
 const testsDir = path.join(toolsDir, 'tests');
-if (fs.existsSync(testsDir)) checks.push({ name: 'tests', args: ['--test', 'tools/tests/'] });
+const hasTests = fs.existsSync(testsDir) && fs.readdirSync(testsDir).some((f) => f.endsWith('.test.mjs'));
+if (hasTests) checks.push({ name: 'tests', args: ['--test', 'tools/tests/*.test.mjs'] });
 
 let failed = 0;
 const started = Date.now();
