@@ -2,15 +2,12 @@
 // Run: node --test tools/tests/singleSelect.core.golden.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import fs from "node:fs";
 import path from "node:path";
 import { getEventListeners } from "node:events";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
 const SS = path.join(JS_ROOT, "dashboard/filters/singleSelect");
-const L2_DONE = true;
-const C1_DONE = false;
 const logged = [];
 const quietConsole = {
   log() {}, info() {}, debug() {},
@@ -33,40 +30,32 @@ function load(rel, extra) {
   return loadAmd(path.join(SS, rel), Object.assign({ stubs: { console: quietConsole, document: fakeDocument } }, extra || {}));
 }
 
-const has = (rel) => fs.existsSync(path.join(SS, rel));
-
 function adapter() {
-  const instance = has("state/instance.js") ? load("state/instance.js") : null;
-  const reducer = has("state/reducer.js") ? load("state/reducer.js") : null;
-  const identity = has("inventory/identity.js") ? load("inventory/identity.js") : null;
-  const enumerate = has("inventory/enumerate.js") ? load("inventory/enumerate.js") : null;
-  const ownerAck = has("inventory/ownerAck.js") ? load("inventory/ownerAck.js") : null;
-  const handoff = has("dockHandoff/handoff.js") ? load("dockHandoff/handoff.js") : null;
-  const interaction = has("dockHandoff/interaction.js") ? load("dockHandoff/interaction.js") : null;
-  const history = has("history.js") ? load("history.js") : null;
+  const instance = load("state/instance.js");
+  const reducer = load("state/reducer.js");
+  const enumerate = load("inventory/enumerate.js");
+  const handoff = load("dockHandoff/handoff.js");
+  const interaction = load("dockHandoff/interaction.js");
+  const history = load("history.js");
   return {
     register: load("__orchestratorSingleSelect.js"),
-    buildFilterInstanceId: instance ? instance.buildFilterInstanceId : load("state/buildFilterInstanceId.js"),
-    createFilterInstanceState: instance || load("state/createFilterInstanceState.js"),
-    ensureFilterState: instance ? instance.ensureFilterState : load("state/ensureFilterState.js"),
-    lookupLiveFilterState: instance ? instance.lookupLiveFilterState : load("effects/lookupLiveFilterState.js"),
-    reconcileInstanceState: identity ? identity.reconcileFilterInstanceState : load("effects/reconcileFilterInstanceState.js"),
-    enumerateFilterInstances: enumerate ? enumerate.enumerateFilterInstances : load("effects/enumerateFilterInstances.js"),
-    waitForFilterInventory: enumerate ? enumerate.waitForFilterInventory : load("effects/waitForFilterInventory.js"),
-    notifyOwners: ownerAck ? ownerAck.notifyInventoryReconciledOwners : load("actions/notifyInventoryReconciledOwners.js"),
-    mapHandoff: handoff ? handoff.mapFilterDockHandoff : load("effects/mapFilterDockHandoff.js"),
-    deriveIntent: interaction ? interaction.deriveInteractionIntent : load("effects/deriveInteractionIntent.js"),
-    applyPendingSelection: interaction ? interaction.applyPendingSelection : load("effects/applyPendingSelection.js"),
-    revertToBackupSelection: interaction ? interaction.revertToBackupSelection : load("effects/revertToBackupSelection.js"),
-    processFilterDockHandoff: handoff ? handoff.processFilterDockHandoff : load("effects/processFilterDockHandoff.js").processFilterDockHandoff,
-    stepValue: history
-      ? { normalize: history.normalizeStepValue, sameInstance: history.sameInstance }
-      : load("history/normalizeSingleSelectHistoryStepValue.js"),
-    buildCommittedStep: history ? history.buildCommittedStep : load("history/buildCommittedStep.js"),
-    pushGenericHistory: history ? history.pushCommittedSelectionStep : load("effects/pushSingleSelectHistory.js").pushGenericHistory,
-    reducer: reducer
-      ? { initialState: reducer.initialState, create: reducer.createSingleSelectReducer }
-      : { initialState: load("state/initialState.js"), create: load("state/createSingleSelectReducer.js") },
+    buildFilterInstanceId: instance.buildFilterInstanceId,
+    createFilterInstanceState: instance,
+    ensureFilterState: instance.ensureFilterState,
+    lookupLiveFilterState: instance.lookupLiveFilterState,
+    reconcileInstanceState: load("inventory/identity.js").reconcileFilterInstanceState,
+    enumerateFilterInstances: enumerate.enumerateFilterInstances,
+    waitForFilterInventory: enumerate.waitForFilterInventory,
+    notifyOwners: load("inventory/ownerAck.js").notifyInventoryReconciledOwners,
+    mapHandoff: handoff.mapFilterDockHandoff,
+    deriveIntent: interaction.deriveInteractionIntent,
+    applyPendingSelection: interaction.applyPendingSelection,
+    revertToBackupSelection: interaction.revertToBackupSelection,
+    processFilterDockHandoff: handoff.processFilterDockHandoff,
+    stepValue: { normalize: history.normalizeStepValue, sameInstance: history.sameInstance },
+    buildCommittedStep: history.buildCommittedStep,
+    pushGenericHistory: history.pushCommittedSelectionStep,
+    reducer: { initialState: reducer.initialState, create: reducer.createSingleSelectReducer },
     selectors: load("state/selectors.js")
   };
 }
@@ -337,7 +326,7 @@ test("waitForFilterInventory: retries, abort, timeout code", async () => {
   );
 });
 
-test("waitForFilterInventory: concurrent waits do not cancel each other and leave no listeners", { skip: !has("inventory/enumerate.js") }, async () => {
+test("waitForFilterInventory: concurrent waits do not cancel each other and leave no listeners", async () => {
   const KDB = { runtime: { singleSelect: { timers: {}, abortControllers: {} } } };
   const makeEnumerate = (name) => {
     let calls = 0;
@@ -879,7 +868,7 @@ test("popup sync: marks the pending option and keeps one out-click revert listen
   assert.equal(fx.filterEl.classes.has("KDB_singleSelectCommitInProgress"), true);
 });
 
-test("popup sync: out-click reverts the live record after the instance was replaced", { skip: !L2_DONE }, async () => {
+test("popup sync: out-click reverts the live record after the instance was replaced", async () => {
   const facet = fakeFacet([GESCHLECHT.values[0]], { items: [GESCHLECHT] });
   const { KDB, rt } = await bootReconciled(facet);
   const root = KDB.state.filters.singleSelect;
@@ -934,13 +923,12 @@ test("committed display chip painting", async () => {
   api.dispatch({ type: "singleSelect/filterDockCommittedDisplayObserved" });
   assert.equal(chip.textContent, "Mann");
   assert.equal(chip.attrs["aria-label"], "Frau");
-  if (C1_DONE) {
-    record.filterLabel = 'Quote "x" \\ end';
-    record.currentSelection = { displayValue: "Frage", useValue: "9", displaySource: "table" };
-    hosts.push(host(record.filterLabel));
-    const before = logged.length;
-    api.dispatch({ type: "singleSelect/filterDockCommittedDisplayObserved" });
-    assert.equal(logged.length, before);
-  }
+  record.filterLabel = 'Quote "x" \\ end';
+  record.currentSelection = { displayValue: "Frage", useValue: "9", displaySource: "table" };
+  hosts.push(host(record.filterLabel));
+  const before = logged.length;
+  api.dispatch({ type: "singleSelect/filterDockCommittedDisplayObserved" });
+  assert.equal(logged.length, before);
+  assert.equal(chip.textContent, "Frage");
   fakeDocument.dockRoot = null;
 });

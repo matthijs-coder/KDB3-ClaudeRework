@@ -1,4 +1,4 @@
-define([], function () {
+define(["../config.js"], function (_config) {
   "use strict";
 
   var EXPLICIT_TABLE_KEYS = {
@@ -199,7 +199,7 @@ define([], function () {
     var tableInput;
     var rowRead;
     var selectedValue;
-    if (!_KDB || !_filterLabel || !_pendingLabel || _pendingLabel === "Alle") {
+    if (!_KDB || !_filterLabel || !_pendingLabel || _pendingLabel === _config.ALLE) {
       return buildLookupFailure("invalidInput", "", null, 0);
     }
     providedValue = readProvidedSelectionValue(_handoffContext, _pendingLabel);
