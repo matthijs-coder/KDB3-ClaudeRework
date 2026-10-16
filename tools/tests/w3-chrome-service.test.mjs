@@ -96,6 +96,22 @@ test("scheduleFlush flushes once with one alert for a missed required selector, 
   });
 });
 
+test("scheduleFlush has renderSupport's boundary: a throwing checks object is logged, not thrown", () => {
+  const logged = [];
+  const saved = console.error;
+  console.error = (...args) => logged.push(args);
+  try {
+    const _KDB = { runtime: { cognosHost: { chromeChecks: { scheduleFlush() { throw new Error("flush boom"); } } } } };
+    const chrome = registerChrome(_KDB);
+    assert.doesNotThrow(() => chrome.scheduleFlush());
+    assert.equal(logged.length, 1);
+    assert.equal(logged[0][0], "[core.chromeCapability] scheduleFlush failed");
+    assert.match(String(logged[0][1]), /flush boom/);
+  } finally {
+    console.error = saved;
+  }
+});
+
 test("a replaced checks object is seen on the next call (nothing is captured at registration)", () => {
   const _KDB = { runtime: { cognosHost: {} } };
   const chrome = registerChrome(_KDB);
