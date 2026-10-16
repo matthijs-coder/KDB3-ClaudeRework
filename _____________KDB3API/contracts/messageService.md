@@ -305,7 +305,7 @@ Not allowed:
 
 Service-owned modal and anchored-notification markup uses `kdb-` CSS classes, accessible dialog semantics, deterministic focus restoration and complete teardown.
 
-The service owns one document-root portal as an approved shared-overlay exception under `dom.mdc:66-67`. Live portal and message nodes remain under `_KDB.runtime.messageService.domRefs`; only stable selectors may be registered under `_KDB.elements.selectors.messageService`.
+The service owns one document-root portal as an approved shared-overlay exception under `dom.mdc:66-67`. Live portal and message nodes remain under `_KDB.runtime.messageService.domRefs`; the service registers no `_KDB.elements.selectors.messageService` bucket (the portal root id is the fixed `kdb-message-root`).
 
 Global and anchored notifications use appropriate `aria-live` politeness based on severity. Choice dialogs expose a labelled single-choice group and keyboard navigation. Copyable text receives focus/select-on-focus behavior so keyboard users can immediately copy it. Copyable focus trap includes `input:not([disabled])` (toggle checkbox); initial focus stays on the textarea.
 

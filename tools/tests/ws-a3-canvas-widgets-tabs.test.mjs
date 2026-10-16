@@ -273,6 +273,17 @@ test("canvas tab canonicalisation caches the layout per _KDB instance", () => {
   assert.equal(reads, 1);
 });
 
+test("canvas layout cache lives in runtime.cognosHostService.adapters.layoutItems and is released by destroy", () => {
+  const first = create(buildHost("ok", [], () => {}));
+  const second = create(buildHost("ok", [], () => {}));
+  assert.equal(first._KDB.runtime.cognosHostService.adapters.layoutItems, null);
+  first.svc.canvas.listCanvasWidgets();
+  assert.ok(Array.isArray(first._KDB.runtime.cognosHostService.adapters.layoutItems));
+  assert.equal(second._KDB.runtime.cognosHostService.adapters.layoutItems, null);
+  first.svc.destroy();
+  assert.equal(first._KDB.runtime.cognosHostService.adapters.layoutItems, null);
+});
+
 const SYNC_OPS = {
   widgets: [["hasContent", ["w1"]], ["enterFocusMode", ["w1"]], ["exitFocusMode", ["w1"]]],
   canvas: [["listCanvasWidgets", []], ["setCanvasPageSize", ["width", "800px"]]],

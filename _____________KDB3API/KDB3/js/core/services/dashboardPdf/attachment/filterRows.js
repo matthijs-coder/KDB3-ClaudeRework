@@ -243,7 +243,7 @@ define([
    * @returns {Promise<{globalText: string, tabRows: Array<{label: string, value: string}>}>}
    * @throws {Error} coded SCOPE_TARGET_RESOLVE_FAILED
    */
-  async function collectAttachmentFilterRows(_KDB, manifest, owner, singleSelectState, warnings) {
+  async function collectAttachmentFilterRows(_KDB, manifest, owner, singleSelectState, warnings, labels) {
     var globalByLabel = {};
     var tabById = {};
     var visibleSpecialLabels = collectSpecialVisibility(owner.specialState);
@@ -255,7 +255,7 @@ define([
       globalText: namedMultilineText(toNamedValues(globalByLabel)),
       tabRows: (manifest.tabs || []).map(function (tab) {
         return {
-          label: _text.cleanLabel(tab.name) + " -Tab Filter: ",
+          label: _text.cleanLabel(tab.name) + labels.tabFilterSuffix,
           value: namedMultilineText(toNamedValues(tabById[tab.tabId] || {}))
         };
       })

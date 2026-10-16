@@ -133,7 +133,7 @@ test("runtime shape after create and after destroy", () => {
   const empty = () => ({
     subscriptions: [],
     abortControllers: {},
-    adapters: { filterItemsByKey: {}, selectionUnsubscribeByWidgetId: {}, lastSelectionDtoByWidgetId: {} },
+    adapters: { filterItemsByKey: {}, selectionUnsubscribeByWidgetId: {}, lastSelectionDtoByWidgetId: {}, layoutItems: null },
     pendingPromises: { filterWritesByKey: {} }
   });
   const generation = svc.getGeneration();

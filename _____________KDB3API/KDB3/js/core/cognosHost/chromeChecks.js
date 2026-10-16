@@ -1,4 +1,4 @@
-define([], function () {
+define(["./config/chromeLabels.js"], function (_chromeLabels) {
   "use strict";
 
   function ensureRuntime(_KDB) {
@@ -26,6 +26,11 @@ define([], function () {
     }
   }
 
+  function readLabel(_KDB, key) {
+    var labels = _KDB.config && _KDB.config.labels && _KDB.config.labels.de ? _KDB.config.labels.de.chrome : null;
+    return labels && typeof labels[key] === "string" ? labels[key] : _chromeLabels[key];
+  }
+
   function flushReport(_KDB, rt) {
     var messageService;
     try {
@@ -34,9 +39,9 @@ define([], function () {
       messageService = _KDB.services && _KDB.services.message;
       if (!messageService || typeof messageService.showAlert !== "function") return;
       messageService.showAlert({
-        title: "Dashboard",
+        title: readLabel(_KDB, "flushTitle"),
         severity: "error",
-        message: "Teile der Dashboard-Oberfläche konnten nicht geladen werden. Bitte das Dashboard schließen und erneut öffnen. Details stehen in der Browser-Konsole."
+        message: readLabel(_KDB, "flushMessage")
       });
     } catch (messageError) {
       console.warn("[cognosHost.chrome] failure message failed", messageError);

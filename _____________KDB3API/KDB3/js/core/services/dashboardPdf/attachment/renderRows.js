@@ -134,9 +134,8 @@ define([], function () {
   }
 
   /** Adds the "Anhang" page(s) to the jsPDF document. */
-  function renderAttachmentPages(doc, rows) {
+  function renderAttachmentPages(doc, rows, title) {
     var layout = createPageLayout(doc);
-    var title = "Anhang";
     doc.addPage("a4", "landscape");
     doc.setFont("helvetica", "bold");
     doc.setFontSize(16);

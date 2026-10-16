@@ -101,6 +101,10 @@ define([], function () {
     DEZPV: "dienststelle_dezpv_hierarchy"
   };
 
+  // Longest wait for the hierarchy table before the wait window reports a load failure. The table load
+  // has no deadline of its own, so without this the window would say "please wait" forever.
+  var DEFERRED_OPEN_TIMEOUT_MS = 120000;
+
   var datenart = {
     HASH: "FA2B3F9D85EEDABE42016D7F23BB9EBAB19F030A"
   };
@@ -111,6 +115,7 @@ define([], function () {
     monthLabels: monthLabels,
     drillthroughLabels: drillthroughLabels,
     HIERARCHY_TABLE_KEYS: HIERARCHY_TABLE_KEYS,
+    DEFERRED_OPEN_TIMEOUT_MS: DEFERRED_OPEN_TIMEOUT_MS,
     datenart: datenart
   };
 });

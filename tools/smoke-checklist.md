@@ -181,6 +181,19 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Destroy + re-mount (close/reopen the KDB3 widget). Expected: `document.getElementById("KDB_dragAvatarTemplates")` is `null` after destroy (no stale avatar templates), drag and drop works again after re-mount, and listener counts on `document` do not grow.
 - [ ] Page size and background (kdbControl settings: dashboard width, height, background colour): change each once before and after the canvas is ready (right after load). Expected: the page size and colour follow, same as baseline; undo/redo of dashboard settings re-applies them.
 
+#### F1 tabs
+- [ ] Add (kdbControl "+"), then rename a tab by clicking it in edit mode: type a new name, **Enter** commits, **Esc** restores the old name, clicking elsewhere commits. Expected: the label follows, the edit icons (rename, delete, duplicate, move) disappear after the session ends.
+- [ ] Delete, duplicate and move (position dialog) a tab, each followed by undo and redo (history buttons). Expected: names, order, widgets and filters follow in both directions; the caption "Tab n von m: name" shows on the loading cover while a mutation runs.
+- [ ] While a delete/duplicate/move runs, look at the edit icons of another tab. Expected: they are greyed out (`aria-disabled="true"`) and clicking them does nothing; they work again after the mutation ends.
+- [ ] Delete down to one visible tab, and duplicate up to the maximum. Expected: a plain notice at each limit (no error alert), nothing changes.
+- [ ] Reload and watch the first seconds. Expected: one startup traversal over the tabs (no endless flipping), no console error, the originally active tab is active at the end.
+- [ ] Parameter-set restore (Set A, then Set B, then reset to defaults) with several tabs: names, visibility and the landing tab follow; no console error `[tabs.*]`.
+- [ ] PDF export on a dashboard with 3 or more tabs (uses the traverse). Expected: every tab is visited, export completes, the original tab is active afterwards. Cancel an export mid-way: no console error.
+- [ ] Console: `const k = window.top.getKDB(); const orig = k.utils.readCurrentTab;` close the KDB3 widget, then `k.utils.readCurrentTab === orig` (the saved original is back); reopen: `readCurrentTab` is a different (tabs-aware) function again and `k.utils.readCurrentTab()` still returns the current tab.
+- [ ] Destroy + re-mount twice. Expected: tab editing, mutations and undo/redo work after each re-mount; no `[tabs.*] called after destroy` warnings while idle.
+- [ ] Traverse timeout leaves no stuck cover. Console: `await window.top.getKDB().api.tabs.dispatch({ type: "tabs/traverse", payload: { scope: "allDashboard", timeoutMs: 50 } })`. Expected: it resolves `false`, a `TABS_TRAVERSE_TIMEOUT` is recorded in the tabs state, the loading cover is gone and the original tab is active again after a moment.
+- [ ] Rename while the kdbControl view throws still succeeds. Console: `const k = window.top.getKDB(); const orig = k.api.kdbControl.syncView; k.api.kdbControl.syncView = () => { throw new Error("x"); };`, rename a tab, then `k.api.kdbControl.syncView = orig`. Expected: the new name is shown and stays, only a `[tabs.syncKdbControlView]` warning appears (no rename failure alert).
+
 ### WS-G kdbControl (control primitives)
 - [ ] In a widget settings panel / header editor: colour inputs (typing a hex value, picking from the palette), palette closes on outside-click, toggle switches (Ein/Aus) and radios work as on baseline.
 - [ ] Close/reopen the dashboard, then `getEventListeners(document).mousedown.length` is the same as after a first boot (no extra listener).
@@ -269,6 +282,15 @@ WS-I details. In the console use `const getKDB = window.top.getKDB;`.
 - [ ] Maximize ("Vollbild") and restore ("Normale Größe") a widget; legend remains correct; toggling legend items works.
 - [ ] Remove a widget, then change Dienststelle. Expected: no console error, the removed widget does not reappear and no hidden re-render happens.
 - [ ] Data tables (widgetDataTable): behaviour as baseline (it is a no-op stub; nothing must visibly change).
+- [ ] Park a vis widget to the launchpad, change Dienststelle, take it back: it shows the new Dienststelle data (guards D2).
+- [ ] Park a vis widget, then undo: it returns with its settings and data. Then save: the widget is in the saved state, with no `WRITEBACK_WIDGET_RESTORE_FAILED` (guards D1).
+- [ ] Remove a vis widget, then save and reload: the widget stays gone, there is no console error, and `_KDB.runtime.widgetVis.byId` has no entry for it.
+- [ ] Line chart with Prognose and 3+ series: hover, resize and change dimension. Legend captions never show raw `a | b | c` text, not even for a frame (rAF legend).
+- [ ] Two vis widgets: maximize A via the icon, collapse it, then use Cognos-native expand on B and collapse. Each widget's focus panel and maximize state is correct, and `_KDB.runtime.widgetVis.observers.focusMode` is a single observer.
+- [ ] Datapoint drillthrough icon appears after selecting datapoints in a maximized widget, and again after restore and after park/take.
+- [ ] TopN widget plus a Jahr filter change: one `widgetTopN/resolveRequested` per qualifying widget, and the resulting `plan.slots` are identical to before the refactor.
+- [ ] Load a parameter set with 3+ vis widgets (one with TopN): all of them bind, with no `WIDGET_VIS_BINDING_PREREQUISITE_TIMEOUT` and no stale TopN data.
+- [ ] Settings reset (parameterSetReset) on a vis widget: the widget empties as before and no legend or focus observer survives in `_KDB.runtime.widgetVis.byId[id].observers`.
 
 ### WS-N Text + TopN widgets, header, footer, launchpad
 - [ ] Launchpad: pads and entries are the same and in the same order; the visible tabs in the launchpad match the canvas tabs (`dashboard` role tabs); the helper tab is not shown.
@@ -440,7 +462,19 @@ Run after the singleSelect C-final PR is merged. Baseline = the same dashboard o
 
 ## 8) Phase 2
 
-Run section 1 first. "Baseline" = the same step on `main` before the merge. Expected = baseline unless a step says "(intended change)".
+Phase 2 changes are listed per wave. "Baseline" = the same step on `main` before the wave merged; expected = baseline unless a delta is named.
+
+### P2-W2 merged-area hygiene sweep
+
+- [ ] PDF export: click the PDF button, let it finish. Expected: the PDF saves; title page, `Seite n: <tab>` footers, the `Anhang` page and its rows (Dashboard-Name, Filter, Daten-Quellen-Beladung, Quelle, Datenaktualität, Aktualisierungszyklus, Verwendetes System, Umgebung, Erstellungsdatum, Kennzahlen, Data Steward) read exactly as in a PDF exported on `main`; a tab without a name reads `Unbenannter Tab`.
+- [ ] PDF abort: start an export, close the dashboard (or reopen it) mid-export. Expected: no error dialog; the console shows a debug line `stopped (disposed: the dashboard was closed during the export)` (new wording, was `stopped`). The button is usable again after reopening.
+- [ ] Drillthrough from a header icon (vis widget with the drillthrough icon): opens a new tab with the Cognos drillthrough URL as on baseline. In the new tab's console `window.opener` is `null` (new). If the organisation hierarchy is not loaded yet, the wait window shows the "Bitte einen Moment Geduld" text and then navigates; it must not stay empty and it must not be reported as a blocked popup.
+- [ ] Drillthrough from a datapoint (click a data point icon): same URL and window behaviour as the header icon. Close the dashboard while a wait window is still showing "Geduld": the wait window closes by itself (new, was left open) after the next destroy wiring lands (stage 2; until then it stays as on baseline).
+- [ ] Header links: click the Benutzerhandbuch icon and the Dataspot icon. Expected: the same pages as on baseline (`getKDB().config.links.userManualUrl` / `dataSpotUrl` are the targets, inspect the `href` of `#KDB_userManual` / `#KDB_dataSpotIcon` parents).
+- [ ] Text widget autofit after resize: add a text widget with font size `Automatic`, type a long text, resize the widget and the browser window, undo/redo a text edit and reload a saved set with several text widgets. Expected: the text refits as on baseline (a refit may now trail by one frame). Performance: with a saved set that has 5+ automatic text widgets, the restore shows one `resize` burst, not one per widget (Performance panel, optional).
+- [ ] metricsTree: expand/collapse groups, type in the search box (typing, Enter, magnifier click), clear it, drag a leaf; then close and reopen the dashboard 3 times while the tree is still loading (close right after the first paint). Expected: tree and search as baseline, no console errors, no stuck loading overlay; `getKDB().api.metricsTree.getState()` is `undefined` on the disposed instance.
+- [ ] Chrome alert text (only if you can force a missing required chrome selector, for example by blocking the page layout node): the alert reads `Teile der Dashboard-Oberfläche konnten nicht geladen werden. Bitte das Dashboard schließen und erneut öffnen. Details stehen in der Browser-Konsole.` with title `Dashboard`.
+- [ ] Console after boot: `getKDB().config.labels.de` has `chrome`, `dashboardPdf` and `drillthrough`; `getKDB().elements.selectors.messageService` is `undefined` (intended).
 
 ### P2-W1
 
