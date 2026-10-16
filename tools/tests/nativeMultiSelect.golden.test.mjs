@@ -300,6 +300,42 @@ test("units: readClaimDefinition and isUnownedFilterDescriptor", () => {
   assert.equal(isUnowned(KDB, null), false);
 });
 
+test("units: readClaimDefinition gives the same result with a prebuilt index", () => {
+  const inventory = unit("inventory.js");
+  const instances = {
+    a: { scopeType: "global", itemName: "Jahr", itemId: "id1", isNative: true },
+    b: { scopeType: "global", itemName: "Jahr", itemId: "id2", isNative: true },
+    c: { scopeType: " global ", filterLabel: "Label", isNative: true },
+    d: { scopeType: "pageContext", itemName: "Jahr", itemId: "id1", isSingleSelect: true },
+    e: { scopeType: "pageContext", itemName: "Jahr", isSingleSelect: true },
+    f: null,
+    g: { scopeType: "global", itemName: "Same", itemId: "s1", isNative: true },
+    h: { scopeType: "global", itemName: "Same", itemId: "s1", isNative: true }
+  };
+  const KDB = {
+    state: { kennzahlenSource: { current: "Src" } },
+    properties: { filterPropObj: { Src: { filterInstances: instances, globalFilters: { OnlyLegacy: { isNative: true } } } } }
+  };
+  const index = inventory.createClaimIndex(KDB);
+  const cases = [
+    ["global", "Jahr", "id1"], ["global", "Jahr", "id2"], ["global", "Jahr", ""], ["global", "Jahr", "other"], ["global", "Label", ""],
+    ["pageContext", "Jahr", "id1"], ["pageContext", "Jahr", "id9"], ["global", "Same", "s1"], ["global", "OnlyLegacy", ""],
+    ["pageContext", "Missing", "x"], ["global", " Jahr ", " id1 "]
+  ];
+  for (const [scopeType, itemName, itemId] of cases) {
+    assert.deepEqual(
+      plain(inventory.readClaimDefinition(KDB, scopeType, itemName, itemId, index)),
+      plain(inventory.readClaimDefinition(KDB, scopeType, itemName, itemId)),
+      scopeType + "|" + itemName + "|" + itemId
+    );
+  }
+  assert.equal(inventory.readClaimDefinition(KDB, "global", "Jahr", "").status, "ambiguous");
+  assert.equal(inventory.readClaimDefinition(KDB, "global", "Jahr", "id2").definition, instances.b);
+  assert.equal(inventory.readClaimDefinition(KDB, "global", "Label", "").definition, instances.c);
+  assert.equal(inventory.readClaimDefinition(KDB, "global", "Same", "s1").definition, instances.g);
+  assert.equal(inventory.readClaimDefinition({ state: {}, properties: {} }, "global", "Jahr", "id1", inventory.createClaimIndex({})).status, "missing");
+});
+
 test("units: reducer handles mount, scope write, error, destroy", () => {
   const createReducer = UNITS.createReducer();
   const reducer = createReducer();

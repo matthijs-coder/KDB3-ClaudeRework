@@ -28,25 +28,6 @@ define([
     return _value == null ? "" : String(_value).trim();
   }
 
-  function matchesInstance(_entry, _scopeType, _itemName, _itemId) {
-    if (!_entry || normalize(_entry.scopeType) !== _scopeType) { return false; }
-    if (normalize(_entry.itemName || _entry.filterLabel) !== _itemName) { return false; }
-    if (_entry.itemId && _itemId && normalize(_entry.itemId) !== _itemId) { return false; }
-    return true;
-  }
-
-  function readInstanceDefinitions(_sourceConfig, _scopeType, _itemName, _itemId) {
-    var definitions = _sourceConfig && _sourceConfig.filterInstances;
-    var matches = [];
-    Object.keys(definitions || {}).forEach(function (_key) {
-      var entry = definitions[_key];
-      if (matchesInstance(entry, _scopeType, _itemName, _itemId)) {
-        matches.push(entry);
-      }
-    });
-    return matches;
-  }
-
   function readLegacyDefinition(_sourceConfig, _scopeType, _itemName) {
     var definitions = _scopeType === "global"
       ? _sourceConfig && _sourceConfig.globalFilters
@@ -74,28 +55,42 @@ define([
     return Object.keys(bySignature).map(function (_key) { return bySignature[_key]; });
   }
 
-  function readClaimDefinition(_KDB, _scopeType, _itemName, _itemId) {
+  function claimKey(_scopeType, _itemName) {
+    return _scopeType + "|" + _itemName;
+  }
+
+  // Definitions of the active source grouped by scope type and item name, in the order of filterInstances.
+  // Callers that classify many descriptors build it once per scan.
+  function createClaimIndex(_KDB) {
     var root = _KDB && _KDB.properties ? _KDB.properties.filterPropObj : null;
+    var source = _getKennzahlenSource(_KDB);
+    var sourceConfig = root && source ? root[source] : null;
+    var definitions = (sourceConfig && sourceConfig.filterInstances) || {};
+    var byKey = {};
+    Object.keys(definitions).forEach(function (_key) {
+      var entry = definitions[_key];
+      var key;
+      if (!entry) { return; }
+      key = claimKey(normalize(entry.scopeType), normalize(entry.itemName || entry.filterLabel));
+      (byKey[key] = byKey[key] || []).push(entry);
+    });
+    return { sourceConfig: sourceConfig, byKey: byKey };
+  }
+
+  function readClaimDefinition(_KDB, _scopeType, _itemName, _itemId, _index) {
+    var claimIndex = _index || createClaimIndex(_KDB);
     var itemName = normalize(_itemName);
     var itemId = normalize(_itemId);
-    var source = _getKennzahlenSource(_KDB);
-    var sourceKeys = source ? [source] : [];
-    var matches = [];
-    var legacyMatches = [];
-    sourceKeys.forEach(function (_sourceKey) {
-      var sourceConfig = root ? root[_sourceKey] : null;
-      matches = matches.concat(readInstanceDefinitions(sourceConfig, _scopeType, itemName, itemId));
-      var legacy = readLegacyDefinition(sourceConfig, _scopeType, itemName);
-      if (legacy && legacyMatches.indexOf(legacy) === -1) { legacyMatches.push(legacy); }
-    });
-    matches = dedupeEquivalent(matches);
-    legacyMatches = dedupeEquivalent(legacyMatches);
+    var key = claimKey(_scopeType, itemName);
+    var matches = Object.prototype.hasOwnProperty.call(claimIndex.byKey, key) ? claimIndex.byKey[key] : [];
+    var legacy;
+    matches = dedupeEquivalent(matches.filter(function (_entry) {
+      return !(_entry.itemId && itemId && normalize(_entry.itemId) !== itemId);
+    }));
     if (matches.length === 1) { return { status: "ok", definition: matches[0] }; }
     if (matches.length > 1) { return { status: "ambiguous", definition: null }; }
-    if (legacyMatches.length === 1) { return { status: "ok", definition: legacyMatches[0] }; }
-    return legacyMatches.length > 1
-      ? { status: "ambiguous", definition: null }
-      : { status: "missing", definition: null };
+    legacy = readLegacyDefinition(claimIndex.sourceConfig, _scopeType, itemName);
+    return legacy ? { status: "ok", definition: legacy } : { status: "missing", definition: null };
   }
 
   // ---------- ownership policy ----------
@@ -115,7 +110,7 @@ define([
 
   // Ownership policy over a flat descriptor. This is KDB domain logic and stays with the owner: the cognosHost
   // filters facet only translates host items into descriptors, it does not decide which filter belongs to which owner.
-  function isUnownedFilterDescriptor(_KDB, _descriptor) {
+  function isUnownedFilterDescriptor(_KDB, _descriptor, _claimIndex) {
     try {
       var descriptor = _descriptor || {};
       var itemId = String(descriptor.itemId || "").trim();
@@ -125,7 +120,7 @@ define([
       var scopeType = stripTabpanel(scope) === "global" ? "global" : "pageContext";
       var itemName = String(descriptor.itemName || "");
       if (normalized(itemName).indexOf("dienststelle") === 0) { return false; }
-      var definitionResult = readClaimDefinition(_KDB, scopeType, itemName, itemId);
+      var definitionResult = readClaimDefinition(_KDB, scopeType, itemName, itemId, _claimIndex);
       if (definitionResult.status !== "ok" || !definitionResult.definition) { return true; }
       var definition = definitionResult.definition;
       if (isTrueish(definition.isHierarchy) || normalized(definition.cascade) === "downstream") { return false; }
@@ -162,6 +157,7 @@ define([
     var descriptors;
     var result;
     var index;
+    var claimIndex;
     try {
       if (!_filtersFacet) { return []; }
       outcome = _filtersFacet.listFilterItems({ scopeId: _scopeId, includeValues: true });
@@ -175,8 +171,9 @@ define([
       }
       descriptors = outcome.data || [];
       result = [];
+      claimIndex = createClaimIndex(_KDB);
       for (index = 0; index < descriptors.length; index += 1) {
-        if (!isUnownedFilterDescriptor(_KDB, descriptors[index])) { continue; }
+        if (!isUnownedFilterDescriptor(_KDB, descriptors[index], claimIndex)) { continue; }
         result.push(toOwnedItemDto(descriptors[index]));
       }
       return result;
@@ -192,14 +189,16 @@ define([
     var seen = { global: true };
     var outcome;
     var descriptors;
+    var claimIndex;
     var scopeId;
     var idx;
     if (!_filtersFacet) { return result; }
     outcome = _filtersFacet.listFilterItems({ allPageContextScopes: true });
     if (!outcome || outcome.ok !== true) { return result; }
     descriptors = outcome.data || [];
+    claimIndex = createClaimIndex(_KDB);
     for (idx = 0; idx < descriptors.length; idx += 1) {
-      if (!isUnownedFilterDescriptor(_KDB, descriptors[idx])) { continue; }
+      if (!isUnownedFilterDescriptor(_KDB, descriptors[idx], claimIndex)) { continue; }
       scopeId = stripTabpanel(descriptors[idx].rawScopeId);
       if (!scopeId || seen[scopeId]) { continue; }
       seen[scopeId] = true;
@@ -232,6 +231,7 @@ define([
     var outcome;
     var descriptors;
     var descriptor;
+    var claimIndex;
     var idx;
     try {
       if (!nm || !_filtersFacet) { return null; }
@@ -239,9 +239,10 @@ define([
       outcome = _filtersFacet.listFilterItems({ scopeId: _scopeId });
       if (!outcome || outcome.ok !== true) { return null; }
       descriptors = outcome.data || [];
+      claimIndex = createClaimIndex(_KDB);
       for (idx = 0; idx < descriptors.length; idx += 1) {
         descriptor = descriptors[idx];
-        if (!isUnownedFilterDescriptor(_KDB, descriptor)) { continue; }
+        if (!isUnownedFilterDescriptor(_KDB, descriptor, claimIndex)) { continue; }
         if (String(descriptor.itemName || "").trim() !== nm) { continue; }
         if (targetScope !== "global" && stripTabpanel(descriptor.rawScopeId) !== targetScope) { continue; }
         return buildRef(descriptor);
@@ -255,6 +256,7 @@ define([
 
   return {
     buildRef: buildRef,
+    createClaimIndex: createClaimIndex,
     readClaimDefinition: readClaimDefinition,
     isUnownedFilterDescriptor: isUnownedFilterDescriptor,
     listUnownedItems: listUnownedItems,
