@@ -1,18 +1,22 @@
 define([
   "../../state.js",
+  "../../../../../core/utils/kit/runtime.js",
   "../hostScope/filterRef.js",
   "../hostScope/selection.js",
   "./pageScopes.js",
   "./defaults.js"
-], function (_state, _filterRef, _selection, _pageScopes, _defaults) {
+], function (_state, _kitRuntime, _filterRef, _selection, _pageScopes, _defaults) {
   "use strict";
 
   var hasMemberList = _pageScopes.hasMemberList;
-  var USER_COMMIT_DEFAULT_DELAY_MS = 0;
 
-  function delayMs(_ms) {
+  // Macrotask: Cognos commits the host value after the confirm event; a microtask reads it too early.
+  // Tracked in runtime.timers (one key per hop) so destroy cancels a pending reconcile.
+  function yieldToHost(_KDB) {
+    var runtime = _KDB.runtime.dienststelle;
+    runtime.userCommitHopSeq = (runtime.userCommitHopSeq || 0) + 1;
     return new Promise(function (resolve) {
-      setTimeout(resolve, _ms);
+      _kitRuntime.scheduleTimeout(runtime.timers, "userCommitHop" + runtime.userCommitHopSeq, resolve, 0);
     });
   }
 
@@ -196,7 +200,7 @@ define([
   }
 
   function runUserConfirmAfterHostRead(_run, _globalRef) {
-    return delayMs(USER_COMMIT_DEFAULT_DELAY_MS).then(function () {
+    return yieldToHost(_run.KDB).then(function () {
       var KDB = _run.KDB;
       var dispatchInternal = _run.dispatchInternal;
       var definition = _run.definition;

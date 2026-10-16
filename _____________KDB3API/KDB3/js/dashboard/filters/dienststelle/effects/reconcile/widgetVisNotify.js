@@ -106,16 +106,14 @@ define(["../hierarchySnapshot.js"], function (_hierarchySnapshot) {
     };
   }
 
-  function dispatchOrLog(_KDB, _payload) {
+  function dispatchWidgetChanged(_KDB, _payload) {
     var widgetVisApi = _KDB && _KDB.api ? _KDB.api.widgetVis : null;
     if (widgetVisApi && typeof widgetVisApi.dispatch === "function") {
       widgetVisApi.dispatch({
         type: "widgetVis/dienststelleChanged",
         payload: _payload
       });
-      return;
     }
-    console.info("[dienststelle.widgetVis.dispatch]", _payload);
   }
 
   function notifyWidgetChanged(_KDB, _context, _definition, _reconcileResult) {
@@ -130,7 +128,7 @@ define(["../hierarchySnapshot.js"], function (_hierarchySnapshot) {
       return;
     }
     try {
-      dispatchOrLog(_KDB, buildPayload(_KDB, context, _definition, _reconcileResult));
+      dispatchWidgetChanged(_KDB, buildPayload(_KDB, context, _definition, _reconcileResult));
     } catch (_error) {
       console.warn("[dienststelle.widgetVis.dispatch] boundary failed", _error);
     }

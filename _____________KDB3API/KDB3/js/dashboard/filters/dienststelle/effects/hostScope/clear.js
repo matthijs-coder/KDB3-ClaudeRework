@@ -129,66 +129,64 @@ define([
     var idx;
     var target;
     var tabIdx;
-    try {
-      allowed = _payload && _payload.allowedClearTabIdxs;
-      if (!Array.isArray(allowed)) { return true; }
-      map = _payload && _payload.tabIdxToScopeId && typeof _payload.tabIdxToScopeId === "object"
-        ? _payload.tabIdxToScopeId : {};
-      wanted = _filterRef.normalizeScopeId(_scopeId);
-      if (!wanted || wanted === "global") { return false; }
-      keys = Object.keys(map);
-      for (idx = 0; idx < keys.length; idx += 1) {
-        target = map[keys[idx]];
-        if (_filterRef.normalizeScopeId(target && target.scopeId) !== wanted) { continue; }
-        tabIdx = parseInt(keys[idx], 10);
-        if (!isFinite(tabIdx) || String(tabIdx) !== keys[idx]) { continue; }
-        return allowed.indexOf(tabIdx) !== -1;
-      }
-      return false;
-    } catch (error) {
-      console.error("[dienststelle.isAllowedPageScope] failed", { scopeId: _scopeId }, error);
-      throw error;
+    allowed = _payload && _payload.allowedClearTabIdxs;
+    if (!Array.isArray(allowed)) {
+      return true;
     }
+    map = _payload && _payload.tabIdxToScopeId && typeof _payload.tabIdxToScopeId === "object"
+      ? _payload.tabIdxToScopeId
+      : {};
+    wanted = _filterRef.normalizeScopeId(_scopeId);
+    if (!wanted || wanted === "global") {
+      return false;
+    }
+    keys = Object.keys(map);
+    for (idx = 0; idx < keys.length; idx += 1) {
+      target = map[keys[idx]];
+      if (_filterRef.normalizeScopeId(target && target.scopeId) !== wanted) {
+        continue;
+      }
+      tabIdx = parseInt(keys[idx], 10);
+      if (!isFinite(tabIdx) || String(tabIdx) !== keys[idx]) {
+        continue;
+      }
+      return allowed.indexOf(tabIdx) !== -1;
+    }
+    return false;
+  }
+
+  function clearPageScopeInto(_KDB, _filtersFacet, _activeFilterKey, _aggregate, _scopeId) {
+    return clearScope(_KDB, _filtersFacet, _activeFilterKey, "pageContext", _scopeId).then(function (_scopeResult) {
+      mergeScopeResult(_aggregate, _scopeResult);
+    });
   }
 
   function clearHostFilter(_KDB, _activeFilterKey, _payload) {
-    var filtersFacet;
+    var filtersFacet = _filterRef.readFiltersFacet(_KDB);
     var pageScopes;
     var idx;
     var chain;
     var aggregate;
-    try {
-      filtersFacet = _filterRef.readFiltersFacet(_KDB);
-      if (!_activeFilterKey || !filtersFacet) {
-        return Promise.resolve(emptyResult());
-      }
-      aggregate = { ok: true, clearedCount: 0, failedScopes: [], remainingScopes: [] };
-      chain = clearScope(_KDB, filtersFacet, _activeFilterKey, "global", null).then(function (_scopeResult) {
-        mergeScopeResult(aggregate, _scopeResult);
-      });
-      pageScopes = _filterRef.listPageContextScopes(_KDB, _activeFilterKey);
-      for (idx = 0; idx < pageScopes.length; idx += 1) {
-        if (!isAllowedPageScope(pageScopes[idx], _payload)) { continue; }
-        (function (scopeId) {
-          chain = chain
-            .then(function () {
-              return clearScope(_KDB, filtersFacet, _activeFilterKey, "pageContext", scopeId);
-            })
-            .then(function (_scopeResult) {
-              mergeScopeResult(aggregate, _scopeResult);
-            });
-        })(pageScopes[idx]);
-      }
-      return chain.then(function () {
-        if (aggregate.remainingScopes.length) {
-          aggregate.ok = false;
-        }
-        return aggregate;
-      });
-    } catch (error) {
-      console.error("[dienststelle.clearHostFilter] failed", error);
-      throw error;
+    if (!_activeFilterKey || !filtersFacet) {
+      return Promise.resolve(emptyResult());
     }
+    aggregate = emptyResult();
+    chain = clearScope(_KDB, filtersFacet, _activeFilterKey, "global", null).then(function (_scopeResult) {
+      mergeScopeResult(aggregate, _scopeResult);
+    });
+    pageScopes = _filterRef.listPageContextScopes(_KDB, _activeFilterKey);
+    for (idx = 0; idx < pageScopes.length; idx += 1) {
+      if (!isAllowedPageScope(pageScopes[idx], _payload)) {
+        continue;
+      }
+      chain = chain.then(clearPageScopeInto.bind(null, _KDB, filtersFacet, _activeFilterKey, aggregate, pageScopes[idx]));
+    }
+    return chain.then(function () {
+      if (aggregate.remainingScopes.length) {
+        aggregate.ok = false;
+      }
+      return aggregate;
+    });
   }
 
   function dispatchInactiveStatus(_dispatchInternal, _definition) {

@@ -2,10 +2,11 @@ define([
   "../../state.js",
   "../../selectors.js",
   "../../config.js",
+  "../../../../../core/utils/kit/runtime.js",
   "../viewSync.js",
   "./hostScopes.js",
   "./widgetVisNotify.js"
-], function (_state, _selectors, _config, _viewSync, _hostScopes, _widgetVisNotify) {
+], function (_state, _selectors, _config, _kitRuntime, _viewSync, _hostScopes, _widgetVisNotify) {
   "use strict";
 
   var USER_WIDGET_NOTIFY_DEFER_MS = 600;
@@ -85,48 +86,19 @@ define([
     });
   }
 
-  function ensureDienststelleTimers(_KDB) {
-    var runtime;
-    try {
-      runtime = _KDB && _KDB.runtime ? _KDB.runtime.dienststelle : null;
-      if (!runtime) { return null; }
-      runtime.timers = runtime.timers || {};
-      return runtime.timers;
-    } catch (_error) {
-      console.warn("[dienststelle.reconcileConfirmed] timers bucket failed", _error);
-      return null;
-    }
-  }
-
-  function fireUserWidgetNotifyIfLive(_KDB, _timerId, _context, _definition, _reconcileResult) {
-    var liveTimers;
-    try {
-      liveTimers = _KDB && _KDB.runtime && _KDB.runtime.dienststelle && _KDB.runtime.dienststelle.timers;
-      if (liveTimers) {
-        if (liveTimers.userNotify !== _timerId) { return; }
-        delete liveTimers.userNotify;
-      }
-      _widgetVisNotify.notifyWidgetChanged(_KDB, _context, _definition, _reconcileResult);
-    } catch (_error) {
-      console.warn("[dienststelle.reconcileConfirmed] userNotify failed", _error);
-    }
-  }
-
   function deferUserWidgetNotify(_KDB, _context, _definition, _reconcileResult) {
-    var timers;
-    var previous;
-    var timerId;
-    try {
-      timers = ensureDienststelleTimers(_KDB);
-      previous = timers ? timers.userNotify : null;
-      if (previous != null) { clearTimeout(previous); }
-      timerId = setTimeout(function () {
-        fireUserWidgetNotifyIfLive(_KDB, timerId, _context, _definition, _reconcileResult);
-      }, USER_WIDGET_NOTIFY_DEFER_MS);
-      if (timers) { timers.userNotify = timerId; }
-    } catch (_error) {
-      console.warn("[dienststelle.reconcileConfirmed] defer userNotify failed", _error);
-    }
+    _kitRuntime.scheduleTimeout(
+      _KDB.runtime.dienststelle.timers,
+      "userNotify",
+      function () {
+        try {
+          _widgetVisNotify.notifyWidgetChanged(_KDB, _context, _definition, _reconcileResult);
+        } catch (_error) {
+          console.warn("[dienststelle.userNotify] failed", _error);
+        }
+      },
+      USER_WIDGET_NOTIFY_DEFER_MS
+    );
   }
 
   function scheduleVisualizationWidgetNotify(_KDB, _context, _definition, _reconcileResult) {

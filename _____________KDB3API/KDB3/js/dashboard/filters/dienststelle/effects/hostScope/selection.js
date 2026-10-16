@@ -1,13 +1,13 @@
 define([
   "../../view/labels.js",
+  "../../../../../core/utils/kit/async.js",
   "./filterRef.js"
-], function (_labels, _filterRef) {
+], function (_labels, _kitAsync, _filterRef) {
   "use strict";
 
   var REQUIRED_STABLE_READS = 2;
   var POLL_INTERVAL_MS = 50;
   var TIMEOUT_MS = 2000;
-  var waitForMissingLogged = false;
 
   function normalizeHostValue(_raw) {
     var display =
@@ -150,7 +150,6 @@ define([
   }
 
   function waitForStableScopeValues(_KDB, _activeFilterKey, _scopeId, _filtersFacet, _expected) {
-    var waitForFn = _KDB && _KDB.utils ? _KDB.utils.waitFor : null;
     var stableCount = 0;
     var lastObserved = null;
 
@@ -164,33 +163,16 @@ define([
       return stableCount;
     }
 
-    if (typeof waitForFn !== "function") {
-      if (!waitForMissingLogged) {
-        waitForMissingLogged = true;
-        console.warn("[dienststelle.waitForStableScopeValues] waitFor missing");
+    return _kitAsync.pollUntil({
+      check: pollStableCount,
+      intervalMs: POLL_INTERVAL_MS,
+      timeoutMs: TIMEOUT_MS,
+      predicate: function (_count) {
+        return _count >= REQUIRED_STABLE_READS;
       }
-      pollStableCount();
-      return Promise.resolve({
-        stable: stableCount >= REQUIRED_STABLE_READS,
-        lastObserved: lastObserved
-      });
-    }
-
-    return Promise.resolve(
-      waitForFn(pollStableCount, {
-        interval: POLL_INTERVAL_MS,
-        timeoutMs: TIMEOUT_MS,
-        predicate: function (_count) {
-          return _count >= REQUIRED_STABLE_READS;
-        }
-      })
-    )
-      .then(function () {
-        return { stable: true, lastObserved: lastObserved };
-      })
-      .catch(function () {
-        return { stable: false, lastObserved: lastObserved };
-      });
+    }).then(function (_outcome) {
+      return { stable: _outcome.ok === true, lastObserved: lastObserved };
+    });
   }
 
   return {

@@ -443,6 +443,7 @@ test('T10 view sync: user confirm waits four frames, then syncs once', () => {
   schedule(KDB, { source: 'user', viewSyncHandoff: { id: 'h1', filterScope: 'global' } }, { resolution: null });
   assert.equal(frames.pending.size, 1);
   assert.deepStrictEqual(calls, []);
+  assert.deepStrictEqual(KDB.runtime.dienststelle.timers.viewSync, { kind: 'raf', id: [...frames.pending.keys()][0] });
   assert.equal(frames.flushAll(), 4);
   assert.deepStrictEqual(calls, [['names'], ['view', 'h1']]);
   assert.deepStrictEqual(KDB.runtime.dienststelle.timers, {});
@@ -460,6 +461,41 @@ test('T10 view sync: a second schedule cancels the first', () => {
   assert.equal(frames.pending.size, 1);
   frames.flushAll();
   assert.deepStrictEqual(calls, [['names'], ['view', 'h2']]);
+});
+
+test('T10 view sync: pending frame is cancelled by runtime teardown', () => {
+  const frames = makeFrameQueue();
+  const calls = [];
+  const schedule = scheduleViewSync(loadViewSync(frames, calls));
+  const kitRuntime = loadCore('core/utils/kit/runtime.js', {
+    stubs: { requestAnimationFrame: frames.requestAnimationFrame, cancelAnimationFrame: frames.cancelAnimationFrame }
+  });
+  const KDB = { runtime: { dienststelle: { timers: {} } } };
+  schedule(KDB, { source: 'user', viewSyncHandoff: { id: 'h1' } }, null);
+  assert.deepStrictEqual(kitRuntime.disposeRuntimeBuckets(KDB.runtime.dienststelle), []);
+  assert.equal(frames.pending.size, 0);
+  assert.deepStrictEqual(calls, []);
+});
+
+test('T10 view sync: without requestAnimationFrame four chained timeouts run the sync once', async () => {
+  const calls = [];
+  const syncView = (_KDB, handoff) => calls.push(['view', handoff && handoff.id]);
+  const syncNames = () => calls.push(['names']);
+  const schedule = scheduleViewSync(
+    load(VIEW_SYNC_PATH, {
+      stubs: { requestAnimationFrame: undefined },
+      modules: {
+        [VIEW_SYNC_SPEC.syncView]: Object.assign(syncView, { syncViewFromState: syncView }),
+        [VIEW_SYNC_SPEC.syncNames]: Object.assign(syncNames, { syncFilterDockNames: syncNames })
+      }
+    })
+  );
+  const KDB = { runtime: { dienststelle: { timers: {} } } };
+  schedule(KDB, { source: 'user', viewSyncHandoff: { id: 'h3' } }, null);
+  assert.equal(KDB.runtime.dienststelle.timers.viewSync.kind, 'timeout');
+  await new Promise((resolve) => setTimeout(resolve, 80));
+  assert.deepStrictEqual(calls, [['names'], ['view', 'h3']]);
+  assert.deepStrictEqual(KDB.runtime.dienststelle.timers, {});
 });
 
 test('T10 view sync: non-deferred sources sync immediately', () => {
@@ -1177,4 +1213,72 @@ test('T13 route: table data changes are deferred while a tab mutation is running
   await route(controller, () => {}, reconcile, { type: ACTION.TABLE_DATA_CHANGED, payload: {} });
   assert.equal(reconcileCalls.length, 1);
   assert.equal(reconcileCalls[0].source, 'tableData');
+});
+
+const USER_CLEAR_CONTEXT = {
+  activeSichtValue: 'BW',
+  source: 'user',
+  commitFromUser: true,
+  allowDefaulting: true,
+  commitSourceScope: 'global',
+  commitSourceWasClear: true,
+  filterScope: 'global',
+  observedAt: 5
+};
+
+const tick = () => new Promise((resolve) => setImmediate(resolve));
+
+async function waitFor(predicate) {
+  for (let attempt = 0; attempt < 200 && !predicate(); attempt += 1) await tick();
+  assert.ok(predicate(), 'condition not reached');
+}
+
+test('T14 user confirm: tracked widget notify timer and its teardown', async () => {
+  const host = makeFlowHost();
+  const { log, dispatch } = makeDispatchLog();
+  const kitRuntime = loadCore('core/utils/kit/runtime.js');
+  await flowSubject().reconcileConfirmed(host.KDB, dispatch, USER_CLEAR_CONTEXT);
+  const timers = host.KDB.runtime.dienststelle.timers;
+  assert.equal(timers.userNotify.kind, 'timeout');
+  assert.equal(host.widgetEvents.length, 0);
+  assert.deepStrictEqual(kitRuntime.disposeRuntimeBuckets(host.KDB.runtime.dienststelle), []);
+  await new Promise((resolve) => setTimeout(resolve, 700));
+  assert.equal(host.widgetEvents.length, 0);
+  assert.ok(log.length > 0);
+});
+
+test('T14 user confirm: the host-commit hop is tracked and destroy stops the pending reconcile', async () => {
+  const host = makeFlowHost();
+  const { log, dispatch } = makeDispatchLog();
+  const kitRuntime = loadCore('core/utils/kit/runtime.js');
+  let settled = false;
+  flowSubject()
+    .reconcileConfirmed(host.KDB, dispatch, USER_CLEAR_CONTEXT)
+    .then(() => {
+      settled = true;
+    });
+  const timers = host.KDB.runtime.dienststelle.timers;
+  await waitFor(() => Object.keys(timers).some((key) => key.startsWith('userCommitHop')));
+  const hopKey = Object.keys(timers).find((key) => key.startsWith('userCommitHop'));
+  assert.equal(timers[hopKey].kind, 'timeout');
+  const logBefore = log.length;
+  kitRuntime.disposeRuntimeBuckets(host.KDB.runtime.dienststelle);
+  await new Promise((resolve) => setTimeout(resolve, 60));
+  assert.equal(settled, false);
+  assert.equal(log.length, logBefore);
+  assert.deepStrictEqual(host.writes, []);
+  assert.deepStrictEqual(host.KDB.runtime.dienststelle.timers, {});
+});
+
+test('T14 user confirm: concurrent confirms on one runtime each get their own hop', async () => {
+  const host = makeFlowHost();
+  const subject = flowSubject();
+  const results = await Promise.all([
+    subject.reconcileConfirmed(host.KDB, makeDispatchLog().dispatch, USER_CLEAR_CONTEXT),
+    subject.reconcileConfirmed(host.KDB, makeDispatchLog().dispatch, USER_CLEAR_CONTEXT)
+  ]);
+  assert.ok(results.every((result) => result && result.readinessFailed === false));
+  assert.equal(host.KDB.runtime.dienststelle.userCommitHopSeq, 2);
+  assert.deepStrictEqual(Object.keys(host.KDB.runtime.dienststelle.timers), ['userNotify']);
+  loadCore('core/utils/kit/runtime.js').disposeRuntimeBuckets(host.KDB.runtime.dienststelle);
 });

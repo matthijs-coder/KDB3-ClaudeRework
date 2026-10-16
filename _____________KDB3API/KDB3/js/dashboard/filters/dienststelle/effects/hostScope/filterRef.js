@@ -190,54 +190,43 @@ define(["../../../../tabs/state/selectors.js"], function (_tabsSelectors) {
     var canonical;
     var activeFilterKey;
     var raw;
-    try {
-      if (_pageScopeId == null || _pageScopeId === "" || _pageScopeId === "global") {
-        return null;
-      }
-      if (_pageScopeId === "active") {
-        canonical = _tabsSelectors.readActiveTabId(_KDB);
-        if (!canonical) {
-          return null;
-        }
-      } else {
-        canonical = _pageScopeId;
-      }
-      activeFilterKey = _KDB && _KDB.state && _KDB.state.filters && _KDB.state.filters.dienststelle
-        ? _KDB.state.filters.dienststelle.activeFilterKey
-        : null;
-      raw = resolveRawPageContextScope(_KDB, activeFilterKey, canonical);
-      if (raw == null || String(raw) === "") {
-        return null;
-      }
-      return String(raw);
-    } catch (error) {
-      console.error("[dienststelle.resolvePlannerPageScopeId] failed", error);
-      throw error;
+    if (_pageScopeId == null || _pageScopeId === "" || _pageScopeId === "global") {
+      return null;
     }
+    if (_pageScopeId === "active") {
+      canonical = _tabsSelectors.readActiveTabId(_KDB);
+      if (!canonical) {
+        return null;
+      }
+    } else {
+      canonical = _pageScopeId;
+    }
+    activeFilterKey = _KDB && _KDB.state && _KDB.state.filters && _KDB.state.filters.dienststelle
+      ? _KDB.state.filters.dienststelle.activeFilterKey
+      : null;
+    raw = resolveRawPageContextScope(_KDB, activeFilterKey, canonical);
+    if (raw == null || String(raw) === "") {
+      return null;
+    }
+    return String(raw);
   }
 
   function pickPageContextScopeMap(_KDB, _pageContextValuesByScope, _pageScopeId) {
-    var map;
+    var map = _pageContextValuesByScope && typeof _pageContextValuesByScope === "object"
+      ? _pageContextValuesByScope
+      : {};
     var raw;
     var out;
-    try {
-      map = _pageContextValuesByScope && typeof _pageContextValuesByScope === "object"
-        ? _pageContextValuesByScope
-        : {};
-      if (_pageScopeId == null || _pageScopeId === "") {
-        return map;
-      }
-      raw = resolvePlannerPageScopeId(_KDB, _pageScopeId);
-      if (!raw || !Object.prototype.hasOwnProperty.call(map, raw)) {
-        return {};
-      }
-      out = {};
-      out[raw] = map[raw];
-      return out;
-    } catch (error) {
-      console.error("[dienststelle.pickPageContextScopeMap] failed", error);
-      throw error;
+    if (_pageScopeId == null || _pageScopeId === "") {
+      return map;
     }
+    raw = resolvePlannerPageScopeId(_KDB, _pageScopeId);
+    if (!raw || !Object.prototype.hasOwnProperty.call(map, raw)) {
+      return {};
+    }
+    out = {};
+    out[raw] = map[raw];
+    return out;
   }
 
   return {

@@ -121,72 +121,67 @@ define([
   }
 
   function readCurrentHierarchySnapshot(_KDB, _options) {
-    try {
-      var state =
-        (_options = _options || {}) && _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.dienststelle : null;
-      var resolution;
-      var activeFilterKey;
-      var visibleFilterLabel;
-      var dominantValues;
-      var downstreamValues;
-      var displayValues;
-      var hostDisplayValues;
-      var pageContextValues;
-      var hasConfirmedSelection;
-      if (!state) {
-        return null;
-      }
-      resolution = state.resolution && typeof state.resolution === "object" ? state.resolution : {};
-      activeFilterKey = state.activeFilterKey != null ? String(state.activeFilterKey) : null;
-      visibleFilterLabel = state.visibleFilterLabel != null
-        ? String(state.visibleFilterLabel)
-        : "Dienststelle";
-      dominantValues = rewriteValuesToMetricsSource(_KDB, _aligned.extractUseValues(resolution.dominantValues));
-      downstreamValues = rewriteValuesToMetricsSource(_KDB, _aligned.extractUseValues(resolution.downstreamValues));
-      displayValues = _aligned.extractDisplayValues(resolution.dominantValues).concat(
-        _aligned.extractDisplayValues(resolution.downstreamValues)
-      );
-      hostDisplayValues = _aligned.collectAlignedHostDisplays(resolution.dominantValues).concat(
-        _aligned.collectAlignedHostDisplays(resolution.downstreamValues)
-      );
-      if (!dominantValues.length) {
-        pageContextValues = collectPageContextUseValues(
-          _filterRef.pickPageContextScopeMap(_KDB, resolution.pageContextValuesByScope, _options.pageScopeId)
-        );
-        dominantValues = rewriteValuesToMetricsSource(_KDB, pageContextValues.useValues);
-        displayValues = displayValues.concat(pageContextValues.displayValues);
-        hostDisplayValues = hostDisplayValues.concat(pageContextValues.hostDisplayValues);
-      }
-      if (!downstreamValues.length && dominantValues.length) {
-        downstreamValues = dominantValues.slice();
-      }
-      hasConfirmedSelection = dominantValues.length > 0 || downstreamValues.length > 0;
-      return {
-        activeDownstreamName: activeFilterKey,
-        filterId: activeFilterKey,
-        filterLabel: visibleFilterLabel,
-        visibleFilterLabel: visibleFilterLabel,
-        hierarchyItemId: resolveHierarchyItemId(_KDB, activeFilterKey),
-        activeHierarchyTableKey: state.activeHierarchyTableKey != null
-          ? String(state.activeHierarchyTableKey)
-          : null,
-        resolution: {
-          hasConfirmedSelection: hasConfirmedSelection,
-          dominantValues: dominantValues,
-          downstreamValues: downstreamValues,
-          displayValues: displayValues,
-          hostDisplayValues: hostDisplayValues,
-          dominantScopeKey: resolution.dominantScope != null
-            ? String(resolution.dominantScope)
-            : null,
-          resolvedAt: resolution.resolvedAt != null ? resolution.resolvedAt : null
-        },
-        source: "dienststelle"
-      };
-    } catch (error) {
-      console.error("[dienststelle.readCurrentHierarchySnapshot] failed", error);
-      throw error;
+    var options = _options || {};
+    var state = _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.dienststelle : null;
+    var resolution;
+    var activeFilterKey;
+    var visibleFilterLabel;
+    var dominantValues;
+    var downstreamValues;
+    var displayValues;
+    var hostDisplayValues;
+    var pageContextValues;
+    var hasConfirmedSelection;
+    if (!state) {
+      return null;
     }
+    resolution = state.resolution && typeof state.resolution === "object" ? state.resolution : {};
+    activeFilterKey = state.activeFilterKey != null ? String(state.activeFilterKey) : null;
+    visibleFilterLabel = state.visibleFilterLabel != null
+      ? String(state.visibleFilterLabel)
+      : "Dienststelle";
+    dominantValues = rewriteValuesToMetricsSource(_KDB, _aligned.extractUseValues(resolution.dominantValues));
+    downstreamValues = rewriteValuesToMetricsSource(_KDB, _aligned.extractUseValues(resolution.downstreamValues));
+    displayValues = _aligned.extractDisplayValues(resolution.dominantValues).concat(
+      _aligned.extractDisplayValues(resolution.downstreamValues)
+    );
+    hostDisplayValues = _aligned.collectAlignedHostDisplays(resolution.dominantValues).concat(
+      _aligned.collectAlignedHostDisplays(resolution.downstreamValues)
+    );
+    if (!dominantValues.length) {
+      pageContextValues = collectPageContextUseValues(
+        _filterRef.pickPageContextScopeMap(_KDB, resolution.pageContextValuesByScope, options.pageScopeId)
+      );
+      dominantValues = rewriteValuesToMetricsSource(_KDB, pageContextValues.useValues);
+      displayValues = displayValues.concat(pageContextValues.displayValues);
+      hostDisplayValues = hostDisplayValues.concat(pageContextValues.hostDisplayValues);
+    }
+    if (!downstreamValues.length && dominantValues.length) {
+      downstreamValues = dominantValues.slice();
+    }
+    hasConfirmedSelection = dominantValues.length > 0 || downstreamValues.length > 0;
+    return {
+      activeDownstreamName: activeFilterKey,
+      filterId: activeFilterKey,
+      filterLabel: visibleFilterLabel,
+      visibleFilterLabel: visibleFilterLabel,
+      hierarchyItemId: resolveHierarchyItemId(_KDB, activeFilterKey),
+      activeHierarchyTableKey: state.activeHierarchyTableKey != null
+        ? String(state.activeHierarchyTableKey)
+        : null,
+      resolution: {
+        hasConfirmedSelection: hasConfirmedSelection,
+        dominantValues: dominantValues,
+        downstreamValues: downstreamValues,
+        displayValues: displayValues,
+        hostDisplayValues: hostDisplayValues,
+        dominantScopeKey: resolution.dominantScope != null
+          ? String(resolution.dominantScope)
+          : null,
+        resolvedAt: resolution.resolvedAt != null ? resolution.resolvedAt : null
+      },
+      source: "dienststelle"
+    };
   }
 
   return {

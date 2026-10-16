@@ -1,7 +1,8 @@
 define([
   "../view/syncView.js",
-  "../view/dockNames.js"
-], function (_syncView, _dockNames) {
+  "../view/dockNames.js",
+  "../../../../core/utils/kit/runtime.js"
+], function (_syncView, _dockNames, _kitRuntime) {
   "use strict";
 
   var USER_CONFIRM_DEFER_FRAMES = 4;
@@ -49,69 +50,18 @@ define([
     }
   }
 
-  function ensureDienststelleTimers(_KDB) {
-    var runtime;
-    try {
-      runtime = _KDB && _KDB.runtime ? _KDB.runtime.dienststelle : null;
-      if (!runtime) { return null; }
-      runtime.timers = runtime.timers || {};
-      return runtime.timers;
-    } catch (_error) {
-      console.warn("[dienststelle.viewSync] timers bucket failed", _error);
-      return null;
-    }
-  }
-
-  function clearMixedHandle(_handle) {
-    if (typeof _handle !== "number") { return; }
-    try {
-      clearTimeout(_handle);
-      if (typeof cancelAnimationFrame === "function") {
-        cancelAnimationFrame(_handle);
-      }
-    } catch (_error) {
-      console.warn("[dienststelle.viewSync] clear viewSync failed", _error);
-    }
-  }
-
-  function isLiveViewSync(_KDB, _handleId) {
-    var liveTimers = _KDB && _KDB.runtime && _KDB.runtime.dienststelle && _KDB.runtime.dienststelle.timers;
-    if (!liveTimers) { return true; }
-    return liveTimers.viewSync === _handleId;
-  }
-
-  function onViewSyncFrame(_KDB, _handoff, _context, _reconcileResult, _framesLeft, _frameId) {
-    try {
-      if (!isLiveViewSync(_KDB, _frameId)) { return; }
-      runDeferredLifecycleViewSync(_KDB, _handoff, _context, _reconcileResult, _framesLeft);
-    } catch (_error) {
-      console.warn("[dienststelle.viewSync] viewSync frame failed", _error);
-    }
-  }
-
-  function runDeferredLifecycleViewSync(_KDB, _handoff, _context, _reconcileResult, _framesLeft) {
-    var timers = ensureDienststelleTimers(_KDB);
-    var liveTimers;
-    var frameId;
-    var timeoutId;
+  function runDeferredViewSync(_KDB, _handoff, _context, _reconcileResult, _framesLeft) {
     if (_framesLeft <= 0) {
-      liveTimers = _KDB && _KDB.runtime && _KDB.runtime.dienststelle && _KDB.runtime.dienststelle.timers;
-      if (liveTimers) { delete liveTimers.viewSync; }
       runLifecycleViewSync(_KDB, _handoff, _context, _reconcileResult);
       return;
     }
-    clearMixedHandle(timers ? timers.viewSync : null);
-    if (typeof requestAnimationFrame === "function") {
-      frameId = requestAnimationFrame(function (_timestamp) {
-        onViewSyncFrame(_KDB, _handoff, _context, _reconcileResult, _framesLeft - 1, frameId);
-      });
-      if (timers) { timers.viewSync = frameId; }
-      return;
-    }
-    timeoutId = setTimeout(function () {
-      onViewSyncFrame(_KDB, _handoff, _context, _reconcileResult, 0, timeoutId);
-    }, 0);
-    if (timers) { timers.viewSync = timeoutId; }
+    _kitRuntime.scheduleFrame(_KDB.runtime.dienststelle.timers, "viewSync", function () {
+      try {
+        runDeferredViewSync(_KDB, _handoff, _context, _reconcileResult, _framesLeft - 1);
+      } catch (_error) {
+        console.warn("[dienststelle.viewSync] viewSync frame failed", _error);
+      }
+    });
   }
 
   function shouldDeferViewSync(_context) {
@@ -132,7 +82,7 @@ define([
   function scheduleViewSync(_KDB, _context, _reconcileResult) {
     var handoff = resolveViewSyncHandoff(_context);
     if (shouldDeferViewSync(_context)) {
-      runDeferredLifecycleViewSync(_KDB, handoff, _context, _reconcileResult, USER_CONFIRM_DEFER_FRAMES);
+      runDeferredViewSync(_KDB, handoff, _context, _reconcileResult, USER_CONFIRM_DEFER_FRAMES);
       return;
     }
     runLifecycleViewSync(_KDB, handoff, _context, _reconcileResult);

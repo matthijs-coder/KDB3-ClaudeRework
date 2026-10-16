@@ -223,7 +223,9 @@ define([
     }
     if (action.type === actions.TABLE_DATA_CHANGED || action.type === actions.SYNC_REQUESTED) {
       // Defer reconcile while the tabs mutation saga is in flight.
-      if (_controller._KDB.runtime && _controller._KDB.runtime.tabs && _controller._KDB.runtime.tabs.pendingPromises && _controller._KDB.runtime.tabs.pendingPromises.tabMutation) { return Promise.resolve(undefined); }
+      if (_kitRuntime.readTabsBusy(_controller._KDB, ["tabMutation"])) {
+        return Promise.resolve(undefined);
+      }
       return _runReconcile.runReconcile(
         _controller._KDB,
         _dispatchInternal,
