@@ -45,8 +45,8 @@ define([
     }
     _subscription.released = true;
     _subscription.callback = null;
-    // Not while disposing: destroy iterates runtime.subscriptions and calls every unsubscribe,
-    // splicing the array underneath that loop would skip entries.
+    // Redundant for correctness since clearRuntime iterates a copy; kept so destroy does not
+    // re-create and prune the runtime bucket once per subscription.
     if (!_ctx.isDisposed()) {
       _runtime.pruneSubscription(_ctx._KDB, _subscription.unsubscribe);
     }

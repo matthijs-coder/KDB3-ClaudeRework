@@ -73,7 +73,7 @@ define([
     return _outcome.buildOk();
   }
 
-  async function runWrite(_ctx, _opName, _ref, _options, _method, _extraArgs) {
+  async function runWrite(_ctx, _opName, _failureText, _ref, _options, _method, _extraArgs) {
     if (_ctx.isDisposed()) {
       return _outcome.buildDisposed();
     }
@@ -83,7 +83,7 @@ define([
     try {
       return await serializeFilterWrite(_ctx, _ref, applyOnHost.bind(null, _ctx, _ref, _options, _method, _extraArgs));
     } catch (error) {
-      console.error("[cognosHost.filters." + _opName + "] host write failed", { ref: _ref }, error);
+      console.error("[cognosHost.filters." + _opName + "] " + _failureText, { ref: _ref }, error);
       return _outcome.buildFailed(CODES.WRITE_FAILED, [_outcome.buildDiagnostic(CODES.WRITE_FAILED, error && error.message)]);
     }
   }
@@ -91,11 +91,11 @@ define([
   function writeFilter(_ctx, _command, _options) {
     var command = _command || {};
     var values = Array.isArray(command.values) ? command.values : [];
-    return runWrite(_ctx, "writeFilter", command.ref, _options, "replaceFilterContext", [values]);
+    return runWrite(_ctx, "writeFilter", "host write failed", command.ref, _options, "replaceFilterContext", [values]);
   }
 
   function clearFilter(_ctx, _ref, _options) {
-    return runWrite(_ctx, "clearFilter", _ref, _options, "clearPageContextFilter", []);
+    return runWrite(_ctx, "clearFilter", "host clear failed", _ref, _options, "clearPageContextFilter", []);
   }
 
   return {

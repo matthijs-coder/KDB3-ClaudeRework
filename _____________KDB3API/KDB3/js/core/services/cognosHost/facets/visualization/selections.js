@@ -197,8 +197,8 @@ define([
   }
 
   // Drops a released unsubscribe from the per-widget slot and from runtime.subscriptions (otherwise
-  // every re-subscribe would keep a closure plus its host handle until destroy). Skipped while the
-  // service is disposed: destroy iterates runtime.subscriptions and drops the bucket afterwards.
+  // every re-subscribe would keep a closure plus its host handle until destroy). The disposed guard is
+  // redundant for correctness since clearRuntime iterates a copy; it only saves pruning a dying bucket.
   function forgetUnsubscribe(_ctx, _widgetId, _unsubscribe) {
     var runtime = _ctx._KDB.runtime && _ctx._KDB.runtime.cognosHostService;
     var map = runtime && runtime.adapters && runtime.adapters.selectionUnsubscribeByWidgetId;
