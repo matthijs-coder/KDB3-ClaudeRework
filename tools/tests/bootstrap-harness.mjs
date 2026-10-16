@@ -149,14 +149,6 @@ export function createHarness({ realCss = false, realServices = false, props = {
 
   function installReplaySpy(kdb) {
     const history = kdb.services && kdb.services.history;
-    const adapters = kdb.runtime && kdb.runtime.history && kdb.runtime.history.adapters;
-    if (adapters && typeof adapters.bindReplayHandlers === 'function') {
-      const original = adapters.bindReplayHandlers;
-      adapters.bindReplayHandlers = (handlers) => {
-        log.push('replay.bind:' + Object.keys(handlers || {}).join(','));
-        return original(handlers);
-      };
-    }
     if (history && typeof history.registerReplayHandler === 'function') {
       const original = history.registerReplayHandler;
       history.registerReplayHandler = (key, handler) => {

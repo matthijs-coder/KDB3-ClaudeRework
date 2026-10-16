@@ -33,6 +33,12 @@ test('manifest: destroyOrder lists every entry that owns an api object or a tear
   for (const name of manifest.destroyOrder) assert.ok(byName.has(name), name);
 });
 
+test('manifest: bootstrapLabels registers first; properties controller, homeDialog and css are the last teardown steps, in that order', () => {
+  assert.equal(manifest.entries[0].name, 'bootstrapLabels');
+  assert.deepEqual(manifest.destroyOrder.slice(-3), ['properties', 'homeDialog', 'css']);
+  assert.equal(manifest.destroyOrder.indexOf('header') < manifest.destroyOrder.indexOf('properties'), true);
+});
+
 test('manifest: mount phases and options', () => {
   const afterLoading = manifest.entries.filter((entry) => entry.mount && entry.mount.phase === 'afterLoading').map((entry) => entry.name);
   assert.deepEqual(afterLoading, ['filterDock']);

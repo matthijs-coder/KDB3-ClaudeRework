@@ -8,6 +8,7 @@ import path from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 import { createEnv } from "./ws-d1-fake-dom.mjs";
+import { loadManifest, loadBootstrapModule } from "./bootstrap-harness.mjs";
 
 const BOOT_KEY = "kdb-root-loading-animation-mount";
 const flush = () => new Promise((resolve) => setImmediate(resolve));
@@ -102,6 +103,37 @@ test("boot watchdog fires once per start; the overlay is lifted even when no dia
   const { env, loading, widgetEl, chooseRequests } = setup({ withHomeDialog: false });
   loading.startLoading({ mountKey: BOOT_KEY, watchdogMs: 10 });
   env.clock.advance(10);
+  await flush();
+  assert.equal(spinnerOf(widgetEl), null);
+  assert.equal(chooseRequests.length, 0);
+});
+
+// The same teardown the root class runs: manifest feature teardown (homeDialog unregisters), then the services.
+function destroyLikeRoot(_KDB, { servicesToo }) {
+  const lifecycle = loadBootstrapModule("core/bootstrap/lifecycle.js");
+  const manifest = loadManifest();
+  _KDB.api = {};
+  lifecycle.destroyFeatures(_KDB, manifest);
+  if (servicesToo) {
+    _KDB.services.loading.destroy();
+  }
+}
+
+test("destroy with a pending boot watchdog: no dialog appears afterwards", async () => {
+  const { env, _KDB, loading, chooseRequests } = setup();
+  loading.startLoading({ mountKey: BOOT_KEY });
+  destroyLikeRoot(_KDB, { servicesToo: true });
+  assert.equal(_KDB.runtime.homeDialog, null);
+  env.clock.advance(300000);
+  await flush();
+  assert.equal(chooseRequests.length, 0);
+});
+
+test("homeDialog teardown alone already removes the boot handler: the watchdog lifts the overlay but opens no dialog", async () => {
+  const { env, _KDB, loading, widgetEl, chooseRequests } = setup();
+  loading.startLoading({ mountKey: BOOT_KEY });
+  destroyLikeRoot(_KDB, { servicesToo: false });
+  env.clock.advance(300000);
   await flush();
   assert.equal(spinnerOf(widgetEl), null);
   assert.equal(chooseRequests.length, 0);

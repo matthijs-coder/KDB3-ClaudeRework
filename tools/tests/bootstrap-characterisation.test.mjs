@@ -340,6 +340,30 @@ test('double boot: destroying the first instance keeps the stylesheet links of t
   assert.equal(h.head.children.length, 0);
 });
 
+test('teardown order: homeDialog and css go after the properties controller and before the services', async () => {
+  const h = createHarness({ realCss: true });
+  const kdb = h.createKdb();
+  await kdb.renderKDB({});
+  kdb.runtime.homeDialog.unregisterWatchdog = () => h.log.push('homeDialog.unregisterWatchdog');
+  const snapshots = {};
+  const snapshot = () => ({ homeDialogAlive: kdb.runtime.homeDialog !== null, cssLinks: h.head.children.length });
+  const controller = kdb.runtime.properties.controller;
+  const controllerDestroy = controller.destroy;
+  controller.destroy = () => { snapshots.atProperties = snapshot(); controllerDestroy(); };
+  const writebackBridgeDestroy = kdb.services.writebackBridge.destroy;
+  kdb.services.writebackBridge.destroy = () => { snapshots.atFirstService = snapshot(); writebackBridgeDestroy(); };
+  h.log.length = 0;
+  kdb.destroy();
+  assert.equal(snapshots.atProperties.homeDialogAlive, true);
+  assert.ok(snapshots.atProperties.cssLinks > 10);
+  assert.equal(snapshots.atFirstService.homeDialogAlive, false);
+  assert.equal(snapshots.atFirstService.cssLinks, 0);
+  const at = (line) => h.log.indexOf(line);
+  assert.ok(at('destroy:header') < at('destroy:properties.controller'));
+  assert.ok(at('destroy:properties.controller') < at('homeDialog.unregisterWatchdog'));
+  assert.ok(at('homeDialog.unregisterWatchdog') < at('service.destroy:writebackBridge'));
+});
+
 test('destroy nulls runtime.homeDialog (DELTA: it was left stamped)', async () => {
   const h = createHarness();
   const kdb = h.createKdb();
