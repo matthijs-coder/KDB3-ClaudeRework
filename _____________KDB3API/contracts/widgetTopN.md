@@ -609,6 +609,7 @@ Allowed:
 
 - Passing helper/owner widget ids to services and public dispatch calls.
 - Resolving a helper shell by exact `widgetId` only to write, confirm or clear TopN-owned claim mirror attributes (`data-connected-vis-widget-id`, `data-kdb-topn-claim-token`). The DOM node is scoped local to that effect and is never stored in state or runtime.
+- Recorded exception (as built, not yet re-homed to `widgetBase`): `effects/placeHelperAfterOwner.js` moves the helper shell itself, beside the owner shell for the helper apply/read and back into its own `topN` launchpad slot afterwards (slot resolved by its pad/page attributes). Runtime keeps only the serializable lease `byOwner[ownerVisId].helperPlacement = { helperWidgetId, opSeq, slot }`; only the latest leasing op restores.
 
 Forbidden:
 
@@ -729,7 +730,7 @@ Hard implementation prerequisites:
 - Editing `.cursor/rules/`, templates, authority docs or legacy trees.
 - Applying terminal result values to the visible widget; owner: `widgetVis`.
 - Storing or committing `topNChoice`; owner: `widgetSettings`.
-- Helper frame movement/placement writes; owner: `widgetBase`.
+- Helper frame movement/placement writes; owner: `widgetBase` (the temporary helper-shell move in `placeHelperAfterOwner.js` is the §14 recorded exception; it writes no frame state).
 - Populating/classifying the same-tab `topN` launchpad helper pool. TopN helper claim in this tranche trusts that pad as pre-arranged helper inventory.
 - Cognos apply/read internals; owner: `widgetBindingApply`.
 - Binding schema changes; owner: `widgetBindingPlan`.
@@ -771,3 +772,4 @@ CP-1 is acceptable when:
 | 2026-06-14 | `Draft CP-1 read boundary refinement` | GPT-5.5 | TopN helper reads use `readHelperTableRows` with full `tableData.reloadTable` pick array; extraction unpacks tableData cell objects. |
 | 2026-09-01 | Parent sync NewestStichtag period pin | Implementing captain (Grok 4.6); PO product lock | §8.1.1: last month of selected Jahr; `grid_cols` two slots; Monat include beside Jahr. `resolveRequested` names `jahrFilterValue` + `monatFilterValue`. Delta: `contracts/widgetTopN-newestStichtag-contractdelta.md`. |
 | 2026-10-06 | Parent sync restore note | Cursor coordinator; PO live | §8.4: restore runs the TopN chain on the shown tab (writeback step 27 per tab). No `widgetTopN` change. Delta: `contracts/writeback-step27-bindPerActiveTab-contractdelta.md`. |
+| 2026-10-16 | Parent sync helper restore | Cursor Phase 0 worker; PO decision (restore helper) | §14/§20: record that `placeHelperAfterOwner.js` moves the helper shell (beside owner, then back to its `topN` slot) with a runtime placement lease. No API change. |
