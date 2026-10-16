@@ -43,9 +43,9 @@ Reference contracts for the KDB3 modules and services. One living contract per m
 - [`wienKiControls.md`](wienKiControls.md): Stadt Wien KI chat popup control.
 - [`writeback.md`](writeback.md): Writeback services (GET/SET, parameter sets).
 
-## Contract deltas still cited from code
+## Contract deltas still cited from code or living contracts
 
-These stay in place because JS comments cite their paths. Move them to `_archive/` once the comments are rewritten.
+These stay in place because JS comments or living contracts cite them. Move them to `_archive/` once those references are rewritten.
 
 - [`footer-parameterSetRestore-contractdelta.md`](footer-parameterSetRestore-contractdelta.md)
 - [`header-parameterSetRestore-contractdelta.md`](header-parameterSetRestore-contractdelta.md)
