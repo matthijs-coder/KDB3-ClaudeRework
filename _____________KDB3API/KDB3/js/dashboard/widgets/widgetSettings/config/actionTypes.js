@@ -1,6 +1,5 @@
 define([], function () {
   return {
-    SCAFFOLD_NOOP: "widgetSettings/scaffoldNoop",
     PLACE_CONTROLS: "widgetSettings/placeControls",
     APPLY_BUTTON_VISIBILITY: "widgetSettings/applyButtonVisibility",
     CLEANUP_WIDGET_CONTROLS: "widgetSettings/cleanupWidgetControls",

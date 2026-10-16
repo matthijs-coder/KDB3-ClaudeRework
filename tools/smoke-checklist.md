@@ -237,6 +237,14 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Place 20 widgets, delete them, undo the deletes. Expected: `getEventListeners(document).pointerdown.length` returns to the baseline value; `Object.keys(window.top.getKDB().runtime.widgetSettings.domRefs)` is empty only after **all** widgets are deleted (while some remain, it lists those).
 - [ ] Tab duplicate / delete / move with mixed widgets (vis, text, TopN, table). Expected: widgets and settings follow; forced shortage (more widgets than slots) shows the same toast and rolls back as baseline.
 - [ ] TopN without a grouping dimension: the message "Um die Top-N Funktion zu verwenden, muss zuerst eine Gruppierungsdimension gewählt werden." appears.
+- [ ] With 10 widgets placed, `getEventListeners(document).pointerdown.length` equals the baseline + 1 (not + 10).
+- [ ] Open a dropdown in a widget's settings panel, then click empty canvas (KDB edit mode off). Expected: the dropdown closes, and move/resize mode turns off for widgets not under the pointer. With edit mode on, the modes stay.
+- [ ] Load a parameter set that has styled widgets (colour, font size, TopN, visType). Expected: the widgets and their settings match the set, and the console shows no `[widgetBase.` / `[widgetSettings.` errors.
+- [ ] Focus mode: click the info icon (also the one in the main settings panel) and change one dropdown. Expected: no new console error (the info kind returns `WIDGET_SETTINGS_KIND_UNSUPPORTED` without dispatch), and the dropdown applies.
+- [ ] Change a widget's dropdown option (for example Diagrammtyp), then undo and redo. Expected: the option and the widget follow each step. Repeat with a Dimension change that clears TopN (coupled Dimension -> TopN clear): one undo restores both the Dimension and the TopN choice, one redo clears TopN again.
+- [ ] `window.top.getKDB().api.widgetBase.dispatch({type:"widgetBase/remove", widgetId:"<id>", payload:{reason:"user"}})`. Expected: `runtime.widgetSettings.domRefs["<id>"]`, `abortControllers["panel:<id>"]` and `abortControllers["toolbar:<id>"]` are gone; undo restores the widget with its settings panel working.
+- [ ] Move a widget launchpad->canvas and canvas->launchpad, then undo/redo each. Expected: the settings panel and toolbar are restored and respond on every step.
+- [ ] After a successful tab duplicate/delete/move: `Object.keys(window.top.getKDB().runtime.widgetBase.tabMutationSnapshots)` is empty.
 
 ### WS-M widgetVis + widgetDataTable
 - [ ] Drillthrough header icon and datapoint icon: compare URLs for 3-4 org/year combinations (see WS-D).
@@ -382,3 +390,17 @@ Run after the WS-K metricsTree PR is merged. Baseline = the same dashboard on `m
 - [ ] Console: `getKDB().api.metricsTree.resolveMetricByCode("<known code>")` returns `resolved: true`; `("  <known code>  ")` also resolves (input is trimmed); an unknown code returns `resolved: false` with empty strings. `getKDB().api.metricsTree.getState().lifecycle` is `"ready"`.
 - [ ] Run once as a user **with** and once **without** the superuser right. Expected: Kennzahlen with `FREIGABE = 0` appear only for the superuser (with the "(Beta)" tooltip suffix); the loading overlay clears in both cases.
 - [ ] Close and reopen the dashboard (see 4.3). Expected: no console errors; `getKDB().api.metricsTree.getState()` is `undefined` on the disposed instance; after a reopen the tree is populated again.
+
+---
+
+## 7) WS-H singleSelect + nativeMultiSelect
+
+Run after the WS-H singleSelect and nativeMultiSelect PRs are merged. Baseline = the same dashboard on `main` before the merge. The checks in section 3 (WS-H) still apply; these cover what the refactor changed.
+
+- [ ] **Out-click after reconcile**: open Geschlecht, pick a value, click outside the popup: the value reverts. Switch to another tab and back (this runs a reconcile), open Geschlecht again, pick a value, click outside: it reverts again (the old build could revert a stale record the second time). Then run `getEventListeners(document.querySelector(getKDB().elements.selectors.singleSelect.outClickCatcherSelector) || document.body)` in the console: the `click` count is 1 or less after 20 open/close cycles.
+- [ ] **Tab mutation snapshots**: on tab 2 set one singleSelect value and two Jahr values. Delete tab 2 and undo, move tab 1 with tab 3, duplicate tab 2. After each step the filters follow the tab, and `getKDB().runtime.singleSelect.tabMutationSnapshots` and `getKDB().runtime.nativeMultiSelect.tabMutationSnapshots` are both `{}`.
+- [ ] **Writeback round-trip**: save Set C with Geschlecht = a value and Jahr = 2 years (global and page level). Load Set A, then load Set C: both filters are restored. "New dashboard" clears: Geschlecht = "Alle", Jahr empty. Console: no `WRITEBACK_*` codes, and at most one log line per failure.
+- [ ] **History**: change Geschlecht, then Jahr. Undo twice and redo twice: the values follow. A visible special filter follows the Geschlecht undo.
+- [ ] **PDF export** right after boot (reconcile path): the export works and there is no `DASHBOARD_PDF_FILTER_PREPARATION_FAILED`.
+- [ ] **Destroy and reopen** (section 4.3 cycle): after the reopen, `getKDB().runtime.singleSelect.timers` and `.abortControllers` are `{}` or hold only live entries, and `getKDB().runtime.nativeMultiSelect` has the 7 buckets (`domRefs`, `listeners`, `subscriptions`, `abortControllers`, `observers`, `timers`, `pendingPromises`).
+- [ ] **Committed display chip**: after a commit, the filter dock chip text matches the value, on a global filter and on a page filter. Try a filter label that contains a quote character if one exists.
