@@ -272,3 +272,48 @@ test("canvas tab canonicalisation caches the layout per _KDB instance", () => {
   svc.canvas.listCanvasWidgets();
   assert.equal(reads, 1);
 });
+
+const SYNC_OPS = {
+  widgets: [["hasContent", ["w1"]], ["enterFocusMode", ["w1"]], ["exitFocusMode", ["w1"]]],
+  canvas: [["listCanvasWidgets", []], ["setCanvasPageSize", ["width", "800px"]]],
+  tabs: [["listTabs", []], ["getTabName", ["t1"]]],
+  visualization: [["getVisType", ["w1"]], ["getVisTitle", ["w1"]], ["getSelections", ["w1"]]]
+};
+const ASYNC_OPS = {
+  widgets: [["setWidgetProperty", ["w1", "k", "v"]], ["setWidgetLayout", ["w1", {}]], ["renderWidget", ["w1"]]],
+  canvas: [["whenRenderStart", ["w1"]], ["whenRenderComplete", ["w1"]], ["whenCanvasReady", []], ["whenWidgetReady", ["w1"]]],
+  tabs: [["setTabName", ["t1", "n"]]],
+  visualization: [
+    ["setVisType", ["w1", "bar"]], ["setVisTitle", ["w1", "T"]], ["setContentProperty", ["w1", "k", "v"]], ["setDataSource", ["w1", "d"]],
+    ["clearAllSlots", ["w1"]], ["addDataItemsToSlot", ["w1", "s", ["a"]]], ["setTopBottomOnSlot", ["w1", "s", { value: 1 }]],
+    ["sortDataItemInSlot", ["w1", "s", "c", "ascending"]], ["setCustomLabelInSlot", ["w1", "s", "c", "L"]], ["clearAllLocalFilters", ["w1"]],
+    ["addOrReplaceLocalFilter", ["w1", "f", {}]], ["removeLocalFilter", ["w1", "f"]]
+  ]
+};
+
+test("sync ops return an Outcome, async ops return a promise (also for early exits)", () => {
+  const saved = console.error;
+  console.error = () => {};
+  try {
+    for (const dispose of [false, true]) {
+      const { svc } = create(buildHost("ok", [], () => {}));
+      if (dispose) svc.destroy();
+      for (const [facet, ops] of Object.entries(SYNC_OPS)) {
+        for (const [op, args] of ops) {
+          const result = svc[facet][op](...args);
+          assert.equal(typeof (result && result.then), "undefined", `${facet}.${op} stays synchronous`);
+          assert.equal(typeof result.ok, "boolean", `${facet}.${op}`);
+        }
+      }
+      for (const [facet, ops] of Object.entries(ASYNC_OPS)) {
+        for (const [op, args] of ops) {
+          const pending = svc[facet][op](...args);
+          assert.equal(typeof pending.then, "function", `${facet}.${op} returns a promise`);
+          pending.catch(() => {});
+        }
+      }
+    }
+  } finally {
+    console.error = saved;
+  }
+});
