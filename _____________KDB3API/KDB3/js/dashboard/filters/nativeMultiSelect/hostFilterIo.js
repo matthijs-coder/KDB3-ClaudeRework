@@ -71,7 +71,6 @@ define([
 
   return {
     warnDestSkip: warnDestSkip,
-    describeFailure: describeFailure,
     writeRef: writeRef,
     applyByItemId: applyByItemId,
     applyByName: applyByName

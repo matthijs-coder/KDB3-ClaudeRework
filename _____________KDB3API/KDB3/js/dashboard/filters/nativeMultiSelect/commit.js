@@ -214,7 +214,7 @@ define([
   }
 
   // The history service already rejects equal steps and steps pushed during a writeback restore.
-  function pushCommittedStep(_KDB, _oldSnapshot, _newSnapshot) {
+  function pushConfirmedStep(_KDB, _oldSnapshot, _newSnapshot) {
     if (String(_oldSnapshot.itemName || "") !== String(_newSnapshot.itemName || "")) { return false; }
     if (String(_oldSnapshot.scopeKey || "") !== String(_newSnapshot.scopeKey || "")) { return false; }
     if (!_newSnapshot.values || _newSnapshot.values.length === 0) { return false; }
@@ -284,7 +284,7 @@ define([
       if (prepared.newValues.length === 0 || skipsHistory) {
         return;
       }
-      pushCommittedStep(
+      pushConfirmedStep(
         _ctx._KDB,
         { itemName: itemName, scopeKey: scopeKey, values: prepared.oldValues },
         { itemName: itemName, scopeKey: scopeKey, values: prepared.newValues }

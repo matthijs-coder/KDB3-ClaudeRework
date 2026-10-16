@@ -255,7 +255,6 @@ define([
   }
 
   return {
-    buildRef: buildRef,
     createClaimIndex: createClaimIndex,
     readClaimDefinition: readClaimDefinition,
     isUnownedFilterDescriptor: isUnownedFilterDescriptor,
