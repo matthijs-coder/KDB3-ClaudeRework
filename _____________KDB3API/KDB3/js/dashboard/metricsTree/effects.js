@@ -4,9 +4,8 @@ define([
   "./view.js",
   "./dragSource.js",
   "../canvas/kdbControl/config/domSelectors.js",
-  "../../core/utils/isRightAllowed.js",
-  "../../core/utils/readFirstRowScalar.js"
-], function (_catalog, _config, _view, _dragSource, _kdbControlSelectors, _isRightAllowed, _readFirstRowScalar) {
+  "../../core/utils/readRightFlag.js"
+], function (_catalog, _config, _view, _dragSource, _kdbControlSelectors, _readRightFlag) {
   "use strict";
 
   function mountMetricsTree(_instance) {
@@ -103,7 +102,7 @@ define([
       const rows = typeof tableData.readRows === "function" ? tableData.readRows(input) : null;
       const superUserRows = Array.isArray(rows) ? rows : waitedRows;
       return Array.isArray(superUserRows) && superUserRows.length > 0
-        && _isRightAllowed(_readFirstRowScalar(superUserRows)) === true;
+        && _readRightFlag(superUserRows) === true;
     } catch (err) {
       if (!(err && err.name === "AbortError")) {
         console.error("[metricsTree.readSuperUserAllowed]", err);

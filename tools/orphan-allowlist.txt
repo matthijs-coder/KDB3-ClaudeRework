@@ -6,7 +6,3 @@
 
 # Shared helper kit; imported by Phase 1 workstreams.
 _____________KDB3API/KDB3/js/core/utils/kit/** # keep: filled by the kit workstream
-
-# readRightFlag composes isRightAllowed + readFirstRowScalar; its consumers (kdbControl, metricsTree, specialSingleSelect)
-# sit in folders owned by other waves and migrate to it there (then the two inputs are folded in).
-_____________KDB3API/KDB3/js/core/utils/readRightFlag.js

@@ -1,11 +1,10 @@
 define([
   "./state/actionTypes.js",
-  "../../../core/utils/isRightAllowed.js",
-  "../../../core/utils/readFirstRowScalar.js",
+  "../../../core/utils/readRightFlag.js",
   "../../../core/authoring/selectors.js",
   "../../../core/events/authoringMode.js",
   "../../../core/utils/kit/runtime.js"
-], function (_types, _isRightAllowed, _readFirstRowScalar, _readIsAuthoring, _authoringEvents, _rt) {
+], function (_types, _readRightFlag, _readIsAuthoring, _authoringEvents, _rt) {
   "use strict";
 
   var SLOT_MOUNT_KEY = "kdb-control-save-load-slot-loading";
@@ -167,7 +166,7 @@ define([
       var read = typeof tableData.readRows === "function" ? tableData.readRows(input) : null;
       var rows = Array.isArray(read) ? read : waited;
       var rt = readRuntime(_KDB);
-      if (!rt || !Array.isArray(rows) || !_isRightAllowed(_readFirstRowScalar(rows))) return;
+      if (!rt || !Array.isArray(rows) || !_readRightFlag(rows)) return;
       var column = (rt.domRefs.rootEl || document).querySelector(DEVELOPER_COLUMN_SELECTOR);
       if (column) column.classList.add(DEVELOPER_COLUMN_VISIBLE_CLASS);
     } catch (err) {
