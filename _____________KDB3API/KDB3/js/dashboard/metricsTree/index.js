@@ -44,14 +44,15 @@ define([
       guard.dispose();
       try {
         _view.cleanupMetricsTrees(_KDB);
-        _runtimeKit.disposeRuntimeBuckets(runtime).forEach(function (err) {
-          console.error("[metricsTree.destroy] release failed", err);
-        });
-        delete runtime.metricIndex;
-        reduce({ type: _state.ACTIONS.DESTROY });
       } catch (err) {
-        console.error("[metricsTree.destroy] destroy failed", err);
+        console.error("[metricsTree.destroy] view cleanup failed", err);
       }
+      const errors = _runtimeKit.disposeRuntimeBuckets(runtime);
+      if (errors.length > 0) {
+        console.error("[metricsTree.destroy] release failed", errors);
+      }
+      delete runtime.metricIndex;
+      reduce({ type: _state.ACTIONS.DESTROY });
     }
 
     function dispatch(action) {

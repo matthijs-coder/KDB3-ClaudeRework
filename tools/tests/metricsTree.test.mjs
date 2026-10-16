@@ -339,27 +339,143 @@ test("index: a failing load ends in the error state and mount resolves false", a
   assert.deepStrictEqual(logged, ["[metricsTree.mount] mount failed"]);
 });
 
-test("index: a throwing loading service neither fails nor masks the mount", async () => {
-  const { kdb } = makeLifecycleKdb(false);
-  const attempts = [];
-  kdb.services.loading = {
-    startLoading() { attempts.push("start"); throw new Error("overlay start"); },
-    finishLoading() { attempts.push("finish"); throw new Error("overlay finish"); }
-  };
-  const stubDocument = { querySelector: () => ({}) };
-  const api = loadAmd(path.join(MT, "index.js"), {
+function loadRegisterWithDocument(stubDocument) {
+  return loadAmd(path.join(MT, "index.js"), {
     modules: { "./view.js": makeFakeView([]), "./dragSource.js": { bindMetricsTreeDragSources() {} } },
     stubs: { document: stubDocument }
-  })(kdb);
-  const originalError = console.error;
+  });
+}
+
+test("index: loading overlay wraps the mount, and is skipped without a mount element", async () => {
+  for (const hasMountEl of [true, false]) {
+    const { kdb } = makeLifecycleKdb(false);
+    const attempts = [];
+    kdb.services.loading = {
+      startLoading(options) { attempts.push(["start", options.mountKey, options.messageKey]); },
+      finishLoading(options) { attempts.push(["finish", options.mountKey]); }
+    };
+    const api = loadRegisterWithDocument({ querySelector: () => (hasMountEl ? {} : null) })(kdb);
+    assert.equal(await api.mount(), true);
+    assert.deepStrictEqual(
+      attempts,
+      hasMountEl
+        ? [["start", "kdb-metrics-tree-loading", "metrics"], ["finish", "kdb-metrics-tree-loading"]]
+        : [["finish", "kdb-metrics-tree-loading"]]
+    );
+  }
+});
+
+test("index: destroy still releases the mount when view cleanup throws", async () => {
+  const view = makeFakeView([]);
+  view.cleanupMetricsTrees = () => { throw new Error("jstree destroy failed"); };
+  const register = loadRegister(view, { bindMetricsTreeDragSources() {} });
+  const { kdb } = makeLifecycleKdb(true);
+  const api = register(kdb);
+  const pending = api.mount();
   const logged = [];
+  const originalError = console.error;
   console.error = (...args) => logged.push(args[0]);
   try {
-    assert.equal(await api.mount(), true);
+    api.destroy();
+    assert.equal(await pending, false);
   } finally {
     console.error = originalError;
   }
-  assert.deepStrictEqual(attempts, ["start", "finish"]);
-  assert.deepStrictEqual(logged, ["[metricsTree.loading] startLoading failed", "[metricsTree.loading] finishLoading failed"]);
-  assert.equal(api.getState().lifecycle, "ready");
+  assert.deepStrictEqual(logged, ["[metricsTree.destroy] view cleanup failed"]);
+  assert.equal(kdb.state.metricsTree.lifecycle, "disposed");
+  assert.deepStrictEqual(kdb.state.metricsTree.bySource, {});
+  assert.deepStrictEqual(kdb.runtime.metricsTree.abortControllers, {});
+  assert.equal(api.getState(), undefined);
+});
+
+// Minimal jQuery stand-in: records jstree options and event handlers, never touches a DOM.
+function makeFakeJquery() {
+  const record = { jstreeOptions: [], handlers: {} };
+  function wrapper(target) {
+    const api = {
+      length: 1,
+      find: () => api,
+      off: () => api,
+      one: () => api,
+      data: () => undefined,
+      val: () => "",
+      on(eventName, handler) { record.handlers[eventName] = handler; return api; },
+      jstree(options) { if (options && typeof options === "object") record.jstreeOptions.push(options); return api; }
+    };
+    return api;
+  }
+  const $ = Object.assign(wrapper, {
+    fn: { jstree() {} },
+    Deferred() { const d = { resolve() {}, promise: () => ({ then() {} }) }; return d; }
+  });
+  return { $, record };
+}
+
+function loadView(fake, stubs) {
+  return loadAmd(path.join(MT, "view.js"), {
+    modules: { jquery: fake.$, "../../core/libraries/jstree.min.js": {} },
+    stubs
+  });
+}
+
+function makeDomStub() {
+  const root = { appendChild() {}, innerHTML: "" };
+  const element = () => ({ setAttribute() {}, appendChild() {} });
+  return { querySelector: () => root, createElement: element };
+}
+
+test("view: jstree options are pinned (old options plus force_text)", () => {
+  const fake = makeFakeJquery();
+  const view = loadView(fake, { document: makeDomStub() });
+  const kdb = {
+    elements: { selectors: { metricsTree: config.DOM_SELECTORS } },
+    runtime: { metricsTree: { domRefs: {} } },
+    state: { metricsTree: { hasRenderableData: true, sourceOrder: ["s"], bySource: { s: { sourceKey: "s", nodes: [{ id: "n" }] } } } }
+  };
+  view.renderMetricsTrees(kdb);
+  assert.equal(fake.record.jstreeOptions.length, 1);
+  const options = fake.record.jstreeOptions[0];
+  const searchCallback = options.search.search_callback;
+  assert.equal(typeof searchCallback, "function");
+  assert.deepStrictEqual(Object.assign({}, options, { search: Object.assign({}, options.search, { search_callback: null }) }), {
+    plugins: ["search"],
+    core: {
+      animation: 100,
+      data: [{ id: "n" }],
+      check_callback: true,
+      force_text: true,
+      themes: { stripes: false, icons: false, dots: false },
+      worker: true
+    },
+    search: { case_sensitive: false, show_only_matches: true, show_only_matches_children: true, search_callback: null }
+  });
+  assert.equal(searchCallback("Foo", { text: "xfoo" }), true);
+  assert.equal(searchCallback("foo", { text: "x", a_attr: { langtext: "A FOO b" } }), true);
+  assert.equal(searchCallback("foo", { text: "x" }), false);
+});
+
+test("view: destroy cancels a pending search frame", () => {
+  const fake = makeFakeJquery();
+  const frames = { scheduled: [], cancelled: [] };
+  const stubs = {
+    document: makeDomStub(),
+    requestAnimationFrame: (fn) => { frames.scheduled.push(fn); return frames.scheduled.length; },
+    cancelAnimationFrame: (id) => { frames.cancelled.push(id); }
+  };
+  const view = loadView(fake, stubs);
+  const register = loadAmd(path.join(MT, "index.js"), {
+    modules: { "./view.js": view, "./effects.js": {}, "./dragSource.js": {} },
+    stubs
+  });
+  const kdb = {};
+  const api = register(kdb);
+  kdb.runtime.metricsTree.domRefs = { treesBySource: { s: {} }, searchInputsBySource: { s: {} }, searchIconsBySource: { s: {} } };
+  view.bindMetricsTreeSearch(kdb);
+  fake.record.handlers["input.kdbMetricsTreeSearch"]();
+  assert.equal(frames.scheduled.length, 1);
+  assert.deepStrictEqual(Object.keys(kdb.runtime.metricsTree.timers), ["search:s"]);
+
+  api.destroy();
+  assert.deepStrictEqual(frames.cancelled, [1]);
+  assert.deepStrictEqual(kdb.runtime.metricsTree.timers, {});
 });
