@@ -16,34 +16,30 @@ function silentConsole() {
 }
 
 function loadUnits() {
-  const config = load("config/specialFilterDefinitions.js");
-  const actions = load("config/actions.js");
-  const resolver = load("config/resolveSpecialFilterId.js");
-  const tableInputs = load("effects/buildSpecialTableDataInputs.js");
-  const rights = load("effects/readSpecialRightsFromTableData.js");
-  const options = load("effects/readDefaultOptionFromTableData.js");
-  const visibility = load("effects/evaluateSpecialFilterVisibility.js");
-  const inventory = load("effects/buildInventoryReconciledAck.js");
-  const support = load("effects/buildSpecialSingleSelectRouteSupport.js");
+  const config = load("config.js");
+  const state = load("state.js");
+  const tableData = load("tableData.js");
+  const delegation = load("delegation.js");
+  const inventory = load("inventory.js");
   return {
-    definitions: config,
-    actions,
-    TABLE_KEYS: tableInputs.tableKeys,
-    isRelevantTableName: tableInputs.isRelevantTableName,
-    buildTableInput: tableInputs.buildTableInput,
-    resolveSpecialFilterId: resolver.resolveSpecialFilterId,
-    normalizeUserSelectionCommittedPayload: resolver.normalizeUserSelectionCommittedPayload,
-    mapFilterDockHandoff: load("effects/mapFilterDockHandoff.js"),
-    createInitialState: load("state/initialState.js"),
-    createReducer: load("state/createSpecialSingleSelectReducer.js"),
-    readRightFromTableData: rights.readRightFromTableData,
-    readFirstValidOptionRow: options.readFirstValidOptionRow,
-    evaluateVisibility: visibility.evaluateSpecialFilterVisibility,
-    validateInventoryPayload: inventory.validatePayload,
-    buildInventoryAck: inventory.buildAck,
+    definitions: config.DEFINITIONS_BY_ID,
+    actions: state.actions,
+    TABLE_KEYS: config.TABLE_KEYS,
+    isRelevantTableName: tableData.isRelevantTableName,
+    buildTableInput: tableData.buildTableInput,
+    resolveSpecialFilterId: config.resolveSpecialFilterId,
+    normalizeUserSelectionCommittedPayload: delegation.normalizeUserSelectionCommittedPayload,
+    mapFilterDockHandoff: delegation.mapFilterDockHandoff,
+    createInitialState: state.createInitialState,
+    createReducer: state.createSpecialSingleSelectReducer,
+    readRightFromTableData: tableData.readRightFromTableData,
+    readFirstValidOptionRow: tableData.readFirstValidOptionRow,
+    evaluateVisibility: load("sync.js").evaluateSpecialFilterVisibility,
+    validateInventoryPayload: inventory.validateInventoryPayload,
+    buildInventoryAck: inventory.buildInventoryAck,
     buildStaleAck: inventory.buildStaleAck,
-    buildTargetScopedAck: support.buildTargetScopedAck,
-    reduceCommittedPayload: support.reduceCommittedPayload
+    buildTargetScopedAck: delegation.buildTargetScopedAck,
+    reduceCommittedPayload: delegation.reduceCommittedPayload
   };
 }
 
@@ -128,7 +124,7 @@ test("mapFilterDockHandoff: unknown filter -> null, full handoff mapped", () => 
 });
 
 test("normalizeUserSelectionCommittedPayload", () => {
-  const n = (p) => U.normalizeUserSelectionCommittedPayload(U.definitions, p);
+  const n = (p) => U.normalizeUserSelectionCommittedPayload(p);
   assert.equal(n({ filterId: "nope" }), null);
   assert.deepEqual(
     n({
@@ -775,7 +771,7 @@ test("sync queue: three rapid requests collapse to the first (running) and the l
   assert.ok(acks.every((ack) => ack.ok === true));
 });
 
-test("destroy: state undefined, subscription removed, buckets reset, disposed acks, warn once per method", async () => {
+test("destroy: state undefined, subscription removed, buckets reset, disposed acks, warn once per method name", async () => {
   const h = createHarness();
   const api = bootWithSicht(h, "BW");
   await settle();
@@ -800,10 +796,10 @@ test("destroy: state undefined, subscription removed, buckets reset, disposed ac
   assert.equal(api.dispatch({ type: SSS + "tableDataChanged" }), undefined);
   api.destroy();
   const warnings = h.stubConsole.calls.warn.map((args) => String(args[0]));
-  assert.ok(warnings.length >= 1, warnings.join("|"));
-  assert.ok(warnings.every((w) => w.indexOf("[specialSingleSelect.") === 0 && w.endsWith("called after destroy")));
-  assert.equal(warnings.some((w) => w.indexOf("dispatch") !== -1), true);
-  assert.equal(new Set(warnings).size, warnings.length, "no method warns twice");
+  assert.deepEqual(warnings, [
+    "[specialSingleSelect.dispatch] called after destroy",
+    "[specialSingleSelect.mount] called after destroy"
+  ]);
 });
 
 test("destroy during a running sync does not throw or log errors", async () => {

@@ -1,29 +1,29 @@
 define([
-  "../../singleSelect/state/selectors.js",
-  "../config/errorCodes.js"
-], function (_singleSelectSelectors, _errorCodes) {
+  "../singleSelect/state/selectors.js",
+  "./config.js"
+], function (_singleSelectSelectors, _config) {
   "use strict";
+
+  var errorCodes = _config.ERROR_CODES;
 
   function normalizeValue(_value) {
     return _value == null ? "" : String(_value).trim().toLowerCase();
   }
 
-  function readInventoryStatus(_KDB, _inventoryGeneration) {
-    var state = _singleSelectSelectors.readSingleSelectState(_KDB) || {};
-    var inventory = state.inventory || {};
+  function readInventoryStatus(_state, _inventoryGeneration) {
+    var inventory = _state.inventory || {};
     if (_inventoryGeneration != null && inventory.generation !== _inventoryGeneration) {
-      return { ok: false, errorCode: _errorCodes.INVENTORY_STALE };
+      return { ok: false, errorCode: errorCodes.INVENTORY_STALE };
     }
     if (inventory.freshness !== "fresh") {
-      return { ok: false, errorCode: _errorCodes.INVENTORY_NOT_READY };
+      return { ok: false, errorCode: errorCodes.INVENTORY_NOT_READY };
     }
     return { ok: true, generation: inventory.generation };
   }
 
-  function readLiveCandidates(_KDB) {
-    var state = _singleSelectSelectors.readSingleSelectState(_KDB) || {};
-    return Object.keys(state.instancesById || {}).sort().map(function (_id) {
-      var entry = state.instancesById[_id];
+  function readLiveCandidates(_state) {
+    return Object.keys(_state.instancesById || {}).sort().map(function (_id) {
+      var entry = _state.instancesById[_id];
       var selection = entry && entry.currentSelection;
       return entry ? Object.assign({}, entry, {
         displayValue: selection ? selection.displayValue : null,
@@ -94,7 +94,8 @@ define([
 
   function resolveLiveSpecialInstances(_KDB, _definition, _inventoryGeneration) {
     try {
-      var inventoryStatus = readInventoryStatus(_KDB, _inventoryGeneration);
+      var singleSelectState = _singleSelectSelectors.readSingleSelectState(_KDB) || {};
+      var inventoryStatus = readInventoryStatus(singleSelectState, _inventoryGeneration);
       if (!inventoryStatus.ok) {
         return {
           ok: false,
@@ -103,12 +104,12 @@ define([
           items: []
         };
       }
-      var candidates = readLiveCandidates(_KDB);
+      var candidates = readLiveCandidates(singleSelectState);
       if (!normalizeValue(_definition && _definition.filterLabel) &&
         !normalizeValue(_definition && _definition.itemName)) {
         return {
           ok: false,
-          errorCode: _errorCodes.CONFIG_MISMATCH,
+          errorCode: errorCodes.CONFIG_MISMATCH,
           generation: inventoryStatus.generation,
           items: []
         };
@@ -123,8 +124,8 @@ define([
       return {
         ok: false,
         errorCode: matches.length
-          ? _errorCodes.INSTANCE_AMBIGUOUS
-          : _errorCodes.INSTANCE_MISSING,
+          ? errorCodes.INSTANCE_AMBIGUOUS
+          : errorCodes.INSTANCE_MISSING,
         generation: inventoryStatus.generation,
         items: []
       };
@@ -132,11 +133,13 @@ define([
       console.error("[specialSingleSelect.resolveLiveSpecialInstances] failed", _error);
       return {
         ok: false,
-        errorCode: _errorCodes.POLICY_APPLY_FAILED,
+        errorCode: errorCodes.POLICY_APPLY_FAILED,
         items: []
       };
     }
   }
 
-  return resolveLiveSpecialInstances;
+  return {
+    resolveLiveSpecialInstances: resolveLiveSpecialInstances
+  };
 });
