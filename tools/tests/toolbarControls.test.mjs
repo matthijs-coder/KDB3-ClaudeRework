@@ -43,7 +43,7 @@ function trackHistoryHandlers(events, counter) {
 
 function createHarness(options = {}) {
   const dom = options.dom || createFakeDom();
-  const logs = { warn: [], error: [] };
+  const logs = { warn: [], error: [], debug: [] };
   const stubs = {
     document: dom.document,
     Node: dom.Node,
@@ -52,7 +52,7 @@ function createHarness(options = {}) {
     cancelAnimationFrame: dom.cancelAnimationFrame,
     console: {
       log() {},
-      debug() {},
+      debug: (...args) => logs.debug.push(args.map(String).join(" ")),
       warn: (...args) => logs.warn.push(args.join(" ")),
       error: (...args) => logs.error.push(args.map(String).join(" "))
     }
@@ -327,6 +327,10 @@ test("pdf export stopped by abort or dispose does not show the fatal alert", asy
   const disposedCode = createRejectingPdfHarness(() => Promise.reject(Object.assign(new Error("x"), { code: "DASHBOARD_PDF_DISPOSED" })));
   await mountAll(disposedCode);
   await clickPdf(disposedCode);
+  assert.deepEqual(aborted.logs.debug.filter((line) => /pdfExportControls\.export/.test(line)), ["[pdfExportControls.export] stopped (aborted) DASHBOARD_PDF_ABORTED"]);
+  assert.deepEqual(disposedCode.logs.debug.filter((line) => /pdfExportControls\.export/.test(line)), [
+    "[pdfExportControls.export] stopped (disposed: the dashboard was closed during the export) DASHBOARD_PDF_DISPOSED"
+  ]);
   for (const harness of [aborted, disposedCode]) {
     assert.deepEqual(harness.calls, []);
     assert.deepEqual(harness.logs.error, []);

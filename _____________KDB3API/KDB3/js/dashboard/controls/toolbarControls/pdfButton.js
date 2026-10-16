@@ -11,6 +11,7 @@ define([
   var LABELS = _config.LABELS.pdf;
   var EXPORT_KEY = "pdfExportRun";
   var STOP_ERROR_CODES = ["DASHBOARD_PDF_ABORTED", "DASHBOARD_PDF_DISPOSED"];
+  var DISPOSED_CODE = "DASHBOARD_PDF_DISPOSED";
 
   function readExportService(_KDB) {
     var service = _KDB.services && _KDB.services.dashboardPdf;
@@ -41,12 +42,18 @@ define([
     return inst.isDisposed || STOP_ERROR_CODES.indexOf(errorCode) !== -1;
   }
 
+  // A disposed service (dashboard closed mid-export) is told apart from a user abort in the log.
+  function logStop(errorCode) {
+    var reason = errorCode === DISPOSED_CODE ? "disposed: the dashboard was closed during the export" : "aborted";
+    console.debug("[pdfExportControls.export] stopped (" + reason + ")", errorCode);
+  }
+
   function reportExportResult(_KDB, inst, result) {
     var errorCode = result && result.errorCode;
     if (result && result.ok === true) return true;
     if (errorCode === "DASHBOARD_PDF_BUSY") return false;
     if (isExpectedStop(inst, errorCode)) {
-      console.debug("[pdfExportControls.export] stopped", errorCode);
+      logStop(errorCode);
       return false;
     }
     showFatalError(_KDB, result || {});
@@ -69,7 +76,7 @@ define([
     })
       .then(reportExportResult.bind(null, _KDB, inst))
       .catch(function (error) {
-        if (isExpectedStop(inst, error && error.code)) console.debug("[pdfExportControls.export] stopped", error && error.code);
+        if (isExpectedStop(inst, error && error.code)) logStop(error && error.code);
         else console.error("[pdfExportControls.export]", error);
         return false;
       })
