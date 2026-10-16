@@ -35,7 +35,7 @@ const flush = () => new Promise((resolve) => setImmediate(resolve));
 
 test("register: surface, labels merge, a new service on every registration", () => {
   const { _KDB, service, register } = setup({ labels: { dashboard: "Eigen" } });
-  assert.deepEqual(Object.keys(service).sort(), ["destroy", "finishLoading", "registerWatchdogHandler", "startLoading", "updateLoadingMessage"]);
+  assert.deepEqual(Object.keys(service).sort(), ["destroy", "finishLoading", "isLoading", "registerWatchdogHandler", "startLoading", "updateLoadingMessage"]);
   assert.equal(_KDB.services.loading, service);
   assert.equal(_KDB.config.labels.de.loading.dashboard, "Eigen");
   assert.equal(_KDB.config.labels.de.loading.chart, "Diagramm wird geladen");
@@ -91,7 +91,7 @@ test("startLoading: overlay DOM, variants and captions", () => {
   assert.equal(spinnerOf(plain).querySelector(".KDB_loadingSessionMessage"), null);
 });
 
-test("nested start/finish keeps one spinner until the last finish; state entries stay", () => {
+test("nested start/finish keeps one spinner until the last finish; the finished entry is dropped", () => {
   const { env, _KDB, service, widgetEl } = setup();
   const first = service.startLoading({ mountKey: "k" });
   service.startLoading({ mountKey: "k" });
@@ -106,9 +106,24 @@ test("nested start/finish keeps one spinner until the last finish; state entries
   env.clock.advance(0);
   assert.equal(spinnerOf(widgetEl), null);
   assert.equal(widgetEl.className, "");
-  assert.deepEqual(_KDB.state.loading.k, { activeCount: 0, isActive: false });
+  assert.equal(_KDB.state.loading.k, undefined);
   service.finishLoading({ handle: first });
-  assert.equal(_KDB.state.loading.k.activeCount, 0);
+  assert.equal(_KDB.state.loading.k, undefined);
+});
+
+test("isLoading: true while a mount key is loading, false for finished, unknown and destroyed keys", () => {
+  const { service } = setup();
+  assert.equal(service.isLoading("k"), false);
+  service.startLoading({ mountKey: "k" });
+  service.startLoading({ mountKey: "k" });
+  assert.equal(service.isLoading("k"), true);
+  service.finishLoading({ mountKey: "k" });
+  assert.equal(service.isLoading("k"), true);
+  service.finishLoading({ mountKey: "k" });
+  assert.equal(service.isLoading("k"), false);
+  service.startLoading({ mountKey: "k" });
+  service.destroy();
+  assert.equal(service.isLoading("k"), false);
 });
 
 test("finishLoading accepts mountEl, mountKey or handle", () => {
@@ -129,10 +144,10 @@ test("finishLoading accepts mountEl, mountKey or handle", () => {
   assert.equal(spinnerOf(widgetEl), null);
 });
 
-test("finishLoading for an unknown key never throws and keeps a zero entry", () => {
+test("finishLoading for an unknown key never throws and leaves no entry", () => {
   const { _KDB, service } = setup();
   assert.doesNotThrow(() => service.finishLoading({ mountKey: "never-started" }));
-  assert.deepEqual(_KDB.state.loading["never-started"], { activeCount: 0, isActive: false });
+  assert.equal(_KDB.state.loading["never-started"], undefined);
 });
 
 test("removeDelayMs delays removal; restarting on the same mount cancels it", () => {
@@ -199,7 +214,7 @@ test("watchdog (non-boot key): finishes the overlay after watchdogMs and shows n
   assert.equal(spinnerOf(widgetEl), null);
   await flush();
   assert.deepEqual(homeChoices, []);
-  assert.deepEqual(_KDB.state.loading["smoke-test"], { activeCount: 0, isActive: false });
+  assert.equal(_KDB.state.loading["smoke-test"], undefined);
 });
 
 test("watchdog (boot mount key): default 5 minutes, then the home dialog is presented once", async () => {
@@ -350,7 +365,7 @@ test("destroy: removes overlays, restores mounts, clears timers, zeroes counters
   assert.equal(widgetEl.className, "");
   assert.equal(widgetEl.style.position, "");
   assert.equal(env.clock.pendingTimeouts(), 0);
-  assert.deepEqual(_KDB.state.loading.a, { activeCount: 0, isActive: false });
+  assert.equal(_KDB.state.loading.a, undefined);
   assert.deepEqual(_KDB.state.loading.b, { activeCount: 0, isActive: false });
   const runtime = _KDB.runtime.loadingService;
   assert.deepEqual(runtime.timers.watchdogsByMountKey, {});
@@ -392,7 +407,7 @@ test("finishLoading resolves a non-string mountKey like the old code (truthy key
   service.finishLoading({ mountKey: 7 });
   env.clock.advance(0);
   assert.equal(spinnerOf(widgetEl), null);
-  assert.deepEqual(_KDB.state.loading["7"], { activeCount: 0, isActive: false });
+  assert.equal(_KDB.state.loading["7"], undefined);
   assert.equal(_KDB.state.loading["kdb-root-loading"], undefined);
 });
 

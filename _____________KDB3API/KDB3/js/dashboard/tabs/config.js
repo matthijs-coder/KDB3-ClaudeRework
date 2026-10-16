@@ -64,7 +64,9 @@ define([
     FILTER_APPLY_OWNERS: filterOwners,
     RESYNC_OWNERS: filterOwners,
     ROLLBACK_OWNERS: prepareOwners,
-    SNAPSHOT_OWNER_KEYS: prepareOwners
+    // Owners whose snapshot store the saga still releases through runtime.<owner>.tabMutationSnapshots.
+    // widgetBase is not listed: its rollback data lives in the tabs slot-stock ledger.
+    SNAPSHOT_OWNER_KEYS: filterOwners
   });
 
   // Edit-icon dialogs and failure texts per mutation. guardCode is the plan
