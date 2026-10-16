@@ -9,7 +9,7 @@ define([
   "./ownerNotify.js",
   "./tableValues.js",
   "../../../../core/utils/kit/errors.js",
-  "../../_core/events.js"
+  "../../../../core/events/filters.js"
 ], function (
   _config,
   _history,

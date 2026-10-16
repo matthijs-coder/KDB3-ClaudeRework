@@ -3,7 +3,7 @@ define([
   "./state.js",
   "./inventory.js",
   "../../../core/utils/kit/history.js",
-  "../_core/events.js"
+  "../../../core/events/filters.js"
 ], function (_config, _state, _inventory, _historyKit, _filterEvents) {
   "use strict";
 

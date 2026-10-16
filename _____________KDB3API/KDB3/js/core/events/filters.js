@@ -1,5 +1,6 @@
 /*
- * Events the filter owners emit to other modules (published: other modules import this file, never an owner's files).
+ * Shared event family of the filter owners (singleSelect and nativeMultiSelect emit, widgetVis subscribes), so it
+ * lives in core/events. Other modules import this file, never an owner's files.
  *
  *   CONFIRMED = "filters:confirmed"   A filter commit or history replay was confirmed on the host.
  *     payload { filterType, scopeType, tabId?, scopeId?, columnId?, confirmedValues? }

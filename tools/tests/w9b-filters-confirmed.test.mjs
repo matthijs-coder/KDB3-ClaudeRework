@@ -13,7 +13,7 @@ const JAHR = "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]";
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 test("filters events file: name and emit guard", () => {
-  const events = load("dashboard/filters/_core/events.js");
+  const events = load("core/events/filters.js");
   assert.equal(events.CONFIRMED, "filters:confirmed");
   assert.doesNotThrow(() => events.emitConfirmed({}, { a: 1 }));
   assert.doesNotThrow(() => events.emitConfirmed(null, { a: 1 }));

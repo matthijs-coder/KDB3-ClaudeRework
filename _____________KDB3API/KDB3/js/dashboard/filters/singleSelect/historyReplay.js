@@ -8,7 +8,7 @@ define([
   "./commit/ownerNotify.js",
   "../../../core/utils/normalizeCognosScopeId.js",
   "../../../core/utils/kit/history.js",
-  "../_core/events.js"
+  "../../../core/events/filters.js"
 ], function (
   _config,
   _history,

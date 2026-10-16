@@ -10,7 +10,7 @@ define([
   "./wave.js",
   "./waveRequest.js",
   "../runtime.js",
-  "../../../filters/_core/events.js"
+  "../../../../core/events/filters.js"
 ], function (_wave, _waveRequest, _visRuntime, _filterEvents) {
   "use strict";
 

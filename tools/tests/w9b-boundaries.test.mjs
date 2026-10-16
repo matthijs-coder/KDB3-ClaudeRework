@@ -29,3 +29,10 @@ test("widgetTopN imports only published widgetVis files", () => {
   const published = new Set(["dashboard/widgets/widgetVis/selectors.js", "dashboard/widgets/widgetVis/visualization.js"]);
   assert.deepEqual(targets.filter((to) => !published.has(to)), []);
 });
+
+test("widgetVis does not import from filters; the filter event family lives in core/events", () => {
+  const offenders = edgesFrom("dashboard/widgets/widgetVis/").filter((edge) => edge.to.startsWith("dashboard/filters/"));
+  assert.deepEqual(offenders.map((edge) => edge.from + " -> " + edge.to), []);
+  assert.equal(fs.existsSync(path.join(JS_ROOT, "core/events/filters.js")), true);
+  assert.equal(fs.existsSync(path.join(JS_ROOT, "dashboard/filters/_core/events.js")), false);
+});
