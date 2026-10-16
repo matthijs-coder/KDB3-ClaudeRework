@@ -200,6 +200,14 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Personengruppe popup (only available for Sicht BW): open, select, confirm, "Alle", cancel; switch Sicht to DEZPV. Expected: the filter is hidden/disabled as on baseline.
 - [ ] Dienststellenleitung popup: same flow as Personengruppe.
 - [ ] Restore Set A / Set B with Sicht = DEZPV and with Personengruppe set. Expected: same values as saved.
+- [ ] Boot: console shows no `[sicht.` / `[specialSingleSelect.` errors or warnings. `getKDB().api.sicht.getState().lifecycle` and `getKDB().api.specialSingleSelect.getState().lifecycle` = `ready` (same as baseline).
+- [ ] Startup default: fresh boot with no parameter set. Expected: Sicht shows the same default (BW or DEZPV) as baseline; Dienststelle follows; no history step is created (Undo button stays disabled).
+- [ ] Sicht popup: open it. Expected: the BW/DEZPV options carry `KDB_sichtOptionBw` / `KDB_sichtOptionDezpv`, "Alle" is hidden (`KDB_sichtHideAlle`), duplicate options are hidden, unavailable options are greyed (`KDB_sichtOptionDisabled`) exactly as on baseline.
+- [ ] Switch Sicht BW -> DEZPV -> BW, then Undo twice and Redo twice. Expected: Sicht, Dienststelle and Personengruppe/Dienststellenleitung follow each step as on baseline; `#filterDockContainer` carries `KDB_sssSicht_BW` when Sicht = BW and `KDB_sssSicht_DEZPV` when DEZPV.
+- [ ] Rapid switch: change Sicht 3 times within ~2 s. Expected: the special filters end in the state matching the last Sicht (no stale visibility), console quiet.
+- [ ] Parameter set "Neues Dashboard" / clear: Sicht resets as on baseline; restore Set A (Sicht = DEZPV): Sicht, Dienststelle, special filters restored; no `WRITEBACK_SICHT_*` warning that baseline does not show.
+- [ ] Share URL (`?parameterId=` Set A): same values as on baseline after load.
+- [ ] Destroy/re-boot (section 4.3 recipe): after destroy, `getKDB().api.sicht.getState()` and `.api.specialSingleSelect.getState()` return `undefined`; `getKDB().api.sicht.dispatch({type:"sicht/syncRequested"})` logs exactly one `[sicht.dispatch] called after destroy` warning; after re-boot everything works again and listener counts match section 0.
 
 ### WS-K filterDock + metricsTree
 - [ ] Performance tab: record 10 s while hovering the filter dock. Expected: scripting time not higher than baseline.
