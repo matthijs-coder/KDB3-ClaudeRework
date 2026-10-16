@@ -504,3 +504,22 @@ test("a push serialises its payload a bounded number of times, independent of st
   }
   assert.ok(count <= 4, "stringify calls per push: " + count);
 });
+
+test("replay handlers receive a copy: mutating step or targetValue does not change stored history", async () => {
+  const handler = {
+    apply: (_KDB, targetValue, replayStep) => {
+      targetValue.v = "mutated";
+      replayStep.old.v = "mutated";
+      replayStep.new.v = "mutated";
+      replayStep.key = "mutated";
+      return true;
+    },
+  };
+  const { service, _KDB } = setup({ replayHandlers: { k: handler } });
+  service.pushCommittedStep(step("k", { v: 0 }, { v: 1 }, { timestamp: 1 }));
+  const stored = _KDB.state.history.stack[0];
+  assert.equal(await service.undo(), true);
+  assert.equal(await service.redo(), true);
+  assert.equal(_KDB.state.history.stack[0], stored);
+  assert.deepStrictEqual(service.getSnapshot().stack, [{ key: "k", timestamp: 1, old: { v: 0 }, new: { v: 1 } }]);
+});
