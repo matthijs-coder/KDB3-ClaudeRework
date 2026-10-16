@@ -40,7 +40,12 @@ define([
     if (confirmed.filterInstanceId &&
       record.filterInstanceId &&
       String(confirmed.filterInstanceId) !== String(record.filterInstanceId)) {
-      _diagnostics.push({ code: _config.parameterSetCodes.RESYNC_FAILED, key: assignmentEntry.key, tab: assignmentEntry.tab, message: "sicht confirmed selection targets another delegated instance" });
+      _diagnostics.push({
+        code: _config.parameterSetCodes.RESYNC_FAILED,
+        key: assignmentEntry.key,
+        tab: assignmentEntry.tab,
+        message: "sicht confirmed selection targets another delegated instance"
+      });
       return null;
     }
     return {
@@ -123,75 +128,70 @@ define([
   }
 
   async function applyConfirmedPair(_KDB, _filterRef, _selection, _payload, _assignment, _filterInstanceId) {
-    try {
-      var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB);
-      var useValue = _selection && _selection.useValue != null ? String(_selection.useValue) : "";
-      var incomingDisplay = _selection && _selection.displayValue;
-      var incomingSource = _selection && _selection.displaySource;
-      var root = _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.singleSelect : null;
-      var canonicalInstance = root && root.instancesById ? root.instancesById[_filterInstanceId] : null;
-      if (shouldSkipDegradedResyncWrite(_selection, useValue)) {
-        return {
-          displayValue: incomingDisplay == null ? null : String(incomingDisplay),
-          useValue: useValue,
-          displaySource: incomingSource || "unavailable"
-        };
-      }
-      var displayValue = incomingDisplay != null ? String(incomingDisplay) : "";
-      if (!_hostFilterIo.isWriteReady(filtersFacet)) {
-        throw new Error("replaceFilterContext unavailable");
-      }
-      var priorValues = _hostFilterIo.readValues(filtersFacet, _filterRef);
-      var rollbackInput = Array.isArray(priorValues)
-        ? priorValues.map(function (entry) { return Object.assign({}, entry || {}); })
-        : [];
-      var preWriteGuard = _guards.validateMutationGuard(_KDB, _payload || {});
-      if (!preWriteGuard.ok) {
-        return cancelledPair(preWriteGuard, _assignment, _filterInstanceId, "supersededBeforeHostWrite", null);
-      }
-      if (!(await _hostFilterIo.writeValues(filtersFacet, _filterRef, useValue ? [{ d: displayValue, u: useValue }] : []))) {
-        throw new Error("replaceFilterContext unavailable");
-      }
-      var postGuard = _guards.validateMutationGuard(_KDB, _payload || {});
-      if (!postGuard.ok) {
-        var rollbackPost = await _hostFilterIo.rollbackExact(filtersFacet, _filterRef, rollbackInput);
-        return cancelledPair(postGuard, _assignment, _filterInstanceId, "supersededAfterHostWrite", rollbackPost);
-      }
-      var verifyResult = _hostFilterIo.verifySelection(filtersFacet, _filterRef, {
-        displayValue: useValue ? displayValue : "Alle",
-        useValue: useValue
-      });
-      if (useValue && incomingSource === "table" && incomingDisplay != null) {
-        return keepResyncOwnerSelection(canonicalInstance, root, _selection);
-      }
-      if (!verifyResult.ok) {
-        var rollbackVerify = await _hostFilterIo.rollbackExact(filtersFacet, _filterRef, rollbackInput);
-        throw new Error("resync host reread mismatch; rollback " + (rollbackVerify.ok ? "succeeded" : "failed"));
-      }
-      var preCommitGuard = _guards.validateMutationGuard(_KDB, _payload || {});
-      if (!preCommitGuard.ok) {
-        var rollbackCommit = await _hostFilterIo.rollbackExact(filtersFacet, _filterRef, rollbackInput);
-        return cancelledPair(preCommitGuard, _assignment, _filterInstanceId, "supersededBeforeCanonicalCommit", rollbackCommit);
-      }
-      if (!useValue) {
-        updateCanonicalInstance(canonicalInstance, {
-          displayValue: "Alle",
-          useValue: "",
-          displaySource: "policy"
-        });
-        return { displayValue: "Alle", useValue: "", displaySource: "policy" };
-      }
-      var committedSelection = {
-        displayValue: verifyResult.observed.d,
-        useValue: verifyResult.observed.u,
-        displaySource: "cognos"
+    var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB);
+    var useValue = _selection && _selection.useValue != null ? String(_selection.useValue) : "";
+    var incomingDisplay = _selection && _selection.displayValue;
+    var incomingSource = _selection && _selection.displaySource;
+    var root = _KDB && _KDB.state && _KDB.state.filters ? _KDB.state.filters.singleSelect : null;
+    var canonicalInstance = root && root.instancesById ? root.instancesById[_filterInstanceId] : null;
+    if (shouldSkipDegradedResyncWrite(_selection, useValue)) {
+      return {
+        displayValue: incomingDisplay == null ? null : String(incomingDisplay),
+        useValue: useValue,
+        displaySource: incomingSource || "unavailable"
       };
-      updateCanonicalInstance(canonicalInstance, committedSelection);
-      return committedSelection;
-    } catch (error) {
-      console.error("[singleSelect.parameterSetResyncApplyPair.applyConfirmedPair] failed", error);
-      throw error;
     }
+    var displayValue = incomingDisplay != null ? String(incomingDisplay) : "";
+    if (!_hostFilterIo.isWriteReady(filtersFacet)) {
+      throw new Error("replaceFilterContext unavailable");
+    }
+    var priorValues = _hostFilterIo.readValues(filtersFacet, _filterRef);
+    var rollbackInput = Array.isArray(priorValues)
+      ? priorValues.map(function (entry) { return Object.assign({}, entry || {}); })
+      : [];
+    var preWriteGuard = _guards.validateMutationGuard(_KDB, _payload || {});
+    if (!preWriteGuard.ok) {
+      return cancelledPair(preWriteGuard, _assignment, _filterInstanceId, "supersededBeforeHostWrite", null);
+    }
+    if (!(await _hostFilterIo.writeValues(filtersFacet, _filterRef, useValue ? [{ d: displayValue, u: useValue }] : []))) {
+      throw new Error("replaceFilterContext unavailable");
+    }
+    var postGuard = _guards.validateMutationGuard(_KDB, _payload || {});
+    if (!postGuard.ok) {
+      var rollbackPost = await _hostFilterIo.rollbackExact(filtersFacet, _filterRef, rollbackInput);
+      return cancelledPair(postGuard, _assignment, _filterInstanceId, "supersededAfterHostWrite", rollbackPost);
+    }
+    var verifyResult = _hostFilterIo.verifySelection(filtersFacet, _filterRef, {
+      displayValue: useValue ? displayValue : _config.ALLE,
+      useValue: useValue
+    });
+    if (useValue && incomingSource === "table" && incomingDisplay != null) {
+      return keepResyncOwnerSelection(canonicalInstance, root, _selection);
+    }
+    if (!verifyResult.ok) {
+      var rollbackVerify = await _hostFilterIo.rollbackExact(filtersFacet, _filterRef, rollbackInput);
+      throw new Error("resync host reread mismatch; rollback " + (rollbackVerify.ok ? "succeeded" : "failed"));
+    }
+    var preCommitGuard = _guards.validateMutationGuard(_KDB, _payload || {});
+    if (!preCommitGuard.ok) {
+      var rollbackCommit = await _hostFilterIo.rollbackExact(filtersFacet, _filterRef, rollbackInput);
+      return cancelledPair(preCommitGuard, _assignment, _filterInstanceId, "supersededBeforeCanonicalCommit", rollbackCommit);
+    }
+    if (!useValue) {
+      updateCanonicalInstance(canonicalInstance, {
+        displayValue: _config.ALLE,
+        useValue: "",
+        displaySource: "policy"
+      });
+      return { displayValue: _config.ALLE, useValue: "", displaySource: "policy" };
+    }
+    var committedSelection = {
+      displayValue: verifyResult.observed.d,
+      useValue: verifyResult.observed.u,
+      displaySource: "cognos"
+    };
+    updateCanonicalInstance(canonicalInstance, committedSelection);
+    return committedSelection;
   }
 
   async function resyncApplied(_KDB, _runtime, _payload, _diagnostics, _progress) {
@@ -231,6 +231,7 @@ define([
       }
       return { ok: true };
     } catch (error) {
+      console.error("[singleSelect.resyncApplied] failed", error);
       return {
         ok: false,
         error: error
@@ -298,6 +299,7 @@ define([
           { reportAlreadyReleased: false }
         );
       }
+      console.error("[singleSelect.handleParameterSetResync] failed", error);
       return _runs.mergeTerminalCleanup(_KDB, _payload || {}, {
           ok: false,
           degraded: false,

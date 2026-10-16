@@ -12,16 +12,12 @@ define([
     return [{ d: _selection.displayValue, u: _selection.useValue }];
   }
 
-  function cloneSelection(_selection) {
-    return _selection ? Object.assign({}, _selection) : null;
-  }
-
   function applyOverlay(_root, _targetId, _captured) {
     var target = _root.instancesById && _root.instancesById[_targetId];
     if (!target) { return; }
-    target.currentSelection = cloneSelection(_captured.currentSelection);
-    target.backupSelection = cloneSelection(_captured.backupSelection);
-    target.pendingSelection = cloneSelection(_captured.pendingSelection);
+    target.currentSelection = _support.cloneSelection(_captured.currentSelection);
+    target.backupSelection = _support.cloneSelection(_captured.backupSelection);
+    target.pendingSelection = _support.cloneSelection(_captured.pendingSelection);
   }
 
   function captureCommittedSelections(_instances, _targets, _slots, _diagnostics) {
@@ -38,9 +34,9 @@ define([
         captured.push({
           scopeId: resolved.scopeId,
           identity: records[r],
-          currentSelection: cloneSelection(records[r].currentSelection),
-          backupSelection: cloneSelection(records[r].backupSelection),
-          pendingSelection: cloneSelection(records[r].pendingSelection)
+          currentSelection: _support.cloneSelection(records[r].currentSelection),
+          backupSelection: _support.cloneSelection(records[r].backupSelection),
+          pendingSelection: _support.cloneSelection(records[r].pendingSelection)
         });
       }
     }

@@ -160,7 +160,13 @@ define([
       var snapshot = _runtime.tabMutationSnapshots &&
         _runtime.tabMutationSnapshots[payload.operationId];
       if (!snapshot || snapshot.runId !== payload.runId) {
-        return { ok: false, operationId: payload.operationId, appliedScopes: [], clearedScopes: [], diagnostics: [_support.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED, "prepare snapshot missing")] };
+        return {
+          ok: false,
+          operationId: payload.operationId,
+          appliedScopes: [],
+          clearedScopes: [],
+          diagnostics: [_support.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED, "prepare snapshot missing")]
+        };
       }
       var work = _transfers.buildTabMutationTransfers(payload.plan);
       var overlays = {};
@@ -199,9 +205,9 @@ define([
       var root = _KDB.state.filters.singleSelect;
       Object.keys(clearedIds).forEach(function (_id) {
         applyOverlay(root, _id, {
-          currentSelection: { displayValue: "Alle", useValue: "", displaySource: "policy" },
-          backupSelection: { displayValue: "Alle", useValue: "", displaySource: "policy" },
-          pendingSelection: { displayValue: "Alle" }
+          currentSelection: { displayValue: _config.ALLE, useValue: "", displaySource: "policy" },
+          backupSelection: { displayValue: _config.ALLE, useValue: "", displaySource: "policy" },
+          pendingSelection: { displayValue: _config.ALLE }
         });
       });
       Object.keys(overlays).forEach(function (_id) { applyOverlay(root, _id, overlays[_id]); });

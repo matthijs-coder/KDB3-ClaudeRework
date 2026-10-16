@@ -277,6 +277,7 @@ define([
       );
       return mergeReconcileOutcome(result, reconcileResult);
     } catch (error) {
+      console.error("[singleSelect.runParameterSetRestore] failed", error);
       return {
         ok: false,
         degraded: false,

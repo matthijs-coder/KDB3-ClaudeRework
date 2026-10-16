@@ -22,9 +22,11 @@ define([
     var restoredByTargetId = {};
     var unrecoverable = [];
     var diagnostics = [];
+    var guardPassed = false;
     try {
       var guard = _support.guardRun(_runtime, payload);
       if (guard) { return guard; }
+      guardPassed = true;
       var snapshots = _runtime.tabMutationSnapshots || {};
       var snapshot = snapshots[payload.operationId];
       if (!snapshot) {
@@ -77,7 +79,6 @@ define([
       restored.forEach(function (_id) {
         restoreStateFields(root.instancesById && root.instancesById[_id], restoredByTargetId[_id]);
       });
-      delete snapshots[payload.operationId];
       return {
         ok: unrecoverable.length === 0 && reconciled.ok === true,
         operationId: payload.operationId,
@@ -99,6 +100,10 @@ define([
           message: String(error && error.message ? error.message : error)
         }])
       };
+    } finally {
+      if (guardPassed && _runtime.tabMutationSnapshots) {
+        delete _runtime.tabMutationSnapshots[payload.operationId];
+      }
     }
   }
 

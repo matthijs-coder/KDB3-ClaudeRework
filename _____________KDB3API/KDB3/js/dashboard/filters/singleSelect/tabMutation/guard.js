@@ -1,7 +1,8 @@
 define([
   "../../../../core/utils/filters/tabMutationRun/guardTabMutationRun.js",
-  "../../../../core/utils/normalizeCognosScopeId.js"
-], function (_guardRunUtil, _normalizeScopeId) {
+  "../../../../core/utils/normalizeCognosScopeId.js",
+  "../../../../core/utils/kit/data.js"
+], function (_guardRunUtil, _normalizeScopeId, _data) {
   "use strict";
 
   var SS_GUARD_OPTS = {
@@ -112,7 +113,7 @@ define([
   }
 
   function cloneSelection(_selection) {
-    return _selection ? Object.assign({}, _selection) : null;
+    return _selection ? _data.cloneJson(_selection) : null;
   }
 
   function isLiveSnapshotMatch(_record, _snapshotRecord) {
@@ -163,6 +164,7 @@ define([
     instancesInScope: instancesInScope,
     matchTarget: matchTarget,
     matchSnapshotTarget: matchSnapshotTarget,
+    cloneSelection: cloneSelection,
     cloneSnapshotRecord: cloneSnapshotRecord
   };
 });

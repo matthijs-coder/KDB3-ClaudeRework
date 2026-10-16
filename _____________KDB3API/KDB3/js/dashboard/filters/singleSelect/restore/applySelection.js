@@ -53,46 +53,39 @@ define([
   }
 
   async function resolveRestoreSelectionPair(_KDB, _instance, _useValue) {
-    try {
-      var useValue = _useValue == null ? "" : String(_useValue);
-      if (!useValue) {
-        return { selection: { d: "Alle", u: "" }, degraded: false, diagnostic: null };
-      }
-      var definitionResult = _definitions.readFilterDefinition(
-        _KDB, null, _instance.scopeType, _instance.itemName, _instance.itemId
-      );
-      var mapPair = readMapPair(definitionResult.definition, useValue);
-      if (mapPair) {
-        return { selection: mapPair, degraded: false, diagnostic: null };
-      }
-      var tablePair = await readTablePair(_KDB, _instance, useValue);
-      if (tablePair) {
-        return { selection: tablePair, degraded: false, diagnostic: null };
-      }
-      var dumpPair = readDumpSingleton(definitionResult.definition, useValue);
-      if (dumpPair) {
-        return { selection: dumpPair, degraded: false, diagnostic: null };
-      }
-      return {
-        selection: { d: useValue, u: useValue },
-        degraded: true,
-        diagnostic: {
-          code: _config.errorCodes.RESTORE_DISPLAY_DEGRADED,
-          filterInstanceId: _instance.filterInstanceId,
-          message: "real display unavailable; transport-only d=u used before mandatory reread"
-        }
-      };
-    } catch (error) {
-      console.error("[singleSelect.resolveRestoreSelectionPair] failed", {
-        filterInstanceId: _instance && _instance.filterInstanceId
-      }, error);
-      throw error;
+    var useValue = _useValue == null ? "" : String(_useValue);
+    if (!useValue) {
+      return { selection: { d: _config.ALLE, u: "" }, degraded: false, diagnostic: null };
     }
+    var definitionResult = _definitions.readFilterDefinition(
+      _KDB, null, _instance.scopeType, _instance.itemName, _instance.itemId
+    );
+    var mapPair = readMapPair(definitionResult.definition, useValue);
+    if (mapPair) {
+      return { selection: mapPair, degraded: false, diagnostic: null };
+    }
+    var tablePair = await readTablePair(_KDB, _instance, useValue);
+    if (tablePair) {
+      return { selection: tablePair, degraded: false, diagnostic: null };
+    }
+    var dumpPair = readDumpSingleton(definitionResult.definition, useValue);
+    if (dumpPair) {
+      return { selection: dumpPair, degraded: false, diagnostic: null };
+    }
+    return {
+      selection: { d: useValue, u: useValue },
+      degraded: true,
+      diagnostic: {
+        code: _config.errorCodes.RESTORE_DISPLAY_DEGRADED,
+        filterInstanceId: _instance.filterInstanceId,
+        message: "real display unavailable; transport-only d=u used before mandatory reread"
+      }
+    };
   }
 
   function commitEmptyRestore(_canonicalInstance, _root) {
     _selectionState.applyConfirmedState(_canonicalInstance, _root, {
-      displayValue: "Alle", useValue: "", displaySource: "policy"
+      displayValue: _config.ALLE, useValue: "", displaySource: "policy"
     });
     return { committed: true, degraded: false, diagnostic: null };
   }
@@ -133,17 +126,10 @@ define([
   }
 
   function commitRestoreSelection(_canonicalInstance, _root, _args) {
-    try {
-      if (!_args.useValue) {
-        return commitEmptyRestore(_canonicalInstance, _root);
-      }
-      return commitObservedRestore(_canonicalInstance, _root, _args);
-    } catch (error) {
-      console.error("[singleSelect.commitRestoreSelection] failed", {
-        filterInstanceId: _args && _args.filterInstanceId
-      }, error);
-      throw error;
+    if (!_args.useValue) {
+      return commitEmptyRestore(_canonicalInstance, _root);
     }
+    return commitObservedRestore(_canonicalInstance, _root, _args);
   }
 
   function toCancelled(_guard, _degraded, _rollback) {
@@ -160,76 +146,69 @@ define([
   }
 
   async function applyRestoreSelectionCore(_KDB, _runtime, _instance, _entry, _runId, _payload) {
-    try {
-      var payload = Object.assign({}, _payload || {}, { runId: _runId });
-      var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
-      var root = _KDB.state.filters.singleSelect;
-      var canonicalInstance = root.instancesById && root.instancesById[_instance.filterInstanceId];
-      var filterRef = _hostFilterIo.resolveFilterRef(_KDB, _runtime, {
-        filterInstanceId: _instance.filterInstanceId
-      });
-      var useValue = _entry && _entry.vals && _entry.vals[0] != null ? String(_entry.vals[0]) : "";
-      if (!_hostFilterIo.isWriteReady(filtersFacet) || !filterRef || !canonicalInstance) {
-        throw new Error("restore host API unavailable for " + _instance.filterInstanceId);
+    var payload = Object.assign({}, _payload || {}, { runId: _runId });
+    var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
+    var root = _KDB.state.filters.singleSelect;
+    var canonicalInstance = root.instancesById && root.instancesById[_instance.filterInstanceId];
+    var filterRef = _hostFilterIo.resolveFilterRef(_KDB, _runtime, {
+      filterInstanceId: _instance.filterInstanceId
+    });
+    var useValue = _entry && _entry.vals && _entry.vals[0] != null ? String(_entry.vals[0]) : "";
+    if (!_hostFilterIo.isWriteReady(filtersFacet) || !filterRef || !canonicalInstance) {
+      throw new Error("restore host API unavailable for " + _instance.filterInstanceId);
+    }
+    var preGuard = _guards.validateMutationGuard(_KDB, payload);
+    if (!preGuard.ok) {
+      return toCancelled(preGuard, false);
+    }
+    var priorValues = _hostFilterIo.readValues(filtersFacet, filterRef);
+    var rollbackInput = Array.isArray(priorValues)
+      ? priorValues.map(function (entry) { return Object.assign({}, entry || {}); })
+      : [];
+    var resolved = await resolveRestoreSelectionPair(_KDB, _instance, useValue);
+    var preWriteGuard = _guards.validateMutationGuard(_KDB, payload);
+    if (!preWriteGuard.ok) {
+      return toCancelled(preWriteGuard, false);
+    }
+    if (!(await _hostFilterIo.writeValues(filtersFacet, filterRef, useValue ? [resolved.selection] : []))) {
+      throw new Error("restore host API unavailable for " + _instance.filterInstanceId);
+    }
+    var postGuard = _guards.validateMutationGuard(_KDB, payload);
+    if (!postGuard.ok) {
+      var rollbackPost = await _hostFilterIo.rollbackExact(filtersFacet, filterRef, rollbackInput);
+      return toCancelled(postGuard, true, rollbackPost);
+    }
+    var observed = _hostFilterIo.readValues(filtersFacet, filterRef);
+    if (!useValue) {
+      if (Array.isArray(observed) && observed.length > 0) {
+        var rollbackClear = await _hostFilterIo.rollbackExact(filtersFacet, filterRef, rollbackInput);
+        throw new Error("empty restore reread returned a non-empty host value; rollback " +
+          (rollbackClear.ok ? "succeeded" : "failed"));
       }
-      var preGuard = _guards.validateMutationGuard(_KDB, payload);
-      if (!preGuard.ok) {
-        return toCancelled(preGuard, false);
-      }
-      var priorValues = _hostFilterIo.readValues(filtersFacet, filterRef);
-      var rollbackInput = Array.isArray(priorValues)
-        ? priorValues.map(function (entry) { return Object.assign({}, entry || {}); })
-        : [];
-      var resolved = await resolveRestoreSelectionPair(_KDB, _instance, useValue);
-      var preWriteGuard = _guards.validateMutationGuard(_KDB, payload);
-      if (!preWriteGuard.ok) {
-        return toCancelled(preWriteGuard, false);
-      }
-      if (!(await _hostFilterIo.writeValues(filtersFacet, filterRef, useValue ? [resolved.selection] : []))) {
-        throw new Error("restore host API unavailable for " + _instance.filterInstanceId);
-      }
-      var postGuard = _guards.validateMutationGuard(_KDB, payload);
-      if (!postGuard.ok) {
-        var rollbackPost = await _hostFilterIo.rollbackExact(filtersFacet, filterRef, rollbackInput);
-        return toCancelled(postGuard, true, rollbackPost);
-      }
-      var observed = _hostFilterIo.readValues(filtersFacet, filterRef);
-      if (!useValue) {
-        if (Array.isArray(observed) && observed.length > 0) {
-          var rollbackClear = await _hostFilterIo.rollbackExact(filtersFacet, filterRef, rollbackInput);
-          throw new Error("empty restore reread returned a non-empty host value; rollback " +
-            (rollbackClear.ok ? "succeeded" : "failed"));
-        }
-        var preCommitEmpty = _guards.validateMutationGuard(_KDB, payload);
-        if (!preCommitEmpty.ok) {
-          var rollbackEmpty = await _hostFilterIo.rollbackExact(filtersFacet, filterRef, rollbackInput);
-          return toCancelled(preCommitEmpty, true, rollbackEmpty);
-        }
-        return commitRestoreSelection(canonicalInstance, root, {
-          useValue: useValue, resolved: resolved, observed: observed,
-          filterInstanceId: _instance.filterInstanceId
-        });
-      }
-      if (!Array.isArray(observed) || !observed[0] || String(observed[0].u || "") !== useValue) {
-        var rollbackMismatch = await _hostFilterIo.rollbackExact(filtersFacet, filterRef, rollbackInput);
-        throw new Error("restore reread did not confirm target use value; rollback " +
-          (rollbackMismatch.ok ? "succeeded" : "failed"));
-      }
-      var preCommit = _guards.validateMutationGuard(_KDB, payload);
-      if (!preCommit.ok) {
-        var rollbackFinal = await _hostFilterIo.rollbackExact(filtersFacet, filterRef, rollbackInput);
-        return toCancelled(preCommit, true, rollbackFinal);
+      var preCommitEmpty = _guards.validateMutationGuard(_KDB, payload);
+      if (!preCommitEmpty.ok) {
+        var rollbackEmpty = await _hostFilterIo.rollbackExact(filtersFacet, filterRef, rollbackInput);
+        return toCancelled(preCommitEmpty, true, rollbackEmpty);
       }
       return commitRestoreSelection(canonicalInstance, root, {
         useValue: useValue, resolved: resolved, observed: observed,
         filterInstanceId: _instance.filterInstanceId
       });
-    } catch (error) {
-      console.error("[singleSelect.applyRestoreSelectionCore] failed", {
-        filterInstanceId: _instance && _instance.filterInstanceId
-      }, error);
-      throw error;
     }
+    if (!Array.isArray(observed) || !observed[0] || String(observed[0].u || "") !== useValue) {
+      var rollbackMismatch = await _hostFilterIo.rollbackExact(filtersFacet, filterRef, rollbackInput);
+      throw new Error("restore reread did not confirm target use value; rollback " +
+        (rollbackMismatch.ok ? "succeeded" : "failed"));
+    }
+    var preCommit = _guards.validateMutationGuard(_KDB, payload);
+    if (!preCommit.ok) {
+      var rollbackFinal = await _hostFilterIo.rollbackExact(filtersFacet, filterRef, rollbackInput);
+      return toCancelled(preCommit, true, rollbackFinal);
+    }
+    return commitRestoreSelection(canonicalInstance, root, {
+      useValue: useValue, resolved: resolved, observed: observed,
+      filterInstanceId: _instance.filterInstanceId
+    });
   }
 
   async function applyRestoreSelection(_KDB, _runtime, _instance, _entry, _runId, _payload) {
