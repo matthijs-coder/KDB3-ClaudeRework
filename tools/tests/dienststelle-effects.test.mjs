@@ -4,101 +4,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
-import { existsSync } from 'node:fs';
 import { loadAmd } from '../lib/amd-loader.mjs';
 import { JS_ROOT } from '../lib/amd-graph.mjs';
 
 const DIR = path.join(JS_ROOT, 'dashboard/filters/dienststelle');
 
-// Task A (core, state, view, history) lands in a parallel branch. When its files are absent the
-// effects are loaded against minimal stand-ins; after integration the real modules are used.
-const CORE_FILES = [
-  'state.js',
-  'selectors.js',
-  'config.js',
-  'history.js',
-  'view/syncView.js',
-  'view/dockNames.js',
-  'view/chromeClasses.js',
-  'view/labels.js',
-  'view/filterDom.js'
-];
-const hasCore = CORE_FILES.every((file) => existsSync(path.join(DIR, file)));
-
-const ACTIONS = {
-  MOUNT_READY: 'dienststelle/mountReady',
-  FILTER_DOCK_STATE_CHANGED: 'dienststelle/filterDockStateChanged',
-  FILTER_DOCK_POPUP_READY: 'dienststelle/filterDockPopupReady',
-  FILTER_DOCK_FILTERS_READY: 'dienststelle/filterDockFiltersReady',
-  FILTER_DOCK_HEADER_OBSERVED: 'dienststelle/filterDockHeaderObserved',
-  FILTER_DOCK_COMMITTED_DISPLAY_OBSERVED: 'dienststelle/filterDockCommittedDisplayObserved',
-  SICHT_CHANGED: 'dienststelle/sichtChanged',
-  SELECTION_OBSERVED: 'dienststelle/selectionObserved',
-  SELECTION_CLEARED: 'dienststelle/selectionCleared',
-  DEFAULT_APPLIED: 'dienststelle/defaultApplied',
-  HISTORY_REPLAY_REQUESTED: 'dienststelle/historyReplayRequested',
-  HISTORY_REPLAY_APPLIED: 'dienststelle/historyReplayApplied',
-  SYNC_REQUESTED: 'dienststelle/syncRequested',
-  TABLE_DATA_CHANGED: 'dienststelle/tableDataChanged',
-  PARAMETER_SET_CLEAR_REQUESTED: 'dienststelle/parameterSetClearRequested',
-  PARAMETER_SET_RESTORE_REQUESTED: 'dienststelle/parameterSetRestoreRequested',
-  PREPARE_TAB_MUTATION: 'dienststelle/prepareTabMutation',
-  APPLY_TAB_MUTATION: 'dienststelle/applyTabMutation',
-  RESTORE_TAB_MUTATION_SNAPSHOT: 'dienststelle/restoreTabMutationSnapshot',
-  RESYNC_TAB_MUTATION_HOST: 'dienststelle/resyncTabMutationHost',
-  TAB_MUTATION_SCOPE_WRITE: 'dienststelle/tabMutationScopeWrite',
-  FILTER_STATUS_CHANGED: 'dienststelle/filterStatusChanged',
-  ERROR: 'dienststelle/error',
-  DESTROY: 'dienststelle/destroy'
-};
-const DEFINITIONS = {
-  BW: {
-    activeSichtValue: 'BW',
-    activeFilterKey: 'Dienststelle_BW',
-    visibleFilterLabel: 'Dienststelle',
-    defaultTableKey: 'dienststelle_bw_default',
-    hierarchyTableKey: 'dienststelle_bw_hierarchy',
-    shouldSanitizeOptionDisplay: false
-  }
-};
-
-function buildTableInput(KDB, tableKey) {
-  const tableConfig = KDB && KDB.config && KDB.config.tables ? KDB.config.tables[tableKey] : null;
-  if (!tableConfig || typeof tableConfig !== 'object') return null;
-  return [{ tableName: tableKey, shape: tableConfig.shape, pick: tableConfig.pick }];
-}
-
-function coreStubsAt(up) {
-  const noop = () => {};
-  return {
-    [up + 'state.js']: { ACTIONS },
-    [up + 'selectors.js']: {
-      readActiveDienststelleContext: (KDB) => {
-        const state = KDB && KDB.state && KDB.state.filters ? KDB.state.filters.dienststelle : null;
-        return state ? { ...state } : null;
-      }
-    },
-    [up + 'config.js']: {
-      DEFINITIONS,
-      FILTER_KEYS: ['Dienststelle_BW', 'Dienststelle_DEZPV'],
-      buildTableInput,
-      resolveDefinition: (value) => (DEFINITIONS[String(value)] ? { ...DEFINITIONS[String(value)] } : null),
-      createRuntimeDefaults: () => ({ parameterSetRunId: 0, tabMutationRunId: 0, tabMutationSnapshots: {} })
-    },
-    [up + 'history.js']: {},
-    [up + 'view/syncView.js']: { syncViewFromState: noop },
-    [up + 'view/dockNames.js']: { syncFilterDockNames: noop },
-    [up + 'view/chromeClasses.js']: { syncDienststelleWrapperClasses: noop },
-    [up + 'view/labels.js']: { sanitizeVisibleLabel: (value) => String(value == null ? '' : value) },
-    [up + 'view/filterDom.js']: { findScopedFilterWrapper: () => null }
-  };
-}
-
-// Effects sit one level (effects/) or two levels (effects/reconcile, effects/hostScope) below the core files.
-const coreStubs = () => (hasCore ? {} : { ...coreStubsAt('../'), ...coreStubsAt('../../') });
-
-const load = (rel, opts = {}) =>
-  loadAmd(path.join(DIR, rel), { ...opts, modules: { ...coreStubs(), ...(opts.modules || {}) } });
+const load = (rel, opts = {}) => loadAmd(path.join(DIR, rel), opts);
 const loadCore = (rel, opts) => loadAmd(path.join(JS_ROOT, rel), opts);
 
 const subjects = {
@@ -1086,7 +997,7 @@ const NOT_READY_EXPECTED = {
   "result": null
 };
 
-const ACTION = ACTIONS;
+const ACTION = load('state.js').ACTIONS;
 
 function loadRoute(calls, reconcileCalls) {
   const fn = (name) => () => {

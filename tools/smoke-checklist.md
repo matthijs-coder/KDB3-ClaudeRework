@@ -171,7 +171,7 @@ WS-I details. In the console use `const getKDB = window.top.getKDB;`.
 - [ ] Drillthrough from a vis widget: the org values match baseline. In the console, `getKDB().api.dienststelle.getCurrentHierarchySnapshot({pageScopeId:"active"})` has the same keys as baseline.
 - [ ] PDF export: the attachment rows list Dienststelle global and per-tab values as on baseline.
 - [ ] `const s = getKDB().api.dienststelle.getState(); s !== getKDB().state.filters.dienststelle` (still a copy). `getKDB().api.dienststelle.dispatch({type:"dienststelle/syncRequested",payload:{}}) === getKDB().state.filters.dienststelle` (now the live reference, intentional).
-- [ ] Destroy: `getKDB().api.dienststelle.destroy()` right after a confirm. No widget notify and no errors afterwards. `Object.keys(getKDB().runtime.dienststelle.timers).length === 0`, `historyReplayHandlerContribution === null`. A second `destroy()` is silent. `dispatch(...)` warns once `[dienststelle.dispatch] called after destroy`.
+- [ ] Destroy: `getKDB().api.dienststelle.destroy()` within 600 ms after a confirm has finished (inside the deferred widget-notify window). The pending `userNotify` timer is cancelled: no widget notify and no errors afterwards. A `destroy()` issued synchronously in the same tick as the confirm is not covered; the reconcile chain still completes and notifies, as on baseline. `Object.keys(getKDB().runtime.dienststelle.timers).length === 0`, `historyReplayHandlerContribution === null`. A second `destroy()` is silent. `dispatch(...)` warns once `[dienststelle.dispatch] called after destroy`.
 - [ ] Console during all of the above: no `[dienststelle.history] push skipped`, no `[dienststelle.widgetVis.dispatch]` info lines.
 
 ### WS-J Sicht + specialSingleSelect

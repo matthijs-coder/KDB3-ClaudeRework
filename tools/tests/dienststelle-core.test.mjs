@@ -2,12 +2,12 @@
 // Run: node --test tools/tests/dienststelle-core.test.mjs
 // Expected values live in tools/tests/fixtures/dienststelle-core.golden.json. They were captured from the
 // pre-refactor modules on main (commit 9d5dac6 of this workstream, GOLDEN_WRITE=1) and must not be regenerated
-// from the refactored code. Tests that need the effects/ files of Task B are skipped until those exist.
+// from the refactored code.
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { loadAmd } from '../lib/amd-loader.mjs';
 import { JS_ROOT } from '../lib/amd-graph.mjs';
@@ -56,7 +56,6 @@ function load(rel) {
 const state = load('state.js');
 const config = load('config.js');
 const labels = load('view/labels.js');
-const hasEffects = existsSync(path.join(D, 'effects/hostScope/filterRef.js'));
 const mod = {
   actions: state.ACTIONS,
   createInitialState: state.createInitialState,
@@ -346,7 +345,7 @@ test('T5 labels and definitions', () => {
   assert.strictEqual(mod.resolveDefinition('BW').activeFilterKey, 'Dienststelle_BW');
 });
 
-test('T6 restore scope plan (needs the effects/ files of Task B)', { skip: !hasEffects }, () => {
+test('T6 restore scope plan', () => {
   mod.buildRestoreScopePlan = load('restore/scopePlan.js').buildRestoreScopePlan;
   const diagnostics = [];
   const K = {
@@ -480,7 +479,7 @@ test('history: equal snapshots are left to the history service to reject', () =>
   assert.strictEqual(mod.history.pushDienststelleHistoryStep({ state: K.state }, snapshot, result), result);
 });
 
-test('tab mutation: duplicate and restoreDeleted report the diagnostics of both slots (needs effects/)', { skip: !hasEffects }, async () => {
+test('tab mutation: duplicate and restoreDeleted report the diagnostics of both slots', async () => {
   const tabMutation = load('tabMutation.js');
   const targets = { 0: { scopeId: 'tabA' }, 1: { scopeId: 'tabB' } };
   const K = { state: { filters: { dienststelle: buildState() } }, runtime: {}, services: {} };
