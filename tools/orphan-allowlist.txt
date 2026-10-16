@@ -6,3 +6,8 @@
 
 # Shared helper kit; imported by Phase 1 workstreams.
 _____________KDB3API/KDB3/js/core/utils/kit/** # keep: filled by the kit workstream
+
+# WS-A foundation: imported by the facets once A2/A3 land.
+_____________KDB3API/KDB3/js/core/services/cognosHost/outcome.js # remove when A2/A3 land
+_____________KDB3API/KDB3/js/core/services/cognosHost/errorCodes.js # remove when A2/A3 land
+_____________KDB3API/KDB3/js/core/services/cognosHost/hostAccess.js # remove when A2/A3 land
