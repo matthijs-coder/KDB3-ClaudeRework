@@ -191,7 +191,7 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
   };
   for (const prefix of ["../../", "../"]) {
     modules[prefix + "widgetBase/state/selectors.js"] = baseSelectors;
-    modules[prefix + "widgetVis/effects/applyVisualizationProperties.js"] = visProps;
+    modules[prefix + "widgetVis/visualization.js"] = { applyVisualizationProperties: visProps };
   }
   const register = loadAmd(ENTRY, { modules });
   loadAmd(resolve(JS_DIR, "core/services/widgetBinding/index.js"))(_KDB);

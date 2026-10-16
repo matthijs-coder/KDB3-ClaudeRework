@@ -154,10 +154,12 @@ const PIPELINE_CASES = {
 
 function loadHelperBinding(log, props, consoleStub) {
   const modules = {
-    "../widgetVis/effects/applyVisualizationProperties.js": async (_KDB, options) => {
-      log.push(["properties", { phase: options.phase, force: options.force, widgetId: options.widgetId }]);
-      if (props.onProperties) props.onProperties(options.phase);
-      return props.result(options.phase);
+    "../widgetVis/visualization.js": {
+      applyVisualizationProperties: async (_KDB, options) => {
+        log.push(["properties", { phase: options.phase, force: options.force, widgetId: options.widgetId }]);
+        if (props.onProperties) props.onProperties(options.phase);
+        return props.result(options.phase);
+      }
     },
     "./helperPlacement.js": { dismissHelperTitleEdit: (_KDB, helperId) => { log.push(["dismiss", helperId]); } }
   };

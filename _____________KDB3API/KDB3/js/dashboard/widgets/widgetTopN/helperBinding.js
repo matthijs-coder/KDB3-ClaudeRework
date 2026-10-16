@@ -1,9 +1,9 @@
 define([
-  "../widgetVis/effects/applyVisualizationProperties.js",
+  "../widgetVis/visualization.js",
   "./config.js",
   "./results.js",
   "./helperPlacement.js"
-], function (_applyVisualizationProperties, _config, _results, _placement) {
+], function (_visualization, _config, _results, _placement) {
   "use strict";
 
   function readBindingServices(_KDB) {
@@ -88,7 +88,7 @@ define([
 
   function applyHelperVisualizationProperties(_KDB, _context, phase, force) {
     var dataConfig = _context.spec && _context.spec.dataConfig || {};
-    return _applyVisualizationProperties(_KDB, {
+    return _visualization.applyVisualizationProperties(_KDB, {
       widgetId: _context.helperWidgetId,
       visualizationType: dataConfig.visualizationType || "TopN",
       runtime: _context.ownerRuntime || {},

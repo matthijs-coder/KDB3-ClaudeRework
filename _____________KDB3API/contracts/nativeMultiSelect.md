@@ -76,7 +76,7 @@ As built: 13 files; exports are listed per file. `__orchestratorNativeMultiSelec
 ```txt
 dashboard/filters/nativeMultiSelect/
   __orchestratorNativeMultiSelect.js                  shim over index.js (path kept for KDB.js)
-  commit.js                                           commitFilterDockConfirm, mapConfirmedValues, prepareConfirmWrite, buildCommittedStep, startTopNWave, findByName
+  commit.js                                           commitFilterDockConfirm, mapConfirmedValues, prepareConfirmWrite, buildCommittedStep, startTopNWave (emits `filters:confirmed` with the confirmed column and values; widgetVis derives Jahr and the year), findByName
   config.js                                           actions, parameterSetCodes, tabMutationCodes, HISTORY_STEP_KEY
   history.js                                          createHistoryReplayHandler, applyHistoryReplay, mergeReplayItem
   hostFilterIo.js                                     warnDestSkip, writeRef, applyByItemId, applyByName
