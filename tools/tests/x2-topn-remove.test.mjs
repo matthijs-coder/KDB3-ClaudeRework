@@ -387,16 +387,20 @@ test("an explicit clear that cannot be planned keeps the claim (only remove and 
   });
 });
 
-test("a late resolve for an owner that was removed: claim and terminal", async () => {
+test("a late resolve for an owner that was removed binds nothing and claims no helper", async () => {
   await withEnv({}, async (env) => {
     await env.remove("o1");
     await env.settle();
     const late = await env.resolve("o1", 5);
     await env.settle();
-    assert.equal(late.status, "success", "binds a helper for the removed owner");
-    assert.equal(env.terminals.length, 1);
-    assert.equal(env.ownerState("o1").helperWidgetId, "h1");
-    assert.equal(env.helperAttrs("h1")[0], "o1");
+    assert.equal(late.status, "aborted");
+    assert.equal(late.stale, true);
+    assert.deepEqual(env.terminals, []);
+    assert.equal(env.ownerState("o1"), undefined);
+    assert.equal(env.ownerRuntime("o1"), undefined);
+    assert.deepEqual(env.helperAttrs("h1"), [null, null]);
+    const other = await env.resolve("o2", 1);
+    assert.equal(other.status, "success");
   });
 });
 
