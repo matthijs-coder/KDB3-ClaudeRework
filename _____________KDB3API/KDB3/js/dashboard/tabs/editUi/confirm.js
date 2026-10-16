@@ -27,7 +27,7 @@ define([
         return { ok: false, diagnostics: [{ code: _codes.CONFLICT }] };
       }
       if (!svc || typeof svc[ui.dialog.method] !== "function") {
-        console.warn("[tabs.editIcon] messageService unavailable — " + operation + " blocked (fail closed)");
+        console.warn("[tabs.editIcon] messageService unavailable - " + operation + " blocked (fail closed)");
         return { ok: false, blocked: true };
       }
       const asked = await askForMutationPayload(_KDB, svc, ui, operation, request);

@@ -1,4 +1,4 @@
-define(["../../../core/utils/kit/data.js"], function (_data) {
+define(["../../../core/utils/kit/data.js", "../widgetBase/state/selectors.js"], function (_data, _widgetBaseSelectors) {
   "use strict";
 
   function readTopNState(_KDB) {
@@ -27,7 +27,14 @@ define(["../../../core/utils/kit/data.js"], function (_data) {
     });
   }
 
+  // widgetBase keeps the frame of a removed widget with placement "removed".
+  function isOwnerRemoved(_KDB, _ownerVisId) {
+    var frame = _widgetBaseSelectors.readFrame(_KDB, _ownerVisId);
+    return !!frame && frame.placement === "removed";
+  }
+
   return {
+    isOwnerRemoved: isOwnerRemoved,
     readWidgetTopNState: readWidgetTopNState,
     readOwnerClaim: readOwnerClaim,
     isHelperClaimedByOtherOwner: isHelperClaimedByOtherOwner

@@ -5,8 +5,9 @@ define([
   "../slots.js",
   "../events/eventNames.js",
   "../restore/guard.js",
+  "./slotStock/ledger.js",
   "../../../core/utils/filters/tabMutationRun/tabMutationSnapshots.js"
-], function (_actionTypes, _codes, _config, _slots, _eventNames, _guard, _snapshots) {
+], function (_actionTypes, _codes, _config, _slots, _eventNames, _guard, _ledger, _snapshots) {
   "use strict";
 
   // The owner side of a tab mutation run: dispatching one phase to the filter and widget owners, slot readiness
@@ -224,12 +225,19 @@ define([
     });
   }
 
-  // Post-commit cleanup: a failing owner must not turn an applied mutation into a failure.
+  // Releases the operation's snapshots after any saga outcome; a failing owner must not change the mutation result.
+  // An owner runtime that is already gone or never held the snapshot is left alone (no key is re-created).
   function clearSnapshots(_ctx, _operationId) {
     const runtime = _ctx && _ctx._KDB && _ctx._KDB.runtime;
     if (!runtime || _operationId == null || _operationId === "") { return; }
+    try {
+      _ledger.deleteSnapshot(_ctx._KDB, _operationId);
+    } catch (err) {
+      console.error("[tabs.clearSnapshots] slot-stock ledger cleanup failed", { operationId: _operationId }, err);
+    }
     _config.mutationOwners.SNAPSHOT_OWNER_KEYS.forEach(function (ownerKey) {
-      if (!runtime[ownerKey]) { return; }
+      const store = runtime[ownerKey] && runtime[ownerKey].tabMutationSnapshots;
+      if (!store || !Object.prototype.hasOwnProperty.call(store, String(_operationId))) { return; }
       try {
         _snapshots.deleteSnapshot(runtime[ownerKey], _operationId);
       } catch (err) {

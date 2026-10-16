@@ -107,10 +107,12 @@ define([
     }
 
     // Prunes the state record and the runtime record of an owner that no longer
-    // exists. A newer operation that already replaced the record keeps it.
+    // exists. A newer operation that already replaced the record keeps it; a record
+    // an overlapping release already pruned still lets this one prune the state record.
     function removeOwner(_ownerVisId, _ownerRuntime) {
       var runtime = readRuntime(_KDB);
-      if (runtime.byOwner[_ownerVisId] !== _ownerRuntime) {
+      var current = runtime.byOwner[_ownerVisId];
+      if (current && current !== _ownerRuntime) {
         return;
       }
       delete runtime.byOwner[_ownerVisId];
