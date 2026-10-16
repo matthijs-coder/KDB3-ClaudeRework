@@ -39,6 +39,11 @@ define([], function () {
     return !!(state && state.filtersReady);
   }
 
+  function readActiveFilterEl(_KDB) {
+    var runtime = readDockRuntime(_KDB);
+    return runtime && runtime.domRefs && runtime.domRefs.activeFilterEl ? runtime.domRefs.activeFilterEl : null;
+  }
+
   function readDockSelectors(_KDB) {
     return _KDB && _KDB.elements && _KDB.elements.selectors ? _KDB.elements.selectors.filterDock : null;
   }
@@ -53,6 +58,7 @@ define([], function () {
     readLastInteraction: readLastInteraction,
     readPopupState: readPopupState,
     readFiltersReadyFlag: readFiltersReadyFlag,
+    readActiveFilterEl: readActiveFilterEl,
     readDockSelectors: readDockSelectors,
     readDockRuntime: readDockRuntime
   };
