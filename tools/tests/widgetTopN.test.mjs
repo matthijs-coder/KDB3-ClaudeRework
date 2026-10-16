@@ -158,7 +158,8 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
 
   const modules = {};
   const shell = { resolveWidgetShell: (kdb, id) => (id ? doc.getElementById(id) : null) };
-  const baseSelectors = { readFrame: () => ({ tabId: "t1" }) };
+  const removedOwners = new Set();
+  const baseSelectors = { readFrame: (kdb, id) => (removedOwners.has(id) ? undefined : { tabId: "t1" }) };
   const visProps = () => Promise.resolve({ diagnostics: {} });
   for (const prefix of ["../../", "../"]) {
     modules[prefix + "widgetBase/view/resolveWidgetShell.js"] = shell;
@@ -171,7 +172,7 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
 
   const api = _KDB.api.widgetTopN;
   return {
-    _KDB, api, doc, slot, canvas, log, terminals, overlaps, now,
+    _KDB, api, doc, slot, canvas, log, terminals, overlaps, now, removedOwners,
     resolve(owner, opSeq, topNChoice) {
       return api.dispatch({
         type: "widgetTopN/resolveRequested",
@@ -187,11 +188,11 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
         payload: { ownerVisId: owner, reason: "topNWaveRelease", clearHelperBinding: false, releaseClaim: true }
       });
     },
-    clear(owner) {
+    clear(owner, dataConfig) {
       return api.dispatch({
         type: "widgetTopN/cleanup",
         widgetId: owner,
-        payload: { ownerVisId: owner, reason: "cleanup", clearHelperBinding: true, releaseClaim: false }
+        payload: { ownerVisId: owner, reason: "cleanup", clearHelperBinding: true, releaseClaim: false, dataConfig: dataConfig || null }
       });
     },
     helperInSlot(id) { return doc.getElementById(id).parentNode === slot; },
@@ -352,6 +353,63 @@ test("an explicit clear during a running post-resolution cleanup replaces it ins
     assert.equal(env.log.filter((e) => e.ev === "cleanupStart").length, 2);
     assert.deepEqual(env.overlaps, []);
     assert.equal(env.ownerRuntime("o1").lastHelperPlan, null);
+    assert.deepEqual(widgetTopNWarnings(messages), []);
+  });
+});
+
+test("an explicit clear during the claim wait makes the running resolve stale: no terminal, no error state", async () => {
+  await withEnv({ applyMs: 20, cleanupMs: 50 }, async (env, messages) => {
+    const running = env.resolve("o1", 1, "5");
+    await sleep(15);
+    const cleared = await env.clear("o1", DATA_CONFIG);
+    assert.equal(cleared.ok, true);
+    const result = await running;
+    assert.equal(result.stale, true);
+    assert.equal(result.status, "aborted");
+    assert.deepEqual(env.terminals, []);
+    assert.equal(env.api.getState().byOwner.o1.resolutionStatus, "idle");
+    await waitUntil(() => env.idle());
+    assert.equal(env.helperInSlot("h1"), true);
+    assert.deepEqual(widgetTopNWarnings(messages), []);
+  });
+});
+
+test("releasing the claim of a deleted owner prunes its state and runtime records; a present owner keeps them", async () => {
+  await withEnv({ owners: ["o1", "o2"], cleanupMs: 20 }, async (env) => {
+    await env.resolve("o1", 1);
+    await env.resolve("o2", 1);
+    await waitUntil(() => env.idle());
+    await env.release("o1");
+    assert.ok(env.api.getState().byOwner.o1, "owner still on the canvas keeps its records");
+    assert.ok(env.ownerRuntime("o1"));
+    env.removedOwners.add("o2");
+    const released = await env.release("o2");
+    assert.equal(released.ok, true);
+    assert.equal(env.api.getState().byOwner.o2, undefined);
+    assert.equal(env.ownerRuntime("o2"), undefined);
+    const again = await env.resolve("o2", 1);
+    assert.equal(again.status, "success", "a restored owner starts again from fresh records");
+    await waitUntil(() => env.idle());
+    assert.equal(env.helperInSlot("h1"), true);
+  });
+});
+
+test("remove of an owner while its post-resolution cleanup runs: cleanup settles, records are pruned", async () => {
+  await withEnv({ cleanupMs: 200 }, async (env, messages) => {
+    await env.resolve("o1", 1);
+    await waitUntil(() => env.log.some((e) => e.ev === "cleanupStart"));
+    env.removedOwners.add("o1");
+    const removed = await env.api.dispatch({
+      type: "widgetTopN/cleanup",
+      widgetId: "o1",
+      payload: { ownerVisId: "o1", reason: "remove", clearHelperBinding: true, releaseClaim: true }
+    });
+    assert.equal(removed.ok, true);
+    assert.equal(env.api.getState().byOwner.o1, undefined);
+    assert.equal(env.ownerRuntime("o1"), undefined);
+    assert.deepEqual(env.overlaps, []);
+    await waitUntil(() => env.idle());
+    assert.equal(env.helperInSlot("h1"), true);
     assert.deepEqual(widgetTopNWarnings(messages), []);
   });
 });
