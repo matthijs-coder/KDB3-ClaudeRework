@@ -1,4 +1,7 @@
-define(["../state/ensureWidgetBaseRuntime.js"], function (_runtime) {
+define([
+  "../state/ensureWidgetBaseRuntime.js",
+  "../../../../core/utils/kit/data.js"
+], function (_runtime, _data) {
   "use strict";
 
   function guardRun(_KDB, _payload) {
@@ -27,12 +30,12 @@ define(["../state/ensureWidgetBaseRuntime.js"], function (_runtime) {
     Object.keys(byId).forEach(function (widgetId) {
       var frame = byId[widgetId];
       if (frame && _plan.affectedTabIds.indexOf(frame.tabId) >= 0) {
-        affected[widgetId] = clone(frame);
+        affected[widgetId] = _data.cloneJson(frame);
       }
     });
     runtime.tabMutationSnapshots[_operationId] = {
       operationId: _operationId,
-      plan: clone(_plan),
+      plan: _data.cloneJson(_plan || null),
       physicalStarted: false,
       byId: affected
     };
@@ -40,21 +43,17 @@ define(["../state/ensureWidgetBaseRuntime.js"], function (_runtime) {
   }
 
   function readSnapshot(_KDB, _operationId) {
-    var runtime = ensureRuntime(_KDB);
-    return runtime.tabMutationSnapshots[_operationId] || null;
+    return ensureRuntime(_KDB).tabMutationSnapshots[_operationId] || null;
   }
 
   function deleteSnapshot(_KDB, _operationId) {
-    var runtime = ensureRuntime(_KDB);
-    delete runtime.tabMutationSnapshots[_operationId];
+    delete ensureRuntime(_KDB).tabMutationSnapshots[_operationId];
   }
 
   function ensureRuntime(_KDB) {
     _runtime.ensureWidgetBaseRuntime(_KDB);
     return _KDB.runtime.widgetBase;
   }
-
-  function clone(value) { return JSON.parse(JSON.stringify(value || null)); }
 
   return {
     guardRun: guardRun,
