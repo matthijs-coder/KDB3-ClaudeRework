@@ -24,7 +24,7 @@ define(["./presentHomeChoice.js"], function (_presentHomeChoice) {
     console.warn("[homeDialog.presentCubesUnavailable] skipped", ok, data, _outcome, reason);
   }
 
-  async function __controller(_KDB) {
+  async function presentCubesUnavailable(_KDB) {
     try {
       var dataSourcesFacet = readStampedDataSourcesFacet(_KDB);
       var labels;
@@ -58,5 +58,5 @@ define(["./presentHomeChoice.js"], function (_presentHomeChoice) {
     }
   }
 
-  return __controller;
+  return presentCubesUnavailable;
 });
