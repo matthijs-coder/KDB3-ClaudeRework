@@ -1,7 +1,7 @@
 define([], function () {
   "use strict";
 
-  return {
+  var actions = {
     MOUNT_READY: "nativeMultiSelect/mountReady",
     PREPARE_TAB_MUTATION: "nativeMultiSelect/prepareTabMutation",
     APPLY_TAB_MUTATION: "nativeMultiSelect/applyTabMutation",
@@ -15,5 +15,27 @@ define([], function () {
     HISTORY_REPLAY_REQUESTED: "nativeMultiSelect/historyReplayRequested",
     ERROR: "nativeMultiSelect/error",
     DESTROY: "nativeMultiSelect/destroy"
+  };
+
+  var parameterSetCodes = Object.freeze({
+    RESTORE_FAILED: "WRITEBACK_FILTER_RESTORE_FAILED",
+    CLEAR_FAILED: "WRITEBACK_FILTER_CLEAR_FAILED",
+    CANCELLED: "WRITEBACK_RESTORE_CANCELLED",
+    TARGET_MISSING: "WRITEBACK_TABS_TARGET_MISSING",
+    SKIPPED: "WRITEBACK_SKIPPED_BY_DESIGN"
+  });
+
+  var tabMutationCodes = Object.freeze({
+    APPLY_FAILED: "TABS_MUTATION_APPLY_FAILED",
+    PREPARE_FAILED: "TABS_MUTATION_PREPARE_FAILED",
+    ROLLBACK_INCOMPLETE: "TABS_MUTATION_ROLLBACK_INCOMPLETE",
+    CANCELLED: "TABS_MUTATION_CANCELLED"
+  });
+
+  return {
+    actions: actions,
+    parameterSetCodes: parameterSetCodes,
+    tabMutationCodes: tabMutationCodes,
+    HISTORY_STEP_KEY: "filter_nativeMultiSelect"
   };
 });
