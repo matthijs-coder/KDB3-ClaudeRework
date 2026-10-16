@@ -3,8 +3,9 @@ define([
   "./transfers.js",
   "../inventory/reconcile.js",
   "../hostFilterIo.js",
-  "../config.js"
-], function (_support, _transfers, _reconcileInventory, _hostFilterIo, _config) {
+  "../config.js",
+  "../../_core/tabMutation.js"
+], function (_support, _transfers, _reconcileInventory, _hostFilterIo, _config, _tabMutation) {
   "use strict";
 
   function selectionToHostValues(_selection) {
@@ -65,47 +66,44 @@ define([
     }
   }
 
-  async function resyncTabMutationHost(_KDB, _runtime, _payload) {
-    var payload = _payload || {};
-    var diagnostics = [];
-    try {
-      var guard = _support.guardRun(_runtime, payload);
-      if (guard) { return { ok: false, diagnostics: guard.diagnostics || [] }; }
-      var work = _transfers.buildTabMutationTransfers(payload.plan);
-      var captured = captureCommittedSelections(
-        _KDB.state.filters.singleSelect.instancesById || {},
-        payload.tabIdxToScopeId || {},
-        work.affectedSlots,
-        diagnostics
-      );
-      if (captured.length > 0) {
-        // The cognosSync traverse rebuilds the page controls, so the cached host
-        // filter APIs are stale; reconcile refreshes them before the committed
-        // selections (captured above, because reconcile adopts host values into
-        // currentSelection) are re-pushed and overlaid back into state.
-        var reconciled = await _reconcileInventory.reconcileFilterInstances(_KDB, _runtime,
-          { reason: "tabMutation", runId: payload.runId });
-        if (!reconciled.ok || _runtime.tabMutationRunId !== payload.runId) {
-          diagnostics.push(_support.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED,
-            "resync reconcile failed or was superseded"));
-          return { ok: false, operationId: payload.operationId, diagnostics: diagnostics };
-        }
-        // The traverse replaced the filter DOM; drop the cached popup refs so the
-        // next popup interaction re-resolves against the live dock.
-        if (_runtime.domRefs) {
-          delete _runtime.domRefs.filterEl;
-          delete _runtime.domRefs.popupMount;
-          delete _runtime.domRefs.filterKey;
-        }
-        await pushCapturedSelections(_KDB, _runtime, captured, diagnostics);
-      }
-      return { ok: true, operationId: payload.operationId, diagnostics: diagnostics };
-    } catch (error) {
-      console.error("[singleSelect.resyncTabMutationHost] failed", { operationId: payload.operationId }, error);
+  async function run(_ctx, _payload, _diagnostics) {
+    var KDB = _ctx._KDB;
+    var runtime = _ctx.runtime;
+    var diagnostics = _diagnostics;
+    var work = _transfers.buildTabMutationTransfers(_payload.plan);
+    var captured = captureCommittedSelections(
+      KDB.state.filters.singleSelect.instancesById || {},
+      _payload.tabIdxToScopeId || {},
+      work.affectedSlots,
+      diagnostics
+    );
+    if (captured.length === 0) { return true; }
+    // The cognosSync traverse rebuilds the page controls, so the cached host
+    // filter APIs are stale; reconcile refreshes them before the committed
+    // selections (captured above, because reconcile adopts host values into
+    // currentSelection) are re-pushed and overlaid back into state.
+    var reconciled = await _reconcileInventory.reconcileFilterInstances(KDB, runtime,
+      { reason: "tabMutation", runId: _payload.runId });
+    if (!reconciled.ok || runtime.tabMutationRunId !== _payload.runId) {
       diagnostics.push(_support.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED,
-        String(error && error.message ? error.message : error)));
-      return { ok: false, operationId: payload.operationId, diagnostics: diagnostics };
+        "resync reconcile failed or was superseded"));
+      return false;
     }
+    // The traverse replaced the filter DOM; drop the cached popup refs so the
+    // next popup interaction re-resolves against the live dock.
+    if (runtime.domRefs) {
+      delete runtime.domRefs.filterEl;
+      delete runtime.domRefs.popupMount;
+      delete runtime.domRefs.filterKey;
+    }
+    await pushCapturedSelections(KDB, runtime, captured, diagnostics);
+    return true;
+  }
+
+  var resync = _tabMutation.createResync(_support.tabMutationBase, { run: run });
+
+  function resyncTabMutationHost(_KDB, _runtime, _payload) {
+    return resync({ _KDB: _KDB, runtime: _runtime }, _payload);
   }
 
   return { resyncTabMutationHost: resyncTabMutationHost };

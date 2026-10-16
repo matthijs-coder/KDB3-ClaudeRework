@@ -8,7 +8,7 @@
  *     { ok:true, scopeId, fromTarget } when the saga target carries a scopeId, or when tabId/pageId matches a tab
  *     descriptor from readTabs(KDB) (array of { id, pageId }; the owner decides what a failing facet means and
  *     returns [] or null); { ok:false, scopeId:null, fromTarget:false } otherwise. Never indexes tabs by position.
- * createSlotScopeResolver({ resolveScopeId, isGlobalScope, codes }) -> resolveScopeIdForSlot(KDB, tabTargets, slot)
+ * createSlotScopeResolver({ resolveScopeId, isGlobalScope }) -> resolveScopeIdForSlot(KDB, tabTargets, slot)
  *     { ok:true, scopeId } | { ok:true, skip:true, scopeId:null } (isGlobalScope(scopeId): nothing per tab to move)
  *     | { ok:false, diagnostics:[PREPARE_FAILED] }.
  * resolveAffectedScopes(resolveScopeIdForSlot, KDB, tabTargets, slots) -> { ok, scopeIds, diagnostics }
@@ -63,7 +63,7 @@ define([
   }
 
   function createSlotScopeResolver(_spec) {
-    var code = (_spec.codes || _tabMutation.CODES).PREPARE_FAILED;
+    var code = _tabMutation.CODES.PREPARE_FAILED;
     function failed(_message, _slot) {
       return { ok: false, diagnostics: [{ code: code, message: _message, tabId: _slot && _slot.tabId || null }] };
     }

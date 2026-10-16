@@ -11,8 +11,8 @@
  * base = {
  *   name                 owner name for log labels: "[<name>.<phase>] failed"
  *   guard                createRunGuard(...) of this owner
- *   codes                optional { PREPARE_FAILED, APPLY_FAILED, ROLLBACK_INCOMPLETE, CANCELLED } (default CODES)
  * }
+ * CODES = the four TABS_MUTATION_* error codes the saga and the history know.
  *
  * createRunGuard({ options, staleMode }) -> { guardRun(runtime, payload), isStale(runtime, payload), cancelled(message, payload, runtime) }
  *     options and staleMode are the core util's data: pinOperationId, ensureRunIdDefault0, includeRunIdsInDiagnostic,
@@ -56,10 +56,6 @@ define([
 
   function errorMessage(_error) {
     return String(_error && _error.message ? _error.message : _error);
-  }
-
-  function codesOf(_base) {
-    return _base.codes || CODES;
   }
 
   function createRunGuard(_spec) {
@@ -149,7 +145,6 @@ define([
   }
 
   function createPrepare(_base, _hooks) {
-    var codes = codesOf(_base);
     return async function prepareTabMutation(_ctx, _payload) {
       var payload = _payload || {};
       try {
@@ -172,7 +167,7 @@ define([
         } else {
           console.error(label, error);
         }
-        return prepareFailure(payload.operationId, [{ code: codes.PREPARE_FAILED, message: errorMessage(error) }]);
+        return prepareFailure(payload.operationId, [{ code: CODES.PREPARE_FAILED, message: errorMessage(error) }]);
       }
     };
   }
@@ -182,12 +177,11 @@ define([
   }
 
   function createApply(_base, _hooks) {
-    var codes = codesOf(_base);
     function run(_ctx, _payload) {
       if (_hooks.run) { return _hooks.run(_ctx, _payload); }
       var operation = _payload.plan && _payload.plan.operation;
       if (!_payload.plan || !hasOwn(_hooks.operations, operation)) {
-        return applyFailure(_payload.operationId, [], [], [{ code: codes.APPLY_FAILED, message: _hooks.unsupportedMessage }]);
+        return applyFailure(_payload.operationId, [], [], [{ code: CODES.APPLY_FAILED, message: _hooks.unsupportedMessage }]);
       }
       return _hooks.operations[operation](_ctx, _payload);
     }
@@ -207,14 +201,13 @@ define([
   }
 
   function createRestore(_base, _hooks) {
-    var codes = codesOf(_base);
     return async function restoreTabMutationSnapshot(_ctx, _payload) {
       var payload = _payload || {};
       var guard = _base.guard.guardRun(_ctx.runtime, payload);
       if (guard) {
         return _hooks.rejected
           ? _hooks.rejected(guard, payload)
-          : restoreResult(false, payload.operationId, [], [], guard.diagnostics, guard.errorCode || codes.CANCELLED);
+          : restoreResult(false, payload.operationId, [], [], guard.diagnostics, guard.errorCode || CODES.CANCELLED);
       }
       var snapshot = _snapshots.readSnapshot(_ctx.runtime, payload.operationId);
       if (!snapshot) { return restoreResult(true, payload.operationId, [], [], []); }
@@ -232,7 +225,6 @@ define([
   }
 
   function createResync(_base, _hooks) {
-    var codes = codesOf(_base);
     return async function resyncTabMutationHost(_ctx, _payload) {
       var payload = _payload || {};
       var diagnostics = [];
@@ -247,20 +239,19 @@ define([
         return { ok: true, operationId: payload.operationId, diagnostics: diagnostics };
       } catch (error) {
         console.error("[" + _base.name + ".resyncTabMutationHost] failed", { operationId: payload.operationId }, error);
-        diagnostics.push({ code: codes.APPLY_FAILED, message: errorMessage(error) });
+        diagnostics.push({ code: CODES.APPLY_FAILED, message: errorMessage(error) });
         return { ok: false, operationId: payload.operationId, diagnostics: diagnostics };
       }
     };
   }
 
-  function createDisposedResult(_message, _codes) {
-    var code = (_codes || CODES).CANCELLED;
+  function createDisposedResult(_message) {
     return function disposedTabMutationResult(_action) {
       var payload = (_action && _action.payload) || {};
       return Promise.resolve({
         ok: false,
         operationId: payload.operationId || null,
-        diagnostics: [{ code: code, message: _message }]
+        diagnostics: [{ code: CODES.CANCELLED, message: _message }]
       });
     };
   }
