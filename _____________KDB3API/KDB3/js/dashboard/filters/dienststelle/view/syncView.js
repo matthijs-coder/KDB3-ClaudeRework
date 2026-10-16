@@ -1,30 +1,17 @@
 define([
-  "../state/selectors.js",
-  "../effects/resolveDienststelleDataKey.js",
-  "../config/selectors.js",
-  "./resolveScopedDienststelleFilterDom.js",
-  "./sanitizeDienststelleVisibleLabel.js",
-  "./applyDienststelleDisplaySanitizing.js",
-  "../effects/pickPageContextScopeMap.js",
-  "./resolveUniqueOtherDockFilterWrapper.js"
-], function (
-  _selectors,
-  _resolveDataKey,
-  _viewSelectors,
-  _resolveScopedDom,
-  _sanitize,
-  _createApplyDisplay,
-  _pickPageContextScopeMap,
-  _resolveUniqueOtherDockFilterWrapper
-) {
+  "../config.js",
+  "../selectors.js",
+  "../effects/hostScope/filterRef.js",
+  "./filterDom.js",
+  "./labels.js"
+], function (_config, _selectors, _filterRef, _filterDom, _labels) {
   "use strict";
 
-  var _applyDisplay = _createApplyDisplay();
   var SCOPE_BUCKETS = ["global", "pageContext"];
 
   function readActiveSichtValue(_KDB) {
-    var ctx = _selectors.readActiveDienststelleContext(_KDB);
-    return ctx && ctx.activeSichtValue ? String(ctx.activeSichtValue) : null;
+    var context = _selectors.readActiveDienststelleContext(_KDB);
+    return context && context.activeSichtValue ? String(context.activeSichtValue) : null;
   }
 
   function readHandoffFilterScope(_handoff) {
@@ -41,54 +28,49 @@ define([
   }
 
   function resolvePopupMountForSync(_handoff, _definition) {
-    var filterScope = readHandoffFilterScope(_handoff);
-    return _resolveScopedDom.findScopedPopupMount(_definition.activeFilterKey, filterScope);
+    return _filterDom.findScopedPopupMount(_definition.activeFilterKey, readHandoffFilterScope(_handoff));
   }
 
-  function readThisScopeHostDisplay(_KDB, _filterScope) {
+  function readPageScopeHostDisplay(_KDB) {
     var byScope = (_selectors.readDienststelleSnapshot(_KDB) || {}).valuesByScope;
     var picked;
     var key;
     if (!byScope) {
       return "";
     }
-    if (_filterScope === "global") {
-      return (byScope.global && byScope.global[0] && byScope.global[0].hostDisplay) || "";
-    }
-    picked = _pickPageContextScopeMap(_KDB, byScope.pageContext, "active");
+    picked = _filterRef.pickPageContextScopeMap(_KDB, byScope.pageContext, "active");
     key = picked && Object.keys(picked)[0];
     return (key && picked[key] && picked[key][0] && picked[key][0].hostDisplay) || "";
   }
 
   function hostDisplayForOverlay(_KDB, _filterScope) {
-    var hostDisplay = _filterScope === "global" ? "" : readThisScopeHostDisplay(_KDB, "pageContext");
+    var hostDisplay = _filterScope === "global" ? "" : readPageScopeHostDisplay(_KDB);
     return hostDisplay && hostDisplay.indexOf("#") !== -1 ? hostDisplay : "";
   }
 
   function sanitizeCommittedForScope(_KDB, _definition, _filterScope) {
-    var wrapper = _resolveScopedDom.findScopedFilterWrapper(_definition.activeFilterKey, _filterScope);
+    var wrapper = _filterDom.findScopedFilterWrapper(_definition.activeFilterKey, _filterScope);
     var hostDisplay = hostDisplayForOverlay(_KDB, _filterScope);
     var overlayWrapper = hostDisplay && _filterScope !== "global"
-      ? _resolveUniqueOtherDockFilterWrapper(_KDB, _definition.activeFilterKey)
+      ? _filterDom.resolveUniqueOtherDockFilterWrapper(_KDB, _definition.activeFilterKey)
       : null;
     var changed = false;
     if (overlayWrapper) {
-      changed = _applyDisplay.sanitizeCommittedDisplay(overlayWrapper, _sanitize, _viewSelectors, hostDisplay);
+      changed = _labels.sanitizeCommittedDisplay(overlayWrapper, hostDisplay);
     }
     if (wrapper && wrapper !== overlayWrapper) {
-      changed = _applyDisplay.sanitizeCommittedDisplay(wrapper, _sanitize, _viewSelectors, "") || changed;
+      changed = _labels.sanitizeCommittedDisplay(wrapper, "") || changed;
     }
     return changed;
   }
 
   function runCommittedSyncBothBuckets(_KDB, _definition) {
-    var idx;
     var committedChanged = false;
-    for (idx = 0; idx < SCOPE_BUCKETS.length; idx += 1) {
-      if (sanitizeCommittedForScope(_KDB, _definition, SCOPE_BUCKETS[idx])) {
+    SCOPE_BUCKETS.forEach(function (scope) {
+      if (sanitizeCommittedForScope(_KDB, _definition, scope)) {
         committedChanged = true;
       }
-    }
+    });
     if (!committedChanged) {
       return { didSync: false, reason: "noDisplayNodesUpdated" };
     }
@@ -96,20 +78,14 @@ define([
   }
 
   function runDisplaySync(_KDB, _handoff, _definition) {
-    var filterScope = readHandoffFilterScope(_handoff);
-    var popupMount;
+    var committedChanged = sanitizeCommittedForScope(_KDB, _definition, readHandoffFilterScope(_handoff));
+    var popupMount = resolvePopupMountForSync(_handoff, _definition);
     var popupChanged = 0;
-    var committedChanged = sanitizeCommittedForScope(_KDB, _definition, filterScope);
-    if (!committedChanged && !resolvePopupMountForSync(_handoff, _definition)) {
+    if (!committedChanged && !popupMount) {
       return { didSync: false, reason: "wrapperUnavailable" };
     }
-    popupMount = resolvePopupMountForSync(_handoff, _definition);
     if (popupMount) {
-      popupChanged = _applyDisplay.sanitizePopupLabelsInRoot(
-        popupMount,
-        _sanitize,
-        _viewSelectors
-      );
+      popupChanged = _labels.sanitizePopupLabelsInRoot(popupMount);
     }
     if (!committedChanged && !popupChanged) {
       return { didSync: false, reason: "noDisplayNodesUpdated" };
@@ -117,9 +93,9 @@ define([
     return { didSync: true, committedChanged: committedChanged, popupLabelsChanged: popupChanged };
   }
 
-  function __controller(_KDB, _handoff) {
-    var activeSichtValue = readActiveSichtValue(_KDB);
-    var definition = _resolveDataKey(activeSichtValue);
+  // DOM callback boundary: reports a DOM failure as a result instead of throwing.
+  function syncViewFromState(_KDB, _handoff) {
+    var definition = _config.resolveDefinition(readActiveSichtValue(_KDB));
     try {
       if (!definition) {
         return { didSync: false, reason: "definitionUnavailable" };
@@ -132,7 +108,7 @@ define([
       }
       return runDisplaySync(_KDB, _handoff, definition);
     } catch (error) {
-      console.error("[dienststelle.syncDienststelleViewFromState] DOM sync failed", error);
+      console.error("[dienststelle.syncViewFromState] DOM sync failed", error);
       return {
         didSync: false,
         reason: "domError",
@@ -141,5 +117,7 @@ define([
     }
   }
 
-  return __controller;
+  return {
+    syncViewFromState: syncViewFromState
+  };
 });
