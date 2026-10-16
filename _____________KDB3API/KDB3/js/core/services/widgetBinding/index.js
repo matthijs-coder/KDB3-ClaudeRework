@@ -1,7 +1,7 @@
 /*
  * services.widgetBinding: one entry for "build the plan, then apply it" over services.widgetBindingPlan and
  * services.widgetBindingApply. Both services keep working on their own; their envelopes are returned unchanged
- * (the very same objects), so callers read plan and apply results exactly as they do today.
+ * (the very same objects), so callers read plan and apply results as they do today (envelopes only; see Fits below).
  *
  *   run(spec, opts) -> Promise<{ stage, plan, applyResult, missing? }>
  *     opts.applyOptions  object | function(plan) -> object, handed as-is to widgetBindingApply.applyBinding(plan, options)
@@ -15,6 +15,17 @@
  *                          aborted) is NOT interpreted here
  *   checkAvailable() -> { ok, missing }   same availability test as run, for callers that must check before
  *                                         doing other work
+ *
+ * Fits (W9): widgetVis binding/pipeline.js applyPlan (stale check + legend observer install in beforeApply, applyOptions
+ * as a function) and widgetTopN helperBinding.js runHelperBinding (abort check in beforeApply). It does NOT fit
+ * widgetTopN cleanup.js applyCleanupPlan: that site checks "stale" before the plan-failure check (here a failed plan
+ * skips beforeApply), and wraps only applyBinding in `finally { dismissHelperTitleEdit }` (a rejected run cannot tell
+ * a buildPlan throw from an applyBinding throw). cleanup.js stays on the direct services in W9 unless run gets an
+ * after-apply hook first.
+ * Ordering differences to keep in mind when migrating: "unavailable" is decided before buildPlan (widgetVis checks
+ * the apply service after the plan and the stale check); beforeApply runs before a function applyOptions is
+ * evaluated (widgetVis built the options before installing the legend observer); one catch around run also covers
+ * buildPlan and hook throws, which the old try/catch did not.
  *
  * A throwing buildPlan, a throwing hook or a rejected applyBinding rejects run, as the unwrapped call would reject
  * inside the caller's async function. The plan and the hook run before the first await. spec is passed by
