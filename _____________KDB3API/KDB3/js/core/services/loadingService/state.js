@@ -36,6 +36,15 @@ define(["../../utils/kit/runtime.js"], function (_rt) {
     return entry;
   }
 
+  // A finished mount key carries no information (readers treat a missing entry as "not loading"); dropping it
+  // keeps _KDB.state.loading from growing with every widget id that ever loaded.
+  function pruneFinishedLoading(_KDB, mountKey) {
+    var loading = _KDB.state && _KDB.state.loading;
+    if (loading && loading[mountKey] && loading[mountKey].activeCount === 0) {
+      delete loading[mountKey];
+    }
+  }
+
   function isLoadingActive(_KDB, mountKey) {
     var entry = _KDB.state && _KDB.state.loading ? _KDB.state.loading[mountKey] : null;
     return !!entry && entry.isActive === true;
@@ -54,6 +63,7 @@ define(["../../utils/kit/runtime.js"], function (_rt) {
     ensureLoadingRuntime: ensureLoadingRuntime,
     markAllLoadingDisposed: markAllLoadingDisposed,
     markLoadingFinished: markLoadingFinished,
+    pruneFinishedLoading: pruneFinishedLoading,
     markLoadingStarted: markLoadingStarted
   };
 });

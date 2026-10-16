@@ -212,6 +212,7 @@ define([
     if (target.mountEl) {
       scheduleOverlayRemoval(_KDB, target.mountEl, target.mountKey, options && options.removeDelayMs);
     }
+    _state.pruneFinishedLoading(_KDB, target.mountKey);
   }
 
   // Destroy: DOM first (needs the refs), then the kit cancels timers and resets the buckets.
