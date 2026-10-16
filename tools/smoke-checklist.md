@@ -181,6 +181,17 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Text widget: add, edit text, font size (Schriftgröße), colour, background colour (Hintergrundfarbe), alignment (Zentriert), border presets (Rahmen); delete it. Expected: no leftover `<style>` tags (check Elements: search `kdb` in `<head>`), no `contenteditable` left after leaving edit mode or after close/reopen.
 - [ ] TopN widget flows (see 2.3/2.4) unchanged.
 
+#### N2 widgetText
+- [ ] Add a text widget from the launchpad: the default text ("Text hier eingeben") shows. Click the title icon to edit: the text is selected, typing works. Click outside (blur) commits; the new text stays. Start an edit again, type, press Esc: the original text returns and `contenteditable` is gone.
+- [ ] Undo and redo the text edit (history controls): the text switches between old and new; no extra history entry is created by undo/redo.
+- [ ] Font size (Schriftgröße): choose a fixed size (for example 24px), then "Automatisch". Expected: fixed size applies at once, automatic refits to the widget. After an edit with automatic size the text refits (a window resize event fires; this is expected).
+- [ ] Restyle options (Rahmen alle/unterer/oberer, Zentriert, combinations, Reinigen): the header class on the widget changes as in the baseline; "Reinigen" removes all.
+- [ ] Background colour (Hintergrundfarbe): pick a dark and a light colour on the text widget. Expected: the text colour follows (white on dark, black on light), also for the extreme values (white and black). In Elements the `<style id="KDB_widgetTextColor_...">` contains `color: #FFFFFF !important;` or `#000000`.
+- [ ] Delete the text widget. Expected: no `<style id="KDB_widgetTextFontSize_...">` or `<style id="KDB_widgetTextColor_...">` left in `<head>` (search `KDB_widgetText`).
+- [ ] Destroy during an open edit: start an edit (cursor in the text), then close/reopen the dashboard (or reload the KDB extension). Expected: no element with `contenteditable="true"` or `data-kdb-text-edit-active` remains on the text widget and its original text is shown.
+- [ ] Parameter-set restore with two text widgets (different texts, one with fixed font size): save, reset/switch to another parameter set, restore. Expected: both texts and font sizes are restored; no history entry is created by the restore.
+- [ ] Save and reload the dashboard: text content of each text widget is as saved (writeback reads `widgetText` state).
+
 #### N3 header + footer
 - [ ] Header on/off from the toolbox: header appears at the top of the page and disappears again; turning it off also hides the footer.
 - [ ] Header title and subtitle edit: confirm with Enter, with blur (click elsewhere on the canvas) and with click outside; Esc / cancel keeps the old text. The subtitle row appears when text is committed and disappears when the text is empty.
