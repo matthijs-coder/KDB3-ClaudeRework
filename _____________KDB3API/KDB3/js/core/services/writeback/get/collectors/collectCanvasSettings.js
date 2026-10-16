@@ -1,8 +1,8 @@
 define([
   "../../../../utils/convertUnitToPx.js",
-  "../../../../../dashboard/canvas/kdbControl/state/initialState.js",
+  "../../../../config/canvasSettingsDefaults.js",
   "../../schema/v3Defaults.js",
-], function (_convertUnitToPx, _kdbControlInitialState, _v3Defaults) {
+], function (_convertUnitToPx, _canvasSettingsDefaults, _v3Defaults) {
   "use strict";
 
   // Owner state names come from SETT_KEY_CATALOG.ownerStatePath ("settings.<section>[.<group>].<field>"),
@@ -56,7 +56,7 @@ define([
       });
       return {};
     }
-    const defaults = _kdbControlInitialState().settings;
+    const defaults = _canvasSettingsDefaults.createDefaultSettings();
     const result = {};
 
     const canv = collectCanv(settings[SECTION.dash], defaults[SECTION.dash]);

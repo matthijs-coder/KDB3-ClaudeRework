@@ -138,3 +138,16 @@ test("core/utils/tabSlots.js answers like the recorded tabs rules; tabs and writ
   assert.strictEqual(loadAmd(path.join(JS_ROOT, "core/services/writeback/get/collectors/collectorSupport.js"), shared).isDashboardTab, core.isDashboardTab);
   assert.strictEqual(loadAmd(path.join(JS_ROOT, "dashboard/tabs/config/defaults.js"), shared).MAX_USER_TABS, core.MAX_USER_TABS);
 });
+
+test("core/config/canvasSettingsDefaults.js holds the recorded kdbControl defaults; kdbControl and writeback read them from there", () => {
+  const expected = JSON.parse(fs.readFileSync(GOLDEN, "utf8"));
+  const core = at("core/config/canvasSettingsDefaults.js");
+  assert.deepStrictEqual(json(core.createDefaultSettings()), expected.kdbControlSettings);
+  assert.deepStrictEqual(json(core.dimensions), expected.kdbControlDimensions);
+  assert.deepStrictEqual(json(core.colorInputs), expected.kdbControlColorInputs);
+  assert.notStrictEqual(core.createDefaultSettings(), core.createDefaultSettings(), "every call returns a fresh tree");
+  const shared = { overrides: { "core/config/canvasSettingsDefaults.js": core } };
+  assert.strictEqual(loadAmd(path.join(JS_ROOT, "dashboard/canvas/kdbControl/config/settingsDefaults.js"), shared).dimensions, core.dimensions);
+  assert.strictEqual(loadAmd(path.join(JS_ROOT, "dashboard/canvas/kdbControl/config/settingsDefaults.js"), shared).colorInputs, core.colorInputs);
+  assert.deepStrictEqual(json(loadAmd(path.join(JS_ROOT, "dashboard/canvas/kdbControl/state/initialState.js"), shared)().settings), expected.kdbControlSettings);
+});
