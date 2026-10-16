@@ -57,6 +57,16 @@ define([
     return _dockHandoff.mapDockHandoff(_handoff, HANDOFF_PROFILE);
   }
 
+  // The tabs API answers the same question as the kit read of runtime.tabs.pendingPromises.tabMutation; the kit read
+  // stays as the answer while api.tabs is not registered.
+  function isTabMutationRunning(_KDB) {
+    var tabsApi = _KDB && _KDB.api ? _KDB.api.tabs : null;
+    if (tabsApi && typeof tabsApi.isMutationRunning === "function") {
+      return tabsApi.isMutationRunning();
+    }
+    return _kitRuntime.readTabsBusy(_KDB, ["tabMutation"]);
+  }
+
   function readDienststelleRuntime(_KDB) {
     return _kitRuntime.ensureRuntime(_KDB, "dienststelle", _config.createRuntimeDefaults());
   }
@@ -210,7 +220,7 @@ define([
     }
     if (action.type === actions.TABLE_DATA_CHANGED || action.type === actions.SYNC_REQUESTED) {
       // Defer reconcile while the tabs mutation saga is in flight.
-      if (_kitRuntime.readTabsBusy(_controller._KDB, ["tabMutation"])) {
+      if (isTabMutationRunning(_controller._KDB)) {
         return Promise.resolve(undefined);
       }
       return _runReconcile.runReconcile(
