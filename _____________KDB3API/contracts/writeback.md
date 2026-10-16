@@ -502,7 +502,7 @@ Rules:
 - omit when equal to defaults;
 - restore through `kdbControl` settings path unless a future canvas owner dispatch exists.
 
-`sett` stores only settings deltas from `kdbControl/state/initialState.js`:
+`sett` stores only settings deltas from the default canvas settings (`core/config/canvasSettingsDefaults.js`, which `kdbControl/state/initialState.js` also uses):
 
 ```js
 sett: {
