@@ -1,12 +1,12 @@
 define([
-  "./commitSelectionState.js",
+  "../state/selection.js",
   "./notifyOwnerAfterCommit.js",
   "./pushSingleSelectHistory.js",
   "./lookupLiveFilterState.js",
   "../config.js",
   "../../../widgets/widgetVis/actions/runTopNFilterConfirmWave.js"
 ], function (
-  _commitSelectionState,
+  _selectionState,
   _notifyOwnerAfterCommit,
   _pushSingleSelectHistory,
   _lookupLiveFilterState,
@@ -26,7 +26,7 @@ define([
       // Re-lookup after the owner-sync await (specialSingleSelect can wait on
       // the host). applyConfirmedState must hit the live instance, not the
       // object captured before that wait (contract section 11, M4).
-      _commitSelectionState.applyConfirmedState(
+      _selectionState.applyConfirmedState(
         _lookupLiveFilterState(_KDB, _handoff, _filterState),
         _KDB.state.filters.singleSelect,
         _next

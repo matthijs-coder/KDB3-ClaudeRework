@@ -1,5 +1,5 @@
 define([
-  "../state/selectionState.js",
+  "../state/selection.js",
   "./verifyCommitFilterValue.js",
   "../runtime.js",
   "./hostFilterWrite.js"

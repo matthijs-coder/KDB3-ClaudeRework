@@ -1,6 +1,6 @@
 define([
   "../config.js",
-  "../state/selectionState.js",
+  "../state/selection.js",
   "./readPopupOptionLabel.js"
 ], function (_config, _selectionState, _readPopupOptionLabel) {
   "use strict";

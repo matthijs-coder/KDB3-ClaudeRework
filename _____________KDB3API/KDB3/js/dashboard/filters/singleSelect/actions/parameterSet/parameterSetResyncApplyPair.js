@@ -4,8 +4,8 @@ define([
   "../../effects/verifyCommitFilterValue.js",
   "../../runtime.js",
   "../../effects/hostFilterWrite.js",
-  "../../effects/commitSelectionState.js"
-], function (_config, _runtime, _verifyCommit, _singleSelectRuntime, _hostWrite, _commitSelectionState) {
+  "../../state/selection.js"
+], function (_config, _runtime, _verifyCommit, _singleSelectRuntime, _hostWrite, _selectionState) {
   "use strict";
 
   async function applyConfirmedPair(_KDB, _filterRef, _selection, _payload, _assignment, _filterInstanceId) {
@@ -91,7 +91,7 @@ define([
       useValue: _selection.useValue,
       displaySource: _selection.displaySource
     };
-    _commitSelectionState.applyConfirmedState(_canonicalInstance, _root, nextSelection);
+    _selectionState.applyConfirmedState(_canonicalInstance, _root, nextSelection);
     return nextSelection;
   }
 

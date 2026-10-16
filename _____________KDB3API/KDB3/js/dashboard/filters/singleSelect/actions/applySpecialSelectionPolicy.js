@@ -1,11 +1,11 @@
 define([
   "../effects/resolveFilterRef.js",
   "../effects/verifyCommitFilterValue.js",
-  "../effects/commitSelectionState.js",
+  "../state/selection.js",
   "../runtime.js",
   "../effects/hostFilterWrite.js",
   "../config.js"
-], function (_resolveFilterRef, _verifyCommitFilterValue, _commitSelectionState, _singleSelectRuntime, _hostWrite, _config) {
+], function (_resolveFilterRef, _verifyCommitFilterValue, _selectionState, _singleSelectRuntime, _hostWrite, _config) {
   "use strict";
 
   function matchesSemanticId(_record, _semanticId) {
@@ -67,7 +67,7 @@ define([
         }
         return failed(_id, _config.errorCodes.COMMIT_VERIFICATION_MISMATCH);
       }
-      _commitSelectionState.applyConfirmedState(record, root, {
+      _selectionState.applyConfirmedState(record, root, {
         displayValue: clear ? "Alle" : verification.observed.d,
         useValue: clear ? "" : verification.observed.u,
         displaySource: clear ? "policy" : "cognos"

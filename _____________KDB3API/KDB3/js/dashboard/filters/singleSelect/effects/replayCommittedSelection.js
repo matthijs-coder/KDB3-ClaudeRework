@@ -1,15 +1,14 @@
 define([
   "./replayCommittedSelectionWrites.js",
   "./restorePreviousConfirmedSelection.js",
-  "./commitSelectionState.js",
-  "../state/selectionState.js",
+  "../state/selection.js",
   "../config.js",
   "../history/notifySpecialOwnerForReplay.js",
   "./resolveFilterRef.js",
   "../runtime.js",
   "./hostFilterWrite.js"
 ], function (
-  _writes, _restorePrevious, _commitSelectionState, _selectionState, _config, _notifySpecialOwner,
+  _writes, _restorePrevious, _selectionState, _config, _notifySpecialOwner,
   _resolveFilterRef, _singleSelectRuntime, _hostWrite
 ) {
   "use strict";
@@ -97,7 +96,7 @@ define([
 
     try {
       // Keep step displaySource on owner commit; createConfirmedSelection alone drops it.
-      _commitSelectionState.applyConfirmedState(
+      _selectionState.applyConfirmedState(
         filterState, singleSelectRoot,
         _selectionState.normalizeConfirmedSelection({
           displayValue: value.displayValue,
@@ -115,7 +114,7 @@ define([
 
     notifyResult = await _notifySpecialOwner(_KDB, _record, value);
     if (!notifyResult || notifyResult.ok !== true) {
-      _commitSelectionState.revertFilterState(filterState, previousSelection);
+      _selectionState.revertFilterState(filterState, previousSelection);
       rollbackVerified = await rollbackHost(_KDB, filterRef, previousSelection, previousHostValues);
       return buildFailure(_config.historyReplayCodes.OWNER_NOTIFY_FAILED, rollbackVerified);
     }

@@ -1,6 +1,6 @@
 define([
   "./executeConfirmedCommit.js",
-  "../state/selectionState.js",
+  "../state/selection.js",
   "./restorePreviousConfirmedSelection.js",
   "./requestFilterDockPopupAction.js",
   "./finalizeConfirmedCommit.js",
