@@ -24,22 +24,18 @@ function fakeDateAt(year, month) {
 
 function loadChrome(stubs) {
   const options = { stubs: stubs || { console: createLog().console } };
+  const spec = load(W + "drillthrough/spec.js", options);
+  const year = load(W + "drillthrough/year.js", options);
+  const orgTree = load(W + "drillthrough/orgTree.js", options);
   return {
-    assembleHeader: load(W + "effects/assembleDrillthroughSpec.js", options),
-    assembleDatapoint: load(W + "effects/assembleDatapointDrillthroughSpec.js", options),
-    readJahrYear: load(W + "effects/readDrillthroughJahrYear.js", options),
-    readVisYear: load(W + "effects/readDrillthroughVisYear.js", options),
-    buildOrgTree: load(W + "effects/buildOrgTreeForDrillthrough.js", options),
-    parseHierarchyCell: load(W + "effects/parseHierarchyCellForDrillthrough.js", options),
-    cleanupDecorations: load(W + "effects/cleanupDrillthroughDecorations.js", options)
+    assembleHeader: spec.assembleDrillthroughSpec,
+    assembleDatapoint: spec.assembleDatapointDrillthroughSpec,
+    readJahrYear: year.readDrillthroughJahrYear,
+    readVisYear: year.readDrillthroughVisYear,
+    buildOrgTree: orgTree.buildOrgTree,
+    parseHierarchyCell: orgTree.parseHierarchyCell,
+    cleanupDecorations: load(W + "drillthrough/install.js", options).cleanupDrillthroughDecorations
   };
-}
-
-function loadClick(stubs) {
-  const options = { stubs: stubs || { console: createLog().console } };
-  const header = load(W + "effects/bindDrillthroughIconClick.js", options);
-  const datapoint = load(W + "effects/bindDatapointDrillthroughIconClick.js", options);
-  return { bindHeader: header, bindDatapoint: datapoint };
 }
 
 const json = (value) => JSON.parse(JSON.stringify(value));
@@ -255,66 +251,85 @@ function errorMessages(log) {
   return log.calls.error.map((args) => String(args[0]));
 }
 
-test("header click: capture phase, replaces the previous listener, opens the drillthrough, logs a failed spec", () => {
+function bindClick(options, stubs) {
   const log = createLog();
-  const { bindHeader } = loadClick({ console: log.console });
+  const click = load(W + "drillthrough/click.js", { stubs: Object.assign({ console: log.console }, stubs) });
+  return { log, bind: (extra) => click.bindDrillthroughClick(Object.assign({}, options, extra)) };
+}
+
+function clickOptions(service, makeSpec, extra) {
+  return Object.assign({
+    _KDB: buildKdb({ runtime: { drillthroughService: service } }),
+    widgetId: "w1",
+    runtime: { listeners: {} },
+    anchorEl: fakeAnchor(),
+    listenerKey: "drillthroughIconClick",
+    logMissingSpec: true,
+    logLabel: "header",
+    makeSpec
+  }, extra);
+}
+
+test("header click: capture phase, replaces the previous listener, opens the drillthrough, logs a failed spec", () => {
   const opened = [];
   const service = { openDrillthrough: (spec) => { opened.push(spec); return { ok: true }; } };
-  const runtime = { listeners: {} };
-  const anchor = fakeAnchor();
-  const _KDB = buildKdb();
-  const common = { _KDB, widgetId: "w1", runtime, drillthroughService: service, sichtApi: sichtApi(SICHT_STATE), dienststelleApi: null, tableDataReadRows: null };
-  const dispose = bindHeader(Object.assign({ anchorEl: anchor }, common));
+  const options = clickOptions(service, () => ({ source: "icon" }));
+  const { log, bind } = bindClick(options);
+  const anchor = options.anchorEl;
+  const dispose = bind();
   assert.equal(typeof dispose, "function");
-  assert.equal(typeof runtime.listeners.drillthroughIconClick, "function");
+  assert.equal(options.runtime.listeners.drillthroughIconClick, dispose);
   assert.equal(anchor.listeners.length, 1);
   assert.equal(anchor.listeners[0].type, "click");
   assert.equal(anchor.listeners[0].capture, true);
   const event = fakeEvent();
   anchor.listeners[0].fn(event);
   assert.deepEqual([event.prevented, event.stopped], [1, 1]);
-  assert.equal(opened.length, 1);
-  assert.equal(opened[0].source, "icon");
-  bindHeader(Object.assign({ anchorEl: anchor }, common));
+  assert.deepEqual(opened, [{ source: "icon" }]);
+  bind();
   assert.equal(anchor.listeners.length, 1);
-  const failing = Object.assign({}, common, { sichtApi: { getState: () => { throw new Error("sicht down"); } } });
-  bindHeader(Object.assign({ anchorEl: anchor }, failing));
+  bind({ makeSpec: () => null });
   anchor.listeners[0].fn(fakeEvent());
   assert.equal(opened.length, 1);
-  assert.ok(errorMessages(log).some((m) => m.indexOf("spec assembly failed") !== -1));
-  const failingService = { openDrillthrough: () => ({ ok: false, errorCode: "NOPE" }) };
+  assert.ok(errorMessages(log).length === 1 && log.calls.error[0][1] === "spec assembly failed");
   log.calls.error.length = 0;
-  bindHeader(Object.assign({ anchorEl: anchor }, common, { drillthroughService: failingService }));
+  bind({ makeSpec: () => { throw new Error("sicht down"); } });
+  anchor.listeners[0].fn(fakeEvent());
+  assert.equal(log.calls.error.length, 1);
+  assert.equal(log.calls.error[0][1], "failed");
+  assert.equal(log.calls.error[0][2].message, "sicht down");
+  log.calls.error.length = 0;
+  options._KDB.runtime.widgetVis.drillthroughService = { openDrillthrough: () => ({ ok: false, errorCode: "NOPE" }) };
+  bind();
   anchor.listeners[0].fn(fakeEvent());
   assert.equal(log.calls.error.length, 1);
   assert.equal(log.calls.error[0][1], "NOPE");
-  runtime.listeners.drillthroughIconClick();
+  options._KDB.runtime.widgetVis.drillthroughService = null;
+  bind();
+  anchor.listeners[0].fn(fakeEvent());
+  assert.equal(log.calls.error[1][1], "missing service");
+  options.runtime.listeners.drillthroughIconClick();
   assert.equal(anchor.listeners.length, 0);
 });
 
-test("datapoint click: silent without categories or spec, opens with the peeked categories, no anchor is a noop", () => {
-  const log = createLog();
-  const { bindDatapoint } = loadClick({ console: log.console });
+test("datapoint click: silent without a spec, opens with the spec, no anchor is a noop that still releases the previous listener", () => {
   const opened = [];
   const service = { openDrillthrough: (spec) => { opened.push(spec); return { ok: true }; } };
-  const runtime = { listeners: {} };
-  const anchor = fakeAnchor();
-  const peek = { value: { ok: true, data: { categories: [] } } };
-  const _KDB = buildKdb({ runtime: { visualizationFacet: { getSelections: () => peek.value } } });
-  const options = { _KDB, widgetId: "w1", runtime, anchorEl: anchor, drillthroughService: service, sichtApi: sichtApi(SICHT_STATE), dienststelleApi: null, tableDataReadRows: null };
-  bindDatapoint(options);
-  assert.equal(typeof runtime.listeners.drillthroughDatapointClick, "function");
+  const state = { spec: null };
+  const options = clickOptions(service, () => state.spec, { listenerKey: "drillthroughDatapointClick", logMissingSpec: false, logLabel: "datapoint" });
+  const { log, bind } = bindClick(options);
+  const anchor = options.anchorEl;
+  bind();
+  assert.equal(typeof options.runtime.listeners.drillthroughDatapointClick, "function");
   const event = fakeEvent();
   anchor.listeners[0].fn(event);
   assert.deepEqual([event.prevented, event.stopped], [1, 1]);
   assert.equal(opened.length, 0);
   assert.equal(log.calls.error.length, 0);
-  peek.value = { ok: true, data: { categories: [{ c: 1 }] } };
+  state.spec = { source: "datapoint", categories: [{ c: 1 }] };
   anchor.listeners[0].fn(fakeEvent());
-  assert.equal(opened.length, 1);
-  assert.equal(opened[0].source, "datapoint");
-  assert.deepEqual(json(opened[0].categories), [{ c: 1 }]);
-  const noAnchor = bindDatapoint(Object.assign({}, options, { anchorEl: null }));
+  assert.deepEqual(opened, [state.spec]);
+  const noAnchor = bind({ anchorEl: null });
   assert.equal(typeof noAnchor, "function");
   assert.equal(anchor.listeners.length, 0);
 });
