@@ -338,3 +338,28 @@ test("index: a failing load ends in the error state and mount resolves false", a
   assert.equal(api.getState().errorCode, "METRICS_TREE_MOUNT_FAILED");
   assert.deepStrictEqual(logged, ["[metricsTree.mount] mount failed"]);
 });
+
+test("index: a throwing loading service neither fails nor masks the mount", async () => {
+  const { kdb } = makeLifecycleKdb(false);
+  const attempts = [];
+  kdb.services.loading = {
+    startLoading() { attempts.push("start"); throw new Error("overlay start"); },
+    finishLoading() { attempts.push("finish"); throw new Error("overlay finish"); }
+  };
+  const stubDocument = { querySelector: () => ({}) };
+  const api = loadAmd(path.join(MT, "index.js"), {
+    modules: { "./view.js": makeFakeView([]), "./dragSource.js": { bindMetricsTreeDragSources() {} } },
+    stubs: { document: stubDocument }
+  })(kdb);
+  const originalError = console.error;
+  const logged = [];
+  console.error = (...args) => logged.push(args[0]);
+  try {
+    assert.equal(await api.mount(), true);
+  } finally {
+    console.error = originalError;
+  }
+  assert.deepStrictEqual(attempts, ["start", "finish"]);
+  assert.deepStrictEqual(logged, ["[metricsTree.loading] startLoading failed", "[metricsTree.loading] finishLoading failed"]);
+  assert.equal(api.getState().lifecycle, "ready");
+});

@@ -113,23 +113,32 @@ define([
     }
   }
 
+  // The overlay is cosmetic: a failing loading service must not fail or mask a mount.
   function startLoading(_KDB) {
-    const loading = _KDB.services && _KDB.services.loading;
-    if (!loading || typeof loading.startLoading !== "function") { return; }
-    const rootSelector = _kdbControlSelectors && _kdbControlSelectors.mainBlocksSelector;
-    const mountEl = rootSelector ? document.querySelector(rootSelector) : null;
-    if (!mountEl) { return; }
-    loading.startLoading({
-      mountEl: mountEl,
-      mountKey: _config.LOADING_MOUNT_KEY,
-      messageKey: _config.LOADING_MESSAGE_KEY
-    });
+    try {
+      const loading = _KDB.services && _KDB.services.loading;
+      if (!loading || typeof loading.startLoading !== "function") { return; }
+      const rootSelector = _kdbControlSelectors && _kdbControlSelectors.mainBlocksSelector;
+      const mountEl = rootSelector ? document.querySelector(rootSelector) : null;
+      if (!mountEl) { return; }
+      loading.startLoading({
+        mountEl: mountEl,
+        mountKey: _config.LOADING_MOUNT_KEY,
+        messageKey: _config.LOADING_MESSAGE_KEY
+      });
+    } catch (err) {
+      console.error("[metricsTree.loading] startLoading failed", err);
+    }
   }
 
   function finishLoading(_KDB) {
-    const loading = _KDB.services && _KDB.services.loading;
-    if (loading && typeof loading.finishLoading === "function") {
-      loading.finishLoading({ mountKey: _config.LOADING_MOUNT_KEY });
+    try {
+      const loading = _KDB.services && _KDB.services.loading;
+      if (loading && typeof loading.finishLoading === "function") {
+        loading.finishLoading({ mountKey: _config.LOADING_MOUNT_KEY });
+      }
+    } catch (err) {
+      console.error("[metricsTree.loading] finishLoading failed", err);
     }
   }
 
