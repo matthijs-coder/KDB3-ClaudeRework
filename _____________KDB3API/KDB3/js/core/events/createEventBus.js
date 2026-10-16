@@ -1,11 +1,12 @@
 define([], function () {
+  "use strict";
+
   function createEventBus() {
     const handlersByEventName = {};
 
     return {
       emit: emitEvent.bind(null, handlersByEventName),
-      subscribe: subscribeToEvent.bind(null, handlersByEventName),
-      unsubscribe: unsubscribeFromEvent.bind(null, handlersByEventName)
+      subscribe: subscribeToEvent.bind(null, handlersByEventName)
     };
   }
 
@@ -54,10 +55,6 @@ define([], function () {
         console.error("[core.events.emit]", { eventName: _eventName }, error);
       }
     }
-  }
-
-  function unsubscribeFromEvent(_handlersByEventName, _eventName, _handler) {
-    removeHandler(_handlersByEventName, _eventName, _handler);
   }
 
   function removeHandler(_handlersByEventName, _eventName, _handler) {
