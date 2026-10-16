@@ -120,12 +120,12 @@ test("shape of the returned tree and node objects", () => {
 const noPrototype = () => ({ text: Object.create(null) });
 const PATHOLOGICAL_ROWS = [{ level00: "Root", level01: noPrototype(), level02: "Leaf" }];
 
-test("pathological cell (object without toString): how each copy fails", () => {
+test("pathological cell (object without toString): skipped by both, tree still built", () => {
   const impl = loadImpls();
   assert.equal(impl.coreParse(noPrototype()), null);
-  assert.equal(impl.errors.length, 1);
-  assert.throws(() => impl.visParse(noPrototype()), TypeError);
-  assert.equal(impl.visBuild({ readRows: readerOf(PATHOLOGICAL_ROWS), sicht: "BW" }), null);
-  const tree = impl.coreBuild(PATHOLOGICAL_ROWS, "BW", BW_KEY);
-  assert.deepStrictEqual(Object.keys(tree.textToNodeId), ["Root", "Leaf"]);
+  assert.equal(impl.visParse(noPrototype()), null);
+  assert.equal(impl.errors.length, 2);
+  const fromVis = impl.visBuild({ readRows: readerOf(PATHOLOGICAL_ROWS), sicht: "BW" });
+  assert.deepStrictEqual(Object.keys(fromVis.textToNodeId), ["Root", "Leaf"]);
+  assert.deepStrictEqual(jsonSafe(fromVis), jsonSafe(impl.coreBuild(PATHOLOGICAL_ROWS, "BW", BW_KEY)));
 });
