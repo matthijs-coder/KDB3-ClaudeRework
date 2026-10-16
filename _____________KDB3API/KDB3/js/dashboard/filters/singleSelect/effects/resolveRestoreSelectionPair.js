@@ -1,8 +1,8 @@
 define([
-  "./readFilterDefinition.js",
+  "../inventory/definitions.js",
   "../commit/tableValues.js",
   "../config.js"
-], function (_readDefinition, _tableValues, _config) {
+], function (_definitions, _tableValues, _config) {
   "use strict";
 
   function readMapPair(_definition, _useValue) {
@@ -54,7 +54,7 @@ define([
       if (!useValue) {
         return { selection: { d: "Alle", u: "" }, degraded: false, diagnostic: null };
       }
-      var definitionResult = _readDefinition(
+      var definitionResult = _definitions.readFilterDefinition(
         _KDB, null, _instance.scopeType, _instance.itemName, _instance.itemId
       );
       var mapPair = readMapPair(definitionResult.definition, useValue);

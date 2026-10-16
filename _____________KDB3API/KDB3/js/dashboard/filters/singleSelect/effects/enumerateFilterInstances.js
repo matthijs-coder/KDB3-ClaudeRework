@@ -1,10 +1,18 @@
 define([
   "./readSingleSelectCandidate.js",
   "./listSingleSelectHostDescriptors.js",
+  "../inventory/definitions.js",
   "../runtime.js",
   "../config.js",
   "../../../../core/utils/getKennzahlenSource.js"
-], function (_candidateReader, _listHostDescriptors, _singleSelectRuntime, _config, _getKennzahlenSource) {
+], function (
+  _candidateReader,
+  _listHostDescriptors,
+  _definitions,
+  _singleSelectRuntime,
+  _config,
+  _getKennzahlenSource
+) {
   "use strict";
 
   function buildUnknownDiagnostic(_itemName, _scopeId, _definitionResult) {
@@ -72,11 +80,13 @@ define([
     });
   }
 
-  function readHostItem(_KDB, _descriptor, _source, _candidates, _diagnostics, _rawFallbackCounts) {
+  function readHostItem(_KDB, _descriptor, _source, _definitionIndex, _candidates, _diagnostics, _rawFallbackCounts) {
     var raw;
     var candidate;
     try {
-      candidate = _candidateReader.readCandidateFromDescriptor(_KDB, _descriptor, _source);
+      candidate = _candidateReader.readCandidateFromDescriptor(
+        _KDB, _descriptor, _source, _definitionIndex
+      );
       raw = candidate.rawDescriptor;
     } catch (rawError) {
       _diagnostics.push({
@@ -112,8 +122,9 @@ define([
     var uniquenessUnproven = inventory.uniquenessUnproven === true;
     var source = _getKennzahlenSource(_KDB);
     try {
+      var definitionIndex = _definitions.createDefinitionIndex(_KDB, source);
       inventory.descriptors.forEach(function (_descriptor) {
-        if (readHostItem(_KDB, _descriptor, source, candidates, diagnostics, rawFallbackCounts)) {
+        if (readHostItem(_KDB, _descriptor, source, definitionIndex, candidates, diagnostics, rawFallbackCounts)) {
           uniquenessUnproven = true;
         }
       });
