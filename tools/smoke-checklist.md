@@ -181,6 +181,17 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Text widget: add, edit text, font size (Schriftgröße), colour, background colour (Hintergrundfarbe), alignment (Zentriert), border presets (Rahmen); delete it. Expected: no leftover `<style>` tags (check Elements: search `kdb` in `<head>`), no `contenteditable` left after leaving edit mode or after close/reopen.
 - [ ] TopN widget flows (see 2.3/2.4) unchanged.
 
+#### N3 header + footer
+- [ ] Header on/off from the toolbox: header appears at the top of the page and disappears again; turning it off also hides the footer.
+- [ ] Header title and subtitle edit: confirm with Enter, with blur (click elsewhere on the canvas) and with click outside; Esc / cancel keeps the old text. The subtitle row appears when text is committed and disappears when the text is empty.
+- [ ] Footer toggle: works while the header is on; is blocked (switch stays off) while the header is off.
+- [ ] Footer shows the new title right after a header title commit (footer on, edit the header title, confirm). Also after undo/redo of the title.
+- [ ] Footer page indicator follows the active tab (switch tabs 1 -> 2 -> 3); update date and created-by user show.
+- [ ] Undo/redo for each: header toggle, subtitle toggle, title edit, subtitle edit, footer toggle. Redo/undo of the header toggle with the footer on hides/shows the footer consistently.
+- [ ] Save, reload and parameter-set restore: header on/title/subtitle/icon and footer on are restored; a saved dashboard without header comes back with header and footer off.
+- [ ] DOM check (Elements): no `kdb-dashboard-header-draft*` inputs inside `#KDB_topHeader` and no zoom-hint toast after switching the header on. A header icon dispatched with an unsafe key (`getKDB().api.header.dispatch({type:"header/setIcon",payload:{source:"api",iconKey:"../x"}})`) falls back to `Stadt-wien`.
+- [ ] Destroy and re-boot: no header or footer wrapper left from the old instance; no growth of `document` `pointerdown` listeners after repeated header edits (section 4.1).
+
 ### WS-O Core foundation (authoring, config, events, homeDialog, utils)
 - [ ] **Authoring mode** (Cognos Edit ↔ View, the pencil/"Bearbeiten" button):
   - Each switch flips `getKDB().state.authoring.isAuthoring`, and `#kdb-control-root` gains or loses the class `kdb-control--authoring`. The tab bar behaves as on baseline.
