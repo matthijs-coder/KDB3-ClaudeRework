@@ -26,6 +26,11 @@ define([], function () {
     newDashboard: "newDashboard",
   });
 
+  // A missing status means a direct (non-default) load.
+  function normalizeStatus(status) {
+    return status === undefined || status === null ? "notDefaultParamSet" : String(status);
+  }
+
   // Internal control-flow sentinels; identity-compared, never leave restore().
   const ABORT = Object.freeze({ writebackSetAbort: true });
   const CANCELLED = Object.freeze({ writebackSetCancelled: true });
@@ -33,6 +38,7 @@ define([], function () {
   return Object.freeze({
     RESTORE_PHASE_NAMES: RESTORE_PHASE_NAMES,
     STATUS_TABLE: STATUS_TABLE,
+    normalizeStatus: normalizeStatus,
     ABORT: ABORT,
     CANCELLED: CANCELLED,
   });

@@ -88,29 +88,25 @@ define([
   }
 
   function mapV2Filters(_KDB, _payload, _diagnostics) {
-    try {
-      const filterPropObj = _KDB && _KDB.properties ? _KDB.properties.filterPropObj : null;
-      const state = { sels: [], pcfs: [] };
-      walkGlobalFilters(_payload, state, filterPropObj, _diagnostics);
-      walkPageContextFilters(_payload, state, filterPropObj, _diagnostics);
-      finalizeDstl(state, _diagnostics);
-      const filt = {};
-      if (state.sicht) {
-        filt.sicht = state.sicht;
-      }
-      if (state.dstl) {
-        filt.dstl = state.dstl;
-      }
-      if (state.sels.length > 0) {
-        filt.sels = state.sels;
-      }
-      if (state.pcfs.length > 0) {
-        filt.pcfs = state.pcfs;
-      }
-      return Object.keys(filt).length > 0 ? filt : null;
-    } catch (error) {
-      throw error;
+    const filterPropObj = _KDB && _KDB.properties ? _KDB.properties.filterPropObj : null;
+    const state = { sels: [], pcfs: [] };
+    walkGlobalFilters(_payload, state, filterPropObj, _diagnostics);
+    walkPageContextFilters(_payload, state, filterPropObj, _diagnostics);
+    finalizeDstl(state, _diagnostics);
+    const filt = {};
+    if (state.sicht) {
+      filt.sicht = state.sicht;
     }
+    if (state.dstl) {
+      filt.dstl = state.dstl;
+    }
+    if (state.sels.length > 0) {
+      filt.sels = state.sels;
+    }
+    if (state.pcfs.length > 0) {
+      filt.pcfs = state.pcfs;
+    }
+    return Object.keys(filt).length > 0 ? filt : null;
   }
 
   return mapV2Filters;

@@ -10,14 +10,8 @@ define(["./chromeCatalogUtil.js"], function (u) {
 
   var page = {
     exactPageRootSelector: u.opt(".pagegenericPage"),
-    pageIdentityAttrs: {
-      selector: ["data-cv-page-id", "data-page-id", "data-cv-page-identity", "data-page-identity", "id"],
-      required: false
-    },
-    tabIdentityAttrs: {
-      selector: ["data-tab-id", "data-tab-identity", "data-cv-tab-id", "data-cv-tab-identity", "id"],
-      required: false
-    }
+    pageIdentityAttrs: u.opt(["data-cv-page-id", "data-page-id", "data-cv-page-identity", "data-page-identity", "id"]),
+    tabIdentityAttrs: u.opt(["data-tab-id", "data-tab-identity", "data-cv-tab-id", "data-cv-tab-identity", "id"])
   };
 
   return {

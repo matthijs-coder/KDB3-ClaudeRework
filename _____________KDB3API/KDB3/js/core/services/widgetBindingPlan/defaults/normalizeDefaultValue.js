@@ -3,7 +3,7 @@ define([], function () {
 
   var DEFAULT_SENTINELS = { "": true, default: true, none: true };
 
-  function __controller(_value) {
+  function normalizeDefaultValue(_value) {
     if (_value == null) {
       return null;
     }
@@ -17,5 +17,5 @@ define([], function () {
     return trimmed;
   }
 
-  return __controller;
+  return normalizeDefaultValue;
 });

@@ -1,15 +1,10 @@
 define([
   "../../schema/errorCodes.js",
   "../../../../config/mapping/kidIndex.js",
-  "./buildV2SourceMapping.js",
-  "./universalizeV2KidTree.js",
-  "./deUniversalizeV2KidTree.js",
-], function (_errorCodes, _parameterMapping, _buildV2SourceMapping, _universalizeV2KidTree, _deUniversalizeV2KidTree) {
+  "../../../../utils/kit/data.js",
+  "./v2KidTree.js",
+], function (_errorCodes, _parameterMapping, _kitData, _v2KidTree) {
   "use strict";
-
-  function cloneV2Payload(_payload) {
-    return JSON.parse(JSON.stringify(_payload));
-  }
 
   function isSamePackage(_payload, _KDB) {
     const gfo = _payload && _payload.globalFiltersObj;
@@ -40,31 +35,27 @@ define([
   }
 
   function remapV2KidTokens(_KDB, _payload, _diagnostics) {
-    try {
-      const clone = cloneV2Payload(_payload);
-      if (isSamePackage(_payload, _KDB)) {
-        return clone;
-      }
-      const index = _parameterMapping.getParameterMappingIndex(_KDB);
-      const sourceMap = _buildV2SourceMapping(_payload, index && index.package);
-      const universal = _universalizeV2KidTree(clone, sourceMap);
-      const targetMap = index && index.rawKid ? index.rawKid : {};
-      const remapped = _deUniversalizeV2KidTree.deUniversalizeV2KidTree(universal, targetMap);
-      const unresolved = {};
-      _deUniversalizeV2KidTree.collectUnresolvedTokens(remapped, unresolved);
-      const tokens = Object.keys(unresolved);
-      for (let indexToken = 0; indexToken < tokens.length; indexToken += 1) {
-        _diagnostics.push(_errorCodes.makeDiagnostic(
-          _errorCodes.codes.WRITEBACK_MAPPING_TOKEN_UNRESOLVED,
-          "map",
-          "cross-package KID token could not be resolved to runtime mapping",
-          { token: tokens[indexToken] }
-        ));
-      }
-      return remapped;
-    } catch (error) {
-      throw error;
+    const clone = _kitData.cloneJson(_payload);
+    if (isSamePackage(_payload, _KDB)) {
+      return clone;
     }
+    const index = _parameterMapping.getParameterMappingIndex(_KDB);
+    const sourceMap = _v2KidTree.buildV2SourceMapping(_payload, index && index.package);
+    const universal = _v2KidTree.universalizeV2KidTree(clone, sourceMap);
+    const targetMap = index && index.rawKid ? index.rawKid : {};
+    const remapped = _v2KidTree.deUniversalizeV2KidTree(universal, targetMap);
+    const unresolved = {};
+    _v2KidTree.collectUnresolvedTokens(remapped, unresolved);
+    const tokens = Object.keys(unresolved);
+    for (let indexToken = 0; indexToken < tokens.length; indexToken += 1) {
+      _diagnostics.push(_errorCodes.makeDiagnostic(
+        _errorCodes.codes.WRITEBACK_MAPPING_TOKEN_UNRESOLVED,
+        "map",
+        "cross-package KID token could not be resolved to runtime mapping",
+        { token: tokens[indexToken] }
+      ));
+    }
+    return remapped;
   }
 
   return remapV2KidTokens;
