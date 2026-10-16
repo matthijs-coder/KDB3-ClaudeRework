@@ -60,6 +60,13 @@ test("utils copy (2 args) matches the golden", () => {
   }
 });
 
+test("utils copy with the source-token guard (3 args) reproduces the plan golden", { skip: record }, () => {
+  for (const c of CASES.filter((entry) => entry.value)) {
+    const actual = util(c.value, c.target, c.source);
+    assert.deepStrictEqual(actual === undefined ? "<undef>" : actual, golden.plan[label(c)], label(c));
+  }
+});
+
 if (record) {
   process.on("beforeExit", () => fs.writeFileSync(GOLDEN, `${JSON.stringify(golden, null, 1)}\n`));
 }
