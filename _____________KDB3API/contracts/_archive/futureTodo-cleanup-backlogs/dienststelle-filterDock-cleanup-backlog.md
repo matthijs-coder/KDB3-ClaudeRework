@@ -59,9 +59,9 @@ KDB3/js/dashboard/filters/dienststelle/config/
 
 **Risk:** Medium. Variant matching protects inactive-variant and host-key behavior; accidental broadening or narrowing can break dispatch filtering.
 
-**Do later only if:** Variant logic grows, a third variant appears, or `routeDienststelleDispatch.js` is already being touched.
+**Do later only if:** Variant logic grows, a third variant appears, or `dashboard/filters/dienststelle/effects/dispatchRoute.js` (`routeDienststelleDispatch`) is already being touched.
 
-### 2.3 `routeDienststelleDispatch.js` split
+### 2.3 `dashboard/filters/dienststelle/effects/dispatchRoute.js` (`routeDienststelleDispatch`) split
 
 **Candidate file:**
 
@@ -155,7 +155,7 @@ Do not combine folder moves with logic cleanup. If folder organization is ever d
 Reopen this backlog only when one of these is true:
 
 - a touched file exceeds 150 lines again;
-- `routeDienststelleDispatch.js` receives more action branches;
+- `dashboard/filters/dienststelle/effects/dispatchRoute.js` (`routeDienststelleDispatch`) receives more action branches;
 - `evaluateObservedDockState.js` receives another observer lane;
 - developers report that module navigation is slowing work down;
 - a future feature naturally edits the same files and can absorb a small cleanup safely.
@@ -178,6 +178,6 @@ If this backlog is reopened, create a small execution spec with:
 The preferred order, if ever needed:
 
 1. Small dedup while already touching the same files.
-2. Router split only if `routeDienststelleDispatch.js` grows again.
+2. Router split only if `dashboard/filters/dienststelle/effects/dispatchRoute.js` (`routeDienststelleDispatch`) grows again.
 3. `evaluateObservedDockState.js` import-count cleanup only if it grows or receives another lane.
 4. Observation folder organization last, only as pure import-path migration.

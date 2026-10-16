@@ -6,7 +6,7 @@ The 2026-06 `widgetBase` behavior-preserving cleanup round (batches 1–5 + CP-2
 
 Delivered in that tranche:
 
-- merge `cleanLive*` / `cleanText*` → `effects/cleanWidgetForTransfer.js`;
+- merge `cleanLive*` / `cleanText*` → `dashboard/widgets/widgetBase/launchpadTransfer.js` (`cleanWidgetForTransfer`);
 - shared helpers (`ensureWidgetBaseRuntime`, `normalizeWidgetLayout`, replay dispatch, owner-doc, interaction shared, mount startup);
 - file-size compliance (all module JS files ≤ 150 lines);
 - view/history dedup (`resolveOwnerDocument`, `applyShellLayoutStyles`, `isNumericLayout`, `dispatchWidgetBaseReplay`);

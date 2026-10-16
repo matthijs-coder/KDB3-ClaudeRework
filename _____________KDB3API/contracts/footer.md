@@ -10,7 +10,7 @@
 
 ## 1. Purpose
 
-Owns dashboard **Fußzeile** semantics: serialisable footer state (domeinveld **`status`** = chrome presence, niet module-**`lifecycle`**), footer region **mount/DOM**. **Reads** header truth for guards and **subscribes** to **`header:confirmedChanged`** for coordinated policy when header wijzigt zonder gelijktijdige footer-dispatch. Footer does not own a second zoom-hint copy; footer effects may import `header/effects/notifyZoomHint.js` per [header-footer-zoom-hint-contractdelta.md](./_archive/header-footer-zoom-hint-contractdelta.md). **PO 2026-09-07:** trigger parked (commented `_notifyZoomHint` call in footer effects); import + header helper remain — not dead code.
+Owns dashboard **Fußzeile** semantics: serialisable footer state (domeinveld **`status`** = chrome presence, niet module-**`lifecycle`**), footer region **mount/DOM**. **Reads** header truth for guards and **subscribes** to **`header:confirmedChanged`** for coordinated policy when header wijzigt zonder gelijktijdige footer-dispatch. Footer does not own a second zoom-hint copy; a header zoom-hint helper (not present in the current tree) was planned per [header-footer-zoom-hint-contractdelta.md](./_archive/header-footer-zoom-hint-contractdelta.md). **PO 2026-09-07:** trigger parked (commented `_notifyZoomHint` call in footer effects); import + header helper remain — not dead code.
 
 ---
 
@@ -48,7 +48,7 @@ _KDB.state.footer = {
 | `domRefs` | Footer root, mount slot. |
 | `abortControllers` | Footer-local interactions, including `updateDate` for the table wait (abort own apply only; never `abortTable`). |
 | `subscriptions` | o.a. `headerConfirmedChanged`: unsubscribe voor `header:confirmedChanged`; `tabsChanged`: unsubscribe voor `tabs:changed` (page indicator). |
-| `dashboardFacet` | Stamped `cognosHost.dashboard` (created-user leftover). Effects read via `effects/readDashboardFacet.js`. Not a live host handle. |
+| `dashboardFacet` | Stamped `cognosHost.dashboard` (created-user leftover). Effects read via `dashboard/controls/toolbarControls/shareButton.js` (`readDashboardFacet`). Not a live host handle. |
 
 **Cleanup:** `footer.destroy()` clears subscriptions, DOM, runtime.
 
@@ -127,24 +127,24 @@ _KDB.state.footer = {
 
 ---
 
-## 11. Folder layout (target)
+## 11. Folder layout
+
+As built (exports per file). `__orchestratorFooter.js` is a shim over `index.js` (controller + `registerFooter`).
 
 ```txt
-footer/
-  __orchestratorFooter.js
-  createFooterController.js
+dashboard/footer/
+  __orchestratorFooter.js                             shim over index.js (path kept for KDB.js)
+  config.js                                           VALID_SOURCES, MOUNT_TARGET_TIMEOUT_MS, UPDATE_DATE_TABLE_INPUT, LABELS, ERROR_CODES
+  effects.js                                          runFooterEffects
+  history.js                                          pushFooterHistoryStep, createFooterReplayHandler
+  index.js                                            registerFooter
+  loadFooterData.js                                   loadFooterUpdateDate, loadFooterCreatedUser
+  mountTarget.js                                      ensureFooterMountTarget, abortFooterMountTargetWait, waitForFooterMountTarget
+  restore.js                                          restoreFooterParameterSet
+  state.js                                            createInitialFooterState, reduceFooter
+  view.js                                             ensureFooterChrome, removeFooterChrome, syncFooterView
   state/
-    initialState.js
-    createFooterReducer.js
-    selectors.js
-  effects/
-    __orchestratorFooterEffects.js
-  dom/
-    buildFooterChrome.js
-    placeFooter.js
-    syncFooterFromState.js
-  events/
-    eventNames.js
+    selectors.js                                      readFooterStatus, readHeaderStatus, readHeaderTitleText, readActiveTabIndex
 ```
 
 ---

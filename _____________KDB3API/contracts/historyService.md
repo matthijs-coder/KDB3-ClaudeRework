@@ -19,7 +19,7 @@
 Source:
 
 ```txt
-_______REDESIGN2/KDB3/js/base/services/historyService/
+legacy-redesign2:js/base/services/historyService/
 ```
 
 Target after CP-1 and execution-spec approval:
@@ -34,7 +34,7 @@ CP-1 recommendations captured in this draft:
 
 | Question | Decision |
 |---|---|
-| Factory name | Use canonical shared-service name `createHistoryService.js`; do not carry legacy `createHistoryApi.js`. |
+| Factory name | Canonical shared-service factory name `createHistoryService` (now a function in `historyService/index.js`); do not carry legacy `createHistoryApi`. |
 | Replay delegation | Do not import legacy feature adapters in this tranche; feature-specific replay delegation is deferred until owner APIs/dispatch surfaces exist. |
 | Event catalog | Recommended: approve a narrow `eventSubscribe.md` catalog update for `history:changed` in this tranche. |
 | Pending-step API | Do not expose `beginPendingStep`, `cancelPendingStep`, or `finalizePendingStep` in this direct port; keep `pendingStep: null` in state as reserved shape only. |
@@ -187,7 +187,7 @@ The reducer is internal. It is not exposed on `_KDB.services.history`.
 - **Subscribed:** none in this service tranche.
 - **Request-events:** none.
 
-CP-1 must explicitly decide the event-catalog scope. Because this tranche creates `events/eventNames.js` and `effects/emitHistoryChanged.js`, the narrow `architecture/eventSubscribe.md` catalog entry for `history:changed` is required before implementation may write event-emitting production code.
+CP-1 must explicitly decide the event-catalog scope. Because this tranche creates `events/eventNames.js` and `core/services/historyService/replay.js` (`emitHistoryChanged`), the narrow `architecture/eventSubscribe.md` catalog entry for `history:changed` is required before implementation may write event-emitting production code.
 
 If CP-1 does not approve this narrow catalog update, implementation must stop before creating event-emitting code and escalate. Do not silently create the event constant/effect without the catalog entry.
 
@@ -197,7 +197,7 @@ Event-name constants live at `historyService/events/eventNames.js`.
 
 - `_KDB` (always).
 - `_KDB.events` for emitting `history:changed`.
-- Internal replay boundary: `replay/resolveHistoryHandler.js` and `replay/applyHistoryStep.js`.
+- Internal replay boundary: `core/services/historyService/replay.js` (`resolveHistoryHandler`) and `core/services/historyService/replay.js` (`applyHistoryStep`).
 
 No direct imports from dashboard feature modules are allowed in this tranche. Legacy `resolveHistoryHandler.js` imported filters, widgets, tabs, kdbControl, header and footer adapters directly; that shape is not rule-aligned because it would bypass owner boundaries before the target owner APIs exist.
 
@@ -246,28 +246,19 @@ Legacy handler imports are intentionally not ported into `historyService` in thi
 
 Production target after CP-1 and execution-spec approval:
 
+As built (exports per file). `__orchestratorHistoryService.js` is a shim over `index.js` (`registerHistoryService`).
+
 ```txt
-KDB3/js/core/services/historyService/
-  __orchestratorHistoryService.js
-  createHistoryService.js
-  config/
-    defaults.js
-  state/
-    initialState.js
-    cloneSerializable.js
-    areSerializableEqual.js
-    createHistoryReducer.js
-    normalizeHistoryStep.js
-  effects/
-    emitHistoryChanged.js
-  replay/
-    resolveHistoryHandler.js
-    applyHistoryStep.js
+core/services/historyService/
+  __orchestratorHistoryService.js                     shim over index.js (path kept for KDB.js)
+  index.js                                            registerHistoryService
+  replay.js                                           readHistoryState, readWritebackRestoreFlag, isHistoryLocked, emitHistoryChanged, runReplay
+  state.js                                            DEFAULT_HISTORY_LIMIT, createInitialState, normalizeHistoryState, normalizeHistoryStep, areSameJson, reduceHistory
   events/
-    eventNames.js
+    eventNames.js                                     HISTORY_CHANGED
 ```
 
-`replay/` is justified because undo/redo apply semantics are the boundary between history state ownership and feature-owner effects. It prevents `createHistoryService.js` from importing dashboard modules or becoming a god service.
+`replay/` is justified because undo/redo apply semantics are the boundary between history state ownership and feature-owner effects. It prevents `core/services/historyService/index.js` (`createHistoryService`) from importing dashboard modules or becoming a god service.
 
 ## 12. Bootstrap Registration
 
@@ -303,7 +294,7 @@ No `KDB.js` edit is required in this tranche if registration remains inside `cor
 | Q4 Factory naming | `createHistoryService.js`; legacy `createHistoryApi.js` is not carried forward. |
 | Q5 Runtime resources | `_KDB.runtime.history` buckets initialized even if mostly empty; cleanup path required. |
 | Q6 Events | `history:changed` is emitted from `events/eventNames.js`; a narrow `eventSubscribe.md` catalog update is requested for the implementation tranche. |
-| Q7 Disposed state | Add `_isDisposed` guard in `createHistoryService.js`. |
+| Q7 Disposed state | Add `_isDisposed` guard in `core/services/historyService/index.js` (`createHistoryService`). |
 | Q8 Cross-module ownership | No direct feature state writes or feature adapter imports in this service tranche. |
 | Q9 Step model/replay | Steps are serializable; step application delegates through a replay boundary and resolves `false` when no handler exists. |
 | Q10 Error handling | Invalid/no-op steps return `false`; undo/redo empty stack resolves `false`; replay failures resolve `false` after logging and owner error-state update where applicable. |

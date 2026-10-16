@@ -19,10 +19,10 @@ Primary legacy source used:
 
 | Legacy file | Role |
 |---|---|
-| `_______KDB3/KDB3/js/core/services/loadingService/createLoadingService.js` | Named-method service factory for starting and finishing loading overlays. |
-| `_______KDB3/KDB3/js/core/services/loadingService/__orchestratorLoadingService.js` | Thin orchestrator that returns the service instance. |
-| `_______KDB3/KDB3/js/core/services/__orchestratorServices.js` | Registers legacy `_KDB.services.loading`. |
-| `_______KDB3/KDB3/js/KDB.js` | Uses `_KDB.services.loading.startLoading(...)` before module startup and `finishLoading(...)` in the initialization `finally` path. |
+| `legacy:js/core/services/loadingService/createLoadingService.js` | Named-method service factory for starting and finishing loading overlays. |
+| `legacy:js/core/services/loadingService/__orchestratorLoadingService.js` | Thin orchestrator that returns the service instance. |
+| `legacy:js/core/services/__orchestratorServices.js` | Registers legacy `_KDB.services.loading`. |
+| `legacy:js/KDB.js` | Uses `_KDB.services.loading.startLoading(...)` before module startup and `finishLoading(...)` in the initialization `finally` path. |
 
 No fallback source was needed because the primary legacy folder exists and contains the complete service.
 
@@ -194,23 +194,17 @@ The service manipulates browser DOM only. It performs no `_KDB.cognosAPI.<theme>
 
 Target production tree, pending CP-1:
 
+As built (exports per file). `__orchestratorLoadingService.js` is a shim over `index.js` (`registerLoadingService`).
+
 ```txt
-loadingService/
-  __orchestratorLoadingService.js
-  createLoadingService.js
-  runtime/
-    ensureLoadingRuntime.js
-    clearLoadingRuntime.js
-  state/
-    ensureLoadingEntry.js
-    markLoadingStarted.js
-    markLoadingFinished.js
-    markAllLoadingDisposed.js
-  effects/
-    applyLoadingOverlay.js
-    removeLoadingOverlay.js
-    scheduleLoadingWatchdog.js
-    scheduleOverlayRemoval.js
+core/services/loadingService/
+  __orchestratorLoadingService.js                     shim over index.js (path kept for KDB.js)
+  caption.js                                          resolveLoadingMessage, syncLoadingCaption, syncLoadingSessionCaption, updateLoadingMessage
+  config.js                                           BOOT_MOUNT_KEY, DEFAULT_REMOVE_DELAY_MS, ROOT_MOUNT_KEY, WATCHDOG_MS, loadingLabels
+  index.js                                            registerLoadingService
+  overlay.js                                          clearOverlays, finishOverlay, reconcilePendingRemoval, startOverlay
+  state.js                                            ensureLoadingRuntime, markAllLoadingDisposed, markLoadingFinished, markLoadingStarted
+  watchdog.js                                         clearWatchdog, scheduleLoadingWatchdog
 ```
 
 Rationale:
@@ -236,7 +230,7 @@ Rationale:
 - **Q1:** Approve target path `KDB3/js/core/services/loadingService/`?
 - **Q2:** Approve `_KDB.state.loading` as the service-owned serializable state subtree?
 - **Q3:** Choose public service key: **A** `_KDB.services.loading` (recommended for direct port) or **B** `_KDB.services.loadingService` (requires later caller migration). Methods stay `startLoading`, `finishLoading`, `destroy`.
-- **Q4:** Approve factory file `createLoadingService.js`?
+- **Q4:** Approve factory file `core/services/loadingService/index.js` (`createLoadingService`)?
 - **Q5:** Approve moving watchdog timers, remove-delay timers, mount refs, spinner refs and position overrides from legacy factory-scope maps into `_KDB.runtime.loadingService`?
 - **Q6:** Approve no events and no `events/eventNames.js`?
 - **Q7:** Approve `destroy()` as the single lifecycle teardown method, with no `dispose()` alias?

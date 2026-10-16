@@ -63,7 +63,7 @@ No unnamed hybrid. S5 is the listed two-WP sequence, not a new machine.
 
 ## Bind / history wall (why naive one-dropdown stack breaks)
 
-`bindWidgetSettingsPanel.js` (do not edit) builds history frames from **one** selected option in the closest `.KDB_IconsDropdown`. `markSelectedOption` clears **all** rows in that dropdown. `stampPanelVisType.markShowValuesOption` does the same. Replay `findOptionInDropdown` matches the first `inherit`/`on`/`off` key.
+`dashboard/widgets/widgetSettings/view/panelEvents.js` (`bindWidgetSettingsPanel`) (do not edit) builds history frames from **one** selected option in the closest `.KDB_IconsDropdown`. `markSelectedOption` clears **all** rows in that dropdown. `stampPanelVisType.markShowValuesOption` does the same. Replay `findOptionInDropdown` matches the first `inherit`/`on`/`off` key.
 
 A flat stack of three 3-ways in the current showValues container would: unmark ShowValues when Iterator is clicked; push a showValues history step for an iterator click; collide on shared `inherit` keys.
 
@@ -89,12 +89,12 @@ S1 does not hit this wall: still **one** kind, **one** selected mark.
 |---|---|---|
 | `buildWidgetVisSettingsSnapshot.js` | 149 — do not grow | Optional snapshot fields required so visType/post-render overlay does not stomp. `isWidgetVisKind` / `KIND_TO_CONTROL` live here; new kinds otherwise skip commit-after-apply. |
 | `applyVisualizationProperties.js` | 150 | Overlay hook + `APPLY_ON_REASON` for new property-only reasons. One extra call needs an extract first. |
-| `handleApplySetting.js` | 149 — do not edit | Full rebind. New booleans stay property-only like `applyShowValues`. |
+| `dashboard/widgets/widgetVis/settings.js` (`handleApplySetting`) | 149 — do not edit | Full rebind. New booleans stay property-only like `applyShowValues`. |
 | `actionRouter.js` | 14 AMD already | Family: routes only, no new import. Two cloned handles would add two. |
-| `finalizeVisIntentResult.js` | 9 AMD | Third safeguard import forbidden. |
-| `stampPanelVisType.js` | 141 | Per-group mark + row hide will blow 150 without extract. |
+| `dashboard/widgets/widgetSettings/intent/finalize.js` (`finalizeVisIntentResult`) | 9 AMD | Third safeguard import forbidden. |
+| `dashboard/widgets/widgetSettings/view/optionMarking.js` (`stampPanelVisType`) | 141 | Per-group mark + row hide will blow 150 without extract. |
 | `buildWidgetObject.js` | **144** | Two house-style 3-line `0\|1` GET emits land on **150 exactly**. No slack. Writeback for two keys needs a GET extract or a later helper. |
-| `bindWidgetSettingsPanel.js` / `KDB.js` / `sorting.js` | forbidden | — |
+| `dashboard/widgets/widgetSettings/view/panelEvents.js` (`bindWidgetSettingsPanel`) / `KDB.js` / `sorting.js` | forbidden | — |
 
 PO named `widget.iterator` + `zoom.bar.enable`. WP2 apply still cannot ship until per-`visType` catalog inherit exists (our `definitions.js` has **NONE**). Overlay must not mutate `definitions.js`; inherit read stays `resolveVisualizationLayoutPropertyValues` (write-fn only), same isolation as H.
 
@@ -170,7 +170,7 @@ Default lean holds. Do not start C, E, toast PROGRAM, or grouping reopen.
 - Copy grouping KEEP-specialize / CLEAR onto these booleans without a new PO lock.
 - Third family. `_KDB.services.settingFamily`. Registry in the same WP as the first new option.
 - Third `*DropdownSafeguard.js`. Route new booleans through `handleApplySetting` / full rebind.
-- Edit `bindWidgetSettingsPanel.js`, `KDB.js`, `sorting.js`, grow snapshot / `handleApplySetting` / `actionRouter` in place (extract first).
+- Edit `dashboard/widgets/widgetSettings/view/panelEvents.js` (`bindWidgetSettingsPanel`), `KDB.js`, `sorting.js`, grow snapshot / `handleApplySetting` / `actionRouter` in place (extract first).
 - Reuse `reason: "showValues"` or generalize `overlayShowValuesOnLayoutMap` for the new keys.
 - `SCHEMA_VERSION` bump. Keys >5 chars or `dim`. `_KDB.config.labels.de`. Gruppierung* chrome.
 - Seed Family A. Store `"inherit"` / `"none"` / `"default"`. New cognosHost facet. `_KDB.cognosAPI` from widgetSettings / deep widgetVis.

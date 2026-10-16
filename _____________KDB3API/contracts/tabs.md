@@ -7,6 +7,7 @@
 ---
 
 **Status:** `Draft`
+**As-built note:** the phase-1 deferral of delete, duplicate and move below is superseded. `tabs/delete`, `tabs/duplicate`, `tabs/restoreDeleted` and `tabs/move` (plus `tabs/reorder`) are live and run through `dashboard/tabs/tabMutation/` (`actions.js` routes, `plans.js` builds the plans, `saga.js` `runTabMutationSaga` runs them, `owners.js` dispatches to the widget/filter owners). See `kdbControl-tabsCrud-contractdelta.md` and `dashboard/tabs/config/actionTypes.js`. The file layout is in section 18.
 **Owner module / service:** `tabs`
 **Type:** `feature module`
 **Authoring AI:** GPT-5.5, 2026-06-18
@@ -41,11 +42,11 @@ Investigation results used for this contract:
 
 | Source | Evidence used |
 |---|---|
-| `_______REDESIGN2/KDB3/js/dashboard/tabs/` | State-driven tab visibility, helper-tab conventions, authoring visibility, startup DOM sync/hydration, optional traversal API, add/rename pattern. |
-| `_______REDESIGN2/KDB3/js/dashboard/canvas/kdbControl/` | kdbControl as UI/event layer rather than tabs owner. |
+| `legacy-redesign2:js/dashboard/tabs/` | State-driven tab visibility, helper-tab conventions, authoring visibility, startup DOM sync/hydration, optional traversal API, add/rename pattern. |
+| `legacy-redesign2:js/dashboard/canvas/kdbControl/` | kdbControl as UI/event layer rather than tabs owner. |
 | `laatsteOriginal/KDB2/js/controlContainer/configurationFunctions/helpers/configurationToolboxHelpers.js` | Working legacy business behavior for rename, soft-delete, duplicate, move and writeback remapping. Only rename is in phase 1. |
-| Current `_____________KDB3API/KDB3/js/dashboard/canvas/kdbControl/framework/bindFrameworkToolboxPlaceholderApis.js` | Existing production kdbControl already expects `_KDB.api.tabs.dispatch(...)`. |
-| Current `_____________KDB3API/KDB3/js/dashboard/canvas/kdbControl/framework/syncFrameworkViewFromState.js` | Existing production kdbControl already expects `_KDB.api.tabs.getState()` projections for toolbox tab-edit UI. |
+| Current `_____________KDB3API/KDB3/js/dashboard/canvas/kdbControl/framework/bindToolboxActions.js` | Existing production kdbControl already expects `_KDB.api.tabs.dispatch(...)`. |
+| Current `dashboard/canvas/kdbControl/framework/syncView.js` (`syncFrameworkViewFromState`) | Existing production kdbControl already expects `_KDB.api.tabs.getState()` projections for toolbox tab-edit UI. |
 | Current `_____________KDB3API/KDB3/js/core/cognosAPI/tabs.js` | Inner-ring wrappers for `getTabsContainers`, `getTabsContent`, `getTabName`, `setTabName`. Called from ring 1 only; not the tabs module wrapping target. |
 
 Legacy code must not be treated as the design. It is evidence for behavior and edge cases only.
@@ -518,20 +519,61 @@ Before using request events such as `tabs:toolRequested`, the contract must docu
 
 ## 18. Module Shape
 
-Expected production folder shape:
+As built (exports per file; shims keep legacy import paths). `__orchestratorTabs.js` is a shim over `index.js` (controller + `registerTabs`).
 
 ```txt
-KDB3/js/dashboard/tabs/
+dashboard/tabs/
+  __orchestratorTabs.js                               shim over index.js (path kept for KDB.js)
+  chrome.js                                           hasTabInnerFrame, readTabItemIndex, readTabButtons, readPrimaryTabButtons, resolveTabWrapper, resolveLabelNode, resolveTabListElement, ...
+  config.js                                           selectors, filterScopeCodes, parameterSetCodes, mutationOwners, mutationUi, editIcons
+  effects.js                                          applyTabsEffects, createCognosTabsAdapter
+  history.js                                          pushTabMutationHistoryStep, pushRenameHistoryStep, createTabsHistoryReplayHandler
+  index.js                                            registerTabs
+  observe.js                                          startActiveTabObserver
+  pageLoading.js                                      start, finish
+  reducer.js                                          reduceTabsAction, commitTabsState
+  selectors.js                                        readTabsState, readTabTargets, readActiveTabId, readActiveTabIndex, readVisibleTabs, readTabByIndex, readTabById, ...
+  slots.js                                            isDashboardTab, isVisibleUserTab, isRenamableUserTab, findTabById, listDashboardSlots, resolveDashboardOrderIndex, countVisible, ...
+  state.js                                            createInitialTabsState, createEditUiState, cloneByIndex, cloneTab, cloneHelperTab, buildVisibleOrder, phaseToLifecycle, ...
+  view.js                                             syncDomFromState, syncKdbControlView
+  actions/
+    guardParameterSetRun.js                           shim over ../restore/guard.js (path kept for external imports)
   config/
-  state/
+    actionTypes.js                                    INITIALIZE, SYNC_FROM_DOM, ACTIVE_TAB_OBSERVED, HYDRATE_DOM, TRAVERSE, ADD, SELECT_EDIT_TARGET, ...
+    defaults.js                                       MAX_USER_TABS, HELPER_TAB_INDEX, MIN_VISIBLE_USER_TABS, VISIBLE_CLASS, USER_TAB_BUTTON_CLASS, HELPER_TAB_BUTTON_CLASS, HELPER_TAB_CONTENT_CLASS, ...
+    mutationCodes.js                                  CONFLICT, CANCELLED, MIN_VISIBLE, MAX_VISIBLE, PREPARE_FAILED, KIND_UNSUPPORTED, STOCK_SHORT, ...
+  editUi/
+    confirm.js                                        confirmAndDispatchTabMutation, isTabMutationInFlight
+    icons.js                                          renderTabEditIcons, removeTabEditIcons, bindIconClick
+    reduce.js                                         addVisibleTab, selectEditTarget, setSelectedTool, updateRename, cancelEditSession, recomputeEditUi
+    renameActions.js                                  buildPendingRename, applyRenameEffects
+    session.js                                        startEditSession, commitOutgoingEditSession, cleanupEditSession
   effects/
+    hasTabInnerFrame.js                               shim over ../chrome.js (path kept for external imports)
   events/
-  adapters/
-  createTabsController.js
-  __orchestratorTabs.js
+    eventNames.js                                     CHANGED, ACTIVATION_STARTED, RENAMED, TRAVERSED, ERROR
+  restore/
+    filterScopeTargets.js                             resolveFilterScopeTargets, disposedResult, readResolvedFilterScopeTargets
+    guard.js                                          guardParameterSetRun, isStale, cancelledResult, waitForInflightTraversals
+    parameterSetActivation.js                         parameterSetActivateTab
+    parameterSetLanding.js                            parameterSetAbortLanding, postParameterSetRestoreTraverse, writebackGetPersistLanding
+    parameterSetRestore.js                            routeParameterSetAction, isParameterSetAction, disposedResult
+    reduce.js                                         reduceParameterSetApply
+  state/
+    selectors.js                                      shim over ../selectors.js (path kept for external imports)
+  tabMutation/
+    actions.js                                        routeTabMutationAction, isTabMutationAction, disposedResult
+    loadingFrame.js                                   startMutationFrame, finishMutationFrame, syncTraverseLine
+    owners.js                                         ok, failed, dispatchOwner, captureOriginalActive, mapTabIdxByTabId, ensureSlots, restoreOriginalActiveTab, ...
+    plans.js                                          buildDeletePlan, buildDuplicatePlan, buildMovePlan, buildRestoreDeletedPlan
+    reduce.js                                         reduceTabMutationApply
+    saga.js                                           runTabMutationSaga, buildMutationResult
+  traverse/
+    traverse.js                                       dispatchTabsTraverse, traverseTabs
+    traverseOptions.js                                normalizeTraverseOptions, buildTraverseKey, collectTargetIndexes, shouldTraverseTab, buildConfirmedPayload, buildFailedPayload
 ```
 
-Only create folders with real content. `view/` may be added only if tabs creates its own DOM; phase 1 can keep button visibility under `effects/` if it only mutates existing Cognos tab buttons.
+Only create folders with real content. DOM sync of the existing Cognos tab buttons is in `view.js` and `effects.js`; the tab edit-mode UI is in `editUi/`.
 
 ## 19. Integration Boundaries
 

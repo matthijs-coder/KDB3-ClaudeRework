@@ -51,17 +51,18 @@ _____________KDB3API/KDB3/js/core/config/mapping/
 
 `parameterMap.js` is the package-bound source of truth for current KID / itemId values (edit this folder when the Cognos package changes). `kidIndex.js` exposes required-key definitions and a grouped index over that frozen map. `__savedProperties/parameterMappingId.js` may seed the map as a fixture; production does not load Cognos `parameterMappingId`. Cross-package: source map from the v2 payload; target from `parameterMap.js`.
 
-Service tree (realized, synced 2026-07-10; per-section splits follow the
-`feature-structure.mdc` file-size limits — entry files `validateV3.js` /
-`normalizeV3.js` compose the per-§4-section modules under `validate/` /
-`normalize/`, and `set/` splits restore mechanics into `config/`, `state/` and
-`effects/`):
+Service tree (as built; per-section splits follow the `feature-structure.mdc` file-size limits --
+entry files `validateV3.js` / `normalizeV3.js` compose the per-§4-section modules under `validate/` /
+`normalize/`, `set/` splits restore mechanics into `config/`, `state/` and `effects/`):
 
 ```txt
 core/services/writeback/
+├── __orchestratorWriteback.js         registers writebackGet/Set/Map + writebackBridge, merges German labels
+├── cognosWritebackBridge.js           guarded host bridge (WBParameterGetFunction / WBParameterSetFunction), install/uninstall
 ├── schema/
-│   ├── errorCodes.js
+│   ├── errorCodes.js                  error code table (includes WRITEBACK_TIMEOUT)
 │   ├── v3Defaults.js
+│   ├── detectSourceFormat.js
 │   ├── validateV3.js
 │   ├── validate/
 │   │   ├── validatePrimitives.js
@@ -72,37 +73,38 @@ core/services/writeback/
 │   │   ├── validateTabsWidgets.js     (tabs/wgts objects)
 │   │   └── validateWidgetFields.js    (wgts per-kind fields)
 │   ├── normalizeV3.js
-│   ├── normalize/
-│   │   ├── normalizeCoreFields.js     (canv/sett/head/foot)
-│   │   ├── normalizeFilters.js        (filt)
-│   │   ├── normalizePcfs.js           (filt.pcfs)
-│   │   └── normalizeTabsWidgets.js    (tabs/wgts objects)
-│   └── detectSourceFormat.js
+│   └── normalize/
+│       ├── normalizeCoreFields.js     (canv/sett/head/foot)
+│       ├── normalizeFilters.js        (filt)
+│       ├── normalizePcfs.js           (filt.pcfs)
+│       └── normalizeTabsWidgets.js    (tabs/wgts objects)
 ├── get/
-│   ├── createWritebackGetService.js
-│   └── collectors/
-│       ├── collectCanvasSettings.js   (canv/sett)
-│       ├── collectHeaderFooter.js     (head/foot)
-│       ├── collectTabs.js             (tabs; all dashboard shells, hidden as hide:1)
-│       ├── collectFilters.js          (filt orchestrator: sicht/dstl/sels/pcfs; page rows visible-only)
-│       ├── collectFilterTargets.js    (live scope targets via tabs/resolveFilterScopeTargets)
-│       ├── collectDienststelleFilter.js (filt.dstl; byTab via live scopeId→tabIdx map)
-│       ├── collectSingleSelectInstances.js (filt.sels via instance inventory)
-│       ├── collectNativeMultiSelect.js (filt.pcfs via nativeMultiSelect collect dispatch; host-enumerate global + page)
-│       ├── singleSelectCollectorInventory.js
-│       ├── singleSelectCollectorScope.js
-│       ├── singleSelectCollectorMaterialize.js
-│       ├── singleSelectFilterSupport.js
-│       ├── buildScopeIdToTabIdx.js
-│       ├── collectWidgets.js          (wgts; visibleDashboard traverse; visible-only widgets)
-│       └── buildWidgetObject.js       (wgts per-widget object)
+│   ├── createWritebackGetService.js   public writebackGet; runs collectors, then the bridge-only persist landing
+│   ├── runWritebackGetCollectors.js   collector run + notifySaveFailed alert
+│   ├── collectors/
+│   │   ├── collectorSupport.js        shared helpers (dashboard-tab role rule, scope helpers)
+│   │   ├── collectCanvasSettings.js   (canv/sett)
+│   │   ├── collectHeaderFooter.js     (head/foot)
+│   │   ├── collectTabs.js             (tabs; hidden dashboard shells as hide:1)
+│   │   ├── collectFilters.js          (filt orchestrator: sicht/dstl/sels/pcfs)
+│   │   ├── collectDienststelleFilter.js (filt.dstl)
+│   │   ├── collectSingleSelectInstances.js (filt.sels via instance inventory)
+│   │   ├── materializeSingleSelect.js (pending single-select entries -> persisted entries / inst)
+│   │   ├── collectNativeMultiSelect.js (filt.pcfs via nativeMultiSelect collect dispatch)
+│   │   ├── buildScopeIdToTabIdx.js
+│   │   ├── collectWidgets.js          (wgts; visibleDashboard traverse)
+│   │   └── buildWidgetObject.js       (wgts per-widget object)
+│   └── persist/                       bridge-only landing after the host "save parameter set" popup
+│       ├── persistLanding.js          applyWritebackGetPersistLanding / cancelWritebackGetPersistLanding (abortControllers.persistLanding)
+│       ├── persistLoadingOverlay.js   loading overlay handle (runtime.getPersistLoadingHandle)
+│       └── persistPopupProbe.js       finds the Cognos save popup (<smq-popup> in body, this window or top)
 ├── set/
 │   ├── createWritebackSetService.js
 │   ├── config/
-│   │   ├── restoreConstants.js        (phase enum, status table, sentinels)
-│   │   └── writebackLabels.js         (German _KDB.config.labels.de.writeback)
+│   │   ├── restoreConstants.js        phase enum, status table, sentinels
+│   │   └── writebackLabels.js         German _KDB.config.labels.de.writeback
 │   ├── state/
-│   │   ├── ensureWritebackRuntime.js
+│   │   ├── ensureWritebackRuntime.js  runtime.writeback defaults
 │   │   ├── createRunContext.js
 │   │   ├── validateRestorePayload.js
 │   │   ├── readOwnerTargets.js
@@ -110,60 +112,59 @@ core/services/writeback/
 │   └── effects/
 │       ├── executeRestoreRun.js
 │       ├── executeRestoreRunCleanup.js
+│       ├── runGuards.js               history begin/finish guards (steps 6/29)
 │       ├── dispatchOwnerPhase.js
-│       ├── filterRestoreGeneration.js
-│       ├── filterRestoreTargets.js
-│       ├── finalizeSingleSelectRun.js
-│       ├── historyGuards.js
-│       ├── loadingGuards.js
-│       ├── skipDefaultRestoreForUrlParameterId.js
-│       ├── waitForRootLifecycleReady.js
-│       ├── whenUrlShareRestoreSettled.js
-│       ├── recoverUrlSharePending.js
-│       ├── mapUrlShareSelectResult.js
-│       ├── presentPendingUrlShareMessage.js
-│       ├── restoreRunBranches.js
-│       ├── restoreRunGuards.js
-│       ├── restoreRunState.js
 │       ├── runNormalRestore.js
 │       ├── runNewDashboardReset.js
-│       ├── runFilterRestore.js
-│       ├── dispatchDienststelleRestore.js
+│       ├── runWidgetRestore.js
+│       ├── bindVisPerActiveTab.js     step 27 per-tab vis binding
+│       ├── ensureTabWidgetsRouted.js  step 23 precondition
+│       ├── publishRestoreTabCaption.js
+│       ├── restoreAbortActiveTab.js
+│       ├── waitForPageContextHost.js
+│       ├── waitForRootLifecycleReady.js
+│       ├── finalizeSingleSelectRun.js
 │       ├── notifyRestoreOutcome.js
-│       ├── dispatchFilterClearPhases.js
-│       └── runWidgetRestore.js
+│       └── filters/
+│           ├── runFilterRestore.js
+│           ├── filterRestoreGeneration.js
+│           ├── filterRestoreTargets.js
+│           ├── buildAllowedClearTabIdxs.js
+│           ├── dispatchFilterClearPhases.js
+│           ├── dispatchDienststelleRestore.js
+│           └── dispatchSpecialSingleSelectRestore.js
+├── urlShare/                          URL parameterId handling around the default restore
+│   ├── readUrlParameterId.js          reads the id from navigation name / document hash
+│   ├── skipDefaultRestoreForUrlParameterId.js
+│   ├── whenUrlShareRestoreSettled.js  called from KDB.js; applies the URL id, resets to newDashboard on failure
+│   ├── waitForSingleSelectInventoryQuiet.js
+│   ├── mapUrlShareSelectResult.js
+│   └── presentPendingUrlShareMessage.js
 ├── map/
 │   ├── createWritebackMapService.js
-│   └── adapters/                    (v2→v3; T2.1 2026-08-16)
+│   └── adapters/                      v2 -> v3
 │       ├── mapV2ToV3.js
 │       ├── mapV2CanvasSettings.js
-│       ├── mapV2HeaderFooter.js
+│       ├── mapV2Chrome.js             header/footer (mapV2HeaderFooter)
+│       ├── mapV2Layout.js             widget tab + layout parsing
 │       ├── mapV2Filters.js
 │       ├── mapV2FilterEntries.js
 │       ├── extractV2FilterValues.js
 │       ├── classifyV2FilterItem.js
-│       ├── mapV2Tabs.js
-│       ├── mapV2Widgets.js
-│       ├── mapV2WidgetEntry.js
-│       ├── mapV2VisWidget.js
-│       ├── mapV2TxtWidget.js
-│       ├── parseV2WidgetLayout.js
-│       ├── buildV2SourceMapping.js
+│       ├── mapV2Widgets.js            widget entries (vis/txt)
 │       ├── remapV2KidTokens.js
-│       ├── universalizeV2KidTree.js
-│       └── deUniversalizeV2KidTree.js
-├── bridge/
-│   ├── confirmDiscardUnsavedChanges.js
-│   ├── runBridgeSetRestore.js         (host SET path + notifyAfterRestore)
-│   ├── normalizeBridgeSetInput.js     (SET input canonicalization, §3.3)
-│   ├── readUrlParameterId.js
-│   ├── parameterSetSelectConstants.js
-│   ├── readSelectedParameterSet.js
-│   ├── selectParameterSetById.js
-│   ├── waitForParameterSetSelectReady.js
-│   └── waitForBridgeSetSettlement.js  (armWaiter + notifyBridgeSetSettled)
-├── cognosWritebackBridge.js
-└── __orchestratorWriteback.js
+│       └── v2KidTree.js               buildV2SourceMapping / universalizeV2KidTree / deUniversalizeV2KidTree
+└── bridge/
+    ├── hostGlobals.js                 installs the window.top globals; `__kdbOwner` is a getter so a destroyed KDB is not kept alive
+    ├── bridgeResult.js                failureResult / cancelledResult / toBridgeDiagnostic
+    ├── normalizeBridgeSetInput.js     SET input canonicalization (§3.3)
+    ├── runBridgeSetRestore.js         host SET path + notifyAfterRestore
+    ├── confirmDiscardUnsavedChanges.js
+    ├── ensureNewDashboardOption.js    "new dashboard" option in the host parameter-set select
+    ├── hostParameterSetSelect.js      readSelectedParameterSet, waitForParameterSetSelectReady, revertSelect
+    ├── parameterSetSelectConstants.js
+    ├── selectParameterSetById.js
+    └── waitForBridgeSetSettlement.js  armWaiter + notifyBridgeSetSettled
 ```
 
 Registration belongs in `core/services/__orchestratorServices.js`, alongside `tableData`, `loadingService`, `widgetBindingPlan`, `widgetBindingApply` and `history`.
@@ -190,6 +191,8 @@ Responsibilities:
 - fail visible (remediation B3, 2026-08-19): a genuine collector crash (throw, or `ok: false` from an owner snapshot) marks the run with `WRITEBACK_COLLECTOR_FAILED` and `collect()` throws instead of returning a partial payload — silent section omission would become restore-by-omission data loss on the next SET. Design-skips (`WRITEBACK_SKIPPED_BY_DESIGN`) still never abort GET. The user is informed through `messageService.showAlert` before the throw; the bridge keeps its existing rethrow contract.
 
 The Cognos bridge serializes the object when exposing `window.top.WBParameterGetFunction`.
+
+Persist landing (as built, `get/persist/`): when the GET comes from the Cognos bridge, `createWritebackGetService.js` calls `persistLanding.applyWritebackGetPersistLanding` after validation. After a bridge save the host shows its "save parameter set" popup on the first visible dashboard tab, so the landing moves KDB to that tab, watches the popup (`persistPopupProbe.js`) and returns to the tab the user was on. Every wait is tied to `runtime.persistRestoreGeneration` and the abort controller `runtime.abortControllers.persistLanding`; `cancelWritebackGetPersistLanding` aborts it on destroy or a newer GET. `persistLoadingOverlay.js` shows the loading overlay while landing and keeps its handle in `runtime.getPersistLoadingHandle` (not in a runtime bucket, so a bucket reset during the wait cannot lose it).
 
 Preconditions:
 
@@ -417,6 +420,8 @@ Bridge behavior:
   details: {}
 }
 ```
+
+Global install (as built, `bridge/hostGlobals.js`): both globals are stamped as KDB bridge anchors (`__kdbWritebackBridge`, `__kdbForeignPrevious`). `__kdbOwner` is defined as a getter, so the anchor on `window.top` does not keep a destroyed KDB instance alive; readers only test it against an instance. On uninstall a live previous KDB anchor (reverse destroy order) is restored; an anchor whose owner is disposed is skipped in favour of its foreign previous; if a newer boot already replaced our anchor the global is left alone.
 
 ### 3.1 Status Semantics
 
@@ -1159,7 +1164,7 @@ Contract:
 - apply tab names and visibility through tabs owner state/effects, not direct writeback DOM mutation;
 - ensure at least one dashboard tab is visible;
 - provide a `tabIdx -> { tabId, pageId, scopeId? }` lookup for filter and widget restore;
-- `tabs/resolveFilterScopeTargets` is the canonical live scopeId↔tabIdx map used by GET (`collectFilterTargets.js`) and SET (`filterRestoreTargets.js`), complementing the restore-run `tabTargets`;
+- `tabs/resolveFilterScopeTargets` is the canonical live scopeId↔tabIdx map used by GET (`core/services/writeback/get/collectors/collectFilters.js` (filter target resolution)) and SET (`filterRestoreTargets.js`), complementing the restore-run `tabTargets`;
 - handle saved tab-count mismatch with diagnostics;
 - support hidden dashboard tabs without making hidden tab buttons permanently visible;
 - expose `tabs/parameterSetActivateTabRequested` for hidden or not-canvas-ready tabs before page-context writes and widget restore;

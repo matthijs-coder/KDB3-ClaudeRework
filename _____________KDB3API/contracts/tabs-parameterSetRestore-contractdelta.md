@@ -97,7 +97,7 @@ Interface agreement (PO decision D6):
 
 - `tabTargets` from restore/reset **action results** include `scopeId` (live-derived, see §3.2).
 - `tabTargets` from the `getState()` fallback contain `tabId`, `pageId`, `visible` **without** `scopeId`; the selector stays a pure state read.
-- Consumers that require `scopeId` (page-context filter owners, Dienststelle) must live-derive it when absent, using the shared `_KDB.cognosAPI.tabs.getTabsContainers()` pattern (reference: `dashboard/filters/dienststelle/effects/listDashboardTabScopeIds.js`). The singleSelect parameter-set delta must mirror this clause.
+- Consumers that require `scopeId` (page-context filter owners, Dienststelle) must live-derive it when absent, using the shared `_KDB.cognosAPI.tabs.getTabsContainers()` pattern (reference: `dashboard/filters/dienststelle/effects/hostScope/filterRef.js` (`listDashboardTabScopeIds`)). The singleSelect parameter-set delta must mirror this clause.
 
 ### 3.2 `scopeId` Derivation
 

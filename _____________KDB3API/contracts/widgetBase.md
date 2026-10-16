@@ -35,7 +35,7 @@ Normative detail: `contracts/_archive/tabs-tabMutation-rebuildOnSlotStock-contra
 
 | Evidence | Use in this contract |
 |---|---|
-| `_______REDESIGN2/KDB3/js/dashboard/canvas/widgets/` investigation | Orchestrator flow, `canvas:dropValidated` routing, route-all startup parking, placement rollback, history boundaries, render/lifecycle split evidence. |
+| `legacy-redesign2:js/dashboard/canvas/widgets/` investigation | Orchestrator flow, `canvas:dropValidated` routing, route-all startup parking, placement rollback, history boundaries, render/lifecycle split evidence. |
 | `laatsteOriginal/KDB2/js/widgets/helpers/` investigation | External lifecycle evidence for launchpad send/take, parameter-set restore hooks, drag/drop lifecycle helpers and widget id stability assumptions. |
 | `_____________KDB3API/contracts/launchpad.md` | Launchpad is environment owner only; `widgetBase` owns widget shell movement and reads launchpad slot metadata/selectors. |
 | `_____________KDB3API/contracts/dragDrop.md` | `dragDrop` owns validation and scale-aware payload; `widgetBase` owns final placement, state and history. |
@@ -149,7 +149,7 @@ Runtime rules:
 - `opSeq` is the single stale-result guard per widget for base operations.
 - `destroy()` sets `_isDisposed = true` first, unsubscribes all event subscriptions, aborts controllers, removes listeners, clears observers/timers/pending promises, removes owned transient DOM decorations, clears `byId`, and writes module lifecycle `disposed`.
 - `remove` cleans one widget runtime entry before transitioning that frame to `placement: "removed"` and `lifecycle: "disposed"`.
-- Park, tab-delete and remove are widgetVis dispose points (E0a, 2026-08-20, `ADAPTER_ONTWERP_2026-08-20.md` §3.7): `cleanWidgetForTransfer` (route-to-launchpad funnel), `handleRemove` and `rollbackWidgetBaseOperation` dispatch `widgetVis/disposeWidgetRuntime` through `effects/dispatchWidgetVisLifecycle.js`; on non-clean pads the funnel dispatches the dispose directly (`cleanWidgetForTransfer.disposeWidgetVisForTransfer`, else branch of `cleanBeforeTransfer`), so every route-park is a dispose point. `handleTakeFromLaunchpad` dispatches `widgetVis/ensureObservers` after a successful place so unpark rebuilds the observers. All are fire-and-forget with `.catch` and no-op when widgetVis has no runtime/record for the widget.
+- Park, tab-delete and remove are widgetVis dispose points (E0a, 2026-08-20, `ADAPTER_ONTWERP_2026-08-20.md` §3.7): `cleanWidgetForTransfer` (route-to-launchpad funnel), `handleRemove` and `rollbackWidgetBaseOperation` dispatch `widgetVis/disposeWidgetRuntime` through `dispatchWidgetVisDispose` in `effects.js` (`cleanWidgetForTransfer` and `cleanBeforeTransfer` live in `launchpadTransfer.js`; `handleRemove` and `rollbackWidgetBaseOperation` in `canvas.js`); on non-clean pads the funnel dispatches the dispose directly, so every route-park is a dispose point. `handleTakeFromLaunchpad` dispatches `widgetVis/ensureObservers` after a successful place so unpark rebuilds the observers. All are fire-and-forget with `.catch` and no-op when widgetVis has no runtime/record for the widget.
 - `buildDescriptor` (route funnel) passes the frame `kind` into the route descriptor (E0a live finding, 2026-08-20): metadata-less dispatches (tab-delete/move/slot-moves, history `targetPad` replays) previously fell back to the `"other"` route, which skipped clean/dispose and overwrote the frame kind. topN/datatable frames still fall back to `"other"` on those paths (known residual, see `CLUSTER_E_RAPPORT_2026-08-20.md` §E0.4).
 
 ## 5. Public API
@@ -511,7 +511,7 @@ Records either a module-level error or a per-widget error depending on `widgetId
 
 ## 7. Launchpad Route Resolution
 
-`resolveLaunchpadRoute(widgetDescriptor)` is a pure helper owned by `widgetBase/state`. Boundary effects such as Cognos discovery first build a serializable descriptor; the route helper receives only that descriptor plus static channel config and does not receive `_KDB`.
+`resolveLaunchpadRoute(widgetDescriptor)` is a pure helper in `widgetBase/launchpadRoute.js`. Boundary effects such as Cognos discovery first build a serializable descriptor; the route helper receives only that descriptor plus static channel config and does not receive `_KDB`.
 
 ```js
 {
@@ -543,7 +543,7 @@ All route targets are per tab. If `tabId` cannot be resolved from the frame, dro
 
 ## 8. Readers / Writers
 
-Published selectors from `widgetBase/state/selectors.js`:
+Published selectors from `widgetBase/state/selectors.js` (also `readCanvasWidgetsByTab(_KDB, tabId)`, cloned canvas-placed frames of a tab):
 
 | Selector | Reads | Returns |
 |---|---|---|
@@ -673,14 +673,7 @@ Replayability in this tranche means replay within the same Cognos dashboard/spec
 - `widgetBase` does not call `widgetVis` during delete replay; vis rebind is delegated through `widgetSettings/restoreCommittedSettings`. Vis restore failure does not rollback shell placement and must not block the history pointer when settings UI restore succeeded.
 - Replay must not call `_KDB.services.history.pushCommittedStep`; it applies the existing step only.
 
-Registration and implementation files:
-
-```txt
-history/
-  createWidgetBaseHistoryReplayHandler.js   # accepts widget_canvasDrop and widget_launchpadTransfer
-  applyWidgetBaseCanvasDropHistoryReplay.js
-  applyWidgetBaseLaunchpadTransferHistoryReplay.js
-```
+Registration and implementation file: `history.js` (`createWidgetBaseHistoryReplayHandler` accepts `widget_canvasDrop`, `widget_launchpadTransfer`, `widget_layoutMove` and `widget_layoutResize`; canvas-drop replay and launchpad-transfer replay (`undoLaunchpadTransfer` / `redoLaunchpadTransfer`) live in the same file).
 
 The `widgetBase` entry of `core/bootstrap/featureManifest.js` must list `widget_launchpadTransfer` next to `widget_canvasDrop` (same contribution).
 
@@ -718,52 +711,43 @@ Abortable work stores its controller under the per-widget `abortControllers` buc
 
 ## 16. Folder Layout
 
+As built after the Phase 1 module-template rework (27 files; one concern per file, no per-function files):
+
 ```txt
 KDB3/js/dashboard/widgets/widgetBase/
-  __orchestratorWidgetBase.js
-  createWidgetBaseController.js
-  config/
-    actionTypes.js
-    launchpadChannels.js
-  state/
-    initialState.js
-    createWidgetBaseReducer.js
-    selectors.js
-    cloneSerializable.js
-    resolveLaunchpadRoute.js
-  actions/
-    handleDropCreate.js
-    handleRouteAllToLaunchpad.js
-    handleRouteToLaunchpad.js
-    handleTakeFromLaunchpad.js
-    handleMoveOrResize.js
-    handleSetColour.js
-    handleRemove.js
-    rollbackWidgetBaseOperation.js
-    normalizeDispatchResult.js
+  __orchestratorWidgetBase.js   # shim: re-exports index.js (path kept for KDB.js)
+  index.js            # createWidgetBaseController: mount/dispatch/destroy, ROUTES table, drop/tabs subscriptions, startup route-all
+  config.js           # launchpad channels, skip reasons, chart types, writeback titles, host widget id, labels
+  state.js            # ACTION_TYPES, initial state, frame reducer, normalizeDispatchResult
+  state/selectors.js  # published read selectors (readWidgetBaseState, readFrame, readWidgetsByTab, readCanvasWidgetsByTab, readPlacement, readAllWidgetIds)
+  runtime.js          # ensureWidgetBaseRuntime, ensureWidgetBaseWidgetRuntime
+  launchpadRoute.js   # resolveLaunchpadRoute (descriptor -> kind/role/pad, skip reasons), resolveClaimedWidget, readPadShellEligibility
+  discovery.js        # discoverCanvasWidgets: canvas item scan, descriptors, ownership/shell checks
+  canvas.js           # drop workflow (handleDropCreate), remove, colour, move/resize and move-mode handlers, rollbackWidgetBaseOperation
+  launchpadTransfer.js# routeToLaunchpad / takeFromLaunchpad handlers and pre-transfer cleanup
+  tabWidgets.js       # routeAllToLaunchpad, ensureTabWidgetsRouted, renderTabWidgetsRequested
+  restore.js          # parameterSetReset / parameterSetRestore handlers
+  history.js          # widget_* history frames and the replay handler
+  effects.js          # content-owner dispatch (create/dispose/ensureObservers/placeControls), host layout and colour writes
   view/
-    resolveWidgetShell.js
-    resolveLaunchpadSlotElement.js
-    placeWidgetOnCanvas.js
-    moveWidgetToLaunchpad.js
-    applyWidgetLayout.js
-    applyWidgetColour.js
-  effects/
-    subscribeDropValidated.js
-    dispatchContentCreate.js
-    dispatchContentCreateShared.js
-    commitWidgetBaseHistory.js
-    discoverCanvasWidgets.js
-    cleanupWidgetRuntime.js
-  history/
-    createWidgetBaseHistoryReplayHandler.js
-    applyWidgetBaseCanvasDropHistoryReplay.js
-    applyWidgetBaseLaunchpadTransferHistoryReplay.js
+    resolveWidgetShell.js  # shell lookup and claim (frozen external path)
+    placement.js           # canvas/dropbox placement, layout styles
+    colour.js              # effective colour resolution and sync
+  interaction/
+    interactionRuntime.js  # per-widget interaction runtime, grid overlay, min sizes
+    move.js                # jQuery UI draggable binding and move gesture
+    resize.js              # jQuery UI resizable binding and resize gesture
+    pointerGeometry.js     # CSS length parsing, DOM layout read, pointer/axis geometry
+  slotStock/               # tab-mutation rebuild on destination slot stock (see tabs contract)
+    prepare.js             # prepareTabMutation: plan the rebuild/rollback rows
+    guard.js               # runId guard and frame snapshots (tabMutationSnapshots)
+    serialize.js           # serialize live widget frames per tab
+    placeEntries.js        # place restored entries on slot stock (content create dispatch)
+    apply.js               # applyTabMutation: duplicate/delete/restore/move variants
+    rollback.js            # restoreTabMutationSnapshot
 ```
 
-**As-built 2026-08-16:** `effects/dispatchContentCreateShared.js` holds shared `resolveMetricByCode`, content-owner API lookup by kind, and `dispatchContentAction`; public wrappers `dispatchContentCreate.js` (drop) and `dispatchRestoreContentCreate.js` (restore) remain the caller import paths and own their action payloads and return shapes.
-
-No `events/eventNames.js` is created because `widgetBase` emits no events in this tranche.
+`widgetBase` emits no events and has no `events/` folder.
 
 ## 17. Bootstrap Registration
 
@@ -786,7 +770,7 @@ These are not optional implementation details:
 - `architecture/eventSubscribe.md`: name `widgetBase` as subscriber of `canvas:dropValidated`.
 - `contracts/dragDrop.md`: document `widgetBase` as the owner that completes validated drops.
 - `contracts/launchpad.md` / launchpad execution spec: ensure five per-tab pads exist in production (`text`, `visualization`, `dataTables`, `topN`, `otherResources`), `readLaunchpadSlotMeta` supports them, and `launchpad/readSlotWidgets` returns ordered widget-id metadata without eligibility or shell refs.
-- `KDB3/js/dashboard/launchpad/config/padConfig.js`: update during launchpad implementation/tranche before widgetBase production routing can run.
+- `KDB3/js/dashboard/launchpad/config.js` (pad configuration): update during launchpad implementation/tranche before widgetBase production routing can run.
 - `KDB3/js/core/cognosAPI/canvas.js`: either expose a rule-aligned `setLayoutPosition(widgetId, layout)` wrapper or approve DOM-only placement as a temporary integration limitation before CP-2 accepts move/resize/drop layout confirmation.
 
 ## 19. Out Of Scope

@@ -35,7 +35,7 @@ None in tranche 1.
 Read-only data access via `tableData`; List rendering managed through the binding services when used as a TopN helper (driven by `widgetTopN`).
 
 ## 9. Folder Layout
-`config/ state/ effects/ createWidgetDataTableController.js __orchestratorWidgetDataTable.js`.
+As built: two files. `index.js` (`registerWidgetDataTable`, the whole module) and `__orchestratorWidgetDataTable.js` (shim over `index.js`, kept for `KDB.js`). There is no `config/`, `state/` or `effects/` folder.
 
 ## 10. Out Of Scope
 - A first-class interactive grid widget (future extension; not this tranche).

@@ -6,7 +6,7 @@ The 2026-06 `widgetSettings` behavior-preserving cleanup round (tranches 1–4 +
 
 Delivered in that tranche:
 
-- monolith splits (`dispatchWidgetSettingsIntent.js` 490→106, `handleSeedDefaults.js` 399→127, panel/placement under 120);
+- monolith splits (`dispatchWidgetSettingsIntent.js` 490→106, `dashboard/widgets/widgetSettings/seed.js` (`handleSeedDefaults`) 399→127, panel/placement under 120);
 - shared helpers (`resolvePanel`, `resolveRenderRoot`, `closeVisibleDropdowns`, `seedDefaultsApplyResults`, `resolveCanonicalVisOptionValue`, `dropdownPopulateHelpers`, `configuredDefaultOptionUtils`, etc.);
 - controller import reduction (12→6 via `routeWidgetSettingsDispatch.js`);
 - dead code removal (empty `domBoundary` / `historyBoundary` / `viewBoundary`, unused `noopDispatchEffect.js`);
@@ -31,7 +31,7 @@ Do **not** implement opportunistically. Each item needs explicit approval and, w
 
 ### S2 — `cloneState` vs cross-widget `cloneSerializable`
 
-**Current:** `state/cloneState.js` duplicates the JSON deep-clone pattern used in `widgetBase/state/cloneSerializable.js`. Inline `cloneSerializable` also exists in `commitWidgetSettingValue.js`.
+**Current:** `state/cloneState.js` duplicates the JSON deep-clone pattern used in `widgetBase/state/cloneSerializable.js`. Inline `cloneSerializable` also exists in `dashboard/widgets/widgetSettings/state.js` (`commitWidgetSettingValue`).
 
 **Risk:** silent catch returns `undefined` (`cloneState`) vs raw value (`commitWidgetSettingValue`) — behavior differs on non-serializable input.
 
@@ -67,7 +67,7 @@ Do **not** implement opportunistically. Each item needs explicit approval and, w
 
 ### S7 — Soft-band file trims (127–135 lines)
 
-**Current largest files:** `orchestrateResetToLaunchpad.js` (135), `buildWidgetVisSettingsSnapshot.js` (127), `handleSeedDefaults.js` (127), `configuredDefaultOptionUtils.js` (125).
+**Current largest files:** `dashboard/widgets/widgetSettings/intent/resetToLaunchpad.js` (`orchestrateResetToLaunchpad`) (135), `buildWidgetVisSettingsSnapshot.js` (127), `dashboard/widgets/widgetSettings/seed.js` (`handleSeedDefaults`) (127), `configuredDefaultOptionUtils.js` (125).
 
 **Note:** all within hard limit (150). Further splits are cosmetic unless a file grows again.
 
@@ -109,7 +109,7 @@ Several new helper modules return `{ fnA, fnB }` instead of a single export. Opt
 
 ### Import-count watch
 
-`finalizeVisIntentResult.js` and `dispatchWidgetSettingsIntent.js` approach 7–8 imports after splits — still under 10; monitor on next feature tranche.
+`dashboard/widgets/widgetSettings/intent/finalize.js` (`finalizeVisIntentResult`) and `dispatchWidgetSettingsIntent.js` approach 7–8 imports after splits — still under 10; monitor on next feature tranche.
 
 ---
 
@@ -117,7 +117,7 @@ Several new helper modules return `{ fnA, fnB }` instead of a single export. Opt
 
 - Changing publieke API, state shape, events or dispatch action names without contract update.
 - Renaming British `colour` / `COMMIT_COLOUR` to US English without project-wide widget vocabulary pass.
-- Moving `warnedMissingApi` factory-closure in `dispatchToTargetApi.js` to `_KDB.runtime` (would change warning suppression behavior).
+- Moving `warnedMissingApi` factory-closure in `dashboard/widgets/widgetSettings/intent/downstream.js` (`dispatchToTargetApi`) to `_KDB.runtime` (would change warning suppression behavior).
 - Editing `.cursor/rules/` or authority docs as part of this follow-up.
 - Legacy tree reads/edits (`_______REDESIGN2/`, `_______KDB3/`, `TEST/`).
 

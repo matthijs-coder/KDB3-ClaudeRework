@@ -17,7 +17,7 @@ Reference contracts for the KDB3 modules and services. One living contract per m
 - [`historyControls.md`](historyControls.md): Undo/redo toolbar controls.
 - [`historyService.md`](historyService.md): Undo/redo history service.
 - [`kdbControl.md`](kdbControl.md): KDB control panel.
-- [`kennzahlenTree.md`](kennzahlenTree.md): Kennzahlen (metrics) tree.
+- [`metricsTree.md`](metricsTree.md): Kennzahlen (metrics) tree (as built; the original `kennzahlenTree` draft is in `_archive/`).
 - [`launchpad.md`](launchpad.md): Launchpad module.
 - [`loadingService.md`](loadingService.md): Loading overlay service.
 - [`messageService.md`](messageService.md): Shared user-messaging service (toasts).
@@ -68,4 +68,4 @@ These stay in place because JS comments or living contracts cite them. Move them
 
 ## Other files kept in place
 
-- `futureTodo/`: open backlog and future-todo notes. Closed or superseded notes, hand-off prompts and the retired `_template.md` / `_executionSpecTemplate.md` templates are in `_archive/`.
+- `futureTodo/`: open backlog and future-todo notes. Closed or superseded notes (including the Phase 1-obsolete cleanup backlogs in `_archive/futureTodo-cleanup-backlogs/`), hand-off prompts and the retired `_template.md` / `_executionSpecTemplate.md` templates are in `_archive/`.

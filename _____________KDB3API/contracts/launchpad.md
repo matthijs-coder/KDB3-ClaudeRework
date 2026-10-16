@@ -19,7 +19,7 @@
 Source:
 
 ```txt
-_______KDB3/KDB3/js/dashboard/launchpad/
+legacy:js/dashboard/launchpad/
 ```
 
 Target after CP-1 and execution-spec approval:
@@ -36,11 +36,11 @@ Rule-alignment decision from CP-1 discussion: `launchpad` is the environment own
 
 | Legacy file | Evidence used |
 |---|---|
-| `_______KDB3/KDB3/js/dashboard/launchpad/__orchestratorLaunchpad.js` | Startup sequence: ensure state, resolve tabs, build/place DOM, settle readiness, subscribe to legacy widget/property signals, route widgets. |
+| `legacy:js/dashboard/launchpad/__orchestratorLaunchpad.js` | Startup sequence: ensure state, resolve tabs, build/place DOM, settle readiness, subscribe to legacy widget/property signals, route widgets. |
 | `ensureLaunchpadState.js` + `core/bootstrap/statePromises/initializeLaunchpadState.js` | Legacy launchpad state fields and rule violations: runtime promise and subscriptions live in state and must move to `_KDB.runtime.launchpad`. |
 | `getLaunchpadPadConfig.js` | Canonical **legacy** pad keys and host ids: `visualization`, `text`, `dataTables`, `shapes`. Production target streamlines these — see the pad-label note in §10. |
 | `getLaunchpadTabDescriptors.js`, `collectLaunchpadTabIndexes.js`, `buildLaunchpadTabsFromState.js`, `buildLaunchpadTabsFromConfig.js`, `buildLaunchpadTabsFromCanvas.js`, `buildLaunchpadTabDescriptor.js`, `resolveLaunchpadHelperTabs.js` | Tab descriptor discovery from legacy `_KDB.state.tabs`, `_KDB.config.tabs`, Cognos canvas content, and helper-tab metadata; target reads tabs only through a published tabs API/selector when available. |
-| `buildLaunchpadDom.js`, `placeLaunchpadDom.js`, `appendWidgetToLaunchpadSlot.js`, `findLaunchpadSlotMeta.js`, `resolveLaunchpadTabGenericPage.js` | Launchpad DOM structure, hidden host, pad containers, slot metadata, and selector shape. |
+| `dashboard/launchpad/view.js` (`buildLaunchpadDom`), `dashboard/launchpad/view.js` (`placeLaunchpadDom`), `appendWidgetToLaunchpadSlot.js`, `findLaunchpadSlotMeta.js`, `resolveLaunchpadTabGenericPage.js` | Launchpad DOM structure, hidden host, pad containers, slot metadata, and selector shape. |
 | `routeAllWidgetsToLaunchpad.js`, `sendWidgetToLaunchpad.js`, `takeWidgetFromLaunchpad.js`, `takeAllWidgetsFromLaunchpad.js`, `cleanLaunchpadWidget.js`, `setLaunchpadWidgetPlacement.js` | Legacy widget movement and widget-state writes; these are not owned by launchpad under the new rules and are deferred to a future `widgets` owner tranche. |
 | `subscribeHideWidgetsToggle.js`, `subscribeLaunchpadWidgetSend.js`, `core/events/launchpad.js`, `core/events/widgetProperties.js` | Legacy event/request wiring; rule-alignment replaces known-owner widget movement with direct `widgets` API/dispatch in a later tranche. |
 
@@ -48,7 +48,7 @@ Production evidence:
 
 - `_____________KDB3API/KDB3/js/dashboard/launchpad/` does not exist yet.
 - `_____________KDB3API/KDB3/js/KDB.js` currently does not import, register, mount, or destroy `launchpad`.
-- `_____________KDB3API/KDB3/js/core/properties/applyHideWidgetsToggleChange.js` already documents that launchpad integration is deferred when `_KDB.api.launchpad` is unavailable.
+- `_____________KDB3API/KDB3/js/core/properties/developerMode.js` (`setHideWidgetsToggle`) now only mirrors `KDBHideWidgetsToggle` onto the developer-mode class; it does not route to launchpad.
 - A production `widgets` module/API is not present in this tranche, so widget movement integration is deferred.
 
 ## 2. Purpose
@@ -237,11 +237,10 @@ Published selectors from `launchpad/state/selectors.js`:
 |---|---|---|
 | `readLaunchpadState(_KDB)` | `_KDB.state.launchpad` | Full owner subtree snapshot. |
 | `readLaunchpadReady(_KDB)` | `lifecycle`, `domReady` | Boolean readiness projection. |
-| `readLaunchpadTabs(_KDB)` | `tabs` | Ordered tab descriptor copy. |
-| `readLaunchpadHelperTabIds(_KDB)` | `helperTabIds` | Helper tab id copy. |
+| `readLaunchpadSlots(_KDB, padKey, tabId?)` | `padsByKey[padKey]` | Slots of one pad (live array copy); with `tabId` only slots whose `tabId` or alias matches. |
 | `readLaunchpadSlotMeta(_KDB, padKey, tabId)` | `padsByKey[padKey]` | Slot metadata for a tab id / alias, or `undefined`. |
 
-Internal mutation style: reducer plus focused pure builders. No public writer helpers.
+`tabs` and `helperTabIds` stay in the owner state subtree but have no published selector (read them through `readLaunchpadState`). Internal mutation style: reducer plus focused pure builders. No public writer helpers.
 
 Action names:
 
@@ -319,43 +318,21 @@ Other modules must not read `_KDB.runtime.launchpad.domRefs`. A future `widgets`
 
 ## 11. Folder Layout
 
-Production target after CP-1 and execution-spec approval:
+As built after the Phase 1 module-template rework (8 files):
 
 ```txt
 KDB3/js/dashboard/launchpad/
-  __orchestratorLaunchpad.js
-  createLaunchpadController.js
-  config/
-    domSelectors.js
-    padConfig.js
-  state/
-    initialState.js
-    createLaunchpadReducer.js
-    selectors.js
-    collectLaunchpadTabIndexes.js
-    buildLaunchpadTabDescriptors.js
-    buildLaunchpadTabDescriptor.js
-    buildLaunchpadTabsFromState.js
-    buildLaunchpadTabsFromConfig.js
-    buildLaunchpadTabsFromCanvas.js
-    resolveLaunchpadHelperTabs.js
-    readLaunchpadTabSources.js
-  effects/
-    readSlotWidgets.js
-    resolveSlotWidgetElement.js
-  view/
-    buildLaunchpadDom.js
-    placeLaunchpadDom.js
-    readLaunchpadDomSelectors.js
-    resolveLaunchpadOwnerDocument.js
-    shouldKeepExistingHideSpot.js
-    syncLaunchpadRuntimeDomRefs.js
-    removeLaunchpadDom.js
+  __orchestratorLaunchpad.js  # shim: re-exports index.js (path kept for KDB.js)
+  index.js              # registerLaunchpad: controller, mount/dispatch/destroy, readiness
+  config.js             # DOM_SELECTORS (published as _KDB.elements.selectors.launchpad), PAD_CONFIG (five pads), ACTION_TYPES
+  state.js              # initial state and reducer (mountStarted/Succeeded/Failed, destroy)
+  state/selectors.js    # published selectors (frozen external path, read by widgetBase)
+  buildLaunchpadTabs.js # tab descriptors from state / config / canvas and helper tabs
+  effects.js            # readSlotWidgets (slot widget ids per tab), hide-spot lookup
+  view.js               # launchpad DOM build/place, hide-spot keep/replace, owner document, runtime DOM refs
 ```
 
-As-built (2026-08-17): `placeLaunchpadDom.js` remains the public AMD path. Keep/replace, owner-document, selector fallback, and runtime-ref sync live in sibling view files. `buildLaunchpadTabDescriptors.js` and `readSlotWidgets.js` remain public AMD paths; tab-source reads and slot-element resolve live in sibling state/effects files.
-
-No `events/eventNames.js` is created in this tranche because `launchpad` emits no fact-events.
+`launchpad` emits no fact-events and has no `events/` folder.
 
 ## 12. Bootstrap Registration
 

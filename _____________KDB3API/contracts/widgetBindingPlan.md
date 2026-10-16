@@ -604,38 +604,32 @@ No dependencies on:
 
 ## 17. Folder Layout
 
+As built after the Phase 1 module-template rework:
+
 ```txt
 KDB3/js/core/services/widgetBindingPlan/
-  __orchestratorWidgetBindingPlan.js
-  createWidgetBindingPlanService.js
-  buildPlan.js
-  config/
-    slotNames.js
-  diagnostics/
-    createPlanDiagnostics.js
-    createPlanFailure.js
-    createPlanSuccess.js
-  parsing/
-    parseTopNOption.js
+  __orchestratorWidgetBindingPlan.js  # shim: re-exports index.js (path kept for __orchestratorServices.js)
+  index.js            # registerWidgetBindingPlan: service registration
+  config.js           # ALL_SLOT_NAMES, default empty/reset intents
+  buildPlan.js        # buildPlan: spec validation, canonical vis type, plan assembly
+  planIntent.js       # empty/reset intent resolution, slotsChanged, cleanup-with-reset rules
+  planResult.js       # plan diagnostics, success/failure results, vis reset-only plan, mirror patch
+  parseTopNOption.js  # TopN option parsing
   slots/
-    buildSlotPlan.js
-    resolveSlotColumnIds.js
-    resolveSlotSortSpecs.js
+    buildSlotPlan.js        # active slot collection, top/bottom option, required slots
+    resolveSlotColumnIds.js # column id resolution per slot (hierarchy injection)
+    resolveSlotSortSpecs.js # sort specs from dataTableConfig.sorting and captionAscending
+    slotComposition.js      # dimension/hierarchy slot composition policy
   filters/
-    buildLocalFilters.js
-    resolveFilterItemId.js
-    buildTopNFilter.js
-    buildHierarchyFilter.js
-  mirror/
-    buildMirrorPatch.js
-  utils/
-    cloneSerializable.js
+    buildLocalFilters.js    # widget filters, Kennzahl defaults
+    filterItemIds.js        # filter item id resolution (uses core/utils/rewriteUniqueNameSourceToken.js)
+    buildTopNFilter.js      # TopN filter
+    buildHierarchyFilter.js # hierarchy filter and downstream display-value sanitising
+  defaults/
     normalizeDefaultValue.js
-    rewriteUniqueNameSourceToken.js
-    sanitizeWidgetDownstreamDisplayValues.js
 ```
 
-No `state/`, `view/`, `effects/`, `events/` or `adapters/` folders are created because the service owns no state, DOM, effects, emitted events or host adapter.
+The service owns no state, DOM, emitted events or host adapter, so there are no `state/`, `view/`, `effects/`, `events/` or `adapters/` folders.
 
 ## 18. Bootstrap And Integration
 
@@ -681,7 +675,7 @@ Rules:
 
 - Generic cleanup / force-empty uses enabled `emptyIntent` and produces semantic emptying (`emptyData/forceEmpty` descriptor, `slotsChanged:false`).
 - Settings-delete cleanup uses disabled `emptyIntent` plus enabled vis reset intent; the planner short-circuits to a reset-only full clear (`slotsChanged:true`, `slotsToClear:["all"]`, `slots:[]`, `localFilters:[]`, `managedFilterItemIds:[]`, `mirrorPatch:{}`) without slot/filter rebuild.
-- `widgetVis.buildBindingSpec.js` must output the canonical `BindingPlanSpec`; it must not pass its internal `settings`, `dataIdentity`, `changeReason` or `topNResult` shapes through to the service boundary.
+- `widgetVis/binding/spec.js` (`buildBindingSpec`) must output the canonical `BindingPlanSpec`; it must not pass its internal `settings`, `dataIdentity`, `changeReason` or `topNResult` shapes through to the service boundary.
 - `widgetVis` resolves or receives `dataConfig.datasourceId` before calling `buildPlan`.
 - `widgetVis` passes previous managed-filter ids to `widgetBindingApply`, not to `widgetBindingPlan`.
 - `widgetVis` may use `BindingPlan.emptyIntent` or the `emptyData/forceEmpty` descriptor to distinguish intentional empty from no-data/error diagnostics.

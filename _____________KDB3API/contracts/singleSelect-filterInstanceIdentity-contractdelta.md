@@ -744,7 +744,7 @@ branches and must not grow that file further.
 
 **As-built 2026-08-16:** `effects/writeVerifiedSelection.js` added (shared Cognos
 write/verify/rollback primitive). `effects/writeAndVerifyInstanceSelection.js`
-remains the tabMutation/history wrapper; `actions/applyOwnerSelection.js` remains
+remains the tabMutation/history wrapper; `dashboard/filters/singleSelect/commit/ownerSelection.js` (`applyOwnerSelection`) remains
 the sicht-delegation entry (both call the primitive).
 
 ## 15. Acceptance

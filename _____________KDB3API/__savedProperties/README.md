@@ -2,14 +2,14 @@
 
 Paste sources for the Cognos property panel. Each file is `const x = JSON.stringify({...})`: paste the resulting string into the property field with the same id (the field ids are declared in `../KDB3/spec.json`). **No code imports these files**; the runtime reads the pasted values from the Cognos properties (`core/properties/`). `core/config/mapping/parameterMap.js:5` cites this folder by path, so keep the folder where it is.
 
-| File | In `spec.json` | Runtime key (`core/properties/config/getObjectPropertyDefinitions.js`) | Note |
+| File | In `spec.json` | Runtime key (`core/properties/propertyDefinitions.js`) | Note |
 |---|---|---|---|
 | `loadingTablesPropId.js` | yes | `loadingTablesPropObj` | Array of table names (not an object). |
 | `kennzahlenTablesPropId.js` | yes | `kennzahlenTablesPropObj` | |
-| `kennzahlenTreePropId.js` | yes | `kennzahlenTreePropObj` | |
+| `kennzahlenTreePropId.js` | yes | `kennzahlenTreePropObj` | `dashboard/metricsTree/catalog.js` reads `properties.metricsTreePropObj`, not this key (see `contracts/metricsTree.md`). |
 | `filterPropId.js` | yes | `filterPropObj` | |
-| `textWidgetPropId.js` | yes | `textWidgetPropObj` | Also read by `settingsDimensionConfig.js`. |
-| `visualizationsPropId.js` | yes | `visualizationsPropObj` | Also read by `settingsDimensionConfig.js`. |
+| `textWidgetPropId.js` | yes | `textWidgetPropObj` | Also read for default widget dimensions (`widgetBase/view/placement.js`, `dragDrop/avatar.js`). |
+| `visualizationsPropId.js` | yes | `visualizationsPropObj` | Also read for default widget dimensions (`widgetBase/view/placement.js`, `dragDrop/avatar.js`). |
 | `visualizationsDataPropId.js` | yes | `visualizationsDataPropObj` | |
 | `linePropId.js` | yes | `linePropObj` | |
 | `piePropId.js` | yes | `piePropObj` | |

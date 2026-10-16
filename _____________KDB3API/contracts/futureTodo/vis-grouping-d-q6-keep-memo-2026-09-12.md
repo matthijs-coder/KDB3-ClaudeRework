@@ -128,5 +128,5 @@ Army sources: collect `46e2bada`; schema `a2662153`; tokens `c5bfcd45`; Q6 draft
 3. Validate: closed five-token special-case (like `vals` 0\|1). `"inherit"` is not a normalize sentinel. Per-vis allowlist in **schema** = overdesign / do not `WRITEBACK_INVALID` the whole payload.
 4. Restore order: `grp` after `type`, before stamp. Do not touch `showValues`.
 5. Do **not** copy `assignOptionalString` or `commitRequiredSetting` (that is Q6-B / Family B).
-6. No `groupingMeta` v3 field. No snapshot / chrome / overlay / `KDB.js` / `bindWidgetSettingsPanel.js` / stamp F edit. `SCHEMA_VERSION` stays 3. v2 omit `grp`. `newDashboard` inherit.
+6. No `groupingMeta` v3 field. No snapshot / chrome / overlay / `KDB.js` / `dashboard/widgets/widgetSettings/view/panelEvents.js` (`bindWidgetSettingsPanel`) / stamp F edit. `SCHEMA_VERSION` stays 3. v2 omit `grp`. `newDashboard` inherit.
 7. E later: `vals` KEEP-all-vis vs `grp` KEEP-specialize — document, do not unify.

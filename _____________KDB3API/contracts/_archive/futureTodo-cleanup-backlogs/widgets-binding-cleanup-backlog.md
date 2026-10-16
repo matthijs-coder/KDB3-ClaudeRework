@@ -24,7 +24,7 @@ No contract updates were required for either module.
 |---|---|---|---|
 | Filter value normalization unification | `filters/filterValueHelpers.js`, `filters/buildTopNFilter.js`, `filters/buildHierarchyFilter.js` | **High** | TopN accepts more field aliases and different empty coercion (`""` vs `null`) than helpers. Requires behavioral matrix before merge. |
 | `resolveFilterMode` extract | `filters/buildLocalFilters.js` (129 lines) | Low | Dedupe widget / kennzahl / dimension mode resolution; no API change. |
-| Failure/success envelope dedupe | `diagnostics/createPlanFailure.js`, `diagnostics/createPlanSuccess.js` | Medium | Asymmetric clone of `datasource`/`visualization` on failure may be intentional. |
+| Failure/success envelope dedupe | `core/services/widgetBindingPlan/planResult.js` (`createPlanFailure`), `core/services/widgetBindingPlan/planResult.js` (`createPlanSuccess`) | Medium | Asymmetric clone of `datasource`/`visualization` on failure may be intentional. |
 | `rewriteUniqueNameSourceToken` → core util | `utils/rewriteUniqueNameSourceToken.js` vs `KDB3/js/core/utils/` | Medium | Plan fork adds optional `_sourceToken` guard; contract §16 keeps plan-local pure ports. |
 | `cloneSerializable` → shared core util | `utils/cloneSerializable.js` | Medium | Catch returns original ref vs `undefined` elsewhere — verify parity first. |
 
@@ -36,7 +36,7 @@ No contract updates were required for either module.
 | `normalizeValueEntry` ↔ plan chain | `effects/filterBodyHelpers.js` vs `widgetBindingPlan/filters/buildTopNFilter.js` | **High** | Same as plan-side normalization item; do once for both services. |
 | Hoist keepexclude / display-type to `cognosAPI` | `buildKeepexcludeConditionsFilterObj.js`, `createCognosBindingFilterMethods.js` | **High** | Currently facade-local legacy ports. Hoist only when KDB3 cognosAPI surface is canonical and approved. |
 | Remove dead `exclude` override in operator builder | `effects/operatorFilterBodies.js` | Low–Medium | `exclude: options.exclude !== false` passed to `buildKeepexcludeOptions`; builder may ignore it — verify before delete. |
-| Mechanische try/catch on pure filter helpers | `filterBodyHelpers.js`, `buildKeepexcludeConditionsFilterObj.js` | Low | Rule compliance only; large diff, no functional win. |
+| Mechanische try/catch on pure filter helpers | `filterBodyHelpers.js`, `core/services/widgetBindingApply/filterBody/keepexcludeConditions.js` (`buildKeepexcludeConditionsFilterObj`) | Low | Rule compliance only; large diff, no functional win. |
 | Trim files slightly above 120 target | `runApplySlotsFiltersPhase.js`, `runApplyBindingRenderSteps.js`, `operatorFilterBodies.js` | Low | Under 150 hard limit; split only if readability still poor. |
 | Complete `applyBindingStepBundle` barrel | `effects/applyBindingStepBundle.js` | Low | Omitting middle/phase imports is intentional wiring; document or complete — no behavior change either way. |
 | `createCognosBindingFacade` dual API access | `effects/createCognosBindingFacade.js` | Medium | Slots/filters via dashboard API vs vis/render via `_KDB.cognosAPI`; clarify ownership before refactor. |

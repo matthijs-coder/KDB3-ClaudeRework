@@ -8,7 +8,7 @@ Snapshot per item: `{ itemId, itemName, sourceId, values: [{ d, u }] }` keyed un
 `byScope[scopeId]` (scopeId is the map key, not a field on the item).
 
 Saga-wiring: add `pageContextPlain` to prepare, filterApply, **all three hardcoded
-rollback sites**, and hostResync in `runTabMutationSaga.js`, plus
+rollback sites**, and hostResync in `dashboard/tabs/tabMutation/saga.js` (`runTabMutationSaga`), plus
 `dispatchOwnerTabMutation.buildOwnerPayload`.
 
 ## Aanleiding (pariteitsregressie, geen nice-to-have)
@@ -25,7 +25,7 @@ toegevoegde Cognos-filters zonder KDB-config, multi-select) volledig:
 KDB3 doet er niets mee:
 - Classificatie: items zonder `filterPropObj`-config of met
   `isSingleSelect: false` → `unknown`, alleen `HOST_ITEM_UNKNOWN`-diagnostic
-  (`classifyFilterInstance.js` r29-46, `enumerateFilterInstances.js` r95-101).
+  (`dashboard/filters/singleSelect/inventory/definitions.js` (`classifyFilterInstance`) r29-46, `dashboard/filters/singleSelect/inventory/enumerate.js` (`enumerateFilterInstances`) r95-101).
 - Writeback v3 heeft geen bucket (writeback.md §4.3; pariteittabel:
   "unsupported tranche 1").
 - Tab-mutaties: ownerset is widgetBase/singleSelect/dienststelle — kale
@@ -44,7 +44,7 @@ Nieuwe kleine sub-owner `_KDB.state.filters.pageContextPlain`:
   géén reconcile nodig — zelfde eigenschap als dienststelle).
 - ScopeId-resolutie uitsluitend via `tabs/resolveFilterScopeTargets`.
 - Saga-wiring: owner toevoegen aan de drie ownerlijsten in
-  `runTabMutationSaga.js` (prepare r28, filterApply r31, hostResync r43).
+  `dashboard/tabs/tabMutation/saga.js` (`runTabMutationSaga`) (prepare r28, filterApply r31, hostResync r43).
 - Host-primitieven bestaan al: `getPageContextItemsArr(true)`,
   `getFilterValues`, `replaceFilterContext`.
 

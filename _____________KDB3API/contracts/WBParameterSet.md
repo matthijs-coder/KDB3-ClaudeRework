@@ -22,9 +22,9 @@ _____________KDB3API/contracts/_archive/dienststelle-port-execution-spec.md
 
 During the initial Dienststelle direct port, hierarchy validation was implemented in normal effect paths:
 
-- `effects/isDienststelleValueAvailable.js` read rows from `dienststelle_bw_hierarchy` / `dienststelle_dezpv_hierarchy` and matched a candidate value by `useValue` or `displayValue`.
-- `effects/applyDienststelleDefault.js` called that helper before applying a default via Cognos `replaceFilterContext`.
-- `effects/reconcileConfirmedDienststelle.js` waited for both the default table and the hierarchy table to reach lifecycle `ready` before reconcile proceeded.
+- (former `isDienststelleValueAvailable.js`; folded into `effects/reconcile/defaults.js`) read rows from `dienststelle_bw_hierarchy` / `dienststelle_dezpv_hierarchy` and matched a candidate value by `useValue` or `displayValue`.
+- (former `applyDienststelleDefault.js`, now `applyDefault` in `effects/reconcile/defaults.js`) called that helper before applying a default via Cognos `replaceFilterContext`.
+- (former `reconcileConfirmedDienststelle.js`, now `effects/reconcile/runReconcile.js`) waited for both the default table and the hierarchy table to reach lifecycle `ready` before reconcile proceeded.
 
 ## 2. Problem that motivated removal
 
@@ -51,7 +51,7 @@ Hierarchy validation against `dienststelle_*_hierarchy` must **not** run in:
 
 Normal default apply reads only from `dienststelle_*_default` and writes through Cognos when a filter API is available. Reconcile waits only on the active default table key, not the hierarchy table key.
 
-`hierarchyTableKey` remains in `dienststelleDefinitions.js` and owner state metadata for future `WBParameterSet` use. No broad cleanup of hierarchy metadata is required in CP-3.
+`hierarchyTableKey` remains in `dienststelle/config.js` (`DEFINITIONS`) and owner state metadata for future `WBParameterSet` use. No broad cleanup of hierarchy metadata is required in CP-3.
 
 ## 4. Deferred scope — where validation belongs later
 
