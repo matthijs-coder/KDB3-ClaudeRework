@@ -1,12 +1,12 @@
 define([
   "../../schema/errorCodes.js",
-  "./restoreRunGuards.js",
+  "./runGuards.js",
   "../state/ensureWritebackRuntime.js",
   "./finalizeSingleSelectRun.js",
   "./restoreAbortActiveTab.js"
 ], function (
   _errorCodes,
-  _restoreRunGuards,
+  _runGuards,
   _ensureWritebackRuntime,
   _finalizeSingleSelectRun,
   _restoreAbortActiveTab
@@ -27,7 +27,7 @@ define([
     let cleanupDegraded = false;
     if (historyBegun) {
       try {
-        _restoreRunGuards.historyFinishGuarded(_KDB, run, outcome, baseline);
+        _runGuards.historyFinishGuarded(_KDB, run, outcome, baseline);
       } catch (historyError) {
         cleanupDiagnostics.push(_errorCodes.makeDiagnostic(
           _errorCodes.codes.WRITEBACK_HISTORY_GUARD_FAILED,
@@ -72,7 +72,7 @@ define([
     }
     if (loadingStarted) {
       try {
-        _restoreRunGuards.finishLoadingGuarded(_KDB, run);
+        _runGuards.finishLoadingGuarded(_KDB, run);
       } catch (loadingError) {
         cleanupDiagnostics.push(_errorCodes.makeDiagnostic(
           _errorCodes.codes.WRITEBACK_HISTORY_GUARD_FAILED,

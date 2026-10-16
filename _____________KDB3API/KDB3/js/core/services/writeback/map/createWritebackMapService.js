@@ -4,7 +4,8 @@ define([
   "../schema/validateV3.js",
   "../schema/errorCodes.js",
   "./adapters/mapV2ToV3.js",
-], function (_detectSourceFormat, _normalizeV3, _validateV3, _errorCodes, _mapV2ToV3) {
+  "../../../utils/kit/errors.js",
+], function (_detectSourceFormat, _normalizeV3, _validateV3, _errorCodes, _mapV2ToV3, _kitErrors) {
   "use strict";
 
   function runTerminalPipeline(_v3, _diagnostics) {
@@ -23,11 +24,10 @@ define([
 
   function createWritebackMapService(deps) {
     const _KDB = deps._KDB;
-    let _isDisposed = false;
+    const guard = _kitErrors.createDisposedGuard("writebackMap");
 
     function toV3(raw, _options) {
-      if (_isDisposed) {
-        console.warn("[writebackMap.toV3] called after destroy");
+      if (guard.blocked("toV3")) {
         throw _errorCodes.createWritebackError(
           _errorCodes.codes.WRITEBACK_RESTORE_CANCELLED,
           "map",
@@ -57,7 +57,6 @@ define([
         if (error && (error.name === "WritebackError" || error.diagnostic)) {
           throw error;
         }
-        console.error("[writebackMap.toV3] failed", error);
         throw _errorCodes.createWritebackError(
           isV3Path
             ? _errorCodes.codes.WRITEBACK_INVALID_V3_PAYLOAD
@@ -70,7 +69,7 @@ define([
     }
 
     function destroy() {
-      _isDisposed = true;
+      guard.dispose();
     }
 
     return { toV3: toV3, destroy: destroy };

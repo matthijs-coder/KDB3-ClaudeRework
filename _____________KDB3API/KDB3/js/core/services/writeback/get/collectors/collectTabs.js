@@ -1,8 +1,8 @@
 define([
   "../../schema/errorCodes.js",
-  "../../../../../dashboard/tabs/config/defaults.js",
   "../../../../../dashboard/tabs/state/selectors.js",
-], function (_errorCodes, _defaults, _tabsSelectors) {
+  "./collectorSupport.js",
+], function (_errorCodes, _tabsSelectors, _support) {
   "use strict";
 
   // GET collector for v3 `tabs` per contracts/writeback.md §4.4 and
@@ -45,19 +45,7 @@ define([
     const order = Array.isArray(state.order) ? state.order : [];
     return order
       .map(function (index) { return state.byIndex[String(index)]; })
-      .filter(function (tab) { return isDashboardTab(tab, state); });
-  }
-
-  function isDashboardTab(tab, state) {
-    if (!tab) {
-      return false;
-    }
-    if (tab.role) {
-      return tab.role === "dashboard";
-    }
-    const maxUserTabs = state.limits && typeof state.limits.maxUserTabs === "number"
-      ? state.limits.maxUserTabs : _defaults.MAX_USER_TABS;
-    return tab.isHelper !== true && tab.index < maxUserTabs;
+      .filter(function (tab) { return _support.isDashboardTab(tab, state); });
   }
 
   return collectTabs;

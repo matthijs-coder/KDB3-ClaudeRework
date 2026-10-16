@@ -1,4 +1,4 @@
-define(["../config/headerIconKeys"], function (_iconKeys) {
+define(["../config.js"], function (_config) {
   "use strict";
   function readHeaderStatus(_KDB) {
     var h = _KDB && _KDB.state && _KDB.state.header;
@@ -24,17 +24,9 @@ define(["../config/headerIconKeys"], function (_iconKeys) {
     var h = _KDB && _KDB.state && _KDB.state.header;
     return (h && h.subtitleText) || "";
   }
-  function readHeaderDraftTitleText(_KDB) {
-    var h = _KDB && _KDB.state && _KDB.state.header;
-    return (h && h.draftTitleText) || "";
-  }
-  function readHeaderDraftSubtitleText(_KDB) {
-    var h = _KDB && _KDB.state && _KDB.state.header;
-    return (h && h.draftSubtitleText) || "";
-  }
   function readHeaderIconKey(_KDB) {
     var h = _KDB && _KDB.state && _KDB.state.header;
-    return (h && typeof h.iconKey === "string" && h.iconKey) || _iconKeys.DEFAULT_ICON_KEY;
+    return (h && typeof h.iconKey === "string" && h.iconKey) || _config.DEFAULT_ICON_KEY;
   }
   return {
     readHeaderStatus: readHeaderStatus,
@@ -42,8 +34,6 @@ define(["../config/headerIconKeys"], function (_iconKeys) {
     readHeaderEditTarget: readHeaderEditTarget,
     readHeaderTitleText: readHeaderTitleText,
     readHeaderSubtitleText: readHeaderSubtitleText,
-    readHeaderDraftTitleText: readHeaderDraftTitleText,
-    readHeaderDraftSubtitleText: readHeaderDraftSubtitleText,
     readHeaderIconKey: readHeaderIconKey,
   };
 });
