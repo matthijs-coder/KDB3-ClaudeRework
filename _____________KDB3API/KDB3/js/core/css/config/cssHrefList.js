@@ -14,13 +14,11 @@ define([], function () {
     "./v1/ext/KDB3/css/metricsTree.css",
     "./v1/ext/KDB3/css/canvas.css",
     "./v1/ext/KDB3/css/cognosButtons.css",
-    "./v1/ext/KDB3/css/widgets/leftoverWidgets.css",
+    "./v1/ext/KDB3/css/widgets/hostWidgets.css",
     "./v1/ext/KDB3/css/widgets/widgetSettings.css",
     "./v1/ext/KDB3/css/widgets/widgetSettingsColorDropdown.css",
     "./v1/ext/KDB3/css/widgets/widgetVis.css",
-    "./v1/ext/KDB3/css/widgets/list.css",
-    "./v1/ext/KDB3/css/widgets/pdfCapture.css",
-    "./v1/ext/KDB3/css/hideSpot.css",
+    "./v1/ext/KDB3/css/widgets/widgetHiding.css",
     "./v1/ext/KDB3/css/filters/filters.css",
     "./v1/ext/KDB3/css/kdb.css"
   ];
