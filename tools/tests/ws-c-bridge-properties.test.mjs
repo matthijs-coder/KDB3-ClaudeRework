@@ -347,7 +347,7 @@ test("ensureWritebackRuntime seeds every flag, keeps one object and never overwr
   assert.equal(typeof partial.abortControllers, "object");
 });
 
-test("ensureWritebackRuntime provides all seven standard buckets", { todo: "fixed by C3 step 1 (kit ensureRuntime)" }, () => {
+test("ensureWritebackRuntime provides all seven standard buckets", () => {
   const env = makeEnv();
   const ensure = loadAmd(path.join(WB, "set/state/ensureWritebackRuntime.js"), { stubs: env.stubs });
   const runtime = ensure({});

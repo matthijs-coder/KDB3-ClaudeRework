@@ -1,33 +1,45 @@
-define([], function () {
+define(["../../../../utils/kit/runtime.js"], function (_kitRuntime) {
   "use strict";
 
-  // Runtime restore flags per contracts/writeback.md §6; single canonical
-  // accessor so every set/ module reads and writes the same bucket.
-  function seedWritebackRuntimeKeys(runtime) {
-    if (runtime.parameterSetRestoreActive === undefined) runtime.parameterSetRestoreActive = false;
-    if (runtime.parameterSetRestoreActiveCount === undefined) runtime.parameterSetRestoreActiveCount = 0;
-    if (runtime.parameterSetRestoreRunId === undefined) runtime.parameterSetRestoreRunId = 0;
-    if (runtime.pendingRunId === undefined) runtime.pendingRunId = null;
-    if (runtime.skipDiscardConfirmOnce === undefined) runtime.skipDiscardConfirmOnce = false;
-    if (runtime.lastConfirmedParameterSetId === undefined) runtime.lastConfirmedParameterSetId = null;
-    if (runtime.discardConfirmInFlight === undefined) runtime.discardConfirmInFlight = false;
-    if (runtime.pendingUrlShareMessage === undefined) runtime.pendingUrlShareMessage = null;
-    if (runtime.pendingRestoreFailure === undefined) runtime.pendingRestoreFailure = false;
-    if (runtime.pendingRestoreInfo === undefined) runtime.pendingRestoreInfo = null;
-    if (runtime.urlShareRestoreWaiter === undefined) runtime.urlShareRestoreWaiter = null;
-    if (runtime.urlShareStartupPromise === undefined) runtime.urlShareStartupPromise = null;
-    if (runtime.urlShareBootOverlayActive === undefined) runtime.urlShareBootOverlayActive = false;
-    if (!runtime.abortControllers || typeof runtime.abortControllers !== "object") runtime.abortControllers = {};
-    if (!runtime.timers || typeof runtime.timers !== "object") runtime.timers = {};
+  var DEFAULTS = Object.freeze({
+    parameterSetRestoreActive: false,
+    parameterSetRestoreActiveCount: 0,
+    parameterSetRestoreRunId: 0,
+    pendingRunId: null,
+    skipDiscardConfirmOnce: false,
+    lastConfirmedParameterSetId: null,
+    discardConfirmInFlight: false,
+    pendingUrlShareMessage: null,
+    pendingRestoreFailure: false,
+    pendingRestoreInfo: null,
+    urlShareRestoreWaiter: null,
+    urlShareStartupPromise: null,
+    urlShareBootOverlayActive: false
+  });
+
+  // Flags are written by other modules (and by widgetBase through `+= 1`); a wrong type is repaired on read
+  // so every consumer can rely on booleans and numbers.
+  function coerceFlags(runtime) {
+    runtime.parameterSetRestoreActive = runtime.parameterSetRestoreActive === true;
+    runtime.parameterSetRestoreActiveCount = typeof runtime.parameterSetRestoreActiveCount === "number"
+      ? runtime.parameterSetRestoreActiveCount : 0;
+    runtime.parameterSetRestoreRunId = typeof runtime.parameterSetRestoreRunId === "number"
+      ? runtime.parameterSetRestoreRunId : 0;
+    if (runtime.pendingRunId == null) runtime.pendingRunId = null;
+    runtime.skipDiscardConfirmOnce = runtime.skipDiscardConfirmOnce === true;
+    runtime.discardConfirmInFlight = runtime.discardConfirmInFlight === true;
+    runtime.pendingRestoreFailure = runtime.pendingRestoreFailure === true;
+    runtime.urlShareBootOverlayActive = runtime.urlShareBootOverlayActive === true;
     return runtime;
   }
 
+  // Single accessor for `_KDB.runtime.writeback`: always the same object, every flag and all 7 buckets present.
   function ensureWritebackRuntime(_KDB) {
     _KDB.runtime = _KDB.runtime || {};
     if (!_KDB.runtime.writeback || typeof _KDB.runtime.writeback !== "object") {
       _KDB.runtime.writeback = {};
     }
-    return seedWritebackRuntimeKeys(_KDB.runtime.writeback);
+    return coerceFlags(_kitRuntime.ensureRuntime(_KDB, "writeback", DEFAULTS));
   }
 
   return ensureWritebackRuntime;
