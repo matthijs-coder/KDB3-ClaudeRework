@@ -1,15 +1,2 @@
-define([], function () {
-  "use strict";
-
-  const basePath = "./v1/ext/KDB3/images/";
-
-  function readImagePath(_KDB) {
-    void _KDB;
-    return basePath;
-  }
-
-  return {
-    basePath: basePath,
-    readImagePath: readImagePath
-  };
-});
+// shim: seam for widgetSettings view files until Phase B; remove in Phase B
+define(["../config.js"], function (_m) { return { basePath: _m.IMAGE_BASE_PATH, readImagePath: _m.readImagePath }; });

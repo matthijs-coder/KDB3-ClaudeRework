@@ -1,8 +1,7 @@
 define([
-  "../state/ensureWidgetSettingsByWidget.js",
-  "../state/commitWidgetSettingValue.js",
-  "../history/pushWidgetSettingsHistoryStep.js"
-], function (_ensureByWidget, _commitWidgetSettingValue, _pushHistory) {
+  "./state.js",
+  "./history.js"
+], function (_state, _history) {
   "use strict";
 
   function handleCommitColour(_KDB, _payload) {
@@ -24,17 +23,15 @@ define([
     const optionValue = payload.optionValue != null ? String(payload.optionValue) : "";
     const source = String(payload.source || "widgetSettings");
     const isHistoryReplay = payload.isHistoryReplay === true;
-    const record = _ensureByWidget(_KDB, widgetId);
+    const record = _state.ensureWidgetSettingsByWidget(_KDB, widgetId);
     const oldColour = record.colour != null ? String(record.colour) : "";
     const oldMeta = record.colourMeta && typeof record.colourMeta === "object" ? record.colourMeta : {};
-    record.pending = record.pending || { kind: null };
     record.pending.kind = "backgroundColor";
 
     const baseApi = _KDB.api && _KDB.api.widgetBase;
     if (!baseApi || typeof baseApi.dispatch !== "function") {
       return finishFailure(record, "WIDGET_SETTINGS_WIDGET_BASE_API_MISSING", "widgetBase dispatch is not available.");
     }
-
     const action = {
       type: "widgetBase/setColour",
       widgetId: widgetId,
@@ -45,7 +42,6 @@ define([
         isHistoryReplay: isHistoryReplay
       }
     };
-
     return Promise.resolve(baseApi.dispatch(action)).then(function (applyResult) {
       const result = applyResult || {};
       if (result.ok !== true) {
@@ -55,12 +51,12 @@ define([
           result.errorMessage || "widgetBase colour apply did not succeed."
         );
       }
-      _commitWidgetSettingValue(_KDB, widgetId, "backgroundColor", optionValue, {
+      _state.commitWidgetSettingValue(_KDB, widgetId, "backgroundColor", optionValue, {
         control: { optionKey: optionKey, displayValue: payload.displayValue || optionValue },
         nextValue: optionValue
       });
       if (!isHistoryReplay && source !== "startup") {
-        _pushHistory(
+        _history.pushWidgetSettingsHistoryStep(
           _KDB,
           buildHistoryFrame(widgetId, oldMeta.optionKey, oldColour),
           buildHistoryFrame(widgetId, optionKey, optionValue),
@@ -68,7 +64,7 @@ define([
         );
       }
       const committedColour = result.colour || optionValue;
-      maybeApplyReadableTextColor(_KDB, widgetId, payload, committedColour);
+      applyReadableTextColour(_KDB, widgetId, payload, committedColour);
       return { ok: true, widgetId: widgetId, colour: committedColour };
     }).catch(function (err) {
       console.error("[widgetSettings.runCommitColour] apply failed", { widgetId: widgetId }, err);
@@ -85,7 +81,8 @@ define([
     };
   }
 
-  function maybeApplyReadableTextColor(_KDB, widgetId, payload, backgroundHex) {
+  // Fire-and-forget: a text widget gets a readable text colour for its new background.
+  function applyReadableTextColour(_KDB, widgetId, payload, backgroundHex) {
     try {
       const readableFn = _KDB.utils && _KDB.utils.readableTextColorForHex;
       const textApi = _KDB.api && _KDB.api.widgetText;
@@ -99,9 +96,7 @@ define([
       Promise.resolve(textApi.dispatch({
         type: "widgetText/applyReadableTextColor",
         widgetId: widgetId,
-        payload: {
-          textColor: readableFn(backgroundHex)
-        }
+        payload: { textColor: readableFn(backgroundHex) }
       })).catch(function (err) {
         console.warn("[widgetSettings.applyReadableTextColor] failed", { widgetId: widgetId }, err);
       });
@@ -117,5 +112,7 @@ define([
     return { ok: false, errorCode: record.errorCode, errorMessage: record.errorMessage };
   }
 
-  return handleCommitColour;
+  return {
+    handleCommitColour: handleCommitColour
+  };
 });
