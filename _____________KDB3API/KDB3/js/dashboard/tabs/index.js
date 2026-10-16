@@ -89,6 +89,7 @@ define([
     const _KDB = instance._KDB;
     try {
       instance.startupPromise = null;
+      _slotStockLedger.reset(_KDB);
       _session.cleanupEditSession(_KDB);
       const runtime = _KDB.runtime.tabs;
       const errors = _rt.disposeRuntimeBuckets(runtime);
@@ -96,7 +97,6 @@ define([
       runtime.adapters = {};
       runtime.lastTabMutationError = null;
       runtime.historyReplayHandlerContribution = null;
-      _slotStockLedger.reset(_KDB);
       _readCurrentTab.restoreUtilsCompat(_KDB, runtime);
       _reducer.commitTabsState(_KDB, { type: _actionTypes.DESTROY, payload: { source: "destroy" } });
     } catch (err) {

@@ -130,3 +130,11 @@ test("the edit icon fails closed without a message service and logs a plain ASCI
   assert.deepEqual(result, { ok: false, blocked: true });
   assert.deepEqual(warnings, ["[tabs.editIcon] messageService unavailable - delete blocked (fail closed)"]);
 });
+
+test("destroy resets the slot-stock ledger even when a later teardown step throws", () => {
+  const { _KDB, controller } = mountTabs();
+  _KDB.runtime.tabs.slotStock = { snapshots: { op: {} }, runId: 9 };
+  Object.defineProperty(_KDB.runtime.tabs, "editSession", { get() { throw new Error("session boom"); }, configurable: true });
+  controller.destroy();
+  assert.deepEqual(_KDB.runtime.tabs.slotStock, { snapshots: {}, runId: 0 });
+});
