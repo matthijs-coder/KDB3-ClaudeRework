@@ -4,6 +4,7 @@ define([
   "../../../core/utils/kit/runtime.js",
   "../../launchpad/selectors.js",
   "../../tabs/events/eventNames.js",
+  "../../canvas/dragDrop/events.js",
   "./config.js",
   "./state.js",
   "./runtime.js",
@@ -15,7 +16,7 @@ define([
   "./restore.js",
   "./slotStock/tabMutationOwner.js"
 ], function (
-  _data, _errors, _runtimeKit, _launchpadSelectors, _tabsEventNames, _config, _state, _runtime, _history, _canvas, _transfer, _tabWidgets,
+  _data, _errors, _runtimeKit, _launchpadSelectors, _tabsEventNames, _dragDropEvents, _config, _state, _runtime, _history, _canvas, _transfer, _tabWidgets,
   _selectors, _restore, _tabMutationOwner
 ) {
   "use strict";
@@ -23,7 +24,6 @@ define([
   // Lifecycle terms for widgetBase: idle, initializing, loading, ready, error, disposed.
   const TYPES = _state.ACTION_TYPES;
   const normalizeDispatchResult = _state.normalizeDispatchResult;
-  const DROP_VALIDATED_EVENT = "canvas:dropValidated";
 
   const ROUTES = {};
   ROUTES[TYPES.DROP_CREATE] = _canvas.handleDropCreate;
@@ -93,7 +93,7 @@ define([
     if (!events || typeof events.subscribe !== "function") {
       return noopUnsubscribe;
     }
-    return events.subscribe(DROP_VALIDATED_EVENT, function (payload) {
+    return events.subscribe(_dragDropEvents.DROP_VALIDATED, function (payload) {
       startDropCreate(_KDB, dispatchFn, payload);
     });
   }
