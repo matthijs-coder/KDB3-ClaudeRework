@@ -2,22 +2,18 @@ define([
   "../../../../core/utils/kit/runtime.js",
   "../config/selectors.js",
   "../effects/dispatchWidgetSettingsIntent.js",
-  "../history/pushHistoryAfterConfirmedApply.js",
-  "./buildDropdownSelectionFrame.js",
+  "../history.js",
   "./dropdownOptionSelection.js",
   "./dropdownUi.js",
-  "./panelOutsidePointerBehavior.js",
-  "./queueCoupledTopNClearHistory.js"
+  "./panelOutsidePointerBehavior.js"
 ], function (
   _kitRuntime,
   _selectors,
   _dispatchIntent,
-  _pushHistoryAfterConfirmedApply,
-  _buildSelectionFrame,
+  _history,
   _dropdownOptionSelection,
   _dropdownUi,
-  _panelOutsidePointerBehavior,
-  _queueCoupledTopNClearHistory
+  _panelOutsidePointerBehavior
 ) {
   const ICON_DISPATCH_DELAY_MS = 50;
   const KEEP_OPEN_KINDS = ["showValues", "iterator", "zoom", "valueCaption"];
@@ -28,14 +24,14 @@ define([
 
   function selectOption(_KDB, panel, option) {
     const dropdown = option.closest(_selectors.dropdownSelector);
-    const oldFrame = _buildSelectionFrame(panel, dropdown);
+    const oldFrame = _history.buildDropdownSelectionFrame(panel, dropdown);
     _dropdownOptionSelection.markSelectedOption(option);
     const intentResult = _dispatchIntent.dropdownOption(_KDB, panel, option, { isHistoryReplay: false });
-    const newFrame = _buildSelectionFrame(panel, dropdown);
+    const newFrame = _history.buildDropdownSelectionFrame(panel, dropdown);
     if (!newFrame || newFrame.kind !== "backgroundColor") {
       // History is pushed only after a confirmed apply result, so a failed or aborted apply leaves no entry.
-      if (!_queueCoupledTopNClearHistory(_KDB, panel, dropdown, intentResult, oldFrame, newFrame)) {
-        _pushHistoryAfterConfirmedApply(_KDB, intentResult, oldFrame, newFrame);
+      if (!_history.queueCoupledTopNClearHistory(_KDB, panel, dropdown, intentResult, oldFrame, newFrame)) {
+        _history.pushHistoryAfterConfirmedApply(_KDB, intentResult, oldFrame, newFrame);
       }
     }
     if (KEEP_OPEN_KINDS.indexOf(dropdown.getAttribute(_selectors.dropdownKindAttr) || "") < 0) {

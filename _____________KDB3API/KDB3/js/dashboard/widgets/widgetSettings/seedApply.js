@@ -4,8 +4,8 @@ define([
   "./effects/dispatchWidgetSettingsIntent.js",
   "./intent/visSnapshot.js",
   "./intent/finalize.js",
-  "./view/stampPanelVisType.js"
-], function (_config, _state, _dispatchIntent, _visSnapshot, _finalize, _stampPanelVisType) {
+  "./view/optionMarking.js"
+], function (_config, _state, _dispatchIntent, _visSnapshot, _finalize, _optionMarking) {
   "use strict";
 
   async function applySingleStartupDefault(_KDB, _descriptor) {
@@ -106,7 +106,7 @@ define([
 
   function stampPanelAfterBatch(_KDB, _widgetId) {
     try {
-      _stampPanelVisType(_KDB, _widgetId);
+      _optionMarking.stampPanelVisType(_KDB, _widgetId);
     } catch (err) {
       console.error("[widgetSettings.applyVisStartupSeedBatch] stampPanelVisType failed", { widgetId: _widgetId }, err);
     }

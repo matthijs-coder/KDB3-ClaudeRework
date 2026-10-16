@@ -1,14 +1,12 @@
 define([
   "../../../../core/config/colorPalette.js",
   "../../../../core/config/dimensions.js",
-  "../config/applyConfiguredDefault.js",
+  "../config.js",
   "../config/dropdownDefaults.js",
-  "../config/imagePaths.js",
-  "../config/options.js",
   "../config/selectors.js"
-], function (_colorPalette, _dimensionsConfig, _applyConfiguredDefault, _dropdownDefaults, _imagePaths, _options, _selectors) {
-  const applyConfiguredDefault = _applyConfiguredDefault.applyConfiguredDefault;
-  const isOptionInitiallySelected = _applyConfiguredDefault.isOptionInitiallySelected;
+], function (_colorPalette, _dimensionsConfig, _config, _dropdownDefaults, _selectors) {
+  const applyConfiguredDefault = _config.applyConfiguredDefault;
+  const isOptionInitiallySelected = _config.isOptionInitiallySelected;
   const SHOW_VALUES_NESTS = [
     { kind: "iterator", phrase: "Iterator" },
     { kind: "zoom", phrase: "Zoomleiste" },
@@ -48,7 +46,7 @@ define([
       const image = document.createElement("input");
       image.type = "image";
       image.className = _selectors.svgIconClass;
-      image.src = _imagePaths.readImagePath(_KDB) + String(option.icon);
+      image.src = _config.readImagePath(_KDB) + String(option.icon);
       image.alt = String(displayLabel);
       image.setAttribute("title", String(displayLabel));
       row.appendChild(image);
@@ -162,7 +160,7 @@ define([
     if (configKey === "backgroundColor") {
       return applyConfiguredDefault(readColorOptions(_KDB), "backgroundColor");
     }
-    const baseOptions = _options && Array.isArray(_options[configKey]) ? _options[configKey] : [];
+    const baseOptions = Array.isArray(_config.options[configKey]) ? _config.options[configKey] : [];
     return configKey === "visualization" || configKey === "topN" ? applyConfiguredDefault(baseOptions, configKey) : baseOptions;
   }
 

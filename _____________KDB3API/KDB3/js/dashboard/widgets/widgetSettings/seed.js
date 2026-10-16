@@ -7,7 +7,7 @@ define([
   "./seedApply.js",
   "./intent/descriptor.js",
   "./view/dropdownOptionSelection.js",
-  "./view/resolvePanel.js",
+  "./view/resolveWidgetPlacementContext.js",
   "../../../core/config/colorPalette.js",
   "../../canvas/kdbControl/state/selectors.js"
 ], function (
@@ -19,7 +19,7 @@ define([
   _seedApply,
   _descriptor,
   _dropdownOptionSelection,
-  _resolvePanel,
+  _placementContext,
   _colorPalette,
   _kdbControlSelectors
 ) {
@@ -152,7 +152,7 @@ define([
     const widgetId = String(_widgetId || "");
     const widgetType = _widgetType === "text" ? "text" : "live";
     const startupKinds = widgetType === "text" ? TEXT_STARTUP_KINDS : VIS_STARTUP_KINDS;
-    const panel = _resolvePanel(_KDB, widgetId);
+    const panel = _placementContext.resolvePanel(_KDB, widgetId);
     const context = panel ? _descriptor.panelContext(panel) : { widgetId: widgetId, widgetType: widgetType };
     return startupKinds
       .map(function (kind) { return buildDefaultDescriptor(_KDB, context, panel, kind); })

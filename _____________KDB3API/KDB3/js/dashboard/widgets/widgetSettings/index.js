@@ -7,9 +7,7 @@ define([
   "./seed.js",
   "./colour.js",
   "./restore.js",
-  "./view/placeAllWidgetControls.js",
-  "./view/applyWidgetSettingsButtonVisibility.js",
-  "./runtime/cleanupWidgetControls.js",
+  "./view/controls.js",
   "../../../core/utils/kit/data.js",
   "../../../core/utils/kit/errors.js",
   "../../../core/utils/kit/runtime.js"
@@ -22,9 +20,7 @@ define([
   _seed,
   _colour,
   _restore,
-  _placeAllWidgetControls,
-  _applyWidgetSettingsButtonVisibility,
-  _cleanupWidgetControls,
+  _controls,
   _kitData,
   _kitErrors,
   _kitRuntime
@@ -35,11 +31,11 @@ define([
   const DISPOSED_RESULT = { ok: false, outcome: "aborted", reason: "disposed", skipped: true, status: "aborted" };
 
   const ROUTES = {};
-  ROUTES[_actionTypes.PLACE_CONTROLS] = _placeAllWidgetControls;
+  ROUTES[_actionTypes.PLACE_CONTROLS] = _controls.placeAllWidgetControls;
   ROUTES[_actionTypes.APPLY_BUTTON_VISIBILITY] = function (_KDB, payload) {
-    return { ok: _applyWidgetSettingsButtonVisibility(_KDB, payload) === true };
+    return { ok: _controls.applyWidgetSettingsButtonVisibility(_KDB, payload) === true };
   };
-  ROUTES[_actionTypes.CLEANUP_WIDGET_CONTROLS] = _cleanupWidgetControls;
+  ROUTES[_actionTypes.CLEANUP_WIDGET_CONTROLS] = _controls.cleanupWidgetControls;
   ROUTES[_actionTypes.SEED_DEFAULTS] = _seed.handleSeedDefaults;
   ROUTES[_actionTypes.COMMIT_COLOUR] = _colour.handleCommitColour;
   ROUTES[_actionTypes.PARAMETER_SET_RESET] = _restore.handleParameterSetReset;

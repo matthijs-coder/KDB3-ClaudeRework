@@ -1,12 +1,12 @@
 define([
-  "../config/imagePaths.js",
+  "../config.js",
   "../config/selectors.js"
-], function (_imagePaths, _selectors) {
+], function (_config, _selectors) {
   function appendImage(_KDB, icon, iconFile, alt, title) {
     const image = document.createElement("input");
     image.type = "image";
     image.className = _selectors.svgIconClass;
-    image.src = _imagePaths.readImagePath(_KDB) + String(iconFile || "");
+    image.src = _config.readImagePath(_KDB) + String(iconFile || "");
     image.alt = String(alt || "");
     image.setAttribute("title", String(title || ""));
     icon.appendChild(image);

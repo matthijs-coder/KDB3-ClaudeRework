@@ -6,9 +6,9 @@ define([
   "./colour.js",
   "./intent/visSnapshot.js",
   "./effects/dispatchWidgetSettingsIntent.js",
-  "./runtime/cleanupWidgetControls.js",
-  "./view/stampPanelVisType.js",
-  "./view/resolvePanel.js",
+  "./view/controls.js",
+  "./view/optionMarking.js",
+  "./view/resolveWidgetPlacementContext.js",
   "../widgetVis/config/visTypes/resolveVisTypeIdentity.js"
 ], function (
   _dropdownDefaults,
@@ -18,9 +18,9 @@ define([
   _colour,
   _visSnapshot,
   _dispatchIntent,
-  _cleanupWidgetControls,
-  _stampPanelVisType,
-  _resolvePanel,
+  _controls,
+  _optionMarking,
+  _placementContext,
   _resolveVisTypeIdentity
 ) {
   "use strict";
@@ -81,7 +81,7 @@ define([
 
   function resetWidgetSettings(_KDB, _widgetId, _diagnostics) {
     try {
-      _cleanupWidgetControls(_KDB, { widgetId: _widgetId, reason: "parameterSetReset" });
+      _controls.cleanupWidgetControls(_KDB, { widgetId: _widgetId, reason: "parameterSetReset" });
       const settings = _KDB.state.widgets && _KDB.state.widgets.settings ? _KDB.state.widgets.settings : null;
       if (settings && settings.byWidget && settings.byWidget[_widgetId]) {
         delete settings.byWidget[_widgetId];
@@ -260,9 +260,9 @@ define([
 
   function stampPanelIfMounted(_KDB, _widgetId) {
     try {
-      const panel = _resolvePanel(_KDB, _widgetId);
+      const panel = _placementContext.resolvePanel(_KDB, _widgetId);
       if (panel) {
-        _stampPanelVisType(_KDB, panel);
+        _optionMarking.stampPanelVisType(_KDB, panel);
       }
     } catch (err) {
       console.error("[widgetSettings.commitVisAndConsequences] stampPanelVisType failed", { widgetId: _widgetId }, err);
@@ -314,7 +314,7 @@ define([
 
   function stampPanelAfterRestore(_KDB, _widgetId) {
     try {
-      _stampPanelVisType(_KDB, _widgetId);
+      _optionMarking.stampPanelVisType(_KDB, _widgetId);
     } catch (err) {
       console.error("[widgetSettings.restoreCommittedSettingsOnHistoryReplay] stampPanelVisType failed", { widgetId: _widgetId }, err);
     }

@@ -2,9 +2,9 @@ define([
   "../state.js",
   "../config.js",
   "../config/selectors.js",
-  "../view/topNDropdownSafeguard.js",
-  "../view/resolvePanel.js"
-], function (_state, _config, _selectors, _topNDropdownSafeguard, _resolvePanel) {
+  "../view/optionMarking.js",
+  "../view/resolveWidgetPlacementContext.js"
+], function (_state, _config, _selectors, _optionMarking, _placementContext) {
   "use strict";
 
   function isAbsentSentinel(_value) {
@@ -19,7 +19,7 @@ define([
   }
 
   function readTopNAnchor(_KDB, _widgetId) {
-    const panel = _resolvePanel(_KDB, _widgetId);
+    const panel = _placementContext.resolvePanel(_KDB, _widgetId);
     if (!panel) {
       return null;
     }
@@ -73,7 +73,7 @@ define([
     if (!isAbsentSentinel(_state.ensureWidgetSettingsByWidget(_KDB, planned.widgetId).dimension)) {
       return null;
     }
-    _topNDropdownSafeguard.revertTopNDropdownFromState(_KDB, planned.widgetId);
+    _optionMarking.revertTopNDropdownFromState(_KDB, planned.widgetId);
     if (planned.isHistoryReplay !== true) {
       notifyGroupingRequired(_KDB, readTopNAnchor(_KDB, planned.widgetId));
     }

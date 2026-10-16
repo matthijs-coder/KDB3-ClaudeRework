@@ -1,7 +1,7 @@
 define([
   "../../../../core/utils/kit/runtime.js",
-  "../actions/handleSeedDefaults.js",
   "../config/selectors.js",
+  "../seed.js",
   "../effects/startWidgetRenderLoading.js",
   "./optionMarking.js",
   "./panelBuild.js",
@@ -11,8 +11,8 @@ define([
   "./toolbar.js"
 ], function (
   _kitRuntime,
-  _handleSeedDefaults,
   _selectors,
+  _seed,
   _startWidgetRenderLoading,
   _optionMarking,
   _panelBuild,
@@ -160,7 +160,7 @@ define([
       if (context.metricsTable) {
         seedPayload.metricsTable = context.metricsTable;
       }
-      const seedResult = _handleSeedDefaults(_KDB, seedPayload);
+      const seedResult = _seed.handleSeedDefaults(_KDB, seedPayload);
       if (seedResult && typeof seedResult.then === "function") {
         seedResult.then(onSeedDefaultsResolved.bind(null, _KDB, widgetId), onSeedDefaultsRejected.bind(null, _KDB, widgetId));
       } else {

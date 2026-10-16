@@ -1,8 +1,8 @@
 define([
-  "../config/imagePaths.js",
+  "../config.js",
   "../config/selectors.js",
   "./dropdownUi.js"
-], function (_imagePaths, _selectors, _dropdownUi) {
+], function (_config, _selectors, _dropdownUi) {
   function buildWidgetToolbar(_KDB, context) {
     const toolbar = document.createElement("div");
     const image = document.createElement("input");
@@ -12,7 +12,7 @@ define([
     toolbar.setAttribute("data-kdb-widget-toolbar", String(context.widgetId));
     image.type = "image";
     image.className = _selectors.svgIconClass;
-    image.src = _imagePaths.readImagePath(_KDB) + "settings.svg";
+    image.src = _config.readImagePath(_KDB) + "settings.svg";
     image.alt = "Widget settings";
     image.setAttribute("data-kdb-widget-settings-toggle", "1");
     toolbar.appendChild(image);

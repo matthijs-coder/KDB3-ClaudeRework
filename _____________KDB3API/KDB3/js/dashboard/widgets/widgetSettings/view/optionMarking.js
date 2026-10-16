@@ -1,11 +1,11 @@
 define([
   "../config/selectors.js",
   "../config/dropdownDefaults.js",
-  "../state/ensureWidgetSettingsByWidget.js",
+  "../state.js",
   "../../widgetVis/config/resolveVisualizationBindingConfig.js",
   "./dropdownOptionSelection.js",
   "./resolveWidgetPlacementContext.js"
-], function (_selectors, _dropdownDefaults, _ensureByWidget, _resolveVisualizationBindingConfig, _dropdownOptionSelection, _placementContext) {
+], function (_selectors, _dropdownDefaults, _state, _resolveVisualizationBindingConfig, _dropdownOptionSelection, _placementContext) {
   "use strict";
 
   var SETTINGS_VIS_KEYS = {
@@ -62,7 +62,7 @@ define([
     if (!focusPanel) {
       return;
     }
-    markDimensionAndTopN(focusPanel, id ? _ensureByWidget(_KDB, id) : null);
+    markDimensionAndTopN(focusPanel, id ? _state.ensureWidgetSettingsByWidget(_KDB, id) : null);
   }
 
   function resolveStampPanel(_KDB, panelOrWidgetId) {
@@ -119,7 +119,7 @@ define([
   }
 
   function stampPanelState(_KDB, panel, widgetId) {
-    var record = widgetId ? _ensureByWidget(_KDB, widgetId) : null;
+    var record = widgetId ? _state.ensureWidgetSettingsByWidget(_KDB, widgetId) : null;
     var visTypeKey = resolveStampVisTypeKey(record);
     panel.setAttribute(_selectors.panelVisTypeAttr, visTypeKey);
     stampMatchingFocusCloneVisType(widgetId, visTypeKey);
@@ -165,7 +165,7 @@ define([
     if (!dropdown) {
       return false;
     }
-    const choice = readChoice(_ensureByWidget(_KDB, widgetId));
+    const choice = readChoice(_state.ensureWidgetSettingsByWidget(_KDB, widgetId));
     const option = findOptionByChoice(dropdown, choice);
     if (option) {
       _dropdownOptionSelection.markSelectedOption(option);

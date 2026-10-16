@@ -3,10 +3,10 @@ define([
   "./effects/dispatchWidgetSettingsIntent.js",
   "./intent/descriptor.js",
   "./view/dropdownOptionSelection.js",
-  "./view/resolvePanel.js",
+  "./view/resolveWidgetPlacementContext.js",
   "../../../core/utils/kit/data.js",
   "../../../core/utils/kit/history.js"
-], function (_selectors, _dispatchIntent, _descriptor, _dropdownOptionSelection, _resolvePanel, _kitData, _kitHistory) {
+], function (_selectors, _dispatchIntent, _descriptor, _dropdownOptionSelection, _placementContext, _kitData, _kitHistory) {
   "use strict";
 
   const STEP_KEY = "widgetSettings_optionSelect";
@@ -34,7 +34,7 @@ define([
       if (!widgetId || !kind) {
         return false;
       }
-      const panel = _resolvePanel(_KDB, widgetId);
+      const panel = _placementContext.resolvePanel(_KDB, widgetId);
       if (!panel) {
         console.warn("[widgetSettings.historyReplay] panel not found", { widgetId: widgetId, kind: kind });
         return false;

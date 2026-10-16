@@ -2,11 +2,8 @@ define([
   "../config.js",
   "../state.js",
   "./downstream.js",
-  "../view/topNDropdownSafeguard.js",
-  "../view/showValuesDropdownSafeguard.js",
-  "../view/stampPanelVisType.js",
-  "../view/markFocusDimensionAndTopNFromRecord.js"
-], function (_config, _state, _downstream, _topNSafeguard, _showValuesSafeguard, _stampPanelVisType, _markFocusDimensionAndTopNFromRecord) {
+  "../view/optionMarking.js"
+], function (_config, _state, _downstream, _optionMarking) {
   "use strict";
 
   const FAILED_STATUSES = ["error", "timeout", "aborted"];
@@ -114,9 +111,9 @@ define([
     const record = _state.ensureWidgetSettingsByWidget(_KDB, _planned.widgetId);
     record.pending.kind = role;
     if (role === "showValues") {
-      _showValuesSafeguard.markShowValuesPending(_KDB, _planned.widgetId, true);
+      _optionMarking.markShowValuesPending(_KDB, _planned.widgetId, true);
     } else {
-      _topNSafeguard.markTopNPending(_KDB, _planned.widgetId, true);
+      _optionMarking.markTopNPending(_KDB, _planned.widgetId, true);
     }
   }
 
@@ -129,8 +126,8 @@ define([
     }
     if (!isVisApplyConfirmed(result)) {
       if (coupled && result.stale !== true) {
-        _stampPanelVisType(_KDB, planned.widgetId);
-        _markFocusDimensionAndTopNFromRecord(_KDB, planned.widgetId);
+        _optionMarking.stampPanelVisType(_KDB, planned.widgetId);
+        _optionMarking.markFocusDimensionAndTopNFromRecord(_KDB, planned.widgetId);
         return result;
       }
       revertSafeguardUnlessStale(_KDB, planned, result);
@@ -147,9 +144,9 @@ define([
       if (coupled) {
         result.coupledTopNCommitted = true;
       }
-      _stampPanelVisType(_KDB, planned.widgetId);
+      _optionMarking.stampPanelVisType(_KDB, planned.widgetId);
       if (coupled) {
-        _markFocusDimensionAndTopNFromRecord(_KDB, planned.widgetId);
+        _optionMarking.markFocusDimensionAndTopNFromRecord(_KDB, planned.widgetId);
       }
     } catch (err) {
       console.error("[widgetSettings.handleVisIntentCompletion] commit failed", { widgetId: planned.widgetId, kind: planned.kind }, err);
@@ -161,10 +158,10 @@ define([
   function clearSafeguardPending(_KDB, _planned) {
     const role = safeguardRole(_planned.kind);
     if (role === "showValues") {
-      _showValuesSafeguard.markShowValuesPending(_KDB, _planned.widgetId, false);
+      _optionMarking.markShowValuesPending(_KDB, _planned.widgetId, false);
     }
     if (role === "topN") {
-      _topNSafeguard.markTopNPending(_KDB, _planned.widgetId, false);
+      _optionMarking.markTopNPending(_KDB, _planned.widgetId, false);
     }
   }
 
@@ -179,9 +176,9 @@ define([
     record.errorCode = (_result && _result.errorCode) || fallbackCode;
     record.errorMessage = (_result && _result.errorMessage) || null;
     if (role === "showValues") {
-      _showValuesSafeguard.revertShowValuesDropdownFromState(_KDB, _planned.widgetId);
+      _optionMarking.revertShowValuesDropdownFromState(_KDB, _planned.widgetId);
     } else {
-      _topNSafeguard.revertTopNDropdownFromState(_KDB, _planned.widgetId);
+      _optionMarking.revertTopNDropdownFromState(_KDB, _planned.widgetId);
     }
   }
 
