@@ -46,7 +46,7 @@ define([
       });
   }
 
-  function buildInventoryOutcome(_refresh, _data) {
+  function toInventoryOutcome(_refresh, _data) {
     return _refresh.diagnostics.length > 0
       ? _outcome.buildDegraded(_data, _refresh.diagnostics)
       : _outcome.buildOk(_data);
@@ -69,7 +69,7 @@ define([
       if (!refresh.ok) {
         return _outcome.buildFailed(refresh.errorCode, refresh.diagnostics);
       }
-      return buildInventoryOutcome(refresh, selectDescriptors(refresh.descriptors, scope, input));
+      return toInventoryOutcome(refresh, selectDescriptors(refresh.descriptors, scope, input));
     } catch (error) {
       console.error("[cognosHost.filters.listFilterItems] failed", { scopeId: input.scopeId }, error);
       return buildReadFailed(error);
@@ -147,7 +147,7 @@ define([
       if (!refresh.ok) {
         return _outcome.buildFailed(refresh.errorCode, refresh.diagnostics);
       }
-      return buildInventoryOutcome(refresh, collectRawScopes(refresh.descriptors, itemName));
+      return toInventoryOutcome(refresh, collectRawScopes(refresh.descriptors, itemName));
     } catch (error) {
       console.error("[cognosHost.filters.listPageContextScopes] failed", { itemName: itemName }, error);
       return buildReadFailed(error);
