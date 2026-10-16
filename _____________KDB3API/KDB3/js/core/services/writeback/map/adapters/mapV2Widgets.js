@@ -1,5 +1,5 @@
 define([
-  "../../../../../dashboard/widgets/widgetSettings/config/dropdownDefaults.js",
+  "../../../../config/dropdownDefaults.js",
   "../../schema/errorCodes.js",
   "./mapV2Layout.js",
 ], function (_dropdownDefaults, _errorCodes, _mapV2Layout) {

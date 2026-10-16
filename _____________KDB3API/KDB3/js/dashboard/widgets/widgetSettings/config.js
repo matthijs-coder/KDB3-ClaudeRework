@@ -1,5 +1,5 @@
 define([
-  "./config/dropdownDefaults.js"
+  "../../../core/config/dropdownDefaults.js"
 ], function (_dropdownDefaults) {
   "use strict";
 

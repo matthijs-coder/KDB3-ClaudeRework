@@ -1,0 +1,201 @@
+{
+ "defaults": {
+  "result": {},
+  "diagnostics": []
+ },
+ "dashboardWidth": {
+  "result": {
+   "canv": {
+    "w": 378,
+    "h": 800
+   }
+  },
+  "diagnostics": []
+ },
+ "dashboardHeightMm": {
+  "result": {
+   "canv": {
+    "w": 1800,
+    "h": 756
+   }
+  },
+  "diagnostics": []
+ },
+ "dashboardBgCase": {
+  "result": {},
+  "diagnostics": []
+ },
+ "dashboardBg": {
+  "result": {
+   "sett": {
+    "dash": {
+     "bg": "#123456"
+    }
+   }
+  },
+  "diagnostics": []
+ },
+ "dashboardHidWsShown": {
+  "result": {
+   "sett": {
+    "dash": {
+     "hidWs": 0
+    }
+   }
+  },
+  "diagnostics": []
+ },
+ "dashboardDevOn": {
+  "result": {
+   "sett": {
+    "dash": {
+     "devOn": 1
+    }
+   }
+  },
+  "diagnostics": []
+ },
+ "panelBg": {
+  "result": {
+   "sett": {
+    "panel": {
+     "bg": "#111111"
+    }
+   }
+  },
+  "diagnostics": []
+ },
+ "panelBtn": {
+  "result": {
+   "sett": {
+    "panel": {
+     "btn": "#222222"
+    }
+   }
+  },
+  "diagnostics": []
+ },
+ "panelAct": {
+  "result": {
+   "sett": {
+    "panel": {
+     "act": "#333333"
+    }
+   }
+  },
+  "diagnostics": []
+ },
+ "panelInBg": {
+  "result": {
+   "sett": {
+    "panel": {
+     "inBg": "#444444"
+    }
+   }
+  },
+  "diagnostics": []
+ },
+ "newVis": {
+  "result": {
+   "sett": {
+    "newwg": {
+     "vis": {
+      "w": 500,
+      "h": 302,
+      "bg": "#abcdef"
+     }
+    }
+   }
+  },
+  "diagnostics": []
+ },
+ "newComment": {
+  "result": {
+   "sett": {
+    "newwg": {
+     "txt": {
+      "w": 756,
+      "h": 40,
+      "bg": "#00112233"
+     }
+    }
+   }
+  },
+  "diagnostics": []
+ },
+ "everything": {
+  "result": {
+   "canv": {
+    "w": 1000,
+    "h": 700
+   },
+   "sett": {
+    "dash": {
+     "bg": "#010101",
+     "hidWs": 0,
+     "devOn": 1
+    },
+    "panel": {
+     "bg": "#a",
+     "btn": "#b",
+     "act": "#c",
+     "inBg": "#d"
+    },
+    "newwg": {
+     "vis": {
+      "w": 1,
+      "h": 2,
+      "bg": "#e"
+     },
+     "txt": {
+      "w": 3,
+      "h": 4,
+      "bg": "#f"
+     }
+    }
+   }
+  },
+  "diagnostics": []
+ },
+ "noDashboardGroup": {
+  "result": {},
+  "diagnostics": []
+ },
+ "noPanelGroup": {
+  "result": {
+   "sett": {
+    "dash": {
+     "devOn": 1
+    }
+   }
+  },
+  "diagnostics": []
+ },
+ "noNewGroup": {
+  "result": {
+   "canv": {
+    "w": 416,
+    "h": 800
+   }
+  },
+  "diagnostics": []
+ },
+ "badDimension": {
+  "result": {},
+  "diagnostics": []
+ },
+ "noSettings": {
+  "result": {},
+  "diagnostics": [
+   {
+    "code": "WRITEBACK_KDBCONTROL_RESTORE_FAILED",
+    "phase": "get",
+    "message": "kdbControl settings state is not available; canv/sett omitted"
+   }
+  ]
+ },
+ "noKdbControlApi": {
+  "result": {},
+  "diagnostics": []
+ }
+}

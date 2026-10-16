@@ -1,24 +1,13 @@
 define([
   "../config/selectors.js",
-  "../config/dropdownDefaults.js",
+  "../../../../core/config/dropdownDefaults.js",
   "../state.js",
   "../../widgetVis/config/resolveVisualizationBindingConfig.js",
+  "../../../../core/config/visualizations/visTypeRules.js",
   "./dropdownOptionSelection.js",
   "./resolveWidgetPlacementContext.js"
-], function (_selectors, _dropdownDefaults, _state, _resolveVisualizationBindingConfig, _dropdownOptionSelection, _placementContext) {
+], function (_selectors, _dropdownDefaults, _state, _resolveVisualizationBindingConfig, _visTypeRules, _dropdownOptionSelection, _placementContext) {
   "use strict";
-
-  var SETTINGS_VIS_KEYS = {
-    line: "line",
-    pie: "pie",
-    stackedbar: "stackedbar",
-    stackedcolumn: "stackedcolumn",
-    list: "list",
-    "com.ibm.vis.custom.prognoseyear": "prognose",
-    "com.ibm.vis.custom.prognoseyearlinechart": "prognose",
-    prognose: "prognose"
-  };
-  var GRAINS = { stichtag: 1, jahr: 1, jahrStichtag: 1, stichtagProJahrH: 1, stichtagProJahrV: 1 };
 
   function findOptionByChoice(dropdown, choice) {
     return dropdown.querySelector(_selectors.byAttr(_selectors.optionKeyAttr, choice))
@@ -80,7 +69,7 @@ define([
     var raw = record && record.visType != null && String(record.visType).trim() !== ""
       ? String(record.visType).trim()
       : String(_dropdownDefaults.visualization.useValue || "line");
-    return SETTINGS_VIS_KEYS[raw.toLowerCase()] || raw;
+    return _visTypeRules.settingsKey(raw);
   }
 
   function stampMatchingFocusCloneVisType(widgetId, visTypeKey) {
@@ -91,18 +80,12 @@ define([
     }
   }
 
-  function isAllowedGrain(bucket, grain) {
-    if (bucket === "List") {
-      return grain === "jahr" || grain === "jahrStichtag";
-    }
-    if (bucket === "pie" || bucket === "StackedBar" || bucket === "StackedColumn") {
-      return grain === "jahr" || grain === "jahrStichtag" || grain === "stichtagProJahrH" || grain === "stichtagProJahrV";
-    }
-    return bucket !== "com.ibm.vis.custom.prognoseyearlinechart" && !!GRAINS[grain];
-  }
-
   function clearIllegalGrouping(record, _KDB) {
-    if (record && GRAINS[record.grouping] && !isAllowedGrain(_resolveVisualizationBindingConfig.resolveVisPropBucketKey(record.visType, _KDB), record.grouping)) {
+    if (!record || record.grouping == null) {
+      return;
+    }
+    var bucket = _resolveVisualizationBindingConfig.resolveVisPropBucketKey(record.visType, _KDB);
+    if (!_visTypeRules.isAllowedGrain(bucket, record.grouping)) {
       delete record.grouping;
       delete record.groupingMeta;
     }
@@ -114,7 +97,8 @@ define([
     var bucket = _resolveVisualizationBindingConfig.resolveVisPropBucketKey(visType, _KDB);
     Array.prototype.forEach.call(rows, function (row) {
       var token = row.getAttribute(_selectors.optionKeyAttr) || row.getAttribute(_selectors.optionValueAttr) || "";
-      row.style.display = token === "inherit" || token === "Diagrammstandard" || !GRAINS[token] || isAllowedGrain(bucket, token) ? "" : "none";
+      var isGrainRow = _visTypeRules.isGrain(token) && token !== "inherit";
+      row.style.display = isGrainRow && !_visTypeRules.isAllowedGrain(bucket, token) ? "none" : "";
     });
   }
 
@@ -132,7 +116,7 @@ define([
     clearIllegalGrouping(record, _KDB);
     hideDisallowedGroupingRows(panel, (record && record.visType) || visTypeKey, _KDB);
     if (record) {
-      markPanelOption(panel, "grouping", GRAINS[record.grouping] ? record.grouping : "inherit", ".KDB_groupingContainer");
+      markPanelOption(panel, "grouping", _visTypeRules.isGrain(record.grouping) ? record.grouping : "inherit", ".KDB_groupingContainer");
     }
   }
 
