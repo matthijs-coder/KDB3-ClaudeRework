@@ -1,11 +1,13 @@
 // Unit tests for dashboard/canvas/{dragDrop,pageSurface} with a minimal AMD loader and a fake DOM.
 // Run: node --test tools/tests/canvas-dragdrop-pagesurface.test.mjs   (Node >= 22, no dependencies)
-import { test, mock } from "node:test";
+import { test, mock, afterEach } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import vm from "node:vm";
+
+afterEach(() => mock.restoreAll());
 
 const JS_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../_____________KDB3API/KDB3/js");
 const cache = new Map();
@@ -544,12 +546,12 @@ test("rebind poll that keeps failing logs the last error once on timeout", withD
   api.destroy();
 })));
 
-test("a failing initial bind keeps mount usable: returns false, no error lifecycle, rebind subscription kept", withDom(async (doc) => {
+test("a failing initial bind keeps mount usable: returns true, no error lifecycle, rebind subscription kept", withDom(async (doc) => {
   const errors = mock.method(console, "error", () => {});
   addPage(doc, "tabA", "pageA");
   const _KDB = createKdb(doc, { api: { launchpad: { getState: () => { throw new Error("boom"); } } } });
   const api = registerDragDrop(_KDB);
-  assert.equal(api.mount(), false);
+  assert.equal(api.mount(), true);
   assert.equal(api.getState().lifecycle, "ready");
   assert.equal(typeof _KDB.runtime.dragDrop.subscriptions.tabsChanged, "function");
   assert.equal(api.refreshDropboxes(), false);

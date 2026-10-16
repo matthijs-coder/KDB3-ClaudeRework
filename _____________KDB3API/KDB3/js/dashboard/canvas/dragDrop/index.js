@@ -58,10 +58,10 @@ define([
       try {
         _avatar.createAvatarTemplates(_KDB, rt);
         _rebind.subscribeTabsChangedRebind(ctx);
-        const didBind = bindAllDropboxesSafely("mount");
+        bindAllDropboxesSafely("mount");
 
         dispatch({ type: _state.ACTION_TYPES.MOUNT_SUCCEEDED, payload: { mountedAt: Date.now(), options: options || {} } });
-        return didBind;
+        return true;
       } catch (error) {
         return handleBoundaryError("mount", error);
       }
