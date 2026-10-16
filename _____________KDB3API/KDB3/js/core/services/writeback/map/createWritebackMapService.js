@@ -57,7 +57,6 @@ define([
         if (error && (error.name === "WritebackError" || error.diagnostic)) {
           throw error;
         }
-        console.error("[writebackMap.toV3] failed", error);
         throw _errorCodes.createWritebackError(
           isV3Path
             ? _errorCodes.codes.WRITEBACK_INVALID_V3_PAYLOAD
