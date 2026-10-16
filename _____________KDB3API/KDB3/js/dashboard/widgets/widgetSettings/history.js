@@ -1,12 +1,12 @@
 define([
   "./config/selectors.js",
   "./effects/dispatchWidgetSettingsIntent.js",
+  "./state.js",
   "./intent/descriptor.js",
   "./view/dropdownOptionSelection.js",
   "./view/resolveWidgetPlacementContext.js",
-  "../../../core/utils/kit/data.js",
   "../../../core/utils/kit/history.js"
-], function (_selectors, _dispatchIntent, _descriptor, _dropdownOptionSelection, _placementContext, _kitData, _kitHistory) {
+], function (_selectors, _dispatchIntent, _state, _descriptor, _dropdownOptionSelection, _placementContext, _kitHistory) {
   "use strict";
 
   const STEP_KEY = "widgetSettings_optionSelect";
@@ -100,14 +100,6 @@ define([
     return null;
   }
 
-  function cloneOrKeep(value) {
-    try {
-      return _kitData.cloneJson(value);
-    } catch (_error) {
-      return value;
-    }
-  }
-
   function warnHistoryServiceMissingOnce(_KDB) {
     const rt = _KDB.runtime && _KDB.runtime.widgetSettings;
     if (!rt || rt.historyServiceMissingWarned === true) {
@@ -130,8 +122,8 @@ define([
     return _kitHistory.pushHistoryStep(_KDB, {
       key: STEP_KEY,
       timestamp: Date.now(),
-      old: cloneOrKeep(_oldFrame),
-      new: cloneOrKeep(_newFrame)
+      old: _state.cloneOrKeep(_oldFrame),
+      new: _state.cloneOrKeep(_newFrame)
     });
   }
 

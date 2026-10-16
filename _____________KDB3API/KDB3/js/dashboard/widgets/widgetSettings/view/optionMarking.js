@@ -191,26 +191,16 @@ define([
   }
 
   function markShowValuesPending(_KDB, widgetId, isPending) {
-    try {
-      markDropdownPending(_KDB, widgetId, "showValues", isPending);
-    } catch (err) {
-      console.error("[widgetSettings.markShowValuesPending]", err);
-    }
+    markDropdownPending(_KDB, widgetId, "showValues", isPending);
   }
 
   function revertShowValuesDropdownFromState(_KDB, widgetId) {
-    try {
-      return revertDropdownFromState(_KDB, String(widgetId || ""), "showValues", function (record) {
-        return readFlagKey(record && record.showValues);
-      });
-    } catch (err) {
-      console.error("[widgetSettings.revertShowValuesDropdownFromState]", err);
-      return false;
-    }
+    return revertDropdownFromState(_KDB, String(widgetId || ""), "showValues", function (record) {
+      return readFlagKey(record && record.showValues);
+    });
   }
 
   return {
-    markPanelOption: markPanelOption,
     markFocusDimensionAndTopNFromRecord: markFocusDimensionAndTopNFromRecord,
     stampPanelVisType: stampPanelVisType,
     markTopNPending: markTopNPending,

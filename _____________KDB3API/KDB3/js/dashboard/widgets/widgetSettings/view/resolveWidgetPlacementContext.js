@@ -120,7 +120,6 @@ define([
     resolveWidgetElForPayload: resolveWidgetElForPayload,
     resolveMetricsTableName: resolveMetricsTableName,
     readMetricsTableFromPayload: readMetricsTableFromPayload,
-    resolvePanel: resolvePanel,
-    resolveRenderRoot: resolveRenderRoot
+    resolvePanel: resolvePanel
   };
 });

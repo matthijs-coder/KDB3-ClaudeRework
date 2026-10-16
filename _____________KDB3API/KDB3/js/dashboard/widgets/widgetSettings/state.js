@@ -150,6 +150,7 @@ define([
     createInitialState: createInitialState,
     ensureWidgetSettingsByWidget: ensureWidgetSettingsByWidget,
     commitWidgetSettingValue: commitWidgetSettingValue,
+    cloneOrKeep: cloneOrKeep,
     recordSeedError: recordSeedError,
     recordSeedDeferred: recordSeedDeferred,
     recordReadinessFailure: recordReadinessFailure,

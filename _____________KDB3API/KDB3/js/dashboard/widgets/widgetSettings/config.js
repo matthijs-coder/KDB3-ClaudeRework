@@ -104,11 +104,8 @@ define([
     topNGroupingRequired: "Um die Top-N Funktion zu verwenden, muss zuerst eine Gruppierungsdimension gewählt werden."
   };
 
-  const IMAGE_BASE_PATH = "./v1/ext/KDB3/images/";
-
-  function readImagePath(_KDB) {
-    void _KDB;
-    return IMAGE_BASE_PATH;
+  function readImagePath() {
+    return "./v1/ext/KDB3/images/";
   }
 
   const OPTIONS = {
@@ -276,7 +273,6 @@ define([
   }
 
   return {
-    KIND_TABLE: KIND_TABLE,
     normalizeKind: normalizeKind,
     resolveTarget: resolveTarget,
     resolveType: resolveType,
@@ -284,7 +280,6 @@ define([
     controlForKind: controlForKind,
     isWidgetVisKind: isWidgetVisKind,
     LABELS: LABELS,
-    IMAGE_BASE_PATH: IMAGE_BASE_PATH,
     readImagePath: readImagePath,
     options: OPTIONS,
     findMatchingOption: findMatchingOption,

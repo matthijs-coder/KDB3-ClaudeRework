@@ -36,7 +36,6 @@ define([
   return {
     readSelectedOption: readSelectedOption,
     markSelectedOption: markSelectedOption,
-    selectHostOption: selectHostOption,
-    isHostOwnedOption: isHostOwnedOption
+    selectHostOption: selectHostOption
   };
 });

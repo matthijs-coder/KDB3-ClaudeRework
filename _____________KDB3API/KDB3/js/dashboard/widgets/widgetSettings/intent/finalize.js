@@ -223,7 +223,6 @@ define([
 
   return {
     finalizeVisIntentResult: finalizeVisIntentResult,
-    commitCoupledTopNClear: commitCoupledTopNClear,
     normalizeApplyResult: normalizeApplyResult,
     isApplySuccess: isApplySuccess,
     isBatchApplySuccess: isBatchApplySuccess,

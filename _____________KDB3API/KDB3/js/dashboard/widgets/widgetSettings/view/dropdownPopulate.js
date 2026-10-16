@@ -46,7 +46,7 @@ define([
       const image = document.createElement("input");
       image.type = "image";
       image.className = _selectors.svgIconClass;
-      image.src = _config.readImagePath(_KDB) + String(option.icon);
+      image.src = _config.readImagePath() + String(option.icon);
       image.alt = String(displayLabel);
       image.setAttribute("title", String(displayLabel));
       row.appendChild(image);

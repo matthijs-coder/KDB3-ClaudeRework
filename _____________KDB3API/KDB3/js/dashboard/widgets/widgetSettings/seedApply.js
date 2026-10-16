@@ -62,7 +62,7 @@ define([
       }
       if (_finalize.isBatchApplySuccess(normalized)) {
         commitBatchControls(_KDB, widgetId, normalized.reportToSettings);
-        stampPanelAfterBatch(_KDB, widgetId);
+        _optionMarking.stampPanelVisType(_KDB, widgetId);
         return { ok: true, widgetId: widgetId, kind: "visBatch", status: "success", reportToSettings: normalized.reportToSettings || null };
       }
       recordBatchFailure(_KDB, widgetId, descriptors, normalized);
@@ -102,14 +102,6 @@ define([
   function isShowValuesReportEntry(_entry) {
     const entry = _entry || {};
     return _config.normalizeKind(entry.kind) === "showValues" || entry.control === "showValues";
-  }
-
-  function stampPanelAfterBatch(_KDB, _widgetId) {
-    try {
-      _optionMarking.stampPanelVisType(_KDB, _widgetId);
-    } catch (err) {
-      console.error("[widgetSettings.applyVisStartupSeedBatch] stampPanelVisType failed", { widgetId: _widgetId }, err);
-    }
   }
 
   function recordBatchFailure(_KDB, _widgetId, _descriptors, _normalized) {

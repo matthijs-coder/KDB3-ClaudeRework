@@ -259,13 +259,9 @@ define([
   }
 
   function stampPanelIfMounted(_KDB, _widgetId) {
-    try {
-      const panel = _placementContext.resolvePanel(_KDB, _widgetId);
-      if (panel) {
-        _optionMarking.stampPanelVisType(_KDB, panel);
-      }
-    } catch (err) {
-      console.error("[widgetSettings.commitVisAndConsequences] stampPanelVisType failed", { widgetId: _widgetId }, err);
+    const panel = _placementContext.resolvePanel(_KDB, _widgetId);
+    if (panel) {
+      _optionMarking.stampPanelVisType(_KDB, panel);
     }
   }
 
@@ -307,17 +303,9 @@ define([
     const result = await _dispatchIntent.historyReplayVisBatch(_KDB, widgetId, batch);
     const ok = !!(result && result.ok === true);
     if (ok) {
-      stampPanelAfterRestore(_KDB, widgetId);
+      _optionMarking.stampPanelVisType(_KDB, widgetId);
     }
     return { ok: ok, widgetId: widgetId };
-  }
-
-  function stampPanelAfterRestore(_KDB, _widgetId) {
-    try {
-      _optionMarking.stampPanelVisType(_KDB, _widgetId);
-    } catch (err) {
-      console.error("[widgetSettings.restoreCommittedSettingsOnHistoryReplay] stampPanelVisType failed", { widgetId: _widgetId }, err);
-    }
   }
 
   function restoreCommittedColour(_KDB, widgetId, widgetType) {

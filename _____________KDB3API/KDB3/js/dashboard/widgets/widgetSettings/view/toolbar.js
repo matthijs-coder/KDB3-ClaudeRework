@@ -12,7 +12,7 @@ define([
     toolbar.setAttribute("data-kdb-widget-toolbar", String(context.widgetId));
     image.type = "image";
     image.className = _selectors.svgIconClass;
-    image.src = _config.readImagePath(_KDB) + "settings.svg";
+    image.src = _config.readImagePath() + "settings.svg";
     image.alt = "Widget settings";
     image.setAttribute("data-kdb-widget-settings-toggle", "1");
     toolbar.appendChild(image);
