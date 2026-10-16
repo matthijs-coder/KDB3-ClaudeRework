@@ -22,8 +22,6 @@ define([], function () {
     visualizationType: "TopN",
     cognosVisualizationTypeId: "List",
     visPropBucketKey: "List",
-    slotId: "grid_cols",
-    dimensionSelectionAffects: "disabled",
     dimensionExcludeDefaults: DIMENSION_EXCLUDE_DEFAULTS,
     aggregationFilter: {
       key: "AggregationstypId",
