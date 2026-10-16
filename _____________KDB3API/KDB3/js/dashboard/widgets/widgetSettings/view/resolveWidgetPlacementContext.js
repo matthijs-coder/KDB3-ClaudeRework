@@ -1,7 +1,25 @@
 define([
-  "../config/selectors.js",
-  "./resolveRenderRoot.js"
-], function (_selectors, _resolveRenderRoot) {
+  "../config/selectors.js"
+], function (_selectors) {
+  function resolveRenderRoot(_KDB) {
+    const core = _KDB && _KDB.runtime && _KDB.runtime.core && _KDB.runtime.core.domRefs;
+    return core && core.renderParentEl ? core.renderParentEl : null;
+  }
+
+  function resolvePanel(_KDB, _widgetId) {
+    const widgetId = String(_widgetId || "");
+    const runtime = _KDB.runtime && _KDB.runtime.widgetSettings;
+    const refs = runtime && runtime.domRefs ? runtime.domRefs[widgetId] : null;
+    if (refs && refs.panel) {
+      return refs.panel;
+    }
+    const root = resolveRenderRoot(_KDB);
+    if (!root || typeof root.querySelector !== "function") {
+      return null;
+    }
+    return root.querySelector(_selectors.panelRootSelectorFor(widgetId));
+  }
+
   function resolveWidgetType(payload) {
     const kind = String(payload.kind || payload.widgetType || payload.type || "").toLowerCase();
     if (kind === "text") {
@@ -33,41 +51,31 @@ define([
   }
 
   function buildShellRootClassMismatchMessage(widgetEl, widgetType, requiredClass) {
-    try {
-      const descendantSelector = widgetType === "text" ? _selectors.textWidgetClass : _selectors.liveWidgetClass;
-      const hasDescendantClass = !!(widgetEl.querySelector && widgetEl.querySelector(descendantSelector));
-      const rootRequirement = "Widget settings require \"" + requiredClass + "\" on the shell root element for CSS ancestor selectors.";
-      if (hasDescendantClass) {
-        return rootRequirement + " A descendant matches " + descendantSelector + " but the shell root does not.";
-      }
-      return rootRequirement + " Shell root is missing required class \"" + requiredClass + "\".";
-    } catch (err) {
-      console.error("[widgetSettings.buildShellRootClassMismatchMessage] failed", { widgetType: widgetType }, err);
-      throw err;
+    const descendantSelector = widgetType === "text" ? _selectors.textWidgetClass : _selectors.liveWidgetClass;
+    const hasDescendantClass = !!(widgetEl.querySelector && widgetEl.querySelector(descendantSelector));
+    const rootRequirement = "Widget settings require \"" + requiredClass + "\" on the shell root element for CSS ancestor selectors.";
+    if (hasDescendantClass) {
+      return rootRequirement + " A descendant matches " + descendantSelector + " but the shell root does not.";
     }
+    return rootRequirement + " Shell root is missing required class \"" + requiredClass + "\".";
   }
 
   function resolveWidgetEl(_KDB, widgetId) {
-    try {
-      if (!widgetId) {
-        return null;
-      }
-      let widgetEl = null;
-      if (typeof document !== "undefined" && typeof document.getElementById === "function") {
-        widgetEl = document.getElementById(widgetId);
-      }
-      if (widgetEl && widgetEl.nodeType === 1) {
-        return widgetEl;
-      }
-      const root = _resolveRenderRoot(_KDB);
-      if (root && typeof root.querySelector === "function") {
-        widgetEl = root.querySelector(_selectors.widgetIdSelector(widgetId));
-      }
-      return widgetEl && widgetEl.nodeType === 1 ? widgetEl : null;
-    } catch (err) {
-      console.error("[widgetSettings.resolveWidgetEl] failed", { widgetId: widgetId }, err);
-      throw err;
+    if (!widgetId) {
+      return null;
     }
+    let widgetEl = null;
+    if (typeof document !== "undefined" && typeof document.getElementById === "function") {
+      widgetEl = document.getElementById(widgetId);
+    }
+    if (widgetEl && widgetEl.nodeType === 1) {
+      return widgetEl;
+    }
+    const root = resolveRenderRoot(_KDB);
+    if (root && typeof root.querySelector === "function") {
+      widgetEl = root.querySelector(_selectors.widgetIdSelector(widgetId));
+    }
+    return widgetEl && widgetEl.nodeType === 1 ? widgetEl : null;
   }
 
   function resolveWidgetElForPayload(_KDB, widgetId, payload) {
@@ -99,15 +107,10 @@ define([
   }
 
   function readKennzahlenTable(widgetEl) {
-    try {
-      if (!widgetEl || !widgetEl.getAttribute) {
-        return "";
-      }
-      return widgetEl.getAttribute(_selectors.kennzahlenTableAttr) || widgetEl.getAttribute(_selectors.kennzahlenTableAttrAlt) || "";
-    } catch (err) {
-      console.error("[widgetSettings.readKennzahlenTable] failed", err);
-      throw err;
+    if (!widgetEl || !widgetEl.getAttribute) {
+      return "";
     }
+    return widgetEl.getAttribute(_selectors.kennzahlenTableAttr) || widgetEl.getAttribute(_selectors.kennzahlenTableAttrAlt) || "";
   }
 
   return {
@@ -116,6 +119,8 @@ define([
     resolveWidgetEl: resolveWidgetEl,
     resolveWidgetElForPayload: resolveWidgetElForPayload,
     resolveMetricsTableName: resolveMetricsTableName,
-    readMetricsTableFromPayload: readMetricsTableFromPayload
+    readMetricsTableFromPayload: readMetricsTableFromPayload,
+    resolvePanel: resolvePanel,
+    resolveRenderRoot: resolveRenderRoot
   };
 });
