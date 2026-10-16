@@ -2,8 +2,9 @@ define([
   "./config.js",
   "./view.js",
   "./textStyle.js",
-  "./widgetRuntime.js"
-], function (_config, _view, _textStyle, _widgetRuntime) {
+  "./widgetRuntime.js",
+  "../../../core/utils/kit/runtime.js"
+], function (_config, _view, _textStyle, _widgetRuntime, _rt) {
   "use strict";
 
   var AUTOMATIC_ALIASES = ["", "default", "Default", "Automatic", "automatic", "auto"];
@@ -27,8 +28,21 @@ define([
     };
   }
 
-  // Cognos re-fits automatic text on window resize, so the refit dispatches a global resize event.
-  function forceTextDomReflow(_widgetId, _nodes) {
+  var RESIZE_FRAME_KEY = "windowResizeAfterRefit";
+
+  // Cognos re-fits automatic text on window resize, so a refit dispatches a global resize event. Several refits
+  // in one frame (restore, undo) share a single dispatch on the next animation frame.
+  function scheduleWindowResize(_KDB) {
+    var timers = _widgetRuntime.readRuntimeRoot(_KDB).timers;
+    if (timers[RESIZE_FRAME_KEY]) {
+      return;
+    }
+    _rt.scheduleFrame(timers, RESIZE_FRAME_KEY, function () {
+      window.dispatchEvent(new Event("resize"));
+    });
+  }
+
+  function forceTextDomReflow(_KDB, _widgetId, _nodes) {
     var nodes = _nodes && _nodes.editableEl ? _nodes : _view.resolveEditableNodes(_widgetId, null);
     var editableEl = nodes && nodes.editableEl ? nodes.editableEl : null;
     if (!editableEl) {
@@ -40,14 +54,14 @@ define([
     void editableEl.offsetHeight;
     editableEl.style.display = previousDisplay;
     void editableEl.offsetHeight;
-    window.dispatchEvent(new Event("resize"));
+    scheduleWindowResize(_KDB);
     return { ok: true, target: "editable" };
   }
 
   // The reflow only nudges Cognos to re-fit; a failure must not fail the font change.
-  function tryReflow(_widgetId, _nodes) {
+  function tryReflow(_KDB, _widgetId, _nodes) {
     try {
-      return forceTextDomReflow(_widgetId, _nodes);
+      return forceTextDomReflow(_KDB, _widgetId, _nodes);
     } catch (err) {
       console.error("[widgetText.forceTextDomReflow] failed", { widgetId: _widgetId }, err);
       return { ok: false, errorCode: "WIDGET_TEXT_REFLOW_FAILED", errorMessage: String(err && err.message ? err.message : err) };
@@ -87,7 +101,7 @@ define([
       _textStyle.removeFixedFontSize(_KDB, _widgetId);
       _nodes.textNodeForFont.style.fontSize = "";
       runtime.fontSize = _config.automaticFontSize;
-      var reflowResult = tryReflow(_widgetId, _nodes);
+      var reflowResult = tryReflow(_KDB, _widgetId, _nodes);
       return {
         ok: true,
         appliedValue: _config.automaticFontSize,

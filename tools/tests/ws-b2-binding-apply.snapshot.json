@@ -1591,39 +1591,19 @@
     "ownerWidgetId": "w1",
     "opSeq": 3,
     "reason": "cleanup",
-    "completedSteps": [
-     "validateInputs",
-     "readCurrentVisType",
-     "setDatasourceInitial",
-     "setVisType",
-     "clearSlotsAndFilters",
-     "setDatasourceAfterClear",
-     "applySlots",
-     "applyLocalFilters",
-     "renderWidget"
-    ],
-    "failedStep": "buildSuccessResult",
-    "skippedSteps": ["removeManagedFilters","applyTopBottom"],
-    "errorCode": "WIDGET_BINDING_APPLY_UNEXPECTED_ERROR",
-    "errorMessage": "_signal.addEventListener is not a function",
+    "completedSteps": [],
+    "failedStep": "validateInputs",
+    "skippedSteps": [],
+    "errorCode": "WIDGET_BINDING_APPLY_INVALID_INPUT",
+    "errorMessage": "Invalid AbortSignal: addEventListener and removeEventListener are required.",
     "emptyMode": null,
     "emptyReason": null,
     "timedOut": false,
     "aborted": false,
-    "warnings": [{"code":"WIDGET_BINDING_APPLY_RENDER_WAIT_ARMED","message":"start=no, complete=yes","step":"waitRenderComplete"}],
-    "cognos": {"currentVisType":"Bar","datasourceId":"ds1","desiredVisType":"List","appliedSlotCount":0,"appliedFilterCount":0}
+    "warnings": [],
+    "cognos": {}
    },
-   "calls": [
-    ["getVisType","h1"],
-    ["setDataSource","h1","ds1",{"signal":"[signal]"}],
-    ["setVisType","h1","List",{"signal":"[signal]"}],
-    ["clearAllSlots","h1",{"signal":"[signal]"}],
-    ["clearAllLocalFilters","h1",{"signal":"[signal]"}],
-    ["setDataSource","h1","ds1",{"signal":"[signal]"}],
-    ["whenRenderComplete","h1",{"intervalMs":100,"signal":"[signal]"}],
-    ["renderWidget","h1",{"signal":"[signal]"}],
-    ["loading.finishLoading",{"mountKey":"kdb-widget-render-loading-h1"}]
-   ],
+   "calls": [],
    "timers": [],
    "timerScopeId": "applyBinding:h1:3"
   },
@@ -1638,104 +1618,19 @@
     "ownerWidgetId": "w1",
     "opSeq": 3,
     "reason": "topN",
-    "completedSteps": [
-     "validateInputs",
-     "readCurrentVisType",
-     "setDatasourceInitial",
-     "setVisType",
-     "clearSlotsAndFilters",
-     "setDatasourceAfterClear",
-     "applySlots",
-     "applyLocalFilters",
-     "applyTopBottom",
-     "renderWidget"
-    ],
-    "failedStep": "buildSuccessResult",
-    "skippedSteps": ["removeManagedFilters"],
-    "errorCode": "WIDGET_BINDING_APPLY_UNEXPECTED_ERROR",
-    "errorMessage": "_signal.addEventListener is not a function",
+    "completedSteps": [],
+    "failedStep": "validateInputs",
+    "skippedSteps": [],
+    "errorCode": "WIDGET_BINDING_APPLY_INVALID_INPUT",
+    "errorMessage": "Invalid AbortSignal: addEventListener and removeEventListener are required.",
     "emptyMode": null,
     "emptyReason": null,
     "timedOut": false,
     "aborted": false,
-    "warnings": [{"code":"WIDGET_BINDING_APPLY_RENDER_WAIT_ARMED","message":"start=no, complete=yes","step":"waitRenderComplete"}],
-    "cognos": {
-     "currentVisType": "Bar",
-     "datasourceId": "ds1",
-     "desiredVisType": "List",
-     "appliedSlotCount": 1,
-     "appliedFilterCount": 2,
-     "appliedTopBottomCount": 1,
-     "topBottom": [{"slotName":"grid_cols","value":5,"valueItemId":"[Personal_KDB_TM1].[KDB Kennzahlen].[K1]"}]
-    }
+    "warnings": [],
+    "cognos": {}
    },
-   "calls": [
-    ["getVisType","h1"],
-    ["setDataSource","h1","ds1",{"signal":"[signal]"}],
-    ["setVisType","h1","List",{"signal":"[signal]"}],
-    ["clearAllSlots","h1",{"signal":"[signal]"}],
-    ["clearAllLocalFilters","h1",{"signal":"[signal]"}],
-    ["setDataSource","h1","ds1",{"signal":"[signal]"}],
-    [
-     "addDataItemsToSlot",
-     "h1",
-     "grid_cols",
-     ["[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]","[Personal_KDB_TM1].[KDB Kennzahlen].[K1]"],
-     {"signal":"[signal]"}
-    ],
-    [
-     "addOrReplaceLocalFilter",
-     "h1",
-     "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
-     {"values":["Stichtag"]},
-     null,
-     {"signal":"[signal]"}
-    ],
-    [
-     "addOrReplaceLocalFilter",
-     "h1",
-     "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
-     {
-      "exclude": false,
-      "values": [],
-      "conditionsInfo": {
-       "excludedValues": [],
-       "conditions": {
-        "and": [
-         {
-          "not": {
-           "operator": "endswith",
-           "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
-           "ignoreCase": true,
-           "values": ["Gesamt"],
-           "valueType": "display"
-          }
-         },
-         {
-          "not": {"operator":"endswith","itemId":"[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]","ignoreCase":true,"values":["ALLE"],"valueType":"display"}
-         },
-         {
-          "not": {"operator":"endswith","itemId":"[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]","ignoreCase":true,"values":["^"],"valueType":"display"}
-         }
-        ]
-       }
-      },
-      "action": "keepexclude"
-     },
-     null,
-     {"signal":"[signal]"}
-    ],
-    [
-     "setTopBottomOnSlot",
-     "h1",
-     "grid_cols",
-     {"type":"topcount","value":5,"rank":false,"valueItemId":"[Personal_KDB_TM1].[KDB Kennzahlen].[K1]"},
-     {"signal":"[signal]"}
-    ],
-    ["whenRenderComplete","h1",{"intervalMs":100,"signal":"[signal]"}],
-    ["renderWidget","h1",{"signal":"[signal]"}],
-    ["loading.finishLoading",{"mountKey":"kdb-widget-render-loading-h1"}]
-   ],
+   "calls": [],
    "timers": [],
    "timerScopeId": "applyBinding:h1:3"
   },
@@ -1848,6 +1743,60 @@
     ],
     ["renderWidget","w1",{"signal":"[signal]"}]
    ],
+   "timers": [],
+   "timerScopeId": "applyBinding:w1:7"
+  },
+  "lineRenderDeferredPlainSignal": {
+   "status": "error",
+   "mirrorPatch": null,
+   "diagnostics": {
+    "service": "widgetBindingApply",
+    "operation": "applyBinding",
+    "targetWidgetId": "w1",
+    "targetKind": "vis",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "reason": "contentCreate",
+    "completedSteps": [],
+    "failedStep": "validateInputs",
+    "skippedSteps": [],
+    "errorCode": "WIDGET_BINDING_APPLY_INVALID_INPUT",
+    "errorMessage": "Invalid AbortSignal: addEventListener and removeEventListener are required.",
+    "emptyMode": null,
+    "emptyReason": null,
+    "timedOut": false,
+    "aborted": false,
+    "warnings": [],
+    "cognos": {}
+   },
+   "calls": [],
+   "timers": [],
+   "timerScopeId": "applyBinding:w1:7"
+  },
+  "lineAddListenerOnlySignal": {
+   "status": "error",
+   "mirrorPatch": null,
+   "diagnostics": {
+    "service": "widgetBindingApply",
+    "operation": "applyBinding",
+    "targetWidgetId": "w1",
+    "targetKind": "vis",
+    "ownerWidgetId": null,
+    "opSeq": 7,
+    "reason": "contentCreate",
+    "completedSteps": [],
+    "failedStep": "validateInputs",
+    "skippedSteps": [],
+    "errorCode": "WIDGET_BINDING_APPLY_INVALID_INPUT",
+    "errorMessage": "Invalid AbortSignal: addEventListener and removeEventListener are required.",
+    "emptyMode": null,
+    "emptyReason": null,
+    "timedOut": false,
+    "aborted": false,
+    "warnings": [],
+    "cognos": {}
+   },
+   "calls": [],
    "timers": [],
    "timerScopeId": "applyBinding:w1:7"
   },

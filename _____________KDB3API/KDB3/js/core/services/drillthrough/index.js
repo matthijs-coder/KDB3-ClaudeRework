@@ -2,7 +2,7 @@ define([
   "./config.js",
   "./buildDrillthroughUrl.js",
   "./open.js"
-], function (_config, _build, _openDrillthrough) {
+], function (_config, _build, _createOpener) {
   "use strict";
 
   function bindIfFunction(_owner, _name) {
@@ -24,12 +24,16 @@ define([
     if (options.labels != null && typeof options.labels === "object") {
       deps.labels = options.labels;
     }
+    var opener = _createOpener();
     return {
       buildDrillthroughUrl: function (_spec) {
         return _build.buildDrillthroughUrl(_spec, deps);
       },
       openDrillthrough: function (_spec) {
-        return _openDrillthrough(_spec, deps);
+        return opener.openDrillthrough(_spec, deps);
+      },
+      destroy: function () {
+        opener.destroy();
       }
     };
   }

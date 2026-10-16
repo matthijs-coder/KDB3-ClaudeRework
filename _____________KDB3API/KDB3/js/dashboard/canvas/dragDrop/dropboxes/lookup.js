@@ -20,9 +20,6 @@ define([
   }
 
   function readDashboardDropboxes(_KDB) {
-    if (_KDB && _KDB.elements && typeof _KDB.elements.dashboardDropboxes === "function") {
-      return _data.toArray(_KDB.elements.dashboardDropboxes());
-    }
     return _data.toArray(readOwnerDocument(_KDB).querySelectorAll(readDragDropSelector(_KDB, "canvasDropboxSelector")));
   }
 
@@ -41,18 +38,10 @@ define([
   }
 
   function resolveClosestBoundDropbox(_KDB, node, options) {
-    return resolveFromElementsRegistry(_KDB, node)
-      || resolveClosestBySelector(node, "[kdb_dropbox='true']")
+    return resolveClosestBySelector(node, "[kdb_dropbox='true']")
       || resolveClosestBySelector(node, readDragDropSelector(_KDB, "canvasDropboxSelector"))
       || (options && options.currentTarget)
       || null;
-  }
-
-  function resolveFromElementsRegistry(_KDB, node) {
-    if (_KDB && _KDB.elements && typeof _KDB.elements.closestBoundDropbox === "function") {
-      return _KDB.elements.closestBoundDropbox(node);
-    }
-    return null;
   }
 
   function resolveClosestBySelector(node, selector) {

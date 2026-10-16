@@ -1,10 +1,6 @@
 define([], function () {
   "use strict";
 
-  var domSelectors = {
-    root: "#kdb-message-root"
-  };
-
   var messageLabels = {
     acknowledge: "OK",
     cancel: "Nein",
@@ -22,7 +18,6 @@ define([], function () {
     GLOBAL_DURATION_MS: 15000,
     ROOT_ID: "kdb-message-root",
     STACK_GAP_PX: 8,
-    domSelectors: domSelectors,
     messageLabels: messageLabels
   };
 });

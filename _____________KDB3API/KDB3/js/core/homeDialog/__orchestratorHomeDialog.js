@@ -1,4 +1,4 @@
-define(["./presentHomeChoice.js", "./presentCubesUnavailable.js"], function (_presentHomeChoice, _presentCubesUnavailable) {
+define(["./presentHomeChoice.js", "./presentCubesUnavailable.js", "../bootstrap/config.js"], function (_presentHomeChoice, _presentCubesUnavailable, _bootstrapConfig) {
   "use strict";
 
   var HOME_DIALOG_LABELS = {
@@ -24,6 +24,17 @@ define(["./presentHomeChoice.js", "./presentCubesUnavailable.js"], function (_pr
     );
   }
 
+  // The boot overlay is the only overlay that offers the home dialog when its watchdog fires.
+  function registerBootWatchdog(_KDB) {
+    var loading = _KDB.services && _KDB.services.loading;
+    if (!loading || typeof loading.registerWatchdogHandler !== "function") {
+      return null;
+    }
+    return loading.registerWatchdogHandler(_bootstrapConfig.BOOT_LOADING_MOUNT_KEY, function (payload) {
+      return _presentHomeChoice(_KDB, { title: payload.title, message: payload.message, code: payload.code, severity: payload.severity });
+    });
+  }
+
   function __orchestrator(_KDB) {
     var cognosHost = _KDB.services && _KDB.services.cognosHost;
     mergeHomeDialogLabels(_KDB);
@@ -32,7 +43,8 @@ define(["./presentHomeChoice.js", "./presentCubesUnavailable.js"], function (_pr
       dataSourcesFacet: (cognosHost && cognosHost.dataSources) || null,
       dashboardFacet: (cognosHost && cognosHost.dashboard) || null,
       presentHomeChoice: _presentHomeChoice,
-      presentCubesUnavailable: _presentCubesUnavailable
+      presentCubesUnavailable: _presentCubesUnavailable,
+      unregisterWatchdog: registerBootWatchdog(_KDB)
     };
     return _KDB.runtime.homeDialog;
   }

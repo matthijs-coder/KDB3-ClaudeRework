@@ -4,8 +4,9 @@ define([
   "./config/pageChromeSelectors.js",
   "./config/filterDockChromeSelectors.js",
   "./config/widgetChromeSelectors.js",
+  "./config/chromeLabels.js",
   "./chromeChecks.js"
-], function (_rootChrome, _tabChrome, _pageChrome, _filterDockChrome, _widgetChrome, _createChromeChecks) {
+], function (_rootChrome, _tabChrome, _pageChrome, _filterDockChrome, _widgetChrome, _chromeLabels, _createChromeChecks) {
   "use strict";
 
   var CATALOG = [
@@ -40,6 +41,14 @@ define([
     _KDB.elements.selectors[namespace] = bucket;
   }
 
+  function registerChromeLabels(_KDB) {
+    var labels;
+    _KDB.config = _KDB.config || {};
+    labels = _KDB.config.labels = _KDB.config.labels || {};
+    labels.de = labels.de || {};
+    labels.de.chrome = Object.assign({}, _chromeLabels, labels.de.chrome || {});
+  }
+
   function registerCognosHostSelectors(_KDB) {
     var checks = _createChromeChecks();
     var selectorMeta;
@@ -48,6 +57,7 @@ define([
     _KDB.elements.selectors = _KDB.elements.selectors || {};
     selectorMeta = checks.ensureRuntime(_KDB).selectorMeta;
     _KDB.runtime.cognosHost.chromeChecks = checks;
+    registerChromeLabels(_KDB);
     for (idx = 0; idx < CATALOG.length; idx += 1) {
       applyChromeCatalog(_KDB, CATALOG[idx][0], CATALOG[idx][1].entries, selectorMeta);
     }

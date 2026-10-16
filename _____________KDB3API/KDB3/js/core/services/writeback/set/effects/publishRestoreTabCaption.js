@@ -49,75 +49,60 @@ define([
   }
 
   function resolveCaption(_KDB, _request) {
-    try {
-      let visibleTabs;
-      let slot;
-      let message;
-      if (_request && _request.landing === true) {
-        visibleTabs = _selectors.readVisibleTabs(_KDB) || [];
-        if (visibleTabs.length === 0) { return { message: "" }; }
-        message = messageForSlot(_KDB, visibleTabs[0], visibleTabs);
-        return message == null ? { skip: true } : { message: message };
-      }
-      if (!_request || typeof _request.tabIdx !== "number") { return { skip: true }; }
-      slot = readDashboardSlot(_KDB, _request.tabIdx);
-      if (!slot) { return { skip: true }; }
+    let visibleTabs;
+    let slot;
+    let message;
+    if (_request && _request.landing === true) {
       visibleTabs = _selectors.readVisibleTabs(_KDB) || [];
-      message = messageForSlot(_KDB, slot, visibleTabs);
+      if (visibleTabs.length === 0) { return { message: "" }; }
+      message = messageForSlot(_KDB, visibleTabs[0], visibleTabs);
       return message == null ? { skip: true } : { message: message };
-    } catch (error) {
-      console.warn("[writebackSet.publishRestoreTabCaption] failed", error);
-      return { skip: true };
     }
+    if (!_request || typeof _request.tabIdx !== "number") { return { skip: true }; }
+    slot = readDashboardSlot(_KDB, _request.tabIdx);
+    if (!slot) { return { skip: true }; }
+    visibleTabs = _selectors.readVisibleTabs(_KDB) || [];
+    message = messageForSlot(_KDB, slot, visibleTabs);
+    return message == null ? { skip: true } : { message: message };
   }
 
   function readDashboardSlot(_KDB, _tabIdx) {
-    try {
-      const state = _selectors.readTabsState(_KDB) || {};
-      const order = Array.isArray(state.order) ? state.order : [];
-      const byIndex = state.byIndex || {};
-      const slots = [];
-      let orderIndex;
-      let tab;
-      for (orderIndex = 0; orderIndex < order.length; orderIndex += 1) {
-        tab = byIndex[String(order[orderIndex])];
-        if (!tab) { continue; }
-        if (!tab.role) {
-          console.warn("[writebackSet.publishRestoreTabCaption] tab role missing");
-          return null;
-        }
-        if (tab.role === "dashboard") { slots.push(tab); }
-      }
-      tab = slots[_tabIdx];
-      if (!tab) {
-        console.warn("[writebackSet.publishRestoreTabCaption] tab index missed", { tabIdx: _tabIdx });
+    const state = _selectors.readTabsState(_KDB) || {};
+    const order = Array.isArray(state.order) ? state.order : [];
+    const byIndex = state.byIndex || {};
+    const slots = [];
+    let orderIndex;
+    let tab;
+    for (orderIndex = 0; orderIndex < order.length; orderIndex += 1) {
+      tab = byIndex[String(order[orderIndex])];
+      if (!tab) { continue; }
+      if (!tab.role) {
+        console.warn("[writebackSet.publishRestoreTabCaption] tab role missing");
         return null;
       }
-      return tab;
-    } catch (error) {
-      console.warn("[writebackSet.publishRestoreTabCaption] failed", error);
+      if (tab.role === "dashboard") { slots.push(tab); }
+    }
+    tab = slots[_tabIdx];
+    if (!tab) {
+      console.warn("[writebackSet.publishRestoreTabCaption] tab index missed", { tabIdx: _tabIdx });
       return null;
     }
+    return tab;
   }
 
   function messageForSlot(_KDB, slot, visibleTabs) {
-    try {
-      const physicalIndex = slot && typeof slot.index === "number" ? slot.index : null;
-      const name = slot && typeof slot.name === "string" ? slot.name : "";
-      const hasName = name.length > 0;
-      const position = visiblePosition(visibleTabs, physicalIndex);
-      if (position >= 0 && hasName) {
-        return formatRestoreTabCaption(_KDB, "tabProgressNamedCounted", { n: position + 1, m: visibleTabs.length, name: name });
-      }
-      if (position >= 0) {
-        return formatRestoreTabCaption(_KDB, "tabProgressCounted", { n: position + 1, m: visibleTabs.length });
-      }
-      if (hasName) { return formatRestoreTabCaption(_KDB, "tabProgressName", { name: name }); }
-      return "";
-    } catch (error) {
-      console.warn("[writebackSet.publishRestoreTabCaption] failed", error);
-      return null;
+    const physicalIndex = slot && typeof slot.index === "number" ? slot.index : null;
+    const name = slot && typeof slot.name === "string" ? slot.name : "";
+    const hasName = name.length > 0;
+    const position = visiblePosition(visibleTabs, physicalIndex);
+    if (position >= 0 && hasName) {
+      return formatRestoreTabCaption(_KDB, "tabProgressNamedCounted", { n: position + 1, m: visibleTabs.length, name: name });
     }
+    if (position >= 0) {
+      return formatRestoreTabCaption(_KDB, "tabProgressCounted", { n: position + 1, m: visibleTabs.length });
+    }
+    if (hasName) { return formatRestoreTabCaption(_KDB, "tabProgressName", { name: name }); }
+    return "";
   }
 
   function visiblePosition(visibleTabs, physicalIndex) {

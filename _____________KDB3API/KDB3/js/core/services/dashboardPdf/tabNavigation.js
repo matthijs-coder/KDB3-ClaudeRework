@@ -9,7 +9,7 @@ define([
 
   // ---- visible tabs manifest ------------------------------------------------------------------------------
 
-  function readVisibleTabsManifest(_KDB) {
+  function readVisibleTabsManifest(_KDB, labels) {
     var api = _KDB.api && _KDB.api.tabs;
     var state = api && typeof api.getState === "function" ? api.getState() : null;
     if (!state || !Array.isArray(state.visibleTabs)) {
@@ -27,7 +27,7 @@ define([
           index: tab.index,
           tabId: tab.tabId || null,
           pageId: tab.pageId || null,
-          name: tab.name || "Unbenannter Tab"
+          name: tab.name || labels.unnamedTab
         };
       })
     };

@@ -99,6 +99,11 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
   const log = [];
   const misplaced = [];
   const signalViolations = [];
+  const signalCalls = { preApply: 0, cleanup: 0, render: 0, properties: 0 };
+  const checkSignal = (kind, signal) => {
+    signalCalls[kind] += 1;
+    if (!(signal instanceof AbortSignal)) signalViolations.push({ kind });
+  };
   const cleanupStarts = [];
   const counters = { apply: 0, read: 0 };
   const terminals = [];
@@ -131,7 +136,7 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
       }
     },
     services: {
-      cognosHost: { widgets: { renderWidget: (id, options) => delay(2, options.signal).then((done) => (done ? { ok: true } : { ok: false, outcome: "aborted" })) } },
+      cognosHost: { widgets: { renderWidget: (id, options) => (checkSignal("render", options.signal), delay(2, options.signal)).then((done) => (done ? { ok: true } : { ok: false, outcome: "aborted" })) } },
       widgetBindingPlan: {
         buildPlan: (spec) => ({
           ok: true,
@@ -146,7 +151,7 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
         async applyBinding(plan, options) {
           const helperId = options.target.widgetId;
           const kind = plan.reason === "cleanup" ? "cleanup" : "apply";
-          if (!(options.signal instanceof AbortSignal)) signalViolations.push({ kind, helperId });
+          checkSignal(kind === "cleanup" ? "cleanup" : "preApply", options.signal);
           const callNumber = kind === "apply" ? (counters.apply += 1) : 0;
           if (kind === "cleanup") {
             const runtimeRecord = _KDB.runtime.widgetTopN.byOwner[options.target.ownerWidgetId];
@@ -178,7 +183,10 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
   const shell = { resolveWidgetShell: (kdb, id) => (id ? doc.getElementById(id) : null) };
   const removedOwners = new Set();
   const baseSelectors = { readFrame: (kdb, id) => (removedOwners.has(id) ? undefined : { tabId: "t1" }) };
-  const visProps = () => Promise.resolve({ diagnostics: {} });
+  const visProps = (kdb, options) => {
+    checkSignal("properties", options.signal);
+    return Promise.resolve({ diagnostics: {} });
+  };
   for (const prefix of ["../../", "../"]) {
     modules[prefix + "widgetBase/view/resolveWidgetShell.js"] = shell;
     modules[prefix + "widgetBase/state/selectors.js"] = baseSelectors;
@@ -190,7 +198,7 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
 
   const api = _KDB.api.widgetTopN;
   return {
-    _KDB, api, doc, slot, canvas, log, terminals, overlaps, now, removedOwners, misplaced, signalViolations, cleanupStarts,
+    _KDB, api, doc, slot, canvas, log, terminals, overlaps, now, removedOwners, misplaced, signalViolations, signalCalls, cleanupStarts,
     resolve(owner, opSeq, topNChoice) {
       return api.dispatch({
         type: "widgetTopN/resolveRequested",
@@ -561,5 +569,24 @@ test("dispatch and getState have a boundary: a broken state root gives an error 
     Object.defineProperty(env._KDB, "state", { configurable: true, writable: true, value: savedState });
     const unknown = await env.api.dispatch({ type: "constructor" });
     assert.equal(unknown.errorCode, "WIDGET_TOPN_INVALID_REQUEST");
+  });
+});
+
+test("every signal TopN hands to the binding apply service, helper render and helper properties is a real AbortSignal", async () => {
+  await withEnv({ cleanupMs: 30 }, async (env, messages) => {
+    const resolved = await env.resolve("o1", 1);
+    assert.equal(resolved.status, "success");
+    await waitUntil(() => env.idle());
+    assert.ok(env.signalCalls.preApply === 1 && env.signalCalls.render === 1 && env.signalCalls.properties === 2, "pre-apply, read render, pre/post properties");
+    assert.equal(env.signalCalls.cleanup, 1, "post-resolution cleanup");
+    const cleared = await env.clear("o1", DATA_CONFIG);
+    assert.equal(cleared.ok, true);
+    assert.equal(env.signalCalls.cleanup, 2, "explicit clear");
+    const callsBeforeRelease = Object.assign({}, env.signalCalls);
+    const released = await env.release("o1");
+    assert.equal(released.ok, true);
+    assert.deepEqual(env.signalCalls, callsBeforeRelease, "release-only cleanup never reaches the apply service");
+    assert.deepEqual(env.signalViolations, []);
+    assert.deepEqual(widgetTopNWarnings(messages), []);
   });
 });

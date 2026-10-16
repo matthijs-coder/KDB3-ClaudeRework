@@ -4,8 +4,9 @@ define([
   "./caption.js",
   "./config.js",
   "./overlay.js",
-  "./state.js"
-], function (_errors, _rt, _caption, _config, _overlay, _state) {
+  "./state.js",
+  "./watchdog.js"
+], function (_errors, _rt, _caption, _config, _overlay, _state, _watchdog) {
   "use strict";
 
   function logPublicError(methodName, error) {
@@ -15,6 +16,7 @@ define([
   function clearLoadingRuntime(_KDB) {
     var runtime = _state.ensureLoadingRuntime(_KDB);
     var errors;
+    runtime.watchdogHandlersByMountKey = {};
     _overlay.clearOverlays(runtime);
     errors = _rt.disposeRuntimeBuckets(runtime);
     if (errors.length) {
@@ -56,6 +58,16 @@ define([
       }
     }
 
+    function registerWatchdogHandler(mountKey, handler) {
+      if (guard.blocked("registerWatchdogHandler")) return function noopUnregister() {};
+      try {
+        return _watchdog.registerWatchdogHandler(_KDB, mountKey, handler);
+      } catch (error) {
+        logPublicError("registerWatchdogHandler", error);
+        return function noopUnregister() {};
+      }
+    }
+
     function destroy() {
       if (guard.isDisposed()) return;
       guard.dispose();
@@ -72,6 +84,7 @@ define([
       startLoading: startLoading,
       finishLoading: finishLoading,
       updateLoadingMessage: updateLoadingMessage,
+      registerWatchdogHandler: registerWatchdogHandler,
       destroy: destroy
     };
   }

@@ -8,11 +8,6 @@ define([], function () {
 
   var VALID_SOURCES = { kdbControl: 1, api: 1, bootstrap: 1 };
 
-  var LINKS = {
-    userManual: "https://www.intern.magwien.gv.at/web/md-pr/konfigurierbares-personaldashboard",
-    dataspot: "https://dxmeta.wien.gv.at/dataspot/web/dxmeta/datasets/0d1344b9-6253-4ca3-ac24-f506db843e58"
-  };
-
   var LABELS = {
     userManual: "Benutzerhandbuch",
     dataspot: "Dataspot",
@@ -30,7 +25,6 @@ define([], function () {
     ICON_KEY_UNSAFE_PATTERN: ICON_KEY_UNSAFE_PATTERN,
     IMAGES_BASE_PATH: IMAGES_BASE_PATH,
     VALID_SOURCES: VALID_SOURCES,
-    LINKS: LINKS,
     LABELS: LABELS,
     ERROR_CODES: ERROR_CODES
   };
