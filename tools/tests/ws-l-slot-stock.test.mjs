@@ -40,13 +40,13 @@ function makeContext(options) {
   const byId = {};
   (opts.frames || []).forEach((entry) => { byId[entry.widgetId] = entry; });
   const _KDB = {
-    state: { widgets: { base: { byId } } },
+    state: { widgets: { base: { byId }, settings: { lifecycle: "ready", byWidget: {} } } },
     runtime: {
       widgetBase: { routedTabIds: opts.routed || { A: true, B: true, C: true, D: true } },
       tabs: {}
     },
     api: {
-      widgetSettings: { getState: () => ({ byWidget: {} }), dispatch: async () => ({ ok: true }) },
+      widgetSettings: { dispatch: async () => ({ ok: true }) },
       widgetVis: {
         getState: () => ({ byId: { v1: { derived: { code: "M1" } }, v2: { derived: { code: "M2" } }, v9: { derived: { code: "M9" } } } }),
         dispatch: async () => ({ ok: true })
