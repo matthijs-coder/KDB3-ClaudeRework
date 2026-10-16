@@ -527,7 +527,7 @@ out.rootSelectors = k.elements.selectors.root.pageViewContent;                  
 // widgetBinding
 out.widgetBinding = [Object.keys(k.services.widgetBinding).sort(), k.services.widgetBinding.checkAvailable()]; // [["checkAvailable","run"], {ok:true, missing:null}]
 // filterDock
-out.filterDock = [typeof k.api.filterDock.getActiveFilterEl(), k.api.filterDock.isFiltersReady()];    // ["object" (null before a click, element after), true]
+out.filterDock = [Object.keys(k.api.filterDock).sort(), k.api.filterDock.getState().filtersReady];   // [["destroy","dispatch","getState","mount"], true] (reads go through selectors.js, no extra API methods)
 // kdbControl, launchpad, widgetText through AMD (the AMD-only selectors `core/properties/selectors.js`, `core/utils/readHostFacet.js`, kdbControl and launchpad `selectors.js` have no console handle and are covered by the unit tests; the lines below read the API/state they wrap)
 out.kdbControlSyncView = typeof k.api.kdbControl.syncView;                               // "function"
 out.helperTabIds = k.state.launchpad.helperTabIds;                                       // array of strings (what readHelperTabIds copies)
@@ -535,6 +535,6 @@ out.textState = Object.keys((k.api.widgetText.getState() || {}).byId || {}).leng
 console.log(JSON.stringify(out, null, 1));
 ```
 
-  Then click a filter in the dock (popup opens) and run `k.api.filterDock.getActiveFilterEl() instanceof Element` (expected `true`), and `k.api.filterDock.dispatch({ type: "filterDock/clickOriginalButtonRequested", payload: { filterKey: "x", buttonTid: "cancelClickable" } }).ok` (expected `false` for a non-matching `filterKey`, an object with `ok` and the usual filterDock state fields). Close the popup with a click outside.
+  Then click a filter in the dock (popup opens) and run `k.runtime.filterDock.domRefs.activeFilterEl instanceof Element` (expected `true`; this is what `selectors.readActiveFilterEl` returns), and `k.api.filterDock.dispatch({ type: "filterDock/clickOriginalButtonRequested", payload: { filterKey: "x", buttonTid: "cancelClickable" } }).ok` (expected `false` for a non-matching `filterKey`, an object with `ok` and the usual filterDock state fields). Close the popup with a click outside.
 - [ ] **P2-W3.3 Superuser reveal (readRightFlag switch).** As a superuser (superuser table first cell is `1`): the developer-mode toggle column in the kdbControl settings panel (`.kdb-control_dashboard-toggles-column--developer-mode-visible`) is visible and the metrics tree offers the release filter as on baseline; as a non-superuser both stay hidden. Expected: identical to `main` for both users.
 - [ ] **P2-W3.4 Close + reopen once** (1.14). Expected: `Object.keys(window.top.getKDB().services)` contains `chrome` and `widgetBinding` on each new instance and the teardown logs no errors.

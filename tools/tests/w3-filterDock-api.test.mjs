@@ -1,4 +1,5 @@
-// filterDock additions (W3, additive): api.getActiveFilterEl, api.isFiltersReady, dispatch(clickOriginalButtonRequested) -> {ok}.
+// filterDock additions (W3, additive): selector reads readActiveFilterEl / readFiltersReadyFlag (no extra API methods),
+// dispatch(clickOriginalButtonRequested) -> snapshot plus ok.
 // Run: node --test tools/tests/w3-filterDock-api.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -35,39 +36,38 @@ function clickableDock(clicks) {
 
 const click = (payload) => ({ type: "filterDock/clickOriginalButtonRequested", payload });
 
-test("getActiveFilterEl: null before any click, the stamped element after, null after destroy", () => {
-  const empty = createApi();
-  assert.equal(empty.api.getActiveFilterEl(), null);
-  const el = { id: "active" };
-  const { api, _KDB } = createApi({ activeFilterEl: el });
-  assert.equal(api.getActiveFilterEl(), el);
-  assert.equal(api.getActiveFilterEl(), _KDB.runtime.filterDock.domRefs.activeFilterEl);
-  api.destroy();
-  assert.equal(api.getActiveFilterEl(), null);
-});
+const selectorsModule = () => loadAmd(path.join(FD, "selectors.js"));
 
-test("getActiveFilterEl does not throw without a dock runtime", () => {
-  const { api, _KDB } = createApi();
-  delete _KDB.runtime.filterDock;
-  assert.equal(api.getActiveFilterEl(), null);
-  _KDB.runtime.filterDock = {};
-  assert.equal(api.getActiveFilterEl(), null);
-});
-
-test("isFiltersReady equals getState().filtersReady === true and is false after destroy", () => {
+test("the feature API publishes mount, destroy, dispatch and getState only", () => {
   const { api } = createApi();
-  assert.equal(api.isFiltersReady(), false);
-  assert.equal(api.getState().filtersReady === true, api.isFiltersReady());
-  api.dispatch({ type: "filterDock/filtersReadyObserved", payload: { filtersReady: true, filtersReadyAt: 7, filterWrapperCount: 2 } });
-  assert.equal(api.isFiltersReady(), true);
-  assert.equal(api.getState().filtersReady === true, api.isFiltersReady());
-  api.destroy();
-  assert.equal(api.isFiltersReady(), false);
-  assert.equal(api.getState(), undefined);
+  assert.deepEqual(Object.keys(api).sort(), ["destroy", "dispatch", "getState", "mount"]);
 });
 
-test("selectors.readActiveFilterEl mirrors the api read", () => {
-  const selectors = loadAmd(path.join(FD, "selectors.js"));
+test("readActiveFilterEl: null before any click, the stamped element after", () => {
+  const selectors = selectorsModule();
+  const empty = createApi();
+  assert.equal(selectors.readActiveFilterEl(empty._KDB), null);
+  const el = { id: "active" };
+  const { _KDB } = createApi({ activeFilterEl: el });
+  assert.equal(selectors.readActiveFilterEl(_KDB), el);
+});
+
+test("readFiltersReadyFlag equals getState().filtersReady === true; after destroy getState() is undefined, the flag keeps the last value", () => {
+  const selectors = selectorsModule();
+  const { api, _KDB } = createApi();
+  assert.equal(selectors.readFiltersReadyFlag(_KDB), false);
+  assert.equal(api.getState().filtersReady === true, selectors.readFiltersReadyFlag(_KDB));
+  api.dispatch({ type: "filterDock/filtersReadyObserved", payload: { filtersReady: true, filtersReadyAt: 7, filterWrapperCount: 2 } });
+  assert.equal(selectors.readFiltersReadyFlag(_KDB), true);
+  assert.equal(api.getState().filtersReady === true, selectors.readFiltersReadyFlag(_KDB));
+  api.destroy();
+  assert.equal(api.getState(), undefined);
+  assert.equal(selectors.readFiltersReadyFlag(_KDB), true, "consumers that need the disposed case check readFilterDockState(_KDB).lifecycle");
+  assert.equal(selectors.readFilterDockState(_KDB).lifecycle, "disposed");
+});
+
+test("readActiveFilterEl does not throw without a dock runtime", () => {
+  const selectors = selectorsModule();
   const el = {};
   assert.equal(selectors.readActiveFilterEl({ runtime: { filterDock: { domRefs: { activeFilterEl: el } } } }), el);
   for (const kdb of [null, {}, { runtime: {} }, { runtime: { filterDock: {} } }, { runtime: { filterDock: { domRefs: {} } } }]) {

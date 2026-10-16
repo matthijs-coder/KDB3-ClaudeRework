@@ -27,9 +27,11 @@ define([
 
   // Lifecycle terms for filterDock: idle, ready, error, disposed.
   //
-  // Reads next to getState (the Cognos dock is a DOM owner, so cheap reads beat cloning the state per poll):
-  //   getActiveFilterEl()  -> the dock filter element of the last click, or null (also after destroy)
-  //   isFiltersReady()     -> true once the dock reported its filters ready (false before, and after destroy)
+  // Other modules read the dock through selectors.js (no clone, no extra API methods; a feature API publishes
+  // mount, destroy, dispatch and getState only):
+  //   readActiveFilterEl(_KDB)    -> the dock filter element of the last click, or null
+  //   readFiltersReadyFlag(_KDB)  -> true once the dock reported its filters ready
+  //   readFilterDockState(_KDB), readPopupState(_KDB), readLastClickedFilter(_KDB), readLastInteraction(_KDB)
   // dispatch({type: "filterDock/clickOriginalButtonRequested"}) returns the usual state snapshot with an extra
   // own property `ok` (true when the original popup button was clicked). All other actions return what they did.
 
@@ -186,22 +188,7 @@ define([
       return guard.isDisposed() ? undefined : _selectors.readFilterDockState(_KDB);
     }
 
-    function getActiveFilterEl() {
-      return guard.isDisposed() ? null : _selectors.readActiveFilterEl(_KDB);
-    }
-
-    function isFiltersReady() {
-      return guard.isDisposed() ? false : _selectors.readFiltersReadyFlag(_KDB);
-    }
-
-    return {
-      mount: mount,
-      destroy: destroy,
-      dispatch: dispatch,
-      getState: getState,
-      getActiveFilterEl: getActiveFilterEl,
-      isFiltersReady: isFiltersReady
-    };
+    return { mount: mount, destroy: destroy, dispatch: dispatch, getState: getState };
   }
 
   function registerFilterDock(_KDB) {
