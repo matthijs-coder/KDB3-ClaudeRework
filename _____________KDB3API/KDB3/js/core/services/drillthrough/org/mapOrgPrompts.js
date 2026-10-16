@@ -1,34 +1,20 @@
 define([
   "./mapBwOrgPrompts.js",
   "./mapDezpvOrgPrompts.js",
-  "./buildOrgTreeFromRows.js",
-  "../config.js"
-], function (_mapBwOrgPrompts, _mapDezpvOrgPrompts, _buildOrgTreeFromRows, _config) {
+  "../../../utils/orgTree/buildOrgTree.js",
+  "../../../utils/orgTree/hierarchyTable.js"
+], function (_mapBwOrgPrompts, _mapDezpvOrgPrompts, _orgTree, _hierarchyTable) {
   "use strict";
-
-  function normalizeSicht(_sicht) {
-    return String(_sicht || "").toUpperCase().trim();
-  }
 
   function hasSelection(_orgSelection) {
     return !!(!_orgSelection ? false : Array.isArray(_orgSelection.selectedValues) && _orgSelection.selectedValues.length);
   }
 
   function resolveTree(_spec, _sicht, _readRows) {
-    var tableKey;
-    var rows;
     if (_spec && _spec.orgTree && typeof _spec.orgTree === "object") {
       return _spec.orgTree;
     }
-    tableKey = _sicht === "DEZPV" ? _config.HIERARCHY_TABLE_KEYS.DEZPV : _config.HIERARCHY_TABLE_KEYS.BW;
-    if (typeof _readRows !== "function") {
-      return null;
-    }
-    rows = _readRows([{ tableName: tableKey }]);
-    if (!Array.isArray(rows) || !rows.length) {
-      return null;
-    }
-    return _buildOrgTreeFromRows(rows, _sicht, tableKey);
+    return _orgTree.readOrgTree({ readRows: _readRows, sicht: _sicht });
   }
 
   function emptyOrg() {
@@ -42,7 +28,7 @@ define([
   function __controller(_spec, _deps, _warnings) {
     try {
       var spec = _spec && typeof _spec === "object" ? _spec : {};
-      var sicht = normalizeSicht(spec.sicht);
+      var sicht = _hierarchyTable.normalizeSicht(spec.sicht);
       var readRows = _deps && typeof _deps.readRows === "function" ? _deps.readRows : null;
       var tree;
       if (!sicht || !hasSelection(spec.orgSelection)) {
