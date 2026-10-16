@@ -8,7 +8,7 @@ define(["../config.js"], function (_config) {
   }
 
   function filterHostSelector(_filterKey) {
-    return "[" + SELECTORS.filterDataIdAttr + '="' + _filterKey + '"]';
+    return "[" + SELECTORS.filterDataIdAttr + '="' + CSS.escape(String(_filterKey)) + '"]';
   }
 
   function findScopedFilterWrapper(_activeFilterKey, _filterScope) {
