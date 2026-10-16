@@ -126,9 +126,11 @@ define(["./config.js"], function (_config) {
   }
 
   function markOneTableDisposed(_KDB, tableKey) {
-    const entry = _KDB.state.tableData[tableKey] || initialTableState({ tableKey: tableKey });
+    const entry = _KDB.state.tableData[tableKey] || initialTableState({ tableHandle: tableKey, tableName: tableKey });
     entry.lifecycle = "disposed";
     entry.freshness = "stale";
+    entry.rows = null;
+    entry.sourceRows = null;
     _KDB.state.tableData[tableKey] = entry;
     return entry;
   }

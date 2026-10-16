@@ -22,6 +22,8 @@ define([
     runtime.pendingLoads = {};
     runtime.notifiedLoadFailures = {};
     runtime.loadRegistryReady = Promise.resolve([]);
+    runtime.canvasWidgetsForLookup = null;
+    runtime.canvasWidgetsForLookupPromise = null;
   }
 
   // mode "reject": failures and calls after destroy reject; mode "undefined": they return undefined.
