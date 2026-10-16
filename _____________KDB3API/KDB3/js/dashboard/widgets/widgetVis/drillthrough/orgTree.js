@@ -1,5 +1,67 @@
-define(["./parseHierarchyCellForDrillthrough.js"], function (_parseHierarchyCell) {
+define([], function () {
   "use strict";
+
+  var TEXT_KEYS = ["text", "label", "display", "d", "value", "id"];
+
+  function extractLastBracketToken(_value) {
+    var source = String(_value == null ? "" : _value).trim();
+    var match;
+    if (!source) {
+      return "";
+    }
+    match = source.match(/\[([^\]]+)\](?!.*\[[^\]]+\])/);
+    return match ? String(match[1] || "").trim() : "";
+  }
+
+  function cellText(_cell) {
+    var i;
+    var key;
+    if (_cell && typeof _cell === "object") {
+      for (i = 0; i < TEXT_KEYS.length; i += 1) {
+        key = TEXT_KEYS[i];
+        if (_cell[key] != null && String(_cell[key]).trim()) {
+          return String(_cell[key]).trim();
+        }
+      }
+      return "";
+    }
+    return _cell != null ? String(_cell).trim() : "";
+  }
+
+  function cellSourceId(_cell) {
+    var token;
+    if (!_cell || typeof _cell !== "object") {
+      return null;
+    }
+    if (_cell.id != null && String(_cell.id).trim()) {
+      return String(_cell.id).trim();
+    }
+    token = extractLastBracketToken(_cell.use);
+    if (token) {
+      return token;
+    }
+    token = extractLastBracketToken(_cell.useValue);
+    if (token) {
+      return token;
+    }
+    token = extractLastBracketToken(_cell.u);
+    if (token) {
+      return token;
+    }
+    token = extractLastBracketToken(_cell.value);
+    if (token) {
+      return token;
+    }
+    return null;
+  }
+
+  function parseHierarchyCell(_cell) {
+    var text = cellText(_cell);
+    if (!text) {
+      return null;
+    }
+    return { text: text, sourceId: cellSourceId(_cell) };
+  }
 
   function rankFromKey(_key) {
     var match = String(_key).match(/level0*(\d+)/i) || String(_key).match(/^(\d+)$/);
@@ -36,6 +98,7 @@ define(["./parseHierarchyCellForDrillthrough.js"], function (_parseHierarchyCell
     _maps.idToMember[nodeId] = { text: _text };
     return nodeId;
   }
+
   function ensureNode(_nodesById, _nodeId, _parentId, _rank) {
     var node = _nodesById[_nodeId];
     if (!node) {
@@ -59,7 +122,7 @@ define(["./parseHierarchyCellForDrillthrough.js"], function (_parseHierarchyCell
       if (cell == null || cell === "") {
         continue;
       }
-      parsed = _parseHierarchyCell(cell);
+      parsed = parseHierarchyCell(cell);
       if (!parsed || !parsed.text) {
         continue;
       }
@@ -88,7 +151,7 @@ define(["./parseHierarchyCellForDrillthrough.js"], function (_parseHierarchyCell
     }
   }
 
-  function __controller(_options) {
+  function buildOrgTree(_options) {
     try {
       var options = _options || {};
       var sicht = options.sicht;
@@ -118,10 +181,13 @@ define(["./parseHierarchyCellForDrillthrough.js"], function (_parseHierarchyCell
         textToNodeId: maps.textToNodeId
       };
     } catch (err) {
-      console.error("[widgetVis.buildOrgTreeForDrillthrough]", err);
+      console.error("[widgetVis.buildOrgTree]", err);
       return null;
     }
   }
 
-  return __controller;
+  return {
+    buildOrgTree: buildOrgTree,
+    parseHierarchyCell: parseHierarchyCell
+  };
 });

@@ -1,11 +1,16 @@
 define([
-  "../../config.js",
-  "../../../widgetSettings/config/selectors.js",
-  "../../../../../core/cognosHost/config/widgetChromeSelectors.js"
-], function (_config, _settingsSelectors, _widgetChrome) {
+  "../config.js",
+  "../dom.js",
+  "../../../../core/utils/kit/async.js",
+  "../../widgetSettings/config/selectors.js",
+  "../../../../core/cognosHost/config/widgetChromeSelectors.js"
+], function (_config, _dom, _async, _settingsSelectors, _widgetChrome) {
   "use strict";
 
   var focus = _widgetChrome.focusMode.strings;
+  var KEPT_FOCUS_PANEL_ICONS = [
+    "KDB_widgetInfoButton", "KDB_visualizationsButton", "KDB_groupingButton", "KDB_showValuesButton", "KDB_dimensionsButton", "KDB_topNButton"
+  ];
 
   function resolveExpandedWidget(widgetId) {
     var id = String(widgetId || "");
@@ -27,25 +32,20 @@ define([
     return !!resolveExpandedWidget(widgetId);
   }
 
-  function waitForExpandedStateTick(widgetId, shouldExpand, deadline, pollMs, resolve) {
-    if (isWidgetExpanded(widgetId) === shouldExpand) {
-      resolve(true);
-      return;
-    }
-    if (Date.now() > deadline) {
-      resolve(isWidgetExpanded(widgetId) === shouldExpand);
-      return;
-    }
-    window.setTimeout(
-      waitForExpandedStateTick.bind(null, widgetId, shouldExpand, deadline, pollMs, resolve),
-      pollMs
-    );
+  function resolveWidgetElement(widgetId) {
+    var content = _dom.resolveVisualizationContent(widgetId);
+    var node = content && content.contentEl ? content.contentEl : null;
+    return node && typeof node.closest === "function" ? node.closest(".widget") : node;
   }
 
-  function waitForExpandedState(widgetId, shouldExpand, maxMs) {
-    var deadline = Date.now() + (typeof maxMs === "number" ? maxMs : _config.focusModeWaitMs || 1200);
-    var pollMs = _config.focusModePollMs || 50;
-    return new Promise(waitForExpandedStateTick.bind(null, widgetId, shouldExpand, deadline, pollMs));
+  async function waitForExpandedState(widgetId, shouldExpand, maxMs) {
+    var timeoutMs = typeof maxMs === "number" ? Math.max(maxMs, 1) : _config.focusModeWaitMs;
+    var outcome = await _async.pollUntil({
+      check: function () { return isWidgetExpanded(widgetId) === shouldExpand; },
+      timeoutMs: timeoutMs,
+      intervalMs: _config.focusModePollMs
+    });
+    return outcome.ok || isWidgetExpanded(widgetId) === shouldExpand;
   }
 
   function resolveCanvasSettingsPanel(widgetId) {
@@ -60,23 +60,17 @@ define([
     );
   }
 
+  function isKeptFocusPanelIcon(icon) {
+    var className = String(icon.className || "");
+    return KEPT_FOCUS_PANEL_ICONS.some(function (name) { return className.indexOf(name) !== -1; });
+  }
+
   function filterFocusPanelIcons(panelRoot) {
     var icons = panelRoot.querySelectorAll(_settingsSelectors.focusPanelIconsSelector);
     var i;
-    var className;
     for (i = icons.length - 1; i >= 0; i -= 1) {
-      className = String(icons[i].className || "");
-      if (
-        className.indexOf("KDB_widgetInfoButton") === -1 &&
-        className.indexOf("KDB_visualizationsButton") === -1 &&
-        className.indexOf("KDB_groupingButton") === -1 &&
-        className.indexOf("KDB_showValuesButton") === -1 &&
-        className.indexOf("KDB_dimensionsButton") === -1 &&
-        className.indexOf("KDB_topNButton") === -1
-      ) {
-        if (icons[i].parentNode) {
-          icons[i].parentNode.removeChild(icons[i]);
-        }
+      if (!isKeptFocusPanelIcon(icons[i]) && icons[i].parentNode) {
+        icons[i].parentNode.removeChild(icons[i]);
       }
     }
   }
@@ -90,10 +84,12 @@ define([
   }
 
   return {
+    resolveExpandedWidget: resolveExpandedWidget,
+    resolveExpandModeContainer: resolveExpandModeContainer,
     isWidgetExpanded: isWidgetExpanded,
+    resolveWidgetElement: resolveWidgetElement,
     waitForExpandedState: waitForExpandedState,
     resolveCanvasSettingsPanel: resolveCanvasSettingsPanel,
-    resolveExpandModeContainer: resolveExpandModeContainer,
     filterFocusPanelIcons: filterFocusPanelIcons,
     hidePanelDropdowns: hidePanelDropdowns
   };
