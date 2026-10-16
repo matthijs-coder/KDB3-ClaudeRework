@@ -102,6 +102,12 @@ test('bus: invalid subscribe arguments throw', () => {
   assert.throws(() => bus.subscribe('a', null), /Event handler/);
 });
 
+test('bus: public surface has no unsubscribe method', () => {
+  const { console } = silentConsole();
+  const bus = load('core/events/createEventBus.js', { stubs: { console } })();
+  assert.deepEqual(Object.keys(bus).sort(), ['emit', 'subscribe']);
+});
+
 test('authoringMode constants and selector keep their shape', () => {
   assert.deepEqual({ ...load('core/events/authoringMode.js') }, {
     AUTHORING_ENTERED: 'authoring:entered',
