@@ -38,10 +38,10 @@ define([
     }
   }
 
-  function runFocusCheck(_moduleRuntime) {
+  function runFocusCheck(_KDB, _moduleRuntime) {
     var watch = _moduleRuntime.focusWatch;
     var containers;
-    if (!watch) {
+    if (!watch || _KDB.runtime.widgetVis !== _moduleRuntime) {
       return;
     }
     containers = Array.prototype.slice.call(document.querySelectorAll(focus.expandModeContainerSelector));
@@ -58,14 +58,14 @@ define([
     });
   }
 
-  function scheduleFocusCheck(_moduleRuntime) {
+  function scheduleFocusCheck(_KDB, _moduleRuntime) {
     if (_moduleRuntime.timers.focusCheck) {
       return;
     }
-    _kitRuntime.scheduleTimeout(_moduleRuntime.timers, "focusCheck", runFocusCheck.bind(null, _moduleRuntime), 0);
+    _kitRuntime.scheduleTimeout(_moduleRuntime.timers, "focusCheck", runFocusCheck.bind(null, _KDB, _moduleRuntime), 0);
   }
 
-  function installSharedObserver(_moduleRuntime) {
+  function installSharedObserver(_KDB, _moduleRuntime) {
     var observer;
     if (_moduleRuntime.observers.focusMode) {
       return { ok: true };
@@ -73,7 +73,7 @@ define([
     if (typeof MutationObserver !== "function") {
       return { ok: false, errorCode: "WIDGET_VIS_MAXIMIZE_FAILED", diagnostics: { missingMutationObserver: true } };
     }
-    observer = new MutationObserver(scheduleFocusCheck.bind(null, _moduleRuntime));
+    observer = new MutationObserver(scheduleFocusCheck.bind(null, _KDB, _moduleRuntime));
     try {
       observer.observe(document.body, { childList: true, subtree: true });
     } catch (err) {
@@ -91,12 +91,12 @@ define([
     if (watch.byWidget[_widgetId]) {
       return { ok: true, diagnostics: { alreadyInstalled: true } };
     }
-    installed = installSharedObserver(moduleRuntime);
+    installed = installSharedObserver(_KDB, moduleRuntime);
     if (!installed.ok) {
       return installed;
     }
     watch.byWidget[_widgetId] = { _KDB: _KDB, runtime: _runtime, callbacks: _callbacks };
-    scheduleFocusCheck(moduleRuntime);
+    scheduleFocusCheck(_KDB, moduleRuntime);
     return { ok: true, diagnostics: { observerInstalled: true } };
   }
 

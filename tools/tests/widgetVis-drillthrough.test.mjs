@@ -53,6 +53,8 @@ const DIENSTSTELLE_SNAPSHOT = {
   }
 };
 
+const DIENSTSTELLE_API = { getCurrentHierarchySnapshot: () => DIENSTSTELLE_SNAPSHOT };
+
 const HIERARCHY_ROWS = [
   { level01: { text: "Land" }, level02: { text: "Stadt", id: "S1" }, level03: "Bezirk" },
   { level01: "Land", level02: { label: "Dorf", use: "[H].[Dorf]" }, level03: "" },
@@ -82,7 +84,7 @@ test("header spec: shape, vis type override, Date rule (Jan/Feb -> year-2, other
   const _KDB = buildKdb({
     runtime: { visualizationFacet: { getVisType: () => ({ ok: true, data: "Column" }) } }
   });
-  const options = { _KDB, widgetId: "w1", sichtApi: sichtApi(SICHT_STATE), dienststelleApi: { getCurrentHierarchySnapshot: () => DIENSTSTELLE_SNAPSHOT }, tableDataReadRows: readRowsStub(true) };
+  const options = { _KDB, widgetId: "w1", sichtApi: sichtApi(SICHT_STATE), dienststelleApi: DIENSTSTELLE_API, tableDataReadRows: readRowsStub(true) };
   const expectedByMonth = { 0: 2024, 1: 2024, 2: 2025, 11: 2025 };
   Object.keys(expectedByMonth).forEach((month) => {
     const chrome = loadChrome({ console: createLog().console, Date: fakeDateAt(2026, Number(month)) });
@@ -125,7 +127,7 @@ test("header spec: dimension none/default -> null, vis type falls back to settin
 test("datapoint spec: shape and null without categories", () => {
   const chrome = loadChrome();
   const _KDB = buildKdb();
-  const base = { _KDB, widgetId: "w1", sichtApi: sichtApi({ activeSichtValue: "BW" }), dienststelleApi: { getCurrentHierarchySnapshot: () => DIENSTSTELLE_SNAPSHOT }, tableDataReadRows: readRowsStub(true) };
+  const base = { _KDB, widgetId: "w1", sichtApi: sichtApi({ activeSichtValue: "BW" }), dienststelleApi: DIENSTSTELLE_API, tableDataReadRows: readRowsStub(true) };
   assert.equal(chrome.assembleDatapoint(Object.assign({}, base, { categories: [] })), null);
   assert.equal(chrome.assembleDatapoint(base), null);
   const spec = json(chrome.assembleDatapoint(Object.assign({}, base, { categories: [{ c: 1 }] })));
@@ -189,7 +191,8 @@ test("org tree: ids per text, parents, children, levelRank, dataId and textToNod
   assert.deepEqual(tree.nodesById[6], { id: 6, parent: [5], children: [], levelRank: 1 });
   assert.equal(chrome.buildOrgTree({ sicht: "BW" }), null);
   assert.equal(chrome.buildOrgTree({ readRows: () => [], sicht: "BW" }), null);
-  assert.equal(chrome.buildOrgTree({ readRows: (req) => (req[0].tableName === "dienststelle_bw_hierarchy" ? [{ a: "x" }] : []), sicht: "other" }).tableKey, "dienststelle_bw_hierarchy");
+  const bwRows = (req) => (req[0].tableName === "dienststelle_bw_hierarchy" ? [{ a: "x" }] : []);
+  assert.equal(chrome.buildOrgTree({ readRows: bwRows, sicht: "other" }).tableKey, "dienststelle_bw_hierarchy");
 });
 
 test("hierarchy cell parser: text keys, source ids from id/use/useValue/u/value", () => {
@@ -332,4 +335,170 @@ test("datapoint click: silent without a spec, opens with the spec, no anchor is 
   const noAnchor = bind({ anchorEl: null });
   assert.equal(typeof noAnchor, "function");
   assert.equal(anchor.listeners.length, 0);
+});
+
+function createFakeTimers() {
+  const pending = new Map();
+  let nextId = 1;
+  return {
+    pending,
+    setTimeout(fn) { const id = nextId++; pending.set(id, fn); return id; },
+    clearTimeout(id) { pending.delete(id); },
+    flush() { const fns = Array.from(pending.values()); pending.clear(); fns.forEach((fn) => fn()); }
+  };
+}
+
+function createFocusHarness(options) {
+  const timers = createFakeTimers();
+  const observers = [];
+  class FakeObserver {
+    constructor(callback) { this.callback = callback; this.disconnected = false; observers.push(this); }
+    observe(target, opts) { this.target = target; this.opts = opts; }
+    disconnect() { this.disconnected = true; }
+  }
+  const body = {};
+  const containers = [];
+  const document = {
+    body,
+    querySelectorAll: () => containers,
+    querySelector: () => null,
+    getElementById: () => null
+  };
+  const stubs = {
+    console: createLog().console,
+    document,
+    setTimeout: timers.setTimeout,
+    clearTimeout: timers.clearTimeout,
+    MutationObserver: options && options.noObserver ? undefined : FakeObserver
+  };
+  const observer = load(W + "focus/observer.js", { stubs });
+  const _KDB = { runtime: { widgetVis: { enableDrillthrough: false, byId: {}, observers: {}, timers: {} } }, api: {} };
+  return { observer, timers, observers, containers, body, _KDB };
+}
+
+function fakeContainer(ids) {
+  return { ids, querySelector: (selector) => (ids.has(selector.slice(5, -2)) ? {} : null) };
+}
+
+function widgetEntry(maximized) {
+  const calls = [];
+  return {
+    runtime: { focusMode: { observedExpanded: false, source: null, focusPanelEl: null, dispose: null } },
+    calls,
+    callbacks: {
+      readMaximized: () => maximized.value,
+      onEntered: (source) => calls.push(["entered", source]),
+      onExited: (source) => calls.push(["exited", source])
+    }
+  };
+}
+
+test("shared focus observer: one MutationObserver for all widgets, one coalesced check timer", () => {
+  const h = createFocusHarness();
+  const maximizedA = { value: false };
+  const a = widgetEntry(maximizedA);
+  const b = widgetEntry({ value: false });
+  const first = h.observer.registerFocusWidget(h._KDB, "A", a.runtime, a.callbacks);
+  assert.deepEqual(first, { ok: true, diagnostics: { observerInstalled: true } });
+  const second = h.observer.registerFocusWidget(h._KDB, "B", b.runtime, b.callbacks);
+  assert.deepEqual(second, { ok: true, diagnostics: { observerInstalled: true } });
+  assert.deepEqual(h.observer.registerFocusWidget(h._KDB, "A", a.runtime, a.callbacks), { ok: true, diagnostics: { alreadyInstalled: true } });
+  assert.equal(h.observers.length, 1);
+  assert.equal(h.observers[0].target, h.body);
+  assert.deepEqual(h.observers[0].opts, { childList: true, subtree: true });
+  assert.equal(h.timers.pending.size, 1);
+  h.timers.flush();
+  assert.deepEqual([a.calls, b.calls], [[], []]);
+
+  h.containers.push(fakeContainer(new Set(["A"])));
+  h.observers[0].callback([]);
+  h.observers[0].callback([]);
+  assert.equal(h.timers.pending.size, 1);
+  h.timers.flush();
+  assert.deepEqual(a.calls, [["entered", "nativeExpand"]]);
+  assert.equal(a.runtime.focusMode.observedExpanded, true);
+  assert.equal(a.runtime.focusMode.source, "nativeExpand");
+  assert.deepEqual(b.calls, []);
+  assert.equal(b.runtime.focusMode.observedExpanded, false);
+  h.observers[0].callback([]);
+  h.timers.flush();
+  assert.equal(a.calls.length, 1);
+
+  maximizedA.value = true;
+  h.containers.length = 0;
+  h.observers[0].callback([]);
+  h.timers.flush();
+  assert.deepEqual(a.calls, [["entered", "nativeExpand"], ["exited", "nativeCollapse"]]);
+  assert.equal(a.runtime.focusMode.observedExpanded, false);
+
+  h.observer.unregisterFocusWidget(h._KDB, "A");
+  assert.equal(h.observers[0].disconnected, false);
+  h.observers[0].callback([]);
+  h.observer.unregisterFocusWidget(h._KDB, "B");
+  assert.equal(h.observers[0].disconnected, true);
+  assert.equal(h.timers.pending.size, 0);
+  assert.equal(h._KDB.runtime.widgetVis.observers.focusMode, undefined);
+  const again = h.observer.registerFocusWidget(h._KDB, "A", a.runtime, a.callbacks);
+  assert.equal(again.ok, true);
+  assert.equal(h.observers.length, 2);
+});
+
+test("shared focus observer: stale module runtime does nothing, missing MutationObserver is a maximize failure", () => {
+  const h = createFocusHarness();
+  const a = widgetEntry({ value: false });
+  h.observer.registerFocusWidget(h._KDB, "A", a.runtime, a.callbacks);
+  h.containers.push(fakeContainer(new Set(["A"])));
+  h._KDB.runtime.widgetVis = {};
+  h.timers.flush();
+  assert.deepEqual(a.calls, []);
+
+  const missing = createFocusHarness({ noObserver: true });
+  const result = missing.observer.registerFocusWidget(missing._KDB, "A", a.runtime, a.callbacks);
+  assert.deepEqual(result, { ok: false, errorCode: "WIDGET_VIS_MAXIMIZE_FAILED", diagnostics: { missingMutationObserver: true } });
+});
+
+test("waitForExpandedState polls until the expanded state matches, otherwise gives the final check", async () => {
+  let queries = 0;
+  const document = { querySelector: () => { queries += 1; return queries >= 3 ? {} : null; } };
+  const domQueries = load(W + "focus/domQueries.js", { stubs: { document, console: createLog().console } });
+  assert.equal(await domQueries.waitForExpandedState("w1", true, 500), true);
+  assert.equal(queries, 3);
+  assert.equal(await domQueries.waitForExpandedState("w1", false, 60), false);
+});
+
+test("maximize toggle: missing record, missing Cognos wrapper and a successful collapse of a collapsed widget", async () => {
+  const document = { querySelector: () => null, getElementById: () => null, querySelectorAll: () => [] };
+  const stubs = { document, console: createLog().console };
+  const toggle = load(W + "focus/maximizeToggle.js", { stubs });
+  const state = load(W + "state.js", { stubs });
+  const dispatched = [];
+  const record = { value: undefined };
+  const _KDB = { runtime: { widgetVis: { enableDrillthrough: false, byId: {}, observers: {}, timers: {} } }, api: {} };
+  const context = {
+    _KDB,
+    selectors: { readVisRecord: () => record.value, readVisMaximized: () => false },
+    ensureOpSeq: () => 4,
+    isStaleOpSeq: () => false,
+    dispatchInternal: (action) => dispatched.push(action)
+  };
+  const missing = await toggle.handleMaximizeToggle(context, { widgetId: "w1", payload: {} });
+  assert.equal(missing.ok, false);
+  assert.equal(missing.errorCode, "WIDGET_VIS_CONTENT_CONTEXT_MISSING");
+  assert.deepEqual(dispatched, []);
+
+  record.value = { derived: {} };
+  const failed = await toggle.handleMaximizeToggle(context, { widgetId: "w1", payload: { nextMaximized: true } });
+  assert.equal(failed.ok, false);
+  assert.equal(failed.errorCode, "WIDGET_VIS_MAXIMIZE_FAILED");
+  assert.deepEqual(dispatched.map((a) => a.type), [state.ACTION_TYPES.MARK_PENDING, state.ACTION_TYPES.ERROR_RECORDED]);
+  assert.deepEqual(dispatched[0].payload, { kind: "maximize", opSeq: 4 });
+  assert.equal(dispatched[1].payload.errorCode, "WIDGET_VIS_MAXIMIZE_FAILED");
+  assert.equal(dispatched[1].payload.errorMessage, "Focus mode toggle failed.");
+
+  dispatched.length = 0;
+  const collapsed = await toggle.handleMaximizeToggle(context, { widgetId: "w1", payload: { nextMaximized: false, source: "test" } });
+  assert.equal(collapsed.ok, true);
+  assert.equal(collapsed.status, "success");
+  assert.deepEqual(dispatched.map((a) => a.type), [state.ACTION_TYPES.MARK_PENDING, state.ACTION_TYPES.MAXIMIZE_SUCCEEDED]);
+  assert.deepEqual(dispatched[1].payload, { nextMaximized: false, source: "test" });
 });
