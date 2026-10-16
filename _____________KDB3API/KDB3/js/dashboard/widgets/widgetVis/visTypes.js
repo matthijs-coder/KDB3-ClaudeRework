@@ -70,7 +70,7 @@ define([
 
   function resolveVisPropBucketKey(_visualizationType, _KDB) {
     var bindingSpecs = readVisualizationsConfig(_KDB).bindingSpecs || {};
-    return _rules.resolveBucket(_visualizationType, bindingSpecs.visualizationTypeToBucket);
+    return _rules.resolveBucket(_visualizationType, bindingSpecs.visualizationTypeToBucket || {});
   }
 
   function resolveCognosVisualizationTypeId(_visualizationType, _KDB) {
