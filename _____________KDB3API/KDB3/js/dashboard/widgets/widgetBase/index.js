@@ -319,8 +319,12 @@ define([
         return;
       }
       guard.dispose();
-      destroyWidgetBaseModule(_KDB);
-      dispatchInternal({ type: TYPES.DESTROY });
+      try {
+        destroyWidgetBaseModule(_KDB);
+        dispatchInternal({ type: TYPES.DESTROY });
+      } catch (err) {
+        console.error("[widgetBase.destroy] destroy boundary failed", err);
+      }
     }
 
     function getState() {
