@@ -1,19 +1,12 @@
-define([], function () {
+define(["../../../core/utils/kit/runtime.js"], function (_runtime) {
   "use strict";
 
   function cleanupTabsRuntime(_KDB) {
     const runtime = _KDB.runtime.tabs;
-    cleanupSubscriptions(runtime.subscriptions);
-    cleanupAbortControllers(runtime.abortControllers);
-    cleanupObservers(runtime.observers);
-    cleanupTimers(runtime.timers);
-    runtime.domRefs = {};
-    runtime.listeners = {};
-    runtime.subscriptions = {};
-    runtime.abortControllers = {};
-    runtime.observers = {};
-    runtime.timers = {};
-    runtime.pendingPromises = {};
+    const errors = _runtime.disposeRuntimeBuckets(runtime);
+    if (errors.length > 0) {
+      console.warn("[tabs.cleanupTabsRuntime] some runtime entries failed to release", errors);
+    }
     runtime.adapters = {};
     runtime.lastTabMutationError = null;
     runtime.historyReplayHandlerContribution = null;
@@ -29,11 +22,6 @@ define([], function () {
     runtime.readCurrentTabUnbound = null;
     runtime.readCurrentTabBound = null;
   }
-
-  function cleanupSubscriptions(subscriptions) { Object.keys(subscriptions || {}).forEach(function (key) { if (typeof subscriptions[key] === "function") { subscriptions[key](); } }); }
-  function cleanupAbortControllers(abortControllers) { Object.keys(abortControllers || {}).forEach(function (key) { const controller = abortControllers[key]; if (controller && typeof controller.abort === "function") { controller.abort(); } }); }
-  function cleanupObservers(observers) { Object.keys(observers || {}).forEach(function (key) { const observer = observers[key]; if (observer && typeof observer.disconnect === "function") { observer.disconnect(); } }); }
-  function cleanupTimers(timers) { Object.keys(timers || {}).forEach(function (key) { clearTimeout(timers[key]); }); }
 
   return cleanupTabsRuntime;
 });

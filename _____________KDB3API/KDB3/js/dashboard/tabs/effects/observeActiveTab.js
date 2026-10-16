@@ -5,8 +5,9 @@ define([
   "../chrome.js",
   "../slots.js",
   "./applyTabPageLoading.js",
-  "./bindTabListClickAhead.js"
-], function (_actionTypes, _config, _eventNames, _chrome, _slots, _applyTabPageLoading, _bindTabListClickAhead) {
+  "./bindTabListClickAhead.js",
+  "../../../core/utils/kit/runtime.js"
+], function (_actionTypes, _config, _eventNames, _chrome, _slots, _applyTabPageLoading, _bindTabListClickAhead, _runtime) {
   "use strict";
 
   // Traverse clicks tabs in a ~150ms cadence; coalesce observer bursts so one
@@ -39,17 +40,10 @@ define([
   function scheduleObservedCommit(_ctx) {
     const runtime = _ctx._KDB.runtime && _ctx._KDB.runtime.tabs;
     if (!runtime || _ctx.isDisposed()) { return; }
-    if (runtime.timers.activeTabObserverDebounce) { clearTimeout(runtime.timers.activeTabObserverDebounce); }
-    const delayMs = isTabsWorkInFlight(runtime) ? TRAVERSE_DEBOUNCE_MS : USER_DEBOUNCE_MS;
-    runtime.timers.activeTabObserverDebounce = setTimeout(function () {
-      delete runtime.timers.activeTabObserverDebounce;
+    const delayMs = _runtime.readTabsBusy(_ctx._KDB) ? TRAVERSE_DEBOUNCE_MS : USER_DEBOUNCE_MS;
+    _runtime.scheduleTimeout(runtime.timers, "activeTabObserverDebounce", function () {
       commitObservedActivation(_ctx);
     }, delayMs);
-  }
-
-  function isTabsWorkInFlight(runtime) {
-    const pendingPromises = runtime && runtime.pendingPromises || {};
-    return !!(pendingPromises.traverse || pendingPromises.startup || pendingPromises.tabMutation);
   }
 
   function commitObservedActivation(_ctx) {

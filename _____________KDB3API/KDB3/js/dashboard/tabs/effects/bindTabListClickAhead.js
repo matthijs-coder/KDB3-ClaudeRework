@@ -1,8 +1,9 @@
 define([
   "../events/eventNames.js",
   "../chrome.js",
-  "../slots.js"
-], function (_eventNames, _chrome, _slots) {
+  "../slots.js",
+  "../../../core/utils/kit/runtime.js"
+], function (_eventNames, _chrome, _slots, _runtime) {
   "use strict";
 
   function __controller(_ctx) {
@@ -53,7 +54,7 @@ define([
       if (!_ctx || _ctx.isDisposed()) {
         return;
       }
-      if (isTabsWorkInFlight(_ctx._KDB)) {
+      if (_runtime.readTabsBusy(_ctx._KDB)) {
         return;
       }
       var tabIndex = _chrome.readClickedTabIndex(_event);
@@ -92,11 +93,6 @@ define([
     } catch (err) {
       console.error("[tabs.bindTabListClickAhead] emit failed", err);
     }
-  }
-
-  function isTabsWorkInFlight(_KDB) {
-    var pendingPromises = _KDB && _KDB.runtime && _KDB.runtime.tabs && _KDB.runtime.tabs.pendingPromises;
-    return !!(pendingPromises && (pendingPromises.traverse || pendingPromises.startup || pendingPromises.tabMutation));
   }
 
   return __controller;

@@ -2,8 +2,9 @@ define([
   "../config/mutationCodes.js",
   "../config/defaults.js",
   "./buildTabMutationPlan.js",
-  "../slots.js"
-], function (_codes, _defaults, _planHelpers, _slots) {
+  "../slots.js",
+  "../../../core/utils/kit/data.js"
+], function (_codes, _defaults, _planHelpers, _slots, _data) {
   "use strict";
 
   var OP_COUNTER = 0;
@@ -46,9 +47,9 @@ define([
       names: { byIndexAfter: buildNamesByIndexAfter(slots, request.name, insertTabIdx, lastVisibleTabIdx, revealSlot) },
       restore: {
         filters: {
-          singleSelect: cloneJson(request.filters && request.filters.singleSelect || {}),
-          dienststelle: cloneJson(request.filters && request.filters.dienststelle || {}),
-          nativeMultiSelect: cloneJson(request.filters && request.filters.nativeMultiSelect || [])
+          singleSelect: _data.cloneJson(request.filters && request.filters.singleSelect || {}),
+          dienststelle: _data.cloneJson(request.filters && request.filters.dienststelle || {}),
+          nativeMultiSelect: _data.cloneJson(request.filters && request.filters.nativeMultiSelect || [])
         }
       }
     });
@@ -102,10 +103,6 @@ define([
     [insertTabId, revealTabId].forEach(function (tabId) { if (tabId) { seen[tabId] = true; } });
     slotMoves.forEach(function (move) { if (move.fromTabId) { seen[move.fromTabId] = true; } if (move.toTabId) { seen[move.toTabId] = true; } });
     return Object.freeze(Object.keys(seen));
-  }
-
-  function cloneJson(_value) {
-    return JSON.parse(JSON.stringify(_value));
   }
 
   function findSlot(slots, matcher) { var tabIdx = slots.findIndex(matcher); return tabIdx < 0 ? null : { tabIdx: tabIdx, slot: slots[tabIdx] }; }

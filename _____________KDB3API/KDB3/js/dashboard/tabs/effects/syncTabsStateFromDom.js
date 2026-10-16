@@ -6,8 +6,9 @@ define([
   "../slots.js",
   "./bindTabRenameEditSession.js",
   "./syncTabsKdbControlReadView.js",
-  "./captureTabsBaselineNames.js"
-], function (_actionTypes, _defaults, _config, _chrome, _slots, _bindTabRenameEditSession, _syncTabsKdbControlReadView, _captureTabsBaselineNames) {
+  "./captureTabsBaselineNames.js",
+  "../../../core/utils/kit/data.js"
+], function (_actionTypes, _defaults, _config, _chrome, _slots, _bindTabRenameEditSession, _syncTabsKdbControlReadView, _captureTabsBaselineNames, _data) {
   "use strict";
 
   function syncTabsStateFromDom(_ctx) {
@@ -55,7 +56,7 @@ define([
     return pageId ? normalizeTextValue(_ctx.adapter.getTabName({ pageId: pageId }), fallback) : fallback;
   }
 
-  function normalizeList(value) { if (!value) { return []; } if (Array.isArray(value)) { return value; } if (typeof value.length === "number") { return toArray(value); } return [value]; }
+  function normalizeList(value) { if (!value) { return []; } if (Array.isArray(value)) { return value; } if (typeof value.length === "number") { return _data.toArray(value); } return [value]; }
   function fallbackTabName(node, index) { return normalizeTextValue(node && (node.textContent || node.label || node.title || node.name), "Tab " + (index + 1)); }
   function extractId(source, button, index) { return normalizeIdValue(source && (source.tabId || source.pageId || source.id)) || button && (button.getAttribute && (button.getAttribute(_config.selectors.tabIdAttribute) || button.getAttribute(_config.selectors.pageIdAttribute) || button.id)) || null; }
   function extractPageId(source, tabId) { const child = source && source.items && source.items[0]; return normalizeIdValue(source && source.pageId) || normalizeIdValue(child && (child.pageId || child.id)) || normalizeIdValue(source && source.id) || tabId || null; }
@@ -65,7 +66,6 @@ define([
   function buildVisibleOrder(byIndex, order) { return order.filter(function (index) { const tab = byIndex[String(index)]; return !!tab && tab.visible === true && _slots.isDashboardTab(tab); }); }
   function readTabId(byIndex, index) { const tab = byIndex[String(index)]; return tab && tab.tabId || null; }
   function buildHelperTab(byIndex) { const helper = byIndex[String(_defaults.HELPER_TAB_INDEX)]; return { index: _defaults.HELPER_TAB_INDEX, tabId: helper && helper.tabId || null, pageId: helper && helper.pageId || null, lifecycle: helper ? "ready" : "idle", errorCode: null, errorMessage: null }; }
-  function toArray(nodeList) { return Array.prototype.slice.call(nodeList || []); }
   function normalizeTextValue(value, fallback) {
     if (typeof value === "string") { return value.trim() || fallback; }
     if (value == null) { return fallback; }

@@ -96,6 +96,59 @@ test("destroy restores the original _KDB.utils.readCurrentTab, re-orchestration 
   assert.equal(_KDB.utils.readCurrentTab, foreign);
 });
 
+test("hydrate: destroy aborts the button wait at once and reports it to the chrome checks", async () => {
+  const doc = { querySelectorAll: () => [], querySelector: () => null };
+  const hydrate = load("effects/hydrateTabsDom.js", { document: doc });
+  const endWaits = [];
+  const dispatched = [];
+  let disposed = false;
+  const _KDB = {
+    runtime: {
+      tabs: { domRefs: {}, abortControllers: {} },
+      cognosHost: { chromeChecks: { beginWait() {}, endWait: (_k, key, info) => endWaits.push([key, info]) } }
+    }
+  };
+  const ctx = { _KDB, dispatch: (action) => dispatched.push(action.payload.phase), isDisposed: () => disposed };
+  const startedAt = Date.now();
+  const pending = hydrate(ctx);
+  disposed = true;
+  _KDB.runtime.tabs.abortControllers.hydrate.abort();
+  assert.equal(await pending, false);
+  assert.ok(Date.now() - startedAt < 250);
+  assert.deepEqual(dispatched, ["pending", "confirmed"]);
+  assert.deepEqual(endWaits, [["tabs.primaryTabButtonSelector", { aborted: true, found: false }]]);
+  assert.equal(_KDB.runtime.tabs.abortControllers.hydrate, undefined);
+});
+
+test("page loading cover: finishWhenReady ends once the inner page exists, finish() cancels the poll", async () => {
+  let ready = false;
+  const wrapper = { id: "p1", matches: () => false, querySelector: () => (ready ? { id: "inner" } : null) };
+  const doc = { getElementById: (id) => (id === "p1" ? wrapper : null) };
+  const loading = load("effects/applyTabPageLoading.js", { document: doc });
+  const calls = [];
+  const _KDB = {
+    services: { loading: { startLoading: (opts) => { calls.push("start:" + opts.mountEl.id); return "handle"; }, finishLoading: () => calls.push("finish") } },
+    runtime: { tabs: { abortControllers: {} } },
+    state: { tabs: {} }
+  };
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  assert.equal(loading.start(_KDB, { pageId: "p1", finishWhenReady: true }), "handle");
+  await sleep(150);
+  ready = true;
+  await sleep(250);
+  assert.deepEqual(calls, ["finish", "start:p1", "finish"]);
+  assert.equal(_KDB.runtime.tabs.abortControllers.tabPageLoadingReady, undefined);
+
+  ready = false;
+  calls.length = 0;
+  loading.start(_KDB, { pageId: "p1", finishWhenReady: true });
+  loading.finish(_KDB);
+  ready = true;
+  await sleep(250);
+  assert.deepEqual(calls, ["finish", "start:p1", "finish"]);
+});
+
 test("traverse options: key and target indexes", () => {
   const options = load("traverse/traverseOptions.js");
   const normalized = options.normalizeTraverseOptions({ source: "mount" });
