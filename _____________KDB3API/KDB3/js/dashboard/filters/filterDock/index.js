@@ -26,6 +26,12 @@ define([
   "use strict";
 
   // Lifecycle terms for filterDock: idle, ready, error, disposed.
+  //
+  // Reads next to getState (the Cognos dock is a DOM owner, so cheap reads beat cloning the state per poll):
+  //   getActiveFilterEl()  -> the dock filter element of the last click, or null (also after destroy)
+  //   isFiltersReady()     -> true once the dock reported its filters ready (false before, and after destroy)
+  // dispatch({type: "filterDock/clickOriginalButtonRequested"}) returns the usual state snapshot with an extra
+  // own property `ok` (true when the original popup button was clicked). All other actions return what they did.
 
   var OWNER_FIELDS = [
     "pendingEvaluationMerge",
@@ -60,8 +66,7 @@ define([
         (action.type === _state.ACTIONS.CLICK_ORIGINAL_BUTTON_REQUESTED ||
           action.type === _state.ACTIONS.CLOSE_ACTIVE_POPUP_REQUESTED)
       ) {
-        _popupCommands.runPopupCommand(_KDB, action);
-        return;
+        return _popupCommands.runPopupCommand(_KDB, action);
       }
       filtersState.filterDock = _state.reduceFilterDockState(filtersState.filterDock, action);
     }
@@ -165,8 +170,12 @@ define([
         return undefined;
       }
       try {
-        dispatchInternal(action);
-        return _selectors.readFilterDockState(_KDB);
+        var handled = dispatchInternal(action);
+        var snapshot = _selectors.readFilterDockState(_KDB);
+        if (action && action.type === _state.ACTIONS.CLICK_ORIGINAL_BUTTON_REQUESTED) {
+          return Object.assign(snapshot || {}, { ok: handled === true });
+        }
+        return snapshot;
       } catch (error) {
         handleBoundaryError("dispatch", error);
         return undefined;
@@ -177,7 +186,22 @@ define([
       return guard.isDisposed() ? undefined : _selectors.readFilterDockState(_KDB);
     }
 
-    return { mount: mount, destroy: destroy, dispatch: dispatch, getState: getState };
+    function getActiveFilterEl() {
+      return guard.isDisposed() ? null : _selectors.readActiveFilterEl(_KDB);
+    }
+
+    function isFiltersReady() {
+      return guard.isDisposed() ? false : _selectors.readFiltersReadyFlag(_KDB);
+    }
+
+    return {
+      mount: mount,
+      destroy: destroy,
+      dispatch: dispatch,
+      getState: getState,
+      getActiveFilterEl: getActiveFilterEl,
+      isFiltersReady: isFiltersReady
+    };
   }
 
   function registerFilterDock(_KDB) {
