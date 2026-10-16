@@ -1,5 +1,5 @@
 define([
-  "./config/dropdownDefaults.js",
+  "../../../core/config/dropdownDefaults.js",
   "./runtime.js",
   "./state.js",
   "./seed.js",

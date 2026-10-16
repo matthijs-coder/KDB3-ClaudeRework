@@ -1,6 +1,6 @@
 define([
   "../config/selectors.js",
-  "../config/dropdownDefaults.js",
+  "../../../../core/config/dropdownDefaults.js",
   "../state.js",
   "../../widgetVis/config/resolveVisualizationBindingConfig.js",
   "../../widgetVis/config/visTypeRules.js",

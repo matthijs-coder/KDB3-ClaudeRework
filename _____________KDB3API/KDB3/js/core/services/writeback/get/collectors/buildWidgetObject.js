@@ -1,6 +1,6 @@
 define([
   "../../schema/errorCodes.js",
-  "../../../../../dashboard/widgets/widgetSettings/config/dropdownDefaults.js",
+  "../../../../config/dropdownDefaults.js",
   "../../../../../dashboard/widgets/widgetVis/config/visTypeRules.js",
   "./collectorSupport.js",
 ], function (_errorCodes, _dropdownDefaults, _visTypeRules, _support) {

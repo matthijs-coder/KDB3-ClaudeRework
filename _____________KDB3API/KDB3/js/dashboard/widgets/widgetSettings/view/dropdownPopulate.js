@@ -2,7 +2,7 @@ define([
   "../../../../core/config/colorPalette.js",
   "../../widgetVis/config/visualizations/dimensions.js",
   "../config.js",
-  "../config/dropdownDefaults.js",
+  "../../../../core/config/dropdownDefaults.js",
   "../config/selectors.js"
 ], function (_colorPalette, _dimensionsConfig, _config, _dropdownDefaults, _selectors) {
   const applyConfiguredDefault = _config.applyConfiguredDefault;

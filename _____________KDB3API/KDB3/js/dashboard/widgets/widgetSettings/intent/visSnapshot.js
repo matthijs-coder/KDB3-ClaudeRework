@@ -1,5 +1,5 @@
 define([
-  "../config/dropdownDefaults.js",
+  "../../../../core/config/dropdownDefaults.js",
   "../config.js",
   "../state.js",
   "../../widgetVis/config/visTypeRules.js"
