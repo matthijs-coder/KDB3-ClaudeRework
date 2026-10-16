@@ -1,22 +1,20 @@
 define([
   "../config/actionTypes.js",
   "../config/mutationCodes.js",
-  "../state/buildMutationResult.js",
-  "../state/buildTabMutationPlan.js",
-  "../state/buildTabDuplicatePlan.js",
-  "../state/buildTabMovePlan.js",
-  "../state/buildTabRestoreDeletedPlan.js",
+  "./buildMutationResult.js",
+  "./plans.js",
   "../actions/runTabMutationSaga.js",
   "../actions/runTabMutationOwnerPhases.js"
-], function (_actionTypes, _codes, _buildResult, _buildDeletePlan, _buildDuplicatePlan, _buildMovePlan, _buildRestoreDeletedPlan, _runSaga, _ownerPhases) {
+], function (_actionTypes, _codes, _buildResult, _plans, _runSaga, _ownerPhases) {
   "use strict";
 
   // Plan request per mutation action; the plan builders read only these fields.
   const PLAN_BUILDERS = {};
   PLAN_BUILDERS[_actionTypes.DELETE] = function (_ctx, state, payload) {
     const runtime = _ctx._KDB.runtime && _ctx._KDB.runtime.tabs;
-    return _buildDeletePlan(state, {
+    return _plans.buildDeletePlan(state, {
       operation: "delete",
+      operationSeq: readRunId(_ctx),
       tabId: payload.tabId,
       tabIndex: payload.tabIndex,
       source: payload.source,
@@ -24,11 +22,18 @@ define([
     });
   };
   PLAN_BUILDERS[_actionTypes.DUPLICATE] = function (_ctx, state, payload) {
-    return _buildDuplicatePlan(state, { operation: "duplicate", tabIndex: payload.tabIndex, tabId: payload.tabId, source: payload.source });
+    return _plans.buildDuplicatePlan(state, {
+      operation: "duplicate",
+      operationSeq: readRunId(_ctx),
+      tabIndex: payload.tabIndex,
+      tabId: payload.tabId,
+      source: payload.source
+    });
   };
   PLAN_BUILDERS[_actionTypes.MOVE] = function (_ctx, state, payload) {
-    return _buildMovePlan(state, {
+    return _plans.buildMovePlan(state, {
       operation: "move",
+      operationSeq: readRunId(_ctx),
       tabIndex: payload.tabIndex,
       tabId: payload.tabId,
       targetPosition: payload.targetPosition,
@@ -36,8 +41,9 @@ define([
     });
   };
   PLAN_BUILDERS[_actionTypes.RESTORE_DELETED] = function (_ctx, state, payload) {
-    return _buildRestoreDeletedPlan(state, {
+    return _plans.buildRestoreDeletedPlan(state, {
       operation: "restoreDeleted",
+      operationSeq: readRunId(_ctx),
       insertTabIdx: payload.insertTabIdx,
       tabId: payload.tabId,
       name: payload.name,
@@ -92,6 +98,11 @@ define([
     if (!_promise || runtime.pendingPromises.tabMutation === _promise) {
       delete runtime.pendingPromises.tabMutation;
     }
+  }
+
+  function readRunId(_ctx) {
+    const runtime = _ctx._KDB.runtime && _ctx._KDB.runtime.tabs;
+    return runtime && runtime.tabMutationRunId;
   }
 
   function readRuntime(_KDB) {

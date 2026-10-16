@@ -2,7 +2,7 @@
 define([
   "../config/actionTypes.js",
   "../config/mutationCodes.js",
-  "../state/buildMutationResult.js",
+  "../tabMutation/buildMutationResult.js",
   "./runTabMutationOwnerPhases.js",
   "../effects/dispatchOwnerTabMutation.js",
   "../effects/applyTabMutationToCognos.js",

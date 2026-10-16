@@ -3,7 +3,7 @@ define([
   "../config/mutationCodes.js",
   "../config.js",
   "../slots.js",
-  "../state/buildMutationResult.js",
+  "../tabMutation/buildMutationResult.js",
   "../effects/ensureSlotReadyForMutation.js",
   "../effects/dispatchOwnerTabMutation.js",
   "../effects/clearTabMutationSnapshots.js",
