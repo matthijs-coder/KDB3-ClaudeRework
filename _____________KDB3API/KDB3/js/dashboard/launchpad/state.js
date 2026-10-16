@@ -1,16 +1,33 @@
-define([], function () {
-  function createLaunchpadReducer() {
-    return reduceLaunchpadState;
+define(["./config.js"], function (_config) {
+  "use strict";
+  // Lifecycle terms: idle, initializing, ready, error, disposed.
+  const ACTION_TYPES = _config.ACTION_TYPES;
+
+  function createInitialLaunchpadState() {
+    return {
+      lifecycle: "idle",
+      domReady: false,
+      helperTabPageId: null,
+      helperTabIds: [],
+      padsByKey: {},
+      tabs: [],
+      errorCode: null,
+      errorMessage: null
+    };
   }
+
   function reduceLaunchpadState(_state, _action) {
     const action = _action || {};
     const state = normalizeState(_state);
-    if (action.type === "launchpad/mountStarted") { return reduceMountStarted(state); }
-    if (action.type === "launchpad/mountSucceeded") { return reduceMountSucceeded(action.payload); }
-    if (action.type === "launchpad/mountFailed") { return reduceMountFailed(state, action.payload); }
-    if (action.type === "launchpad/destroy") { return reduceDestroy(); }
-    return state;
+    switch (action.type) {
+      case ACTION_TYPES.MOUNT_STARTED: return reduceMountStarted(state);
+      case ACTION_TYPES.MOUNT_SUCCEEDED: return reduceMountSucceeded(action.payload);
+      case ACTION_TYPES.MOUNT_FAILED: return reduceMountFailed(state, action.payload);
+      case ACTION_TYPES.DESTROY: return reduceDestroy();
+      default: return state;
+    }
   }
+
   function normalizeState(_state) {
     const state = _state || {};
     return {
@@ -24,18 +41,11 @@ define([], function () {
       errorMessage: state.errorMessage || null
     };
   }
+
   function reduceMountStarted(state) {
-    return {
-      lifecycle: "initializing",
-      domReady: false,
-      helperTabPageId: state.helperTabPageId,
-      helperTabIds: state.helperTabIds,
-      padsByKey: state.padsByKey,
-      tabs: state.tabs,
-      errorCode: null,
-      errorMessage: null
-    };
+    return Object.assign({}, state, { lifecycle: "initializing", domReady: false, errorCode: null, errorMessage: null });
   }
+
   function reduceMountSucceeded(_payload) {
     const payload = _payload || {};
     return {
@@ -49,35 +59,36 @@ define([], function () {
       errorMessage: null
     };
   }
+
   function reduceMountFailed(state, _payload) {
     const payload = _payload || {};
-    return {
+    return Object.assign({}, state, {
       lifecycle: "error",
       domReady: false,
-      helperTabPageId: state.helperTabPageId,
-      helperTabIds: state.helperTabIds,
-      padsByKey: state.padsByKey,
-      tabs: state.tabs,
       errorCode: payload.errorCode || "LAUNCHPAD_MOUNT_FAILED",
       errorMessage: payload.errorMessage || "Launchpad mount failed."
-    };
+    });
   }
+
   function reduceDestroy() {
-    return { lifecycle: "disposed", domReady: false, helperTabPageId: null, helperTabIds: [], padsByKey: {}, tabs: [], errorCode: null, errorMessage: null };
+    return Object.assign(createInitialLaunchpadState(), { lifecycle: "disposed" });
   }
+
   function copyArray(value) {
     return Array.isArray(value) ? value.slice() : [];
   }
+
   function copyPadsByKey(_padsByKey) {
     const padsByKey = _padsByKey || {};
     const copy = {};
-    const keys = Object.keys(padsByKey);
-    let index = 0;
-    while (index < keys.length) {
-      copy[keys[index]] = copyArray(padsByKey[keys[index]]);
-      index += 1;
-    }
+    Object.keys(padsByKey).forEach(function (padKey) {
+      copy[padKey] = copyArray(padsByKey[padKey]);
+    });
     return copy;
   }
-  return createLaunchpadReducer;
+
+  return {
+    createInitialLaunchpadState: createInitialLaunchpadState,
+    reduceLaunchpadState: reduceLaunchpadState
+  };
 });
