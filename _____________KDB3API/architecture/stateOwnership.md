@@ -1,6 +1,6 @@
 # State Ownership and Module APIs
 
-Architecture rules for `_KDB.state`, module ownership, public APIs, services, and cross-module communication. This document is one of the two highest-authority sources for the project, alongside `_____________KDB3API/architecture/projectStructureRules.md`. The 10 MUST rules in `_____________KDB3API/.cursor/rules/` operationalise these principles.
+Architecture rules for `_KDB.state`, module ownership, public APIs, services, and cross-module communication. This document is one of the two highest-authority sources for the project, alongside `_____________KDB3API/architecture/projectStructureRules.md`. The rules in `_____________KDB3API/.cursor/rules/` (start with `core.mdc`) operationalise these principles.
 
 ## Core Principle
 
@@ -83,7 +83,7 @@ Every `_KDB.state.<subtree>` has exactly **one** canonical writer. Only the writ
 | `_KDB.state.loading` | `loadingService` |
 | `_KDB.state.history` | `historyService` |
 
-This table is the canonical source. Modules introducing a new top-level subtree must add an entry here per `state.mdc` *New Subtree Requirements* (canonical writer, initial state shape, read/write contract, ownership-map entry).
+This table is the canonical source. Modules introducing a new top-level subtree must add an entry here per `state.mdc` *New state and unclear ownership* (canonical writer, initial state shape, read/write contract, ownership-map entry).
 
 ### Filter sub-owners
 
@@ -195,7 +195,7 @@ _KDB.services.cognosHost
 
 Services provide infrastructure or reusable capabilities, and they default to named-method public surfaces per `module-public-api.mdc`.
 
-The event bus is **not** a service: it lives at the top-level `_KDB.events` per `_____________KDB3API/.cursor/rules/kdb-object.mdc` and `events.mdc`. Older drafts that referenced `_KDB.services.eventBus`, `_KDB.services.cognos`, or `_KDB.services.logging` are superseded. Live Cognos adapter key: `_KDB.services.cognosHost`. There is no logging service.
+The event bus is **not** a service: it lives at the top-level `_KDB.events` per `_____________KDB3API/.cursor/rules/state.mdc` and `events.mdc`. Older drafts that referenced `_KDB.services.eventBus`, `_KDB.services.cognos`, or `_KDB.services.logging` are superseded. Live Cognos adapter key: `_KDB.services.cognosHost`. There is no logging service.
 
 `_KDB.api` contains feature-module APIs (see Full Ownership Map above for the canonical list).
 
@@ -408,7 +408,7 @@ _KDB.api.kdbControl = {
 
 ### controlDefinitions
 
-Use declarative control definitions for repeated buttons, inputs, toggles, and selects. Definitions are strictly serializable data; behaviour is resolved by named actions, selectors, controller and effects (see `module-public-api.mdc` / the kdbControl rule when introduced).
+Use declarative control definitions for repeated buttons, inputs, toggles, and selects. Definitions are strictly serializable data; behaviour is resolved by named actions, selectors, controller and effects (see `module-public-api.mdc`).
 
 ```js
 {
