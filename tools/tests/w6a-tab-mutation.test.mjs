@@ -76,6 +76,7 @@ function makeWorld(options) {
   const log = [];
   const placeLog = [];
   const history = [];
+  const loading = [];
   const byId = {};
   makeFrames(opts.frames).forEach((frame) => { byId[frame.widgetId] = frame; });
   const KDB = {
@@ -88,11 +89,12 @@ function makeWorld(options) {
       nativeMultiSelect: { tabMutationSnapshots: {} }
     },
     services: {
-      loading: { startLoading() {}, finishLoading() {} },
+      loading: { startLoading() { loading.push("start"); }, finishLoading() { loading.push("finish"); } },
       history: {
         pushCommittedStep(step) {
           if (opts.historyThrows) { throw new Error("history exploded"); }
           history.push(normalize(step));
+          if (opts.afterHistory) { opts.afterHistory(KDB); }
           return true;
         }
       }
@@ -169,7 +171,7 @@ function makeWorld(options) {
     }
   };
   KDB.api.tabs = { dispatch: (action) => (mutationActions.isTabMutationAction(action.type) ? mutationActions.routeTabMutationAction(ctx, action) : Promise.resolve(true)) };
-  return { KDB, ctx, log, placeLog, history };
+  return { KDB, ctx, log, placeLog, history, loading };
 }
 
 function tabNames(KDB) {
@@ -265,6 +267,16 @@ async function runScenario(name) {
   return summarise(world, result);
 }
 
+function breakLedger(KDB) {
+  KDB.runtime.tabs.slotStock = { runId: 0, get snapshots() { throw new Error("ledger exploded"); } };
+}
+
+async function runWithBrokenLedger(extra) {
+  const world = makeWorld(Object.assign({ afterHistory: breakLedger }, extra));
+  const result = await run(world, "tabs/delete", { tabId: "t1" });
+  return { world, result };
+}
+
 if (process.env.W6A_RECORD === "1") {
   const recorded = {};
   for (const name of Object.keys(SCENARIOS)) { recorded[name] = await runScenario(name); }
@@ -274,6 +286,25 @@ if (process.env.W6A_RECORD === "1") {
   });
   writeFileSync(FIXTURE, "{\n" + lines.join(",\n") + "\n}\n");
 } else {
+  test("a throwing ledger release neither rejects the applied mutation nor leaves the loading cover up", async () => {
+    const { world, result } = await runWithBrokenLedger();
+    assert.equal(result.ok, true);
+    assert.equal(result.outcome, "applied");
+    assert.deepEqual(world.loading, ["start", "finish"]);
+    assert.deepEqual(Object.keys(world.KDB.runtime.tabs.pendingPromises), []);
+    ["singleSelect", "dienststelle", "nativeMultiSelect"].forEach((owner) => {
+      assert.deepEqual(Object.keys(world.KDB.runtime[owner].tabMutationSnapshots), []);
+    });
+  });
+
+  test("a destroyed filter owner runtime does not get its snapshot keys re-created by the release", async () => {
+    const world = makeWorld({ afterHistory: (KDB) => { delete KDB.runtime.dienststelle.tabMutationSnapshots; } });
+    const result = await run(world, "tabs/delete", { tabId: "t1" });
+    assert.equal(result.ok, true);
+    assert.equal("tabMutationSnapshots" in world.KDB.runtime.dienststelle, false);
+    assert.equal("tabMutationRunId" in world.KDB.runtime.dienststelle, false);
+  });
+
   const golden = JSON.parse(readFileSync(FIXTURE, "utf8"));
   for (const name of Object.keys(SCENARIOS)) {
     test("snapshots of the operation are released after every outcome: " + name, async () => {

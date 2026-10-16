@@ -226,12 +226,18 @@ define([
   }
 
   // Releases the operation's snapshots after any saga outcome; a failing owner must not change the mutation result.
+  // An owner runtime that is already gone or never held the snapshot is left alone (no key is re-created).
   function clearSnapshots(_ctx, _operationId) {
     const runtime = _ctx && _ctx._KDB && _ctx._KDB.runtime;
     if (!runtime || _operationId == null || _operationId === "") { return; }
-    _ledger.deleteSnapshot(_ctx._KDB, _operationId);
+    try {
+      _ledger.deleteSnapshot(_ctx._KDB, _operationId);
+    } catch (err) {
+      console.error("[tabs.clearSnapshots] slot-stock ledger cleanup failed", { operationId: _operationId }, err);
+    }
     _config.mutationOwners.SNAPSHOT_OWNER_KEYS.forEach(function (ownerKey) {
-      if (!runtime[ownerKey]) { return; }
+      const store = runtime[ownerKey] && runtime[ownerKey].tabMutationSnapshots;
+      if (!store || !Object.prototype.hasOwnProperty.call(store, String(_operationId))) { return; }
       try {
         _snapshots.deleteSnapshot(runtime[ownerKey], _operationId);
       } catch (err) {

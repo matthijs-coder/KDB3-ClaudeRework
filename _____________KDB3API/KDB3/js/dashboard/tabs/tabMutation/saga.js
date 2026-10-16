@@ -42,8 +42,11 @@ define([
       return await runPhases(_ctx, plan, payload, phases, runContext, _options);
     } finally {
       // After every outcome, and only after rollbackOwners and the history step have read the snapshots.
-      _owners.clearSnapshots(_ctx, plan.operationId);
-      if (loadingStarted) { _loadingFrame.finishMutationFrame(_ctx); }
+      try {
+        _owners.clearSnapshots(_ctx, plan.operationId);
+      } finally {
+        if (loadingStarted) { _loadingFrame.finishMutationFrame(_ctx); }
+      }
     }
   }
 
