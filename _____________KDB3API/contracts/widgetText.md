@@ -39,7 +39,6 @@ No production behavior code may be generated until this CP-1 contract is approve
 | Production gap investigation | `widgetText` is already bootstrapped and mounted, but current handlers are scaffold no-ops; `widgetSettings` and `widgetBase` already dispatch to `widgetText`. |
 | REDESIGN2 text investigation | Editable-node resolution, inline edit lifecycle, `applyTextWidgetFontSize`, `applyTextWidgetRestyle`, title-icon routing and legacy text history behavior. |
 | laatsteOriginal text investigation | Earlier `textWidgets` helper behavior: starting text, responsive font fit, restyle class quirks, icons/header gaps and DOM/settings drift. |
-| `architecture/textWidgetSettings.md` | Reference UI snapshot for Text, Schriftgröße and Umstylen controls and their DOM attributes. |
 
 Deliberate deltas versus legacy:
 
