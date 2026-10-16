@@ -272,3 +272,24 @@ test("destroy: removes overlays, restores mounts, clears timers, zeroes counters
   assert.equal(service.updateLoadingMessage({ mountKey: "c" }), false);
   assert.equal(env.console.calls.warn.filter((w) => /called after destroy/.test(w[0])).length, 3);
 });
+
+test("the position decision is made once per active overlay on a mount", () => {
+  const { env, service, widgetEl } = setup();
+  let reads = 0;
+  const read = env.window.getComputedStyle;
+  env.window.getComputedStyle = (el) => { reads += 1; return read(el); };
+  widgetEl.computedPosition = "static";
+  service.startLoading({ mountKey: "p1" });
+  service.startLoading({ mountKey: "p1" });
+  service.startLoading({ mountKey: "p1" });
+  assert.equal(reads, 1);
+  assert.equal(widgetEl.style.position, "relative");
+  service.finishLoading({ mountKey: "p1" });
+  service.finishLoading({ mountKey: "p1" });
+  service.finishLoading({ mountKey: "p1" });
+  env.clock.advance(0);
+  assert.equal(widgetEl.style.position, "");
+  service.startLoading({ mountKey: "p1" });
+  assert.equal(reads, 2);
+  assert.equal(widgetEl.style.position, "relative");
+});

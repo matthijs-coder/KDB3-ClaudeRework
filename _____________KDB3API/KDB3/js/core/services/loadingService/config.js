@@ -1,7 +1,7 @@
 define([], function () {
   "use strict";
 
-  return {
+  var loadingLabels = {
     dashboard: "Dashboard wird geladen",
     dashboardSave: "Dashboard wird gespeichert",
     dashboardRestore: "Dashboard wird wiederhergestellt",
@@ -26,5 +26,13 @@ define([], function () {
     tabMutationDelete: "Registerkarte wird gelöscht",
     tabMutationMove: "Registerkarte wird verschoben",
     tabMutationRestore: "Gelöschte Registerkarte wird wiederhergestellt"
+  };
+
+  return {
+    BOOT_MOUNT_KEY: "kdb-root-loading-animation-mount",
+    DEFAULT_REMOVE_DELAY_MS: 0,
+    ROOT_MOUNT_KEY: "kdb-root-loading",
+    WATCHDOG_MS: 300000,
+    loadingLabels: loadingLabels
   };
 });
