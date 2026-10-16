@@ -344,7 +344,7 @@ if (process.env.WS_L_RECORD === "1") {
       recorded[group + ": " + name] = sha(await runner(cases[name]));
     }
   }
-  console.log(JSON.stringify(recorded, null, 2));
+  process.stdout.write(JSON.stringify(recorded, null, 2) + "\n");
 } else {
   for (const [group, cases, runner] of groups) {
     for (const name of Object.keys(cases)) {
