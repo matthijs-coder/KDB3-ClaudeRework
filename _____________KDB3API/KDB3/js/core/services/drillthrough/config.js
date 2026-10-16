@@ -96,11 +96,6 @@ define([], function () {
     loadFailedBody: "Die für den Drillthrough benötigten Informationen konnten nicht geladen werden."
   };
 
-  var HIERARCHY_TABLE_KEYS = {
-    BW: "dienststelle_bw_hierarchy",
-    DEZPV: "dienststelle_dezpv_hierarchy"
-  };
-
   // Longest wait for the hierarchy table before the wait window reports a load failure. The table load
   // has no deadline of its own, so without this the window would say "please wait" forever.
   var DEFERRED_OPEN_TIMEOUT_MS = 120000;
@@ -114,7 +109,6 @@ define([], function () {
     promptCatalog: promptCatalog,
     monthLabels: monthLabels,
     drillthroughLabels: drillthroughLabels,
-    HIERARCHY_TABLE_KEYS: HIERARCHY_TABLE_KEYS,
     DEFERRED_OPEN_TIMEOUT_MS: DEFERRED_OPEN_TIMEOUT_MS,
     datenart: datenart
   };

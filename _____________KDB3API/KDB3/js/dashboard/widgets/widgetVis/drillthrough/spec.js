@@ -2,9 +2,10 @@ define([
   "../runtime.js",
   "../selectors.js",
   "../settingsSnapshot.js",
+  "../../../../core/utils/orgTree/hierarchyCell.js",
   "./orgTree.js",
   "./year.js"
-], function (_visRuntime, _selectors, _settingsSnapshot, _orgTree, _year) {
+], function (_visRuntime, _selectors, _settingsSnapshot, _hierarchyCell, _orgTree, _year) {
   "use strict";
 
   function readDefaultCalendarYear() {
@@ -31,18 +32,15 @@ define([
       ? resolution.dominantValues
       : (Array.isArray(resolution.downstreamValues) ? resolution.downstreamValues : []);
     var displayValues = Array.isArray(resolution.displayValues) ? resolution.displayValues : [];
-    var i, useValue, displayValue, tokenMatch, levelMatch, level;
+    var i, useValue, displayValue;
     for (i = 0; i < useValues.length; i += 1) {
       useValue = String(useValues[i] == null ? "" : useValues[i]);
       displayValue = displayValues[i] != null ? String(displayValues[i]) : useValue;
-      tokenMatch = useValue.match(/\[([^\]]+)\](?!.*\[[^\]]+\])/);
-      levelMatch = useValue.match(/level0*(\d+)/i);
-      level = levelMatch ? parseInt(levelMatch[1], 10) : NaN;
       selectedValues.push({
         useValue: useValue,
         displayValue: displayValue,
-        idValue: tokenMatch ? String(tokenMatch[1] || "").trim() || displayValue : displayValue,
-        level: isNaN(level) ? null : level
+        idValue: _hierarchyCell.extractLastBracketToken(useValue) || displayValue,
+        level: _hierarchyCell.parseLevelNumber(useValue)
       });
     }
     return { selectedValues: selectedValues };
