@@ -1,5 +1,5 @@
 define([
-  "../state/ensureWidgetBaseRuntime.js",
+  "../runtime.js",
   "../../../../core/utils/kit/data.js"
 ], function (_runtime, _data) {
   "use strict";

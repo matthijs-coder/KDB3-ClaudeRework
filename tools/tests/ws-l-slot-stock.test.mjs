@@ -19,13 +19,13 @@ const documentStub = {
 const consoleStub = { error() {}, warn() {}, info() {}, log() {} };
 const load = (rel) => loadAmd(path.join(BASE, rel), { stubs: { document: documentStub, console: consoleStub } });
 
-const prepare = load("actions/handlePrepareTabMutation.js");
-const apply = load("actions/handleApplyTabMutation.js");
-const rollback = load("actions/handleRestoreTabMutationSnapshot.js");
-const parameterSetReset = load("actions/handleParameterSetReset.js");
-const parameterSetRestore = load("actions/handleParameterSetRestore.js");
+const prepare = load("slotStock/prepare.js").handlePrepareTabMutation;
+const apply = load("slotStock/apply.js").handleApplyTabMutation;
+const rollback = load("slotStock/rollback.js").handleRestoreTabMutationSnapshot;
+const parameterSetReset = load("restore.js").handleParameterSetReset;
+const parameterSetRestore = load("restore.js").handleParameterSetRestore;
 const selectors = load("state/selectors.js");
-const actionTypes = load("config/actionTypes.js");
+const actionTypes = load("state.js").ACTION_TYPES;
 
 const sha = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex").slice(0, 16);
 

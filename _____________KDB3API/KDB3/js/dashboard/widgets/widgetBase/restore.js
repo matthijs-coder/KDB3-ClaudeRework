@@ -1,8 +1,8 @@
 define([
-  "./state/ensureWidgetBaseRuntime.js",
-  "./actions/handleRouteToLaunchpad.js",
+  "./runtime.js",
+  "./launchpadTransfer.js",
   "./slotStock/placeEntries.js"
-], function (_ensureWidgetBaseRuntime, _handleRouteToLaunchpad, _placeEntries) {
+], function (_runtimeModule, _launchpadTransfer, _placeEntries) {
   "use strict";
 
   var RESET_FAILED = "WRITEBACK_WIDGET_RESET_FAILED";
@@ -23,7 +23,7 @@ define([
 
   // Shared stale guard of reset and restore: a lower runId than the last accepted one is cancelled.
   function acceptRunId(_context, _runId) {
-    _ensureWidgetBaseRuntime.ensureWidgetBaseRuntime(_context._KDB);
+    _runtimeModule.ensureWidgetBaseRuntime(_context._KDB);
     var runtime = _context._KDB.runtime.widgetBase;
     if (typeof runtime.parameterSetRunId === "number" && _runId < runtime.parameterSetRunId) {
       return { runtime: runtime, staleMessage: "stale parameterSet runId " + _runId + " superseded by " + runtime.parameterSetRunId };
@@ -98,7 +98,7 @@ define([
   }
 
   function parkOne(_context, _widgetId, _frame, _routeHints) {
-    return _handleRouteToLaunchpad(_context, {
+    return _launchpadTransfer.handleRouteToLaunchpad(_context, {
       type: _context.actionTypes.ROUTE_TO_LAUNCHPAD,
       widgetId: _widgetId,
       payload: Object.assign({

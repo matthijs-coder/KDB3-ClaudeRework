@@ -1,13 +1,11 @@
 define([
   "../../../../core/services/writeback/get/collectors/buildWidgetObject.js",
-  "../history/resolveCanvasLayoutFromFrame.js",
-  "../config/launchpadChannels.js",
-  "../actions/resolveDropClaim.js",
+  "../config.js",
+  "../history.js",
+  "../launchpadRoute.js",
   "../../../tabs/config/mutationCodes.js"
-], function (_buildWidgetObject, _layoutFrame, _launchpadChannels, _resolveDropClaim, _codes) {
+], function (_buildWidgetObject, _config, _history, _launchpadRoute, _codes) {
   "use strict";
-
-  var HOST_WIDGET_ID = "kdb3widget";
 
   function readApiState(_KDB, _owner) {
     var api = _KDB && _KDB.api && _KDB.api[_owner];
@@ -16,7 +14,7 @@ define([
 
   // Same canvas-px source as the frame layout resolver. Duplicate prepare does not read live DOM.
   function stampCanvasLayout(_frame) {
-    var layout = _layoutFrame.resolveCanvasLayoutFromFrame(_frame);
+    var layout = _history.resolveCanvasLayoutFromFrame(_frame);
     if (!layout) {
       return _frame || {};
     }
@@ -50,7 +48,7 @@ define([
     return frame && frame.lifecycle !== "disposed"
       && (frame.kind === "vis" || frame.kind === "text")
       && frame.role !== "topNHelper"
-      && frame.widgetId !== HOST_WIDGET_ID;
+      && frame.widgetId !== _config.HOST_WIDGET_ID;
   }
 
   function readTabIdx(_plan, _tabId) {
@@ -106,7 +104,7 @@ define([
       var frames = _context.selectors.readCanvasWidgetsByTab(_context._KDB, _tabIds[index]);
       for (frameIndex = 0; frameIndex < frames.length; frameIndex += 1) {
         var frame = frames[frameIndex];
-        if (frame && frame.widgetId !== HOST_WIDGET_ID && frame.role !== "topNHelper" && frame.kind !== "vis" && frame.kind !== "text") {
+        if (frame && frame.widgetId !== _config.HOST_WIDGET_ID && frame.role !== "topNHelper" && frame.kind !== "vis" && frame.kind !== "text") {
           var message = "Unsupported widget kind \"" + String(frame.kind) + "\" on tab " + String(_tabIds[index]) + ".";
           return fail(_codes.KIND_UNSUPPORTED, message, _tabIds[index], frame.kind);
         }
@@ -140,7 +138,7 @@ define([
     (Array.isArray(result.widgets) ? result.widgets : []).forEach(function (widget) {
       var widgetId = widget && widget.widgetId;
       if (widgetId && !seen[widgetId]) {
-        var eligibility = _resolveDropClaim.readPadShellEligibility(_context, widgetId);
+        var eligibility = _launchpadRoute.readPadShellEligibility(_context, widgetId);
         if (eligibility === "unevaluable") { sawUnevaluable = true; }
         if (eligibility === "yes") { count += 1; }
       }
@@ -166,16 +164,15 @@ define([
     var keys = Object.keys(_rebuildByTabId || {});
     for (var index = 0; index < keys.length; index += 1) {
       var rows = _rebuildByTabId[keys[index]] || [];
-      var visShort = await shortageFor(_context, keys[index], rows, "vis", _launchpadChannels.CHANNELS.VISUALIZATION, "vis");
+      var visShort = await shortageFor(_context, keys[index], rows, "vis", _config.CHANNELS.VISUALIZATION, "vis");
       if (visShort) { return visShort; }
-      var textShort = await shortageFor(_context, keys[index], rows, "txt", _launchpadChannels.CHANNELS.TEXT, "text");
+      var textShort = await shortageFor(_context, keys[index], rows, "txt", _config.CHANNELS.TEXT, "text");
       if (textShort) { return textShort; }
     }
     return null;
   }
 
   return {
-    HOST_WIDGET_ID: HOST_WIDGET_ID,
     serializeWidgetFrame: serializeWidgetFrame,
     liveMap: liveMap,
     findUnsupported: findUnsupported,

@@ -1,15 +1,15 @@
 define([
-  "./state/resolveLaunchpadRoute.js",
+  "./config.js",
+  "./launchpadRoute.js",
   "./state/selectors.js",
   "./view/resolveWidgetShell.js",
-  "./state/ensureWidgetBaseRuntime.js",
+  "./runtime.js",
   "../../tabs/effects/hasTabInnerFrame.js",
   "../../../core/cognosHost/config/widgetChromeSelectors.js",
   "../../../core/utils/kit/async.js"
-], function (_resolveLaunchpadRoute, _selectors, _shellModule, _ensureWidgetBaseRuntime, _hasTabInnerFrame, _widgetChrome, _async) {
+], function (_config, _launchpadRoute, _selectors, _shellModule, _runtime, _hasTabInnerFrame, _widgetChrome, _async) {
   "use strict";
 
-  var HOST_WIDGET_ID = "kdb3widget";
   // Bounded DOM waits so hidden-tab shells cannot stall tab-scoped discovery.
   var WAIT_TIMEOUT_MS = 2000;
   var POLL_INTERVAL_MS = 100;
@@ -115,7 +115,7 @@ define([
       isHostWidget: isHostWidget(_KDB, widgetId)
     });
     stampLaunchpadDisabled(_KDB, descriptor);
-    var route = _resolveLaunchpadRoute(descriptor);
+    var route = _launchpadRoute.resolveLaunchpadRoute(descriptor);
     if (!_shellModule.resolveWidgetShell(_KDB, widgetId)) {
       descriptor.skipReason = "WIDGET_BASE_WIDGET_ID_MISSING";
     } else if (route.shouldRoute === false && route.reasonCode) {
@@ -175,7 +175,7 @@ define([
   }
 
   function isHostWidget(_KDB, _widgetId) {
-    return _widgetId === HOST_WIDGET_ID || !!(_KDB.elements && _KDB.elements.kdbWidget && _KDB.elements.kdbWidget.id === _widgetId);
+    return _widgetId === _config.HOST_WIDGET_ID || !!(_KDB.elements && _KDB.elements.kdbWidget && _KDB.elements.kdbWidget.id === _widgetId);
   }
 
   // Exclude only on positive DOM evidence: both the tab container element (id === tabId) and the widget shell
@@ -195,7 +195,7 @@ define([
   // One poll per key: a newer poll aborts the previous one. Every outcome (ready, timeout, aborted, check
   // failure) resolves undefined; a failing check is logged and ends the wait.
   function pollKeyed(_KDB, _key, _check) {
-    _ensureWidgetBaseRuntime.ensureWidgetBaseRuntime(_KDB);
+    _runtime.ensureWidgetBaseRuntime(_KDB);
     var controllers = _KDB.runtime.widgetBase.abortControllers;
     if (controllers[_key] && typeof controllers[_key].abort === "function") {
       controllers[_key].abort();

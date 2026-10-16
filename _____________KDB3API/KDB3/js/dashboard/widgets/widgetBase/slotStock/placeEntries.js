@@ -1,19 +1,16 @@
 define([
   "./guard.js",
-  "../state/ensureWidgetBaseRuntime.js",
-  "../effects/resolveContentOwnerApi.js",
-  "../effects/dispatchWidgetSettingsPlaceControls.js",
-  "../effects/applyWidgetLayout.js",
-  "../actions/resolveDropClaim.js",
-  "../actions/handleTakeFromLaunchpad.js",
-  "../actions/handleSetColour.js",
+  "../runtime.js",
+  "../effects.js",
+  "../launchpadRoute.js",
+  "../launchpadTransfer.js",
+  "../canvas.js",
   "../../widgetVis/config/actionTypes.js",
   "../../widgetText/config/actionTypes.js",
   "../../../tabs/effects/hasTabInnerFrame.js",
   "../../../tabs/actions/guardParameterSetRun.js"
 ], function (
-  _guard, _ensureRuntime, _contentOwnerApi, _dispatchWidgetSettingsPlaceControls, _applyWidgetLayout, _resolveDropClaim,
-  _handleTakeFromLaunchpad, _handleSetColour, _widgetVisActionTypes, _widgetTextActionTypes, _hasTabInnerFrame, _guardParameterSetRun
+  _guard, _runtimeModule, _effects, _launchpadRoute, _launchpadTransfer, _canvas, _widgetVisActionTypes, _widgetTextActionTypes, _hasTabInnerFrame, _guardParameterSetRun
 ) {
   "use strict";
 
@@ -25,7 +22,7 @@ define([
 
   function dispatchVisCreate(_context, _widgetId, _widget, _payload) {
     var entryIndex = typeof _payload.entryIndex === "number" ? _payload.entryIndex : null;
-    var metric = _contentOwnerApi.resolveMetricByCode(_context._KDB, _widget.code || "");
+    var metric = _effects.resolveMetricByCode(_context._KDB, _widget.code || "");
     var diagnostics = [];
     if (!metric.resolved) {
       diagnostics.push({
@@ -34,11 +31,11 @@ define([
         message: "metric display name not resolvable from metrics tree; widget title falls back to metric code"
       });
     }
-    var api = _contentOwnerApi.resolveContentApi(_context._KDB, "vis");
+    var api = _effects.resolveContentApi(_context._KDB, "vis");
     if (!api || typeof api.dispatch !== "function") {
       return Promise.resolve({ ok: false, message: "widgetVis API is unavailable for restore contentCreate dispatch", diagnostics: diagnostics });
     }
-    return _contentOwnerApi.dispatchContentAction(api, {
+    return _effects.dispatchContentAction(api, {
       type: _widgetVisActionTypes.CONTENT_CREATE,
       widgetId: _widgetId,
       payload: {
@@ -66,11 +63,11 @@ define([
   }
 
   function dispatchTextCreate(_context, _widgetId, _payload) {
-    var api = _contentOwnerApi.resolveContentApi(_context._KDB, "text");
+    var api = _effects.resolveContentApi(_context._KDB, "text");
     if (!api || typeof api.dispatch !== "function") {
       return Promise.resolve({ ok: false, message: "widgetText API is unavailable for restore contentCreate dispatch" });
     }
-    return _contentOwnerApi.dispatchContentAction(api, {
+    return _effects.dispatchContentAction(api, {
       type: _widgetTextActionTypes.CONTENT_CREATE,
       widgetId: _widgetId,
       payload: {
@@ -96,7 +93,7 @@ define([
   }
 
   function claimParkedShell(_context, _kind, _tabId) {
-    return _resolveDropClaim(_context, {
+    return _launchpadRoute.resolveClaimedWidget(_context, {
       draggedElementType: _kind === "vis" ? "visualization" : "text",
       sourceKind: _kind === "vis" ? "metricsTreeLeaf" : "toolboxTextButton",
       tabId: _tabId
@@ -128,7 +125,7 @@ define([
   }
 
   async function applyRestoredColour(_context, _widgetId, _colour, _takePayload) {
-    var colourResult = await _handleSetColour(_context, {
+    var colourResult = await _canvas.handleSetColour(_context, {
       type: _context.actionTypes.APPLY_COLOUR,
       widgetId: _widgetId,
       payload: {
@@ -152,7 +149,7 @@ define([
     var degraded = false;
     var entryIndex = typeof options.entryIndex === "number" ? options.entryIndex : null;
     try {
-      _ensureRuntime.ensureWidgetBaseRuntime(_context._KDB);
+      _runtimeModule.ensureWidgetBaseRuntime(_context._KDB);
       var runtime = _context._KDB.runtime.widgetBase;
       var kind = widget.kind;
       if (kind !== "vis" && kind !== "txt") {
@@ -171,7 +168,11 @@ define([
         skipHistory: options.skipHistory === true,
         isHistoryReplay: options.isHistoryReplay === true
       };
-      var takeResult = await _handleTakeFromLaunchpad(_context, { type: _context.actionTypes.TAKE_FROM_LAUNCHPAD, widgetId: claim.widgetId, payload: takePayload });
+      var takeResult = await _launchpadTransfer.handleTakeFromLaunchpad(_context, {
+        type: _context.actionTypes.TAKE_FROM_LAUNCHPAD,
+        widgetId: claim.widgetId,
+        payload: takePayload
+      });
       if (isSuperseded(runtime, guard)) { return supersededResult(guard, runtime); }
       if (!takeResult || takeResult.ok !== true) {
         return failPlace("takeFromLaunchpad failed for widget shell " + String(claim.widgetId));
@@ -200,14 +201,14 @@ define([
         return { ok: false, degraded: degraded || undefined, diagnostics: diagnostics.concat([{ code: RESTORE_FAILED, message: contentMessage }]) };
       }
       var layoutResult = hasFiniteLayout(takePayload.targetLayout)
-        ? await _applyWidgetLayout(_context._KDB, claim.widgetId, takePayload.targetLayout)
+        ? await _effects.applyWidgetLayout(_context._KDB, claim.widgetId, takePayload.targetLayout)
         : { ok: false };
       if (isSuperseded(runtime, guard)) { return supersededResult(guard, runtime); }
       if (!layoutResult || layoutResult.ok !== true) {
         diagnostics.push({ code: RESTORE_FAILED, widgetId: claim.widgetId, message: "layout re-apply after contentCreate failed" });
         degraded = true;
       }
-      var placeControlsOk = await _dispatchWidgetSettingsPlaceControls(_context._KDB, {
+      var placeControlsOk = await _effects.dispatchWidgetSettingsPlaceControls(_context._KDB, {
         widgetId: claim.widgetId,
         kind: kind === "vis" ? "vis" : "text",
         shellEl: claim.shellEl,

@@ -5,8 +5,8 @@ define([
   "./runtime.js",
   "./effects.js",
   "./launchpadTransfer.js",
-  "./effects/discoverCanvasWidgets.js"
-], function (_hasTabInnerFrame, _state, _selectors, _runtime, _effects, _launchpadTransfer, _discoverCanvasWidgets) {
+  "./discovery.js"
+], function (_hasTabInnerFrame, _state, _selectors, _runtime, _effects, _launchpadTransfer, _discovery) {
   "use strict";
 
   const normalizeDispatchResult = _state.normalizeDispatchResult;
@@ -67,7 +67,7 @@ define([
       return Promise.resolve(normalizeDispatchResult({ ok: false, errorCode: "WIDGET_BASE_LAUNCHPAD_NOT_READY" }));
     }
     return _launchpadTransfer.waitForCanvasTransferReady(_context._KDB).then(function () {
-      return _discoverCanvasWidgets(_context._KDB, { tabId: payload.tabId || null });
+      return _discovery.discoverCanvasWidgets(_context._KDB, { tabId: payload.tabId || null });
     }).then(function (descriptors) {
       const results = { ok: true, routed: 0, skipped: 0, failed: 0, missingShells: 0, firstErrorCode: null };
       return routeSequentially(_context, descriptors, payload, results).then(function () {

@@ -7,8 +7,8 @@ define([
   "./launchpadRoute.js",
   "./view/placement.js",
   "./view/resolveWidgetShell.js",
-  "./effects/widgetMoveInteraction.js",
-  "./effects/widgetResizeInteraction.js"
+  "./interaction/move.js",
+  "./interaction/resize.js"
 ], function (
   _historyKit, _runtimeKit, _launchpadSelectors, _state, _effects, _launchpadRoute, _placement, _shellModule,
   _moveInteraction, _resizeInteraction

@@ -4,8 +4,8 @@ define([
   "./state.js",
   "./effects.js",
   "./view/resolveWidgetShell.js",
-  "./effects/readWidgetLayoutFromDom.js"
-], function (_data, _historyKit, _state, _effects, _shellModule, _readWidgetLayoutFromDom) {
+  "./interaction/pointerGeometry.js"
+], function (_data, _historyKit, _state, _effects, _shellModule, _pointerGeometry) {
   "use strict";
 
   const hasLayout = _state.isNumericLayout;
@@ -26,7 +26,7 @@ define([
     if (frame.placement !== "onCanvas" || !shellEl) {
       return merged;
     }
-    const domLayout = _readWidgetLayoutFromDom(_KDB, shellEl);
+    const domLayout = _pointerGeometry.readWidgetLayoutFromDom(_KDB, shellEl);
     if (!domLayout) {
       return merged;
     }

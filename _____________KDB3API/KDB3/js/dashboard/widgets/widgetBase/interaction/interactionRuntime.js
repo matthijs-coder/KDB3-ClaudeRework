@@ -1,7 +1,7 @@
 define([
-  "../state/ensureWidgetBaseRuntime.js",
+  "../runtime.js",
   "../../../../core/cognosHost/config/pageChromeSelectors.js"
-], function (_ensureWidgetBaseRuntime, _pageChrome) {
+], function (_runtime, _pageChrome) {
   "use strict";
 
   function getJQuery() {
@@ -36,7 +36,7 @@ define([
   }
 
   function ensureInteractionRuntime(_KDB, _widgetId, _interactionKey, _defaultBucket) {
-    _ensureWidgetBaseRuntime.ensureWidgetBaseWidgetRuntime(_KDB, _widgetId);
+    _runtime.ensureWidgetBaseWidgetRuntime(_KDB, _widgetId);
     var runtime = _KDB.runtime.widgetBase.byId[_widgetId];
     runtime.interaction = runtime.interaction || {};
     runtime.interaction[_interactionKey] = runtime.interaction[_interactionKey] || _defaultBucket;
