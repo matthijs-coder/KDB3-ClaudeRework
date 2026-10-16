@@ -80,7 +80,7 @@ function makeWorld(options) {
   const byId = {};
   makeFrames(opts.frames).forEach((frame) => { byId[frame.widgetId] = frame; });
   const KDB = {
-    state: { tabs: makeTabsState(), widgets: { base: { byId } } },
+    state: { tabs: makeTabsState(), widgets: { base: { byId }, settings: { lifecycle: "ready", byWidget: {} } } },
     runtime: {
       tabs: { pendingPromises: {}, abortControllers: {}, baselineNamesByIndex: { 3: "Tab 4" } },
       widgetBase: { routedTabIds: { t0: true, t1: true, t2: true, t3: true } },
@@ -136,7 +136,7 @@ function makeWorld(options) {
     }
   };
   KDB.api.launchpad = { dispatch: async () => ({ ok: true, widgets: [] }) };
-  KDB.api.widgetSettings = { getState: () => ({ byWidget: {} }), dispatch: async (action) => { log.push(["widgetSettings", action.type, Object.keys(action.payload.widgetCorrelation || {}).length]); return { ok: true }; } };
+  KDB.api.widgetSettings = { dispatch: async (action) => { log.push(["widgetSettings", action.type, Object.keys(action.payload.widgetCorrelation || {}).length]); return { ok: true }; } };
   KDB.api.widgetVis = { getState: () => widgetVisState(), dispatch: async (action) => { log.push(["widgetVis", action.type, Object.keys(action.payload.widgetCorrelation || {}).length]); return { ok: true }; } };
   KDB.api.widgetText = { getState: () => ({ byId: {} }), dispatch: async (action) => { log.push(["widgetText", action.type, Object.keys(action.payload.widgetCorrelation || {}).length]); return { ok: true }; } };
   KDB.api.kdbControl = { syncView() {} };

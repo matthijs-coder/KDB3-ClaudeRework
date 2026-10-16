@@ -3,8 +3,9 @@ define([
   "../config.js",
   "../history.js",
   "../launchpadRoute.js",
-  "../../../tabs/config/mutationCodes.js"
-], function (_buildWidgetObject, _config, _history, _launchpadRoute, _codes) {
+  "../../../tabs/config/mutationCodes.js",
+  "../../widgetSettings/selectors.js"
+], function (_buildWidgetObject, _config, _history, _launchpadRoute, _codes, _settingsSelectors) {
   "use strict";
 
   function readApiState(_KDB, _owner) {
@@ -26,10 +27,9 @@ define([
     var widgetId = _frame && _frame.widgetId ? _frame.widgetId : null;
     try {
       var frame = stampCanvasLayout(_frame);
-      var settingsByWidget = (readApiState(_KDB, "widgetSettings") || {}).byWidget || {};
       var visById = (readApiState(_KDB, "widgetVis") || {}).byId || {};
       var textById = (readApiState(_KDB, "widgetText") || {}).byId || {};
-      var entry = _buildWidgetObject(frame, _tabIdx, settingsByWidget[widgetId], visById[widgetId], textById[widgetId], diagnostics);
+      var entry = _buildWidgetObject(frame, _tabIdx, _settingsSelectors.readWidgetSettings(_KDB, widgetId), visById[widgetId], textById[widgetId], diagnostics);
       if (entry === null) {
         return { ok: false, entry: null, diagnostics: diagnostics };
       }

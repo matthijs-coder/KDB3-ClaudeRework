@@ -1,8 +1,9 @@
 define([
   "../runtime.js",
   "../visTypes.js",
-  "../results.js"
-], function (_visRuntime, _visTypes, _results) {
+  "../results.js",
+  "../../widgetSettings/selectors.js"
+], function (_visRuntime, _visTypes, _results, _settingsSelectors) {
   "use strict";
 
   var VALUE_LABELS_VISIBLE = "valueLabels.visible";
@@ -129,22 +130,13 @@ define([
     return _type === "List" || _type === "TopN";
   }
 
-  function readWidgetSettingsRecord(_KDB, _widgetId) {
-    var api = _KDB && _KDB.api && _KDB.api.widgetSettings;
-    if (!api || typeof api.getState !== "function") {
-      return null;
-    }
-    var state = api.getState();
-    return state && state.byWidget ? state.byWidget[_widgetId] : null;
-  }
-
   function overlayIteratorZoomOnLayoutMap(_KDB, _widgetId, _layoutMap, _normalizedType) {
     var cloned = Object.assign({}, _layoutMap || {});
     var type = normalizeType(_normalizedType);
     if (isListOrTopN(type)) {
       return cloned;
     }
-    var record = readWidgetSettingsRecord(_KDB, _widgetId);
+    var record = _settingsSelectors.readWidgetSettings(_KDB, _widgetId);
     Object.keys(HOST_MAP_BY_CONTROL).forEach(function (_control) {
       var hostKey = HOST_MAP_BY_CONTROL[_control][type];
       if (hostKey) {
