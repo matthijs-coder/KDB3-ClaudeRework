@@ -48,6 +48,23 @@ test("isMutationRunning mirrors the tabMutation busy flag and ignores other tab 
   assert.equal(_KDB.api.tabs, controller);
 });
 
+test("isBusy mirrors readTabsBusy with the default keys (traverse, startup, tabMutation)", () => {
+  const { _KDB, controller } = mountTabs();
+  assert.equal(controller.isBusy(), false);
+  ["traverse", "startup", "tabMutation"].forEach((key) => {
+    _KDB.runtime.tabs.pendingPromises[key] = Promise.resolve();
+    assert.equal(controller.isBusy(), true);
+    assert.equal(controller.isBusy(), kit.readTabsBusy(_KDB));
+    delete _KDB.runtime.tabs.pendingPromises[key];
+    assert.equal(controller.isBusy(), false);
+  });
+  _KDB.runtime.tabs.pendingPromises.somethingElse = Promise.resolve();
+  assert.equal(controller.isBusy(), false);
+  _KDB.runtime.tabs.pendingPromises.traverse = Promise.resolve();
+  controller.destroy();
+  assert.equal(controller.isBusy(), false);
+});
+
 test("isMutationRunning is true while the saga runs, false after it settles and after destroy", async () => {
   const widgetCalls = [];
   let release = null;

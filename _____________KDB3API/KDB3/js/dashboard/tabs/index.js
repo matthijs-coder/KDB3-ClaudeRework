@@ -79,6 +79,8 @@ define([
       getState: instance.getState,
       // Same answer as kit readTabsBusy(_KDB, ["tabMutation"]); false once destroyed (the buckets are reset).
       isMutationRunning: function isMutationRunning() { return _rt.readTabsBusy(_KDB, ["tabMutation"]); },
+      // Same answer as kit readTabsBusy(_KDB) with its default keys: a traverse, the startup or a tab mutation is pending.
+      isBusy: function isBusy() { return _rt.readTabsBusy(_KDB); },
       readCurrentTab: function (_root) { return guard.isDisposed() ? _readCurrentTab.NO_TAB : readCurrentTab(_root); }
     };
   }

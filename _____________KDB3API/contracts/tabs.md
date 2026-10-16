@@ -206,6 +206,7 @@ Runtime roles:
 | `pendingPromises` | In-flight mount, hydrate, traverse, rename or wait actions. |
 | `adapters` | Injected/local Cognos tabs adapter and future persistence adapter references. |
 | `historyReplayHandlerContribution` | Deferred until tabs history replay is approved. |
+| `slotStock` | Not a bucket (survives `disposeRuntimeBuckets`, replaced on `destroy`): `{ snapshots, runId }`, the tab-mutation slot-stock ledger. `snapshots[operationId]` holds the widget owner's rollback data for one mutation (opaque to tabs); `runId` is the widget side's stale-run guard. Written by the engine in `tabs/tabMutation/slotStock/` (prepare/apply/rollback, driven through the widgetBase port), released by the saga after every outcome (`finally`) and by `destroy`. Replaces `runtime.widgetBase.tabMutationSnapshots` / `tabMutationRunId`. Debug read: `getKDB().runtime.tabs.slotStock.snapshots` is `{}` when no mutation runs. |
 
 Phase 1 may populate only `adapters.cognos`. It must not create a persistence/writeback adapter slot with behavior, and it must leave `historyReplayHandlerContribution` as `null`.
 
@@ -220,7 +221,10 @@ _KDB.api.tabs = {
   mount: mount,
   destroy: destroy,
   dispatch: dispatch,
-  getState: getState
+  getState: getState,
+  isMutationRunning: isMutationRunning,
+  isBusy: isBusy,
+  readCurrentTab: readCurrentTab
 };
 ```
 
@@ -234,6 +238,9 @@ Method contracts:
 | `destroy()` | Idempotent teardown of tabs-owned runtime resources and subscriptions. |
 | `dispatch(action)` | Sole public command path. State-changing actions go through reducer/effects. May return a Promise for async commands such as traverse or rename. |
 | `getState()` | Returns a cloned/coarse projection of `_KDB.state.tabs` for cross-module UI sync. It must include fields consumed by kdbControl and launchpad. |
+| `isMutationRunning()` | Read-only boolean: a tab mutation (delete/duplicate/move/restoreDeleted) is in flight, i.e. `runtime.tabs.pendingPromises.tabMutation` is set. Same answer as kit `readTabsBusy(_KDB, ["tabMutation"])`. `false` after destroy. |
+| `isBusy()` | Read-only boolean: a traverse, the startup traversal or a tab mutation is pending (`pendingPromises.traverse`, `.startup`, `.tabMutation`). Same answer as kit `readTabsBusy(_KDB)` with its default keys. `false` after destroy. |
+| `readCurrentTab(root?)` | `{ index, id }` of the tab selected in the Cognos chrome (`index` is `-1` and `id` is `null` when none, and after destroy); `id` comes from the cognosHost tabs facet. `_KDB.utils.readCurrentTab` is bound to the same reader while tabs is mounted (compatibility for existing callers, restored on destroy unless another owner replaced it). |
 
 Disposed-state discipline follows `module-public-api.mdc`: after destroy, `getState()` returns `undefined`; `dispatch()` is a no-op and logs once via `console.warn("[tabs.dispatch] called after destroy")`; `mount()` is a no-op and logs once via `console.warn("[tabs.mount] called after destroy; obtain a fresh instance from the factory")`; `destroy()` remains idempotent. No disposed guard throws synchronously. The factory/orchestrator is the canonical revive path.
 
@@ -259,6 +266,8 @@ Action names are slash-style.
 | `tabs/destroy` | `destroy()` | Transition lifecycle and clear owned transient state. |
 
 ### 7.2 Deferred Actions
+
+Status note (Phase 2): `tabs/delete`, `tabs/duplicate`, `tabs/move` and `tabs/restoreDeleted` are implemented by the tab-mutation saga (`tabs/tabMutation/`) and no longer return `false`; only `tabs/reorder` is still unimplemented. The table below is the original phase-1 reservation.
 
 These action names may be reserved but must not perform persistent behavior in phase 1:
 
@@ -286,7 +295,7 @@ Required selectors:
 | `readTabByIndex(_KDB, tabIndex)` | Cloned descriptor or `null`. |
 | `readTabEditTarget(_KDB)` | Current explicit physical edit target `{ tabIndex, tabId }` or `null`; phase 1 normally returns `null` because current kdbControl selects tools, not physical tabs. |
 | `readTabsForLaunchpad(_KDB)` | Ordered visible non-helper descriptors `{ tabId, pageId, index, name, isActive }[]`. |
-| `readTabsForKdbControl(_KDB)` | Projection `{ visibleTabs, toolboxTabEditLineIndex, selectedTool, canAdd, actions }`. |
+| `readTabsForKdbControl(_KDB)` | Projection `{ visibleTabs, visibleEditTabIndexes, toolboxTabEditLineIndex, selectedTool, canAdd, editUi, actions }`. |
 
 `getState()` must expose a stable projection including at least:
 
@@ -305,15 +314,11 @@ Required selectors:
 }
 ```
 
-Phase-1 `actions` shape:
+`actions` shape (only `rename` is reported; the `delete`, `duplicate`, `move` and `reorder` entries that were constant `{ enabled: false, reason: "deferred" }` were removed in Phase 2 W6a, nothing read them):
 
 ```js
 {
-  rename: { enabled: true, reason: null },
-  delete: { enabled: false, reason: "deferred" },
-  duplicate: { enabled: false, reason: "deferred" },
-  move: { enabled: false, reason: "deferred" },
-  reorder: { enabled: false, reason: "deferred" }
+  rename: { enabled: true, reason: null }   // reason "noTarget" when disabled
 }
 ```
 
@@ -362,7 +367,7 @@ For the current production kdbControl, `payload.tabIndex` in `tabs/selectEditTar
 | `3` | `move` deferred |
 | `4` | `reorder` deferred |
 
-Selecting line `0` sets `selectedTool: "rename"`. Selecting lines `1..4` may update `toolboxTabEditLineIndex` for UI parity, but `actions.*.enabled` for those tools remains `false` with reason `"deferred"` and dispatching the corresponding action returns `false`.
+Selecting line `0` sets `selectedTool: "rename"`. Selecting lines `1..4` may update `toolboxTabEditLineIndex` for UI parity, but the toolbox lines themselves select no tool (`actions` reports `rename` only). Delete, duplicate and move run through the edit icons and the tab-mutation saga (`tabs/delete`, `tabs/duplicate`, `tabs/move`, `tabs/restoreDeleted`).
 
 Rename execution must enter through `_KDB.api.tabs.dispatch({ type: "tabs/rename", payload })`. The current production kdbControl line `0` only selects the rename tool; it does not yet provide a committed new name. A future kdbControl delta may add the UI that gathers the name and dispatches `tabs/rename`, but it must not dispatch delete/duplicate/move/reorder execution in phase 1.
 
