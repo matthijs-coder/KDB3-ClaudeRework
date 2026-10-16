@@ -1,11 +1,11 @@
 define([
-  "../config/restoreConstants.js",
-  "../../schema/errorCodes.js",
+  "../../config/restoreConstants.js",
+  "../../../schema/errorCodes.js",
   "./filterRestoreTargets.js",
   "./filterRestoreGeneration.js",
   "./dispatchFilterClearPhases.js",
   "./buildAllowedClearTabIdxs.js",
-  "./waitForPageContextHost.js",
+  "../waitForPageContextHost.js",
   "./dispatchDienststelleRestore.js",
   "./dispatchSpecialSingleSelectRestore.js"
 ], function (_constants, _errorCodes, _filterTargets, _filterGeneration, _dispatchFilterClearPhases, _buildAllowedClearTabIdxs, _waitForPageContextHost, _dispatchDienststelleRestore, _dispatchSpecialSingleSelectRestore) {

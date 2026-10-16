@@ -1,4 +1,4 @@
-define(["../../schema/errorCodes.js"], function (_errorCodes) {
+define(["../schema/errorCodes.js"], function (_errorCodes) {
   "use strict";
 
   function isUrlShareDestroyed(_KDB, _runtime) {

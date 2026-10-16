@@ -1,4 +1,4 @@
-define(["../state/ensureWritebackRuntime.js"], function (_ensureWritebackRuntime) {
+define(["../set/state/ensureWritebackRuntime.js"], function (_ensureWritebackRuntime) {
   "use strict";
 
   function readWritebackLabels(_KDB) {

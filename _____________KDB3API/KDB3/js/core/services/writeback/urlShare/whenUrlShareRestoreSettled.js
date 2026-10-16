@@ -1,10 +1,10 @@
 define([
-  "../../bridge/readUrlParameterId.js",
-  "../state/ensureWritebackRuntime.js",
+  "./readUrlParameterId.js",
+  "../set/state/ensureWritebackRuntime.js",
   "./mapUrlShareSelectResult.js",
   "./recoverUrlSharePending.js",
   "./presentPendingUrlShareMessage.js",
-  "../../bridge/ensureNewDashboardOption.js",
+  "../bridge/ensureNewDashboardOption.js",
   "./waitForSingleSelectInventoryQuiet.js"
 ], function (
   _readUrlParameterId,

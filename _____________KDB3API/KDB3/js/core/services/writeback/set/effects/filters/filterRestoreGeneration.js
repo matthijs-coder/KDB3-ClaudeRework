@@ -1,7 +1,7 @@
 define([
-  "../config/restoreConstants.js",
-  "../../schema/errorCodes.js",
-  "../../../../../dashboard/filters/singleSelect/state/selectors.js",
+  "../../config/restoreConstants.js",
+  "../../../schema/errorCodes.js",
+  "../../../../../../dashboard/filters/singleSelect/state/selectors.js",
 ], function (_constants, _errorCodes, _singleSelectSelectors) {
   "use strict";
 

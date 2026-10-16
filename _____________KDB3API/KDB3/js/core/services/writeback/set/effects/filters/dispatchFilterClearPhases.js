@@ -1,5 +1,5 @@
 define([
-  "../../schema/errorCodes.js"
+  "../../../schema/errorCodes.js"
 ], function (_errorCodes) {
   "use strict";
 
