@@ -240,3 +240,38 @@ test("W8 characterisation: saved v3 widgets validate and every allowed grain sur
     assert.equal(row.restoredGrouping, row.saved.grp ?? null, key);
   }
 });
+
+test("W8 rules: aliases, buckets, default grains and allowed grains describe the same set of types", () => {
+  const rules = load("dashboard/widgets/widgetVis/config/visTypeRules.js");
+  const specs = load("dashboard/widgets/widgetVis/config/visualizations/bindingSpecsVisTypes.js");
+  const grainSpecs = load("dashboard/widgets/widgetVis/config/visualizations/bindingSpecsGrain.js");
+  const canonicalTypes = new Set(["line", "pie", "stackedbar", "stackedcolumn", "list", "prognose",
+    "com.ibm.vis.custom.prognoseyear", "com.ibm.vis.custom.prognoseyearlinechart"].map((alias) => rules.normalizeVisType(alias)));
+  assert.deepStrictEqual([...canonicalTypes].sort(), ["Line", "List", "Pie", "Prognose", "StackedBar", "StackedColumn"]);
+  const buckets = new Set();
+  for (const type of canonicalTypes) {
+    const bucket = rules.resolveBucket(type);
+    buckets.add(bucket);
+    assert.ok(specs.visTypeByBucket[bucket], `visTypeByBucket has ${bucket}`);
+    assert.equal(specs.visualizationTypeToBucket[type], bucket);
+    const defaultGrain = grainSpecs.grainByBucket[bucket].defaultGrain;
+    const selectable = rules.GRAINS.filter((grain) => rules.isAllowedGrain(bucket, grain));
+    // The default grain is selectable, except for prognose which offers no grain choice at all.
+    assert.ok(selectable.length === 0 || selectable.includes(defaultGrain), `${bucket} default grain ${defaultGrain}`);
+    for (const grain of Object.keys(grainSpecs.grainByBucket[bucket].grains || {})) assert.ok(rules.isGrain(grain), `${bucket} overlay ${grain} is a grain`);
+  }
+  assert.deepStrictEqual([...buckets].sort(), Object.keys(specs.visTypeByBucket).sort());
+  assert.deepStrictEqual(Object.keys(grainSpecs.grainByBucket).sort(), Object.keys(specs.visTypeByBucket).sort());
+});
+
+test("W8 rules: padded and mixed-case types resolve like their canonical spelling", () => {
+  const rules = load("dashboard/widgets/widgetVis/config/visTypeRules.js");
+  assert.equal(rules.resolveBucket(" PIE "), "pie");
+  assert.equal(rules.settingsKey(" Com.IBM.Vis.Custom.PrognoseYear "), "prognose");
+  assert.equal(rules.settingsKey("Foo"), "Foo");
+  assert.equal(rules.isAllowedGrain("pie", "stichtag"), false);
+  assert.equal(rules.isAllowedGrain("Line", "stichtag"), true);
+  assert.equal(rules.isAllowedGrain("com.ibm.vis.custom.prognoseyearlinechart", "jahr"), false);
+  assert.equal(rules.isAllowedGrain("List", "stichtagProJahrH"), false);
+  assert.equal(rules.isGrain("constructor"), false);
+});
