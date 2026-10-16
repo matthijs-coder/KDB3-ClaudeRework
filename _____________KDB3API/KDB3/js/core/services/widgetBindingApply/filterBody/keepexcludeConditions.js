@@ -1,6 +1,23 @@
 define([], function () {
   "use strict";
 
+  function buildStringConditions(_joiner, _operator, _itemId, _ignoreCase, _values, _valueType, _negate) {
+    var list = [];
+    for (var idx = 0; idx < _values.length; idx += 1) {
+      var condition = {
+        operator: _operator,
+        itemId: _itemId,
+        ignoreCase: _ignoreCase,
+        values: [_values[idx]],
+        valueType: _valueType,
+      };
+      list.push(_negate ? { not: condition } : condition);
+    }
+    var conditions = {};
+    conditions[_joiner] = list;
+    return conditions;
+  }
+
   function buildKeepexcludeConditionsFilterObj(_itemId, _options) {
     var itemId = String(_itemId || "").trim();
     if (!itemId) {
@@ -15,61 +32,35 @@ define([], function () {
     var valueType = String(options.valueType || "display");
     var valuesArr = Array.isArray(options.values) ? options.values : [];
     var values = [];
-    var idx;
-    var baseCondition;
-    var isStringOp;
     var conditions;
-    var filterObj;
 
-    for (idx = 0; idx < valuesArr.length; idx += 1) {
+    for (var idx = 0; idx < valuesArr.length; idx += 1) {
       var value = valuesArr[idx] == null ? "" : String(valuesArr[idx]);
       if (value !== "") {
         values.push(value);
       }
     }
 
-    baseCondition = {
+    var baseCondition = {
       operator: operator,
       itemId: itemId,
       ignoreCase: ignoreCase,
       values: values,
       valueType: valueType,
     };
-    isStringOp = operator === "endswith" || operator === "contains" || operator === "startswith";
+    var isStringOp = operator === "endswith" || operator === "contains" || operator === "startswith";
 
     if (mode === "exclude" && isStringOp && values.length > 1) {
-      var andArr = [];
-      for (idx = 0; idx < values.length; idx += 1) {
-        andArr.push({
-          not: {
-            operator: operator,
-            itemId: itemId,
-            ignoreCase: ignoreCase,
-            values: [values[idx]],
-            valueType: valueType,
-          },
-        });
-      }
-      conditions = { and: andArr };
+      conditions = buildStringConditions("and", operator, itemId, ignoreCase, values, valueType, true);
     } else if (mode === "include" && isStringOp && values.length > 1) {
-      var orArr = [];
-      for (idx = 0; idx < values.length; idx += 1) {
-        orArr.push({
-          operator: operator,
-          itemId: itemId,
-          ignoreCase: ignoreCase,
-          values: [values[idx]],
-          valueType: valueType,
-        });
-      }
-      conditions = { or: orArr };
+      conditions = buildStringConditions("or", operator, itemId, ignoreCase, values, valueType, false);
     } else if (mode === "exclude") {
       conditions = { not: baseCondition };
     } else {
       conditions = baseCondition;
     }
 
-    filterObj = {
+    var filterObj = {
       exclude: false,
       values: [],
       conditionsInfo: {
