@@ -1,17 +1,17 @@
-// Golden test for the launchpad tab-descriptor builder:
-// _____________KDB3API/KDB3/js/dashboard/launchpad/state/buildLaunchpadTabDescriptors.js (entry of the 8-file cluster).
+// Golden test for the launchpad tab-descriptor builder
+// (_____________KDB3API/KDB3/js/dashboard/launchpad/buildLaunchpadTabs.js).
 // Run: node --test tools/tests/launchpad-tabs.test.mjs   (Node >= 22, no dependencies)
 //
 // Contract under test: build(_KDB, options) -> { helperTabIds, helperTabPageId, tabs }.
 // Source priority for `tabs`: tabs state snapshot -> config + layout items -> canvas facet.
-// Source priority for the helper tab: snapshot.helperTab -> config role "helper" -> layout items.
+// Source priority for the helper tab: snapshot.helperTab -> config entries with role "helper".
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
-const TARGET = path.join(JS_ROOT, "dashboard/launchpad/state/buildLaunchpadTabDescriptors.js");
+const TARGET = path.join(JS_ROOT, "dashboard/launchpad/buildLaunchpadTabs.js");
 
 const logged = [];
 const quietConsole = {
