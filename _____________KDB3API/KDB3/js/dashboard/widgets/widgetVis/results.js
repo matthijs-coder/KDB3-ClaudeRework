@@ -43,8 +43,8 @@ define(["./state.js"], function (_state) {
       type: _state.ACTION_TYPES.ERROR_RECORDED,
       widgetId: _action.widgetId,
       payload: {
-        errorCode: _result.errorCode || defaultErrorCode,
-        errorMessage: _result.errorMessage || defaultErrorMessage
+        errorCode: (_result && _result.errorCode) || defaultErrorCode,
+        errorMessage: (_result && _result.errorMessage) || defaultErrorMessage
       }
     });
     return normalizeDispatchResult(_result || { ok: false, errorCode: defaultErrorCode });

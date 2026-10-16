@@ -29,29 +29,19 @@ define([], function () {
   }
 
   function parseYearFromCell(_raw) {
-    try {
-      var fields;
-      var index;
-      var year;
-      if (_raw && typeof _raw === "object") {
-        fields = [_raw.d, _raw.display, _raw.displayValue, _raw.u, _raw.use, _raw.useValue];
-      } else {
-        fields = [_raw];
+    var fields = _raw && typeof _raw === "object"
+      ? [_raw.d, _raw.display, _raw.displayValue, _raw.u, _raw.use, _raw.useValue]
+      : [_raw];
+    for (var index = 0; index < fields.length; index += 1) {
+      if (fields[index] == null || fields[index] === "") {
+        continue;
       }
-      for (index = 0; index < fields.length; index += 1) {
-        if (fields[index] == null || fields[index] === "") {
-          continue;
-        }
-        year = parseYear(String(fields[index]), { match: "last" });
-        if (year != null) {
-          return year;
-        }
+      var year = parseYear(String(fields[index]), { match: "last" });
+      if (year != null) {
+        return year;
       }
-      return null;
-    } catch (err) {
-      console.error("[widgetVis.parseYearFromCell]", err);
-      return null;
     }
+    return null;
   }
 
   return {

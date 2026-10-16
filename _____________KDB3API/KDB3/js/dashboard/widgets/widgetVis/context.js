@@ -3,14 +3,9 @@ define([
   "./selectors.js",
   "./bindingConfig.js",
   "./runtime.js",
-  "./settingsSnapshot.js"
-], function (
-  _state,
-  _selectors,
-  _bindingConfig,
-  _runtime,
-  _settingsSnapshot
-) {
+  "./settingsSnapshot.js",
+  "../../../core/utils/kit/errors.js"
+], function (_state, _selectors, _bindingConfig, _runtime, _settingsSnapshot, _errors) {
   "use strict";
 
   function buildContext(_instance) {
@@ -19,7 +14,7 @@ define([
       selectors: _instance.selectors,
       actionTypes: _state.ACTION_TYPES,
       dispatchInternal: _instance.dispatchInternal,
-      isDisposed: _instance.isDisposed,
+      isDisposed: _instance.guard.isDisposed(),
       ensureOpSeq: ensureOpSeq.bind(null, _instance),
       isStaleOpSeq: isStaleOpSeq.bind(null, _instance),
       readMetric: readMetric.bind(null, _instance),
@@ -28,9 +23,13 @@ define([
   }
 
   function createDetachedContext(_KDB) {
-    var instance;
     ensureVisState(_KDB);
-    instance = { _KDB: _KDB, selectors: _selectors, reducer: _state.createWidgetVisReducer(), isDisposed: false };
+    var instance = {
+      _KDB: _KDB,
+      selectors: _selectors,
+      reducer: _state.createWidgetVisReducer(),
+      guard: _errors.createDisposedGuard("widgetVis")
+    };
     instance.dispatchInternal = function (_action) {
       dispatchInternal(instance, _action);
     };
@@ -88,33 +87,12 @@ define([
   }
 
   function isStaleOpSeq(_instance, _widgetId, _opSeq) {
-    var runtime = _instance._KDB.runtime && _instance._KDB.runtime.widgetVis && _instance._KDB.runtime.widgetVis.byId
-      ? _instance._KDB.runtime.widgetVis.byId[_widgetId]
-      : null;
     if (typeof _opSeq !== "number") {
       return false;
     }
-    if (!runtime) {
-      // Bucket verwijderd door disposeWidgetRuntime (park/tab-delete/remove,
-      // E0a): elke nog lopende operatie op deze widget is per definitie stale.
-      return true;
-    }
-    return runtime.opSeq !== _opSeq;
-  }
-
-  function warnDisposed(_instance, _methodName) {
-    if (_methodName === "mount" && !_instance.didWarnDisposedMount) {
-      console.warn("[widgetVis.mount] called after destroy; obtain a fresh instance from the factory");
-      _instance.didWarnDisposedMount = true;
-    }
-    if (_methodName === "dispatch" && !_instance.didWarnDisposedDispatch) {
-      console.warn("[widgetVis.dispatch] called after destroy");
-      _instance.didWarnDisposedDispatch = true;
-    }
-  }
-
-  function cloneVisState(_KDB) {
-    return _state.cloneState(_KDB.state.widgets.vis);
+    var runtime = _runtime.readWidgetRuntime(_instance._KDB, _widgetId);
+    // The runtime is deleted when the widget is parked, removed or its tab is deleted: any operation still running is stale.
+    return !runtime || runtime.opSeq !== _opSeq;
   }
 
   return {
@@ -126,8 +104,6 @@ define([
     dispatchInternal: dispatchInternal,
     ensureVisState: ensureVisState,
     ensureOpSeq: ensureOpSeq,
-    isStaleOpSeq: isStaleOpSeq,
-    warnDisposed: warnDisposed,
-    cloneVisState: cloneVisState
+    isStaleOpSeq: isStaleOpSeq
   };
 });
