@@ -157,6 +157,18 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] In a widget settings panel / header editor: colour inputs (typing a hex value, picking from the palette), palette closes on outside-click, toggle switches (Ein/Aus) and radios work as on baseline.
 - [ ] Close/reopen the dashboard, then `getEventListeners(document).mousedown.length` is the same as after a first boot (no extra listener).
 
+#### G (kdbControl restructure)
+- [ ] Control panel opens with the same layout and texts: header "Dashboard-Steuerung" with settings and info icons, toggles "Kennzahlen"/"Toolbox", sections Kommentar / Tab / Kopfzeile/Fußzeile, and Dashboard / Diagramme / Kommentare / Steuerungspanel (settings icon opens the settings panel; clicking Toolbox twice returns to Kennzahlen).
+- [ ] Collapse arrow: click and Enter/Space collapse and expand the panel; arrow glyph flips.
+- [ ] Settings panel, all 13 inputs: width/height accept `300mm`, `20cm`, `800px`; a value below the minimum (e.g. `1px`) is raised to the minimum with an info message; `abc`, `12` (no unit) and `0mm` show a warning and change nothing. Colour inputs update on typing/picking; palette opens on focus/click, closes on Esc, outside click and focus-out; picking a swatch fills the input and the dashboard/panel colour changes.
+- [ ] Toolbox, Kopfzeile/Fußzeile: header/footer/subtitle switches follow the real header/footer state (also after a header edit or undo); the "Titel bearbeiten" radios start title/subtitle editing.
+- [ ] Toolbox, Tab: "Tab hinzufügen" adds a tab (blocked message at the maximum); the "Tab 1..5" radios follow the visible tabs and select the tab edit target (one request per click, not two).
+- [ ] Toolbox, Kommentar: click/drag the Kommentar button onto the canvas creates a text widget on the first, a lazily loaded and the last tab.
+- [ ] Settings undo/redo: change dashboard width, background colour, panel colour, "Buttons verstecken" and developer mode; undo and redo each (values and panel colours follow).
+- [ ] Parameter-set restore (Set A / Set B / "new dashboard"): canvas size, colours, switches come back; no extra undo steps afterwards.
+- [ ] Switching tabs moves the control panel with the active tab (also on a tab that renders late); during startup traversal it does not hop between tabs.
+- [ ] Destroy + re-mount (close/reopen): one control panel only; `getEventListeners(document).mousedown.length` equals the first boot; no `#kdb-control-root` left behind after close.
+
 ### WS-H singleSelect + nativeMultiSelect
 - [ ] Single-select popup (Geschlecht / Altersgruppe / Berufsfamilie): commit with OK, with "Alle", cancel, and click outside the popup (out-click reverts). Expected: values and dependent charts as baseline.
 - [ ] Native multi-select (Jahr): select 2 years, confirm; clear; confirm again. Expected: charts reflect the years; header/filter dock text updated.
