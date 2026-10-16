@@ -14,10 +14,10 @@ define(["../../utils/kit/runtime.js", "./config.js", "./state.js"], function (_r
   // Handlers are owners that want to react when the overlay for their mount key timed out (the boot overlay
   // offers the home dialog). Each gets its own payload copy; failures are logged and never escape the timer.
   function presentWatchdog(_KDB, mountKey) {
-    var handlers = (_state.ensureLoadingRuntime(_KDB).watchdogHandlersByMountKey[mountKey] || []).slice();
+    var registrations = (_state.ensureLoadingRuntime(_KDB).watchdogHandlersByMountKey[mountKey] || []).slice();
     var title;
     var message;
-    if (!handlers.length) {
+    if (!registrations.length) {
       return;
     }
     title = readWatchdogLabel(_KDB, "watchdogTitle");
@@ -26,24 +26,27 @@ define(["../../utils/kit/runtime.js", "./config.js", "./state.js"], function (_r
       console.warn("[loadingService.presentWatchdog] loading watchdog labels are empty");
       return;
     }
-    handlers.forEach(function (handler) {
+    registrations.forEach(function (registration) {
       try {
-        Promise.resolve(handler({ title: title, message: message, code: "LOADING_WATCHDOG", severity: "warning", mountKey: mountKey })).catch(logHandlerFailure);
+        Promise.resolve(registration.handler({ title: title, message: message, code: "LOADING_WATCHDOG", severity: "warning", mountKey: mountKey })).catch(logHandlerFailure);
       } catch (error) {
         logHandlerFailure(error);
       }
     });
   }
 
+  // Every call is its own registration: the same function registered twice runs twice, and each unregister
+  // removes only its own registration.
   function registerWatchdogHandler(_KDB, mountKey, handler) {
     var byMountKey = _state.ensureLoadingRuntime(_KDB).watchdogHandlersByMountKey;
+    var registration = { handler: handler };
     if (typeof mountKey !== "string" || !mountKey || typeof handler !== "function") {
       console.warn("[loadingService.registerWatchdogHandler] rejected: a mountKey string and a handler function are required");
       return function noopUnregister() {};
     }
-    byMountKey[mountKey] = (byMountKey[mountKey] || []).concat([handler]);
+    byMountKey[mountKey] = (byMountKey[mountKey] || []).concat([registration]);
     return function unregisterWatchdogHandler() {
-      var remaining = (byMountKey[mountKey] || []).filter(function (candidate) { return candidate !== handler; });
+      var remaining = (byMountKey[mountKey] || []).filter(function (candidate) { return candidate !== registration; });
       if (remaining.length) {
         byMountKey[mountKey] = remaining;
       } else {

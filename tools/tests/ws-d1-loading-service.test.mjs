@@ -279,6 +279,20 @@ test("registerWatchdogHandler: unregister removes only that handler and is safe 
   assert.deepEqual(seen, ["b"]);
 });
 
+test("registerWatchdogHandler: the same function registered twice runs twice; one unregister removes only its own registration", async () => {
+  const { env, service } = setup({ noHomeDialog: true });
+  const seen = [];
+  const shared = () => { seen.push("shared"); };
+  const offFirst = service.registerWatchdogHandler(BOOT_KEY, shared);
+  service.registerWatchdogHandler(BOOT_KEY, shared);
+  offFirst();
+  offFirst();
+  service.startLoading({ mountKey: BOOT_KEY, watchdogMs: 10 });
+  env.clock.advance(10);
+  await flush();
+  assert.deepEqual(seen, ["shared"]);
+});
+
 test("registerWatchdogHandler: a throwing or rejecting handler is logged and does not stop the others", async () => {
   const { env, service } = setup({ noHomeDialog: true });
   const seen = [];
