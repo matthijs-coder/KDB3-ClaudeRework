@@ -8,7 +8,6 @@ define([
     try {
       var dataConfig = buildHelperDataConfig(context);
       if (dataConfig.errorCode) { return dataConfig; }
-      logHelperSpec(context, dataConfig);
       return {
         ok: true,
         spec: {
@@ -94,26 +93,6 @@ define([
       dimension: dimensionKey,
       topN: context.topNChoice
     };
-  }
-
-  function logHelperSpec(context, dataConfig) {
-    try {
-      var vis = dataConfig.visTypeConfig || {};
-      var snapshot = context.hierarchySnapshot || {};
-      var resolution = snapshot.resolution || {};
-      console.info("[sicht-jahr] TEMP helperSpec", {
-        ownerVisId: context.ownerVisId,
-        helperWidgetId: context.helperWidgetId,
-        dimension: dataConfig.dimension,
-        topN: dataConfig.topN,
-        kennzahlCode: dataConfig.kennzahlCode,
-        activeDownstream: snapshot.activeDownstreamName || resolution.activeFilterKey || null,
-        gridCols: vis.grid_cols,
-        widgetFilter: vis.widgetFilter
-      });
-    } catch (err) {
-      console.info("[widgetTopN.helperSpec] TEMP filters failed", err);
-    }
   }
 
   function failure(errorCode, errorMessage) {

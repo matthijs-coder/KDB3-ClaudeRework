@@ -1,8 +1,6 @@
 define(["../config/actionTypes.js", "../config/defaults.js", "./syncTabsDomFromState.js", "./readTabButtonWrappers.js", "./resolveTraverseTabIndexes.js", "./clickTraverseTabSequence.js", "./buildTraverseDispatchPayload.js", "./applyTabPageLoading.js", "./formatTabMutationCaption.js"], function (_actionTypes, _defaults, _syncTabsDomFromState, _readTabButtonWrappers, _resolveTraverseTabIndexes, _clickTraverseTabSequence, _buildTraverseDispatchPayload, _applyTabPageLoading, _formatTabMutationCaption) {
   "use strict";
 
-  const LOG_PREFIX = "[tabs.traverse]";
-
   async function __controller(_ctx, _payload) {
     const options = _buildTraverseDispatchPayload(_payload);
     try {
@@ -45,29 +43,11 @@ define(["../config/actionTypes.js", "../config/defaults.js", "./syncTabsDomFromS
           return false;
         }
       }
-      logTraverse("called/start", {
-        source: options.source,
-        scope: options.scope,
-        tabIndex: options.scope === "singleTab" ? options.tabIndex : null,
-        includeHiddenDashboardTabs: options.includeHiddenDashboardTabs,
-        activeIndex: activeIndex,
-        activeTab: formatTabInfo(state.byIndex && state.byIndex[String(activeIndex)], activeIndex),
-        orderLength: Array.isArray(state.order) ? state.order.length : 0,
-        buttonCount: buttons.length,
-        targetIndexes: targetIndexes.slice()
-      });
       if ((options.source !== "tabsMutation" || _formatTabMutationCaption.syncTraverseLine(_ctx._KDB, state, options) !== true) && options.source !== "dashboardPdf" && (options.source !== "writebackGet" || options.scope !== "singleTab")) {
         const coverTab = state.byIndex && state.byIndex[String(options.scope === "singleTab" ? options.tabIndex : activeIndex)];
         _applyTabPageLoading.start(_ctx._KDB, { pageId: coverTab && coverTab.pageId, tabId: coverTab && coverTab.tabId });
       }
       const visitedHidden = await _clickTraverseTabSequence(_ctx, buttons, state, targetIndexes, traversedIndexes, canvasLoadedByIndex, options, delay);
-      logTraverse("completed relevant tabs", {
-        source: options.source,
-        scope: options.scope,
-        tabIndex: options.scope === "singleTab" ? options.tabIndex : null,
-        traversedIndexes: traversedIndexes.slice(),
-        traversedCount: traversedIndexes.length
-      });
       const restoreIndex = typeof options.restoreTabIndex === "number" ? options.restoreTabIndex : activeIndex;
       if (options.restoreActiveTab) {
         _clickTraverseTabSequence.restoreActiveButton(buttons, restoreIndex, state, options);
@@ -129,18 +109,6 @@ define(["../config/actionTypes.js", "../config/defaults.js", "./syncTabsDomFromS
         resolve(false);
       });
     });
-  }
-
-  function logTraverse(message, data) { if (data !== undefined) { console.log(LOG_PREFIX, message, data); } else { console.log(LOG_PREFIX, message); } }
-
-  function formatTabInfo(tab, tabIndex) {
-    return {
-      index: tabIndex,
-      tabId: tab && tab.tabId || null,
-      name: tab && tab.name || null,
-      visible: tab ? tab.visible : undefined,
-      role: tab && tab.role || null
-    };
   }
 
   function isDisposed(_ctx) { return _ctx && typeof _ctx.isDisposed === "function" && _ctx.isDisposed(); }

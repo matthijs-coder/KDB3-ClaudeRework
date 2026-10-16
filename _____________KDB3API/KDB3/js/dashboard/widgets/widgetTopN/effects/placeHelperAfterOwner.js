@@ -47,18 +47,7 @@ define([
   }
 
   function leaveHelperOnCanvas(_KDB, _helperWidgetId) {
-    var helperShell;
-    try {
-      helperShell = _resolveWidgetShell(_KDB, _helperWidgetId);
-      if (helperShell && helperShell.style) {
-        helperShell.style.outline = "3px solid #c0392b";
-      }
-      console.info("[sicht-jahr] TEMP helper stays on canvas", { helperWidgetId: _helperWidgetId });
-      return true;
-    } catch (err) {
-      console.warn("[sicht-jahr] TEMP stay failed", err);
-      return true;
-    }
+    return true;
   }
 
   return {
