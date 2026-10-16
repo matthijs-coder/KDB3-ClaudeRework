@@ -566,40 +566,35 @@ Feature modules never call `_KDB.cognosAPI`. `widgetVis` (tranche 2) consumes st
 
 ## 15. Folder Layout
 
+As built (exports per file; `org/` files each export one function). `__orchestratorDrillthrough.js` is a shim over `index.js` (`registerDrillthrough`).
+
 ```txt
-KDB3/js/core/services/drillthrough/
-  __orchestratorDrillthrough.js
-  createDrillthroughService.js
-  buildDrillthroughUrl.js
-  openDrillthrough.js
-  config/
-    datenart.js
-    promptCatalog.js
-    aufrissMaps.js
-    monthLabels.js
-    hierarchyTableKeys.js
-    drillthroughLabels.js
-  assemble/
-    assembleIconDrillConfig.js
-    assembleDatapointDrillConfig.js
+core/services/drillthrough/
+  __orchestratorDrillthrough.js                       shim over index.js (path kept for KDB.js)
+  assemble.js                                         assembleIconDrillConfig, assembleDatapointDrillConfig
+  buildDrillthroughUrl.js                             buildDrillthroughUrl, createBuildResult
+  config.js                                           aufrissMatchers, promptCatalog, monthLabels, drillthroughLabels, HIERARCHY_TABLE_KEYS, DEFERRED_OPEN_TIMEOUT_MS, datenart
+  encode.js                                           encodeDrillthroughUrl
+  index.js                                            registerDrillthrough
+  open.js                                             createOpener
   org/
-    mapOrgPrompts.js
-    mapBwOrgPrompts.js
-    mapDezpvOrgPrompts.js
-    buildOrgTreeFromRows.js
-    sanitizeHashValue.js
-  encode/
-    encodeDrillthroughUrl.js
-    resolveHostEnv.js
-  effects/
-    openBlankWindow.js
-    writeDrillthroughWaitDocument.js
-    finishDeferredDrillthroughOpen.js
+    buildOrgTreeFromRows.js                           default export: buildOrgTreeFromRows
+    collectBwGruppeCandidates.js                      default export: collectBwGruppeCandidates
+    expandBwLevel001Children.js                       default export: expandBwLevel001Children
+    highestWins.js                                    default export: highestWins
+    mapBwOrgPrompts.js                                default export: mapBwOrgPrompts
+    mapDezpvOrgPrompts.js                             default export: mapDezpvOrgPrompts
+    mapOrgPrompts.js                                  default export: mapOrgPrompts
+    normalizeDezpvValue.js                            default export: normalizeDezpvValue
+    parseHierarchyCell.js                             default export: parseHierarchyCell
+    rankHierarchyRowKeys.js                           default export: rankHierarchyRowKeys
+    resolveOrgNodeId.js                               default export: resolveOrgNodeId
+    sanitizeHashValue.js                              default export: sanitizeHashValue
 ```
 
-- `config/` — hashes, catalogs, maps, and the German drillthrough label seed. URLs stay in `_KDB.config.links`.
-- `effects/` — `window.open(url, "_blank")`, the wait document, and the deferred navigation. No `loadTable` / `waitForRows`.
-- **No** `state/`. **No** `view/`. **No** `events/`. **No** `adapters/`.
+- `config.js` — hashes, catalogs, maps, and the German drillthrough label seed. URLs stay in `_KDB.config.links`.
+- `open.js` — `window.open(url, "_blank")`, the wait document, and the deferred navigation. No `loadTable` / `waitForRows`.
+- **No** `state/`, `view/`, `events/` or `adapters/` folder.
 
 ---
 
