@@ -1,6 +1,6 @@
 ---
 description: KDB3 AMD module shape for production code. define() form, what a module returns, dependency injection, forbidden forms, tools outside KDB3/js.
-globs: KDB3/js/**/*.js
+globs: **/KDB3/js/**/*.js
 alwaysApply: false
 ---
 

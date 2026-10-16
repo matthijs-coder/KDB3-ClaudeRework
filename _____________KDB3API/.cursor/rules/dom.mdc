@@ -1,6 +1,6 @@
 ---
 description: KDB3 DOM and CSS rules. Selectors in _KDB.elements.selectors, live refs in runtime, scoped queries, build/place/sync views, listeners and observers, safe HTML, CSS naming.
-globs: KDB3/js/**/view/**/*.js, KDB3/js/**/view.js, KDB3/js/core/cognosHost/**/*.js, KDB3/css/**/*.css
+globs: **/KDB3/js/**/view/**/*.js, **/KDB3/js/**/view.js, **/KDB3/js/core/cognosHost/**/*.js, **/KDB3/css/**/*.css
 alwaysApply: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 description: KDB3 event bus (_KDB.events). When to use direct API calls vs fact-events vs request-events, event naming, constants, payloads, subscriber rules, catalog.
-globs: KDB3/js/**/events/**/*.js, KDB3/js/**/events.js, KDB3/js/core/events/**/*.js, architecture/eventSubscribe.md
+globs: **/KDB3/js/**/events/**/*.js, **/KDB3/js/**/events.js, **/KDB3/js/core/events/**/*.js, **/architecture/eventSubscribe.md
 alwaysApply: false
 ---
 
