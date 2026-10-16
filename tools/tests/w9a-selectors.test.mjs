@@ -86,3 +86,19 @@ test("widgetVis readVisPropBucketKey equals visTypes.resolveVisPropBucketKey for
   assert.equal(typeof vis.readVisPropBucketKey(_KDB, "Line"), "string");
   assert.equal(vis.readVisPropBucketKey({}, "Line"), visTypes.resolveVisPropBucketKey("Line", {}));
 });
+
+test("widgetBase readWidgetShell resolves the shell in the owner document like resolveWidgetShell", () => {
+  const shellEl = { id: "w1" };
+  const ownerDoc = { getElementById: (id) => (id === "w1" ? shellEl : null) };
+  const hostEl = { ownerDocument: ownerDoc };
+  const globalDoc = { getElementById: () => ({ id: "global" }), querySelector: () => null };
+  const selectors = load("dashboard/widgets/widgetBase/state/selectors.js", { stubs: { document: globalDoc } });
+  const shellModule = load("dashboard/widgets/widgetBase/view/resolveWidgetShell.js", { stubs: { document: globalDoc } });
+  const withHost = { elements: { kdbWidget: hostEl } };
+  assert.equal(selectors.readWidgetShell(withHost, "w1"), shellEl);
+  assert.equal(selectors.readWidgetShell(withHost, "w1"), shellModule.resolveWidgetShell(withHost, "w1"));
+  assert.equal(selectors.readWidgetShell(withHost, "nope"), null);
+  assert.equal(selectors.readWidgetShell(withHost, ""), null);
+  assert.equal(selectors.readWidgetShell(withHost, undefined), null);
+  assert.deepStrictEqual(selectors.readWidgetShell({}, "x"), shellModule.resolveWidgetShell({}, "x"));
+});

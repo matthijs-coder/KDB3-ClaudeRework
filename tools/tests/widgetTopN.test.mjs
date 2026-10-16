@@ -180,15 +180,16 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
   };
 
   const modules = {};
-  const shell = { resolveWidgetShell: (kdb, id) => (id ? doc.getElementById(id) : null) };
   const removedOwners = new Set();
-  const baseSelectors = { readFrame: (kdb, id) => (removedOwners.has(id) ? undefined : { tabId: "t1" }) };
+  const baseSelectors = {
+    readFrame: (kdb, id) => (removedOwners.has(id) ? undefined : { tabId: "t1" }),
+    readWidgetShell: (kdb, id) => (id ? doc.getElementById(id) : null)
+  };
   const visProps = (kdb, options) => {
     checkSignal("properties", options.signal);
     return Promise.resolve({ diagnostics: {} });
   };
   for (const prefix of ["../../", "../"]) {
-    modules[prefix + "widgetBase/view/resolveWidgetShell.js"] = shell;
     modules[prefix + "widgetBase/state/selectors.js"] = baseSelectors;
     modules[prefix + "widgetVis/effects/applyVisualizationProperties.js"] = visProps;
   }
