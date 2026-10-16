@@ -88,6 +88,7 @@
       "managed": [
         "m1"
       ],
+      "console": [],
       "name": "plain"
     },
     "deferRenderWait": {
@@ -183,6 +184,7 @@
       "managed": [
         "m1"
       ],
+      "console": [],
       "name": "deferRenderWait"
     },
     "startup": {
@@ -273,6 +275,7 @@
       "managed": [
         "m1"
       ],
+      "console": [],
       "name": "startup"
     },
     "cleanup": {
@@ -336,6 +339,7 @@
       "managed": [
         "m1"
       ],
+      "console": [],
       "name": "cleanup"
     },
     "planThrows": {
@@ -355,6 +359,7 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [],
       "name": "planThrows"
     },
     "planFails": {
@@ -390,6 +395,7 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [],
       "name": "planFails"
     },
     "planUndefined": {
@@ -424,6 +430,7 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [],
       "name": "planUndefined"
     },
     "staleAfterPlan": {
@@ -449,6 +456,7 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [],
       "name": "staleAfterPlan"
     },
     "staleThrowsAfterPlan": {
@@ -468,6 +476,7 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [],
       "name": "staleThrowsAfterPlan"
     },
     "legendInstallThrows": {
@@ -498,6 +507,7 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [],
       "name": "legendInstallThrows"
     },
     "applyThrows": {
@@ -558,6 +568,13 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [
+        [
+          "error",
+          "[widgetVis.runBindingPipeline] applyBinding failed",
+          "apply boom"
+        ]
+      ],
       "name": "applyThrows"
     },
     "applyStatusError": {
@@ -618,6 +635,7 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [],
       "name": "applyStatusError"
     },
     "abortedDuringApply": {
@@ -677,6 +695,7 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [],
       "name": "abortedDuringApply"
     },
     "noApplyService": {
@@ -707,6 +726,7 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [],
       "name": "noApplyService"
     },
     "noApplyServiceCleanup": {
@@ -733,6 +753,7 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [],
       "name": "noApplyServiceCleanup"
     },
     "noApplyServicePlanFails": {
@@ -767,6 +788,7 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [],
       "name": "noApplyServicePlanFails"
     },
     "noApplyServiceStale": {
@@ -792,7 +814,211 @@
       ],
       "dispatched": [],
       "managed": [],
+      "console": [],
       "name": "noApplyServiceStale"
+    },
+    "optionsThrow": {
+      "outcome": [
+        "rejected",
+        "options boom"
+      ],
+      "log": [
+        [
+          "buildPlan",
+          {
+            "reason": "dimension",
+            "widgetId": "w1",
+            "opSeq": 2
+          }
+        ]
+      ],
+      "dispatched": [],
+      "managed": null,
+      "console": [],
+      "name": "optionsThrow"
+    },
+    "teardownInProps": {
+      "outcome": [
+        "resolved",
+        {
+          "ok": true,
+          "widgetId": "w1",
+          "opSeq": 2,
+          "status": "skipped",
+          "skipped": true,
+          "diagnostics": {
+            "propertyDiagnostics": {
+              "blockers": []
+            }
+          }
+        }
+      ],
+      "log": [
+        [
+          "buildPlan",
+          {
+            "reason": "dimension",
+            "widgetId": "w1",
+            "opSeq": 2
+          }
+        ]
+      ],
+      "dispatched": [],
+      "managed": [],
+      "console": [],
+      "name": "teardownInProps"
+    },
+    "teardownInPropsPlanFails": {
+      "outcome": [
+        "resolved",
+        {
+          "ok": false,
+          "widgetId": "w1",
+          "opSeq": 2,
+          "status": "error",
+          "errorCode": "WIDGET_VIS_BINDING_PLAN_FAILED",
+          "errorMessage": "plan boom",
+          "diagnostics": {
+            "visualizationProperties": {
+              "blockers": []
+            }
+          },
+          "propertyDiagnostics": {
+            "blockers": []
+          }
+        }
+      ],
+      "log": [
+        [
+          "buildPlan",
+          {
+            "reason": "dimension",
+            "widgetId": "w1",
+            "opSeq": 2
+          }
+        ]
+      ],
+      "dispatched": [],
+      "managed": [],
+      "console": [],
+      "name": "teardownInPropsPlanFails"
+    },
+    "teardownInPropsStale": {
+      "outcome": [
+        "resolved",
+        {
+          "ok": false,
+          "widgetId": "w1",
+          "opSeq": 2,
+          "stale": true,
+          "status": "aborted"
+        }
+      ],
+      "log": [
+        [
+          "buildPlan",
+          {
+            "reason": "dimension",
+            "widgetId": "w1",
+            "opSeq": 2
+          }
+        ]
+      ],
+      "dispatched": [],
+      "managed": [],
+      "console": [],
+      "name": "teardownInPropsStale"
+    },
+    "teardownInApply": {
+      "outcome": [
+        "resolved",
+        {
+          "ok": true,
+          "widgetId": "w1",
+          "opSeq": 2,
+          "status": "success",
+          "reportToSettings": {
+            "control": "dimension",
+            "diagnostics": {
+              "visualizationProperties": {
+                "blockers": []
+              }
+            }
+          },
+          "diagnostics": {
+            "visualizationProperties": {
+              "blockers": []
+            }
+          },
+          "postRenderPropertyDiagnostics": {
+            "blockers": []
+          },
+          "postRenderDiagnostics": {
+            "cleaned": true,
+            "visualizationProperties": {
+              "blockers": []
+            }
+          },
+          "derived": {
+            "datasourceId": null,
+            "datasourceName": "Personal_KDB",
+            "lastAppliedVisType": "Line",
+            "titleText": "Title",
+            "emptyStatus": null,
+            "emptyReason": null
+          }
+        }
+      ],
+      "log": [
+        [
+          "buildPlan",
+          {
+            "reason": "dimension",
+            "widgetId": "w1",
+            "opSeq": 2
+          }
+        ],
+        [
+          "legendInstall",
+          {
+            "widgetId": "w1",
+            "opSeq": 2,
+            "dimension": "Altersgruppe",
+            "visType": "Line",
+            "staleFn": "function",
+            "managedAtInstall": []
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "reason": "dimension",
+            "target": {
+              "widgetId": "w1",
+              "targetKind": "vis",
+              "ownerWidgetId": null,
+              "opSeq": 2,
+              "reason": "dimension"
+            },
+            "previous": [],
+            "profile": "vis",
+            "signalAborted": false,
+            "signalIsAbortSignal": true,
+            "keys": [
+              "target",
+              "signal",
+              "previousManagedFilterItemIds",
+              "timeoutProfile"
+            ]
+          }
+        ]
+      ],
+      "dispatched": [],
+      "managed": [
+        "m1"
+      ],
+      "console": [],
+      "name": "teardownInApply"
     }
   },
   "helper": {
@@ -881,7 +1107,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "noPlanService": {
       "name": "noPlanService",
@@ -899,7 +1126,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "noApplyService": {
       "name": "noApplyService",
@@ -917,7 +1145,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "blockers": {
       "name": "blockers",
@@ -948,7 +1177,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "planFails": {
       "name": "planFails",
@@ -995,7 +1225,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "planFailsNoMessage": {
       "name": "planFailsNoMessage",
@@ -1039,7 +1270,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "planUndefined": {
       "name": "planUndefined",
@@ -1078,7 +1310,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "abortBeforeApply": {
       "name": "abortBeforeApply",
@@ -1120,7 +1353,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "abortFirst": {
       "name": "abortFirst",
@@ -1162,7 +1396,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "abortDuringApply": {
       "name": "abortDuringApply",
@@ -1232,7 +1467,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "applyAbortedStatus": {
       "name": "applyAbortedStatus",
@@ -1299,7 +1535,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "applyError": {
       "name": "applyError",
@@ -1370,7 +1607,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "applyTimeout": {
       "name": "applyTimeout",
@@ -1439,7 +1677,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "applyOther": {
       "name": "applyOther",
@@ -1507,7 +1746,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "applyEmpty": {
       "name": "applyEmpty",
@@ -1573,7 +1813,8 @@
           "dismiss",
           "helper"
         ]
-      ]
+      ],
+      "console": []
     },
     "planThrows": {
       "name": "planThrows",
@@ -1604,6 +1845,13 @@
         [
           "dismiss",
           "helper"
+        ]
+      ],
+      "console": [
+        [
+          "error",
+          "[widgetTopN.runHelperBinding] failed",
+          "plan boom"
         ]
       ]
     },
@@ -1660,6 +1908,13 @@
           "dismiss",
           "helper"
         ]
+      ],
+      "console": [
+        [
+          "error",
+          "[widgetTopN.runHelperBinding] failed",
+          "apply boom"
+        ]
       ]
     },
     "applyThrowsAbortError": {
@@ -1715,7 +1970,410 @@
           "dismiss",
           "helper"
         ]
+      ],
+      "console": []
+    },
+    "optionsThrow": {
+      "name": "optionsThrow",
+      "outcome": [
+        "resolved",
+        {
+          "ok": false,
+          "status": "error",
+          "errorCode": "WIDGET_TOPN_HELPER_APPLY_FAILED",
+          "errorMessage": "options boom"
+        }
+      ],
+      "log": [
+        [
+          "properties",
+          {
+            "phase": "preBinding",
+            "force": false,
+            "widgetId": "helper"
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "reason": "topN"
+          }
+        ],
+        [
+          "dismiss",
+          "helper"
+        ]
+      ],
+      "console": [
+        [
+          "error",
+          "[widgetTopN.runHelperBinding] failed",
+          "options boom"
+        ]
       ]
+    },
+    "planFailsAborted": {
+      "name": "planFailsAborted",
+      "outcome": [
+        "resolved",
+        {
+          "ok": false,
+          "status": "error",
+          "errorCode": "WIDGET_TOPN_HELPER_PLAN_FAILED",
+          "errorMessage": "helper plan boom",
+          "diagnostics": {
+            "plan": {
+              "ok": false,
+              "status": "error",
+              "errorMessage": "helper plan boom"
+            },
+            "preProperties": {
+              "diagnostics": {
+                "phase": "preBinding"
+              }
+            }
+          }
+        }
+      ],
+      "log": [
+        [
+          "properties",
+          {
+            "phase": "preBinding",
+            "force": false,
+            "widgetId": "helper"
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "reason": "topN"
+          }
+        ],
+        [
+          "dismiss",
+          "helper"
+        ]
+      ],
+      "console": []
+    },
+    "teardownInProps": {
+      "name": "teardownInProps",
+      "outcome": [
+        "resolved",
+        {
+          "ok": true,
+          "status": "success",
+          "plan": {
+            "ok": true,
+            "status": "success",
+            "reason": "topN",
+            "managedFilterItemIds": [
+              "f1"
+            ]
+          },
+          "applyResult": {
+            "status": "success",
+            "diagnostics": {
+              "x": 1
+            }
+          },
+          "managedFilterItemIds": [
+            "f1"
+          ],
+          "diagnostics": {
+            "x": 1,
+            "visualizationProperties": {
+              "phase": "preBinding"
+            }
+          },
+          "postRenderPropertyDiagnostics": {
+            "phase": "postRender"
+          }
+        }
+      ],
+      "log": [
+        [
+          "properties",
+          {
+            "phase": "preBinding",
+            "force": false,
+            "widgetId": "helper"
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "reason": "topN"
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "helper",
+              "targetKind": "topNHelper",
+              "ownerWidgetId": "owner",
+              "opSeq": 4,
+              "reason": "topN"
+            },
+            "previous": [
+              "old"
+            ],
+            "profile": "helper",
+            "signalSame": true,
+            "keys": [
+              "target",
+              "signal",
+              "previousManagedFilterItemIds",
+              "timeoutProfile"
+            ]
+          }
+        ],
+        [
+          "properties",
+          {
+            "phase": "postRender",
+            "force": true,
+            "widgetId": "helper"
+          }
+        ],
+        [
+          "dismiss",
+          "helper"
+        ]
+      ],
+      "console": []
+    },
+    "teardownInPropsPlanFails": {
+      "name": "teardownInPropsPlanFails",
+      "outcome": [
+        "resolved",
+        {
+          "ok": false,
+          "status": "error",
+          "errorCode": "WIDGET_TOPN_HELPER_PLAN_FAILED",
+          "errorMessage": "helper plan boom",
+          "diagnostics": {
+            "plan": {
+              "ok": false,
+              "status": "error",
+              "errorMessage": "helper plan boom"
+            },
+            "preProperties": {
+              "diagnostics": {
+                "phase": "preBinding"
+              }
+            }
+          }
+        }
+      ],
+      "log": [
+        [
+          "properties",
+          {
+            "phase": "preBinding",
+            "force": false,
+            "widgetId": "helper"
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "reason": "topN"
+          }
+        ],
+        [
+          "dismiss",
+          "helper"
+        ]
+      ],
+      "console": []
+    },
+    "teardownInPropsApplyError": {
+      "name": "teardownInPropsApplyError",
+      "outcome": [
+        "resolved",
+        {
+          "ok": false,
+          "status": "error",
+          "errorCode": "WIDGET_TOPN_HELPER_APPLY_FAILED",
+          "errorMessage": "apply failed here",
+          "diagnostics": {
+            "plan": {
+              "ok": true,
+              "status": "success",
+              "reason": "topN",
+              "managedFilterItemIds": [
+                "f1"
+              ]
+            },
+            "applyResult": {
+              "status": "error",
+              "diagnostics": {
+                "errorMessage": "apply failed here"
+              }
+            }
+          }
+        }
+      ],
+      "log": [
+        [
+          "properties",
+          {
+            "phase": "preBinding",
+            "force": false,
+            "widgetId": "helper"
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "reason": "topN"
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "helper",
+              "targetKind": "topNHelper",
+              "ownerWidgetId": "owner",
+              "opSeq": 4,
+              "reason": "topN"
+            },
+            "previous": [
+              "old"
+            ],
+            "profile": "helper",
+            "signalSame": true,
+            "keys": [
+              "target",
+              "signal",
+              "previousManagedFilterItemIds",
+              "timeoutProfile"
+            ]
+          }
+        ],
+        [
+          "dismiss",
+          "helper"
+        ]
+      ],
+      "console": []
+    },
+    "teardownInPropsApplyTimeout": {
+      "name": "teardownInPropsApplyTimeout",
+      "outcome": [
+        "resolved",
+        {
+          "ok": false,
+          "status": "error",
+          "errorCode": "WIDGET_TOPN_HELPER_APPLY_TIMEOUT",
+          "errorMessage": "Helper apply failed.",
+          "diagnostics": {
+            "plan": {
+              "ok": true,
+              "status": "success",
+              "reason": "topN",
+              "managedFilterItemIds": [
+                "f1"
+              ]
+            },
+            "applyResult": {
+              "status": "timeout",
+              "diagnostics": {}
+            }
+          }
+        }
+      ],
+      "log": [
+        [
+          "properties",
+          {
+            "phase": "preBinding",
+            "force": false,
+            "widgetId": "helper"
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "reason": "topN"
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "helper",
+              "targetKind": "topNHelper",
+              "ownerWidgetId": "owner",
+              "opSeq": 4,
+              "reason": "topN"
+            },
+            "previous": [
+              "old"
+            ],
+            "profile": "helper",
+            "signalSame": true,
+            "keys": [
+              "target",
+              "signal",
+              "previousManagedFilterItemIds",
+              "timeoutProfile"
+            ]
+          }
+        ],
+        [
+          "dismiss",
+          "helper"
+        ]
+      ],
+      "console": []
+    },
+    "teardownInPropsAbortFirst": {
+      "name": "teardownInPropsAbortFirst",
+      "outcome": [
+        "resolved",
+        {
+          "ok": false,
+          "status": "aborted",
+          "errorCode": "WIDGET_TOPN_STALE_OPERATION",
+          "diagnostics": {
+            "plan": {
+              "ok": true,
+              "status": "success",
+              "reason": "topN",
+              "managedFilterItemIds": [
+                "f1"
+              ]
+            },
+            "applyResult": null
+          }
+        }
+      ],
+      "log": [
+        [
+          "properties",
+          {
+            "phase": "preBinding",
+            "force": false,
+            "widgetId": "helper"
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "reason": "topN"
+          }
+        ],
+        [
+          "dismiss",
+          "helper"
+        ]
+      ],
+      "console": []
     }
   }
 }

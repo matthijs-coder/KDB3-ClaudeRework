@@ -81,8 +81,10 @@ define([
     };
   }
 
-  // Only reachable while widgetBindingApply is not registered (never in production): keeps the old order
-  // plan failure > stale > skipped / cleanup error, which `run` cannot give because it checks availability first.
+  // Reached when `run` answers "unavailable": a service is not registered, or _KDB.services was nulled by a teardown
+  // while the pipeline was waiting (never in production otherwise). Keeps the old order plan failure > stale >
+  // skipped / cleanup error with the plan service captured at the start, which `run` cannot give because it checks
+  // availability first.
   function settleWithoutApplyService(_context, _input, _ctx, _spec, _propertyDiagnostics) {
     var plan = _ctx.planService.buildPlan(_spec);
     if (!plan || plan.ok !== true || plan.status !== "success") {
@@ -138,7 +140,7 @@ define([
     var reachedApply = false;
     var outcome;
     try {
-      outcome = await _ctx._KDB.services.widgetBinding.run(spec, {
+      outcome = !_ctx.bindingService ? { stage: "unavailable" } : await _ctx.bindingService.run(spec, {
         beforeApply: function () {
           if (_context.isStaleOpSeq(widgetId, opSeq)) {
             return false;
@@ -226,6 +228,7 @@ define([
     var runtime = _visRuntime.ensureWidgetRuntime(_KDB, widgetId);
     var abortController;
     var planService;
+    var bindingService;
     _visRuntime.abortActiveApply(runtime);
 
     if (typeof AbortController !== "function") {
@@ -243,6 +246,7 @@ define([
     runtime.abortControllers.applyBinding = abortController;
 
     planService = _KDB.services && _KDB.services.widgetBindingPlan;
+    bindingService = _KDB.services && _KDB.services.widgetBinding;
     if (!planService || typeof planService.buildPlan !== "function") {
       console.error("[widgetVis.runBindingPipeline] widgetBindingPlan service missing");
       return Promise.resolve({
@@ -264,6 +268,7 @@ define([
         runtime: runtime,
         abortController: abortController,
         planService: planService,
+        bindingService: bindingService,
         spec: _gateResult.spec
       });
     });

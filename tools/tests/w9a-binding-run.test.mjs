@@ -12,7 +12,6 @@ import { JS_ROOT } from "../lib/amd-graph.mjs";
 
 const load = (rel, options) => loadAmd(path.join(JS_ROOT, rel), options);
 const json = (value) => (value === undefined ? "<undefined>" : JSON.parse(JSON.stringify(value)));
-const QUIET = { error() {}, warn() {}, log() {} };
 const FIXTURES_URL = new URL("./fixtures/w9a-binding-run.golden.json", import.meta.url);
 const METRIC = { code: "P_A_MOA_01", display: "Kennzahl 1", metricsTable: "Personal_KDB" };
 const SETTINGS = { dimension: "Altersgruppe", visType: "Line", topNChoice: "none" };
@@ -21,6 +20,13 @@ const HIERARCHY = {
   hierarchyItemId: 42,
   resolution: { hasConfirmedSelection: true, downstreamValues: ["A"], dominantValues: [], displayValues: ["A"] }
 };
+function createConsole(lines) {
+  const line = (level) => (...args) => {
+    const err = args.find((a) => a instanceof Error);
+    lines.push([level, String(args[0]), err ? err.message : null]);
+  };
+  return { error: line("error"), warn: line("warn"), log() {} };
+}
 const settle = (promise) => promise.then((value) => ["resolved", json(value)], (err) => ["rejected", String(err && err.message || err)]);
 
 function buildKdb(services, extra) {
@@ -32,10 +38,10 @@ function buildKdb(services, extra) {
 
 // ---- widgetVis pipeline -------------------------------------------------------------------------------------------
 
-function loadPipeline(log, flags) {
+function loadPipeline(log, flags, consoleStub, hooks) {
   const record = (name, value) => { log.push([name, json(value)]); };
   const modules = {
-    "../render/visProperties.js": { applyVisualizationProperties: async () => ({ diagnostics: { blockers: [] } }) },
+    "../render/visProperties.js": { applyVisualizationProperties: async () => { if (hooks.inProps) hooks.inProps(); return { diagnostics: { blockers: [] } }; } },
     "../render/title.js": { applyPreRenderTitle: async () => ({}) },
     "../render/postRender.js": {
       applyPrognoseSeriesSegmentIndexes: async () => {},
@@ -53,12 +59,13 @@ function loadPipeline(log, flags) {
       disconnectLegendTextObserver: () => ({ disconnected: false })
     }
   };
-  return load("dashboard/widgets/widgetVis/binding/pipeline.js", { stubs: { console: QUIET }, modules }).runBindingPipeline;
+  return load("dashboard/widgets/widgetVis/binding/pipeline.js", { stubs: { console: consoleStub }, modules }).runBindingPipeline;
 }
 
 function pipelineCase(name, opts) {
   return async () => {
     const log = [];
+    const consoleLines = [];
     const flags = { legendThrows: opts.legendThrows === true };
     let planBuilt = false;
     const services = {
@@ -66,6 +73,9 @@ function pipelineCase(name, opts) {
         buildPlan: (spec) => {
           log.push(["buildPlan", { reason: spec.reason, widgetId: spec.widgetId, opSeq: spec.opSeq }]);
           if (opts.planThrows) throw new Error("plan boom");
+          if (opts.optionsThrow) {
+            Object.defineProperty(_KDB.runtime.widgetVis.byId.w1, "managedFilterItemIds", { configurable: true, get() { throw new Error("options boom"); } });
+          }
           planBuilt = true;
           return "plan" in opts ? opts.plan : { ok: true, status: "success", reason: spec.reason, managedFilterItemIds: ["m1"], emptyIntent: spec.emptyIntent,
             mirrorPatch: { visualizationType: spec.dataConfig.visualizationType } };
@@ -77,6 +87,7 @@ function pipelineCase(name, opts) {
             profile: options.timeoutProfile, renderWait: options.renderWait, signalAborted: options.signal.aborted, signalIsAbortSignal: options.signal instanceof AbortSignal,
             keys: Object.keys(options) }]);
           if (opts.onApply) opts.onApply(_KDB);
+          if (opts.teardownInApply) _KDB.services = null;
           if (opts.applyThrows) throw new Error("apply boom");
           return opts.applyResult || { status: "success", diagnostics: {} };
         }
@@ -100,14 +111,15 @@ function pipelineCase(name, opts) {
       readSettingsSnapshot: () => SETTINGS,
       isDisposed: false
     };
-    const run = loadPipeline(log, flags);
+    const run = loadPipeline(log, flags, createConsole(consoleLines), { inProps: opts.teardownInProps ? () => { _KDB.services = null; } : null });
     const input = Object.assign({ widgetId: "w1", opSeq: 2, metric: METRIC, settings: SETTINGS, payload: { source: "user" }, reason: "dimension", control: "dimension" }, opts.input || {});
     const outcome = await settle(run(context, input));
     const widgetRuntime = _KDB.runtime.widgetVis && _KDB.runtime.widgetVis.byId.w1;
     return {
       outcome, log,
       dispatched,
-      managed: widgetRuntime ? widgetRuntime.managedFilterItemIds : null,
+      managed: widgetRuntime && !opts.optionsThrow ? widgetRuntime.managedFilterItemIds : null,
+      console: consoleLines,
       name
     };
   };
@@ -130,32 +142,39 @@ const PIPELINE_CASES = {
   noApplyService: { noApply: true },
   noApplyServiceCleanup: { noApply: true, input: { reason: "cleanup", mode: "cleanup", forceEmpty: true, emptyReason: "r" } },
   noApplyServicePlanFails: { noApply: true, plan: { ok: false, status: "error", errorMessage: "plan boom" } },
-  noApplyServiceStale: { noApply: true, staleAfterPlan: true }
+  noApplyServiceStale: { noApply: true, staleAfterPlan: true },
+  optionsThrow: { optionsThrow: true },
+  teardownInProps: { teardownInProps: true },
+  teardownInPropsPlanFails: { teardownInProps: true, plan: { ok: false, status: "error", errorMessage: "plan boom" } },
+  teardownInPropsStale: { teardownInProps: true, staleAfterPlan: true },
+  teardownInApply: { teardownInApply: true }
 };
 
 // ---- widgetTopN helper binding ------------------------------------------------------------------------------------
 
-function loadHelperBinding(log, props) {
+function loadHelperBinding(log, props, consoleStub) {
   const modules = {
     "../widgetVis/effects/applyVisualizationProperties.js": async (_KDB, options) => {
       log.push(["properties", { phase: options.phase, force: options.force, widgetId: options.widgetId }]);
+      if (props.onProperties) props.onProperties(options.phase);
       return props.result(options.phase);
     },
     "./helperPlacement.js": { dismissHelperTitleEdit: (_KDB, helperId) => { log.push(["dismiss", helperId]); } }
   };
-  return load("dashboard/widgets/widgetTopN/helperBinding.js", { stubs: { console: QUIET }, modules });
+  return load("dashboard/widgets/widgetTopN/helperBinding.js", { stubs: { console: consoleStub }, modules });
 }
 
 function helperCase(name, opts) {
   return async () => {
     const log = [];
+    const consoleLines = [];
     const controller = new AbortController();
     const services = {
       widgetBindingPlan: {
         buildPlan: (spec) => {
           log.push(["buildPlan", { reason: spec.reason }]);
           if (opts.planThrows) throw new Error("plan boom");
-          if (opts.abortInPlan) controller.abort();
+          if (opts.abortInPlan || opts.abortInPlanFail) controller.abort();
           return "plan" in opts ? opts.plan : { ok: true, status: "success", reason: spec.reason, managedFilterItemIds: ["f1"] };
         }
       },
@@ -172,13 +191,19 @@ function helperCase(name, opts) {
     if (opts.noPlan) delete services.widgetBindingPlan;
     if (opts.noApply) delete services.widgetBindingApply;
     const _KDB = buildKdb(services);
-    const binding = loadHelperBinding(log, { result: (phase) => (phase === "preBinding" && opts.blockers ? { diagnostics: { blockers: ["b1"] } } : { diagnostics: { phase } }) });
+    const binding = loadHelperBinding(log, {
+      result: (phase) => (phase === "preBinding" && opts.blockers ? { diagnostics: { blockers: ["b1"] } } : { diagnostics: { phase } }),
+      onProperties: (phase) => { if (opts.teardownInProps && phase === "preBinding") _KDB.services = null; }
+    }, createConsole(consoleLines));
     const context = {
       ownerVisId: "owner", helperWidgetId: "helper", opSeq: 4, signal: controller.signal, spec: { reason: "topN", dataConfig: { visualizationType: "TopN" } },
       ownerRuntime: { helperManagedFilterItemIds: ["old"] }
     };
+    if (opts.optionsThrow) {
+      Object.defineProperty(context.ownerRuntime, "helperManagedFilterItemIds", { get() { throw new Error("options boom"); } });
+    }
     if (opts.abortFirst) controller.abort();
-    return { name, outcome: await settle(binding.runHelperBinding(_KDB, context)), log };
+    return { name, outcome: await settle(binding.runHelperBinding(_KDB, context)), log, console: consoleLines };
   };
 }
 
@@ -200,7 +225,14 @@ const HELPER_CASES = {
   applyEmpty: { applyResult: null },
   planThrows: { planThrows: true },
   applyThrows: { applyThrows: new Error("apply boom") },
-  applyThrowsAbortError: { applyThrows: Object.assign(new Error("x"), { name: "AbortError" }) }
+  applyThrowsAbortError: { applyThrows: Object.assign(new Error("x"), { name: "AbortError" }) },
+  optionsThrow: { optionsThrow: true },
+  planFailsAborted: { plan: { ok: false, status: "error", errorMessage: "helper plan boom" }, abortInPlanFail: true },
+  teardownInProps: { teardownInProps: true },
+  teardownInPropsPlanFails: { teardownInProps: true, plan: { ok: false, status: "error", errorMessage: "helper plan boom" } },
+  teardownInPropsApplyError: { teardownInProps: true, applyResult: { status: "error", diagnostics: { errorMessage: "apply failed here" } } },
+  teardownInPropsApplyTimeout: { teardownInProps: true, applyResult: { status: "timeout", diagnostics: {} } },
+  teardownInPropsAbortFirst: { teardownInProps: true, abortFirst: true }
 };
 
 async function computeAll() {
@@ -243,6 +275,10 @@ test("pins the throw scope and ordering the run migration must keep", async () =
   assert.equal(actual.helper.planThrows.outcome[1].errorCode, "WIDGET_TOPN_HELPER_APPLY_FAILED");
   assert.deepStrictEqual(actual.helper.abortBeforeApply.log.map((entry) => entry[0]), ["properties", "buildPlan", "dismiss"]);
   assert.deepStrictEqual(actual.helper.noPlanService.log, [["dismiss", "helper"]]);
+  assert.equal(actual.pipeline.optionsThrow.outcome[0], "rejected");
+  assert.equal(actual.helper.optionsThrow.outcome[1].errorCode, "WIDGET_TOPN_HELPER_APPLY_FAILED");
+  assert.equal(actual.helper.planFailsAborted.outcome[1].errorCode, "WIDGET_TOPN_HELPER_PLAN_FAILED");
+  assert.ok(actual.pipeline.applyThrows.console.some((l) => l[0] === "error"));
   assert.equal(actual.helper.planUndefined.outcome[1].errorCode, "WIDGET_TOPN_HELPER_PLAN_FAILED");
   assert.equal(actual.helper.applyEmpty.outcome[1].errorCode, "WIDGET_TOPN_HELPER_APPLY_FAILED");
 });
