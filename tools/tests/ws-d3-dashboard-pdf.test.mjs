@@ -491,6 +491,7 @@ test("preparation failures", async () => {
   await runScenario("file-name-facet-missing", { setup: (kdb) => { kdb.services.cognosHost.dashboard = {}; } });
   await runScenario("manifest-unavailable", { setup: (kdb) => { kdb.api.tabs.getState = () => ({}); } });
   await runScenario("no-visible-tabs", { setup: (kdb) => { kdb.api.tabs.getState = () => ({ visibleTabs: [], activeIndex: null }); } });
+  await runScenario("no-visible-tabs-restores-active-tab", { setup: (kdb) => { kdb.api.tabs.getState = () => ({ visibleTabs: [], activeIndex: 1, byIndex: { 1: { tabId: "t1" } } }); } });
   await runScenario("focus-exit-failed", { setup: (kdb) => { kdb.api.widgetVis.dispatch = async () => ({ ok: false, errorMessage: "cannot exit" }); } });
   await runScenario("focus-state-unavailable", { setup: (kdb) => { kdb.api.widgetVis.getState = () => undefined; } });
   await runScenario("focus-restore-failed", { setup: (_kdb, ctx) => { ctx.onMaximize = (action) => (action.payload.nextMaximized ? { ok: false, errorCode: "X_FAIL", errorMessage: "no restore" } : { ok: true }); } });
