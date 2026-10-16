@@ -1,10 +1,9 @@
 define([
-  "./guardTabMutation.js",
-  "./resolveTabMutationSnapshotTarget.js",
-  "../../hostFilterIo.js",
-  "../../inventory/reconcile.js",
-  "../../config.js"
-], function (_support, _resolveSnapshotTarget, _hostFilterIo, _reconcileInventory, _config) {
+  "./guard.js",
+  "../hostFilterIo.js",
+  "../inventory/reconcile.js",
+  "../config.js"
+], function (_support, _hostFilterIo, _reconcileInventory, _config) {
   "use strict";
 
   function restoreStateFields(_record, _snapshotRecord) {
@@ -17,15 +16,17 @@ define([
       ? Object.assign({}, _snapshotRecord.pendingSelection) : null;
   }
 
-  async function __controller(_KDB, _runtime, _payload) {
+  async function restoreTabMutationSnapshot(_KDB, _runtime, _payload) {
     var payload = _payload || {};
     var restored = [];
     var restoredByTargetId = {};
     var unrecoverable = [];
     var diagnostics = [];
+    var guardPassed = false;
     try {
       var guard = _support.guardRun(_runtime, payload);
       if (guard) { return guard; }
+      guardPassed = true;
       var snapshots = _runtime.tabMutationSnapshots || {};
       var snapshot = snapshots[payload.operationId];
       if (!snapshot) {
@@ -37,7 +38,7 @@ define([
         if (_support.isStaleRun(_runtime, payload)) {
           return _support.cancelled("tab mutation rollback superseded");
         }
-        var target = _resolveSnapshotTarget(instances, snapshot.byId[ids[i]]);
+        var target = _support.matchSnapshotTarget(instances, snapshot.byId[ids[i]]);
         if (target.status !== "ok") {
           unrecoverable.push(ids[i]);
           diagnostics.push({
@@ -78,7 +79,6 @@ define([
       restored.forEach(function (_id) {
         restoreStateFields(root.instancesById && root.instancesById[_id], restoredByTargetId[_id]);
       });
-      delete snapshots[payload.operationId];
       return {
         ok: unrecoverable.length === 0 && reconciled.ok === true,
         operationId: payload.operationId,
@@ -100,8 +100,12 @@ define([
           message: String(error && error.message ? error.message : error)
         }])
       };
+    } finally {
+      if (guardPassed && _runtime.tabMutationSnapshots) {
+        delete _runtime.tabMutationSnapshots[payload.operationId];
+      }
     }
   }
 
-  return __controller;
+  return { restoreTabMutationSnapshot: restoreTabMutationSnapshot };
 });

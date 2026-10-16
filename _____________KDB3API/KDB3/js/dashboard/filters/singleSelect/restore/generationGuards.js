@@ -1,7 +1,8 @@
 define([
-  "../../config.js",
-  "./parameterSetRuntimeRegistry.js"
-], function (_config, _registry) {
+  "../config.js",
+  "../runtime.js",
+  "./runs.js"
+], function (_config, _singleSelectRuntime, _runs) {
   "use strict";
 
   function failureResult(_code, _message) {
@@ -22,7 +23,7 @@ define([
       var inventory = root && root.inventory ? root.inventory : null;
       var currentGeneration = inventory && isFinite(Number(inventory.generation))
         ? Number(inventory.generation) : null;
-      var registry = _registry.ensureRunRegistry(_KDB, payload.runId);
+      var registry = _runs.ensureRunRegistry(_KDB, payload.runId);
       var pinnedGeneration = registry && registry.inventoryGeneration != null &&
         isFinite(Number(registry.inventoryGeneration))
         ? Number(registry.inventoryGeneration) : null;
@@ -69,7 +70,7 @@ define([
     try {
       var payload = _payload || {};
       var runId = Number(payload.runId);
-      var runtime = _registry.ensureRuntime(_KDB);
+      var runtime = _singleSelectRuntime.ensureSingleSelectRuntime(_KDB);
       if (!isFinite(runId)) {
         return failureResult(_config.parameterSetCodes.CANCELLED, "singleSelect mutation guard requires a numeric runId");
       }
