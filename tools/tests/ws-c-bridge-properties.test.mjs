@@ -376,6 +376,109 @@ test("selectParameterSetById reports found:false for an unknown id and aborts wi
   assert.equal(kdb.runtime.writeback.abortControllers.optionWait, undefined);
 });
 
+class FakeObserver {
+  constructor(callback) { this.callback = callback; this.targets = []; this.disconnected = false; FakeObserver.instances.push(this); }
+  observe(target, options) { this.targets.push({ target, options }); }
+  disconnect() { this.disconnected = true; }
+}
+FakeObserver.instances = [];
+
+function makeSelect(env, values) {
+  const select = {
+    id: "selectParameterSet", value: values[0] || "-", options: [], firstChild: null,
+    insertBefore(option) { this.options.unshift(option); this.firstChild = option; option.parentNode = this; },
+    removeChild(option) { this.options = this.options.filter((o) => o !== option); this.firstChild = this.options[0] || null; },
+    querySelector(selector) { return this.options.find((o) => selector.indexOf(o.value) >= 0) || null; },
+  };
+  values.forEach((value) => { select.options.push({ value, text: value, parentNode: select }); });
+  select.firstChild = select.options[0] || null;
+  env.doc.byId.selectParameterSet = select;
+  return select;
+}
+
+function loadNewDashboardOption(env) {
+  FakeObserver.instances = [];
+  const changeListeners = [];
+  env.doc.addEventListener = (type, handler, capture) => changeListeners.push({ type, handler, capture, active: true });
+  env.doc.removeEventListener = (type, handler) => { changeListeners.forEach((l) => { if (l.handler === handler) l.active = false; }); };
+  const stubs = Object.assign({ MutationObserver: FakeObserver }, env.stubs);
+  return { ensure: loadAmd(path.join(WB, "bridge/ensureNewDashboardOption.js"), { stubs }), changeListeners };
+}
+
+test("ensureNewDashboardOption: puts the sentinel first, is idempotent and cleans up on abort", () => {
+  const env = makeEnv();
+  const select = makeSelect(env, ["-", "p1"]);
+  select.value = "p1";
+  const { ensure, changeListeners } = loadNewDashboardOption(env);
+  const kdb = { runtime: { writeback: { abortControllers: {}, urlShareBootOverlayActive: false } } };
+  ensure(kdb, async () => ({}));
+  ensure(kdb, async () => ({}));
+  assert.equal(select.options[0].value, "__KDB_NEW_DASHBOARD__");
+  assert.equal(select.options.length, 3);
+  assert.equal(select.value, "p1");
+  assert.equal(FakeObserver.instances.length, 1);
+  assert.equal(changeListeners.length, 1);
+  assert.equal(changeListeners[0].capture, true);
+  kdb.runtime.writeback.abortControllers.newDashboardOption.abort();
+  assert.equal(select.options.some((o) => o.value === "__KDB_NEW_DASHBOARD__"), false);
+  assert.equal(FakeObserver.instances[0].disconnected, true);
+  assert.equal(changeListeners[0].active, false);
+});
+
+test("ensureNewDashboardOption: skips the sentinel while the url-share boot overlay is active", () => {
+  const env = makeEnv();
+  const select = makeSelect(env, ["-", "p1"]);
+  const { ensure } = loadNewDashboardOption(env);
+  ensure({ runtime: { writeback: { abortControllers: {}, urlShareBootOverlayActive: true } } }, async () => ({}));
+  assert.equal(select.options.length, 2);
+});
+
+test("ensureNewDashboardOption: waits for the slot by polling and only ever observes the slot", async () => {
+  const env = makeEnv();
+  const { ensure } = loadNewDashboardOption(env);
+  const kdb = { runtime: { writeback: { abortControllers: {} } } };
+  ensure(kdb, async () => ({}));
+  assert.equal(FakeObserver.instances.length, 0, "no document-wide observer");
+  const slot = makeNode("div");
+  env.doc.byId["kdb-control-save-load-slot"] = slot;
+  await new Promise((resolve) => setTimeout(resolve, 700));
+  assert.equal(FakeObserver.instances.length, 1);
+  assert.equal(FakeObserver.instances[0].targets[0].target, slot);
+  assert.deepEqual(FakeObserver.instances[0].targets[0].options, { childList: true, subtree: true });
+  const select = makeSelect(env, ["-", "p1"]);
+  FakeObserver.instances[0].callback();
+  assert.equal(select.options[0].value, "__KDB_NEW_DASHBOARD__");
+  assert.equal(FakeObserver.instances[0].disconnected, true);
+  assert.equal(FakeObserver.instances[1].targets[0].target, select);
+  kdb.runtime.writeback.abortControllers.newDashboardOption.abort();
+});
+
+test("ensureNewDashboardOption: abort stops the slot poll", async () => {
+  const env = makeEnv();
+  const { ensure } = loadNewDashboardOption(env);
+  const kdb = { runtime: { writeback: { abortControllers: {} } } };
+  ensure(kdb, async () => ({}));
+  kdb.runtime.writeback.abortControllers.newDashboardOption.abort();
+  env.doc.byId["kdb-control-save-load-slot"] = makeNode("div");
+  await new Promise((resolve) => setTimeout(resolve, 650));
+  assert.equal(FakeObserver.instances.length, 0);
+});
+
+test("ensureNewDashboardOption: selecting the sentinel runs the newDashboard restore", async () => {
+  const env = makeEnv();
+  const select = makeSelect(env, ["-", "p1"]);
+  const { ensure, changeListeners } = loadNewDashboardOption(env);
+  const calls = [];
+  ensure({ runtime: { writeback: { abortControllers: {} } } }, async (raw, status) => { calls.push([raw, status]); return { outcome: "committed" }; });
+  select.value = "__KDB_NEW_DASHBOARD__";
+  let stopped = false;
+  changeListeners[0].handler({ target: select, stopImmediatePropagation() { stopped = true; } });
+  await new Promise((resolve) => setTimeout(resolve, 5));
+  assert.deepEqual(calls, [[null, "newDashboard"]]);
+  assert.equal(stopped, true);
+  assert.notEqual(select.value, "__KDB_NEW_DASHBOARD__");
+});
+
 test("ensureWritebackRuntime seeds every flag, keeps one object and never overwrites set values", () => {
   const env = makeEnv();
   const ensure = loadAmd(path.join(WB, "set/state/ensureWritebackRuntime.js"), { stubs: env.stubs });
