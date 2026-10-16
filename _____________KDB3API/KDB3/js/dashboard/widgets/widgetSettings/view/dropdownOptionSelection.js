@@ -1,54 +1,41 @@
 define([
-  "../config/selectors.js",
-  "./isHostOwnedOption.js"
-], function (_selectors, _isHostOwnedOption) {
-  function readSelectedOption(_dropdown) {
-    try {
-      if (!_dropdown || typeof _dropdown.querySelectorAll !== "function") {
-        return null;
-      }
-      const rows = _dropdown.querySelectorAll(
-        _selectors.dropdownOptionSelector + "." + _selectors.optionSelectedClass
-      );
-      let index = 0;
-      while (index < rows.length) {
-        if (_isHostOwnedOption(_dropdown, rows[index])) {
-          return rows[index];
-        }
-        index += 1;
-      }
+  "../config/selectors.js"
+], function (_selectors) {
+  function isHostOwnedOption(host, option) {
+    return !!(host && option && typeof option.closest === "function"
+      && option.closest(_selectors.dropdownSelector) === host);
+  }
+
+  function readSelectedOption(dropdown) {
+    if (!dropdown || typeof dropdown.querySelectorAll !== "function") {
       return null;
-    } catch (err) {
-      console.error("[widgetSettings.readSelectedOption] failed", err);
-      return null;
+    }
+    const rows = dropdown.querySelectorAll(_selectors.dropdownOptionSelector + "." + _selectors.optionSelectedClass);
+    return Array.prototype.find.call(rows, function (row) {
+      return isHostOwnedOption(dropdown, row);
+    }) || null;
+  }
+
+  function selectHostOption(dropdown, option) {
+    const rows = dropdown ? dropdown.querySelectorAll(_selectors.dropdownOptionSelector) : [];
+    Array.prototype.forEach.call(rows, function (row) {
+      if (isHostOwnedOption(dropdown, row)) {
+        row.classList.remove(_selectors.optionSelectedClass);
+      }
+    });
+    if (option) {
+      option.classList.add(_selectors.optionSelectedClass);
     }
   }
 
-  function markSelectedOption(_option) {
-    try {
-      const option = _option;
-      const dropdown = option && typeof option.closest === "function"
-        ? option.closest(_selectors.dropdownSelector)
-        : null;
-      const rows = dropdown ? dropdown.querySelectorAll(_selectors.dropdownOptionSelector) : [];
-      let index = 0;
-      while (index < rows.length) {
-        if (_isHostOwnedOption(dropdown, rows[index])) {
-          rows[index].classList.remove(_selectors.optionSelectedClass);
-        }
-        index += 1;
-      }
-      if (option) {
-        option.classList.add(_selectors.optionSelectedClass);
-      }
-    } catch (err) {
-      console.error("[widgetSettings.markSelectedOption] failed", err);
-      throw err;
-    }
+  function markSelectedOption(option) {
+    const dropdown = option && typeof option.closest === "function" ? option.closest(_selectors.dropdownSelector) : null;
+    selectHostOption(dropdown, option);
   }
 
   return {
     readSelectedOption: readSelectedOption,
-    markSelectedOption: markSelectedOption
+    markSelectedOption: markSelectedOption,
+    selectHostOption: selectHostOption
   };
 });

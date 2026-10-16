@@ -1,18 +1,10 @@
 define([
-  "../effects/enumerateFilterInstances.js",
-  "../effects/reconcileFilterInstanceState.js",
-  "../effects/waitForFilterInventory.js",
-  "../actions/notifyInventoryReconciledOwners.js",
+  "./enumerate.js",
+  "./identity.js",
+  "./ownerAck.js",
   "../config.js",
   "../runtime.js"
-], function (
-  _enumerateFilterInstances,
-  _reconcileState,
-  _waitForFilterInventory,
-  _notifyInventoryReconciledOwners,
-  _config,
-  _singleSelectRuntime
-) {
+], function (_enumerate, _identity, _ownerAck, _config, _singleSelectRuntime) {
   "use strict";
 
   var codes = _config.errorCodes;
@@ -149,9 +141,9 @@ define([
   async function runReconcile(_KDB, _runtime, _payload, _run) {
     try {
       var resolvedReason = resolveInventoryReason(_payload).reason;
-      var inventory = await _waitForFilterInventory(
+      var inventory = await _enumerate.waitForFilterInventory(
         _KDB,
-        _enumerateFilterInstances,
+        _enumerate.enumerateFilterInstances,
         _payload && _payload.timeoutMs,
         _run.signal
       );
@@ -159,7 +151,7 @@ define([
       var root = _KDB.state.filters.singleSelect;
       var priorInstancesById = root.instancesById || {};
       var diagnostics = inventory.diagnostics.slice();
-      var reconciled = _reconcileState(
+      var reconciled = _identity.reconcileFilterInstanceState(
         priorInstancesById,
         inventory.candidates,
         diagnostics,
@@ -186,7 +178,7 @@ define([
         root.inventory.freshness === "fresh" &&
         resolvedReason !== "parameterRestore" &&
         resolvedReason !== "historyReplay") {
-        var ownerNotifyResult = await _notifyInventoryReconciledOwners(_KDB, _runtime, {
+        var ownerNotifyResult = await _ownerAck.notifyInventoryReconciledOwners(_KDB, _runtime, {
           inventoryGeneration: result.generation,
           source: "singleSelect",
           reason: resolvedReason,
