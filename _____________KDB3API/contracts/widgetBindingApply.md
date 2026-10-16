@@ -449,7 +449,7 @@ No `events/eventNames.js` is created for this module.
 
 ## 15. DOM Boundaries
 
-The service performs no DOM queries and stores no DOM refs. Overlay **finish** after `whenRenderComplete` lives in `finishRenderWait.js` (widgetId + loadingService handle/key only); start is widgetSettings. See `loadingService-overlay-coverage-contractdelta.md`.
+The service performs no DOM queries and stores no DOM refs. Overlay **finish** after `whenRenderComplete` lives in `renderWait.js` (widgetId + loadingService handle/key only); start is widgetSettings. See `loadingService-overlay-coverage-contractdelta.md`.
 
 Allowed:
 
@@ -491,24 +491,29 @@ Sibling service:
 
 ## 18. Folder Layout
 
+As built after the Phase 1 module-template rework:
+
 ```txt
 KDB3/js/core/services/widgetBindingApply/
-  __orchestratorWidgetBindingApply.js
-  createWidgetBindingApplyService.js
-  config/
-    defaults.js
-  effects/
-    applyBindingPlan.js
-    applySlots.js
-    applyLocalFilters.js
-    buildFilterBody.js
-    waitForRender.js
-  diagnostics/
-    createDiagnostics.js
-    createApplyResult.js
+  __orchestratorWidgetBindingApply.js  # shim: re-exports index.js (path kept for __orchestratorServices.js)
+  index.js            # registerWidgetBindingApply: service registration, host facet stamps
+  config.js           # timeouts and defaults
+  applyBindingPlan.js # applyBindingPlan: input validation, step runner, timer scope
+  applyOptions.js     # desired vis type, clear-only reset, slot clearing, timeout and render-wait options
+  diagnostics.js      # diagnostics, apply/aborted result envelopes, facet outcome mapping
+  renderWait.js       # render wait arm/await and overlay finish (finishWidgetRenderLoading)
+  steps/
+    cognosSetup.js      # datasource / vis type setup and slot+filter clearing
+    applySlots.js       # slot columns, sort specs, custom label
+    applyTopBottom.js   # top/bottom specs
+    applyFilters.js     # managed filter removal and local filter apply
+  filterBody/
+    buildFilterBody.js        # filter body dispatch by descriptor
+    keepexcludeConditions.js  # keep/exclude conditions
+    operatorBodies.js         # exclude / contains / beginsWith bodies
 ```
 
-No `state/`, `view/`, `events/` or `adapters/` folders are created because the service owns no state, DOM, emitted events or host adapter.
+The service owns no state, DOM, emitted events or host adapter, so there are no `state/`, `view/`, `events/` or `adapters/` folders.
 
 ## 19. Bootstrap And Integration
 
