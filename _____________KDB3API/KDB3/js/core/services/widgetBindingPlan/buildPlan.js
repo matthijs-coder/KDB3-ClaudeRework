@@ -1,31 +1,36 @@
 define([
-  "./parsing/parseTopNOption.js",
+  "./config.js",
+  "./planIntent.js",
+  "./planResult.js",
+  "./parseTopNOption.js",
   "./slots/buildSlotPlan.js",
   "./filters/buildLocalFilters.js",
-  "./mirror/buildMirrorPatch.js",
-  "./diagnostics/createPlanDiagnostics.js",
-  "./diagnostics/planFailureContext.js",
-  "./diagnostics/createPlanSuccess.js",
-  "./validate/validateSpec.js",
-  "./intent/resolveEmptyIntent.js",
-  "./intent/resolveResetIntent.js",
-  "./policy/slotsChangedPolicy.js",
-  "./policy/buildVisResetOnlyPlan.js",
-], function (
-  _parseTopNOption,
-  _buildSlotPlan,
-  _buildLocalFilters,
-  _buildMirrorPatch,
-  _createPlanDiagnostics,
-  _planFailureContext,
-  _createPlanSuccess,
-  _validateSpec,
-  _resolveEmptyIntent,
-  _resolveResetIntent,
-  _slotsChangedPolicy,
-  _buildVisResetOnlyPlan
-) {
+], function (_config, _planIntent, _planResult, _parseTopNOption, _buildSlotPlan, _buildLocalFilters) {
   "use strict";
+
+  function validateSpec(_spec) {
+    if (!_spec || typeof _spec !== "object") {
+      return { ok: false, code: "WIDGET_BINDING_PLAN_MISSING_SPEC", message: "Binding plan spec is required." };
+    }
+    if (!_config.PLAN_TARGET_KINDS[_spec.targetKind]) {
+      return { ok: false, code: "WIDGET_BINDING_PLAN_INVALID_TARGET", message: "targetKind is missing or unsupported." };
+    }
+    var dataConfig = _spec.dataConfig;
+    var config = _spec.config;
+    if (!dataConfig || typeof dataConfig !== "object") {
+      return { ok: false, code: "WIDGET_BINDING_PLAN_MISSING_SPEC", message: "dataConfig is required." };
+    }
+    if (!dataConfig.datasourceId) {
+      return { ok: false, code: "WIDGET_BINDING_PLAN_MISSING_DATASOURCE", message: "dataConfig.datasourceId is required." };
+    }
+    if (!dataConfig.visualizationType || !dataConfig.visTypeConfig) {
+      return { ok: false, code: "WIDGET_BINDING_PLAN_MISSING_VISUALIZATION", message: "visualizationType and visTypeConfig are required." };
+    }
+    if (!config || !config.filterPropObj || !config.parameterMappingObj || !config.topNOptions) {
+      return { ok: false, code: "WIDGET_BINDING_PLAN_MISSING_SPEC", message: "config snapshots are required." };
+    }
+    return { ok: true, dataConfig: dataConfig };
+  }
 
   function resolveCanonicalVisType(_dataConfig) {
     var canonical = _dataConfig && _dataConfig.canonicalVisType;
@@ -46,24 +51,50 @@ define([
     };
   }
 
-  function __controller(_spec) {
-    var diagnostics = _createPlanDiagnostics(_spec);
+  function buildPlanSuccess(_spec, _planned) {
+    var resetOnlyCleanup = _planIntent.isResetOnlyCleanup(_spec, _planned.resetIntent);
+    return _planResult.createPlanSuccess({
+      reason: _spec.reason,
+      targetKind: _spec.targetKind,
+      widgetId: _spec.widgetId,
+      ownerWidgetId: _spec.ownerWidgetId,
+      opSeq: _spec.opSeq,
+      datasource: _planned.base.datasource,
+      visualization: _planned.base.visualization,
+      slots: resetOnlyCleanup ? [] : _planned.slotResult.slots,
+      localFilters: resetOnlyCleanup ? [] : _planned.filterResult.localFilters,
+      managedFilterItemIds: resetOnlyCleanup ? [] : _planned.filterResult.managedFilterItemIds,
+      emptyIntent: _planned.emptyIntent,
+      resetIntent: _planned.resetIntent,
+      mirrorPatch: resetOnlyCleanup ? {} : _planResult.buildMirrorPatch(_spec, _planned.parsedTopN, _planned.filterResult),
+      slotsChanged: _planIntent.computeSlotsChanged(_spec.reason, _planned.emptyIntent),
+      diagnostics: _planned.diagnostics,
+    });
+  }
+
+  /**
+   * Builds a binding plan from a spec. Synchronous; never throws (internal errors become
+   * WIDGET_BINDING_PLAN_INTERNAL failures).
+   */
+  function buildPlan(_spec) {
+    var diagnostics = _planResult.createPlanDiagnostics(_spec);
     try {
-      var validation = _validateSpec(_spec);
+      var validation = validateSpec(_spec);
       if (!validation.ok) {
-        return _planFailureContext.createPlanFailure(_spec, diagnostics, "validateSpec", validation.code, validation.message);
+        return _planResult.createPlanFailure(_spec, diagnostics, "validateSpec", validation.code, validation.message);
       }
       var dataConfig = validation.dataConfig;
       var base = buildBaseIdentity(dataConfig);
-      var emptyIntentResult = _resolveEmptyIntent(_spec);
+      var emptyIntentResult = _planIntent.resolveEmptyIntent(_spec);
       if (!emptyIntentResult.ok) {
-        return _planFailureContext.createPlanFailure(_spec, diagnostics, "buildFilters", emptyIntentResult.code, emptyIntentResult.message, base);
+        return _planResult.createPlanFailure(_spec, diagnostics, "buildFilters", emptyIntentResult.code, emptyIntentResult.message, base);
       }
-      diagnostics.emptyIntent = emptyIntentResult.emptyIntent;
-      var resetIntent = _resolveResetIntent(_spec);
+      var emptyIntent = emptyIntentResult.emptyIntent;
+      diagnostics.emptyIntent = emptyIntent;
+      var resetIntent = _planIntent.resolveResetIntent(_spec);
       diagnostics.resetIntent = resetIntent;
-      if (_slotsChangedPolicy.isVisResetOnlyCleanup(_spec, resetIntent)) {
-        return _buildVisResetOnlyPlan(_spec, base, emptyIntentResult.emptyIntent, resetIntent, diagnostics);
+      if (_planIntent.isVisResetOnlyCleanup(_spec, resetIntent)) {
+        return _planResult.buildVisResetOnlyPlan(_spec, base, emptyIntent, resetIntent, diagnostics);
       }
       var parsedTopN = _parseTopNOption(dataConfig.topN, _spec.config.topNOptions);
       if (parsedTopN.kind === "default") {
@@ -71,38 +102,33 @@ define([
       }
       var slotResult = _buildSlotPlan(_spec, parsedTopN, diagnostics);
       if (!slotResult.ok) {
-        return _planFailureContext.createPlanFailure(_spec, diagnostics, "buildSlots", slotResult.errorCode || "WIDGET_BINDING_PLAN_SLOT_FAILED", "Slot planning failed.", base);
+        var slotCode = slotResult.errorCode || "WIDGET_BINDING_PLAN_SLOT_FAILED";
+        return _planResult.createPlanFailure(_spec, diagnostics, "buildSlots", slotCode, "Slot planning failed.", base);
       }
-      var filterResult = _buildLocalFilters(_spec, parsedTopN, emptyIntentResult.emptyIntent, diagnostics);
+      var filterResult = _buildLocalFilters(_spec, parsedTopN, emptyIntent, diagnostics);
       if (!filterResult.ok) {
-        return _planFailureContext.createPlanFailure(_spec, diagnostics, "buildFilters", filterResult.errorCode || "WIDGET_BINDING_PLAN_FILTER_FAILED", "Filter planning failed.", base);
+        var filterCode = filterResult.errorCode || "WIDGET_BINDING_PLAN_FILTER_FAILED";
+        return _planResult.createPlanFailure(_spec, diagnostics, "buildFilters", filterCode, "Filter planning failed.", base);
       }
-      var resetOnlyCleanup = _slotsChangedPolicy.isResetOnlyCleanup(_spec, resetIntent);
-      var effectiveSlots = resetOnlyCleanup ? [] : slotResult.slots;
-      var effectiveFilters = resetOnlyCleanup ? [] : filterResult.localFilters;
-      var effectiveManagedIds = resetOnlyCleanup ? [] : filterResult.managedFilterItemIds;
-      return _createPlanSuccess({
-        reason: _spec.reason,
-        targetKind: _spec.targetKind,
-        widgetId: _spec.widgetId,
-        ownerWidgetId: _spec.ownerWidgetId,
-        opSeq: _spec.opSeq,
-        datasource: base.datasource,
-        visualization: base.visualization,
-        slots: effectiveSlots,
-        localFilters: effectiveFilters,
-        managedFilterItemIds: effectiveManagedIds,
-        emptyIntent: emptyIntentResult.emptyIntent,
+      return buildPlanSuccess(_spec, {
+        base: base,
+        emptyIntent: emptyIntent,
         resetIntent: resetIntent,
-        mirrorPatch: resetOnlyCleanup ? {} : _buildMirrorPatch(_spec, parsedTopN, filterResult),
-        slotsChanged: _slotsChangedPolicy.computeSlotsChanged(_spec.reason, emptyIntentResult.emptyIntent),
+        parsedTopN: parsedTopN,
+        slotResult: slotResult,
+        filterResult: filterResult,
         diagnostics: diagnostics,
       });
     } catch (error) {
-      console.error("[widgetBindingPlan.buildPlan] unexpected planning error", { reason: _spec && _spec.reason, targetKind: _spec && _spec.targetKind, widgetId: _spec && _spec.widgetId, error: error && error.message });
-      return _planFailureContext.createPlanFailure(_spec, diagnostics, null, "WIDGET_BINDING_PLAN_INTERNAL", "Unexpected binding plan failure.");
+      console.error("[widgetBindingPlan.buildPlan] unexpected planning error", {
+        reason: _spec && _spec.reason,
+        targetKind: _spec && _spec.targetKind,
+        widgetId: _spec && _spec.widgetId,
+        error: error && error.message,
+      });
+      return _planResult.createPlanFailure(_spec, diagnostics, null, "WIDGET_BINDING_PLAN_INTERNAL", "Unexpected binding plan failure.");
     }
   }
 
-  return __controller;
+  return buildPlan;
 });

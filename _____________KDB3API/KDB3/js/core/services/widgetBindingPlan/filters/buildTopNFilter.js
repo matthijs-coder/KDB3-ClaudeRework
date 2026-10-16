@@ -53,7 +53,7 @@ define([], function () {
     return null;
   }
 
-  function __controller(_spec, _parsedTopN) {
+  function buildTopNFilter(_spec, _parsedTopN) {
     var parsedTopN = _parsedTopN || { kind: "default" };
     if (parsedTopN.kind === "default") {
       return { ok: true, descriptor: null };
@@ -108,5 +108,5 @@ define([], function () {
     };
   }
 
-  return __controller;
+  return buildTopNFilter;
 });

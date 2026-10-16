@@ -376,6 +376,17 @@ test("plan results are independent across calls", () => {
   assert.notStrictEqual(second.diagnostics.emptyIntent, second.emptyIntent);
 });
 
+test("failure results do not share default intents across calls", () => {
+  const first = buildPlan(null);
+  const second = buildPlan(null);
+  assert.notStrictEqual(first.emptyIntent, second.emptyIntent);
+  assert.notStrictEqual(first.resetIntent, second.resetIntent);
+  first.emptyIntent.enabled = true;
+  first.resetIntent.clearAllSlots = true;
+  assert.equal(buildPlan(null).emptyIntent.enabled, false);
+  assert.equal(buildPlan(null).resetIntent.clearAllSlots, false);
+});
+
 test("normalizeDefaultValue", () => {
   for (const input of [null, undefined, "", "   ", "default", "DEFAULT", "none", " None "]) assert.equal(normalizeDefaultValue(input), null);
   assert.equal(normalizeDefaultValue(" x "), "x");
