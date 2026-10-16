@@ -27,21 +27,24 @@ function load(rel, stubs) {
 }
 
 // Module adapter: the only place that knows file locations.
+const config = load("config.js");
+const stateModule = load("state.js");
+const availability = load("availability.js");
 const T = {
-  actions: load("config/actions.js"),
-  createInitialState: load("state/initialState.js"),
-  createReducer: load("state/createSichtReducer.js"),
-  tableInputs: load("effects/buildSichtTableDataInputs.js"),
-  tableKeys: load("effects/buildSichtTableDataInputs.js").tableKeys,
-  readAvailability: load("effects/readSichtAvailabilityFromTableData.js"),
-  evaluateOptions: load("effects/evaluateSichtOptions.js"),
-  selectStartupDefault: load("effects/selectStartupSichtDefault.js"),
-  mapCommitSourceFlags: load("effects/mapCommitSourceFlags.js"),
-  isDelegatedSource: load("effects/isDelegatedSichtCommitSource.js"),
-  mapFilterDockHandoff: load("effects/mapFilterDockHandoff.js"),
-  buildCommittedStep: load("history/buildCommittedStep.js"),
+  actions: stateModule.actions,
+  createInitialState: stateModule.createInitialState,
+  createReducer: stateModule.createSichtReducer,
+  tableInputs: availability,
+  tableKeys: config.TABLE_KEYS,
+  readAvailability: availability.readSichtAvailabilityFromTableData,
+  evaluateOptions: availability.evaluateSichtOptions,
+  selectStartupDefault: load("options.js").selectStartupSichtDefault,
+  mapCommitSourceFlags: load("commit.js").mapCommitSourceFlags,
+  isDelegatedSource: load("validation.js").isDelegatedCommitSource,
+  mapFilterDockHandoff: load("delegation.js").mapFilterDockHandoff,
+  buildCommittedStep: load("history.js").buildCommittedStep,
   selectors: load("state/selectors.js"),
-  chrome: load("config/selectors.js"),
+  chrome: config.SELECTORS,
   registerSicht: (stubs) => load("__orchestratorSicht.js", stubs)
 };
 
@@ -483,6 +486,16 @@ test("selectStartupSichtDefault picks the first enabled option (BW before DEZPV)
   );
 });
 
+test("config: variants derive table keys, display lookup and startup order", () => {
+  assert.deepStrictEqual(config.VARIANT_KEYS, ["BW", "DEZPV"]);
+  assert.equal(config.VARIANT_BY_DISPLAY.BW, "BW");
+  assert.equal(config.VARIANT_BY_DISPLAY.DEZPV, "DEZPV");
+  assert.equal(config.VARIANT_BY_DISPLAY.Alle, undefined);
+  assert.equal(config.VARIANT_BY_DISPLAY.constructor, undefined);
+  assert.equal(config.ALLE_LABEL, "Alle");
+  assert.deepStrictEqual(config.LIVE_SICHT_QUERY, { scopeType: "global", status: "active", hostStatus: "present" });
+});
+
 // ---------------------------------------------------------------------------------------------
 // commit source flags, handoff mapping, history step, selectors
 // ---------------------------------------------------------------------------------------------
@@ -627,6 +640,31 @@ test("selectors: confirmed selection, active value, state read", () => {
   assert.deepStrictEqual(T.selectors.readSichtState(stateOf(state)), state);
   assert.strictEqual(T.selectors.readSichtState({}), undefined);
   assert.strictEqual(T.selectors.readSichtState(undefined), undefined);
+});
+
+test("selectors: option lookups by display and use value", () => {
+  const byOption = T.createInitialState().byOption;
+  byOption.BW.useValue = "uBW";
+  byOption.DEZPV.useValue = "uDEZPV";
+  assert.strictEqual(T.selectors.findOptionByDisplay(byOption, "DEZPV"), byOption.DEZPV);
+  assert.strictEqual(T.selectors.findOptionByDisplay(byOption, "Alle"), null);
+  assert.strictEqual(T.selectors.findOptionByDisplay(undefined, "BW"), null);
+  assert.strictEqual(T.selectors.findOptionByUse(byOption, "uBW"), byOption.BW);
+  assert.strictEqual(T.selectors.findOptionByUse(byOption, "nope"), null);
+  assert.strictEqual(T.selectors.findOptionByUse(null, "uBW"), null);
+});
+
+test("selectors: active value falls back to the confirmed display value", () => {
+  const stateOf = (sicht) => ({ state: { filters: { sicht } } });
+  assert.strictEqual(T.selectors.readActiveSichtValue({}), null);
+  assert.strictEqual(T.selectors.readActiveSichtValue(stateOf({ activeSichtValue: "BW" })), "BW");
+  assert.strictEqual(T.selectors.readActiveSichtValue(stateOf({ activeSichtValue: " ", currentSelection: { displayValue: "DEZPV" } })), "DEZPV");
+  assert.strictEqual(T.selectors.readActiveSichtValue(stateOf({ activeSichtValue: null, currentSelection: { displayValue: "" } })), null);
+});
+
+test("selectors: readSichtState returns the stored object, not a copy", () => {
+  const sicht = T.createInitialState();
+  assert.strictEqual(T.selectors.readSichtState({ state: { filters: { sicht } } }), sicht);
 });
 
 // ---------------------------------------------------------------------------------------------
@@ -813,6 +851,16 @@ test("getState returns a deep copy: mutating it never reaches the store", () => 
   state.meta.startupDefaultCommitted = true;
   assert.equal(env.KDB.state.filters.sicht.byOption.BW.displayValue, "BW");
   assert.equal(env.KDB.state.filters.sicht.meta.startupDefaultCommitted, false);
+});
+
+test("dispatch returns the live state for non-ack actions, getState returns a copy", async () => {
+  const env = makeEnv({ withTableData: false });
+  env.controller.mount({});
+  const live = env.controller.dispatch({ type: "sicht/unknown" });
+  assert.strictEqual(live, env.KDB.state.filters.sicht);
+  const copy = env.controller.getState();
+  assert.notStrictEqual(copy, env.KDB.state.filters.sicht);
+  assert.deepStrictEqual(copy, env.KDB.state.filters.sicht);
 });
 
 test("tableData loadFinished: relevant table triggers re-evaluation, others are ignored", async () => {
