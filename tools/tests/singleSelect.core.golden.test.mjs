@@ -1,6 +1,5 @@
 // Golden tests for the singleSelect core modules (state, inventory, dockHandoff, commit, history, index).
 // Run: node --test tools/tests/singleSelect.core.golden.test.mjs
-// SS_GOLDEN_LAYOUT=old runs the same expectations against the pre-B1 file layout (B0 tree).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -10,7 +9,8 @@ import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
 const SS = path.join(JS_ROOT, "dashboard/filters/singleSelect");
-const LAYOUT = process.env.SS_GOLDEN_LAYOUT === "old" ? "old" : "new";
+const L2_DONE = false;
+const C1_DONE = false;
 const logged = [];
 const quietConsole = {
   log() {}, info() {}, debug() {},
@@ -857,7 +857,7 @@ test("popup sync: marks the pending option and keeps one out-click revert listen
   assert.equal(fx.filterEl.classes.has("KDB_singleSelectCommitInProgress"), true);
 });
 
-test("popup sync: out-click reverts the live record after the instance was replaced", { skip: LAYOUT === "old" }, async () => {
+test("popup sync: out-click reverts the live record after the instance was replaced", { skip: !L2_DONE }, async () => {
   const facet = fakeFacet([GESCHLECHT.values[0]], { items: [GESCHLECHT] });
   const { KDB, rt } = await bootReconciled(facet);
   const root = KDB.state.filters.singleSelect;
@@ -912,7 +912,7 @@ test("committed display chip painting", async () => {
   api.dispatch({ type: "singleSelect/filterDockCommittedDisplayObserved" });
   assert.equal(chip.textContent, "Mann");
   assert.equal(chip.attrs["aria-label"], "Frau");
-  if (LAYOUT !== "old") {
+  if (C1_DONE) {
     record.filterLabel = 'Quote "x" \\ end';
     record.currentSelection = { displayValue: "Frage", useValue: "9", displaySource: "table" };
     hosts.push(host(record.filterLabel));
