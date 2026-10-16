@@ -16,6 +16,7 @@
  *     spec.readState()             public getState; default: JSON copy of _KDB.state.filters[name]
  *     spec.destroyAction           action type reduced last in destroy (omit to skip)
  *     spec.clearsReplayContribution  true: _KDB.runtime[name].historyReplayHandlerContribution = null in destroy
+ *                                  (the registered runtime, not a runtime object the owner captured earlier)
  *     spec.disposedResults         { actionType: function (action) -> result } answered after destroy; the factory gets
  *                                  the whole action (an owner whose factory reads only the payload wraps it)
  *     spec.warnOnDisposedResult    default true: warn once ("called after destroy") even when a result is returned;

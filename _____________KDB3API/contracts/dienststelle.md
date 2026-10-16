@@ -866,7 +866,7 @@ dashboard/filters/dienststelle/
   tabMutationScopes.js                                guardRun, isStale, cancelled, readSnapshot, deleteSnapshot, failed, pushUnique, ...
   effects/
     alignedDisplays.js                                extractUseValues, extractDisplayValues, collectAlignedHostDisplays, uniqueAlignedUseDisplayValues
-    dispatchRoute.js                                  routeDienststelleDispatch
+    dispatchRoute.js                                  routeDienststelleDispatch (the filterDock handoff is mapped by a profile over _core/dockHandoff.js mapDockHandoff)
     hierarchySnapshot.js                              readCurrentHierarchySnapshot
     historyReplay.js                                  handleHistoryReplay, readConfirmHistorySnapshot
     sichtSync.js                                      abortPreviousHierarchyWarmup, syncFromSicht

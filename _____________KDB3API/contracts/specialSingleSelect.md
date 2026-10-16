@@ -463,7 +463,7 @@ As built (11 files, exports per file). `__orchestratorSpecialSingleSelect.js` is
 dashboard/filters/specialSingleSelect/
   __orchestratorSpecialSingleSelect.js                shim over index.js (path kept for KDB.js)
   config.js                                           SPECIAL_FILTER_VARIANTS, DEFINITIONS_BY_ID, DEFINITIONS_BY_LABEL, TABLE_KEYS, ERROR_CODES, SELECTORS, resolveSpecialFilterId
-  delegation.js                                       handleFilterDockHandoff, normalizeUserSelectionCommittedPayload, reduceCommittedPayload, buildOwnerAck, buildTargetScopedAck, mapFilterDockHandoff
+  delegation.js                                       handleFilterDockHandoff, normalizeUserSelectionCommittedPayload, reduceCommittedPayload, buildOwnerAck, buildTargetScopedAck, mapFilterDockHandoff (profile over _core/dockHandoff.js mapDockHandoff)
   index.js                                            registerSpecialSingleSelect
   instances.js                                        resolveLiveSpecialInstances
   inventory.js                                        routeInventoryReconciled, routeSyncRequested
