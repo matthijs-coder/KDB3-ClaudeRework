@@ -404,7 +404,7 @@ For non-default `nextValue`, `widgetVis`:
 1. increments/captures the visible widget runtime `opSeq`;
 2. marks `pending:{ kind:"topNChoice", opSeq }`;
 3. builds the same canonical prerequisite material used for `BindingPlanSpec` (`dataConfig`, `hierarchySnapshot`, `config`) from the effective settings snapshot and data identity;
-4. enriches the TopN request `config` with a helper List binding snapshot resolved through `widgetVis/config/resolveVisualizationBindingConfig.js`, not by deep-reading globals in the effect:
+4. enriches the TopN request `config` with a helper List binding snapshot resolved through `widgetVis/bindingConfig.js` / `visTypes.js`, not by deep-reading globals in the effect:
 
 ```js
 config.helperListConfig = {
@@ -626,7 +626,7 @@ Declarative config keys per visualization type in `_KDB.config.visualizations.de
 | `propertyValues` | Chart/content properties applied immediately after `visualizationType` is set | stamped `visualizationFacet.setContentProperty` (ring 1 `setContentProperty` in `core/services/cognosHost/facets/visualization/properties.js` → host `setContentPropertyValue`). Feature files: no `_KDB.cognosAPI` |
 | `layoutPropertyValues` | Additional layout/content properties for the active visualization type | same facet op. Overlay `valueLabels.visible` / `labels.visible` from explicit `settings.showValues` or catalog inherit; when those values are shown, also overlay `contrast.label.color` + `valueLabels.color` = `true`; skip those keys for List (`contracts/_archive/widgetVis-show-values-contractdelta.md` §6.1a) |
 
-Source of truth: `_KDB.config.visualizations.definitions`. Deep `widgetVis` files must not read that config directly; they consume `config/resolveVisualizationBindingConfig.js` only.
+Source of truth: `_KDB.config.visualizations.definitions`. Deep `widgetVis` files must not read that config directly; they consume `visTypes.js` / `bindingConfig.js` only (other modules use `selectors.js` `readVisPropBucketKey`).
 
 Apply order inside `runBindingPipeline`:
 
@@ -852,6 +852,9 @@ Published selectors from `widgetVis/selectors.js`. They return the stored record
 |---|---|---|
 | `readVisRecord(_KDB, widgetId)` | `_KDB.state.widgets.vis.byId[widgetId]` | Per-widget visual record (`derived`, `pending`, `maximized`, ...) or `undefined`. |
 | `readVisMaximized(_KDB, widgetId)` | `byId[widgetId].maximized` | Boolean confirmed focus-mode mirror; `false` when no record exists. |
+| `readVisPropBucketKey(_KDB, visType)` | `config.visualizations.bindingSpecs.visualizationTypeToBucket` | Cognos visualization bucket key of a vis type (same as `visTypes.resolveVisPropBucketKey(visType, _KDB)`). |
+
+`ACTION_TYPES` (the `widgetVis/*` action type constants, same object as `state.js` `ACTION_TYPES`) is also published through `selectors.js`; the former path shims `config/actionTypes.js`, `config/resolveVisualizationBindingConfig.js` and `config/visTypes/resolveVisTypeIdentity.js` no longer exist (Phase 2 W9a).
 
 The whole subtree is available through `_KDB.api.widgetVis.getState()` (cloned).
 
@@ -1047,12 +1050,8 @@ KDB3/js/dashboard/widgets/widgetVis/
   __orchestratorWidgetVis.js  # shim: re-exports index.js (path kept for KDB.js)
   index.js            # registerWidgetVis: controller, ROUTES table, host facet stamps, mount/dispatch/destroy
   config.js           # timeouts, class names, focus-mode poll values, GROUPINGS
-  config/
-    actionTypes.js                       # widgetVis/* action type constants (frozen external path)
-    resolveVisualizationBindingConfig.js # re-export shim over visTypes.js (resolveVisPropBucketKey; external importers)
-    visTypes/resolveVisTypeIdentity.js   # re-export shim over visTypes.js (external importers)
   state.js            # ACTION_TYPES, initial state, reducer, metric identity helpers
-  selectors.js        # readVisRecord, readVisMaximized
+  selectors.js        # published: ACTION_TYPES, readVisRecord, readVisMaximized, readVisPropBucketKey
   runtime.js          # runtime buckets, per-widget runtime, content-ready waiters, readHostFacet
   context.js          # buildContext, action validation, opSeq helpers
   results.js          # normalizeDispatchResult, finalizePipelineResult, reportApplyResult

@@ -103,21 +103,54 @@ test("widgetBase readWidgetShell resolves the shell in the owner document like r
   assert.deepStrictEqual(selectors.readWidgetShell({}, "x"), shellModule.resolveWidgetShell({}, "x"));
 });
 
-test("widgetSettings selectors.js is the facade: members are the internal functions and objects", () => {
-  const facade = load("dashboard/widgets/widgetSettings/selectors.js");
+test("widgetSettings selectors.js is the facade: every member is the identical source export", () => {
+  const W = "dashboard/widgets/widgetSettings/";
+  const sentinel = () => function sentinelFn() {};
+  const actionTypes = { SENTINEL: "a" };
+  const domSelectors = { SENTINEL: "d" };
+  const focusOnly = { SENTINEL: "f" };
+  const buildSettingsIcon = sentinel();
+  const markSelectedOption = sentinel();
+  const shouldKeepDropdownsOpen = sentinel();
+  const resolveWidgetEl = sentinel();
+  const dropdownOption = sentinel();
+  const icon = sentinel();
+  const startWidgetRenderLoading = sentinel();
+  const facade = load(W + "selectors.js", {
+    overrides: {
+      "core/utils/kit/data.js": { cloneJson: (v) => v },
+      [W + "config/actionTypes.js"]: actionTypes,
+      [W + "config/selectors.js"]: domSelectors,
+      [W + "config/controlDefinitions.js"]: { focusOnly },
+      [W + "view/buildSettingsIcon.js"]: buildSettingsIcon,
+      [W + "view/dropdownOptionSelection.js"]: { markSelectedOption },
+      [W + "view/panelOutsidePointerBehavior.js"]: { shouldKeepDropdownsOpen },
+      [W + "view/resolveWidgetPlacementContext.js"]: { resolveWidgetEl },
+      [W + "effects/dispatchWidgetSettingsIntent.js"]: { dropdownOption, icon },
+      [W + "effects/startWidgetRenderLoading.js"]: startWidgetRenderLoading
+    }
+  });
   assert.deepStrictEqual(Object.keys(facade).sort(), [
     "ACTION_TYPES", "buildSettingsIcon", "dispatchDropdownOptionIntent", "dispatchIconIntent", "domSelectors", "focusOnlyControls",
     "markSelectedOption", "readWidgetSettings", "resolveWidgetEl", "shouldKeepDropdownsOpen", "startWidgetRenderLoading"
   ]);
-  Object.keys(facade).forEach((key) => {
-    assert.ok(facade[key] !== undefined && facade[key] !== null, key);
-  });
-  const selectors = load("dashboard/widgets/widgetSettings/config/selectors.js");
-  assert.deepStrictEqual(Object.keys(facade.domSelectors).sort(), Object.keys(selectors).sort());
-  assert.equal(facade.domSelectors.panelRootSelectorFor("w1"), selectors.panelRootSelectorFor("w1"));
+  assert.equal(facade.ACTION_TYPES, actionTypes);
+  assert.equal(facade.domSelectors, domSelectors);
+  assert.equal(facade.focusOnlyControls, focusOnly);
+  assert.equal(facade.buildSettingsIcon, buildSettingsIcon);
+  assert.equal(facade.markSelectedOption, markSelectedOption);
+  assert.equal(facade.shouldKeepDropdownsOpen, shouldKeepDropdownsOpen);
+  assert.equal(facade.resolveWidgetEl, resolveWidgetEl);
+  assert.equal(facade.dispatchDropdownOptionIntent, dropdownOption);
+  assert.equal(facade.dispatchIconIntent, icon);
+  assert.equal(facade.startWidgetRenderLoading, startWidgetRenderLoading);
+  assert.equal(typeof facade.readWidgetSettings, "function");
+});
+
+test("widgetSettings selectors.js with the real modules: members exist with the expected types", () => {
+  const facade = load("dashboard/widgets/widgetSettings/selectors.js");
+  assert.equal(facade.domSelectors.panelRootSelectorFor("w1"), load("dashboard/widgets/widgetSettings/config/selectors.js").panelRootSelectorFor("w1"));
   assert.equal(facade.domSelectors.kennzahlenTableAttr, "kdb_kennzahlentable");
-  const controls = load("dashboard/widgets/widgetSettings/config/controlDefinitions.js");
-  assert.deepStrictEqual(JSON.parse(JSON.stringify(facade.focusOnlyControls)), JSON.parse(JSON.stringify(controls.focusOnly)));
   assert.equal(facade.focusOnlyControls.unmaximize.kind, "unmaximize");
   ["buildSettingsIcon", "dispatchDropdownOptionIntent", "dispatchIconIntent", "markSelectedOption", "shouldKeepDropdownsOpen",
     "startWidgetRenderLoading", "resolveWidgetEl"].forEach((key) => assert.equal(typeof facade[key], "function", key));

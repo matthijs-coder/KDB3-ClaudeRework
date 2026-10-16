@@ -625,8 +625,6 @@ KDB3/js/core/services/widgetBindingPlan/
     filterItemIds.js        # filter item id resolution (uses core/utils/rewriteUniqueNameSourceToken.js)
     buildTopNFilter.js      # TopN filter
     buildHierarchyFilter.js # hierarchy filter and downstream display-value sanitising
-  defaults/
-    normalizeDefaultValue.js
 ```
 
 The service owns no state, DOM, emitted events or host adapter, so there are no `state/`, `view/`, `effects/`, `events/` or `adapters/` folders.
