@@ -33,7 +33,7 @@ define([
       return false;
     }
     try {
-      placement.parentNode.insertBefore(helperShell, placement.nextSibling);
+      placement.parentNode.insertBefore(helperShell, readRestoreAnchor(placement));
       _dismissHelperTitleEdit(_KDB, helperWidgetId);
       return true;
     } catch (err) {
@@ -41,6 +41,13 @@ define([
       _dismissHelperTitleEdit(_KDB, helperWidgetId);
       return false;
     }
+  }
+
+  // Concurrent owners can move the captured sibling (another helper in the
+  // same slot) out of the parent before this restore; fall back to append.
+  function readRestoreAnchor(placement) {
+    var anchor = placement.nextSibling;
+    return anchor && anchor.parentNode === placement.parentNode ? anchor : null;
   }
 
   return {
