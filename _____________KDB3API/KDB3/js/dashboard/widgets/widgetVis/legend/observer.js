@@ -78,8 +78,8 @@ define([
           pending.push(_record);
         }
       });
-      if (pending.length > before) {
-        runtime.timers = runtime.timers || {};
+      runtime.timers = runtime.timers || {};
+      if (pending.length > before && !runtime.timers[FRAME_TIMER_KEY]) {
         _kitRuntime.scheduleFrame(runtime.timers, FRAME_TIMER_KEY, flushLegendRecords.bind(null, _deps));
       }
     } catch (err) {

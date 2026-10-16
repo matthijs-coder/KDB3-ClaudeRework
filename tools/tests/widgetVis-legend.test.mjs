@@ -323,3 +323,453 @@ const RECORDED = {
   captions: { sanitize: "1413401f6fddd0ac", hash: "ff5d627dc1d6137b", collapse: "67d833004a5f6024", tooltip: "a1296d12d5f3c4e4", line: "c1f8d8e4a50f4efb" },
   aggregationTitle: "080da46c84acca90"
 };
+
+test("shouldApplyVisualizationProperties skips on mode cleanup alone", () => {
+  const { shouldApplyVisualizationProperties: should } = loadLegend();
+  assert.equal(should({ mode: "cleanup" }, {}, "Line", {}), false);
+  assert.equal(should({ mode: "cleanup", reason: "visType" }, {}, "Line", {}), false);
+  assert.equal(should({ mode: "cleanup" }, {}, "Line", { force: true }), true);
+});
+
+test("isAbortedOutcome", () => {
+  const { isAbortedOutcome } = loadLegend();
+  const aborted = [{ outcome: "aborted" }, { aborted: true }, { reason: "aborted" }, { reason: "aborted-after-effect" }, { reason: "disposed" }];
+  aborted.forEach((outcome) => assert.equal(isAbortedOutcome(outcome), true));
+  [null, undefined, {}, { ok: true }, { reason: "timeout" }, { outcome: "failed" }].forEach((outcome) => assert.equal(isAbortedOutcome(outcome), false));
+});
+
+function createFrameHarness() {
+  const frames = new Map();
+  let nextId = 1;
+  const cancelled = [];
+  const observers = [];
+  class FakeMutationObserver {
+    constructor(callback) {
+      this.callback = callback;
+      this.disconnected = false;
+      this.takeRecordsCalls = 0;
+      observers.push(this);
+    }
+    observe(root, options) { this.root = root; this.options = options; }
+    disconnect() { this.disconnected = true; }
+    takeRecords() { this.takeRecordsCalls += 1; return []; }
+  }
+  const stubs = {
+    requestAnimationFrame: (callback) => { const id = nextId++; frames.set(id, callback); return id; },
+    cancelAnimationFrame: (id) => { cancelled.push(id); frames.delete(id); },
+    MutationObserver: FakeMutationObserver,
+    ...QUIET
+  };
+  const runFrames = () => {
+    const pending = [...frames.entries()];
+    frames.clear();
+    pending.forEach(([, callback]) => callback(0));
+  };
+  return { stubs, frames, cancelled, observers, runFrames };
+}
+
+function createLegendRuntime() {
+  return { observers: {}, timers: {}, domRefs: {} };
+}
+
+test("legend observer sanitizes one animation frame later and coalesces bursts", () => {
+  const harness = createFrameHarness();
+  const { installLegendTextObserver, disconnectLegendTextObserver } = load(W + "legend/observer.js", { stubs: harness.stubs });
+  const runtime = createLegendRuntime();
+  const { host, node } = captionHost("A | B | 2023 | Dst");
+  const log = installLegendTextObserver(fakeElement("div"), {
+    runtime, widgetId: "w1", opSeq: 1, visType: "Line", isStaleOpSeq: () => false
+  });
+  assert.equal(log.action, "installed");
+  assert.equal(harness.observers.length, 1);
+  assert.deepEqual(harness.observers[0].options, {
+    attributes: true, attributeFilter: ["id"], characterData: true, characterDataOldValue: true, childList: true, subtree: true
+  });
+  assert.equal(runtime.observers.legendText, harness.observers[0]);
+
+  const observer = harness.observers[0];
+  observer.callback([{ type: "characterData", target: node }]);
+  observer.callback([{ type: "characterData", target: node }, { type: "characterData", target: { parentElement: fakeElement("div") } }]);
+  assert.equal(node.nodeValue, "A | B | 2023 | Dst");
+  assert.equal(harness.frames.size, 1);
+  assert.equal(runtime.timers.legendTextFrame.kind, "raf");
+  assert.equal(runtime.legendPendingRecords.length, 2);
+
+  harness.runFrames();
+  assert.equal(node.nodeValue, "A | 2023 | Dst");
+  assert.equal(observer.takeRecordsCalls, 1);
+  assert.deepEqual(runtime.legendPendingRecords, []);
+  assert.equal(runtime.timers.legendTextFrame, undefined);
+
+  observer.callback([{ type: "attributes", attributeName: "class", target: host }]);
+  assert.equal(harness.frames.size, 0);
+
+  observer.callback([{ type: "characterData", target: node }]);
+  assert.equal(harness.frames.size, 1);
+  assert.deepEqual(disconnectLegendTextObserver(runtime), { disconnected: true });
+  assert.equal(observer.disconnected, true);
+  assert.equal(harness.frames.size, 0);
+  assert.equal(harness.cancelled.length, 1);
+  assert.deepEqual(runtime.legendPendingRecords, []);
+  assert.equal(runtime.observers.legendText, undefined);
+  assert.deepEqual(disconnectLegendTextObserver(runtime), { disconnected: false });
+  assert.deepEqual(disconnectLegendTextObserver(null), { disconnected: false });
+});
+
+test("legend observer disconnects instead of sanitizing when the op is stale at flush", () => {
+  const harness = createFrameHarness();
+  const { installLegendTextObserver } = load(W + "legend/observer.js", { stubs: harness.stubs });
+  const runtime = createLegendRuntime();
+  const { node } = captionHost("A | B | 2023 | Dst");
+  let stale = false;
+  installLegendTextObserver(fakeElement("div"), { runtime, widgetId: "w1", opSeq: 4, visType: "Line", isStaleOpSeq: () => stale });
+  const observer = harness.observers[0];
+  observer.callback([{ type: "characterData", target: node }]);
+  stale = true;
+  harness.runFrames();
+  assert.equal(node.nodeValue, "A | B | 2023 | Dst");
+  assert.equal(observer.disconnected, true);
+  assert.equal(runtime.observers.legendText, undefined);
+});
+
+test("legend observer install skips for cleanup mode, stale op, missing root and replaces the previous observer", () => {
+  const harness = createFrameHarness();
+  const { installLegendTextObserver } = load(W + "legend/observer.js", { stubs: harness.stubs });
+  const runtime = createLegendRuntime();
+  const root = fakeElement("div");
+  assert.equal(installLegendTextObserver(root, { runtime, widgetId: "w1", opSeq: 1, mode: "cleanup" }).reason, "cleanup");
+  assert.equal(installLegendTextObserver(root, { runtime, widgetId: "w1", opSeq: 1, reason: "cleanup", forceEmpty: true }).action, "installed");
+  assert.equal(installLegendTextObserver(root, { runtime, widgetId: "w1", opSeq: 1, isStaleOpSeq: () => true }).reason, "stale_op_seq");
+  assert.equal(installLegendTextObserver(null, { runtime, widgetId: "w1", opSeq: 1, skipReason: "no_content" }).reason, "no_content");
+  assert.equal(installLegendTextObserver(root, { widgetId: "w1", opSeq: 1 }).reason, "no_query_root");
+  assert.equal(harness.observers.length, 1);
+  const second = installLegendTextObserver(root, { runtime, widgetId: "w1", opSeq: 2, isShell: true });
+  assert.equal(second.previousObserverDisconnected, true);
+  assert.equal(second.observeRoot, "shell");
+  assert.equal(harness.observers[0].disconnected, true);
+  assert.equal(runtime.observers.legendText, harness.observers[1]);
+});
+
+function createShellStubs(contentEl) {
+  const shell = { querySelector: () => contentEl };
+  return {
+    document: { getElementById: (id) => (id === "w1" ? shell : null), querySelector: () => null },
+    ...QUIET
+  };
+}
+
+test("sweepLegendCaptions sanitizes, installs the observer and records dom refs", () => {
+  const harness = createFrameHarness();
+  const caption = fakeElement("span", { text: "A | B | 2023 | Dst" });
+  const content = fakeElement("div", {
+    matches: ["[data-kdb-widget-content]"],
+    lists: { ".Legend .legendCaption, .legend .legendCaption": [caption] }
+  });
+  const stubs = { ...harness.stubs, ...createShellStubs(content) };
+  const sweep = load(W + "legend/sweep.js", { stubs });
+  const runtime = createLegendRuntime();
+  const result = sweep.sweepLegendCaptions(runtime, "w1", { widgetId: "w1", opSeq: 1, visType: "Line", runtime, isStaleOpSeq: () => false });
+  assert.equal(caption.textContent, "A | 2023 | Dst");
+  assert.equal(result.captionsChanged, 1);
+  assert.equal(result.observer.action, "installed");
+  assert.equal(runtime.domRefs.contentEl, content);
+  assert.equal(harness.observers.length, 1);
+
+  assert.deepEqual(sweep.sweepLegendCaptions(runtime, "missing", { runtime }), { skipped: "no_query_root", observer: { action: "skipped", reason: "no_query_root" } });
+  assert.equal(sweep.installLegendObserverBeforeApply(runtime, "w1", { opSeq: 2, mode: "cleanup" }).reason, "cleanup");
+  assert.equal(harness.observers.length, 1);
+  assert.equal(sweep.installLegendObserverBeforeApply(runtime, "w1", { opSeq: 2, visType: "Line", dimension: "Jahr" }).action, "installed");
+  assert.equal(harness.observers.length, 2);
+  assert.equal(harness.observers[0].disconnected, true);
+  assert.deepEqual(sweep.installLegendObserverBeforeApply(runtime, "missing", {}), { action: "skipped", reason: "no_query_root" });
+  assert.deepEqual(sweep.disconnectLegendTextObserver(runtime), { disconnected: true });
+});
+
+function loadPostRender(overrides) {
+  const calls = [];
+  const record = (name, result) => (...args) => { calls.push([name, ...args]); return typeof result === "function" ? result(...args) : result; };
+  const modules = {
+    "../legend/sweep.js": {
+      sweepLegendCaptions: record("sweep", () => ({ action: "swept" })),
+      disconnectLegendTextObserver: record("disconnectLegend", { disconnected: true })
+    },
+    "../drillthrough/install.js": {
+      installDrillthrough: record("drillthrough", { ok: true }),
+      cleanupDrillthroughDecorations: record("cleanupDrillthrough")
+    },
+    "../focus/focusMode.js": {
+      exitNativeFocus: record("exitFocus"),
+      disposeFocusMode: record("disposeFocus", { ok: true, diagnostics: { focus: true } })
+    },
+    "../focus/maximizeIcon.js": {
+      installCanvasMaximize: record("maximize", { ok: true }),
+      cleanupCanvasMaximize: record("cleanupMaximize")
+    },
+    ...(overrides || {})
+  };
+  const stubs = { document: { getElementById: () => null, querySelector: () => null }, ...QUIET };
+  return { postRender: load(W + "render/postRender.js", { stubs, modules }), calls };
+}
+
+function buildPostRenderKdb() {
+  return { state: { widgets: { vis: { byId: { w1: { derived: { code: "K1" } } } } } }, runtime: { widgetVis: { byId: {} } } };
+}
+
+test("applyPostRenderCleanup runs title, legend, tooltip, drillthrough and maximize in order", () => {
+  const { postRender, calls } = loadPostRender();
+  const root = fakeElement("div", { lists: { "[data-kdb-pipe-parts]": [] } });
+  const result = postRender.applyPostRenderCleanup({
+    _KDB: buildPostRenderKdb(),
+    widgetId: "w1",
+    opSeq: 3,
+    input: { metric: { display: "Anzahl" }, settings: { dimension: "Jahr", visType: "Line" }, mode: "x" },
+    plan: { reason: "dimension" },
+    runtime: { domRefs: { contentEl: root, titleLinkEl: { textContent: "" } } },
+    isStaleOpSeq: () => false
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.titleText, "Anzahl nach Jahr");
+  assert.deepEqual(calls.map((call) => call[0]), ["sweep", "drillthrough", "maximize"]);
+  assert.deepEqual(calls[0].slice(2, 3), ["w1"]);
+  assert.deepEqual(
+    { reason: calls[0][3].reason, mode: calls[0][3].mode, dimension: calls[0][3].dimension, visType: calls[0][3].visType, opSeq: calls[0][3].opSeq },
+    { reason: "dimension", mode: "x", dimension: "Jahr", visType: "Line", opSeq: 3 }
+  );
+  assert.deepEqual(Object.keys(result.diagnostics), ["title", "legend", "tooltip", "drillthrough", "maximize", "stale"]);
+  assert.deepEqual(result.diagnostics.tooltip, { scanned: 0, annotated: 0 });
+  assert.deepEqual(result.diagnostics.legend, { action: "swept" });
+});
+
+test("applyPostRenderCleanup reports stale ops and keeps ok when a decoration step throws", () => {
+  const stale = loadPostRender();
+  const staleResult = stale.postRender.applyPostRenderCleanup({ _KDB: {}, widgetId: "w1", opSeq: 1, isStaleOpSeq: () => true });
+  assert.deepEqual(staleResult, {
+    ok: false, stale: true, titleText: "",
+    diagnostics: { title: null, legend: null, tooltip: null, drillthrough: null, maximize: null, stale: true }
+  });
+  assert.deepEqual(stale.calls, []);
+
+  const failing = loadPostRender({
+    "../drillthrough/install.js": { installDrillthrough() { throw new Error("dom"); }, cleanupDrillthroughDecorations() {} }
+  });
+  const result = failing.postRender.applyPostRenderCleanup({
+    _KDB: buildPostRenderKdb(), widgetId: "w1", opSeq: 1, input: { metric: { display: "X" } }, runtime: {}, isStaleOpSeq: () => false
+  });
+  assert.equal(result.ok, true);
+  assert.equal(result.titleText, "X");
+  assert.equal(result.diagnostics.decorationError, "dom");
+  assert.deepEqual(failing.calls.map((call) => call[0]), ["sweep"]);
+});
+
+test("cleanupVisualizationContent resets runtime fields and converts failures", () => {
+  const { postRender, calls } = loadPostRender();
+  const runtime = {
+    lastSuccessfulPlan: { x: 1 },
+    lastAppliedVisPropertiesType: "Line",
+    domRefs: { contentEl: fakeElement("div"), headerEl: {}, titleLinkEl: { textContent: "T" } }
+  };
+  const result = postRender.cleanupVisualizationContent({}, { widgetId: "w1", opSeq: 2, runtime, payload: { clearDrillthrough: true, clearDomDecorations: false } });
+  assert.equal(result.ok, true);
+  assert.deepEqual(calls.map((call) => call[0]), ["exitFocus", "disposeFocus", "disconnectLegend", "cleanupMaximize", "cleanupDrillthrough"]);
+  assert.equal(runtime.lastSuccessfulPlan, null);
+  assert.equal(runtime.lastAppliedVisPropertiesType, null);
+  assert.deepEqual(runtime.domRefs, { contentEl: null, headerEl: null, titleLinkEl: null });
+  assert.deepEqual(result.diagnostics.runtimeReset, { lastSuccessfulPlan: true, lastAppliedVisPropertiesType: true, domRefsCleared: true });
+  assert.deepEqual(result.diagnostics.focusMode, { focus: true });
+
+  const stale = postRender.cleanupVisualizationContent({}, { widgetId: "w1", opSeq: 2, runtime, isStaleOpSeq: () => true });
+  assert.equal(stale.stale, true);
+  assert.equal(stale.ok, false);
+
+  const failing = loadPostRender({
+    "../focus/maximizeIcon.js": { installCanvasMaximize() {}, cleanupCanvasMaximize() { throw new Error("boom"); } }
+  });
+  const failed = failing.postRender.cleanupVisualizationContent({}, { widgetId: "w1", opSeq: 2, runtime: {} });
+  assert.equal(failed.ok, false);
+  assert.equal(failed.errorCode, "WIDGET_VIS_CLEANUP_FAILED");
+  assert.equal(failed.errorMessage, "boom");
+});
+
+test("cleanupVisualizationContent clears dom decorations when requested", () => {
+  const { postRender } = loadPostRender();
+  const marked = { removeAttribute: (name) => { marked.removed = name; } };
+  const title = { classList: { contains: () => true, remove: (name) => { title.removedClass = name; } } };
+  const queryRoot = fakeElement("div", {
+    lists: { "[data-kdb-pipe-parts]": [marked], ".Legend .lgd-title, .legend .lgd-title": [title] }
+  });
+  const runtime = { domRefs: { contentEl: queryRoot, titleLinkEl: { textContent: "T" } } };
+  const result = postRender.cleanupVisualizationContent({}, { widgetId: "w1", opSeq: 1, runtime, payload: { clearDomDecorations: true } });
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.diagnostics.tooltip, { removed: 1 });
+  assert.deepEqual(result.diagnostics.legend, { kdbVisibleReverted: 1 });
+  assert.deepEqual(result.diagnostics.titleLink, { cleared: true, unwrapped: false, titleAttrRemoved: false });
+  assert.equal(marked.removed, "data-kdb-pipe-parts");
+  assert.equal(title.removedClass, "KDB_visible");
+});
+
+test("applyPrognoseSeriesSegmentIndexes writes segment indexes only for prognose plans", async () => {
+  const { postRender } = loadPostRender();
+  const writes = [];
+  const facet = { setContentProperty: async (id, key, value) => { writes.push([id, key, value]); return { ok: true }; } };
+  const _KDB = { runtime: { widgetVis: { visualizationFacet: facet } } };
+  const plan = (visType, columnIds) => ({ visualization: { visType }, slots: [{ slotName: "x", columnIds: ["no"] }, { slotName: "series", columnIds }] });
+  const columns = ["[a]", "[Personal_KDB_TM1].[Stichtag].[Stichtag].[Stichtag]", "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]"];
+  assert.deepEqual(await postRender.applyPrognoseSeriesSegmentIndexes(_KDB, plan("Prognose", columns), "w1", null, {}), { ok: true, aborted: false });
+  assert.deepEqual(writes, [["w1", "series.year.segmentIndex", 2], ["w1", "series.prognose.segmentIndex", 1]]);
+  writes.length = 0;
+  const skipped = { ok: true, skipped: true };
+  assert.deepEqual(await postRender.applyPrognoseSeriesSegmentIndexes(_KDB, plan("Line", columns), "w1", null, {}), skipped);
+  assert.deepEqual(await postRender.applyPrognoseSeriesSegmentIndexes(_KDB, plan("Prognose", ["[a]"]), "w1", null, {}), skipped);
+  assert.deepEqual(await postRender.applyPrognoseSeriesSegmentIndexes(_KDB, { slots: [] }, "w1", null, { visType: "prognose" }), skipped);
+  assert.deepEqual(await postRender.applyPrognoseSeriesSegmentIndexes(_KDB, plan("Prognose", columns), "", null, {}), skipped);
+  assert.deepEqual(await postRender.applyPrognoseSeriesSegmentIndexes({}, plan("Prognose", columns), "w1", null, {}), skipped);
+  assert.deepEqual(await postRender.applyPrognoseSeriesSegmentIndexes(_KDB, plan("Prognose", columns), "w1", { aborted: true }, {}), skipped);
+  assert.deepEqual(writes, []);
+  const controller = new AbortController();
+  const abortingFacet = { setContentProperty: async () => { controller.abort(); return { ok: true }; } };
+  const aborted = await postRender.applyPrognoseSeriesSegmentIndexes(
+    { runtime: { widgetVis: { visualizationFacet: abortingFacet } } }, plan("Prognose", columns), "w1", controller.signal, {}
+  );
+  assert.deepEqual(aborted, { ok: true, skipped: true, aborted: true });
+});
+
+function loadDisplayOptions() {
+  return load(W + "render/displayOptions.js", { stubs: QUIET });
+}
+
+function buildDisplayContext(facet, withRecord = true) {
+  return {
+    _KDB: { runtime: { widgetVis: facet ? { visualizationFacet: facet } : {} }, config: { options: {} } },
+    selectors: { readVisRecord: () => (withRecord ? { derived: {} } : undefined) }
+  };
+}
+
+function recordingFacet(failKey) {
+  const writes = [];
+  return {
+    writes,
+    setContentProperty: async (id, key, value) => {
+      writes.push([id, key, value]);
+      if (key === failKey) { return { ok: false, errorCode: "E_WRITE" }; }
+      return { ok: true };
+    }
+  };
+}
+
+test("handleApplyShowValues envelopes", async () => {
+  const { handleApplyShowValues } = loadDisplayOptions();
+  const action = (payload) => ({ widgetId: "w1", opSeq: 7, payload });
+  const base = { nextValue: true, previousValue: false, settingsSnapshot: { visType: "Line" } };
+  const facet = recordingFacet();
+  const ok = await handleApplyShowValues(buildDisplayContext(facet), action(base));
+  assert.equal(ok.ok, true);
+  assert.deepEqual(ok.reportToSettings, { control: "showValues", previousValue: false, nextValue: true });
+  assert.deepEqual(facet.writes.map((write) => write[1]), ["valueLabels.visible", "labels.visible", "contrast.label.color", "valueLabels.color"]);
+
+  const list = await handleApplyShowValues(buildDisplayContext(recordingFacet()), action({ ...base, settingsSnapshot: { visType: "List" } }));
+  assert.equal(list.skipped, true);
+  assert.equal(list.reason, "list");
+
+  const missingRecord = await handleApplyShowValues(buildDisplayContext(facet, false), action(base));
+  assert.equal(missingRecord.errorCode, "WIDGET_VIS_CONTENT_CONTEXT_MISSING");
+  assert.equal(missingRecord.ok, false);
+  const badValue = await handleApplyShowValues(buildDisplayContext(facet), action({ ...base, nextValue: "yes" }));
+  assert.equal(badValue.errorCode, "WIDGET_VIS_SETTINGS_SNAPSHOT_INCOMPLETE");
+  const noVisType = await handleApplyShowValues(buildDisplayContext(facet), action({ ...base, settingsSnapshot: {} }));
+  assert.equal(noVisType.errorCode, "WIDGET_VIS_SETTINGS_SNAPSHOT_INCOMPLETE");
+  const noFacet = await handleApplyShowValues(buildDisplayContext(null), action(base));
+  assert.equal(noFacet.errorCode, "WIDGET_VIS_FACET_MISSING");
+  const writeFailed = await handleApplyShowValues(buildDisplayContext(recordingFacet("labels.visible")), action(base));
+  assert.equal(writeFailed.errorCode, "E_WRITE");
+  const throwing = { setContentProperty: async () => { throw new Error("boom"); } };
+  const thrown = await handleApplyShowValues(buildDisplayContext(throwing), action(base));
+  assert.deepEqual([thrown.ok, thrown.errorCode, thrown.status, thrown.widgetId, thrown.opSeq], [false, "WIDGET_VIS_FACET_MISSING", "error", "w1", 7]);
+});
+
+test("handleApplyIteratorZoom envelopes", async () => {
+  const { handleApplyIteratorZoom } = loadDisplayOptions();
+  const action = (payload) => ({ widgetId: "w1", opSeq: 9, payload });
+  const base = { control: "zoom", nextValue: true, previousValue: false, settingsSnapshot: { visType: "Line" } };
+  const facet = recordingFacet();
+  const ok = await handleApplyIteratorZoom(buildDisplayContext(facet), action(base));
+  assert.equal(ok.ok, true);
+  assert.deepEqual(ok.reportToSettings, { control: "zoom", previousValue: false, nextValue: true });
+  assert.deepEqual(facet.writes, [["w1", "zoom.bar.enable", true]]);
+
+  const noHost = await handleApplyIteratorZoom(buildDisplayContext(facet), action({ ...base, settingsSnapshot: { visType: "Pie" } }));
+  assert.equal(noHost.skipped, true);
+  assert.equal(noHost.reportToSettings, undefined);
+  const listOn = await handleApplyIteratorZoom(buildDisplayContext(facet), action({ ...base, settingsSnapshot: { visType: "List" } }));
+  assert.equal(listOn.skipped, true);
+  assert.equal(listOn.reason, "list");
+  const listOff = await handleApplyIteratorZoom(buildDisplayContext(facet), action({ ...base, nextValue: false, settingsSnapshot: { visType: "List" } }));
+  assert.equal(listOff.skipped, false);
+  assert.deepEqual(listOff.reportToSettings, { control: "zoom", previousValue: false, nextValue: false });
+
+  for (const control of ["bogus", undefined, "constructor"]) {
+    const result = await handleApplyIteratorZoom(buildDisplayContext(facet), action({ ...base, control }));
+    assert.equal(result.errorCode, "WIDGET_VIS_SETTINGS_SNAPSHOT_INCOMPLETE");
+  }
+  assert.equal((await handleApplyIteratorZoom(buildDisplayContext(facet, false), action(base))).errorCode, "WIDGET_VIS_CONTENT_CONTEXT_MISSING");
+  assert.equal((await handleApplyIteratorZoom(buildDisplayContext(null), action(base))).errorCode, "WIDGET_VIS_FACET_MISSING");
+  assert.equal((await handleApplyIteratorZoom(buildDisplayContext(recordingFacet("zoom.bar.enable")), action(base))).errorCode, "E_WRITE");
+});
+
+test("applyPreRenderTitle maps facet outcomes", async () => {
+  const { applyPreRenderTitle } = load(W + "render/title.js", { stubs: { document: { getElementById: () => null, querySelector: () => null }, ...QUIET } });
+  const kdb = (setVisTitle) => ({ config: { options: {} }, api: {}, runtime: { widgetVis: setVisTitle ? { visualizationFacet: { setVisTitle } } : {} } });
+  const options = (setVisTitle) => ({ _KDB: kdb(setVisTitle), widgetId: "w1", metric: { display: "Anzahl" }, settings: {}, signal: "SIG" });
+  let seen;
+  assert.deepEqual(await applyPreRenderTitle(options(async (id, text, opts) => { seen = [id, text, opts.signal]; return { ok: true }; })), { updated: true, titleText: "Anzahl" });
+  assert.deepEqual(seen, ["w1", "Anzahl", "SIG"]);
+  assert.deepEqual(await applyPreRenderTitle(options(async () => ({ reason: "disposed" }))), { updated: false, aborted: true });
+  assert.deepEqual(await applyPreRenderTitle(options(async () => ({ ok: false }))), { updated: false });
+  assert.deepEqual(await applyPreRenderTitle(options(null)), { updated: false });
+  assert.deepEqual(await applyPreRenderTitle({ _KDB: kdb(async () => ({ ok: true })), widgetId: "w1", metric: {}, settings: {} }), { updated: false });
+  assert.deepEqual(await applyPreRenderTitle(options(async () => { throw new Error("nope"); })), { updated: false, error: "nope" });
+});
+
+test("applyVisualizationProperties maps the phases and records the applied vis type", async () => {
+  const { applyVisualizationProperties } = load(W + "render/visProperties.js", { stubs: QUIET });
+  const _KDB = { config: { options: {} }, api: {}, properties: {} };
+  load("core/config/__orchestratorConfig.js")(_KDB);
+  const writes = [];
+  const facet = {
+    getVisType: async () => ({ ok: true, data: "other" }),
+    setVisType: async (id, type) => { writes.push(["type", id, type]); return { ok: true }; },
+    setContentProperty: async (id, key, value) => { writes.push([id, key, value]); return { ok: true }; }
+  };
+  _KDB.runtime = { widgetVis: { visualizationFacet: facet } };
+  const runtime = {};
+  const result = await applyVisualizationProperties(_KDB, { widgetId: "w1", visualizationType: "Line", runtime, input: { reason: "visType" } });
+  assert.equal(result.ok, true);
+  assert.equal(runtime.lastAppliedVisPropertiesType, "Line");
+  assert.equal(writes[0][0], "type");
+  const preKeys = writes.map((write) => write[1]);
+  assert.equal(preKeys.includes("titleMode"), true);
+
+  writes.length = 0;
+  const post = await applyVisualizationProperties(_KDB, { widgetId: "w1", visualizationType: "Line", runtime, input: {}, phase: "postRender" });
+  assert.equal(post.ok, true);
+  assert.equal(writes.map((write) => write[1]).includes("titleMode"), false);
+
+  writes.length = 0;
+  const unchanged = await applyVisualizationProperties(_KDB, { widgetId: "w1", visualizationType: "Line", runtime, input: { reason: "dimension" } });
+  assert.deepEqual([unchanged.ok, unchanged.skipped, unchanged.diagnostics.skipReason], [true, true, "visTypeUnchanged"]);
+  const cleanup = await applyVisualizationProperties(_KDB, { widgetId: "w1", visualizationType: "Line", runtime: {}, input: { mode: "cleanup" } });
+  assert.deepEqual([cleanup.ok, cleanup.skipped], [true, true]);
+  assert.deepEqual(writes, []);
+
+  const noWidget = await applyVisualizationProperties(_KDB, { visualizationType: "Line" });
+  assert.deepEqual([noWidget.ok, noWidget.skipped, noWidget.diagnostics.blockers], [false, true, ["widgetId"]]);
+  const noFacet = await applyVisualizationProperties({ runtime: {}, config: _KDB.config }, { widgetId: "w1", visualizationType: "Line", input: {} });
+  assert.deepEqual(noFacet.diagnostics.blockers, ["cognosHost.visualization"]);
+  const controller = new AbortController();
+  controller.abort();
+  const aborted = await applyVisualizationProperties(_KDB, { widgetId: "w1", visualizationType: "Line", runtime: {}, input: {}, signal: controller.signal });
+  assert.deepEqual([aborted.ok, aborted.aborted], [false, true]);
+  _KDB.runtime.widgetVis.visualizationFacet = { ...facet, getVisType: async () => { throw new Error("host"); } };
+  const thrown = await applyVisualizationProperties(_KDB, { widgetId: "w1", visualizationType: "Line", runtime: {}, input: {} });
+  assert.equal(thrown.ok, false);
+  assert.deepEqual(thrown.diagnostics.failed, [{ group: "ensureVisType", key: null, errorMessage: "host" }]);
+});
