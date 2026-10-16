@@ -9,6 +9,7 @@ define(["../../utils/kit/runtime.js"], function (_rt) {
     var runtime = _rt.ensureRuntime(_KDB, "loadingService");
     TIMER_MAPS.forEach(function (name) { runtime.timers[name] = runtime.timers[name] || {}; });
     DOM_MAPS.forEach(function (name) { runtime.domRefs[name] = runtime.domRefs[name] || {}; });
+    runtime.watchdogHandlersByMountKey = runtime.watchdogHandlersByMountKey || {};
     return runtime;
   }
 

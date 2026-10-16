@@ -298,6 +298,15 @@ test('destroy releases the root namespaces and is idempotent', async () => {
   assert.deepEqual(h.log, []);
 });
 
+test('destroy nulls runtime.homeDialog (DELTA: it was left stamped)', async () => {
+  const h = createHarness();
+  const kdb = h.createKdb();
+  await kdb.renderKDB({});
+  assert.equal(typeof kdb.runtime.homeDialog.presentCubesUnavailable, 'function');
+  kdb.destroy();
+  assert.equal(kdb.runtime.homeDialog, null);
+});
+
 test('destroy disposes the event bus: handlers are dropped and late events are ignored', async () => {
   const h = createHarness();
   const kdb = h.createKdb();

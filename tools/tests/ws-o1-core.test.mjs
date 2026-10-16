@@ -306,7 +306,7 @@ test('authoring: mount keeps an existing state slice', () => {
 
 // ------------------------------------------------------------ homeDialog
 
-test('homeDialog orchestrator: existing labels win, 4 runtime keys are set', () => {
+test('homeDialog orchestrator: existing labels win, the runtime keys are set', () => {
   const { console } = silentConsole();
   const kdb = { config: { labels: { de: { homeDialog: { closeLabel: 'Custom close' } } } }, services: {} };
   const dataSources = { hasErrorDataSource() {} };
@@ -330,6 +330,7 @@ test('homeDialog orchestrator: existing labels win, 4 runtime keys are set', () 
   assert.equal(runtime.dashboardFacet, dashboard);
   assert.equal(typeof runtime.presentHomeChoice, 'function');
   assert.equal(typeof runtime.presentCubesUnavailable, 'function');
+  assert.equal(runtime.unregisterWatchdog, null, 'no loading service: nothing registered');
 });
 
 test('homeDialog orchestrator: without cognosHost the facets are null; empty KDB works', () => {
@@ -338,7 +339,7 @@ test('homeDialog orchestrator: without cognosHost the facets are null; empty KDB
   const runtime = load('core/homeDialog/__orchestratorHomeDialog.js', { stubs: { console } })(kdb);
   assert.equal(runtime.dataSourcesFacet, null);
   assert.equal(runtime.dashboardFacet, null);
-  assert.deepEqual(Object.keys(runtime).sort(), ['dashboardFacet', 'dataSourcesFacet', 'presentCubesUnavailable', 'presentHomeChoice']);
+  assert.deepEqual(Object.keys(runtime).sort(), ['dashboardFacet', 'dataSourcesFacet', 'presentCubesUnavailable', 'presentHomeChoice', 'unregisterWatchdog']);
   assert.equal(kdb.config.labels.de.homeDialog.closeLabel, 'Dashboard schließen');
 });
 
@@ -438,4 +439,34 @@ test('presentCubesUnavailable: shows the choice only when a data source has an e
   await none.kdb.runtime.homeDialog.presentCubesUnavailable(none.kdb);
   assert.equal(none.choose.length, 0);
   assert.equal(none.calls.warn.length, 1);
+});
+
+test('homeDialog: registers the boot watchdog handler and forwards the payload to presentHomeChoice', async () => {
+  const { kdb, choose } = setupHomeDialog({ choice: null });
+  const registered = [];
+  const unregister = () => registered.push('unregistered');
+  kdb.services.loading = { registerWatchdogHandler: (key, fn) => { registered.push([key, fn]); return unregister; } };
+  const { console } = silentConsole();
+  load('core/homeDialog/__orchestratorHomeDialog.js', { stubs: { console } })(kdb);
+  assert.equal(registered.length, 1);
+  assert.equal(registered[0][0], 'kdb-root-loading-animation-mount');
+  assert.equal(kdb.runtime.homeDialog.unregisterWatchdog, unregister);
+  await registered[0][1]({ title: 'T', message: 'M', code: 'LOADING_WATCHDOG', severity: 'warning', mountKey: 'kdb-root-loading-animation-mount' });
+  assert.equal(choose.length, 1);
+  assert.deepEqual([choose[0].title, choose[0].code, choose[0].severity], ['T', 'LOADING_WATCHDOG', 'warning']);
+  assert.equal(choose[0].message, 'M\n\nWechseln Sie zur Startseite.');
+});
+
+test('homeDialog destroy: unregisters the watchdog handler and nulls runtime.homeDialog (safe without a runtime)', () => {
+  const destroy = load('core/homeDialog/destroyHomeDialog.js');
+  let unregistered = 0;
+  const kdb = { runtime: { homeDialog: { unregisterWatchdog: () => { unregistered += 1; } } } };
+  destroy(kdb);
+  assert.equal(unregistered, 1);
+  assert.equal(kdb.runtime.homeDialog, null);
+  assert.doesNotThrow(() => destroy(kdb));
+  assert.doesNotThrow(() => destroy({}));
+  const noUnregister = { runtime: { homeDialog: {} } };
+  destroy(noUnregister);
+  assert.equal(noUnregister.runtime.homeDialog, null);
 });

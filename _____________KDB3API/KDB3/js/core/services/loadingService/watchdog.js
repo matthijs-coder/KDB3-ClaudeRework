@@ -7,25 +7,49 @@ define(["../../utils/kit/runtime.js", "./config.js", "./state.js"], function (_r
     return typeof value === "string" ? value : "";
   }
 
-  // The boot overlay is the only one that offers the home dialog. Reading homeDialog's runtime function
-  // is transitional (Phase 2 replaces it with a callback registered by homeDialog); keep it in this one place.
-  async function presentWatchdog(_KDB) {
-    var title = readWatchdogLabel(_KDB, "watchdogTitle");
-    var message = readWatchdogLabel(_KDB, "watchdogBody");
-    var presentHomeChoice = _KDB.runtime && _KDB.runtime.homeDialog ? _KDB.runtime.homeDialog.presentHomeChoice : null;
+  function logHandlerFailure(error) {
+    console.error("[loadingService.presentWatchdog] failed", error);
+  }
+
+  // Handlers are owners that want to react when the overlay for their mount key timed out (the boot overlay
+  // offers the home dialog). Each gets its own payload copy; failures are logged and never escape the timer.
+  function presentWatchdog(_KDB, mountKey) {
+    var handlers = (_state.ensureLoadingRuntime(_KDB).watchdogHandlersByMountKey[mountKey] || []).slice();
+    var title;
+    var message;
+    if (!handlers.length) {
+      return;
+    }
+    title = readWatchdogLabel(_KDB, "watchdogTitle");
+    message = readWatchdogLabel(_KDB, "watchdogBody");
     if (!title || !message) {
       console.warn("[loadingService.presentWatchdog] loading watchdog labels are empty");
       return;
     }
-    if (typeof presentHomeChoice !== "function") {
-      console.warn("[loadingService.presentWatchdog] runtime.homeDialog.presentHomeChoice is missing");
-      return;
+    handlers.forEach(function (handler) {
+      try {
+        Promise.resolve(handler({ title: title, message: message, code: "LOADING_WATCHDOG", severity: "warning", mountKey: mountKey })).catch(logHandlerFailure);
+      } catch (error) {
+        logHandlerFailure(error);
+      }
+    });
+  }
+
+  function registerWatchdogHandler(_KDB, mountKey, handler) {
+    var byMountKey = _state.ensureLoadingRuntime(_KDB).watchdogHandlersByMountKey;
+    if (typeof mountKey !== "string" || !mountKey || typeof handler !== "function") {
+      console.warn("[loadingService.registerWatchdogHandler] rejected: a mountKey string and a handler function are required");
+      return function noopUnregister() {};
     }
-    try {
-      await presentHomeChoice(_KDB, { title: title, message: message, code: "LOADING_WATCHDOG", severity: "warning" });
-    } catch (error) {
-      console.error("[loadingService.presentWatchdog] failed", error);
-    }
+    byMountKey[mountKey] = (byMountKey[mountKey] || []).concat([handler]);
+    return function unregisterWatchdogHandler() {
+      var remaining = (byMountKey[mountKey] || []).filter(function (candidate) { return candidate !== handler; });
+      if (remaining.length) {
+        byMountKey[mountKey] = remaining;
+      } else {
+        delete byMountKey[mountKey];
+      }
+    };
   }
 
   function runWatchdog(_KDB, mountEl, mountKey) {
@@ -38,9 +62,7 @@ define(["../../utils/kit/runtime.js", "./config.js", "./state.js"], function (_r
       console.error("[loadingService.runWatchdog] failed", { mountKey: mountKey }, error);
       return;
     }
-    if (mountKey === _config.BOOT_MOUNT_KEY) {
-      presentWatchdog(_KDB);
-    }
+    presentWatchdog(_KDB, mountKey);
   }
 
   function scheduleLoadingWatchdog(_KDB, options) {
@@ -56,6 +78,7 @@ define(["../../utils/kit/runtime.js", "./config.js", "./state.js"], function (_r
 
   return {
     clearWatchdog: clearWatchdog,
+    registerWatchdogHandler: registerWatchdogHandler,
     scheduleLoadingWatchdog: scheduleLoadingWatchdog
   };
 });
