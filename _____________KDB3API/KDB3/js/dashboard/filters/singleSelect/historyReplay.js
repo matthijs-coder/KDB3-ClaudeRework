@@ -181,7 +181,7 @@ define([
     }
     try {
       ack = await api.dispatch({
-        type: "specialSingleSelect/userSelectionCommitted",
+        type: _ownerNotify.ownerActions.specialCommitted,
         payload: {
           filterId: filterId,
           filterInstanceId: _record.filterInstanceId,

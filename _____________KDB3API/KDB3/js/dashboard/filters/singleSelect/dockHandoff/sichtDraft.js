@@ -4,8 +4,8 @@ define([
 ], function (_config, _ownerNotify) {
   "use strict";
 
-  var DRAFT_CHANGED = "sicht/singleSelectDraftChanged";
-  var DRAFT_REVERTED = "sicht/singleSelectDraftReverted";
+  var DRAFT_CHANGED = _ownerNotify.ownerActions.sichtDraftChanged;
+  var DRAFT_REVERTED = _ownerNotify.ownerActions.sichtDraftReverted;
 
   function readSichtOwnerApi(_KDB) {
     return _KDB && _KDB.api && _KDB.api.sicht &&

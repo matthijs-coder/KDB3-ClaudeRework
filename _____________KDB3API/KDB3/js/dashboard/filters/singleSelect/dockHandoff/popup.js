@@ -1,8 +1,9 @@
 define([
   "../config.js",
   "../state/instance.js",
-  "../state/selection.js"
-], function (_config, _instance, _selectionState) {
+  "../state/selection.js",
+  "../../filterDock/state.js"
+], function (_config, _instance, _selectionState, _filterDockState) {
   "use strict";
 
   var selectors = _config.domSelectors;
@@ -39,7 +40,7 @@ define([
       return;
     }
     _KDB.api.filterDock.dispatch({
-      type: "filterDock/clickOriginalButtonRequested",
+      type: _filterDockState.ACTIONS.CLICK_ORIGINAL_BUTTON_REQUESTED,
       payload: {
         filterKey: _handoffContext.filterKey,
         filterId: _handoffContext.filterId,
@@ -58,7 +59,7 @@ define([
       return;
     }
     _KDB.api.filterDock.dispatch({
-      type: "filterDock/closeActivePopupRequested",
+      type: _filterDockState.ACTIONS.CLOSE_ACTIVE_POPUP_REQUESTED,
       payload: {}
     });
   }

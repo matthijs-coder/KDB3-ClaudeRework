@@ -5,8 +5,9 @@ define([
   "./view.js",
   "./availability.js",
   "./operations.js",
-  "../singleSelect/selectors.js"
-], function (_config, _state, _selectors, _view, _availability, _operations, _singleSelectSelectors) {
+  "../singleSelect/selectors.js",
+  "../singleSelect/config.js"
+], function (_config, _state, _selectors, _view, _availability, _operations, _singleSelectSelectors, _singleSelectConfig) {
   "use strict";
 
   var actions = _state.actions;
@@ -104,8 +105,8 @@ define([
       }
       dispatchType =
         _actionType === actions.FILTER_DOCK_POPUP_READY
-          ? "singleSelect/filterDockPopupReady"
-          : "singleSelect/filterDockStateChanged";
+          ? _singleSelectConfig.actions.FILTER_DOCK_POPUP_READY
+          : _singleSelectConfig.actions.FILTER_DOCK_STATE_CHANGED;
       result = api.dispatch({
         type: dispatchType,
         payload: buildDelegatedPayload(
@@ -249,7 +250,7 @@ define([
     }
     try {
       var result = await dispatch({
-        type: "singleSelect/applyOwnerSelection",
+        type: _singleSelectConfig.actions.APPLY_OWNER_SELECTION,
         payload: Object.assign({ notifyOwner: "sicht", skipHistory: true }, _payload)
       });
       if (!result || result.ok !== true) {

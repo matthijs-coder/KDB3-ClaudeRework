@@ -19,7 +19,7 @@ define([
         return failureResult(codes.OWNER_SELECTION_INVALID, "sicht owner dispatch API unavailable");
       }
       var ack = await api.dispatch({
-        type: "sicht/singleSelectCommitted",
+        type: _ownerNotify.ownerActions.sichtCommitted,
         payload: {
           filterInstanceId: _handoff.filterInstanceId || null,
           filterLabel: _handoff.filterLabel || null,

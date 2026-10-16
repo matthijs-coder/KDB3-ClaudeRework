@@ -1,14 +1,15 @@
 define([
   "./config.js",
   "./state.js",
-  "./selectors.js"
-], function (_config, _state, _selectors) {
+  "./selectors.js",
+  "../singleSelect/config.js"
+], function (_config, _state, _selectors, _singleSelectConfig) {
   "use strict";
 
   var actions = _state.actions;
   var errorCodes = _config.ERROR_CODES;
-  var SINGLE_SELECT_STATE_CHANGED = "singleSelect/filterDockStateChanged";
-  var SINGLE_SELECT_POPUP_READY = "singleSelect/filterDockPopupReady";
+  var SINGLE_SELECT_STATE_CHANGED = _singleSelectConfig.actions.FILTER_DOCK_STATE_CHANGED;
+  var SINGLE_SELECT_POPUP_READY = _singleSelectConfig.actions.FILTER_DOCK_POPUP_READY;
 
   function readCapabilities(_handoff) {
     return _handoff && _handoff.capabilities ? _handoff.capabilities : {};
