@@ -196,11 +196,17 @@ define([
     emitSelectionDto(_box, _ctx, _widgetId, kind, categories);
   }
 
-  function forgetWidgetUnsubscribe(_ctx, _widgetId, _unsubscribe) {
+  // Drops a released unsubscribe from the per-widget slot and from runtime.subscriptions (otherwise
+  // every re-subscribe would keep a closure plus its host handle until destroy). Skipped while the
+  // service is disposed: destroy iterates runtime.subscriptions and drops the bucket afterwards.
+  function forgetUnsubscribe(_ctx, _widgetId, _unsubscribe) {
     var runtime = _ctx._KDB.runtime && _ctx._KDB.runtime.cognosHostService;
     var map = runtime && runtime.adapters && runtime.adapters.selectionUnsubscribeByWidgetId;
     if (map && map[_widgetId] === _unsubscribe) {
       delete map[_widgetId];
+    }
+    if (runtime && !_ctx.isDisposed()) {
+      _runtime.pruneSubscription(_ctx._KDB, _unsubscribe);
     }
   }
 
@@ -225,7 +231,7 @@ define([
       } catch (detachError) {
         console.error("[cognosHost.visualization.subscribeSelections] unsubscribe failed", detachError);
       }
-      forgetWidgetUnsubscribe(_ctx, _widgetId, unsubscribeSelections);
+      forgetUnsubscribe(_ctx, _widgetId, unsubscribeSelections);
     };
   }
 
