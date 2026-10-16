@@ -1,13 +1,13 @@
 define([
-  "../config/planReasons.js",
-], function (_planReasons) {
+  "../config.js",
+], function (_config) {
   "use strict";
 
   function __controller(_spec) {
     if (!_spec || typeof _spec !== "object") {
       return { ok: false, code: "WIDGET_BINDING_PLAN_MISSING_SPEC", message: "Binding plan spec is required." };
     }
-    if (!_planReasons.PLAN_TARGET_KINDS[_spec.targetKind]) {
+    if (!_config.PLAN_TARGET_KINDS[_spec.targetKind]) {
       return { ok: false, code: "WIDGET_BINDING_PLAN_INVALID_TARGET", message: "targetKind is missing or unsupported." };
     }
     var dataConfig = _spec.dataConfig;
