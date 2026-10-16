@@ -1,11 +1,10 @@
 define([
-  "./guardTabMutation.js",
-  "./buildTabMutationTransfers.js",
-  "./applyTabMutationWrites.js",
-  "../../inventory/reconcile.js",
-  "../../hostFilterIo.js",
-  "../../config.js"
-], function (_support, _buildTransfers, _writes, _reconcileInventory, _hostFilterIo, _config) {
+  "./guard.js",
+  "./transfers.js",
+  "../inventory/reconcile.js",
+  "../hostFilterIo.js",
+  "../config.js"
+], function (_support, _transfers, _reconcileInventory, _hostFilterIo, _config) {
   "use strict";
 
   function selectionToHostValues(_selection) {
@@ -30,7 +29,7 @@ define([
     for (var s = 0; s < _slots.length; s += 1) {
       var resolved = _support.resolveScope(_instances, _targets, _slots[s]);
       if (resolved.status !== "ok") {
-        _diagnostics.push(_writes.diagnostic(_config.errorCodes.SCOPE_TARGET_UNVERIFIED,
+        _diagnostics.push(_support.diagnostic(_config.errorCodes.SCOPE_TARGET_UNVERIFIED,
           "resync scope unverified for tabIdx " + _slots[s].tabIdx));
         continue;
       }
@@ -54,7 +53,7 @@ define([
       var entry = _captured[i];
       var match = _support.matchTarget(root.instancesById || {}, entry.scopeId, entry.identity);
       if (match.status !== "ok") {
-        _diagnostics.push(_writes.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED,
+        _diagnostics.push(_support.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED,
           "resync target instance " + match.status, entry.identity));
         continue;
       }
@@ -62,7 +61,7 @@ define([
       var written = await _hostFilterIo.writeInstanceSelection(_KDB, _runtime, targetId,
         selectionToHostValues(entry.currentSelection));
       if (!written.ok) {
-        _diagnostics.push(_writes.diagnostic(written.errorCode,
+        _diagnostics.push(_support.diagnostic(written.errorCode,
           "resync host write verification failed", match.instance));
         continue;
       }
@@ -76,7 +75,7 @@ define([
     try {
       var guard = _support.guardRun(_runtime, payload);
       if (guard) { return { ok: false, diagnostics: guard.diagnostics || [] }; }
-      var work = _buildTransfers(payload.plan);
+      var work = _transfers.buildTabMutationTransfers(payload.plan);
       var captured = captureCommittedSelections(
         _KDB.state.filters.singleSelect.instancesById || {},
         payload.tabIdxToScopeId || {},
@@ -91,7 +90,7 @@ define([
         var reconciled = await _reconcileInventory.reconcileFilterInstances(_KDB, _runtime,
           { reason: "tabMutation", runId: payload.runId });
         if (!reconciled.ok || _runtime.tabMutationRunId !== payload.runId) {
-          diagnostics.push(_writes.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED,
+          diagnostics.push(_support.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED,
             "resync reconcile failed or was superseded"));
           return { ok: false, operationId: payload.operationId, diagnostics: diagnostics };
         }
@@ -107,11 +106,11 @@ define([
       return { ok: true, operationId: payload.operationId, diagnostics: diagnostics };
     } catch (error) {
       console.error("[singleSelect.resyncTabMutationHost] failed", { operationId: payload.operationId }, error);
-      diagnostics.push(_writes.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED,
+      diagnostics.push(_support.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED,
         String(error && error.message ? error.message : error)));
       return { ok: false, operationId: payload.operationId, diagnostics: diagnostics };
     }
   }
 
-  return resyncTabMutationHost;
+  return { resyncTabMutationHost: resyncTabMutationHost };
 });

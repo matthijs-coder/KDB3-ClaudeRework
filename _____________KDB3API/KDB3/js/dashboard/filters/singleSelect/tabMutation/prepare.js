@@ -1,10 +1,10 @@
 define([
-  "./guardTabMutation.js",
-  "./buildTabMutationTransfers.js",
-  "../../hostFilterIo.js",
-  "../../runtime.js",
-  "../../config.js"
-], function (_support, _buildTransfers, _hostFilterIo, _singleSelectRuntime, _config) {
+  "./guard.js",
+  "./transfers.js",
+  "../hostFilterIo.js",
+  "../runtime.js",
+  "../config.js"
+], function (_support, _transfers, _hostFilterIo, _singleSelectRuntime, _config) {
   "use strict";
 
   function failure(_operationId, _diagnostics) {
@@ -16,14 +16,14 @@ define([
     };
   }
 
-  async function __controller(_KDB, _runtime, _payload) {
+  async function prepareTabMutation(_KDB, _runtime, _payload) {
     var payload = _payload || {};
     try {
       var guard = _support.guardRun(_runtime, payload);
       if (guard) { return guard; }
       var root = _KDB.state.filters.singleSelect;
       var instances = root.instancesById || {};
-      var planWork = _buildTransfers(payload.plan);
+      var planWork = _transfers.buildTabMutationTransfers(payload.plan);
       if (!payload.plan || ["delete", "move", "duplicate", "restoreDeleted"].indexOf(payload.plan.operation) === -1) {
         return failure(payload.operationId, [{
           code: _config.errorCodes.TAB_MUTATION_PREPARE_FAILED,
@@ -119,5 +119,5 @@ define([
     return _result;
   }
 
-  return __controller;
+  return { prepareTabMutation: prepareTabMutation };
 });

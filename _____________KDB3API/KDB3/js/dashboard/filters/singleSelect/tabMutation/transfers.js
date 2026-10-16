@@ -37,7 +37,7 @@ define([], function () {
     });
   }
 
-  function __controller(_plan) {
+  function buildTabMutationTransfers(_plan) {
     try {
       var plan = _plan || {};
       var transfers = Array.isArray(plan.transferPairs)
@@ -89,5 +89,5 @@ define([], function () {
     }
   }
 
-  return __controller;
+  return { buildTabMutationTransfers: buildTabMutationTransfers };
 });

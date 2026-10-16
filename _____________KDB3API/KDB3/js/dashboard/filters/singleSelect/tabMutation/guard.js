@@ -1,6 +1,6 @@
 define([
-  "../../../../../core/utils/filters/tabMutationRun/guardTabMutationRun.js",
-  "../../../../../core/utils/normalizeCognosScopeId.js"
+  "../../../../core/utils/filters/tabMutationRun/guardTabMutationRun.js",
+  "../../../../core/utils/normalizeCognosScopeId.js"
 ], function (_guardRunUtil, _normalizeScopeId) {
   "use strict";
 
@@ -23,6 +23,14 @@ define([
 
   function isStaleRun(_runtime, _payload) {
     return _guardRunUtil.isStale(_runtime, _payload, { staleMode: "ss" });
+  }
+
+  function diagnostic(_code, _message, _record) {
+    return {
+      code: _code,
+      filterInstanceId: _record ? _record.filterInstanceId : undefined,
+      message: _message
+    };
   }
 
   function readScopeValue(_value) {
@@ -107,6 +115,30 @@ define([
     return _selection ? Object.assign({}, _selection) : null;
   }
 
+  function isLiveSnapshotMatch(_record, _snapshotRecord) {
+    return _record && _record.status === "active" &&
+      _record.hostStatus === "present" &&
+      _normalizeScopeId(_record.scopeId) === _normalizeScopeId(_snapshotRecord.scopeId) &&
+      semanticKey(_record) === _snapshotRecord.semanticKey;
+  }
+
+  function matchSnapshotTarget(_instances, _snapshotRecord) {
+    var byId = _instances && _snapshotRecord
+      ? _instances[_snapshotRecord.filterInstanceId] : null;
+    if (isLiveSnapshotMatch(byId, _snapshotRecord)) {
+      return { status: "ok", instance: byId };
+    }
+    var matches = Object.keys(_instances || {}).map(function (_id) {
+      return _instances[_id];
+    }).filter(function (_record) {
+      return isLiveSnapshotMatch(_record, _snapshotRecord);
+    });
+    if (matches.length !== 1) {
+      return { status: matches.length > 1 ? "ambiguous" : "missing", instance: null };
+    }
+    return { status: "ok", instance: matches[0] };
+  }
+
   function cloneSnapshotRecord(_record, _hostValues) {
     return {
       filterInstanceId: _record.filterInstanceId,
@@ -120,13 +152,17 @@ define([
       }) : []
     };
   }
+
   return {
     guardRun: guardRun,
     cancelled: cancelled,
     isStaleRun: isStaleRun,
     resolveScope: resolveScope,
+    diagnostic: diagnostic,
+    semanticKey: semanticKey,
     instancesInScope: instancesInScope,
     matchTarget: matchTarget,
+    matchSnapshotTarget: matchSnapshotTarget,
     cloneSnapshotRecord: cloneSnapshotRecord
   };
 });

@@ -1,10 +1,9 @@
 define([
-  "./guardTabMutation.js",
-  "./resolveTabMutationSnapshotTarget.js",
-  "../../hostFilterIo.js",
-  "../../inventory/reconcile.js",
-  "../../config.js"
-], function (_support, _resolveSnapshotTarget, _hostFilterIo, _reconcileInventory, _config) {
+  "./guard.js",
+  "../hostFilterIo.js",
+  "../inventory/reconcile.js",
+  "../config.js"
+], function (_support, _hostFilterIo, _reconcileInventory, _config) {
   "use strict";
 
   function restoreStateFields(_record, _snapshotRecord) {
@@ -17,7 +16,7 @@ define([
       ? Object.assign({}, _snapshotRecord.pendingSelection) : null;
   }
 
-  async function __controller(_KDB, _runtime, _payload) {
+  async function restoreTabMutationSnapshot(_KDB, _runtime, _payload) {
     var payload = _payload || {};
     var restored = [];
     var restoredByTargetId = {};
@@ -37,7 +36,7 @@ define([
         if (_support.isStaleRun(_runtime, payload)) {
           return _support.cancelled("tab mutation rollback superseded");
         }
-        var target = _resolveSnapshotTarget(instances, snapshot.byId[ids[i]]);
+        var target = _support.matchSnapshotTarget(instances, snapshot.byId[ids[i]]);
         if (target.status !== "ok") {
           unrecoverable.push(ids[i]);
           diagnostics.push({
@@ -103,5 +102,5 @@ define([
     }
   }
 
-  return __controller;
+  return { restoreTabMutationSnapshot: restoreTabMutationSnapshot };
 });
