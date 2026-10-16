@@ -1,5 +1,5 @@
 define([
-  "./defaults/normalizeDefaultValue.js",
+  "../../utils/normalizeDefaultValue.js",
 ], function (_normalizeDefaultValue) {
   "use strict";
 

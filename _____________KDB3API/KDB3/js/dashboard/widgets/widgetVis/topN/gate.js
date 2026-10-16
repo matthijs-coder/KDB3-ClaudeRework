@@ -5,7 +5,7 @@ define([
   "../config.js",
   "../results.js",
   "./periodPin.js",
-  "../../../../core/services/widgetBindingPlan/defaults/normalizeDefaultValue.js",
+  "../../../../core/utils/normalizeDefaultValue.js",
   "../../../../core/utils/kit/data.js"
 ], function (_gates, _spec, _bindingConfig, _config, _results, _periodPin, _normalizeDefaultValue, _data) {
   "use strict";
