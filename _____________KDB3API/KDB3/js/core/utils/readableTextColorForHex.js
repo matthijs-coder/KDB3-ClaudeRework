@@ -1,7 +1,7 @@
 define([], function () {
   "use strict";
 
-  function __controller(hex) {
+  function readableTextColorForHex(hex) {
     var raw = String(hex || "").trim().toLowerCase();
     if (raw === "transparent") {
       return "#000000";
@@ -27,5 +27,5 @@ define([], function () {
     return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? "#000000" : "#FFFFFF";
   }
 
-  return __controller;
+  return readableTextColorForHex;
 });
