@@ -1,16 +1,7 @@
-define([], function () {
+define([
+  "../../../../core/utils/orgTree/hierarchyCell.js"
+], function (_hierarchyCell) {
   "use strict";
-
-  function extractUniqueNameLeaf(_useValue) {
-    var text = String(_useValue == null ? "" : _useValue);
-    var re = /\[([^\]]+)\]/g;
-    var last = "";
-    var match;
-    while ((match = re.exec(text)) !== null) {
-      last = match[1];
-    }
-    return last;
-  }
 
   function parseCell(cell) {
     var display;
@@ -71,7 +62,7 @@ define([], function () {
         var parsed = parseCell(row[key]);
         if (parsed) {
           recordMember(members, parsed);
-          recordAlias(byLeaf, extractUniqueNameLeaf(parsed.useValue), parsed.useValue);
+          recordAlias(byLeaf, _hierarchyCell.extractUniqueNameLeaf(parsed.useValue), parsed.useValue);
           recordAlias(byDisplay, parsed.displayValue, parsed.useValue);
         }
       });
