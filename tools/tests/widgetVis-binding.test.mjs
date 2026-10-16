@@ -151,8 +151,7 @@ function loadDienststelleChanged(fakes) {
 function loadSettings(fakes) {
   const modules = {
     "./binding/pipeline.js": { runBindingPipeline: fakes.pipeline },
-    "../widgetSettings/effects/startWidgetRenderLoading.js": fakes.startLoading,
-    "../widgetSettings/view/resolveWidgetPlacementContext.js": { resolveWidgetEl: () => ({ nodeType: 1, id: "el" }) }
+    "../widgetSettings/selectors.js": { startWidgetRenderLoading: fakes.startLoading, resolveWidgetEl: () => ({ nodeType: 1, id: "el" }) }
   };
   return load(W + "settings.js", { stubs: { console: QUIET }, modules });
 }

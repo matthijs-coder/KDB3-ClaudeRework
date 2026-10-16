@@ -102,3 +102,23 @@ test("widgetBase readWidgetShell resolves the shell in the owner document like r
   assert.equal(selectors.readWidgetShell(withHost, undefined), null);
   assert.deepStrictEqual(selectors.readWidgetShell({}, "x"), shellModule.resolveWidgetShell({}, "x"));
 });
+
+test("widgetSettings selectors.js is the facade: members are the internal functions and objects", () => {
+  const facade = load("dashboard/widgets/widgetSettings/selectors.js");
+  assert.deepStrictEqual(Object.keys(facade).sort(), [
+    "ACTION_TYPES", "buildSettingsIcon", "dispatchDropdownOptionIntent", "dispatchIconIntent", "domSelectors", "focusOnlyControls",
+    "markSelectedOption", "readWidgetSettings", "resolveWidgetEl", "shouldKeepDropdownsOpen", "startWidgetRenderLoading"
+  ]);
+  Object.keys(facade).forEach((key) => {
+    assert.ok(facade[key] !== undefined && facade[key] !== null, key);
+  });
+  const selectors = load("dashboard/widgets/widgetSettings/config/selectors.js");
+  assert.deepStrictEqual(Object.keys(facade.domSelectors).sort(), Object.keys(selectors).sort());
+  assert.equal(facade.domSelectors.panelRootSelectorFor("w1"), selectors.panelRootSelectorFor("w1"));
+  assert.equal(facade.domSelectors.kennzahlenTableAttr, "kdb_kennzahlentable");
+  const controls = load("dashboard/widgets/widgetSettings/config/controlDefinitions.js");
+  assert.deepStrictEqual(JSON.parse(JSON.stringify(facade.focusOnlyControls)), JSON.parse(JSON.stringify(controls.focusOnly)));
+  assert.equal(facade.focusOnlyControls.unmaximize.kind, "unmaximize");
+  ["buildSettingsIcon", "dispatchDropdownOptionIntent", "dispatchIconIntent", "markSelectedOption", "shouldKeepDropdownsOpen",
+    "startWidgetRenderLoading", "resolveWidgetEl"].forEach((key) => assert.equal(typeof facade[key], "function", key));
+});

@@ -15,8 +15,44 @@
  *
  * `api.widgetSettings.getState()` is unchanged (full copy) and stays the read for the bulk case (writeback
  * `collectWidgets` reads the whole `byWidget` map once per save).
+ *
+ * This file is also the one published facade other widget folders import (widgetVis focus panel and render loading,
+ * widgetBase slot stock and effects); they never import widgetSettings `config/`, `view/` or `effects/` files:
+ *
+ *   ACTION_TYPES                      -> the widgetSettings action type strings
+ *   domSelectors                      -> the settings panel DOM selector registry (class names, attributes, selector builders)
+ *   focusOnlyControls                 -> control definitions of the focus-mode only icons (`{ unmaximize: {...} }`)
+ *   buildSettingsIcon(_KDB, def, table?) -> settings icon element for a control definition
+ *   markSelectedOption(optionEl)      -> marks one dropdown option as selected (and clears its siblings)
+ *   shouldKeepDropdownsOpen(panel, target, iconSelector) -> pointer target lies inside a dropdown / on its owning icon
+ *   dispatchDropdownOptionIntent(_KDB, panel, optionEl, { isHistoryReplay }) -> routes a dropdown choice like the settings panel
+ *   dispatchIconIntent(_KDB, panel, iconEl, { isHistoryReplay })             -> routes an icon click like the settings panel
+ *   startWidgetRenderLoading(_KDB, context)                                 -> starts the per-widget render loading overlay
+ *   resolveWidgetEl(_KDB, widgetId)   -> widget shell element (owner document, else the render root) | null
  */
-define(["../../../core/utils/kit/data.js", "./config/actionTypes.js"], function (_data, _actionTypes) {
+define([
+  "../../../core/utils/kit/data.js",
+  "./config/actionTypes.js",
+  "./config/selectors.js",
+  "./config/controlDefinitions.js",
+  "./view/buildSettingsIcon.js",
+  "./view/dropdownOptionSelection.js",
+  "./view/panelOutsidePointerBehavior.js",
+  "./view/resolveWidgetPlacementContext.js",
+  "./effects/dispatchWidgetSettingsIntent.js",
+  "./effects/startWidgetRenderLoading.js"
+], function (
+  _data,
+  _actionTypes,
+  _domSelectors,
+  _controlDefinitions,
+  _buildSettingsIcon,
+  _dropdownOptionSelection,
+  _panelOutsidePointerBehavior,
+  _placementContext,
+  _dispatchIntent,
+  _startWidgetRenderLoading
+) {
   "use strict";
 
   function readSettingsRoot(_KDB) {
@@ -35,6 +71,15 @@ define(["../../../core/utils/kit/data.js", "./config/actionTypes.js"], function 
 
   return {
     ACTION_TYPES: _actionTypes,
-    readWidgetSettings: readWidgetSettings
+    domSelectors: _domSelectors,
+    focusOnlyControls: _controlDefinitions.focusOnly,
+    readWidgetSettings: readWidgetSettings,
+    buildSettingsIcon: _buildSettingsIcon,
+    markSelectedOption: _dropdownOptionSelection.markSelectedOption,
+    shouldKeepDropdownsOpen: _panelOutsidePointerBehavior.shouldKeepDropdownsOpen,
+    dispatchDropdownOptionIntent: _dispatchIntent.dropdownOption,
+    dispatchIconIntent: _dispatchIntent.icon,
+    startWidgetRenderLoading: _startWidgetRenderLoading,
+    resolveWidgetEl: _placementContext.resolveWidgetEl
   };
 });

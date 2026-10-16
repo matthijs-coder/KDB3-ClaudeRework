@@ -92,12 +92,15 @@ function loadPanel(h) {
   const modules = {
     "../drillthrough/install.js": h.install,
     "./domQueries.js": h.domQueries,
-    "../../widgetSettings/config/selectors.js": h.fakes.selectors,
-    "../../widgetSettings/config/controlDefinitions.js": { focusOnly: h.fakes.focusOnly },
-    "../../widgetSettings/view/buildSettingsIcon.js": h.fakes.buildSettingsIcon,
-    "../../widgetSettings/effects/dispatchWidgetSettingsIntent.js": { dropdownOption: h.fakes.dropdownOption, icon: h.fakes.icon },
-    "../../widgetSettings/view/dropdownOptionSelection.js": { markSelectedOption: h.fakes.markSelectedOption },
-    "../../widgetSettings/view/panelOutsidePointerBehavior.js": { shouldKeepDropdownsOpen: h.fakes.shouldKeepDropdownsOpen }
+    "../../widgetSettings/selectors.js": {
+      domSelectors: h.fakes.selectors,
+      focusOnlyControls: h.fakes.focusOnly,
+      buildSettingsIcon: h.fakes.buildSettingsIcon,
+      dispatchDropdownOptionIntent: h.fakes.dropdownOption,
+      dispatchIconIntent: h.fakes.icon,
+      markSelectedOption: h.fakes.markSelectedOption,
+      shouldKeepDropdownsOpen: h.fakes.shouldKeepDropdownsOpen
+    }
   };
   return loadAmd(path.join(JS_ROOT, "dashboard/widgets/widgetVis/focus/panel.js"), { stubs: { console: QUIET, document: h.doc }, modules });
 }
