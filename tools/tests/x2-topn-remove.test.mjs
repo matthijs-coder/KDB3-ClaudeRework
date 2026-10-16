@@ -105,7 +105,7 @@ function captureConsole() {
   return { messages, restore() { Object.assign(console, saved); } };
 }
 
-function createEnv({ applyMs = 20, cleanupMs = 20 } = {}) {
+function createEnv({ applyMs = 20, cleanupMs = 20, launchpadMs = 0 } = {}) {
   const doc = new FakeDocument();
   const canvas = doc.create("canvas", {});
   ["o1", "o2", "txt1"].forEach((id) => doc.create(id, {}, canvas));
@@ -123,9 +123,10 @@ function createEnv({ applyMs = 20, cleanupMs = 20 } = {}) {
     elements: { kdbWidget: { ownerDocument: doc } },
     api: {
       launchpad: {
-        dispatch(action) {
+        async dispatch(action) {
+          if (launchpadMs > 0) await sleep(launchpadMs);
           const tabSlot = doc.querySelector(`[data-kdb-launchpad-pad="topN"][cor_page_id="${action.payload.tabId}"]`);
-          return Promise.resolve({ ok: true, widgets: (tabSlot ? tabSlot.children : []).map((el) => ({ widgetId: el.id })) });
+          return { ok: true, widgets: (tabSlot ? tabSlot.children : []).map((el) => ({ widgetId: el.id })) };
         }
       },
       widgetVis: {
@@ -401,6 +402,20 @@ test("a late resolve for an owner that was removed binds nothing and claims no h
     assert.deepEqual(env.helperAttrs("h1"), [null, null]);
     const other = await env.resolve("o2", 1);
     assert.equal(other.status, "success");
+  });
+});
+
+test("remove while the helper discovery is in flight: the claim after the aborted resolve", async () => {
+  await withEnv({ launchpadMs: 100 }, async (env) => {
+    const running = env.resolve("o1", 1);
+    await sleep(30);
+    await env.remove("o1");
+    const result = await running;
+    await env.settle();
+    assert.equal(result.status, "aborted");
+    assert.deepEqual(env.terminals, []);
+    assert.equal(env.ownerState("o1").helperWidgetId, "h1", "claim written after the abort");
+    assert.equal(env.helperAttrs("h1")[0], "o1");
   });
 });
 
