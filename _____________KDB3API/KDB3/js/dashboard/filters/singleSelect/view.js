@@ -10,6 +10,19 @@ define(["./config.js"], function (_config) {
     return selectors.pageContextDockBucketSelector;
   }
 
+  // Compares the attribute value instead of building a selector, so labels with quotes or backslashes work.
+  function findHostByLabel(_bucket, _filterLabel) {
+    var attr = selectors.filterDataIdAttr;
+    var candidates = _bucket.querySelectorAll("[" + attr + "]");
+    var i;
+    for (i = 0; i < candidates.length; i += 1) {
+      if (candidates[i].getAttribute(attr) === _filterLabel) {
+        return candidates[i];
+      }
+    }
+    return null;
+  }
+
   function findScopedWrapper(_dockRoot, _filterLabel, _scopeType) {
     var bucket;
     var hostEl;
@@ -21,9 +34,7 @@ define(["./config.js"], function (_config) {
     if (!bucket) {
       return null;
     }
-    hostEl = bucket.querySelector(
-      "[" + selectors.filterDataIdAttr + '="' + _filterLabel + '"]'
-    );
+    hostEl = findHostByLabel(bucket, _filterLabel);
     if (!hostEl) {
       return null;
     }

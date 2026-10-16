@@ -90,7 +90,7 @@ define([
     var expected = normalizeExpected(_expectedSelection);
     var values = readValues(_filtersFacet, _filterRef);
     var observed;
-    if (expected.displayValue === "Alle" && expected.useValue === "") {
+    if (expected.displayValue === _config.ALLE && expected.useValue === "") {
       return { ok: values.length === 0, observed: { d: "", u: "" }, values: values };
     }
     if (values.length !== 1) { return { ok: false, observed: readPair(values), values: values }; }
@@ -131,7 +131,7 @@ define([
       if (!expected) {
         expected = values.length > 0
           ? { displayValue: values[0].d, useValue: values[0].u }
-          : { displayValue: "Alle", useValue: "" };
+          : { displayValue: _config.ALLE, useValue: "" };
       }
       if (!(await writeValues(_filtersFacet, _filterRef, values))) {
         return failWrite(codes.HOST_WRITE_FAILED, null, previous, null);
@@ -164,7 +164,7 @@ define([
       }
       var rollbackExpected = previous[0]
         ? { displayValue: previous[0].d, useValue: previous[0].u }
-        : { displayValue: "Alle", useValue: "" };
+        : { displayValue: _config.ALLE, useValue: "" };
       try {
         var rollbackOk = verifySelection(_filtersFacet, _filterRef, rollbackExpected).ok === true;
         if (rollbackOk) {
@@ -232,7 +232,7 @@ define([
       }
       var expected = _previousValues && _previousValues[0]
         ? { displayValue: _previousValues[0].d, useValue: _previousValues[0].u }
-        : { displayValue: "Alle", useValue: "" };
+        : { displayValue: _config.ALLE, useValue: "" };
       return verifySelection(_filtersFacet, _filterRef, expected).ok === true;
     } catch (error) {
       console.error("[singleSelect.rollbackVerified] rollback reread failed", error);
@@ -251,7 +251,7 @@ define([
       console.error("[singleSelect.restorePreviousSelection] display unavailable for rollback");
       return false;
     }
-    if (!Array.isArray(_previousHostValues) && selection.displayValue !== "Alle") {
+    if (!Array.isArray(_previousHostValues) && selection.displayValue !== _config.ALLE) {
       values = [{ u: selection.useValue, d: selection.displayValue }];
     }
     try {
@@ -260,7 +260,7 @@ define([
       }
       var expected = values.length > 0
         ? { displayValue: values[0].d, useValue: values[0].u }
-        : { displayValue: "Alle", useValue: "" };
+        : { displayValue: _config.ALLE, useValue: "" };
       if (!verifySelection(filtersFacet, _filterRef, expected).ok) {
         console.error("[singleSelect.restorePreviousSelection] rollback reread mismatch");
         return false;
