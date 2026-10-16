@@ -1,0 +1,97 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# _KDB object rules
+
+## Goal
+
+`window._KDB` is the single shared registry for everything that must be reachable across modules at runtime: state, configuration, host-API wrappers, hardcoded options, DOM selectors, and shared utilities.
+
+It exists so that no module needs to know where another lives — only what namespace it owns.
+
+## Namespaces
+
+- `_KDB.state.*` — current runtime state (selected filters, widgets, tabs, drag session, undo history, ...). See `state.mdc`.
+- `_KDB.cognosAPI.*` — wrappers for the Cognos Dashboard host API. See `cognosAPI.mdc`.
+- `_KDB.dropdownOptions.hardcoded.*` — lookup tables for dropdowns (vis-types, top-N choices, colors, ...).
+- `_KDB.properties.*` — properties read from the Cognos dashboard spec.
+- `_KDB.elements.*` — central DOM selectors / ids / classnames.
+- `_KDB.utilities.*` — pure utility functions reused across the project.
+- `_KDB.config.*` — declarative configuration including user-facing labels (`_KDB.config.labels.*`, `_KDB.config.language`). See `labels.mdc`.
+- Diagnostic logging toggle: **`_KDB.properties.logging`** (`true` / `false`). The writer is **`logKDB`** (global / `logKDB.js`). See `logging.mdc`.
+- `_KDB.events.*` — in-app event bus (`emit` / `subscribe` / `unsubscribe`). See `events.mdc`.
+
+Adding a new top-level namespace is a structural change. Discuss before introducing one.
+
+## Distinction from state
+
+- `_KDB.state.*` = mutable runtime state, exclusively (per `state.mdc`).
+- All other `_KDB.*` namespaces = configuration, wrappers, selectors, helpers — populated once at startup and treated as read-only for the rest of the session.
+- Never put runtime state outside `_KDB.state.*`.
+- Never mutate the read-only namespaces from feature code.
+
+## `_KDB.properties` vs `_KDB.state`
+
+These are different concepts and must not be mixed.
+
+### `_KDB.properties`
+
+- Stores user-defined widget configuration entered in the dashboard property panel.
+- Read from the Cognos dashboard spec by a dedicated module at startup, parsed, and then treated as read-only for the session.
+- This is configuration, not runtime state.
+
+Examples:
+- default dimension
+- visual configuration
+- static feature toggles
+- user-entered property values from the Cognos dashboard spec
+
+### `_KDB.state`
+
+- Stores current runtime state — the live state of the dashboard while it is running.
+
+Examples:
+- current selected filter values
+- active tab
+- current drag session
+- loading state
+- current widget runtime state
+
+### Rule
+
+- Do not store widget property definitions or hardcoded widget configuration in `_KDB.state`.
+- Do not use `_KDB.properties` as a substitute for live runtime state.
+
+## Access pattern
+
+- `_KDB` is passed as the first argument to every module’s `__controller(_KDB, ...)` (per `naming.mdc`, `amd.mdc`).
+- Modules read `_KDB.<namespace>.*` from this argument, not from `window._KDB`.
+- The only permitted `window._KDB` references are:
+  1. The bootstrap that creates the object.
+  2. The top-level bootstrap that hands `_KDB` into the first orchestrator’s `__controller`.
+
+## Initialization order
+
+- The bootstrap creates `window._KDB = {};`.
+- Before any action-handler runs, the init orchestrator must:
+  1. Populate `_KDB.elements`, `_KDB.dropdownOptions`, `_KDB.properties`, `_KDB.generalFunctions`, `_KDB.config`.
+  2. Populate `_KDB.cognosAPI.*` via the cognos-API orchestrator.
+  3. Initialize `_KDB.state.*` (per `state.mdc`).
+- Reading from a namespace before its writer ran is a bug, not a fallback case.
+
+## Discipline
+
+- A module never invents an undocumented namespace on the fly (`_KDB.myThing = ...`).
+- A module never reaches into `_KDB` to skip an AMD import — `_KDB` is for cross-cutting data, AMD is for code wiring (per `amd.mdc`).
+- A module never replaces a whole namespace (`_KDB.state = {}`); it mutates leaf values via the canonical writers (per `state.mdc`).
+- `_KDB` itself is never serialized or persisted — only its `state` subtree may be writeback-restored.
+
+## Forbidden
+
+- Side-namespaces created in feature code (`_KDB.foo = ...`).
+- Module-local aliases that drift from the source (no `var s = _KDB.state` followed by mutating `s` outside the canonical writer).
+- Reading `window._KDB` from feature code instead of using the passed `_KDB` argument.
+- Treating `_KDB` as a service-locator for code: import dependencies via AMD instead.

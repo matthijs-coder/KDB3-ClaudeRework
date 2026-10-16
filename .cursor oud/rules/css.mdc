@@ -1,0 +1,37 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# CSS rules
+
+## Location
+
+- All CSS files live in `__REDESIGN2/KDB3/css/`.
+- Mirror the JS region structure where useful: a region folder may have its own subfolder under `css/` (e.g. `css/widgets/`, `css/filters/`).
+
+## File naming
+
+- CSS files describe a UI surface, not an action. Names are noun-only.
+- Examples: `header.css`, `footer.css`, `popup.css`, `widget.css`, `dropdown.css`.
+- One file per visible UI area, owned by that area's region.
+- Forbidden: `helpers.css`, `common.css`, `misc.css`, `styles.css`, `main.css` — vague catch-alls (consistent with `structure.mdc § Forbidden folder names`).
+
+## Class-name namespacing
+
+- Every class introduced by this project is prefixed `kdb-` to avoid collision with Cognos host styles.
+- Use kebab-case (per `naming.mdc § Identifier casing`).
+- Examples: `.kdb-header`, `.kdb-widget-title`, `.kdb-popup-option`.
+- Forbidden: unprefixed class names in our CSS (`.header`, `.title`) — these can collide with Cognos.
+
+## Selector discipline
+
+- Prefer class selectors. Avoid styling by tag (`div`, `span`) or by Cognos-internal class.
+- Do not target Cognos host classes (`.wa-*`, `.dashboard-*`, etc.) from our CSS — those are not our contract. If styling against host structure is needed, scope strictly under a `.kdb-*` ancestor.
+- Avoid `!important`. If unavoidable, comment why.
+
+## Loading
+
+- CSS files are loaded via the bootstrap (per the init orchestrator), not by individual modules.
+- Do not inject `<style>` tags from feature code. Use a CSS file.

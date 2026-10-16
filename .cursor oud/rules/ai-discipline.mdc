@@ -1,0 +1,124 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# AI discipline rules
+
+These rules apply to every AI sub-chat in this project, with or without a brief.
+
+- Cognos extension smoke/debug (no VM access; console-only verification): see `smoke-testing.mdc`.
+
+## Read scope
+
+- Reading is unrestricted within the project tree **except** human-only areas (see below) and **`KDB3/js/core/libraries/`** (see the two bullets immediately after those). The write-scope rule does not apply to reading where reading is allowed.
+- **Ignore human-only trees** — do not read, write, search, or “peek” for planning:
+  - `briefs/humanExpectations/` — human-written expectations.
+  - `humanDocs/` — human-only documentation (originals, notes, templates).
+  - Any other folder whose name contains `human` and is intended as human-only (same treatment).
+- If the user explicitly asks you to open a specific file under one of those paths for that turn, follow that instruction only for what they named.
+- **`KDB3/js/core/libraries/`** (read): do not read, search, or open for planning unless the user explicitly names a path under this folder for that turn.
+- **`KDB3/js/core/libraries/`** (write): no changes without explicit user approval — vendored/third-party.
+
+## Workspace
+
+- **Project output root** is `_______KDB3/` (this redesign output tree). All briefs and code work target it.
+- If your Cursor workspace is opened **on** `_______KDB3` itself, the same locations are `./KDB3/`, `./briefs/`, `./.cursor/`, etc. (drop the leading `_______KDB3/` when resolving paths).
+- **AI / Cursor rules for this project**: `_______KDB3/.cursor/rules/` and `_______KDB3/.cursor/` (read for alignment; only write here when the user explicitly asks).
+- **Dashboard sub-areas** (launchpad, Top N helper, Sicht, Stelle hierarchy, single-select, header): which scoped rule to open is listed in **`dashboard-areas-discovery.mdc`** (always on); the `dashboard-area-*.mdc` files use `alwaysApply: false` and domain globs.
+- **Briefs** (expectations vs AI plans):
+  - `_______KDB3/briefs/` — brief workspace.
+  - `_______KDB3/briefs/humanExpectations/` — human-only; AI ignores (see Read scope).
+  - `_______KDB3/briefs/aiBriefs/` — planner sub-chats write formalized plans here. Executor sub-chats may **append** to an existing aiBrief (e.g. “Files changed”, “Open questions for next brief”).
+
+### Content code (main edit surface)
+
+Substantive implementation changes belong under the redesign app tree:
+
+- `_______KDB3/KDB3/css/`
+- `_______KDB3/KDB3/js/`
+- `_______KDB3/KDB3/` (and other paths under this folder as needed for the task)
+
+### Write targets
+
+Active write targets:
+
+- `_______KDB3/KDB3/` — redesign codebase (default target for executor sub-chats: CSS, JS, HTML/templates, assets under this tree as scoped).
+- `_______KDB3/briefs/aiBriefs/` — planner output; executors may append to existing aiBriefs only as noted above.
+- `_______KDB3/architecture/filesExplained.md` — when you add, remove, rename, or split JS modules/folders under `KDB3/js/`, update the **≤3-line** entries for affected paths (per `architecture.mdc`).
+- `_______KDB3/architecture/eventSubscribe.md` — when you add or change app events or subscribers, update this catalog (per `architecture.mdc`).
+- `_______KDB3/.cursor/lifecycleVocabulary.md` — append-only after explicit user approval per `state.mdc` § Lifecycle vocabulary.
+- `_______KDB3/KDB3/spec.json` — only when the user **explicitly** asks. Never as part of any other change.
+
+Read-only / ignored for AI (no writes; no reads unless user overrides for a named file):
+
+- `_______KDB3/briefs/humanExpectations/`
+- `_______KDB3/humanDocs/`
+- Human-only `*human*` folders (same rule).
+
+All other write attempts must STOP and ask.
+
+## Write scope
+
+- Write only what the user explicitly asked you to change.
+- The brief defines explicit scope. Without a brief, the user's most recent message defines it.
+- Anything outside that scope — even a one-line obvious fix — requires a question first.
+- Drive-by improvements, reformatting, renaming, moving files: all require explicit permission.
+
+## Linter and pre-existing errors
+
+- Fix only linter errors caused by your own changes.
+- Pre-existing linter errors are reported, not fixed.
+- A reported pre-existing error becomes the user's call: separate brief or accept.
+
+## Ask before code
+
+- When the task is non-trivial, present a plan first and wait for user-akkoord.
+- "Non-trivial" = more than one file, or a public API change, or a state-shape change.
+- When in doubt → ask.
+
+## Event / subscribe (mandatory reflex)
+
+- Before wiring **cross-cutting** behavior (especially under **`KDB3/js/dashboard/`** / widgets / canvas: e.g. **Top N**, **visualization type**, **dimension**, **fullscreen intent**, shared filter effects), you **must** actively consider **`_KDB.events`** (`emit` / `subscribe`) as described in **`events.mdc`** § Design reflex — not only “call the next orchestrator in a chain”.
+- You **must** surface that choice to the **user**: a short **A vs B** (e.g. **direct orchestration** vs **emit + N subscribers**), with **event name sketch**, **who emits**, **who subscribes**, and **who owns teardown** — then wait for direction unless the user already decided in the brief or message.
+- If the user chooses pub/sub, you **must** update **`_______KDB3/architecture/eventSubscribe.md`** in the same session (per **`architecture.mdc`**) unless they explicitly defer.
+
+## Placement uncertainty
+
+- If you cannot determine where a piece of code belongs (which folder, which theme, `core/` vs `dashboard/`, which region), ASK. Do not guess.
+- A guess that lands wrong is harder to undo than a one-sentence question.
+
+## Hard structural limits (ask before violating)
+
+- **`structure.mdc`:** any `KDB3/js/**/*.js` **outside** `KDB3/js/core/config/` must stay **≤150** total lines per file. Growing past that requires the **folder + `__…Orchestrator.js` + thin `__controller`** pattern (no fat orchestrator files).
+- **`structure.mdc` / `naming.mdc`:** orchestrator files must **not** define business-logic helpers — coordination only.
+- **`architecture.mdc`:** structural or event/subscription changes should update `architecture/filesExplained.md` and, when relevant, `architecture/eventSubscribe.md` in the same session unless the user defers.
+
+If the right fix would **break** any of the above (line count, thin orchestrator, or missing catalog update), **STOP** and ask the user how to proceed — do not ship a silent violation.
+
+## Rule conflicts
+
+- If two `.mdc` rules conflict in the situation at hand → STOP, surface the conflict, ask the user to resolve.
+- If a brief contradicts an `.mdc` rule → STOP, ask (per `briefs.mdc` § B).
+- If your intended action contradicts an `.mdc` rule → re-read the rule; if you still want to proceed, ask the user first with the rule citation.
+
+## No silent assumptions
+
+- Missing context → ask, don't fill in.
+- Unclear naming → ask which existing convention to follow.
+- Ambiguous scope → ask before starting.
+
+## No regression-by-helpfulness
+
+- Do not "improve" a working file just because you happened to read it.
+- Do not preemptively refactor a file you imported from.
+- Do not "modernize" code style outside scope.
+- A working file you didn't change should still work after your work.
+
+## Status honesty
+
+- If a task is partially done, say so.
+- Do not claim success without smoke-confirmation (per `briefs.mdc`).
+- If you don't know whether something works, say so. "Should work" is not a status.
+- If a smoke-test failed, do NOT mark complete. Surface the failure.

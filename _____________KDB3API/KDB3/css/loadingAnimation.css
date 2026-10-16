@@ -1,0 +1,182 @@
+@keyframes ba-common-progressIndicator_rotate {
+  0% {
+    transform: rotate(300deg);
+  }
+
+  60% {
+    transform: rotate(1320deg);
+  }
+
+  100% {
+    transform: rotate(2100deg);
+  }
+}
+
+.ba-common-progressIndicator .ba-common-progressIndicator__progressPercentage {
+  font-size: 12px;
+  fill: #1f57a4;
+  fill: hsla(
+    var(--primary1-h, 214.73684),
+    var(--primary1-s, 68.20513%),
+    var(--primary1-l, 38.23529%),
+    1
+  );
+}
+
+.ba-common-progressIndicator.is-circle circle.is-background {
+  stroke: rgba(243, 243, 243, 0.6);
+  stroke: hsla(
+    var(--neutral1-h, 0),
+    var(--neutral1-s, 0%),
+    var(--neutral1-l, 95.29412%),
+    0.6
+  );
+}
+
+.ba-common-progressIndicator.is-circle:not(.is-determinate) circle {
+  stroke-dashoffset: 9.7px;
+  animation: ba-common-progressIndicator_dash 4s ease-out infinite;
+}
+
+.ba-common-progressIndicator.is-circle circle {
+  stroke: #1f57a4;
+  stroke: hsla(
+    var(--primary1-h, 214.73684),
+    var(--primary1-s, 68.20513%),
+    var(--primary1-l, 38.23529%),
+    1
+  );
+}
+
+.ba-common-progressIndicator.is-circle circle {
+  fill: transparent;
+}
+
+.ba-common-progressIndicator.is-circle:not(.is-determinate) svg {
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  transform: translateZ(0) rotate(300deg);
+  animation: ba-common-progressIndicator_rotate 4s ease-out infinite;
+}
+
+.ba-common-progressIndicator.is-circle.is-large {
+  width: 110px;
+  height: 110px;
+}
+
+.ba-common-progressIndicator.is-circle svg circle {
+  stroke-width: 4px;
+  stroke-dasharray: 125px;
+}
+
+.ba-common-progressIndicator.is-circle {
+  vertical-align: middle;
+  position: relative;
+  display: inline-block;
+}
+
+.loadingIndicatorContainer .loading_indicator {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.loadingIndicatorContainer {
+  opacity: 1;
+}
+
+.loadingIndicatorContainer.loadingIndicatorTransparent {
+  opacity: 0.8;
+}
+
+.KDB_loading > .loadingIndicatorContainer {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.KDB_loading > .loadingIndicatorContainer.loadingIndicatorTransparent {
+  background: rgba(255, 255, 255, 0.8);
+  opacity: 1;
+}
+
+.KDB_loading > .loadingIndicatorContainer .loading_indicator {
+  position: relative;
+  left: auto;
+  top: auto;
+  transform: none;
+}
+
+.KDB_loading .KDB_loadingMessage {
+  margin: 12px 0 0;
+  color: #323232;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.KDB_loading .KDB_loadingMessage:empty,
+.KDB_loading .KDB_loadingMessage[hidden] {
+  display: none;
+  margin: 0;
+}
+
+.KDB_loading .KDB_loadingSessionMessage {
+  margin: 0 0 12px;
+  color: #323232;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+}
+.KDB_loading .KDB_loadingSessionMessage:empty,
+.KDB_loading .KDB_loadingSessionMessage[hidden] {
+  display: none;
+  margin: 0;
+}
+
+#kdb-control-save-load-slot.KDB_loading,
+#kdb-control-main-blocks.KDB_loading {
+  overflow: hidden;
+  position: relative;
+}
+
+#kdb-control-save-load-slot.KDB_loading > .loadingIndicatorContainer,
+#kdb-control-main-blocks.KDB_loading > .loadingIndicatorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#kdb-control-save-load-slot.KDB_loading .ba-common-progressIndicator.is-circle.is-large,
+#kdb-control-main-blocks.KDB_loading .ba-common-progressIndicator.is-circle.is-large {
+  width: 32px;
+  height: 32px;
+}
+
+#kdb-control-save-load-slot.KDB_loading .KDB_loadingMessage,
+#kdb-control-main-blocks.KDB_loading .KDB_loadingMessage {
+  margin: 6px 0 0;
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+.ba-common-container.ba-common-tabList__innerContainer.KDB_loading {
+  overflow: hidden;
+}
+.ba-common-container.ba-common-tabList__innerContainer.KDB_loading .ba-common-progressIndicator.is-circle.is-large {
+  width: 80px;
+  height: 80px;
+}
+.ba-common-container.ba-common-tabList__innerContainer.KDB_loading .KDB_loadingMessage,
+.ba-common-container.ba-common-tabList__innerContainer.KDB_loading .KDB_loadingSessionMessage {
+  font-size: 14px;
+  line-height: 1.4;
+}

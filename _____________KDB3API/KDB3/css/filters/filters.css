@@ -1,0 +1,1 @@
+#filterDockContainer .filterItemWrapper:has([data-id="Jahr"]) .ba-common-listItem-wrapper:has([aria-label="Gesamt"])  {display: none !important; }

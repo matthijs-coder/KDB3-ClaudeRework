@@ -1,0 +1,155 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# State rules
+
+## Single source of truth
+
+- Store current runtime state centrally in `window._KDB.state`.
+- `window._KDB.state` is the single shared source of truth for current dashboard state.
+- This includes UI state, loading state, selection state, per-widget settings, and other live runtime state.
+- State must be JSON-serializable (no functions, DOM nodes, or jQuery objects) so it can be written back.
+- Promise references are allowed only for runtime coordination and must never be persisted or written back.
+
+## What goes in `_KDB.state`
+
+Examples:
+- selected filters
+- selected widgets and their settings
+- active tab
+- header / footer visibility
+- whether tables are loaded
+- pending or resolved loading promises
+- drag session state
+- undo/redo history
+
+## What does NOT go in `_KDB.state`
+
+- Hardcoded constants / dropdown options → `_KDB.dropdownOptions.hardcoded.*`
+- Properties from the Cognos dashboard spec (configuration, not runtime state) → `_KDB.properties.*` (see `_KDB.mdc` § "properties vs state")
+- Cognos API wrappers → `_KDB.cognosAPI.*`
+- DOM selectors → `_KDB.elements.*`
+- Pure utility functions → `_KDB.generalFunctions.*` / module-local helpers
+
+## Canonical writers
+
+- Read current shared runtime state from `_KDB.state`.
+- Write shared runtime state back to `_KDB.state`.
+- Each region has exactly one canonical writer.
+- One canonical writer per region: the region-orchestrator owns its `_KDB.state.<region>.*` subtree; outsiders read only.
+- Never mutate `_KDB.state.*` directly outside the canonical setter/orchestrator.
+- `_KDB.state` must be initialized before any action-handlers execute.
+
+## Per-widget settings (single owner)
+
+- Owner: `_KDB.state.widgets[<widgetId>].settings`.
+- The DOM widget is a view of that state, not a second owner.
+- All widget-related state must live under `_KDB.state.widgets.*`.
+- **When in doubt, prefer everything visible and confirmed through `_KDB.state` (especially `widgets[id].settings`).** Transient UI drafts may exist only in memory until committed; once confirmed, they must be reflected on the canonical path (via the canonical setter / orchestrator), not left as a parallel truth on DOM or `_widgetObj`.
+- One canonical setter: `js/dashboard/canvas/widgets/setWidgetSetting.js` exports **`__controller`** as `(_KDB, widgetId, key, value)`. The same module may attach static helpers on **`__controller`**: **`mergeSettings`**, **`cloneSettings`**, and **`syncLayoutFromPlacement`** (placement → numeric `x` / `y` / `width` / `height` in `settings`). Use these for mutations — never assign into `widgets[id].settings` from action-handlers ad hoc.
+- One canonical read path: `_KDB.state.widgets[<widgetId>].settings`.
+- `_widgetObj.settings` in handlers may hold a **working** view while editing, but it must not diverge from the canonical subtree after commit: either keep it as a thin getter-proxy to `_KDB.state.widgets[id].settings`, or flush confirmed edits through the canonical setter immediately so the two stay aligned.
+
+### Read helper: `window.getWidget(widgetId)`
+
+- After `setupBase`, init registers `window.getWidget(widgetId)` (see `js/core/tasks/init/setupGetWidget.js`).
+- Returns a **deep-cloned snapshot** of `_KDB.state.widgets[widgetId].settings`, or `{}` if the widget exists but has no `settings` yet, or `undefined` if the id is missing / no such widget entry.
+- Read-only / debugging convenience; **do not** use from feature modules — pass `_KDB` and read `_KDB.state` instead. Do not mutate the returned object expecting state to update.
+
+### Plan (widget settings vs state)
+
+1. Treat `_KDB.state.widgets[id].settings` as the only shared runtime owner for confirmed widget settings.
+2. Route commits through `setWidgetSetting`’s `__controller` / `__controller.mergeSettings` / `__controller.syncLayoutFromPlacement`; extend call sites as new features write settings.
+3. Use `getWidget(id)` (uses `cloneSettings`) in DevTools to verify the mirror; fix drift by writing through the setter, not by treating DOM or `_widgetObj.settings` as source.
+
+## Lifecycle
+
+- Widget-drop creates the widget state record.
+- The **`cleanWidget`** module’s `__controller` (widget-delete handler) must transition widget state according to the defined lifecycle model.
+- If widgets or tabs move back to launchpad rather than being deleted, their state must remain explicit, e.g. `inLaunchpad`.
+- If filters are removed but their state should be retained, store an explicit lifecycle status such as `removed`.
+- Do not leave stale state behind.
+- State must always reflect the current lifecycle state explicitly.
+- If something is no longer active, store that as an explicit status instead of leaving an outdated active-looking entry behind.
+- State entries must never become ambiguous or ownerless.
+
+## Lifecycle vocabulary
+
+- Lifecycle status is always an explicit string. Never `null`, `undefined`, or a boolean.
+- Only terms on the approved lifecycle vocabulary list may be used.
+- The approved list is maintained in `__REDESIGN2/KDB3/.cursor/lifecycleVocabulary.md`.
+- A sub-chat that reasons about a lifecycle state in this session MUST read `__REDESIGN2/KDB3/.cursor/lifecycleVocabulary.md` first to know the current approved set. Do not rely on the term list inside this rule alone — the vocabulary file is authoritative.
+
+### Approval flow
+
+When a region needs a lifecycle term that is not yet on the list:
+1. STOP. Do not invent a term.
+2. ASK the user: "Region <X> needs a lifecycle term for <situation>. Suggested: <name>. Approve?"
+3. On user-approval: append the term + meaning + region(s) where used to `lifecycleVocabulary.md`.
+4. Then proceed.
+
+### Synonym ban
+
+- Never invent synonyms for an existing term. If `removed` exists, do not introduce `deleted`, `gone`, `dead`, or `archived`.
+- If an existing term feels wrong for your case, ASK before introducing a new one.
+
+### Region declaration
+
+The region's orchestrator declares its allowed lifecycle terms in a comment block at the top of the file:
+
+```js
+// __widgetsOrchestrator
+// Lifecycle states for _KDB.state.widgets[id].status:
+//   active | inLaunchpad | removed
+```
+
+## Stable IDs
+
+- The widget id must survive writeback-restore.
+- Document the chosen id source and stick to it.
+
+## Cognos-driven dashboard restore
+
+- Walk the existing widgets and (re-)populate `_KDB.state.widgets` before any action-handler reads.
+
+## Sync with Cognos-owned state
+
+- Some state lives in both `_KDB.state.*` and Cognos itself (filter context, parameter sets, page-context items, widget visualType).
+- `_KDB.state.*` is the authoritative mirror for our own logic; the Cognos side must stay consistent.
+- Cognos remains authoritative for its own engine state.
+- Whoever writes a mirrored value in `_KDB.state.*` is responsible for the matching `_KDB.cognosAPI.*` call (and vice versa).
+- After a Cognos-driven event that can mutate widget or filter state (native filter-context-update, writeback-restore, etc.), trigger a rescan of the affected region so the mirror catches up — do not assume Cognos events go through our setters.
+
+## State vs Options
+
+- The selected value of a control belongs in `_KDB.state`.
+- The available options of that control do NOT belong in `_KDB.state`.
+
+Example:
+- `_KDB.state.widgets[widgetId].settings.dimension = "geschlecht"` → YES (selected value)
+- `_KDB.dropdownOptions.hardcoded.dimension = ["alter", "geschlecht", ...]` → NOT in state (options)
+
+Guideline:
+- State stores user choices and current runtime values.
+- Options/config define what can be chosen, not what is chosen.
+
+## Glossary
+
+Project-specific terms used above:
+- `_widgetObj` — per-widget JS object handed to action-handlers; holds at minimum `id`, `draggedElementType`, and (today) `settings`.
+- **`cleanWidget`** module — widget-delete handler; public surface is `__controller` (per `naming.mdc`, `amd.mdc`).
+- `writeback` — persisting dashboard state to a Cognos parameter set; `writeback-restore` = re-applying that on dashboard reload.
+- `tables` — Cognos-side lookup tables loaded via the data pipeline (not HTML tables, not DB tables).
+- `region` — a folder in `dashboard/` that owns a visible UI area in the dashboard (header, footer, widgets, controlContainer, canvas, ...). See `structure.mdc § Folder concepts`.
+  - Lives ONLY in `dashboard/`. Never in `core/`.
+  - Has an orchestrator file (`__<folderName>Orchestrator.js`).
+  - One canonical writer for its `_KDB.state.<regionPath>.*` subtree.
+  - One owner of its DOM mounting / unmounting.
+  - One owner of its event listeners (`_KDB.state.<regionPath>.listeners`).
+  - One public coordination module: the orchestrator (`__controller` export).
+  - Sub-region nesting depth is unrestricted, as long as each level has its own responsibility (per `structure.mdc`).
+  - Region path = the folder path under `dashboard/`, used as state key: `_KDB.state.header.*`, `_KDB.state.widgets.dropped.live.data.stackedBar.*`, etc.
+- `task` — see `structure.mdc § Folder concepts`. A task may also own a state subtree (`_KDB.state.<taskName>.*`) following the same canonical-writer rules as a region, but tasks live in `core/tasks/`, not `dashboard/`.

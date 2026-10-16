@@ -1,0 +1,41 @@
+.kdb-history-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 8px;
+}
+
+.kdb-history-controls__item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.kdb-history-controls__button {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--cognosDarkGrey);
+  background-color: white;
+  color: #525252;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.kdb-history-controls__button:hover:not(:disabled) {
+  background-color: var(--cognosLightGrey);
+  border-color: #c6c6c6;
+}
+
+.kdb-history-controls__button:disabled,
+.kdb-history-controls__button--disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.kdb-history-controls__icon {
+  font-size: 16px;
+  line-height: 1;
+}

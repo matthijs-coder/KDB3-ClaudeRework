@@ -1,0 +1,47 @@
+---
+description: History handler registry and *HistoryAdapter contract (undo/redo replay).
+# Project output root: `_______KDB3/` (see `ai-discipline.mdc`). Service and adapters live under `KDB3/js/`.
+# If the Cursor workspace root is `_______KDB3/KDB3`, use: `js/core/services/historyService/**/*.js` and `js/**/*HistoryAdapter*.js`
+globs:
+  - "KDB3/js/core/services/historyService/**/*.js"
+  - "KDB3/js/**/*HistoryAdapter*.js"
+  - "KDB3/js/**/*applyWidgetActionHistorySnapshot.js"
+alwaysApply: false
+---
+
+# History adapters and handler registry
+
+## When this applies
+
+Use these rules when adding or changing **app-level** undo/redo: `pushCommittedStep`, `undo` / `redo`, `step.key`, or modules under `historyService/` / `*HistoryAdapter*.js`.
+
+For **when** to push a step, step payload shape, and toolbar behavior, read **`.cursor/history-service-guide.md`** when the task is explicitly about app history (see `history-service-discovery.mdc`).
+
+## Layout
+
+- **`resolveHistoryHandler.js`** — **only** maps `step.key` (and optional key sets like shared widget-action keys) to a handler object. Keep it **thin**: no feature logic, avoid pulling action-specific modules into the central API if a dedicated snapshot/helper module can own that instead.
+- **`__*HistoryAdapter.js`** — lives **next to the owning feature** (filters, widgets, tabs, header, …). Exports a handler with **`apply`** (may be `async`).
+- **Shared replay helpers** — when many keys share one adapter (e.g. widget property actions), delegate from the adapter to a single module (e.g. `applyWidgetActionHistorySnapshot`) so **action-specific imports stay out of** `createHistoryApi.js` / the registry.
+
+## `apply` contract
+
+- Signature: `apply(_KDB, targetValue, fullStep, ctx)` where `targetValue` is the snapshot to restore (`step.old` on undo, `step.new` on redo); `ctx` may include `direction` (`"undo"` / `"redo"`).
+- **Order:** apply host/Cognos (or equivalent) first, then mirror the **same** confirmed result into `_KDB.state`.
+- Return **`true`** only if replay **succeeded**; otherwise **`false`** (no silent partial apply).
+- **Never** call `pushCommittedStep` from replay / `apply` (undo and redo must not append stack entries).
+
+## Registering a new undoable feature
+
+1. Define a stable string **`key`** for the step (consistent with `pushCommittedStep` callers).
+2. Implement step building **beside the feature**; call `pushCommittedStep` only after the result is **confirmed** (see guide).
+3. Register the key in **`resolveHistoryHandler.js`** (new branch or membership in an existing key set that routes to a shared adapter).
+4. Implement **`apply`** on the adapter (or extend the shared snapshot helper) so undo/redo restores the same semantics as the user-driven path.
+
+## What not to history
+
+Pending edits, drag-only transients, debug-only state: **no** committed step and **no** registry entry — aligns with `live-visualization-binding.mdc` § app-history when that rule is in scope.
+
+## State and events
+
+- Stack and pointer live under **`_KDB.state.history`** (see `state.mdc`).
+- Toolbar and consumers rely on **`history:changed`** / central history event constants — do not manually drive undo/redo control enabled state from feature code (see guide § UI behavior).

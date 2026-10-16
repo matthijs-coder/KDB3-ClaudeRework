@@ -1,0 +1,279 @@
+---
+description: KDB3 feature/module folder structure, orchestrator/controller roles, file size limits, Module Contract First workflow
+globs:
+  - KDB3/js/**/*.js
+  - _____________KDB3API/contracts/**/*.md
+alwaysApply: true
+---
+
+# Feature Structure Rules
+
+This rule covers how a feature module, shared service or adapter is laid out on disk, how its entry points are split into orchestrator and controller, and the **Module Contract First** workflow that must precede implementation of any new module.
+
+Authoritative size and folder principles come from `_____________KDB3API/architecture/projectStructureRules.md`. The rule below operationalises them and adds the workflow gate.
+
+Cognos SDK isolation is `_KDB.services.cognosHost` (ring 1, folder `core/services/cognosHost/`). The Cognos host adapter is a **service**. `_KDB.cognosAPI` is the inner ring (host-wrapper knowledge base, folder `core/cognosAPI/`). Inner-ring `core/cognosAPI/` is an allowed caller of `__getDashboardAPI()` (layer-1 internal) and **must** use it. Ring 1 calls `_KDB.cognosAPI.*`. Feature files: no `_KDB.cognosAPI.*` or `__getDashboardAPI()` outside ring 1 and outside layer 1, except the PDF capture-root exception (`captureTabPage.js` → `resolveCaptureRoot`) and `KDB.js` boot/teardown of the namespace (not a method call; not an exceptions-register entry). Layer-1 functions with zero callers stay in `core/cognosAPI/`; do not delete them unless the user explicitly orders it. `effects/` must not call `_KDB.cognosAPI`; owners use injected `_KDB.services.cognosHost` facets.
+
+## Module Folder Layout
+
+Larger feature modules use the following layout. Folders without real content are not created.
+
+```txt
+moduleName/
+  config/
+  state/
+  view/
+  effects/
+  adapters/
+  events/
+  create<Module>Controller.js
+  __orchestrator<Module>.js
+```
+
+Do not create a canonical folder that has no real content. Do not force `adapters/` where the module does not touch Cognos. Cognos touch injects a `_KDB.services.cognosHost` facet; it does not auto-create `adapters/`.
+
+Optional folders, only when they hold real content:
+
+| Folder | Holds |
+|---|---|
+| `actions/` | sync dispatch-handlers; no direct Cognos/DOM |
+| `history/` | undo/redo replay staging owned by this module |
+| `runtime/` | `_KDB.runtime.<owner>` ensure/cleanup helpers |
+| `observation/` | MutationObserver / readiness pipelines |
+
+Optional later folders (`harness/`, `diagnostics/`, `validation/`) follow the same rule. Service-specific splits (writeback `get/`/`set/`/`schema/`, widgetBindingPlan pipeline folders) stay allowed and are not forced into this UI-module layout.
+
+New modules put action-name constants in `config/actionTypes.js`. Existing `config/actions.js` is grandfathered; do not mass-rename.
+
+Small services or adapters that do not need this layout use a single folder with their orchestrator file, factory file and minimal subfolders only where content justifies them.
+
+## Folder Meanings
+
+| Folder | Holds |
+|---|---|
+| `config/` | declarative definitions, constants, defaults, action names, selector names, control definitions |
+| `state/` | initial state, reducers, readers, selectors, owner write helpers, published selector registry/index |
+| `view/` | DOM builders, renderers, binders, view sync |
+| `effects/` | external effects: Cognos calls, event publishing, history commits, DOM effects |
+| `adapters/` | optional ring-2 translation of a `_KDB.services.cognosHost` facet (today: tabs wraps `tabsFacet`). Do not add ceremonial Cognos adapters that wrap `_KDB.cognosAPI`. Same folder name is grandfathered for non-SDK meanings: writeback `map/adapters/` (v2→v3 JSON), `dashboardPdf/adapters/` and `pdfExportControls/adapters/` (DOM helpers), `metricsTree/adapters/` (internal dragDrop binder) — do not rename those folders. Runtime `_KDB.runtime.<owner>.adapters` is an instance slot, not a folder requirement |
+| `events/` | `<module>/events/eventNames.js` is the canonical home for event-name constants of events **emitted by this module** (whether fact or request), plus any module-private events. Legacy cross-region shared files under `KDB3/js/core/events/<region>.js` remain valid for events that span multiple emitter-owners; new code prefers per-module ownership |
+| `actions/` | optional; sync dispatch-handlers (no Cognos/DOM) |
+| `history/` | optional; owner replay handlers and history-step builders |
+| `runtime/` | optional; runtime ensure/cleanup for `_KDB.runtime.<owner>` |
+| `observation/` | optional; MutationObserver / readiness pipelines |
+
+Folder names follow `naming.mdc`. Vague names (`helpers`, `common`, `misc`, `manager`, `shared`, `stuff`) are forbidden.
+
+## Orchestrator Role
+
+The orchestrator file `__orchestrator<Module>.js` exposes one top-level function:
+
+```js
+function __orchestrator(_KDB, _options) { /* ... */ }
+```
+
+An orchestrator may:
+
+- create dependencies;
+- call setup steps in order;
+- register `_KDB.api.<module>` for feature modules;
+- register `_KDB.services.<service>` for services placed in `core/services/`;
+- return the public surface.
+
+An orchestrator must not contain:
+
+- business logic;
+- DOM-heavy implementation;
+- reducer logic;
+- event listener bodies;
+- callback bodies;
+- long data transformations.
+
+Anything beyond wiring belongs in the controller or in named helpers under the module's folders.
+
+## Controller Role
+
+The controller is the module's behavioural core. For feature modules using a dispatch-style API, the controller is produced by a factory `create<Module>Controller.js` that returns the public API object:
+
+```js
+function createKdbControlController(_deps) {
+  function dispatch(_action) { /* ... */ }
+  function getState() { /* ... */ }
+  function mount(_options) { /* ... */ }
+  function destroy() { /* ... */ }
+  function registerControl(_definition) { /* ... */ }
+
+  return { mount, destroy, dispatch, getState, registerControl };
+}
+```
+
+For non-factory executable files the first executable function is named `__controller`:
+
+```js
+function __controller(_KDB, _options) { /* ... */ }
+```
+
+A controller may:
+
+- create public API methods;
+- own `dispatch`;
+- call reducers;
+- call effects;
+- call view sync;
+- enforce module ownership.
+
+The controller coordinates named helpers. It does not hide major logic in inline callbacks or nested functions.
+
+The API shape (dispatch vs named methods) follows `module-public-api.mdc`.
+
+## Factory Naming By Object Type
+
+The factory file name carries the role of the object it produces. The folder name is the canonical short name; the factory suffix matches the role:
+
+| Object type | Folder | Factory file |
+|---|---|---|
+| Feature / UI module | `kdbControl/` | `createKdbControlController.js` |
+| Shared service | `tableData/` | `createTableDataService.js` |
+| Adapter (optional ring-2) | `tabs/adapters/` | `createCognosTabsAdapter.js` |
+
+Pattern: `create<FolderName><RoleSuffix>.js` where `<RoleSuffix>` is `Controller` for feature modules, `Service` for shared services, `Adapter` for adapters. Variants such as `create<Service>Api.js` are not used; services live under `_KDB.services.<service>` and do not borrow the `_KDB.api` naming.
+
+The Cognos host isolating layer is the shared service `core/services/cognosHost/` (`createCognosHostService.js`), not a per-module wrapper around `_KDB.cognosAPI`. Do not mint `createCognosKdbAdapter.js` / `cognos/` adapters for new work. Optional ring-2 translation of an injected cognosHost facet may live in `adapters/` (today: tabs). Grandfathered non-SDK `adapters/` folders are not renamed.
+
+## File Size And Import Count
+
+Per `projectStructureRules.md`:
+
+| File type | Target | Hard limit without approval |
+|---|---:|---:|
+| JavaScript executable file | 80-120 lines | 150 lines |
+| Orchestrator file | 40-80 lines | 120 lines |
+| Controller function | 20-40 lines | 60 lines |
+| Pure config file | 150-250 lines | split when hard to scan |
+| Markdown rule file | concise | split when sections are unrelated |
+
+Special exception: production `KDB3/js/KDB.js` is the Cognos renderer entry class and may grow up to 500 lines without additional approval when the change is limited to bootstrap wiring: AMD factory imports, core factory calls, module orchestrator registration, module mount/destroy calls and allowed `_KDB` namespace initialization. Any other `KDB.js` change still requires explicit user approval, including lifecycle semantics, `_KDB` shape/top-level keys, public renderer API, error handling, DOM placement policy, services/state/events or feature behavior.
+
+More than 6 imports in one file is a smell. More than 10 imports requires restructuring. Thin orchestrators may approach the limit when they only coordinate clearly named steps.
+
+## Module Contract First
+
+For every new module, service, adapter or subsystem, AI writes a **compact contract first**, before any implementation code is generated. The goal: ownership, public API, events and dispatch style are not invented ad hoc during implementation. An approved module contract outranks `.cursor/rules/` and `architecture/` (including audits) for that module's folder and host boundary; audits do not invent a second Cognos-adapter home.
+
+### When Required
+
+A contract is required for:
+
+- a new feature/UI module (kdbControl, widgets, filters, launchpad, tabs, header, footer, etc.);
+- a new shared service (tableDataService, historyService, eventBus extensions);
+- a new `_KDB.services.cognosHost` facet or an optional ring-2 wrap of one;
+- a new subsystem that owns a fresh `_KDB.state.<subtree>`.
+
+A contract is not required for:
+
+- trivial extension of an existing module (one new action, one new selector, one new control definition);
+- bugfix within an existing module that does not change public API, ownership, state shape or events;
+- a pure utility function in `core/utils/`.
+
+On doubt, AI asks explicitly whether a contract is needed.
+
+### Placement
+
+Contracts live next to architecture documents, not inside the implementation tree:
+
+```txt
+_____________KDB3API/contracts/<moduleName>.md
+```
+
+One file per module. Short and scannable.
+
+### Required Sections
+
+A module contract contains, at minimum:
+
+- **Purpose** — one to three sentences on what the module does and why.
+- **Ownership** — which `_KDB.state.<subtree>` this module canonically writes.
+- **Runtime** — which `_KDB.runtime.<owner>.*` resources (listeners, subscriptions, abort controllers, observers, timers, host references) the module manages and how cleanup runs.
+- **Public API** — exact methods on `_KDB.api.<module>` or `_KDB.services.<service>`; dispatch + reducer or named methods per `module-public-api.mdc`; with motivation when deviating from the category default.
+- **Readers / Writers** — which readers/selectors are published from the owner's selector registry for cross-module consumption; which internal writers exist; foreign-write paths are explicit (only via this API).
+- **Events** — emitted facts, subscribed events, request-events when applicable. Name, payload shape, teardown owner.
+- **Dependencies** — which services, injected `_KDB.services.cognosHost` facets or optional ring-2 adapters are injected.
+- **Cognos Touchpoints** — which injected `_KDB.services.cognosHost.<facet>` operations the module uses and which state must mirror as a result. Modules do not call `_KDB.cognosAPI.*`.
+- **Folder Layout** — concrete folder structure (`config/`, `state/`, `view/`, `effects/`, etc.) — list only folders with real content.
+- **Out Of Scope** — what the module explicitly does **not** do, to prevent scope creep and god-object growth.
+
+A template lives at `_____________KDB3API/contracts/_template.md` and is the starting point for every new contract.
+
+### Approval Gates
+
+- **New module / service / adapter / subsystem** — strict gate. AI presents the contract to the user and waits for explicit approval before code generation begins.
+- **Change to an existing module** — lighter gate. AI may proceed with implementation; the contract is updated only when the change touches public API, ownership, state shape or events.
+
+Bugfixes that do not change shape do not require a contract update.
+
+### Synchronisation With Implementation
+
+The implementation follows the contract. If during execution a deviation appears necessary:
+
+1. AI stops;
+2. presents the deviation and its reason to the user;
+3. updates the contract first;
+4. resumes implementation against the updated contract.
+
+Silent divergence between contract and code is forbidden.
+
+### Delegated Execution
+
+When Phase 2 (skeleton or full port) is delegated to a less capable executing AI, the contract author **also** produces an execution spec from the template at `_____________KDB3API/contracts/_executionSpecTemplate.md`:
+
+```txt
+_____________KDB3API/contracts/<moduleName>-<phase>-execution-spec.md
+```
+
+The execution spec carries pre-flight rule-read enforcement (executing AI must echo a one-sentence summary of every rule before producing files), a per-file `Rules to apply` line citing the relevant `.mdc` rules, and explicit acceptance criteria and forbidden actions. The contract describes **what** is being built; the execution spec describes **how** the executing AI must build it without making architectural decisions.
+
+The pre-flight rule echo and the per-file `Rules to apply` checklist are required parts of any execution spec used for delegated execution, not optional refinements. The `kdbControl` and `tableDataService` litmustests (2026-05-12; see `_____________KDB3API/architecture/kdbControl-litmustest-report.md` and `_____________KDB3API/architecture/tableDataService-litmustest-report.md`) showed that omitting the per-file checklist caused two boundary-discipline deviations (missing try/catch at lifecycle boundary, incomplete destroy cleanup) which then required a fix-iteration; including the checklist eliminated those deviations on first pass. Omitting either discipline in an execution spec requires explicit user approval.
+
+For solo work by the contract author against a single AI session, the execution spec may be skipped; the contract plus the 10 MUST rules are sufficient.
+
+### MUST-Set Transition Scope
+
+As long as the 10 MUST rules are not all present and approved in `.cursor/rules/`, AI asks the following at the start of any port or new-feature task:
+
+> *"These 10 rules are now canonical (`kdb-object`, `state`, `runtime`, `module-public-api`, `events`, `feature-structure`, `naming`, `error-handling`, `dom`, `amd`). Older rules outside `_____________KDB3API/` no longer apply to new code. Acceptable scope for this task?"*
+
+Once all 10 rules are present in `.cursor/rules/` and approved, this prompt is dropped and AI falls back to the Module Contract First flow directly for new modules.
+
+## When AI Must Ask
+
+The AI must explicitly ask the user when at least one of these triggers applies:
+
+- doubt whether a change is a new module or an extension of an existing one;
+- a required contract section is unknown for the planned module (for example, no clear Cognos touchpoint yet);
+- the planned module does not fit cleanly under an existing `_KDB.state.<subtree>` (see also grey ownership in `state.mdc`);
+- contract approval appears to have been skipped or stalled;
+- a proposed folder name is vague or does not fit the canonical layout;
+- a file is approaching the hard size limit and a clean split is not obvious.
+
+Do not ask when:
+
+- the change is a trivial extension covered by the "not required" list above;
+- the contract is already approved and the change matches it;
+- the folder layout is the standard one and no novel placement is needed.
+
+Ask-template: *"For `<X>` I propose `<new contract | contract update | no contract needed>` because `<reason>`. Acceptable?"*
+
+## Anti-Goals
+
+- No implicit contracts ("we'll figure it out"); a contract is explicit or not needed — never in between.
+- No contracts as comments inside `__orchestrator<Module>.js`; contracts live in `_____________KDB3API/contracts/`.
+- No contract written after the implementation; the contract precedes code.
+- No mega-contract that re-explains other rules; reference the authority documents and the MUST rules.
+- No contract update after the implementation has already diverged; stop, synchronise, then resume.
+- No business logic, listener bodies or DOM-heavy code in the orchestrator.
+- No alternative entry-point names; only `__orchestrator`, `__controller`, `create<Module>Controller`, `create<Service>Service` and `create<Adapter>Adapter` per `naming.mdc` and the factory-naming table above.
+- No MUST-Set transition scope prompt after all 10 rules are present and approved in `.cursor/rules/`; this prompt is strictly transitional.
+- No vague folder names; see `naming.mdc`.
+- No silent file-size or import-count overruns; flag and discuss before exceeding the hard limit.
+
+See also: `_____________KDB3API/architecture/projectStructureRules.md`, `_____________KDB3API/architecture/stateOwnership.md`, `module-public-api.mdc`, `state.mdc`, `runtime.mdc`, `events.mdc`, `naming.mdc`, `amd.mdc`.

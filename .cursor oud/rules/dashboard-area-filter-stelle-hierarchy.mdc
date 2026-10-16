@@ -1,0 +1,29 @@
+---
+description: Stelle hierarchy (Dienststelle) filter region — area behaviors; downstream + live binding coordination see live-visualization-binding.
+# Project output root: `_______KDB3/`. If workspace root is `_______KDB3/KDB3`, use `js/dashboard/filters/stelleHierarchy/**/*.js`
+globs:
+  - "KDB3/js/dashboard/filters/stelleHierarchy/**/*.js"
+alwaysApply: false
+---
+
+# Dashboard area — Stelle hierarchy filter (Dienststelle)
+
+## Separation of concerns
+
+- **This file** — hierarchy filter region: popup lifecycle, confirmed hierarchy values, data readiness, widget downstream helpers that **belong** to this filter folder, history key `filter_stelleHierarchy`.
+- **`live-visualization-binding.mdc`** — when hierarchy downstream affects **live visualization** widgets together with Top N or slot binding; that rule defines combined route and ordering constraints.
+- **`filters-special-rights.mdc`** — not the primary home for this region unless work explicitly crosses into special-right single-select.
+
+## Scope
+
+**`KDB3/js/dashboard/filters/stelleHierarchy/`** (orchestrator, `applyWidgetDownstreamEffect(s)`, hierarchy data keys, history adapter).
+
+## Related rules
+
+- `dependencies.mdc` — avoid illegal imports across `core/` vs `dashboard/`.
+- `events.mdc` — if hierarchy emits fan-out signals consumed elsewhere.
+- `history-adapters.mdc` — stelle hierarchy replay.
+
+## Behavior (to be expanded)
+
+- TODO(user): Dienststelle/hierarchy product rules and edge cases.

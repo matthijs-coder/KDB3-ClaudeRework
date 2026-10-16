@@ -1,0 +1,221 @@
+---
+description: Async / Promise rules using global wrapKDB as default error boundary
+globs: **/*.{js,ts,jsx,tsx}
+alwaysApply: true
+---
+
+# Async / Promise rules
+
+These rules work together with `function-wrapper.mdc`.
+
+Every file must define:
+
+```js
+const fw = wrapKDB("path/to/currentFile.js");
+```
+
+Every async function, Promise callback, event handler, iterator callback, timer callback and observer callback must be wrapped with `fw`.
+
+`wrapKDB` is the default error boundary for:
+
+- synchronous errors
+- async Promise rejections
+
+Do not add local `try/catch` only for logging. Local `try/catch` is allowed only for real recovery, cleanup, fallback conversion, abort handling, or adding required domain context before rethrowing.
+
+## Wrapper requirement
+
+`fw` must be async-aware.
+
+A wrapped function must catch:
+
+1. direct synchronous errors;
+2. rejected Promises returned by async functions.
+
+Required behavior:
+
+```js
+const loadData = fw("loadData", async function () {
+  const data = await fetchData();
+  return data;
+});
+```
+
+This must be treated as centrally error-handled by `wrapKDB`.
+
+## `async/await` vs `.then()`
+
+- Use `async/await` for any chain of two or more async steps.
+- Use `.then()` only for single-step transforms or genuine fire-and-forget work.
+- Do not mix `.then()` and `await` in the same function.
+- Do not return a Promise from an `async` function via a `.then()` chain. Use `await`.
+- If `.then()` is used, every `.then()` / `.catch()` callback must be wrapped with `fw`.
+
+Correct:
+
+```js
+const loadAndRender = fw("loadAndRender", async function () {
+  const data = await fetchData();
+  renderData(data);
+});
+```
+
+Allowed only for simple cases:
+
+```js
+fetchData()
+  .then(fw("fetchData.then:render", function (data) {
+    renderData(data);
+  }))
+  .catch(fw("fetchData.catch", function (error) {
+    throw error;
+  }));
+```
+
+## Race conditions and lifetime
+
+Every async loop, poll, watcher or observer must declare its lifetime explicitly:
+
+- **Stop condition** — when does the work end successfully?
+- **Abort condition** — when does the host context disappear?
+- **Timeout** — hard upper bound.
+
+Rules:
+
+- "Settled once" is not a valid stop condition unless the source is guaranteed not to re-emit.
+- If the source can re-emit, the stop condition is **"context is gone"**, not **"all values are correct now"**.
+- Long-running watchers must register an abort handle in `_KDB.state.<region>.watchers`.
+- Settled-state and lifetime are separate concerns. Do not collapse them.
+
+## `await` in loops
+
+- Never `await` inside a `for` / `while` / `forEach` / `map` loop unless the operations are intentionally sequential.
+- For independent parallel work: build the array of Promises and `await Promise.all(promises)`.
+- For sequential dependency chains: document the reason with a one-line comment.
+- `forEach` cannot await — never use `forEach` for async work. Use `for...of` or `Promise.all`.
+
+Correct parallel pattern:
+
+```js
+const initializeWidgets = fw("initializeWidgets", async function (widgets) {
+  const promises = widgets.map(
+    fw("widgets.map:initializeWidget", function (widget) {
+      return initializeWidget(widget);
+    })
+  );
+
+  await Promise.all(promises);
+});
+```
+
+## Promise ownership
+
+A Promise must do exactly one of:
+
+1. be `await`ed inside a function wrapped with `fw`;
+2. be `return`ed to a caller wrapped with `fw`;
+3. terminate with explicit `.catch(...)` for genuine fire-and-forget work.
+
+Do not start floating Promises.
+
+Incorrect:
+
+```js
+refreshCache();
+```
+
+Correct fire-and-forget:
+
+```js
+void refreshCache().catch(
+  fw("refreshCache.catch", function (error) {
+    throw error;
+  })
+);
+```
+
+Correct preferred pattern:
+
+```js
+const refreshCache = fw("refreshCache", async function () {
+  await loadCacheData();
+});
+```
+
+## DOM event handlers
+
+Never rely on the DOM to handle a returned Promise. DOM event systems ignore returned Promises.
+
+Preferred pattern:
+
+```js
+button.addEventListener(
+  "click",
+  fw("button.click", function (event) {
+    void handleButtonClick(event);
+  })
+);
+
+const handleButtonClick = fw("handleButtonClick", async function (event) {
+  const data = await loadData();
+  renderData(data);
+});
+```
+
+Allowed only if `fw` catches async Promise rejections:
+
+```js
+button.addEventListener(
+  "click",
+  fw("button.click", async function (event) {
+    const data = await loadData();
+    renderData(data);
+  })
+);
+```
+
+## Cancellation
+
+- For polling loops and observers, prefer `AbortController` / `AbortSignal`.
+- Fall back to a boolean flag stored in the region state subtree only when needed.
+- A region orchestrator that owns watchers must abort them in its cleanup path.
+- After abort, no further state writes from cancelled work are allowed.
+- Guard resume points after `await`.
+
+Correct:
+
+```js
+const loadAfterDelay = fw("loadAfterDelay", async function (signal) {
+  await wait(500);
+
+  if (signal.aborted) {
+    return;
+  }
+
+  const data = await loadData();
+
+  if (signal.aborted) {
+    return;
+  }
+
+  writeState(data);
+});
+```
+
+## Completion rule
+
+Async code is not complete if:
+
+- an async function is not wrapped with `fw`;
+- a Promise callback is not wrapped with `fw`;
+- an iterator callback is not wrapped with `fw`;
+- an event handler is not wrapped with `fw`;
+- a timer or observer callback is not wrapped with `fw`;
+- a Promise is started without being awaited, returned or explicitly caught;
+- `.then()` and `await` are mixed in the same function;
+- `forEach` is used for async work;
+- `await` is used inside a loop without documented sequential reason;
+- long-running async work has no stop condition, abort condition or timeout;
+- cleanup does not abort owned watchers;
+- state writes after abort are not guarded;
+- local `try/catch` is used only for logging instead of relying on `wrapKDB`.

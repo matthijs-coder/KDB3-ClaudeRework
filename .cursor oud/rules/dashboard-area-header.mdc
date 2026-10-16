@@ -1,0 +1,29 @@
+---
+description: Header and subtitle (subheader) dashboard region — area behaviors.
+# Project output root: `_______KDB3/`. If workspace root is `_______KDB3/KDB3`, use `js/dashboard/header/**/*.js`
+globs:
+  - "KDB3/js/dashboard/header/**/*.js"
+alwaysApply: false
+---
+
+# Dashboard area — header and subtitle
+
+## Separation of concerns
+
+- **This file** — header region: visibility toggles, title/subtitle text edits, DOM builders/placers, sync with control block, `_KDB.state.header.*`, history keys such as `header_toggle`, `header_titleEdit`, `header_subtitleEdit`, `footer_toggle` if owned by this folder.
+- **`live-visualization-binding.mdc`** — not the default rule for header work unless the task ties header to live widget binding.
+- **`dom.mdc` / `structure.mdc`** — build vs place vs mutate; region orchestrator ownership.
+
+## Scope
+
+**`KDB3/js/dashboard/header/`** (orchestrator, `buildHeaderDom`, `placeHeader`, text edit commit flows, `__headerHistoryAdapter`).
+
+## Related rules
+
+- `state.mdc` — header/footer visibility in shared state.
+- `css.mdc` — `.kdb-header` and prefixed classes.
+- `history-adapters.mdc` — header/footer/title history replay.
+
+## Behavior (to be expanded)
+
+- TODO(user): editing UX, validation, empty title policy, and footer symmetry if applicable.

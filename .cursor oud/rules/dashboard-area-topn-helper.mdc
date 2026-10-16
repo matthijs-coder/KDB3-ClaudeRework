@@ -1,0 +1,29 @@
+---
+description: Top N helper widget / resolution pipeline — area expectations; binding contract lives in live-visualization-binding.
+# Project output root: `_______KDB3/`. If workspace root is `_______KDB3/KDB3`, use `js/dashboard/canvas/widgets/live/topN/**/*.js`
+globs:
+  - "KDB3/js/dashboard/canvas/widgets/live/topN/**/*.js"
+alwaysApply: false
+---
+
+# Dashboard area — Top N helper
+
+## Separation of concerns
+
+- **`live-visualization-binding.mdc`** — authoritative for **orchestration**: default vs active Top N, helper-table sequencing, single confirmed route to the target widget, stale-async guards, debug inspection mode, interaction with hierarchy downstream and launchpad visibility **during** those flows.
+- **This file** — **Top N helper subsystem** expectations: claim/release/cleanup of the helper widget, published events under `topN/`, state modules for resolution, API surface (`readTopNHelperResult`, etc.), and team-specific invariants that are not repeated from live-binding.
+
+## Scope
+
+Code under **`KDB3/js/dashboard/canvas/widgets/live/topN/`** (orchestrator, `api/`, `actions/`, `core/`, `state/`, `events/`).
+
+## Related rules
+
+- `live-visualization-binding.mdc` — read whenever Top N affects live visualization binding.
+- `events.mdc` — Top N publishes/subscribes; keep `architecture/eventSubscribe.md` aligned when adding or changing events.
+- `async.mdc` / `performance.mdc` — pending resolution and teardown.
+- `history-adapters.mdc` — widget history keys for Top N changes when in scope.
+
+## Behavior (to be expanded)
+
+- TODO(user): helper ownership, logging, and edge cases specific to the Top N helper modules once ported/stable.

@@ -1,0 +1,226 @@
+---
+description: KDB3 module public APIs: single API surface per module, dispatch vs named methods, internal mutation discipline
+globs:
+  - KDB3/js/dashboard/**/*.js
+  - KDB3/js/core/services/**/*.js
+  - KDB3/js/core/bootstrap/**/*.js
+alwaysApply: true
+---
+
+# Module Public API Rules
+
+A feature module has two allowed public contract surfaces:
+
+- `_KDB.api.<module>` for commands, dispatch, lifecycle and coarse `getState()`;
+- published readers/selectors for granular cross-module reads.
+
+Shared services (`_KDB.services.<service>`) expose one public contract surface: their named methods, which cover both commands and deliberate read methods. The two-surfaces rule above applies to feature modules; services do not publish a separate selector registry for their own state subtree.
+
+Consumers may import only the owner's published readers/selectors from the explicit selector registry or index. Consumers must not import arbitrary internal files from anywhere inside the owner module other than that published registry. This includes internal files under `state/`, `view/`, `effects/`, `adapters/`, `config/` and `events/`.
+
+Events emitted by the module are part of its cross-module behaviour but are not a module surface. They travel through `_KDB.events` and are governed by `events.mdc`.
+
+Cross-module access to `_KDB.runtime.<owner>` is governed separately by `runtime.mdc`.
+
+Cognos host wrappers publish under `_KDB.cognosAPI.<theme>.<function>` per `kdb-object.mdc` and are not covered by this rule.
+
+## Single API Surface Per Module
+
+- One `_KDB.api.<module>` object per feature module.
+- One `_KDB.services.<service>` object per shared service.
+- The orchestrator wires the surface and registers it; the controller owns the methods. See `feature-structure.mdc`.
+
+A module does not split its public surface across multiple `_KDB.*` keys. A service does not also publish under `_KDB.api`. A feature module does not publish under `_KDB.services`.
+
+## Dispatch vs Named Methods
+
+The interaction style of the public surface is either **dispatch + reducer** or **named methods**, never a mixed shape on the same surface.
+
+### Category Default
+
+| Category | Default style | Examples |
+|---|---|---|
+| Feature / UI module | dispatch + reducer | `kdbControl`, `widgets`, `filters`, `launchpad`, `tabs`, `dragDrop` |
+| Shared service / adapter | named methods | `tableDataService`, `cognosAdapter`, `loggingService`, `dashboardSpecReader` |
+
+On doubt: feature/UI chooses dispatch; service/adapter chooses named methods.
+
+The event bus is **not** a service in this sense; it lives at `_KDB.events` per `kdb-object.mdc`.
+
+### Hard Triggers For Dispatch
+
+The triggers below apply differently to feature/UI modules and to shared services.
+
+For **feature/UI modules**, any one of the following triggers makes the public surface dispatch-style:
+
+- 3 or more state-changing actions;
+- 2 or more external callers that mutate the same state;
+- undo/redo or history-replay is relevant.
+
+For **shared services / adapters**, the same triggers require an internal reducer + dispatch flow for the service's own state subtree. The public surface stays named methods unless an explicit module-contract decision says otherwise (see `feature-structure.mdc`). The canonical hybrid is a service with internal dispatch and a named public API; see "Public Style Is Independent Of Internal Mutation" below.
+
+### Soft Indicators
+
+The following confirm a dispatch choice but do not by themselves trigger it: view-sync from state, change-events emitted on state transitions, non-trivial previous/next-state logic.
+
+### Public Style Is Independent Of Internal Mutation
+
+The style of the public surface is independent of how the module mutates its own state internally. A service may publish named public methods and still use reducer + dispatch internally for its own `_KDB.state` subtree. Canonical examples:
+
+```js
+// tableDataService — public = named methods, internal mutation may use dispatch
+_KDB.services.tableData.loadAll(["pkz", "stelle"]);
+_KDB.services.tableData.readRows("pkz");
+_KDB.services.tableData.waitForRows("pkz");
+_KDB.services.tableData.reloadTable("pkz");
+```
+
+```js
+// historyService — public = named methods, internal mutation uses dispatch (replay requires a reducer)
+_KDB.services.history.pushCommittedStep(step);
+_KDB.services.history.undo();
+_KDB.services.history.redo();
+_KDB.services.history.getSnapshot();
+```
+
+Foreign state writes remain forbidden in either case; see `_____________KDB3API/architecture/stateOwnership.md`.
+
+## Dispatch-Style API Shape
+
+A dispatch-style public surface exposes the following canonical method set and nothing else without justification:
+
+```js
+_KDB.api.kdbControl = {
+  mount: mount,
+  destroy: destroy,
+  dispatch: dispatch,
+  getState: getState,
+  registerControl: registerControl       // module-specific register* methods allowed
+};
+```
+
+- `mount(_options)` — initialise the module against the live dashboard; create runtime resources.
+- `destroy()` — tear down runtime resources owned by this module per `runtime.mdc`.
+- `dispatch(_action)` — single entry point for all state transitions; routes through the module's reducer and effects.
+- `getState()` — returns the module's full read-only state snapshot. This is the only read method permitted on `_KDB.api.<module>`; granular cross-module reads go through selectors per `state.mdc`.
+- `register*(...)` — optional extension points for modules that accept declarative or custom items (for example `registerControl` / `registerCustomControl` on `kdbControl`). The exact `register*` set is defined in the module's own rule (e.g. `kdb-control.mdc`).
+
+No other methods appear on a dispatch-style public surface without an explicit motivation in the module contract per `feature-structure.mdc`.
+
+## Named-Method API Shape
+
+A named-method public surface exposes a small, intent-named method set covering the service's capability. Each method name is a verb or `verb+noun` that describes one capability:
+
+```js
+_KDB.services.tableData = {
+  loadTable: loadTable,
+  loadAll: loadAll,
+  readRows: readRows,
+  waitForRows: waitForRows,
+  reloadTable: reloadTable,
+  ensureFreshRows: ensureFreshRows,
+  invalidateTable: invalidateTable,
+  readTableState: readTableState
+};
+```
+
+Named-method services do not expose `dispatch` or `getState` on their public surface. If consumers need a full snapshot of the service's own state subtree, the service exposes a deliberate read method (for example `readTableState(tableName)`), documented in the service's contract.
+
+A service must not publish granular `read*` methods that duplicate selector responsibilities for module-owned state outside its own subtree; selectors stay in their owner's `state/` registry per `naming.mdc`.
+
+## No Mixed Shape
+
+A public surface either offers dispatch or named methods. The combinations below are forbidden:
+
+```js
+// Forbidden: mixed shape on one surface.
+_KDB.api.kdbControl = {
+  mount, destroy, dispatch, getState,
+  registerControl,
+  toggleLaunchpad,         // ad hoc named command alongside dispatch
+  setTopN                  // ad hoc named command alongside dispatch
+};
+
+// Forbidden: dispatch exposed on a named-method service.
+_KDB.services.tableData = {
+  loadTable, readRows,
+  dispatch                 // ad hoc dispatch alongside named methods
+};
+```
+
+If a dispatch module's caller wants a clearer name than `dispatch({ type: "kdbControl/toggleLaunchpad" })`, write a thin call-site helper in the consumer, not a method on the public surface.
+
+## Disposed-State Discipline
+
+After `destroy()` the module or service is in lifecycle `disposed` per `lifecycleVocabulary.md`. Every method on the public surface guards against post-disposal calls. The owner holds an internal `_isDisposed` boolean (factory closure or service-instance property), set to `true` inside `destroy()` **before** runtime resources are cleared so that any callback already in flight that races the destroy sees `_isDisposed === true` and short-circuits. The flag lives on the controller / service factory closure or as a non-serializable property on the instance; it is not stored under `_KDB.state.*`.
+
+| Method type | Behaviour after `_isDisposed === true` |
+|---|---|
+| Sync read (`getState`, `readRows`, service read methods) | return `undefined` (or empty subtree); no throw |
+| Async method (`reloadTable`, `waitForRows`, `ensureFreshRows`, any method returning a Promise) | return `Promise.reject(new Error("<service> disposed"))` |
+| `dispatch(_action)` (dispatch-style API) | no-op; log once via `console.warn("[<module>.dispatch] called after destroy")`; no throw |
+| `mount(_options)` (dispatch-style API) | no-op; log once via `console.warn("[<module>.mount] called after destroy; obtain a fresh instance from the factory")`; no throw. The contract is "mount once, destroy once"; second mount after destroy requires a fresh module instance from the factory. |
+| `destroy()` | idempotent: second call returns without error and without re-running cleanup |
+
+The factory is the canonical revive path. After `destroy()` the instance is a tombstone; calling its methods produces the disposed-state behaviour above. To obtain a working module again the orchestrator (or whoever wired the original instance) calls the factory again and assigns the new instance to `_KDB.api.<module>` or `_KDB.services.<service>`.
+
+Consumers are not required to check disposal before calling; the guard is the owner's responsibility. A consumer that knows it is in a destroy/teardown ordering window may avoid the call as a courtesy, but is not obligated to.
+
+## Deviation Requires Motivation
+
+A module that deviates from its category default records a short motivation as a comment on the controller or orchestrator. Example:
+
+```js
+// Named methods: this module has fewer than 2 external callers and no undo/redo
+// relevance, so it deviates from the feature/UI dispatch default.
+function createSplashController(_deps) { /* ... */ }
+```
+
+The same motivation appears in the module's contract under "Public API" per `feature-structure.mdc`.
+
+## Cross-Module Calls
+
+Consumers use the allowed public contract surfaces; they never reach into the owner's `state/`, `view/`, `effects/` or `runtime` directly.
+
+```js
+const widgetId = readSelectedWidgetId(_KDB);                                              // selector for granular read
+const widgetSnapshot = _KDB.api.widgets.getState();                                       // full module snapshot
+_KDB.api.launchpad.dispatch({ type: "launchpad/sendWidget", payload: { widgetId } });     // dispatch on dispatch-style API
+_KDB.services.tableData.readRows("pkz");                                                  // service named-method read
+```
+
+Requests across modules that should not become a direct dependency go through the event bus as request-events per `events.mdc`. The choice between direct API call and request-event is defined in `events.mdc`, not in this rule.
+
+## When AI Must Ask
+
+The AI must explicitly ask the user when at least one of these triggers applies:
+
+- the module sits exactly on or just below a hard dispatch threshold;
+- the module is hybrid: service category, but at least one hard trigger applies (canonical case: `historyService`);
+- a service categorically chooses named methods but internal dispatch looks valuable (the `tableData` / `history` pattern decision);
+- the chosen style deviates from the category default in the table above;
+- a method is proposed on a dispatch-style surface that is not `mount`, `destroy`, `dispatch`, `getState` or a `register*` extension;
+- a method on a named-method service appears to duplicate a selector for state owned elsewhere.
+
+Do not ask when:
+
+- the module is clearly inside its category default with no triggers;
+- the module already has an approved contract per `feature-structure.mdc` that fixes the choice;
+- the change is a trivial extension (one new action on an existing dispatch surface, one new read method on an existing service that stays within its own subtree).
+
+Ask-template: *"For module `<X>` I propose `<dispatch | named methods>` because `<reason + which triggers apply>`. Acceptable?"*
+
+## Anti-Goals
+
+- No more than one `_KDB.api.<module>` API surface per feature module and no more than one `_KDB.services.<service>` surface per service.
+- No mixed shape on one surface (no `dispatch` alongside named commands; no named commands alongside `dispatch`).
+- No granular `read*` methods on `_KDB.api.<module>`; selectors only, with `getState()` as the documented snapshot exception.
+- No dispatch ceremony (actions + reducer + effects) added to a 2-method service without a hard trigger.
+- No category-default deviation without a motivation comment and a matching contract entry.
+- No public method that exists only to wrap a selector; selectors are called directly from the consumer.
+- No publishing of internal helpers, runtime references or DOM nodes through the public API; see `runtime.mdc` and `dom.mdc`.
+- No public method that may be called after `destroy()` without a disposal guard; the owner sets `_isDisposed = true` inside `destroy()` before clearing runtime, and every public method short-circuits per the Disposed-State Discipline table above.
+- No `throw` from a disposed-state guard; sync reads return `undefined`, async methods return `Promise.reject(...)`, `dispatch` / `mount` / `destroy` are silent no-ops with `console.warn`. Throwing turns a guard into a foot-gun during teardown ordering.
+- No auto-revive of a disposed instance on `mount` or any other method; the factory is the canonical revive path.
+
+See also: `_____________KDB3API/architecture/stateOwnership.md`, `_____________KDB3API/architecture/projectStructureRules.md`, `state.mdc`, `runtime.mdc`, `naming.mdc`, `events.mdc`, `feature-structure.mdc`.

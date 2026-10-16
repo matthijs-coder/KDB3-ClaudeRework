@@ -1,0 +1,29 @@
+---
+description: General single-select filter region — area behaviors; special-right conditions have a dedicated rule.
+# Project output root: `_______KDB3/`. If workspace root is `_______KDB3/KDB3`, use `js/dashboard/filters/singleSelect/**/*.js`
+globs:
+  - "KDB3/js/dashboard/filters/singleSelect/**/*.js"
+alwaysApply: false
+---
+
+# Dashboard area — single-select filter
+
+## Separation of concerns
+
+- **`filters-special-rights.mdc`** — authoritative for **`condition: "dstleitung"`** and **`"Personengruppe"`**, `Alle` right, grace period, global-only auto startup, and rights-driven add/remove. When the task is **only** special-right behavior, prefer that rule.
+- **This file** — **general** single-select: pending vs confirmed selection, commit to Cognos, mirroring `_KDB.state.filters.singleSelect.*`, popup restore, history key `filter_singleSelect`, orchestration outside the narrow special-right matrix.
+- **`live-visualization-binding.mdc`** — when single-select changes must align with live-widget binding routes (rare overlap; follow live-binding for visualization commit order).
+
+## Scope
+
+**`KDB3/js/dashboard/filters/singleSelect/`** including `specialRights/` **only** where the change is framed as general single-select integration (otherwise start from `filters-special-rights.mdc`).
+
+## Related rules
+
+- `filters-special-rights.mdc` — mandatory when touching dstleitung/Personengruppe special-right flows.
+- `history-adapters.mdc` / `.cursor/history-service-guide.md` — committed steps for single-select.
+- `cognosAPI.mdc` — `replaceFilterContext` and related wrappers.
+
+## Behavior (to be expanded)
+
+- TODO(user): non-special-right single-select catalog (labels, scopes, commit) as the redesign documents them.

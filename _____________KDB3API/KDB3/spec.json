@@ -1,0 +1,300 @@
+{
+  "name": "KDB3",
+  "schemaVersion": "1.0",
+  "extensions": [
+    {
+      "perspective": "dashboard",
+      "comment": "type --> class name given to widget element on canvas",
+      "comment":  "id --> name given in widget selection menu (developers)", 
+      "comment":  "name --> name given to .zip file (admninistration)",
+      "features": [
+        {
+          "id": "KDB3",
+          "collectionItems": [
+            {
+              "containerId": "com.ibm.bi.dashboard.contentTypes",
+              "id": "KDB3",
+              "type": "KDB3Widget",
+              "iconUrl": "v1/ext/KDB3/images/konfigIcon.svg",
+              "expose": true,
+              "name": "KDB3",
+              "propertyLayoutList": [
+                {
+                  "type": "Section",
+                  "id": "my_settings",
+                  "label": "My options",
+                  "position": 0
+                }
+              ],
+              "propertyList": [
+                {
+                  "id": "loadingTablesPropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "loading tables object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "kennzahlenTablesPropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "kennzahlen table object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "kennzahlenTreePropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "kennzahlen tree object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "filterPropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "filter object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "textWidgetPropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "text widget object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+
+                {
+                  "id": "visualizationsPropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "visualization widget object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "visualizationsDataPropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "visualization data object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "linePropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "line visualization object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "piePropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "pie visualization object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "stackedBarPropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "stackedBar visualization object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "stackedColumnPropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "stackedColumn visualization object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "listPropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "list visualization object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "com.ibm.vis.custom.prognoseyearlinechartPropId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "prognose visualization object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "kennzahlSpecificSlotDefaultId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "Kennzahl and slot specific defaults object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "parameterMappingId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "parameterCubesMapping",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "pdfAttachmentPageId",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "InputLabel",
+                      "label": "PDF attachment-page object",
+                      "placeHolderText": "{}",
+                      "showInlineError": true,
+                      "handleReturnKey": true
+                    }
+                  }
+                },
+                {
+                  "id": "KDBReadyToggle",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "ToggleButton",
+                      "label": "Ready"
+                    }
+                  }
+                },
+                {
+                  "id": "KDBLoadingImageToggle",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "ToggleButton",
+                      "label": "Play Loading-Image"
+                    }
+                  }
+                },
+                {
+                  "id": "KDBLoadingImageTransparentToggle",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "ToggleButton",
+                      "label": "Play Loading-Image transparent"
+                    }
+                  }
+                },
+                {
+                  "id": "KDBHideWidgetsToggle",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "ToggleButton",
+                      "label": "Developers modus (visibility widgets and buttons)"
+                    }
+                  }
+                }
+              ],
+              "renderer": {
+                "class": "v1/ext/KDB3/js/KDB",
+                "dependencies": [
+                  "Dashboard.Canvas",
+                  "UserProfile",
+                  "Properties",
+                  "Dashboard.API"
+                ],
+                "runtimeDependencies": ["DataQueryExecution"]
+              },
+
+              "capabilities": {
+                "selection": true
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

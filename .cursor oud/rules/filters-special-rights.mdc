@@ -1,0 +1,44 @@
+---
+description: Special-right single-select rules for filters under the KDB3 redesign (`_______KDB3/KDB3/js/`).
+# If the Cursor workspace root is `_______KDB3`, use the globs below.
+# If the workspace root is `_______KDB3/KDB3`, use `js/dashboard/filters/**/*.js`
+globs:
+  - "KDB3/js/dashboard/filters/**/*.js"
+alwaysApply: false
+---
+
+# Special-right single-select filters
+
+- Applies only to filters whose config has `condition: "dstleitung"` or `condition: "Personengruppe"`.
+- Presence is rights-driven: special-right filters are removed first, then re-added only when the user has the matching filter right.
+- If the user has no matching filter right, the filter must remain absent. Do not leave a visible wrapper that only looks disabled.
+- The `Alle` option is controlled only by the `Alle` right, not by the per-filter right.
+- Do not wait for tab traversal in special-right startup under `KDB3/js/dashboard/filters/`. Scope discovery must come from Cognos scope APIs such as `getAllScopeIds()` (via `core/cognosApi/` wrappers per `cognosAPI.mdc`), not from `_KDB.state.tabs.allTraversed`.
+- Do NOT block early filter setup on a slow `Alle` table when the per-filter right is already known.
+- Start the first pass as soon as the first relevant filter right (`dstleitung` or `Personengruppe`) is known. Do not block that first pass on the other filter-right table.
+- Remove all special-right filters from all scopes first, confirm they are absent, then process whichever filter-right conditions are already known.
+- Process later filter-right conditions incrementally when they resolve. Do not treat "unknown yet" as the same thing as `false`.
+- Automatic special-right startup/default selection is global-only. Recreate allowed page-context tab filters too, but do not auto-write the global startup selection into those scopes.
+- After rights are known, use a short `Alle` grace period (about 500 ms) to decide whether the first desired selection is config default or `Alle`.
+- If filter right = true and `Alle` right = false:
+  - keep the filter present
+  - hide or disable the `Alle` option
+  - force the configured default selection from filter config (`displayValue` + `useValue`)
+- If filter right = true and `Alle` right = true:
+  - keep the filter present
+  - allow the `Alle` option
+  - initialize the filter to `Alle` / empty values
+- If `Alle` is still unresolved after the grace period, treat it as provisional `false` and apply the restrictive config default immediately.
+- If `Alle` resolves to `true` later, run a second reconcile pass:
+  - show `Alle`
+  - replace the global Cognos filter context with `[]`
+  - mirror the confirmed single-select state back to `Alle` in global scope
+- The late `Alle` reconcile must be idempotent. Do not re-run it when the first pass already used `Alle`.
+- Allowed filters must be recreated directly with the known desired values. Do not create an empty filter first and only later try to default it.
+- A special-right filter is only confirmed present after Cognos reports the expected values for the global filter scope and a present filter API for relevant page-context scopes.
+- The forced default or `Alle` value must be written only to global Cognos filter context and mirrored into `_KDB.state.filters.singleSelect.byScope.global` only after that confirmation step.
+- Page-context filters may be restored for presence/availability, but they must not automatically inherit the global startup selection.
+- Removal remains cross-scope so stale page-context copies are cleared first, while startup default selection remains global-only.
+- The single-select feature owns popup behavior; special-right logic owns availability, forced defaults, and `Alle` permission.
+
+See also: `cognosAPI.mdc`, `state.mdc`, `architecture.mdc` (update `filesExplained.md` / `eventSubscribe.md` when filter flows change).

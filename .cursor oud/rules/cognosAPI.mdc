@@ -1,0 +1,90 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Cognos API rules
+
+## Goal
+
+All calls to the Cognos Dashboard host API live behind one wrapper layer under `KDB3/js/core/cognosApi/`. Feature code never talks to the host directly.
+
+## What may live in a `cognosApi` file (hard rule)
+
+A module in `KDB3/js/core/cognosApi/` is **only** for:
+
+1. **Registering** thin methods on the `cognosAPI` object (later exposed as `_KDB.cognosAPI.<area>.*`).
+2. **One cohesive Cognos host chain per wrapper** — the chain always starts from the **sanctioned root** for that surface (for the Dashboard API: **`__getDashboardAPI()`** is the first link). Then only `.getFeature(...).<hostMethod>(...)` (or equivalent documented chain) with **no** extra behavior inserted in the middle.
+3. A **minimal function shell**: map arguments in/out, trivial guards (`if (!_KDB) return`), optional `try/catch` only if `cognosAPI.mdc` + project error policy explicitly allow it — **no** UI, **no** multi-step flows, **no** feature rules.
+
+**Good example (thin — entire Cognos expression is the wrapper body):**
+
+```js
+dashboard.getLanguage = fw("cognosAPI.dashboard.getLanguage", function () {
+  return __getDashboardAPI().getFeature("UserProfile").getProductLocale();
+});
+```
+
+Here `__getDashboardAPI().getFeature("UserProfile").getProductLocale()` **is** the full host API usage; the JS function is only the shell.
+
+**Bad in this folder (must be split out):**
+
+Anything that is **not** that single host chain + minimal shell — e.g. creating DOM nodes, confirmation dialogs, German/English copy, `addEventListener`, orchestrating user intent before/after the call. That belongs in **`dashboard/`**, **`core/tasks/`**, or another owning area; it may **call** `_KDB.cognosAPI.dashboard.<verb>(...)` after the UX decision.
+
+Concrete anti-pattern: a function that builds a fullscreen prompt and buttons, then **inside** a click handler calls `__getDashboardAPI().getFeature("DashboardState").setFullScreen(_state)`. Only the line equivalent to **`__getDashboardAPI().getFeature("DashboardState").setFullScreen(_state)`** stays in `cognosApi/`; **everything else** (DOM, events, copy) moves elsewhere.
+
+## Doc and console copy-paste (mandatory)
+
+IBM/Cognos samples and DevTools snippets use the **host root name** `__getDashboardAPI()` (exact spelling and casing). Wrapper source must use that **same** token after the dependency import so a line from the docs can be pasted into a wrapper **without renaming the root**.
+
+- **Do:** `define(["./dashboardApi.js"], function (__getDashboardAPI) { … return __getDashboardAPI().getFeature("DashboardState").setFullScreen(_state); })` — the AMD callback parameter is **named** `__getDashboardAPI` and holds the resolved host function; the chain after `__getDashboardAPI()` matches Cognos 1:1.
+- **Do not:** introduce a different root call in wrapper bodies (e.g. `getDashboardApi()`, `getDashboardAPI()`, or a custom alias). That breaks copy-paste from Cognos and from `_______KDB3` ↔ console.
+- **Allowed:** exactly **one** small module, **`dashboardApi.js`**, that resolves `__getDashboardAPI` from `globalThis` / `window` / `top` / `top.parent` and **returns** that function. No other “root rename” module.
+
+## Single source
+
+- **Folder:** `KDB3/js/core/cognosApi/` — every host wrapper for this cluster lives here.
+- **Registry:** `_KDB.cognosAPI.*` — populated by the cognos-API orchestrator at startup; feature code reads/calls only through this (or the interim `cognosAPI` object during registration, per existing bootstrap).
+- **Feature code** calls `_KDB.cognosAPI.<area>.<verb>(...)`.
+- **Forbidden:** direct use of host globals/handles (`dashboardAPI`, raw `canvas`, `widget`, …) outside this folder (except resolution inside `dashboardApi.js`).
+
+## Method chain roots
+
+- **Dashboard API:** every dashboard wrapper chain **starts with** `__getDashboardAPI()`. Do not duplicate alternate roots.
+- Other Cognos surfaces (if added later) get their own documented root getter; same rule — **one** documented entry per surface.
+
+## Why central
+
+- One place for Cognos quirks, async, and version differences.
+- One place for host-specific error normalization (without mixing UI).
+- Replaceable when Cognos changes; discoverable via grep under `core/cognosApi/`.
+
+## Wrapper discipline
+
+- **File names (nouns):** one file per Cognos **host area** / registration unit — e.g. `dashboard.js` for `_KDB.cognosAPI.dashboard.*`, **`dashboardApi.js`** for resolving the sanctioned dashboard root only. Do **not** use verb-led module names such as `getDashboardApi.js` or `registerDashboardMethods.js` (see `naming.mdc`).
+- Each **registered** method maps **one** clear host operation (`getLanguage`, `setFullScreen`, …). Not `handleX`, `doX`, `manageX`.
+- **Registration modules** (e.g. `dashboard.js`) may expose a single top-level `__controller` per `amd.mdc` that wires all methods; each attached function body stays a thin shell around the host chain.
+- **Line budget:** same hard limit as other JS under `structure.mdc` (outside `js/core/config/`). If a file grows, split by **sub-area** into additional small modules — never by stuffing UI into this folder.
+- If a thin wrapper is missing, add it here. Never inline a direct host call in feature code as a “temporary” shortcut.
+
+## Uncertainty
+
+If it is unclear whether behavior belongs in `cognosApi/` or in a feature module, **ask the user** before placing code (per `ai-discipline.mdc`). Default: **push outward** — keep `cognosApi/` as thin as possible.
+
+## Sync with state
+
+- See `state.mdc` § "Sync with Cognos-owned state".
+- A wrapper that mutates Cognos-owned state may still return a result; **mirrors** in `_KDB.state.*` are updated by the **canonical writer** for that region/task (often **after** the thin call returns), not by hiding extra logic inside `cognosApi/`.
+- After Cognos-driven events that change widget/filter state, trigger a rescan of the affected region — do not assume the host went through our setters.
+
+## Forbidden
+
+- DOM, prompts, listeners, copy, or multi-step UX inside `KDB3/js/core/cognosApi/`.
+- Direct host object references in feature folders.
+- Re-implementing a host call outside this folder.
+- “Fat” wrappers with business rules, branching product flows, or widget-specific knowledge.
+- Reading `_KDB.cognosAPI.*` before the orchestrator has populated it.
+- Wrapper bodies that call a **renamed** dashboard root instead of `__getDashboardAPI()` (see § Doc and console copy-paste).
+
+See also: `function-wrapper.mdc` (all executable JS still uses `fw` where required), `dependencies.mdc` (import direction), `logging.mdc` (`fLog`).

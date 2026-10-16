@@ -1,0 +1,84 @@
+.kdb-control_switch-row--icon .kdb-control_switch-label--glyph {
+  flex: 0 0 auto;
+  min-width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kdb-control_switch-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+.kdb-control_switch-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  width: 100%;
+  max-width: 20rem;
+  text-align: center;
+}
+.kdb-control_switch-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 400;
+}
+.kdb-control_switch-track {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.kdb-control_switch-track .kdb-control_switch-input {
+  position: absolute;
+  opacity: 0;
+  width: 44px;
+  height: 22px;
+  margin: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.kdb-control_switch-track .KDB_ToggleButton_slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+  background: #ccc;
+  border-radius: 22px;
+  transition: background 0.2s ease;
+  pointer-events: none;
+}
+.kdb-control_switch-track .KDB_ToggleButton_slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+.kdb-control_switch-track .kdb-control_switch-input:checked + .KDB_ToggleButton_slider {
+  background-color: var(--kdb-control-steuerung-switch-on, #0056b3);
+}
+.kdb-control_switch-track .kdb-control_switch-input:checked + .KDB_ToggleButton_slider::before {
+  transform: translateX(22px);
+}
+.kdb-control_switch-track .kdb-control_switch-input:focus + .KDB_ToggleButton_slider {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}

@@ -1,0 +1,93 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# DOM rules
+
+## Selectors live in `_KDB.elements.*`
+
+- Every CSS-selector and jQuery selector string lives in `_KDB.elements.*` as a getter function.
+- Feature code never writes selector strings directly. It calls the getter.
+- Adding a new selector means adding it to `_KDB.elements.*` first.
+
+### Getter contract
+
+A getter returns a node, a jQuery wrapper, or an array of nodes. It decides internally whether to cache:
+
+- Cache stable hosts (canvas root, dashboard root, controlContainer).
+- Never cache volatile content (popups, list rows, widget innards). Cognos rerenders these.
+- A cached node that is detached from the live DOM is a bug. The getter is responsible for invalidation when its scope dictates.
+
+### Mandatory scope argument
+
+Cognos can host multiple dashboards in one DOM. For anything that can appear in multiple dashboards on one page, the getter takes a scope element:
+
+```js
+_KDB.elements.widgetTitle(scope)   // required
+_KDB.elements.popupOption(scope)   // required
+_KDB.elements.canvasRoot()         // no scope: stable singleton
+```
+
+`document.querySelector` and `document`-scoped reads are forbidden in feature code.
+
+## jQuery
+
+- Default to vanilla DOM APIs.
+- Use jQuery when it produces clearer or shorter code (`$(node).closest()`, `$(node).data()`, traversal, virtualized-list iteration).
+- Never use jQuery selector strings. Always wrap an existing node: `$(_KDB.elements.foo())`.
+- Never use jQuery for things vanilla does as well (`element.classList.add` over `$(el).addClass`).
+
+## Builder / Placer / Mutator triade
+
+One file does one of three roles:
+
+| Role | Verb prefix | Contract |
+|---|---|---|
+| **Builder** | `build*` | Returns a detached DOM node. Does not mount, attach, or touch the live DOM. |
+| **Placer** | `place*` | Takes a built node and places it into the live DOM at a known mount point from `_KDB.elements.*`. |
+| **Mutator** | `update*`, `show*`, `hide*`, `toggle*`, `enable*`, `disable*` | Takes an existing live node and modifies it in place. Does not create new nodes. |
+
+Examples (each module exports `__controller`; import binding names reflect the file):
+
+```js
+const node = buildHeaderDom(_KDB);   // builder module, returns detached
+placeHeader(_KDB, node);             // placer module, mounts at _KDB.elements.headerMount()
+updateHeaderText(_KDB, "new text");  // mutator module, modifies live header
+```
+
+Rules:
+
+- `build*` MUST return a node and MUST NOT mount.
+- `place*` MUST mount and MUST NOT create new nodes.
+- `update*`/`show*`/`hide*`/`toggle*`/`enable*`/`disable*` MUST modify in place and MUST NOT create new nodes.
+- A file mixing two roles is split when next touched ("split on touch", not preventively).
+- `draw*` is replaced by `build*`. Migrate `drawX.js` to `buildX.js` when the file is touched.
+
+`set*` is reserved for state mutations (per `state.mdc`), never for DOM.
+
+## Event listeners
+
+Every event listener attached in feature code must have a matching teardown.
+
+### Storage location
+
+Listener handles live under `_KDB.state.<region>.listeners` — owned by the region's orchestrator (per `state.mdc` canonical writer rule).
+
+For per-widget listeners, that means `_KDB.state.widgets[<widgetId>].listeners`.
+
+### Mechanism
+
+Pick one consistently per region:
+
+- **a.** Store handles in the listeners array and call `removeEventListener` / `.off()` on cleanup.
+- **b.** Use `AbortController.signal` as the third addEventListener arg: `el.addEventListener("click", fn, { signal })`. Store the controller in the listeners array.
+
+Mechanism (b) is preferred when supported — one `controller.abort()` removes all listeners under that controller at once.
+
+### Lifecycle
+
+- On widget delete (`cleanWidget` module’s `__controller` per `state.mdc`), all listeners under `_KDB.state.widgets[id].listeners` are removed before the widget’s state record transitions.
+- On region cleanup, the region orchestrator removes all its listeners before discarding the region.
+- Delegated listeners on a long-lived ancestor (canvas root) are preferred for per-widget interactions — they survive widget rerenders without re-binding.

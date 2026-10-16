@@ -1,0 +1,59 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Logging rules
+
+## Goal
+
+- **`logKDB`** (global after bootstrap, and the function returned by `installLogKDB(_KDB)` from the AMD module) formats and writes to the console — consistent payload and severity.
+- **Single switch:** **`_KDB.properties.logging`** (`true` or `false`, from the Cognos dashboard spec or bootstrap default). When it is not strictly **`true`**, all `logKDB` calls are no-ops (no per-module toggles).
+
+## Bootstrap
+
+- **`installLogKDB(_KDB)`** runs inside **`publishGlobUtils`** `__controller`: wires module **`getKDB = installGetKDB(_KDB)`** in `logKDB.js`, defaults **`_KDB.properties.logging`** to **`false`** when undefined, and returns the `logKDB` function that `publishGlobUtils` publishes globally. **`__bootstrapOrchestrator`** only calls **`publishGlobUtils(_KDB)`**.
+- Feature code normally does not flip `_KDB.properties.logging` at runtime unless you add a debug affordance; default is off when the property was absent at init.
+
+## Per module
+
+At the top of a file that logs (after `_KDB` is available — typically inside `__controller` or via closure from `define` if `_KDB` is only passed in):
+
+```js
+const fLog =
+  _KDB.properties.logging === true ? installLogKDB(_KDB) : function () {};
+```
+
+(`installLogKDB` is the AMD binding for `core/bootstrap/globalUtils/logKDB.js`.) Or use the global **`logKDB`** after bootstrap instead of importing.
+
+Use only `fLog(...)` below that line — never branch on the flag at every call site.
+
+## Usage
+
+```js
+fLog("l", "start", { widgetId });
+
+try {
+  // ...
+} catch (err) {
+  fLog("e", "operation failed", { widgetId }, err);
+}
+```
+
+- First argument: `"l"` → `console.log`, `"w"` → `console.warn`, `"e"` → `console.error`.
+- `msg` is a short English string.
+- `info` is an optional plain object (serializable).
+- `err` is optional; pass the caught error for errors.
+
+## Central implementation
+
+- **`logKDB`** resolves **`_KDB`** via the module **`getKDB()`** closure (set in **`installLogKDB`** from `getKDB.js`), then reads **`_KDB.properties.logging`**; it owns payload shape and routing to `console.*`.
+- When **`_KDB.properties.logging !== true`**, the expensive path must not run inside `logKDB` — callers use the no-op `fLog` binding above.
+
+## Forbidden
+
+- Per-file or per-module logging toggles besides **`_KDB.properties.logging`** (single global switch).
+- Raw `console.log` / `console.warn` / `console.error` in feature code for diagnostic logging — go through `fLog` so the global switch applies.
+
+See also: `function-wrapper.mdc` (errors surface through the wrapper; logging complements that for explicit diagnostics).

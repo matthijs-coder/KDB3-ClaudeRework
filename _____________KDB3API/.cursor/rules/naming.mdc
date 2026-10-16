@@ -1,0 +1,212 @@
+---
+description: KDB3 naming for identifiers, files, folders, controllers, orchestrators, events and actions
+globs:
+  - KDB3/js/**/*.js
+  - KDB3/css/**/*.css
+alwaysApply: true
+---
+
+# Naming Rules
+
+This rule covers naming conventions across the project. It complements `feature-structure.mdc`, `error-handling.mdc`, `module-public-api.mdc` and `events.mdc`.
+
+All technical identifiers, file names, folder names, comments, actions, events, rule text and technical descriptions are English. German is reserved only for user-facing UI strings under `_KDB.config.labels.de.*`. Discussion with the AI may be in Dutch or English, but generated project artifacts default to English.
+
+## Identifier Casing
+
+- Functions and variables: `camelCase` (`buildHeader`, `widgetCount`).
+- Real module-level constants: `UPPER_SNAKE_CASE` (`DEFAULT_INTERVAL_MS`).
+- Classes and constructors: `PascalCase`.
+- CSS classes: `kebab-case` with project prefix `kdb-` (`.kdb-header`, `.kdb-widget-title`).
+
+No mixed-language identifiers. No Dutch or German technical names. Names like `bevestigSelectie`, `prufenWidget` or `auswahlSpeichern` are forbidden in technical code; translate to English.
+
+## Underscore Prefix For Boundary Inputs
+
+`_KDB` is the only allowed underscore-prefixed global.
+
+The underscore prefix is reserved for **boundary inputs**: values that crossed a file or named-function boundary from elsewhere in the system. The prefix signals "this was not constructed locally in this scope".
+
+Apply the prefix to:
+
+- AMD import bindings in the `define([...], function (...) {})` factory;
+- parameters of `__orchestrator`, `__controller` and `create<Module>Controller` factories;
+- parameters of named module-scope helper functions whose inputs come from outside the file (injected services, refs, ids, payloads received from other modules).
+
+```js
+define(["./readWidgetData.js"], function (_readWidgetData) {
+  function __controller(_KDB, _widgetId, _event) {
+    const rows = _readWidgetData(_KDB, _widgetId);
+    return rows.map(row => buildRowView(row));
+  }
+
+  function buildRowView(row) {
+    return { id: row.id, label: row.title };
+  }
+});
+```
+
+Do **not** apply the prefix to:
+
+- inline arrow callbacks within a single function scope (`rows.map(row => row.id)`, `arr.filter(x => x.active)`);
+- locally constructed event handlers (`el.addEventListener("click", evt => ...)`);
+- iteration variables in `for`/`for…of` loops;
+- parameters of small local helpers whose inputs are constructed within the same file from already-local values.
+
+Local variables built inside a function do not use an underscore prefix. Named helpers below a controller do not use a prefix unless they themselves receive boundary inputs; privacy comes from module scope, not naming.
+
+## Files And Folders
+
+Executable files use `verb + noun.js`:
+
+```txt
+readWidgetData.js
+buildTopNRows.js
+renderTopNList.js
+bindFilterEvents.js
+```
+
+Feature folders are nouns. Task folders may use `verb + noun` when the folder performs a clear task.
+
+Forbidden vague folder names:
+
+```txt
+helpers
+common
+misc
+manager
+shared
+stuff
+```
+
+Use precise verbs in file names. Good: `read`, `build`, `render`, `bind`, `apply`, `create`, `remove`, `sync`, `validate`, `parse`, `select`, `publish`, `subscribe`. Avoid weak verbs such as `handle`, `do`, `process`, `manage`.
+
+**New files** prefer `apply` / `commit` / `confirm` / `restore` / `bind` / `sync` when those verbs match the job. Split by **job** (one named responsibility), not by overflow under the 150-line cap. A leftover file named after the overflow (`Support`, `Helpers`, `Shared`, `Internals`) is forbidden for new code, equally with `handle` / `do` / `process` / `manage`. Existing `handle*.js` and leftover-suffix files are grandfathered; rename them only when the file is already open for another reason.
+
+New modules name action constants `config/actionTypes.js`. Existing `config/actions.js` is grandfathered.
+
+## Orchestrator And Controller Names
+
+Folder orchestrator file: `__orchestrator<FolderName>.js`. Its entry function is named:
+
+```js
+__orchestrator
+```
+
+Non-config executable file: first executable function is named:
+
+```js
+__controller
+```
+
+Module controller factory: `create<Module>Controller.js`, returning a public API object.
+
+Examples:
+
+```txt
+topN/__orchestratorTopN.js
+core/services/loadUserProfile/__orchestratorLoadUserProfile.js
+dashboard/canvas/kdbControl/createKdbControlController.js
+```
+
+Use only this orchestrator/controller form. Do not invent alternative entry-point names.
+
+## Module Public API Names
+
+Feature modules publish under `_KDB.api.<module>`. Services publish under `_KDB.services.<service>`. Cognos host wrappers publish under `_KDB.cognosAPI.<theme>.<function>` with that exact casing. See `module-public-api.mdc` for the method-set conventions.
+
+## Boolean Naming
+
+Booleans use a question prefix:
+
+- `is*` for current state (`isReady`);
+- `has*` for possession (`hasFilter`);
+- `can*` for capability (`canDrop`);
+- `should*` for intent (`shouldRefresh`);
+- `did*` for past tense check (`didLoad`).
+
+Do not use vague names like `flag`, `state` or `status` as boolean identifiers. Do not use negative names like `isNotReady`; use `isReady` and negate with `!`.
+
+## Readers, Writers And Actions
+
+- **Readers**: `read*` for cross-module reads (`readSelectedWidgetId`, `readActiveTabId`). Selector names referenced from declarative definitions live in a selector registry.
+- **Internal writers**: `set*` or `write*` inside the canonical writer's own module (`setSelectedWidget`, `writeKdbControlState`). Not exposed across module boundaries.
+- **Apply functions**: `apply*` for confirmed mutations that may also trigger effects (`applyFilterCommit`).
+- **Actions**: imperative verbs in the form `<module>/<action>`. Action names describe intent, not field paths.
+
+Avoid generic verbs like `update`, `change` or bare `set`. `set<Noun>` is allowed when the action explicitly names a pure value assignment. Prefer semantic verbs such as `toggle`, `apply`, `select`, `commit`, `reset`, `open`, `close` or `remove` when the action expresses intent or workflow rather than simple assignment.
+
+Good:
+
+```txt
+kdbControl/setTopN              // pure value assignment
+kdbControl/toggleLaunchpad      // intent / action
+filters/applyFilter             // workflow / effect
+widgets/selectWidget            // semantic action
+history/commitStep              // domain action
+launchpad/sendWidget            // domain action
+```
+
+Avoid:
+
+```txt
+kdbControl/update
+widgets/change
+filters/set
+launchpad/processWidget
+```
+
+## Event Names
+
+Event names are past tense for facts and imperative-with-`Requested` for requests, per `events.mdc`.
+
+| Type | Pattern | Example |
+|---|---|---|
+| Fact, region operates on entity | `<region>:<entity><VerbPast>` | `launchpad:widgetMoved`, `widgets:widgetSelected` |
+| Fact, region is the subject | `<region>:<VerbPast>` | `header:toggled`, `dashboard:initialized` |
+| Request | `<region>:<verb><Entity>Requested` | `launchpad:moveWidgetRequested` |
+
+Event entity segments use `camelCase`. Visual distinction between fact and request is mandatory: facts in past tense, requests end with `Requested`. Event-name constants live in the emitter's canonical home: by default `<emitterModule>/events/eventNames.js` (per `feature-structure.mdc`), or `KDB3/js/core/events/<region>.js` for legacy cross-region shared families. See `events.mdc`.
+
+## Lifecycle Term Names
+
+Lifecycle state values are strings from the canonical lifecycle vocabulary in `_____________KDB3API/.cursor/lifecycleVocabulary.md`. Use only terms defined there. Freshness terms such as `fresh` / `stale` are not lifecycle terms unless explicitly added to that vocabulary; see `state.mdc` for the lifecycle-vs-freshness distinction.
+
+## Files In Rules Folder
+
+`.mdc` rule files use `kebab-case.mdc`:
+
+```txt
+kdb-object.mdc
+state.mdc
+module-public-api.mdc
+feature-structure.mdc
+error-handling.mdc
+```
+
+No `feature-structuur.mdc` or other non-English variants.
+
+## When AI Must Ask
+
+The AI must explicitly ask the user when:
+
+- a needed name does not fit any pattern in this rule and a new pattern seems necessary;
+- a legacy name conflicts with the conventions and a safe renamed target is unclear;
+- a folder appears to belong to a vague category (`helpers`, `manager`, etc.) and decomposing into precise names is non-trivial.
+
+Ask-template: *"For `<thing>` I propose name `<X>` because `<reason>`. Acceptable, or should we discuss naming?"*
+
+## Anti-Goals
+
+- No mixed-language identifiers; no Dutch or German technical names.
+- No vague folder names (`helpers`, `common`, `misc`, `manager`, `shared`, `stuff`).
+- No leftover file suffixes (`Support`, `Helpers`, `Shared`, `Internals`) in new files; split by job, not by overflow.
+- No alternative orchestrator or controller entry-point names.
+- No boolean names without `is/has/can/should/did` prefix.
+- No `read*` methods on `_KDB.api.<module>` to bypass selectors (see `state.mdc`).
+- No present-tense event facts; no past-tense event requests.
+- No lifecycle terms outside the canonical vocabulary; freshness terms are not lifecycle terms.
+- No underscore prefix on inline callbacks, array iteration parameters, locally constructed event handlers or locally built values; the prefix is reserved for boundary inputs.
+- No bare `set` action names without an explicit `<Noun>` target; no `update` / `change` / `process` as action verbs.
+
+See also: `_____________KDB3API/architecture/stateOwnership.md`, `_____________KDB3API/architecture/projectStructureRules.md`.

@@ -1,0 +1,75 @@
+/* Background-color dropdown: kdbControl color-dropdown / swatch baseline */
+.KDB_IconsDropdown.KDB_backgroundColorContainer {
+  --kdb-ws-color-dropdown-border: 1px solid lightgrey;
+  --kdb-ws-color-dropdown-border-radius: 6px;
+  --kdb-ws-color-dropdown-max-height: 200px;
+  --kdb-ws-color-dropdown-bg: #fff;
+  --kdb-ws-color-dropdown-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --kdb-ws-color-swatch-padding-y: 10px;
+  --kdb-ws-color-swatch-padding-x: 10px;
+  --kdb-ws-color-swatch-hover-border-width: 1.5px;
+  --kdb-ws-color-swatch-border-idle: transparent;
+  --kdb-ws-color-swatch-hover-border-color: #000;
+  --kdb-ws-color-swatch-hover-font-weight: 700;
+  --kdb-ws-color-checkbox-gutter: 34px;
+  --kdb-ws-color-swatch-min-height: 36px;
+  width: max-content;
+  max-width: max-content;
+  padding: 0;
+  border: var(--kdb-ws-color-dropdown-border);
+  border-radius: var(--kdb-ws-color-dropdown-border-radius);
+  background: var(--kdb-ws-color-dropdown-bg);
+  box-shadow: var(--kdb-ws-color-dropdown-shadow);
+  max-height: var(--kdb-ws-color-dropdown-max-height);
+  flex-direction: column;
+  gap: 5px;
+}
+
+.KDB_IconsDropdown.KDB_backgroundColorContainer.KDB_visible {
+  display: flex;
+}
+
+.KDB_IconsDropdown.KDB_backgroundColorContainer .dataWidgetIcon.KDB_widgetSettings_colorOption {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--kdb-ws-color-swatch-min-height);
+  max-width: 100%;
+  padding: var(--kdb-ws-color-swatch-padding-y) var(--kdb-ws-color-swatch-padding-x)
+    var(--kdb-ws-color-swatch-padding-y) var(--kdb-ws-color-checkbox-gutter);
+  box-sizing: border-box;
+  border: var(--kdb-ws-color-swatch-hover-border-width) solid var(--kdb-ws-color-swatch-border-idle);
+  border-radius: 0;
+  margin: 0;
+  top: auto;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  text-align: left;
+  cursor: pointer;
+}
+
+.KDB_IconsDropdown.KDB_backgroundColorContainer .dataWidgetIcon.KDB_widgetSettings_colorOption:hover {
+  border-color: var(--kdb-ws-color-swatch-hover-border-color);
+  font-weight: var(--kdb-ws-color-swatch-hover-font-weight);
+  filter: none;
+  outline: none;
+}
+
+.KDB_IconsDropdown.KDB_backgroundColorContainer .dataWidgetIcon.KDB_widgetSettings_colorOption.KDB_optionSelected {
+  font-weight: 400;
+  text-decoration: none;
+  outline: none;
+}
+
+.KDB_IconsDropdown.KDB_backgroundColorContainer .dataWidgetIcon.KDB_widgetSettings_colorOption[data-kdb-default="1"] {
+  border-bottom: 2px dashed #000000;
+  margin-bottom: 5px;
+}
+
+.KDB_IconsDropdown.KDB_backgroundColorContainer .dataWidgetIcon.KDB_widgetSettings_colorOption.KDB_optionSelected:hover {
+  font-weight: var(--kdb-ws-color-swatch-hover-font-weight);
+}

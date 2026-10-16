@@ -1,0 +1,42 @@
+---
+description: Cognos extension deployment — AI cannot run the VM; console-only verification via RequireJS ext path vs runtime bridges.
+globs:
+alwaysApply: true
+---
+
+# Smoke testing (Cognos extension — AI cannot execute)
+
+## Facts the AI MUST assume
+
+- The AI has **no** access to the client Cognos VM; **never** claim you ran the dashboard or saw runtime output.
+- Production runtime resolves AMD from **`./v1/ext/KDB3/js/...`** (extension URL), **not** from the repo path on disk.
+
+## What the AI MUST output after changes that need verification
+
+- **Always** output **complete, copy-paste-ready browser-console JavaScript** for smoke/debug, plus **what to look for** in the output (strings, errors, order of logs).
+- **Always** ask the user to paste **console logs / network / RequireJS errors** back; treat user logs as the only ground truth.
+
+## Console bootstrap (MANDATORY order for new ext modules)
+
+1. `requirejs.config({ paths: { kdbExt: "./v1/ext/KDB3/js" }, waitSeconds: 45 });`
+2. Load **only files that are actually deployed under the extension** using ids starting with **`kdbExt/`** (example: `require(["kdbExt/dashboard/canvas/widgets/buildBindingPlan"], function (m) { ... });`).
+3. Use **`window.requirejs`** for **all** dynamic loads/callbacks (do **not** use `window.require`).
+
+## Module-id decision tree (MANDATORY before picking a `require([...])` id)
+
+- If the file is **new / only exists in the extension build** → use **`kdbExt/<pathUnderExtJs>`**.
+- If the module is **already part of the loaded Cognos app bundle** and **`kdbExt/...` returns 403** → **do not** keep trying `kdbExt/`; create/use a **bridge**: `define("tmpBridgeX", ["<runtimeModuleId>"], function (m) { return m; });` then `require(["tmpBridgeX"], ...)`, where `<runtimeModuleId>` is the **same id the running app uses** (e.g. `dashboard/...`, `core/...`).
+
+## Diagnose snippets the AI SHOULD include when debugging load failures
+
+- `requirejs.toUrl("kdbExt/...")` (or the bridged id) to print the resolved URL.
+- `fetch(requirejs.toUrl("kdbExt/..."), { method: "HEAD" }).then(r => console.log("HEAD", r.status)).catch(console.error);`
+- `requirejs.onError = function (e) { console.error(e && e.requireType, e && e.requireModules, e); };` (temporary; tell the user to remove after debugging if it overwrites an existing handler).
+
+## Error interpretation (MANDATORY mapping)
+
+- **404** on resolved URL → file **not deployed** or **wrong path** under ext.
+- **403** on `kdbExt/...` for a module that is **already bundled in runtime** → wrong strategy: **switch to runtime id + bridge**, not ext path.
+- **Timeout**, often with **mixed** `kdbExt/...` and `dashboard/...` ids → **loader context / unresolved dependency graph**; fix ids (bridge vs ext) and ensure `requirejs.config` ran first.
+
+See also: `briefs.mdc` (smoke confirmation), `ai-discipline.mdc` (no fabricated runtime results).

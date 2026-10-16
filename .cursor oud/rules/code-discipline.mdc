@@ -1,0 +1,75 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Code discipline rules
+
+## Strict equality
+
+- Always use `===` and `!==`. Never `==` or `!=`.
+- Allowed exception: `value == null` (matches both `null` and `undefined`). Spell this exception out where used.
+
+## Variable declaration
+
+- Use `const` by default.
+- Use `let` only when reassignment is required.
+- Do not use `var`.
+
+## No implicit globals
+
+- `"use strict"` is required at the top of every module wrapper (per `amd.mdc`).
+- Never assign to `window.<name>` from feature code.
+- Allowed `window` assignments are limited to **bootstrap / core init** wiring:
+  - `window._KDB = {}` where the host creates the registry (per `_KDB.mdc`).
+  - `globalThis.getKDB`, `window.getKDB`, and `window.top.getKDB` from `KDB3/js/core/bootstrap/globalUtils/publishGlobUtils.js` only (`__controller(_KDB)` after the KDB instance exists).
+  - `window.getWidget` from `js/core/tasks/init/setupGetWidget.js` (read-only helper; see `state.mdc`).
+  - `globalThis.wrapKDB` from `KDB3/js/core/bootstrap/globalUtils/publishGlobUtils.js` only (same factory reference as below).
+  - `window.wrapKDB` and `window.top.wrapKDB` from `KDB3/js/core/bootstrap/globalUtils/publishGlobUtils.js` only.
+  - Other host globals published through **`publishGlobUtils.js`** only when each name is added to this list in the same change (same `globalThis` / `window` / `window.top` pattern).
+- No other `window` pollution from feature modules.
+
+## Early return
+
+- Prefer early return over nested conditions.
+- Guard clauses come first; the happy path stays at the lowest indentation.
+- Maximum nesting depth: 3 levels (counting `if`, `for`, `while`, `try`). Beyond that, extract a helper or restructure with early returns.
+
+Example:
+
+```js
+// BAD
+function foo(x) {
+  if (x) {
+    if (x.valid) {
+      doStuff(x);
+    }
+  }
+}
+
+// GOOD
+function foo(x) {
+  if (!x) return;
+  if (!x.valid) return;
+  doStuff(x);
+}
+```
+
+## Magic numbers
+
+- A bare numeric literal in code without context is a magic number. Avoid them.
+- Acceptable forms (in order of preference):
+  1. **Named constant** at the top of the file (per `amd.mdc` layout): `const DEFAULT_INTERVAL_MS = 500;`
+  2. **Inline math that reveals meaning**: `30 * 60 * 1000` (= 30 minutes) instead of `1800000`.
+  3. **Inline comment** stating the unit/meaning when neither of the above fits.
+- Tiny obvious literals (`0`, `1`, `-1`, array indices, `length - 1`) are exempt.
+- Time durations: prefer the math form (`30 * 60 * 1000`) so the reader sees the intent without computation.
+
+## No `console.*` in feature code
+
+- Never use `console.log`, `console.warn`, or `console.error` in feature code.
+- All logging goes through `fLog` (per `logging.mdc`).
+- Allowed exceptions:
+  - The central logging module itself.
+  - The bootstrap, before the logging module is wired up.

@@ -1,0 +1,9 @@
+define([], function () {
+  "use strict";
+
+  return {
+    NOT_READY: "TABS_FILTER_SCOPE_TARGETS_NOT_READY",
+    RESOLVE_FAILED: "TABS_FILTER_SCOPE_TARGETS_FAILED",
+    SCOPE_MISSING: "TABS_FILTER_SCOPE_TARGET_SCOPE_MISSING"
+  };
+});

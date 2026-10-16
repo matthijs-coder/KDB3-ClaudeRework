@@ -1,0 +1,216 @@
+.kdb-message-root {
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  pointer-events: none;
+  font-family: inherit;
+}
+
+.kdb-message-backdrop {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: auto;
+}
+
+.kdb-message-dialog {
+  width: min(560px, calc(100vw - 48px));
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  border: 1px solid var(--neutral4, #8d8d8d);
+  border-radius: 4px;
+  background: var(--cognosWhite, #ffffff);
+  color: var(--cognosBlack, #161616);
+}
+
+.kdb-message-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--neutral2, #e0e0e0);
+}
+
+.kdb-message-dialog__title {
+  margin: 0;
+  font-size: 18px;
+  line-height: 24px;
+  font-weight: 600;
+}
+
+.kdb-message-dialog__close,
+.kdb-message-notification__close {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.kdb-message-dialog__close {
+  width: 28px;
+  height: 28px;
+  font-size: 24px;
+  line-height: 24px;
+}
+
+.kdb-message-dialog__body {
+  padding: 16px;
+}
+
+.kdb-message-dialog__message {
+  margin: 0;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.kdb-message-dialog__choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.kdb-message-dialog__choice,
+.kdb-message-dialog__button {
+  min-height: 36px;
+  padding: 7px 16px;
+  border: 1px solid var(--primary1, #0f62fe);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--primary1, #0f62fe);
+  cursor: pointer;
+  font: inherit;
+}
+
+.kdb-message-dialog:has([data-kdb-message-choice="home-close"]) .kdb-message-dialog__choices {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  width: max-content;
+  max-width: 100%;
+  margin-inline: auto;
+  gap: 8px;
+}
+
+.kdb-message-dialog:has([data-kdb-message-choice="home-close"]) .kdb-message-dialog__choice {
+  box-sizing: border-box;
+}
+
+.kdb-message-dialog__choice:disabled,
+.kdb-message-dialog__button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
+.kdb-message-dialog__button--primary {
+  background: var(--primary1, #0f62fe);
+  color: #ffffff;
+}
+
+.kdb-message-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px 16px;
+}
+
+.kdb-message-dialog__actions--with-action {
+  flex-wrap: wrap;
+}
+
+.kdb-message-dialog__copy-text {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 96px;
+  margin-top: 16px;
+  padding: 8px;
+  border: 1px solid var(--neutral4, #8d8d8d);
+  background: var(--neutral1, #f4f4f4);
+  color: inherit;
+  font: inherit;
+  resize: vertical;
+}
+
+.kdb-message-dialog--error .kdb-message-dialog__header {
+  border-top: 4px solid var(--supportError, #da1e28);
+}
+
+.kdb-message-dialog--warning .kdb-message-dialog__header {
+  border-top: 4px solid var(--supportWarning, #f1c21b);
+}
+
+.kdb-message-notification {
+  position: fixed;
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: min(420px, calc(100vw - 16px));
+  padding: 12px 14px;
+  border-left: 4px solid var(--primary1, #0f62fe);
+  background: var(--cognosWhite, #ffffff);
+  color: var(--cognosBlack, #161616);
+  pointer-events: auto;
+}
+
+.kdb-message-notification--success {
+  border-left-color: var(--supportSuccess, #198038);
+}
+
+.kdb-message-notification--warning {
+  border-left-color: var(--supportWarning, #f1c21b);
+}
+
+.kdb-message-notification--error {
+  border-left-color: var(--supportError, #da1e28);
+}
+
+.kdb-message-notification__text {
+  flex: 1 1 auto;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.kdb-message-notification__close {
+  width: 24px;
+  height: 24px;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+.kdb-message-dialog button:focus-visible,
+.kdb-message-notification button:focus-visible,
+.kdb-message-dialog__copy-text:focus-visible {
+  outline: 2px solid var(--primary1, #0f62fe);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .kdb-message-backdrop {
+    align-items: flex-end;
+    padding: 12px;
+  }
+
+  .kdb-message-dialog {
+    width: 100%;
+    max-height: calc(100vh - 24px);
+  }
+}
+
+.kdb-message-dialog__toggle {
+  display: flex;
+  justify-content: flex-start;
+  margin: 0 0 12px;
+}
+.kdb-message-dialog__toggle .kdb-control_switch-row {
+  justify-content: flex-start;
+  max-width: none;
+  width: auto;
+}

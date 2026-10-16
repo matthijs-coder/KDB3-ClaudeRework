@@ -1,0 +1,57 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Dependency rules
+
+## Direction
+
+- `dashboard/` may import from `core/`.
+- `core/` may NOT import from `dashboard/`.
+- A region inside `dashboard/` may import:
+  - from `core/`,
+  - from itself (own subfolders),
+  - from a *parent* dashboard folder via that parent's public orchestrator only.
+- A region may NOT reach into a *sibling* region's internals — only via that sibling's orchestrator module (`__controller`), or via shared parent code.
+
+Examples:
+
+- `dashboard/widgets/` imports from `core/cognosApi/` ✓
+- `dashboard/widgets/` imports `dashboard/tabs/getCurrentTabId.js` ✗ (sibling region internal)
+- `dashboard/widgets/` reads `_KDB.state.tabs.activeId` instead ✓ (shared state per `state.mdc`)
+- `core/cognosApi/` imports from `dashboard/header/` ✗ (`core` depending on `dashboard`)
+
+## Public coordination surface
+
+- A region’s public API is its **orchestrator module**: file `__<folderName>Orchestrator.js` (per `structure.mdc`). Import that module and invoke its exported **`__controller`** (per `naming.mdc`, `amd.mdc`).
+- All other files in the region are internals.
+- Cross-region code imports the orchestrator module, never sibling internals.
+- Within the same region, internals may import each other freely.
+
+## Max imports per file
+
+- Soft limit: 6 imports per file.
+- Hard limit: 10 imports per file.
+- Beyond 10 → split the file (file is doing too much) or extract a sub-orchestrator (see `structure.mdc` § File size and § When a file must split).
+- Orchestrators may sit at the higher end naturally — that is acceptable as long as each import has a clear coordination role.
+
+## Sibling actions
+
+Files inside `actions/` are leaves. They do not compose other actions.
+
+- `actions/` only exists as a sub-folder of a region (in `dashboard/`) or a task (in `core/tasks/` or in a region). Never directly under `core/` (per `structure.mdc § actions/ placement`).
+- An action MUST NOT import another action — neither cross-region nor same-region.
+- If two actions need shared logic, extract a non-action helper into the region or task (not into `actions/`).
+- If an action needs to trigger another action, route through the orchestrator of its containing region or task (per ownership rules in `structure.mdc`).
+
+## Lazy loading (`require([...])`)
+
+- Static `define([...])` imports are the default for code dependencies.
+- Dynamic `require([...])` is only allowed for:
+  1. Optional, large libraries loaded on-demand (e.g. PDF export, html2canvas).
+  2. Cognos host capabilities that are loaded by the host itself.
+- Allowed locations for dynamic `require([...])`: `core/api/` and a dedicated `core/lazy/` folder.
+- Each dynamic require has a comment explaining why static is unsuitable.
+- Module-load-time side effects from a dynamic require are forbidden — defer work inside the relevant module’s `__controller` (or a dedicated init task) instead of running at `define` load.

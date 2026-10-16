@@ -1,0 +1,91 @@
+#kdb-control-root.kdb-control {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: grid;
+  z-index: 9999;
+  position: relative;
+  grid-template-columns: minmax(0, 1fr) 30px;
+  grid-template-rows: minmax(0, 1fr);
+  align-items: stretch;
+  border: none;
+  padding: 0;
+  background: transparent;
+  font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --kdb-control-settings-block-vpad: 15px;
+  --kdb-control-settings-block-hpad: 10px;
+  --kdb-control-dropdown-border: 1px solid lightgrey;
+  --kdb-control-dropdown-border-radius: 6px;
+  --kdb-control-dropdown-max-height: 200px;
+  --kdb-control-dropdown-bg: #fff;
+  --kdb-control-dropdown-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  --kdb-control-dropdown-offset-top: 2px;
+  --kdb-control-dropdown-z-index: 30;
+  --kdb-control-color-swatch-padding-y: 10px;
+  --kdb-control-color-swatch-padding-x: 10px;
+  --kdb-control-color-swatch-text-shadow: 0 0 5px #fff;
+  --kdb-control-color-swatch-border-idle: transparent;
+  --kdb-control-color-swatch-hover-border-width: 1.5px;
+  --kdb-control-color-swatch-hover-border-color: #000;
+  --kdb-control-color-swatch-hover-font-weight: 700;
+}
+#kdb-control-root.kdb-control.kdb-control_collapsed {
+  grid-template-columns: 0 30px;
+  pointer-events: none;
+}
+.widget.KDB3Widget:has(> #kdb-control-root.kdb-control_collapsed) {
+  pointer-events: none;
+}
+#kdb-control-content.kdb-control__content {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-right: none;
+  padding: var(--kdb-control-settings-block-vpad) var(--kdb-control-settings-block-vpad) var(--kdb-control-settings-block-vpad) var(--kdb-control-settings-block-vpad);
+  background-color: #fff;
+}
+#kdb-control-root.kdb-control.kdb-control_collapsed #kdb-control-content.kdb-control__content {
+  visibility: hidden;
+  pointer-events: none;
+  overflow: hidden;
+  padding: 0;
+  border: none;
+}
+#kdb-control-arrow.kdb-control__collapse-arrow {
+  grid-column: 2;
+  grid-row: 1;
+  width: 30px;
+  min-width: 30px;
+  max-width: 30px;
+  box-sizing: border-box;
+  align-self: stretch;
+  background-color: #c0c0c0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border: 1px solid #999;
+  border-left: 1px solid #666;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  color: #111;
+  font-size: 22px;
+  line-height: 1;
+  font-weight: bold;
+  pointer-events: auto;
+}
+#kdb-control-content.kdb-control__content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto auto auto auto minmax(0, 1fr);
+  min-height: 28rem;
+  transition: opacity 0.2s ease;
+}
+#kdb-control-save-load-slot.KDB_loading > :not(.loadingIndicatorContainer) {
+  opacity: 0;
+  pointer-events: none;
+}

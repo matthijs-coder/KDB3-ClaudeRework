@@ -1,0 +1,205 @@
+/*
+legacy deny-list 2026-09-02 — keep until invert is Cognos-verified
+
+[* topbar *]
+#main:not(.KDB_developerMode) .ba-common-toolbar__item:has([walkme-data-id="analyticsView"]),
+#main:not(.KDB_developerMode) .ba-common-toolbar__item:has([walkme-data-id="ResetDashboard"]),
+#main:not(.KDB_developerMode) [id="com.ibm.ca.collaboration.sharePluginContainer"],
+#main:not(.KDB_developerMode) [id="com.ibm.bi.dashboard.saveMenuPluginContainer"],
+#main:not(.KDB_developerMode) [id="com.ibm.bi.dashboard.undoPluginContainer"],
+#main:not(.KDB_developerMode) [id="com.ibm.bi.dashboard.redoPluginContainer"],
+#main:not(.KDB_developerMode) .ba-common-toolbar__item button[data-id="analyticsView"],
+[* tabbar *]
+#main:not(.KDB_developerMode) .ba-common-toolbar__item button[data-id="ResetDashboard"],
+#main:not(.KDB_developerMode) .ba-common-toolbar__item button[data-id="changeVisTypeAction"],
+#main:not(.KDB_developerMode) .ba-common-toolbar__item button[data-id="launchExplore"],
+#main:not(.KDB_developerMode) .ba-common-toolbar__item button[data-id="lasso"],
+[* in widget *]
+#main:not(.KDB_developerMode) .ba-common-toolbar__item button[data-id="pin"],
+#main:not(.KDB_developerMode) .dataWidget.dataWidgetFilters,
+[* CA12 *]
+#main:not(.KDB_developerMode) .liveWidgetNarrativeInsights,
+#main:not(.KDB_developerMode) .liveWidgetForecast,
+#main:not(.KDB_developerMode) .ba-common-toolbar__item:has([data-id="embedSnippet"]),
+#main:not(.KDB_developerMode) .ba-common-toolbar__item:has([data-id="lasso"]),
+#main:not(.KDB_developerMode) .ba-common-toolbar__item:has([data-id="changeVisTypeAction"]),
+#main:not(.KDB_developerMode) .ba-common-toolbar__item:has([data-id="ResetDashboard"]),
+#main:not(.KDB_developerMode) .ba-common-toolbar__item:has([data-id="BookmarksAction"]),
+#main:not(.KDB_developerMode) .ba-common-toolbar__item:has([data-id="analyticsPanel"]),
+#main:not(.KDB_developerMode) .ba-common-toolbar__item:has([data-id="pin"]) {
+  display: none !important;
+}
+
+#main.KDB_developerMode .ba-common-toolbar__item:has([walkme-data-id="analyticsView"]),
+#main.KDB_developerMode .ba-common-toolbar__item:has([walkme-data-id="ResetDashboard"]),
+#main.KDB_developerMode [id="com.ibm.ca.collaboration.sharePluginContainer"],
+#main.KDB_developerMode [id="com.ibm.bi.dashboard.saveMenuPluginContainer"],
+#main.KDB_developerMode [id="com.ibm.bi.dashboard.undoPluginContainer"],
+#main.KDB_developerMode [id="com.ibm.bi.dashboard.redoPluginContainer"],
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="analyticsView"],
+[* tabbar *]
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="ResetDashboard"],
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="changeVisTypeAction"],
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="launchExplore"],
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="lasso"],
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="pin"],
+[* in widget *]
+#main.KDB_developerMode .dataWidget.dataWidgetFilters,
+#main.KDB_developerMode .liveWidgetNarrativeInsights,
+#main.KDB_developerMode .liveWidgetForecast,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="embedSnippet"]),
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="lasso"]),
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="changeVisTypeAction"]),
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="ResetDashboard"]),
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="BookmarksAction"]),
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="analyticsPanel"]),
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="pin"]) {
+  position: relative;
+  opacity: 0.75 !important;
+  filter: grayscale(70%) !important;
+}
+
+[* SUPER (top, centered) *]
+#main.KDB_developerMode .ba-common-toolbar__item:has([walkme-data-id="analyticsView"])::before,
+#main.KDB_developerMode .ba-common-toolbar__item:has([walkme-data-id="ResetDashboard"])::before,
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="ResetDashboard"]::before,
+[*#main.KDB_developerMode .ba-common-toolbar__item button[data-id="analyticsView"]::before,*]
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="changeVisTypeAction"]::before,
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="launchExplore"]::before,
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="lasso"]::before,
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="pin"]::before,
+#main.KDB_developerMode [id="com.ibm.ca.collaboration.sharePluginContainer"]::before,
+#main.KDB_developerMode [id="com.ibm.bi.dashboard.saveMenuPluginContainer"]::before,
+#main.KDB_developerMode [id="com.ibm.bi.dashboard.undoPluginContainer"]::before,
+#main.KDB_developerMode [id="com.ibm.bi.dashboard.redoPluginContainer"]::before,
+#main.KDB_developerMode .dataWidget.dataWidgetFilters::before,
+#main.KDB_developerMode .liveWidgetNarrativeInsights::before,
+#main.KDB_developerMode .liveWidgetForecast::before,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="embedSnippet"])::before,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="lasso"])::before,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="changeVisTypeAction"])::before,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="ResetDashboard"])::before,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="BookmarksAction"])::before,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="analyticsPanel"])::before,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="pin"])::before {
+  content: "SUPER";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #636363;
+}
+
+[* USER (bottom, centered) *]
+#main.KDB_developerMode .ba-common-toolbar__item:has([walkme-data-id="analyticsView"])::after,
+#main.KDB_developerMode .ba-common-toolbar__item:has([walkme-data-id="ResetDashboard"])::after,
+[*#main.KDB_developerMode .ba-common-toolbar__item button[data-id="ResetDashboard"]::after,*]
+[*#main.KDB_developerMode .ba-common-toolbar__item button[data-id="analyticsView"]::after,*]
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="changeVisTypeAction"]::after,
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="launchExplore"]::after,
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="lasso"]::after,
+#main.KDB_developerMode .ba-common-toolbar__item button[data-id="pin"]::after,
+#main.KDB_developerMode [id="com.ibm.ca.collaboration.sharePluginContainer"]::after,
+#main.KDB_developerMode [id="com.ibm.bi.dashboard.saveMenuPluginContainer"]::after,
+#main.KDB_developerMode [id="com.ibm.bi.dashboard.undoPluginContainer"]::after,
+#main.KDB_developerMode [id="com.ibm.bi.dashboard.redoPluginContainer"]::after,
+#main.KDB_developerMode .dataWidget.dataWidgetFilters::after,
+#main.KDB_developerMode .liveWidgetNarrativeInsights::after,
+#main.KDB_developerMode .liveWidgetForecast::after,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="embedSnippet"])::after,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="lasso"])::after,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="changeVisTypeAction"])::after,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="ResetDashboard"])::after,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="BookmarksAction"])::after,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="analyticsPanel"])::after,
+#main.KDB_developerMode .ba-common-toolbar__item:has([data-id="pin"])::after {
+  content: "USER";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 2px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  transform: translateY(2px);
+  color: #636363;
+}
+
+#main.KDB_developerMode .ba-common-toolbar__item:has([walkme-data-id="ResetDashboard"])::after {
+  transform: translateY(-1px);
+}
+*/
+
+#main:not(.KDB_developerMode) .ba-common-toolbar__item:not([data-id="FullScreen"]):not(:has([data-id="FullScreen"])):not([data-id="zoomAction"]):not(:has([data-id="zoomAction"])):not([data-id="filterDock"]):not(:has([data-id="filterDock"])):not([id="com.ibm.bi.dashboard.editToggleButtonPluginContainer"]):not(:has([id="com.ibm.bi.dashboard.editToggleButtonPluginContainer"])),
+#main:not(.KDB_developerMode) [id="com.ibm.bi.dashboard.toolbars.actionBar"] .pluginContainer:not([id="com.ibm.bi.dashboard.editToggleButtonPluginContainer"]),
+#main:not(.KDB_developerMode) .dataWidget.dataWidgetFilters,
+#main:not(.KDB_developerMode) .liveWidgetNarrativeInsights,
+#main:not(.KDB_developerMode) .liveWidgetForecast,
+#main:not(.KDB_developerMode) .widgetHeader .widgetIcons > .dataWidgetIcon:not(:has(.kdb_hyperlink_icon)) {
+  display: none !important;
+}
+
+#main.KDB_developerMode .ba-common-toolbar__item:not([data-id="FullScreen"]):not(:has([data-id="FullScreen"])):not([data-id="zoomAction"]):not(:has([data-id="zoomAction"])):not([data-id="filterDock"]):not(:has([data-id="filterDock"])):not([id="com.ibm.bi.dashboard.editToggleButtonPluginContainer"]):not(:has([id="com.ibm.bi.dashboard.editToggleButtonPluginContainer"])),
+#main.KDB_developerMode [id="com.ibm.bi.dashboard.toolbars.actionBar"] .pluginContainer:not([id="com.ibm.bi.dashboard.editToggleButtonPluginContainer"]),
+#main.KDB_developerMode .dataWidget.dataWidgetFilters,
+#main.KDB_developerMode .liveWidgetNarrativeInsights,
+#main.KDB_developerMode .liveWidgetForecast,
+#main.KDB_developerMode .widgetHeader .widgetIcons > .dataWidgetIcon:not(:has(.kdb_hyperlink_icon)) {
+  position: relative;
+  opacity: 0.75 !important;
+  filter: grayscale(70%) !important;
+}
+
+#main.KDB_developerMode .ba-common-toolbar__item:not([data-id="FullScreen"]):not(:has([data-id="FullScreen"])):not([data-id="zoomAction"]):not(:has([data-id="zoomAction"])):not([data-id="filterDock"]):not(:has([data-id="filterDock"])):not([id="com.ibm.bi.dashboard.editToggleButtonPluginContainer"]):not(:has([id="com.ibm.bi.dashboard.editToggleButtonPluginContainer"]))::before,
+#main.KDB_developerMode [id="com.ibm.bi.dashboard.toolbars.actionBar"] .pluginContainer:not([id="com.ibm.bi.dashboard.editToggleButtonPluginContainer"])::before,
+#main.KDB_developerMode .dataWidget.dataWidgetFilters::before,
+#main.KDB_developerMode .liveWidgetNarrativeInsights::before,
+#main.KDB_developerMode .liveWidgetForecast::before,
+#main.KDB_developerMode .widgetHeader .widgetIcons > .dataWidgetIcon:not(:has(.kdb_hyperlink_icon))::before {
+  content: "SUPER";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  color: #636363;
+}
+
+#main.KDB_developerMode .ba-common-toolbar__item:not([data-id="FullScreen"]):not(:has([data-id="FullScreen"])):not([data-id="zoomAction"]):not(:has([data-id="zoomAction"])):not([data-id="filterDock"]):not(:has([data-id="filterDock"])):not([id="com.ibm.bi.dashboard.editToggleButtonPluginContainer"]):not(:has([id="com.ibm.bi.dashboard.editToggleButtonPluginContainer"]))::after,
+#main.KDB_developerMode [id="com.ibm.bi.dashboard.toolbars.actionBar"] .pluginContainer:not([id="com.ibm.bi.dashboard.editToggleButtonPluginContainer"])::after,
+#main.KDB_developerMode .dataWidget.dataWidgetFilters::after,
+#main.KDB_developerMode .liveWidgetNarrativeInsights::after,
+#main.KDB_developerMode .liveWidgetForecast::after,
+#main.KDB_developerMode .widgetHeader .widgetIcons > .dataWidgetIcon:not(:has(.kdb_hyperlink_icon))::after {
+  content: "USER";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 2px;
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  transform: translateY(2px);
+  color: #636363;
+}

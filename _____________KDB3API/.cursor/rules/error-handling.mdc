@@ -1,0 +1,190 @@
+---
+description: KDB3 error handling: mandatory try/catch on named executables, reducer vs effect, error state, cross-module propagation, logging
+globs:
+  - KDB3/js/**/*.js
+alwaysApply: true
+---
+
+# Error Handling Rules
+
+Errors are handled where the code has the context to act on them. Every named executable function, event subscriber and async function gets a local `try/catch`. Reducers stay pure and are exempt. Boundaries convert errors into state, return values or fact-events; other functions log and rethrow.
+
+## Mandatory Try/Catch
+
+Add a local `try/catch` to every function in the categories below. Use named functions; do not introduce generic wrapper utilities.
+
+**Required:**
+
+- **Named exported or returned functions** — AMD module exports, controller factories, public API methods, orchestrator entry points.
+- **Named internal helpers with executable logic** — effects, view builders, DOM/event handlers, validation, parsing, orchestration steps with more than a trivial one-liner body.
+- **Event subscriber handlers** — every `_KDB.events.subscribe` callback that runs project code.
+- **Async functions and async I/O** — every `async function`, Promise chain started as fire-and-forget, and Cognos/external call sites in effects (not necessarily inside thin Cognos host wrappers when those wrappers are pure one-liners).
+- **DOM / timer / observer callbacks with logic** — named handlers attached via `addEventListener`, `setTimeout`, `MutationObserver`, and similar.
+
+**Exempt (no try/catch required):**
+
+- **Pure reducers** — `state + action → nextState`; no I/O, no throw (see below).
+- **Pure one-liner helpers** — a single return expression with no I/O, no DOM, no Cognos, no event emit (for example `return value && value.id || null`).
+- **Declarative config and constants** — selector maps, action type strings, static tables.
+
+When adding or editing executable code, default to including `try/catch` unless the function clearly matches an exempt category.
+
+## Catch Shape And Propagation
+
+```js
+function readWidgetRows(_KDB, _tableName) {
+  try {
+    return _KDB.services.tableData.read(_tableName);
+  } catch (err) {
+    console.error("[tableDataService.readWidgetRows] failed", { tableName: _tableName }, err);
+    throw err;
+  }
+}
+```
+
+Rules:
+
+- Include the function or boundary name in the log prefix.
+- Pass the original `error` object as a separate argument.
+- Add only compact diagnostic context; do not log full `_KDB`, DOM subtrees or datasets.
+- **Non-boundary functions:** log, then `throw err` to propagate.
+- **Boundary functions:** log once, then convert — do not rethrow unless documented.
+
+**Avoid duplicate logs:** when an outer function only delegates to one inner named function and has no extra logic, the inner function owns the log; the outer `catch` may rethrow without logging. When the outer function adds meaningful steps, it logs with its own context.
+
+## Boundaries That Convert Errors
+
+These functions still require `try/catch`, but they **convert** instead of rethrowing:
+
+- **Root lifecycle** — dashboard bootstrap, module `mount` / `destroy`, service startup.
+- **Event subscriber outer isolation** — subscriber must not break the bus or sibling subscribers.
+- **Fire-and-forget async** — background polls, observer reactions, deferred initialisations without a caller `await` chain.
+- **AbortController-aware async** — paired with `if (signal.aborted) return;` after every `await`; filter `AbortError`.
+
+Wrapping exempt pure one-liners in `try/catch` is unnecessary.
+
+## Reducers Stay Pure, Effects Carry Risk
+
+Per `_____________KDB3API/architecture/projectStructureRules.md`:
+
+- Reducers are `state + action → nextState`. They do not throw, do not perform I/O, and do not use `try/catch`. An invalid action is ignored, normalised, or turned into state with a clearly named `error` field.
+- Effects are where Cognos calls, DOM mutations, event publishing and async work live. Effects follow the mandatory `try/catch` rules above.
+
+A reducer that needs to "validate" input uses a thin pure validator helper; the validator returns a result tag, not a throw.
+
+## Error State Lives In Lifecycle
+
+A module that owns a `_KDB.state.<subtree>` records error-relevant facts in two orthogonal fields per `state.mdc`:
+
+- `lifecycle` — the canonical lifecycle term from `lifecycleVocabulary.md` (for example `error`).
+- a descriptive payload — `errorReason`, `errorCode`, `errorMessage` — kept JSON-serialisable.
+
+```js
+// Owner-internal write (tableDataService is the canonical writer for _KDB.state.tableData):
+_KDB.state.tableData.pkz = {
+  lifecycle: "error",
+  freshness: "stale",
+  errorCode: "COGNOS_HOST_UNAVAILABLE",
+  errorMessage: "Cognos host did not return rows within timeout."
+};
+```
+
+Lifecycle and freshness remain independent: a table with an error in the last reload may keep its older rows as `stale` content. Do not invent hybrid lifecycle terms (`stale-error`, `partial-failure`); split the dimensions.
+
+## Cross-Module Error Propagation
+
+A module never writes another module's state on error. Foreign error-propagation goes through one of:
+
+- **Return value or rejected Promise** from the public API method (`_KDB.api.<owner>.dispatch` returns a result; `_KDB.services.<service>.<method>` returns a value or rejects).
+- **Fact-event** emitted by the owner after the failure is confirmed and recorded in its own state, for example `tableData:loadFailed`.
+
+```js
+// Inside the canonical writer (tableDataService) only:
+// Owner records its own error state, then emits a documented fact-event.
+_KDB.state.tableData.pkz.lifecycle = "error";
+_KDB.events.emit("tableData:loadFailed", { tableName: "pkz", errorCode });
+```
+
+```js
+// Forbidden: a foreign module (not tableDataService) writing an error field on
+// another module's subtree. Even one-line "harmless" foreign writes are out.
+_KDB.state.tableData.pkz.lifecycle = "error";
+```
+
+Consumers of a fact-event react inside their own subtree (show a banner, queue a retry, update an indicator), never by writing the emitter's state.
+
+## Console Logging
+
+Logs at error boundaries follow these rules:
+
+- **Specific context.** Include the function or boundary name and the operation that failed; do not log a bare `error`.
+- **No silent swallowing.** A `catch` that does not log and does not turn the error into a state, return value, fact-event, or rethrow is forbidden.
+- **Boundary converts once.** A boundary that handles the failure logs with boundary context and converts; it does not also rethrow unless documented.
+
+```js
+var outcome = await dataQueryFacet.readQueryRows(widgetId, { budgetMs: 60000 });
+if (!outcome || outcome.ok !== true) {
+  console.error("[tableDataService.reloadTable:pkz] Cognos readQueryRows failed", outcome);
+  markTableDataFailed(_KDB, { tableName: "pkz", errorCode: errorCode });
+}
+```
+
+Use the canonical `console.error` / `console.warn` / `console.info` channels. Project-wide structured logging, when introduced, will live in a `loggingService`; until then, prefixed `console.error` is the standard error log.
+
+## Async And Abort
+
+Async work follows the runtime discipline per `runtime.mdc`:
+
+- the operation is started with an `AbortController` registered under `_KDB.runtime.<owner>.abortControllers`;
+- after every `await`, the code checks `if (signal.aborted) return;` to ignore stale results;
+- abort-induced rejections are filtered out of the error log;
+- real failures follow the mandatory `try/catch` and boundary rules above.
+
+```js
+const controller = new AbortController();
+_KDB.runtime.tableData.abortControllers.reloadPkz = controller;
+
+try {
+  const rows = await fetchRows({ signal: controller.signal });
+  if (controller.signal.aborted) return;
+  applyRows(rows);
+} catch (err) {
+  if (err.name === "AbortError") return;            // expected on teardown
+  console.error("[tableDataService.reloadPkz] fetchRows failed", err);
+  markFailed(err);
+}
+```
+
+A `try/catch` without abort awareness around abortable work is incomplete and treated as a bug.
+
+## When AI Must Ask
+
+The AI must explicitly ask the user when at least one of these triggers applies:
+
+- a function appears exempt but its body includes I/O, DOM, Cognos, or event emit;
+- a new error-related field is proposed on a `_KDB.state.<subtree>` that is not yet covered by `errorCode` / `errorMessage` or the lifecycle vocabulary;
+- a planned recovery flow would write or modify foreign state on failure;
+- swallowing an error appears justified ("expected fail-path"); AI proposes a documented fact-event or return-value path instead;
+- a reducer appears to need to throw, perform I/O, or use `try/catch` to express an error.
+
+Do not ask when:
+
+- the function matches a mandatory or exempt category and the catch follows the shape above;
+- the error is an AbortError on documented abortable work;
+- a fact-event already documented in `eventSubscribe.md` is being emitted at its owner's documented confirmation point.
+
+Ask-template: *"For `<error-path>` I propose `<mandatory catch | boundary conversion | exempt category>` because `<reason>`. Acceptable?"*
+
+## Anti-Goals
+
+- No new executable named function, subscriber, or async function without `try/catch`, unless it matches an exempt category.
+- No throwing inside reducers; reducers stay pure and skip `try/catch`.
+- No silent `catch` blocks; every caught error becomes a log, a state write, a fact-event, a return value, or a rethrow.
+- No foreign state writes on error; owner records its own error state and emits a documented fact-event.
+- No hybrid lifecycle terms for errors (`stale-error`, `partial-failure`); separate `lifecycle` from `freshness` and from descriptive payload fields.
+- No bare `console.error(err)` logs without a function or boundary tag and operation context.
+- No generic wrapper utilities that exist only to add `try/catch`; use local blocks in named functions.
+- No `try/catch` around abortable work without an `AbortError` filter and `signal.aborted` check after each `await`.
+- No project-specific exception class hierarchies; native `Error` plus a serialisable `errorCode` string covers our needs until a documented case requires more.
+
+See also: `_____________KDB3API/architecture/projectStructureRules.md`, `_____________KDB3API/.cursor/lifecycleVocabulary.md`, `state.mdc`, `runtime.mdc`, `events.mdc`, `module-public-api.mdc`.

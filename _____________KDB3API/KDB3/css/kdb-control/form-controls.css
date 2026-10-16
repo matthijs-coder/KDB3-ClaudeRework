@@ -1,0 +1,112 @@
+.kdb-control_input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  width: 100%;
+  max-width: 16rem;
+  align-items: center;
+  text-align: center;
+}
+.kdb-control_input-label {
+  font-size: 16px;
+  font-weight: 400;
+  color: #333;
+}
+.kdb-control_text-input {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 16rem;
+  padding: 6px 8px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.kdb-control_twoinput-row .kdb-control_text-input {
+  width: 100%;
+}
+.kdb-control_oneinput-row .kdb-control_text-input {
+  width: calc(50% - 10px);
+}
+.kdb-control_color-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  gap: 2px;
+}
+.kdb-control_color-input-wrap {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.kdb-control_color-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + var(--kdb-control-dropdown-offset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: max-content;
+  z-index: var(--kdb-control-dropdown-z-index);
+  box-sizing: border-box;
+  border: var(--kdb-control-dropdown-border);
+  border-radius: var(--kdb-control-dropdown-border-radius);
+  background: var(--kdb-control-dropdown-bg);
+  box-shadow: var(--kdb-control-dropdown-shadow);
+  max-height: var(--kdb-control-dropdown-max-height);
+  overflow-y: auto;
+}
+.kdb-control_color-field--open .kdb-control_color-dropdown {
+  display: block;
+}
+.kdb-control_color-palette {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+.kdb-control_color-swatch {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--kdb-control-color-swatch-padding-y) var(--kdb-control-color-swatch-padding-x);
+  border: var(--kdb-control-color-swatch-hover-border-width) solid var(--kdb-control-color-swatch-border-idle);
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;
+  color: #111;
+  /* text-shadow: var(--kdb-control-color-swatch-text-shadow); */
+  box-sizing: border-box;
+}
+.kdb-control_color-swatch:hover {
+  border-color: var(--kdb-control-color-swatch-hover-border-color);
+  font-weight: var(--kdb-control-color-swatch-hover-font-weight);
+}
+.kdb-control_color-swatch--width-ghost {
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+  font-weight: var(--kdb-control-color-swatch-hover-font-weight);
+  cursor: default;
+  width: max-content;
+  max-width: 100%;
+  align-self: center;
+  min-height: 0;
+  height: 0;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 0;
+  overflow: hidden;
+  border-top: none;
+  border-bottom: none;
+}

@@ -1,0 +1,347 @@
+.widget.liveWidget.maximizable .resizeEdge.topRight {
+    top: 10px !important;
+    right: -14px !important;
+    width: 2px;
+    height: 2px;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.defaultTheme .widget .resizeEdge .resizePoint .svgContainer,
+.defaultTheme .pagegroup .resizeEdge .resizePoint .svgContainer {
+    background-color: #fff;
+    border-color: #161616;
+    /* border: 2px solid !important; */
+    border-left: none;
+}
+
+.expandModeContainer .KDB_focusModeSettingsPanel {
+    position: relative;
+    width: 100%;
+    transform: none;
+    margin: 0 0 6px 0;
+    z-index: 65;
+}
+
+.expandModeContainer .KDB_focusModeSettingsPanel.KDB_visible {
+    display: flex !important;
+    flex-direction: column;
+    align-items: stretch;
+    overflow: visible;
+    opacity: 1;
+    transform: none;
+}
+
+.KDB_focusModeSettingsPanel .KDB_maximizeButton,
+.KDB_focusModeSettingsPanel .KDB_unmaximizeButton {
+    display: none !important;
+}
+
+.KDB_focusModeSettingsPanel[data-kdb-vis-type="list"] .dataWidgetIcon.KDB_showValuesButton {
+    display: none;
+}
+
+.KDB_focusModeSettingsPanel[data-kdb-vis-type="prognose"] .dataWidgetIcon.KDB_groupingButton,
+.KDB_focusModeSettingsPanel[data-kdb-vis-type="com.ibm.vis.custom.prognoseyear"] .dataWidgetIcon.KDB_groupingButton,
+.KDB_focusModeSettingsPanel[data-kdb-vis-type="com.ibm.vis.custom.prognoseyearlinechart"] .dataWidgetIcon.KDB_groupingButton {
+    display: none;
+}
+
+.expandModeContainer .KDB_widgetSettingsButton {
+    display: inline-block !important;
+}
+
+/* keeps the expand gear hidden after the canvas hide is scoped to .dashboardFrame. The existing expand SHOW is less specific and must keep losing. */
+.expandModeContainer .widget .KDB_widgetSettingsButton {
+    display: none !important;
+}
+
+.dashboardFrame:not(.kdb-widget-chrome-always) .widget:not(.nodeSelected) .kdb_hyperlink_icon {
+    display: none !important;
+}
+
+.dashboardFrame:not(.kdb-widget-chrome-always) .widget:not(.nodeSelected) .dataWidgetIcon:has(.kdb_hyperlink_icon) {
+    display: none !important;
+}
+
+.expandModeContainer .widget .widgetHeader .dataWidgetIcon:has(.kdb_hyperlink_icon),
+.expandModeContainer .widget > .kdb-datapoint-pkz {
+    display: none !important;
+}
+
+.expandModeContainer > .kdb-expand-drillthrough-column {
+    position: absolute;
+    top: 32px;
+    right: 4px;
+    z-index: 2;
+    width: 25px;
+}
+
+.expandModeContainer > .kdb-expand-drillthrough-column .dataWidgetIcon:has(.kdb_hyperlink_icon),
+.expandModeContainer > .kdb-expand-drillthrough-column > .kdb-datapoint-pkz {
+    display: block !important;
+    position: relative;
+    right: auto !important;
+    width: 25px;
+    height: 25px;
+    min-height: 25px;
+    margin: 0 0 4px 0;
+    padding: 0;
+    border: none;
+}
+
+.expandModeContainer .liveWidget .KDB_widgetSettingsIcons {
+    right: 80px !important;
+    position: relative;
+}
+
+/* jquery-ui.css sets .ui-resizable { position: relative }. The class stays after disarm.
+   Shell left/top are dropbox coordinates and require position: absolute. */
+.page .widget.ui-resizable,
+.page .liveWidget.ui-resizable,
+.page .textWidget.ui-resizable {
+    position: absolute;
+}
+
+.widget.resizable-div.resizable-active .ui-resizable-handle,
+.liveWidget.resizable-div.resizable-active .ui-resizable-handle,
+.textWidget.resizable-div.resizable-active .ui-resizable-handle {
+    width: 8px !important;
+    height: 8px !important;
+    display: block !important;
+    position: absolute;
+    z-index: 10020 !important;
+    color: #000000;
+    background-color: #000000;
+    border: none;
+    box-sizing: border-box;
+}
+
+.widget.resizable-div.resizable-active .ui-resizable-n,
+.widget.resizable-div.resizable-active .ui-resizable-s,
+.liveWidget.resizable-div.resizable-active .ui-resizable-n,
+.liveWidget.resizable-div.resizable-active .ui-resizable-s,
+.textWidget.resizable-div.resizable-active .ui-resizable-n,
+.textWidget.resizable-div.resizable-active .ui-resizable-s {
+    left: 50%;
+    margin-left: -4px;
+    cursor: ns-resize;
+}
+
+.widget.resizable-div.resizable-active .ui-resizable-n,
+.liveWidget.resizable-div.resizable-active .ui-resizable-n,
+.textWidget.resizable-div.resizable-active .ui-resizable-n {
+    top: -4px;
+}
+
+.widget.resizable-div.resizable-active .ui-resizable-s,
+.liveWidget.resizable-div.resizable-active .ui-resizable-s,
+.textWidget.resizable-div.resizable-active .ui-resizable-s {
+    bottom: -4px;
+}
+
+.widget.resizable-div.resizable-active .ui-resizable-e,
+.widget.resizable-div.resizable-active .ui-resizable-w,
+.liveWidget.resizable-div.resizable-active .ui-resizable-e,
+.liveWidget.resizable-div.resizable-active .ui-resizable-w,
+.textWidget.resizable-div.resizable-active .ui-resizable-e,
+.textWidget.resizable-div.resizable-active .ui-resizable-w {
+    top: 50%;
+    margin-top: -4px;
+    cursor: ew-resize;
+}
+
+.widget.resizable-div.resizable-active .ui-resizable-e,
+.liveWidget.resizable-div.resizable-active .ui-resizable-e,
+.textWidget.resizable-div.resizable-active .ui-resizable-e {
+    right: -4px;
+}
+
+.widget.resizable-div.resizable-active .ui-resizable-w,
+.liveWidget.resizable-div.resizable-active .ui-resizable-w,
+.textWidget.resizable-div.resizable-active .ui-resizable-w {
+    left: -4px;
+}
+
+.widget.resizable-div.resizable-active .ui-resizable-ne,
+.widget.resizable-div.resizable-active .ui-resizable-nw,
+.widget.resizable-div.resizable-active .ui-resizable-se,
+.widget.resizable-div.resizable-active .ui-resizable-sw,
+.liveWidget.resizable-div.resizable-active .ui-resizable-ne,
+.liveWidget.resizable-div.resizable-active .ui-resizable-nw,
+.liveWidget.resizable-div.resizable-active .ui-resizable-se,
+.liveWidget.resizable-div.resizable-active .ui-resizable-sw,
+.textWidget.resizable-div.resizable-active .ui-resizable-ne,
+.textWidget.resizable-div.resizable-active .ui-resizable-nw,
+.textWidget.resizable-div.resizable-active .ui-resizable-se,
+.textWidget.resizable-div.resizable-active .ui-resizable-sw {
+    margin: 0;
+}
+
+.widget.resizable-div.resizable-active .ui-resizable-ne,
+.liveWidget.resizable-div.resizable-active .ui-resizable-ne,
+.textWidget.resizable-div.resizable-active .ui-resizable-ne {
+    top: -4px;
+    right: -4px;
+    cursor: nesw-resize;
+}
+
+.widget.resizable-div.resizable-active .ui-resizable-nw,
+.liveWidget.resizable-div.resizable-active .ui-resizable-nw,
+.textWidget.resizable-div.resizable-active .ui-resizable-nw {
+    top: -4px;
+    left: -4px;
+    cursor: nwse-resize;
+}
+
+.widget.resizable-div.resizable-active .ui-resizable-se,
+.liveWidget.resizable-div.resizable-active .ui-resizable-se,
+.textWidget.resizable-div.resizable-active .ui-resizable-se {
+    right: -4px;
+    bottom: -4px;
+    cursor: nwse-resize;
+}
+
+.widget.resizable-div.resizable-active .ui-resizable-sw,
+.liveWidget.resizable-div.resizable-active .ui-resizable-sw,
+.textWidget.resizable-div.resizable-active .ui-resizable-sw {
+    left: -4px;
+    bottom: -4px;
+    cursor: nesw-resize;
+}
+
+.kdb_hyperlink {
+    text-decoration: none;
+    color: inherit;
+}
+
+.kdb_hyperlink,
+.kdb_hyperlink:hover,
+.kdb_hyperlink:focus {
+    color: black;
+}
+
+.kdb_hyperlink_icon {
+    display: inline-block;
+    width: 21px;
+    height: 21px;
+    background-image: url(../../images/pkzDrillthrough.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    top: 1.5px !important;
+    position: relative;
+    right: -0.5px;
+}
+
+.widget .widgetHeader .dataWidgetIcon:has(.kdb_hyperlink_icon),
+.widget.liveWidget.maximizable > .kdb-datapoint-pkz,
+.widget.liveWidget.maximizable > .kdb-widget-maximize {
+    position: absolute;
+    right: -26px !important;
+    width: 25px;
+    height: 25px;
+    min-height: 25px;
+    margin: 0;
+    padding: 0;
+    border-top: 2px solid black;
+    border-right: 2px solid black;
+    border-bottom: 2px solid black;
+}
+
+.widget .widgetHeader .dataWidgetIcon:has(.kdb_hyperlink_icon) {
+    top: 31px;
+    z-index: 2;
+}
+
+.widget.draggable [data-kdb-widget-move-handle],
+.widget.draggable .KDB_widgetMoveHandleHost,
+.liveWidget.draggable [data-kdb-widget-move-handle],
+.liveWidget.draggable .KDB_widgetMoveHandleHost,
+.textWidget.draggable [data-kdb-widget-move-handle],
+.textWidget.draggable .KDB_widgetMoveHandleHost {
+    display: block;
+}
+
+.widget [data-kdb-widget-move-handle],
+.widget .KDB_widgetMoveHandleHost,
+.liveWidget [data-kdb-widget-move-handle],
+.liveWidget .KDB_widgetMoveHandleHost,
+.textWidget [data-kdb-widget-move-handle],
+.textWidget .KDB_widgetMoveHandleHost {
+    position: absolute;
+    top: -18px;
+    left: 50%;
+    width: 42px;
+    height: 14px;
+    margin-left: -21px;
+    border-radius: 7px;
+    color: #000000;
+    background-color: #000000;
+    border: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    cursor: move;
+    z-index: 9999;
+}
+
+.widget [data-kdb-widget-move-handle]::before,
+.widget .KDB_widgetMoveHandleHost::before,
+.liveWidget [data-kdb-widget-move-handle]::before,
+.liveWidget .KDB_widgetMoveHandleHost::before,
+.textWidget [data-kdb-widget-move-handle]::before,
+.textWidget .KDB_widgetMoveHandleHost::before {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 9px;
+    width: 24px;
+    height: 8px;
+    background-image: radial-gradient(#ffffff 1px, transparent 1px);
+    background-size: 6px 4px;
+}
+
+.widget.liveWidget.maximizable > .kdb-datapoint-pkz {
+    top: 63px;
+    z-index: 3;
+}
+
+.widget.liveWidget.maximizable > .kdb-widget-maximize {
+    top: -1px;
+    z-index: 4;
+    background-image: url(../../images/maximize_32.svg);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+}
+
+.widget.liveWidget.maximizable > .kdb-datapoint-pkz .kdb_hyperlink_icon,
+.expandModeContainer > .kdb-expand-drillthrough-column > .kdb-datapoint-pkz .kdb_hyperlink_icon {
+    background-image: url(../../images/datapoint_pkzDrillthrough.png);
+    width: 100%;
+    height: 100%;
+    top: auto !important;
+    right: auto;
+    position: static;
+}
+
+.widget.nodeSelected {
+    z-index: 2;
+}
+
+.dashboardFrame:not(.kdb-widget-chrome-always) .widget:not(.nodeSelected) > .kdb-datapoint-pkz {
+    display: none !important;
+}
+
+.dashboardFrame:not(.kdb-widget-chrome-always) .widget:not(.nodeSelected) > .kdb-widget-maximize {
+    display: none !important;
+}
+
+.expandModeContainer .kdb-widget-maximize {
+    display: none !important;
+}
+
+.Legend .swatchListWrapper li {
+    justify-content: flex-start;
+}
+

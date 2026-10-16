@@ -1,0 +1,86 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# AMD module rules
+
+## Goal
+
+- Every JS file is an AMD module loadable by RequireJS in the Cognos host.
+- Cross-file code access goes through AMD imports — not through globals.
+
+## Module shape
+
+- Exactly one `define([...], function (...) { ... })` per file.
+- First statement inside the wrapper is `"use strict";`.
+- Exactly one public coordinating function per file: **`__controller`** (per `naming.mdc`).
+- `__controller` is the first function defined, immediately after constants.
+- Helpers live below `__controller` and stay private to the module.
+
+Recommended layout (file `buildHeaderDom.js`):
+
+```js
+define(["../path/to/dep.js"], function (dep) {
+  "use strict";
+
+  // ─── Constants ──────────────────────────────
+  const SOME_CONST = [...];
+
+  // ─── Public surface ─────────────────────────
+  function __controller(_KDB) {
+    helperA(_KDB);
+    helperB(_KDB);
+  }
+
+  // ─── Helpers ────────────────────────────────
+  function helperA(_KDB) { ... }
+  function helperB(_KDB) { ... }
+
+  return __controller;
+});
+```
+
+## Return value
+
+- Return `__controller` directly: `return __controller;`.
+- Or return an object whose callable surface is `__controller` plus named **static** properties if siblings need them (e.g. `__controller.mergeSettings` on a canonical setter module — rare; document in `filesExplained.md`).
+- Never export more than one *callable* module pattern. If two natural entry points exist, split the file (per `structure.mdc`).
+
+## Cross-module access
+
+- Use AMD imports for code: `define(["../path/to/file.js"], function (file) { ... })`.
+- Use `_KDB.*` only for state and configuration (see `state.mdc`), never as a workaround to skip an AMD import.
+- A module never reaches into another module via a global; it imports it.
+
+## Import path validation (mandatory)
+
+RequireJS resolves relative paths *before* the module body runs. A wrong path is a hard, pre-runtime error that crashes the dashboard. The `try/catch` policy does **not** catch it — the wrapper function is never called.
+
+For every relative path in `define([...])`:
+1. Count the `../` segments + the tail path.
+2. Resolve relative to the source file's directory.
+3. Confirm the target file exists (via `Glob` or `Read`).
+
+Validate before saving the file, not after smoke-testing.
+
+## Circular import detection (mandatory)
+
+Before saving a file that adds or changes an import, walk the dependency chain to confirm no cycle is introduced:
+
+1. List the new imports of file A.
+2. For each imported file B, read its imports.
+3. If any path leads back to A → cycle. Refactor before saving.
+4. For dependency direction issues, see `dependencies.mdc`.
+
+Cycles in AMD lead to one module receiving an `undefined` reference at load — silent and hard to debug. Detect at write-time, not at smoke.
+
+## Forbidden
+
+- ES module syntax (`import` / `export`).
+- CommonJS (`require()` outside the AMD wrapper).
+- Side effects at module load other than the `define` call itself.
+- Circular dependencies between modules.
+- Loading code by string-concatenated paths.
+- Dynamic `require([...])` outside the locations allowed by `dependencies.mdc` § "Lazy loading".

@@ -1,0 +1,70 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Labels / i18n rules
+
+## Source of truth on disk
+
+- All user-facing strings (labels, tooltips, titles, messages, button text) are **defined only** in modules under `KDB3/js/core/config/labels/`.
+- Do not introduce or edit label text in feature code, renderers, or ad-hoc config files outside that directory.
+
+## Wiring to `_KDB.config.labels`
+
+- During bootstrap / config initialization — before any feature reads labels — a dedicated loader (or the labels modules themselves) must assemble the full tree and assign it to `_KDB.config.labels` in one deterministic step (or merge in a single orchestrated place). After that step, treat `_KDB.config.labels` as read-only for the session.
+- Feature code must not assign into `_KDB.config.labels.*` at runtime.
+
+## Single source at runtime
+
+- After init, `_KDB.config.labels.*` is the lookup tree the app uses; it must reflect exactly what was loaded from `KDB3/js/core/config/labels/`.
+- Feature code reads strings; never hardcodes them.
+- Categorize in the on-disk tree (and thus under `_KDB.config.labels`) per UI area, e.g. `tooltips.drillthrough`, `messages.welcome`, `buttons.save`, consistent between files under `labels/` and the resulting `_KDB.config.labels` shape.
+
+## Language keys
+
+- Each label entry is an object keyed by language code: `de`, `en`.
+- Other languages are out of scope for now.
+
+```js
+// Example shape after load — typically built from modules under js/core/config/labels/
+_KDB.config.labels.tooltips.drillthrough = {
+  de: "Hier klicken um den Wert im PKZ-AT detaillierter betrachten zu können.",
+  en: "Click here to view the value in PKZ-AT in more detail."
+};
+```
+
+## Active language
+
+- The active language is read from `_KDB.config.language` (e.g. `"de"` or `"en"`).
+- Feature code looks up strings via a helper: `_KDB.generalFunctions.label(_KDB, "tooltips.drillthrough")` returns the string in the active language.
+- The helper falls back to `de` if the active language has no entry.
+
+## AI translation responsibility
+
+When a sub-chat introduces a new user-facing string OR encounters an existing German-only string while editing:
+
+1. The German text is the source of truth (existing project content is in German).
+2. The sub-chat MUST add or update the entry under `KDB3/js/core/config/labels/` (not inline in feature code) and ensure the loaded result includes both `de` and `en` for new or modified labels. No `de`-only entries are allowed for new or modified labels.
+3. Translation quality is the sub-chat's responsibility — no machine-translation placeholders, no `"TODO translate"`.
+
+## What is NOT a label
+
+Strings used in technical contexts are NOT labels and stay inline:
+
+- log messages (`fLog("e", "doStuff failed", ...)`)
+- error keys / internal codes
+- CSS class names
+- DOM ids
+- event names
+- AMD module paths
+
+If in doubt: would a translator ever see this string in production UI? If yes → label in `KDB3/js/core/config/labels/` and on `_KDB.config.labels`. If no → inline.
+
+## Forbidden
+
+- Hardcoded user-facing strings in feature code.
+- Defining label text outside `KDB3/js/core/config/labels/` (except the single bootstrap/loader step that attaches to `_KDB.config.labels`).
+- Single-language label entries for new/modified labels.
+- Reading raw `_KDB.config.labels.*` outside the helper — always go through `_KDB.generalFunctions.label(...)` so language-fallback stays centralized.

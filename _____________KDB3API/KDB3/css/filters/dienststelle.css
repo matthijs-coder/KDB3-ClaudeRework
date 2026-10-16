@@ -1,0 +1,51 @@
+/*
+ * Dienststelle variant visibility — root class on #filterDockContainer drives show/hide.
+ * Uses :has() for wrapper-level targeting (Chrome 105+, Firefox 121+, Safari 15.4+).
+ * Pre-JS: all variant wrappers hidden until root class is synced.
+ */
+
+#filterDockContainer .filterItemWrapper:has([data-id="Dienststelle_BW"]),
+#filterDockContainer .filterItemWrapper:has([data-id="Dienststelle_DEZPV"]) {
+  display: none !important;
+  width: 150px !important;
+  max-width: 225px !important;
+}
+
+#filterDockContainer.KDB_dienststelleActive_BW
+  #filterDock__global
+  .filterItemWrapper:has([data-id="Dienststelle_BW"]),
+#filterDockContainer.KDB_dienststelleActive_BW
+  #filterDock__other
+  .filterItemWrapper:has([data-id="Dienststelle_BW"]),
+#filterDockContainer.KDB_dienststelleActive_DEZPV
+  #filterDock__global
+  .filterItemWrapper:has([data-id="Dienststelle_DEZPV"]),
+#filterDockContainer.KDB_dienststelleActive_DEZPV
+  #filterDock__other
+  .filterItemWrapper:has([data-id="Dienststelle_DEZPV"]) {
+  display: inline-flex !important; 
+}
+
+/*
+ * Hide raw Cognos hierarchy labels until each node is marked ready by display sync.
+ */
+#filterDockContainer.KDB_dienststelleActive_DEZPV
+  .filterItemWrapper:has([data-id="Dienststelle_DEZPV"])
+  .wa-filterDock-filterItemMount
+  .ba-common-truncatedText:has(
+    .ba-common-truncatedText__text:not(.KDB_dienststelle_popupLabelsReady),
+    [data-tid="ba-common-truncated-text__text-node"]:not(.KDB_dienststelle_popupLabelsReady)
+  ),
+#filterDockContainer.KDB_dienststelleActive_DEZPV
+  .filterItemWrapper:has([data-id="Dienststelle_DEZPV"])
+  .wa-filterDock-filterItemMount
+  .ba-common-truncatedText__text:not(.KDB_dienststelle_popupLabelsReady),
+#filterDockContainer.KDB_dienststelleActive_DEZPV
+  .filterItemWrapper:has([data-id="Dienststelle_DEZPV"])
+  .wa-filterDock-filterItemMount
+  [data-tid="ba-common-truncated-text__text-node"]:not(.KDB_dienststelle_popupLabelsReady) {
+  visibility: hidden;
+  opacity: 0;
+  color: transparent;
+}
+

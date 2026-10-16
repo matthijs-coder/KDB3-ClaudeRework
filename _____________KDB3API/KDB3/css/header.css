@@ -1,0 +1,228 @@
+.KDB_topHeaderWrapper {
+  position: relative;
+  z-index: 10001;
+  box-sizing: border-box;
+  width: -webkit-fill-available;
+  max-width: 100%;
+  display: flex;
+  height: 50px;
+  justify-content: center;
+  justify-items: center;
+  justify-self: center;
+  padding-right: 20px;
+  padding-left: 20px;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+}
+
+.KDB_topHeaderWrapper.KDB_topHeaderWrapper--hasSubtitle {
+  height: 60px;
+}
+
+.KDB_topHeader {
+  color: black;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  background-color: white;
+  text-align: center;
+  vertical-align: middle;
+  border: none;
+  border-bottom: 1px solid rgb(232, 232, 232);
+  border-radius: 0;
+  box-shadow: none;
+  padding-top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.KDB_topHeader_leftEmptyContainer {
+  display: inline-block;
+  min-width: 25%;
+  width: 25%;
+  max-width: 25%;
+  background-color: orange;
+}
+
+.KDB_topHeader_textContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 50%;
+  height: inherit;
+  text-align: center;
+  background-color: transparent;
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  width: -webkit-fill-available;
+}
+
+.KDB_topHeader_headerText {
+  display: block;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+  box-sizing: border-box;
+  height: auto;
+  margin: 0;
+}
+
+.KDB_topHeader_headerText:empty::before {
+  content: "text hier eingeben";
+  color: black;
+}
+
+.kdb-header-subtitle-text:empty::before {
+  content: "text hier eingeben";
+  color: black;
+}
+
+.KDB_topHeader_right {
+  display: inline-flex;
+  text-align: right;
+  vertical-align: middle;
+  min-width: 25%;
+  width: 25%;
+  max-width: 25%;
+}
+
+.KDB_topHeader_iconContainer {
+  display: block;
+  width: 100%;
+  width: -webkit-fill-available;
+  text-align: right;
+  position: relative;
+}
+
+.headerIcon {
+  display: inline;
+  height: 50px;
+  text-align: right;
+  padding-right: 0;
+  padding-left: 0;
+  transform: translateY(1px)
+}
+
+.KDB_topHeaderWrapper--hasSubtitle .headerIcon {
+  height: 56px;
+}
+
+
+
+.KDB_topHeader_headerText p {
+  display: contents;
+}
+
+.KDB_topHeader_userManualIconContainer {
+  padding-left: 50px;
+  padding-right: 5px;
+  min-width: auto;
+  cursor: pointer;
+  position: relative;
+  top: 50%;
+}
+
+#KDB_userManual {
+  height: 24px;
+  position: relative;
+  top: calc(50% - 10px);
+  padding-top: 2.5px;
+  padding-bottom: 2.5px;
+}
+
+.KDB_topHeader_dataSpotIconContainer {
+  padding-left: 5px;
+  padding-right: 50px;
+  min-width: auto;
+  cursor: pointer;
+  position: relative;
+  top: 50%;
+  padding-top: 5px;
+}
+
+#KDB_dataSpotIcon {
+  height: 24px;
+  position: relative;
+  top: calc(50% - 12px);
+}
+
+#KDB_topHeader .KDB_topHeader_textContainer p {
+  font-weight: bold;
+}
+
+#KDB_topHeader .KDB_topHeader_textContainer p#KDB__topHeader_headerText {
+  margin: 0;
+  padding: 0;
+  font-size: 30px;
+  font-weight: bold;
+  display: block;
+  line-height: 1;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+#KDB__topHeader_headerText,
+#KDB__topHeader_subtitleText {
+  display: block;
+  margin: 0;
+}
+
+.KDB_topHeaderWrapper .kdb-header-subtitle-text {
+  display: none;
+}
+
+.KDB_topHeaderWrapper.KDB_topHeaderWrapper--hasSubtitle .kdb-header-subtitle-text {
+  display: block;
+}
+
+.KDB_topHeaderWrapper.KDB_topHeaderWrapper--hasSubtitle #KDB_topHeader p#KDB__topHeader_headerText {
+  line-height: 1;
+  font-size: 30px;
+  padding-top: 0;
+  padding-bottom: 5px;
+}
+
+.KDB_topHeaderWrapper.KDB_topHeaderWrapper--hasSubtitle #KDB_topHeader p#KDB__topHeader_subtitleText {
+  line-height: 0.8;
+  font-size: 24px;
+  padding-bottom: 5px;
+  font-weight: 600;
+}
+
+#KDB__topHeader_headerText[contenteditable="true"],
+#KDB__topHeader_subtitleText[contenteditable="true"] {
+  outline: 1px dashed #9f9f9f;
+  padding: 2px 8px;
+  min-width: 8ch;
+  cursor: text;
+}
+
+#KDB__topHeader_headerText[contenteditable="true"]:focus,
+#KDB__topHeader_subtitleText[contenteditable="true"]:focus {
+  outline: 2px solid #4a90e2;
+}
+
+.kdb-header-edit-selected {
+  background: rgba(74, 144, 226, 0.08);
+}
+
+.kdb-dashboard-header-draft {
+  display: none !important;
+  box-sizing: border-box;
+  width: 100%;
+  margin-top: 4px;
+  padding: 2px 8px;
+  font: inherit;
+  border: 1px dashed #9f9f9f;
+  border-radius: 0;
+  background: #fff;
+}

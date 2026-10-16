@@ -1,0 +1,88 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Performance rules
+
+## Debounce / throttle
+
+Mandatory wrappers for high-frequency native events:
+
+| Event | Wrapper | Suggested delay |
+|---|---|---|
+| `resize` | debounce | ~150 ms |
+| `scroll` | throttle | ~50 ms (use rAF for paint-related work) |
+| `mousemove` | throttle / rAF | per frame |
+| `wheel` | throttle | ~50 ms |
+| `input` / `keyup` (typing) | debounce | ~200 ms |
+
+Mandatory throttle for repeated programmatic events:
+- Cognos `filterContextChanged` rescans → throttle to coalesce bursts.
+- Drag-position updates → rAF.
+
+Rules:
+- Use `_KDB.generalFunctions.debounce` / `_KDB.generalFunctions.throttle` (single source per `_KDB.mdc`).
+- Do not roll your own per file.
+- Always store the wrapped handler in `_KDB.state.<region>.listeners` (per `dom.mdc`) so cleanup actually removes it.
+
+## No synchronous heavy work in the render path
+
+No synchronous heavy work inside:
+- DOM event handlers that fire on user interaction (click, drag, mousemove, wheel, scroll).
+- `requestAnimationFrame` callbacks.
+- Cognos lifecycle hooks (widget render, content events).
+
+"Heavy" means any of:
+- O(n) over a collection larger than ~100 items.
+- JSON-serialize over a large object.
+- Layout-thrashing read-write loops.
+- Anything that triggers another render synchronously.
+
+Heavy work moves to:
+- A deferred call (`setTimeout(fn, 0)` or `queueMicrotask`).
+- A debounced or throttled handler.
+- A single rAF callback per frame, batched.
+
+Always read all DOM measurements first, then write. Never call `getBoundingClientRect()` inside a write loop.
+
+## Deep clones
+
+Forbidden: `JSON.parse(JSON.stringify(...))` for deep cloning.
+
+It drops functions, turns dates into strings, loses `undefined`, throws on circular refs, and is slow.
+
+Prefer in this order:
+1. Avoid the clone entirely. Most "I need to clone state" calls are a sign of a missing canonical writer (per `state.mdc`).
+2. Native `structuredClone(value)` — handles dates, maps, sets, circular refs.
+3. `_KDB.generalFunctions.deepClone` — only if `structuredClone` is unavailable in the host's JS engine.
+
+Shallow clones (`{...obj}`, `Object.assign({}, obj)`, `[...arr]`) are fine for one-level copies.
+
+Do not clone DOM nodes for state. Store an id or selector reference and re-resolve via `_KDB.elements.*`.
+
+## Cache invalidation
+
+### Tables (`_KDB.state.tables` or wherever loaded)
+
+- Loaded once at startup by the loader region. Treated as read-only after load.
+- Cache invalidation is the loader region's responsibility; no other region invalidates.
+- Triggers for invalidation:
+  1. Explicit user action that reloads parameter cubes.
+  2. Cognos writeback-restore that re-runs the data pipeline.
+- After invalidation, dependent regions are notified via an event (per `naming.mdc` event format), not by direct call.
+
+### Properties (`_KDB.properties.*`)
+
+- Loaded at startup from the dashboard spec (per `_KDB.mdc` § "properties vs state").
+- Re-parsed when the user edits a property in the Cognos property panel.
+- The property-loader region is the single canonical writer for `_KDB.properties.*`.
+- Other regions read only and re-read on the corresponding event (`properties:reloaded` per `naming.mdc`).
+
+## Memoization
+
+- Memoize pure derived data only when it is recomputed in a hot path AND the inputs are stable.
+- Memoization keys must be primitives or stable refs — not freshly-built objects. (`Map<string, T>` or `WeakMap<obj, T>`.)
+- Invalidate memoized values when the underlying state changes; the writer of that state is responsible.
+- Do not memoize anything that touches the DOM — DOM is volatile and the cache becomes stale immediately.

@@ -1,0 +1,35 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# File-system rules
+
+## No backup or temp files in the main tree
+
+The main editable app tree is `_______KDB3/KDB3/` (CSS, JS, HTML/templates, assets for the redesign).
+
+Forbidden under `_______KDB3/KDB3/`:
+
+- `*_old.*`, `*_backup.*`, `*_v1.*`, `*_v2.*`, `*_temp.*`, `*_copy.*`
+- Files with `.bak`, `.tmp`, `.orig`, `.save` extensions
+- Suffix-renamed duplicates of any kind
+
+A file you want to delete is deleted, not renamed with a suffix.
+
+## "Keep for reference" code
+
+- Code worth keeping for reference does NOT live under `_______KDB3/KDB3/`.
+- Move it to `_______KDB3/humanDocs/` (human-only; AI read/write rules per `ai-discipline.mdc`). Use a subfolder such as `humanDocs/notes/` if you want a dedicated scratch area.
+- Reference snippets in briefs/docs should be inline citations (path + line range), not duplicated files.
+
+## `architecture/` is not a dump tree
+
+- `_______KDB3/architecture/` holds only the **catalog** files (`filesExplained.md`, `eventSubscribe.md`, … per `architecture.mdc`). Do not place backup copies, forks, or “old version” source files there.
+
+## Deletes are real deletes
+
+- When a file is no longer used, delete it.
+- Do not leave orphaned files "in case".
+- The git-loze nature of the project makes orphans dangerous: nobody knows whether they are still wired up.

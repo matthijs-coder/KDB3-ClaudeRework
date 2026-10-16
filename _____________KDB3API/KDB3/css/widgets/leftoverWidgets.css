@@ -1,0 +1,22 @@
+#main:not(.KDB_developerMode)
+  .widget:not(#kdb3widget):not(.KDB3Widget):not(:has(.KDB_widgetSettings)):not([aria-label="WritebackTabel"]):not([aria-label="WritebackTable"]):not([aria-label="WritebackTabel_Get"]):not([aria-label="WritebackTabel_Set"]) {
+  visibility: hidden;
+}
+
+#main.KDB_developerMode .kdb-hidedata-save-hint {
+  position: absolute;
+  top: calc(50% - 25px);
+  left: 8px;
+  right: 8px;
+  z-index: 10040;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #1b1b1b;
+  background-color: #f5d76e;
+  border: 1px solid #8a6d12;
+  pointer-events: none;
+  height: 50px;
+}

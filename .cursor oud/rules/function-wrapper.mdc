@@ -1,0 +1,220 @@
+---
+alwaysApply: true
+---
+---
+description: Enforce global wrapKDB usage in every JavaScript/TypeScript file
+globs: **/*.{js,ts,jsx,tsx}
+alwaysApply: true
+---
+
+# Mandatory Function Wrapper Rule
+
+Every JavaScript/TypeScript file must wrap all executable logic with the global `wrapKDB`.
+
+Exception: the file that defines the global `wrapKDB` factory itself is excluded.
+
+The canonical definition module is **`KDB3/js/core/bootstrap/globalUtils/wrapKDB.js`** (AMD). It exposes the callable `wrapKDB(modulePath)` factory and is exempt from requiring `const fw = wrapKDB(...)` and from wrapping its own internal functions with `fw`. **`KDB3/js/core/bootstrap/globalUtils/publishGlobUtils.js`** is the only module that assigns `wrapKDB` (and other allowed globals) to `globalThis` / `window` / `window.top`; that file contains host-publish wiring only (no `fw` required there). All other JavaScript files under `KDB3/js/` follow the full wrapper rules.
+
+## File-level wrapper
+
+After imports and directives, define a local wrapper named `fw`.
+
+```js
+const fw = wrapKDB("path/to/currentFile.js");
+```
+
+The path must identify the current file or logical module in error logs.
+
+Allowed before `fw`:
+
+- imports
+- type-only imports
+- comments
+- `"use strict"` or similar directives
+
+No executable logic may appear before `fw`.
+
+## Core rule
+
+Every executable function must be wrapped with `fw`.
+
+This includes:
+
+- named functions
+- anonymous functions
+- arrow functions
+- async functions
+- object methods
+- class methods
+- exported functions
+- nested functions
+- callbacks
+- iterator callbacks
+- event handlers
+- promise callbacks
+- timer callbacks
+
+Required pattern:
+
+```js
+const renderBars = fw("topNRenderer.renderBars", function (container, data) {
+  // implementation
+});
+```
+
+Async:
+
+```js
+const loadData = fw("topNService.loadData", async function () {
+  // implementation
+});
+```
+
+Export:
+
+```js
+export const renderBars = fw("topNRenderer.renderBars", function () {
+  // implementation
+});
+```
+
+## Object and class methods
+
+Object methods must be wrapped directly.
+
+```js
+const topNRenderer = {
+  render: fw("topNRenderer.render", function () {
+    // implementation
+  })
+};
+```
+
+Class methods must either be wrapped class fields or delegate only to a wrapped implementation.
+
+```js
+class TopNController {
+  initialize = fw("TopNController.initialize", function () {
+    // implementation
+  });
+}
+```
+
+Alternative:
+
+```js
+class TopNController {
+  initialize() {
+    return initializeTopNController.apply(this, arguments);
+  }
+}
+
+const initializeTopNController = fw("TopNController.initialize", function () {
+  // implementation
+});
+```
+
+The delegating method must contain no additional logic.
+
+## Callback rule
+
+Wrapping an outer function is not enough.
+
+Every callback inside a wrapped function must also be wrapped.
+
+This applies to:
+
+- `forEach`
+- `map`
+- `filter`
+- `reduce`
+- `some`
+- `every`
+- `find`
+- `findIndex`
+- `sort`
+- `flatMap`
+- `addEventListener`
+- jQuery `.on()`
+- `.then()`
+- `.catch()`
+- `setTimeout`
+- `setInterval`
+
+Correct:
+
+```js
+items.forEach(
+  fw("items.forEach:initializeItem", function (item, index) {
+    initializeItem(item, index);
+  })
+);
+```
+
+Incorrect:
+
+```js
+items.forEach(item => {
+  initializeItem(item);
+});
+```
+
+## Forbidden patterns
+
+Unwrapped functions are forbidden.
+
+```js
+function myFunction() {}
+const myFunction = function () {};
+const myFunction = () => {};
+items.map(item => item.id);
+button.addEventListener("click", function () {});
+```
+
+## Naming rule
+
+The name passed to `fw` must be specific, stable and searchable.
+
+Good:
+
+```js
+fw("topNRenderer.renderBars", function () {});
+fw("topNController.initialize", function () {});
+fw("filterState.applySelection", function () {});
+fw("widgets.forEach:initializeWidget", function () {});
+fw("button.click:applyFilter", function () {});
+```
+
+Bad:
+
+```js
+fw("callback", function () {});
+fw("handler", function () {});
+fw("anonymous", function () {});
+fw("function", function () {});
+fw("test", function () {});
+fw("temp", function () {});
+```
+
+## Error handling
+
+The wrapper is responsible for centralized error handling.
+
+Do not add local `try/catch` unless the function can recover, convert the error to a controlled fallback, add meaningful context and rethrow, or perform cleanup before rethrowing.
+
+Local `try/catch` must not swallow errors, log only, hide the stack, or replace wrapper behavior.
+
+The wrapper must preserve:
+
+- file/module name
+- function/method/callback name
+- original error message
+- original stack, where available
+
+## Non-executable declarations
+
+Types, interfaces, constants and static config objects do not need wrapping unless they contain executable functions.
+
+## Completion criteria
+
+Code is incomplete if any executable function, method or callback is unwrapped, if `fw` is missing, if `wrapKDB` does not receive the file/module path, or if generic wrapper names are used.

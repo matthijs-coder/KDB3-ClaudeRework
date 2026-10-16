@@ -1,0 +1,678 @@
+---
+description: Rules for live visualization widget slot and local-filter binding orchestration on the dashboard canvas.
+# Project output root: `_______KDB3/` (see `ai-discipline.mdc`). Dashboard JS lives under `KDB3/js/dashboard/`.
+# If the Cursor workspace root is `_______KDB3`, use the globs below.
+# If the workspace root is `_______KDB3/KDB3`, use: `js/dashboard/**/*.js`
+globs:
+  - "KDB3/js/dashboard/**/*.js"
+alwaysApply: false
+---
+
+# Live visualization widget data binding rules
+
+## Scope
+
+This rule applies to live visualization widgets on the dashboard canvas.
+
+It applies to the orchestration of:
+
+- visualization type changes
+- dimension changes
+- Top N changes
+- hierarchy-filter downstream effects
+- visualization widget slot assignments
+- visualization widget local-filter assignments
+- Top N helper-table coordination
+- per-widget runtime binding state
+- app-history behavior only when the task explicitly includes undo, redo, history step, pushCommittedStep, committed route replay, or history toolbar behavior
+
+This rule does not apply to:
+
+- text widgets, except where shared widget lifecycle/state registration is involved
+- generic Cognos API wrappers, except where live-widget binding calls an already existing wrapper
+- generic app-history infrastructure, except where a live-widget binding route must create or replay a committed step
+- visual styling unrelated to slot/filter binding
+- unrelated dashboard regions
+- replacing the existing working hierarchy-filter downstream implementation unless explicitly requested by the user
+
+## Core invariant
+
+A live visualization widget must not be partially updated as a completed route result.
+
+Every route that can affect a live visualization widget must first resolve the complete intended binding plan for that widget. Only after all relevant slot assignments and local-filter assignments are known may the target visualization widget be updated as one logical confirmed route result.
+
+The binding plan must include, where applicable:
+
+- visualization-type-specific required slots
+- dimension-specific slot assignment
+- hierarchy-filter downstream local filters
+- Top N local-filter value resolved through the helper table
+- cleanup/removal of obsolete slot assignments
+- cleanup/removal of obsolete local-filter assignments
+
+The final target visualization change must be applied as one logical confirmed route result, even if Cognos requires multiple low-level wrapper calls. No partial intermediate result may be treated as confirmed, mirrored as final `_KDB.state`, pushed to app history, or exposed as the completed user action.
+
+## Recognized routes
+
+The recognized live visualization binding routes are:
+
+- visualizationType
+- dimension
+- topN
+- hierarchyFilter
+
+Route code represents user intent or incoming change input. Route code must not directly mutate unrelated target-widget internals.
+
+The target visualization binding owner/orchestrator must own:
+
+- route sequencing
+- async coordination
+- Top N helper-table resolution
+- final slot/filter binding plan construction
+- Cognos host update
+- `_KDB.state` mirror update
+- lifecycle cleanup
+- stale-result protection
+- route-level error handling
+
+Source regions may emit intent. Target regions own target-widget effects.
+
+## Binding plan semantics
+
+A binding plan is the complete intended slot/filter result for one target visualization widget.
+
+A binding plan is not confirmed until:
+
+1. all required route effects have been resolved;
+2. all required async dependencies have completed or failed;
+3. Cognos has accepted the target widget update;
+4. `_KDB.state` has been mirrored to the confirmed result.
+
+Do not treat any of the following as confirmed widget binding state:
+
+- pending helper-table output
+- partial slot state
+- DOM state
+- intermediate route state
+- debug inspection state
+- stale async output
+- temporary helper-table state
+
+## State ownership
+
+`_KDB.state` is the runtime state owner.
+
+Per-widget runtime binding state must live under the relevant widget subtree, for example:
+
+```js
+_KDB.state.widgets[widgetId].visualBinding
+```
+
+The exact subtree name must follow the existing project structure. Do not introduce a new parallel global state owner if an appropriate widget-owned subtree already exists.
+
+State must remain JSON-serializable.
+
+Selected visualization type is runtime state.
+
+Selected dimension is runtime state.
+
+Selected Top N option is runtime state.
+
+Applied hierarchy downstream values are runtime state.
+
+Available dropdown options, labels, default mappings, slot maps, and hardcoded option lists are configuration unless existing project rules explicitly give them runtime ownership.
+
+`_KDB.properties.*` is configuration, not live runtime state.
+
+`_KDB.state` remains the runtime owner.
+
+Do not store in `_KDB.state`:
+
+- DOM nodes
+- jQuery objects
+- functions
+- persistent Promises
+- Cognos host objects
+- transient table result objects that can be re-read or reconstructed
+
+Direct mutation of `_KDB.state.*` outside the owning orchestrator, setter, or canonical writer is forbidden.
+
+The plan AI must inspect the current redesign structure under `_______KDB3/KDB3/js/` before proposing the final subtree name.
+
+The plan AI must explicitly propose how binding state should represent:
+
+- confirmed/current binding information
+- previous or backup binding information
+- pending route information
+- active Top N resolution
+- stale async guard token, sequence id, abort controller, or equivalent
+- debug inspection state, if explicit debug inspection mode is in scope
+
+The user must approve state-shape changes before executor coding begins.
+
+The AI must not silently introduce a new `_KDB.state` subtree.
+
+Field names such as current, previous, backup, or pending may be used as data-state snapshot names if they match project conventions, but they must not be used as lifecycle synonyms.
+
+## Approved lifecycle vocabulary
+
+Only use approved lifecycle terms for lifecycle fields:
+
+- active
+- inLaunchpad
+- removed
+- pending
+- loading
+- error
+- idle
+
+Do not introduce lifecycle synonyms such as:
+
+- hidden
+- temporary
+- ready
+- stale
+- resolved
+- deleted
+- gone
+- inactive
+- waiting
+
+If the flow needs a non-lifecycle flag, use an explicit boolean or dedicated field whose meaning is not lifecycle.
+
+Examples:
+
+- `debugInspection.enabled: true`
+- `topNResolution.lifecycle: "pending"`
+- `topNResolution.isSuperseded: true`
+
+Do not use booleans, null, or undefined as lifecycle substitutes.
+
+The debug function name `topNReady` is allowed as an external debug API name, but ready must not be introduced as a lifecycle value.
+
+## Flexible dimension slot
+
+The binding flow may use a runtime-only flexible dimension slot concept.
+
+The canonical field names for this binding-plan concept are:
+
+- dimensionSlotId
+- dimensionSlotElement
+
+dimensionSlotId means:
+
+- the concrete visualization slot affected by the selected dimension;
+- the value depends on the selected visualization type;
+- examples may include categories, series, color, or another visualization-specific slot id found in project configuration.
+
+dimensionSlotElement means:
+
+- the data element that represents the currently selected dimension;
+- the value depends on the selected dimension;
+- it may remain stable when only the visualization type changes.
+
+Important rules:
+
+- When the selected dimension stays the same but the visualization type changes, dimensionSlotElement may remain unchanged while dimensionSlotId must be recalculated for the new visualization type.
+- When the selected dimension changes but the visualization type stays the same, dimensionSlotId may remain unchanged while dimensionSlotElement must be recalculated.
+- When the selected dimension is default, the extra dimension element must be absent from the visualization-specific dimension slot.
+- The plan AI must verify the exact slot mapping in the existing project files before implementing this behavior.
+- Do not invent a separate dimension local-filter effect unless the existing ORIGINAL (legacy) code, current redesign code under `_______KDB3/KDB3/js/`, project configuration, or user-approved plan explicitly requires it.
+
+Default assumption for dimension changes:
+
+- dimension affects dimensionSlotElement;
+- selected visualization type determines dimensionSlotId;
+- active Top N may need to be re-resolved because dimension can affect the helper-table result.
+
+## Top N default source
+
+The plan AI must identify the canonical source for the Top N default option in existing config, state, or code before implementing Top N behavior.
+
+Do not hardcode default labels, display text, use values, or array indexes.
+
+Do not assume that index `0`, label `"Default"`, or display text equals the functional default.
+
+If the default mapping is ambiguous, the plan AI must call out the ambiguity and ask the user before executor coding begins.
+
+## Visualization type route
+
+When a widget's visualization type changes, the binding flow must resolve a complete binding plan for the target visualization widget.
+
+The route must consider:
+
+- the new visualization type
+- the current selected dimension
+- the current selected Top N option
+- the current hierarchy-filter downstream values
+- the visualization-specific dimension slot for the new visualization type
+- obsolete slots or filters that must be removed
+
+If the current dimension is default, no extra dimension element should be applied.
+
+If the current Top N option is default, Top N helper-table resolution must be skipped.
+
+If the current Top N option is not default, the flow must first resolve the Top N filter value via the helper table. Only after that value is known may the target visualization widget be applied as one logical confirmed route result, even if Cognos requires multiple low-level wrapper calls.
+
+The target widget must not first be changed to the new visualization type and later receive dimension, hierarchy, or Top N effects as unrelated partial updates.
+
+## Dimension route
+
+When a widget's selected dimension changes, the binding flow must resolve a complete binding plan for the target visualization widget.
+
+The route must consider:
+
+- the existing visualization type
+- the new selected dimension
+- the visualization-specific dimension slot for the existing visualization type
+- the current selected Top N option
+- the current hierarchy-filter downstream values
+- obsolete dimension slot content that must be removed
+
+The visualization type does not need to be recalculated unless the existing project structure requires it for slot mapping.
+
+If the new dimension is default, the dimension-specific data element must be removed from the relevant visualization-specific dimension slot.
+
+If the current Top N option is default, Top N helper-table resolution must be skipped.
+
+If the current Top N option is not default, the flow must first resolve the new Top N filter value via the helper table, because the selected dimension may affect the Top N result.
+
+Only after the complete binding plan is known may the target visualization widget be applied as one logical confirmed route result, even if Cognos requires multiple low-level wrapper calls.
+
+## Top N route
+
+When a widget's selected Top N option changes, existing visualization slots usually remain stable.
+
+The route must resolve the intended local-filter result for the target visualization widget.
+
+If the selected Top N option is default:
+
+- no Top N helper-table resolution is required;
+- any previously applied Top N local-filter effect must be removed from the target visualization widget;
+- hierarchy-filter downstream local filters must remain intact;
+- visualization slots must remain unchanged unless cleanup is required by existing project rules.
+
+If the selected Top N option is not default:
+
+- configure the Top N helper table with the required slots and local filters;
+- wait until the helper table has rendered/stabilized;
+- read the resolved Top N filter value using the existing project-approved data-reading utilities;
+- build the complete target widget local-filter plan;
+- apply the target visualization widget as one logical confirmed route result, even if Cognos requires multiple low-level wrapper calls.
+
+The target visualization widget must not receive a partial Top N filter update before the helper-table result is known.
+
+## Hierarchy-filter route
+
+Hierarchy-filter downstream behavior already exists and must not be rewritten unless the task explicitly requires it.
+
+The hierarchy-filter route must still be represented in the live visualization binding rules because it affects the same target widget local filters as Top N.
+
+The existing hierarchy-filter downstream implementation works largely already and must not be replaced wholesale. The plan AI must search for the smallest safe interception point needed for active Top N coordination.
+
+When hierarchy-filter selection changes:
+
+- widgets without active Top N may receive the updated hierarchy downstream local filters directly through the existing flow if that flow is currently correct;
+- widgets with active Top N may need intent or signal propagation instead of directly committing target-widget filters;
+- widgets with active Top N must first re-resolve the Top N filter value through the helper table, because hierarchy-filter changes may affect the helper-table result;
+- the final target visualization update must combine hierarchy downstream local filters and the resolved Top N filter in one coherent binding plan.
+
+Do not apply hierarchy downstream filters first and then later apply Top N filters as an unrelated second target-widget update.
+
+Do not replace the whole hierarchy-filter implementation to solve Top N coordination.
+
+The plan AI must inspect where hierarchy-filter downstream information currently enters `_KDB.state`.
+
+The plan AI must determine whether this downstream information is already connected to active visualization widgets or only applied directly to Cognos/local filters.
+
+The plan AI must explicitly discuss with the user whether the existing state structure should be reused, moved, or extended.
+
+The user must approve structural changes to hierarchy downstream state before executor coding begins.
+
+## Top N helper-table production rules
+
+The Top N helper table is an async dependency used to resolve a filter value for a target visualization widget.
+
+It is not the target visualization widget.
+
+It must not become a visible end-user widget as part of the normal production flow.
+
+The launchpad must not be made visible when the user selects a Top N option.
+
+Production flow must not implement or activate temporary debug inspection mode by default.
+
+The helper-table flow must have an explicit lifecycle and cleanup path.
+
+The flow must define:
+
+- how the helper table is selected or created;
+- how it is placed for the operation according to existing project lifecycle rules;
+- how its slots are populated;
+- how its local filters are populated;
+- how render completion is detected;
+- how its result value is read;
+- how errors and timeouts are handled;
+- how stale async results are ignored;
+- how its slots and filters are cleaned;
+- how it is returned to inLaunchpad or otherwise restored according to existing project lifecycle rules.
+
+The plan AI must inspect the ORIGINAL implementation before changing this flow.
+
+The plan AI must explicitly explain to the user how the ORIGINAL Top N helper-table flow worked and ask for approval before implementing structural changes.
+
+Do not replace existing data-reading helper functions if they already support the required helper-table result extraction.
+
+## Temporary Top N debug inspection mode
+
+Temporary Top N debug inspection mode applies only when the task explicitly requests Top N debugging or inspection mode.
+
+Debug inspection mode must not be implemented or activated by default.
+
+In normal production flow, the helper table must not become a visible end-user widget.
+
+The launchpad must not be made visible by Top N selection.
+
+Only in explicit debug inspection mode may the helper table temporarily appear on the canvas.
+
+In debug inspection mode:
+
+- the launchpad must remain invisible;
+- the helper table may be temporarily placed on the canvas;
+- the helper table must be appended near the target visualization widget, preferably directly after it in canvas order if the existing layout flow supports that safely;
+- the helper table must be populated with the exact slots and local filters required for the Top N resolution;
+- the console must log the target widget id;
+- the console must log the helper table widget id;
+- the console must log the target visualization type;
+- the console must log the selected dimension;
+- the console must log the selected Top N option;
+- the console must log helper-table slot assignments;
+- the console must log helper-table local-filter assignments;
+- the console must log helper-table filter values;
+- the console must log the resolved Top N result value;
+- the console must log the final target-widget slot plan;
+- the console must log the final target-widget local-filter plan;
+- after the helper table has rendered and the Top N value has been read, the flow must pause until the user calls a window-level debug continuation function;
+- the required debug continuation function name is `window.topNReady(true)`;
+- `window.topNReady(false)` must abort the target-widget update safely;
+- timeout, cancellation, or supersession must abort the target-widget update safely;
+- while paused, the flow lifecycle remains pending;
+- debug inspection state must not be pushed to app history;
+- after continuation, abort, supersession, timeout, or error, the helper table must be cleaned and restored to its previous lifecycle/location according to existing project lifecycle rules.
+
+This debug mode is temporary tooling. It must not become normal production behavior.
+
+The debug continuation function must not be stored in `_KDB.state`.
+
+`window.topNReady` may exist only as a temporary debug API during an active debug inspection flow.
+
+`window.topNReady` must be removed from `window` during cleanup unless there is demonstrably still an active debug inspection flow that owns it.
+
+`window.topNReady(false)` must safely abort the target-widget update.
+
+## Local-filter composition
+
+Local filters for the target visualization widget must be composed as a complete set.
+
+The local-filter plan may include:
+
+- hierarchy-filter downstream values
+- Top N resolved filter value
+- dimension-related filter effects only if current project behavior explicitly requires them
+- cleanup of stale filter values from previous route states
+
+A route must not blindly append new local filters while leaving stale filters from previous visualization type, dimension, Top N, or hierarchy states.
+
+The final local-filter set must reflect the complete current user intent for the widget.
+
+For active Top N, the final local-filter set must not be committed until the helper-table result value is known.
+
+For default Top N, stale Top N local-filter effects must be removed.
+
+For changed hierarchy filters, Top N widgets must re-resolve Top N before committing the final target-widget local-filter set.
+
+## Slot composition
+
+Slot assignments for the target visualization widget must be composed as a complete set.
+
+The slot plan may include:
+
+- visualization-type base slots
+- measure/value slots
+- category/series/color/list-specific slots
+- dimensionSlotId
+- dimensionSlotElement
+- cleanup of stale slot entries from previous route states
+
+A route must not blindly add a data element to a slot while leaving obsolete data elements in incompatible slots.
+
+Pie, line, stacked bar, stacked column, list, and custom prognosis visualizations may have different slot requirements.
+
+The plan AI must verify slot ids from the existing project configuration/source before implementing route behavior.
+
+Pie chart behavior must be explicitly checked.
+
+Line chart behavior must not be treated as proof that other visualization types work the same way.
+
+## Cognos authority and state mirror semantics
+
+Cognos is the engine authority.
+
+`_KDB.state` is the logic mirror for project-owned runtime logic.
+
+Feature code may use existing Cognos API wrappers.
+
+Feature code must not bypass Cognos internals directly when an existing project-approved wrapper already covers the operation.
+
+If no wrapper exists, the plan AI must first identify the missing wrapper need and ask the user for approval before adding a new Cognos API wrapper.
+
+The target visualization widget update is only confirmed when the Cognos-side change has been accepted and the relevant state mirror has been updated to the same result.
+
+Host/state drift is a bug.
+
+After Cognos-driven changes or native dashboard changes, the affected widget region must rescan or otherwise reconcile state before assuming its mirror is still valid.
+
+## Async and stale-result protection
+
+Every async binding flow must have an explicit lifetime.
+
+The flow must protect against stale async results.
+
+If a user changes visualization type, dimension, Top N, or hierarchy filters while a previous Top N helper-table resolution is still pending, the older pending result must not overwrite newer state or newer widget bindings.
+
+The owning orchestrator must provide an abort, token, sequence id, or equivalent stale-result guard.
+
+After abort or supersession, late async completions must not write to `_KDB.state`.
+
+After abort or supersession, late async completions must not update the target Cognos widget.
+
+Promises must be awaited in try/catch, returned to the caller, or terminated with `.catch(...)`.
+
+Fire-and-forget async work without error handling is forbidden.
+
+Promise objects must not be stored as persistent business state.
+
+## Error behavior
+
+Failures in live visualization binding must not silently disappear.
+
+Errors that affect confirmed widget state, Top N resolution, slot updates, filter updates, or history must be semantically visible through the owning error-handling pattern.
+
+For non-critical missing-widget cases during render/reconcile loops, a warning and skip may be acceptable if this matches existing project behavior.
+
+For confirmed route actions, silent failure is not acceptable.
+
+On error, the flow must avoid leaving:
+
+- partial target widget slot updates
+- partial target widget local-filter updates
+- stale helper-table slots
+- stale helper-table filters
+- incorrect `_KDB.state` mirror values
+- unresolved pending lifecycle state
+- a visible helper table that should have been restored
+- launchpad visibility changes caused by helper-table handling
+
+## App-history rule
+
+This section applies only when the task explicitly involves app-history behavior such as undo, redo, history step, pushCommittedStep, committed route replay, or history toolbar behavior.
+
+App-history is not relevant unless undo, redo, history step, pushCommittedStep, committed route replay, or history toolbar behavior is explicitly in scope.
+
+When app-history is involved, a history step may only be pushed after the full binding flow has reached a confirmed, stable result.
+
+If history support is in scope, a history step shape must follow the existing contract with:
+
+- `key`
+- `timestamp`
+- `old`
+- `new`
+
+Do not push a history step:
+
+- while Top N helper-table resolution is still pending;
+- while debug inspection is paused;
+- before the target visualization widget has accepted the final update;
+- before `_KDB.state` mirrors the confirmed result;
+- from temporary debug inspection state;
+- from partial route state;
+- when the step would be a no-op.
+
+Undo/redo replay must not create a new history step.
+
+Replay must not push a new history step.
+
+Replay must apply the host change first and then mirror the confirmed result into `_KDB.state`.
+
+Replay must leave the feature in a normal confirmed state, not a pending edit/debug state.
+
+The history step may only be pushed after Cognos acceptance and `_KDB.state` mirror update to the confirmed result.
+
+The plan AI must propose the history step shape before implementing history support for live visualization binding.
+
+## Required planning behavior before implementation
+
+Before implementing code changes for this area, the plan AI must:
+
+1. inspect the current redesign flow under `_______KDB3/KDB3/js/` for live visualization widget binding;
+2. inspect the ORIGINAL flow for Top N helper-table behavior;
+3. compare ORIGINAL (legacy) and the current `_______KDB3/KDB3/js/` redesign without treating either as automatically correct;
+4. identify the current state owner for widget binding data;
+5. identify where hierarchy-filter downstream information currently enters `_KDB.state`;
+6. determine whether hierarchy-filter downstream data is already connected to active visualization widgets;
+7. find the smallest safe hierarchy-filter interception point needed for active Top N coordination;
+8. verify where visualization-type-specific slot mappings are currently configured;
+9. verify how pie, line, stacked bar, stacked column, list, and prognosis visualizations differ in slot requirements;
+10. verify how selected dimension values map to data elements;
+11. verify how selected Top N options map to helper-table configuration;
+12. identify the canonical source for the Top N default option;
+13. propose a concrete state shape for confirmed/current, previous/backup, and pending binding information;
+14. propose how active Top N resolution is represented;
+15. propose how stale async Top N helper-table results will be prevented;
+16. propose how debug inspection state is represented when explicit debug inspection mode is in scope;
+17. propose how helper-table debug inspection will be enabled and disabled when explicit debug inspection mode is in scope;
+18. propose how `window.topNReady` cleanup will work when explicit debug inspection mode is in scope;
+19. propose how app-history steps should be built after confirmed updates, if app-history is in scope;
+20. identify any missing Cognos wrapper need before adding wrapper code;
+21. explicitly discuss any required state-structure changes with the user before implementation.
+
+The user must approve structural changes to state shape, ownership, Cognos API wrappers, or Top N helper-table interpretation before executor coding begins.
+
+The user must approve how current, previous/backup, pending, active Top N resolution, stale async guard, and debug inspection state are represented before executor coding begins.
+
+The AI must not silently introduce a new `_KDB.state` subtree.
+
+## Acceptance behavior
+
+A correct implementation must satisfy these observable behaviors.
+
+### Visualization type change
+
+When the visualization type changes, the final widget reflects:
+
+- the selected visualization type;
+- the correct visualization-specific dimension slot;
+- the current selected dimension, unless default;
+- the current hierarchy-filter downstream local filters;
+- the current Top N filter value, if Top N is not default;
+- no stale slot/filter effects from the previous visualization type.
+
+If Top N is active, the visualization type change waits for the helper-table result before applying the target widget as one logical confirmed route result.
+
+If Top N is default, the helper-table flow is skipped.
+
+### Dimension change
+
+When the dimension changes, the final widget reflects:
+
+- the existing visualization type;
+- the correct dimension slot for that visualization type;
+- the selected dimension element, unless default;
+- the current hierarchy-filter downstream local filters;
+- a freshly resolved Top N filter value if Top N is not default;
+- no stale dimension element when dimension is reset to default.
+
+If Top N is active, the dimension change waits for the helper-table result before applying the target widget as one logical confirmed route result.
+
+If Top N is default, the helper-table flow is skipped.
+
+### Top N change
+
+When Top N changes, the final widget reflects:
+
+- unchanged visualization slots unless slot cleanup is required;
+- updated local filters;
+- no Top N filter if Top N is default;
+- a helper-table-resolved filter value if Top N is not default;
+- hierarchy-filter downstream local filters preserved and composed into the final filter plan;
+- no launchpad visibility change for normal production flow.
+
+The Top N default must come from the canonical existing config, state, or code source, not from hardcoded labels, display text, use values, or array indexes.
+
+### Hierarchy-filter change
+
+When a hierarchy filter changes, affected widgets reflect:
+
+- updated hierarchy downstream local filters;
+- no unnecessary helper-table flow for widgets with default Top N;
+- refreshed Top N helper-table resolution for widgets with active Top N;
+- one coherent final filter plan per affected target widget.
+
+Widgets with active Top N must not receive hierarchy downstream filters first and Top N filters later as unrelated completed updates.
+
+Widgets without active Top N may continue using the existing direct hierarchy-filter flow if that flow is currently correct.
+
+The existing hierarchy-filter downstream implementation must not be replaced wholesale unless explicitly requested.
+
+### Temporary Top N debug inspection
+
+When explicit Top N debug inspection mode is enabled:
+
+- the launchpad remains invisible;
+- the helper table appears temporarily on the canvas near the target widget;
+- helper-table slots and filters are logged;
+- final target-widget slot and filter plans are logged;
+- the flow waits for `window.topNReady(true)` before continuing;
+- `window.topNReady(false)` aborts safely;
+- the helper table is cleaned and returned to its previous lifecycle/location;
+- `window.topNReady` is removed from `window` during cleanup unless there is demonstrably still an active debug inspection flow owner;
+- debug inspection state is not pushed to app history.
+
+## Non-goals
+
+This rule does not require:
+
+- redesigning the whole widget architecture;
+- replacing existing working hierarchy-filter downstream logic;
+- replacing existing data-reading helpers;
+- adding a new generic query framework;
+- making helper tables visible in production;
+- activating Top N debug inspection mode by default;
+- creating new lifecycle terms;
+- storing Cognos or DOM objects in `_KDB.state`;
+- storing `window.topNReady` in `_KDB.state`;
+- bypassing existing Cognos API wrappers;
+- adding new Cognos API wrappers without prior approval;
+- hardcoding Top N default labels, display text, use values, or array indexes;
+- blindly copying ORIGINAL behavior;
+- blindly preserving current `_______KDB3/KDB3/js/` behavior;
+- implementing app-history unless the task explicitly includes app-history.

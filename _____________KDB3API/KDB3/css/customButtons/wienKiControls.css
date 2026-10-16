@@ -1,0 +1,61 @@
+.kdb-wien-ki-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-right: 8px;
+}
+
+.kdb-wien-ki-controls__item {
+  display: inline-flex;
+  align-items: center;
+}
+
+.kdb-wien-ki-controls__button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  background-color: transparent;
+  color: inherit;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+
+.kdb-wien-ki-controls__icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  pointer-events: none;
+  transform: translateY(1px);
+  transition: opacity 120ms ease;
+}
+
+.kdb-wien-ki-controls__button:hover:not(:disabled) {
+  background-color: var(--cognosLightGrey);
+  border-color: #c6c6c6;
+}
+
+.kdb-wien-ki-controls.is-unavailable .kdb-wien-ki-controls__icon {
+  opacity: 0.45;
+}
+
+.kdb-wien-ki-controls__button:disabled {
+  cursor: default;
+}
+
+.kdb-wien-ki-controls__label {
+  border: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  white-space: nowrap;
+}

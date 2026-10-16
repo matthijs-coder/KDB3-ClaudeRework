@@ -1,0 +1,184 @@
+:root {
+    --cognosLightGrey: #f6f6f6;
+    --cognosMediumGrey: #eaeaea;
+    --cognosDarkGrey: #e0e0e0;
+    --cognosLightBlue: #dff2ff;
+    --cognosMediumBlue: #c0e6ff;
+    --cognosDarkBlue: #1f57a4;
+    --tabSelectedBorderColor: black;
+    --KDB_Height: auto; /*100%;*/
+    --KDB_Width: 300px;
+    --KDB_Width_Collapsed: 20px;
+    --KDB_ButtonHeight: 40px; /* not in use yet*/
+  
+    /*
+  #F5F5F5 lightgrey
+  color: #414a4c; dunkel grey
+  light blue #C0E6FF;
+  */
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Wiener Melange Cd Office","IBM Plex Sans", Helvetica, Arial, sans-serif;
+  }
+
+.KDB_invisible {
+    visibility: hidden !important;
+  }
+
+  .KDB_hidden {
+    display: none !important;
+  }
+
+.ba-common-tabList__tooltip.kdb-user-tab-btn,
+.ba-common-tooltip.kdb-user-tab-btn,
+.ba-common-tabList__tooltip.kdb-helper-tab-btn,
+.ba-common-tooltip.kdb-helper-tab-btn {
+    visibility: hidden !important;
+  }
+
+.ba-common-tabList__tooltip.kdb-user-tab-btn.KDB_visible,
+.ba-common-tooltip.kdb-user-tab-btn.KDB_visible {
+    visibility: visible !important;
+    display: inline-block !important;
+  }
+
+.ba-common-tabList__tooltip.kdb-user-tab-btn .ba-common-truncatedText,
+.ba-common-tabList__tooltip.kdb-helper-tab-btn .ba-common-truncatedText,
+.ba-common-tooltip.kdb-user-tab-btn .ba-common-truncatedText {
+    width: auto;
+  }
+
+.ba-common-tabList__tooltip.kdb-user-tab-btn .ba-common-truncatedText:has(.kdb-tab-label-editing),
+.ba-common-tabList__tooltip.kdb-helper-tab-btn .ba-common-truncatedText:has(.kdb-tab-label-editing),
+.ba-common-tooltip.kdb-user-tab-btn .ba-common-truncatedText:has(.kdb-tab-label-editing) {
+    max-width: none;
+  }
+
+.kdb-tab-label-editing,
+.kdb-tab-label-editing:focus {
+    border: none;
+    outline: none;
+    box-shadow: none;
+    max-width: none;
+    overflow: visible;
+    white-space: pre;
+  }
+
+.KDB_tabClose,
+.KDB_tabCopy,
+.KDB_tabMove {
+    display: inline-block !important;
+    vertical-align: middle;
+    margin-left: 4px;
+    cursor: pointer;
+  }
+
+.KDB_tabClose > div,
+.KDB_tabCopy > div,
+.KDB_tabMove > div {
+    display: inline-block !important;
+    width: 24px;
+    min-width: 24px !important;
+    height: 24px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid rgba(52, 51, 52, 0.25);
+    border-radius: 4px;
+    background-color: rgb(215, 215, 215);
+    color: rgb(52, 51, 52);
+    box-sizing: border-box;
+    cursor: pointer;
+    transform: none;
+  }
+
+.KDB_tabClose .ba-common-tabList__label__container,
+.KDB_tabCopy .ba-common-tabList__label__container,
+.KDB_tabMove .ba-common-tabList__label__container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 !important;
+    margin: 0;
+    top: auto !important;
+    background-color: transparent !important;
+  }
+
+.KDB_tabClose span,
+.KDB_tabCopy span,
+.KDB_tabMove span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    padding: 0 !important;
+    margin: 0;
+    position: relative;
+    background-color: rgb(215, 215, 215);
+    cursor: pointer;
+  }
+
+.KDB_tabClose .ba-common-svgIcon,
+.KDB_tabCopy .ba-common-svgIcon,
+.KDB_tabMove .ba-common-svgIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 100%;
+    padding: 0;
+    margin: 0;
+    vertical-align: middle;
+    color: rgb(52, 51, 52);
+    fill: black;
+  }
+
+.KDB_tabClose input,
+.KDB_tabCopy input,
+.KDB_tabMove input {
+    width: 80%;
+    height: 80%;
+    padding: 0;
+    margin: 0;
+    position: static !important;
+    left: auto !important;
+    object-fit: contain;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+  }
+
+.KDB_tabClose .close,
+.KDB_tabCopy .copy,
+.KDB_tabMove .move {
+    opacity: 0.85;
+  }
+
+/*  
+li {
+    list-style: none;
+    display: flex;
+    align-items: center; 
+    justify-content: center;
+}
+  
+ul {
+    margin: 0px;
+    padding: 0px;
+}
+  
+textarea {
+    margin-top: 10px;
+    height: 150px;
+    width: 100%;
+    padding: 5px;
+    resize: none; 
+}
+
+*/

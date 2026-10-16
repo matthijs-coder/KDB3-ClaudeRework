@@ -1,0 +1,97 @@
+---
+description: In-app event bus (_KDB.events), design reflex for pub/sub, emit/subscribe discipline, Cognos bridge, catalog in architecture/eventSubscribe.md.
+globs:
+alwaysApply: true
+---
+
+# Events / event-bus rules
+
+## Goal
+
+Loosely couple regions: a region that wants to react to something does so by subscribing, not by being called directly. The thing that happened publishes once; any number of regions may listen.
+
+## Design reflex — pub/sub as a first-class option
+
+The redesign should **default to asking** whether a **domain event** on `_KDB.events` fits, not only whether a **direct orchestrator call** fits.
+
+**Strong candidates for `emit` + `subscribe`**
+
+- A **user-visible widget setting** or intent changes and **more than one** subsystem should react without importing each other deeply — e.g. **Top N choice**, **visualization type**, **dimension**, **hierarchy filter downstream**, **fullscreen intent** (after any thin Cognos/UI shell per `cognosAPI.mdc`), or any change that today would fan out as “call orchestrator A, then B, then C” from one handler.
+- **Cross-region or cross-task** reactions: Top N orchestrator, live-binding orchestrator, canvas layout, telemetry, etc. can **subscribe** to one well-named event instead of the emitter knowing every consumer.
+
+**When a direct call can stay enough**
+
+- **One canonical writer**, **one clear effect**, no extra independent reactors — then a direct call (AMD import or orchestrator method) is fine. Still **document** the choice if the touched area is widgets/canvas (so the team sees it was considered).
+
+**State ownership does not move**
+
+- Events signal **“what happened”** or **committed intent**; **`_KDB.state`** mutations remain with the **canonical writer** / setter paths per `state.mdc`. Subscribers **react** (schedule work, emit follow-up, invalidate caches) — they must not all silently become parallel writers of the same subtree unless the user approved that design.
+
+**Catalog**
+
+- If you introduce or rely on such events, they **must** appear in **`_______KDB3/architecture/eventSubscribe.md`** (see § Catalog below).
+
+## Catalog (mandatory)
+
+- **Every** in-app event name you add or change (new `emit`, renamed payload contract, or removed event) and **every** new or changed **`subscribe`** to that event must be reflected in **`_______KDB3/architecture/eventSubscribe.md`** in the same change session (unless the user explicitly defers), per **`architecture.mdc`** and write targets in **`ai-discipline.mdc`**.
+- The catalog row should name **emitter** (module / area), **subscribers** (who reacts), and **teardown owner** if non-obvious.
+
+## Single bus
+
+- One in-app event bus exists, exposed as `_KDB.events`.
+- Implemented as a service under **`KDB3/js/core/services/eventBusService/`** (per `structure.mdc` § `services/` placement — `core/services/` only under `KDB3/js/core/`).
+- Surface:
+  ```js
+  _KDB.events.emit(eventName, payload?);
+  const handle = _KDB.events.subscribe(eventName, handler);
+  _KDB.events.unsubscribe(handle);
+  ```
+- The bus is in-process only. It is **not** a replacement layer for DOM events, raw browser events, or Cognos host callbacks — those stay on their native APIs and are **bridged** into the bus where needed (see § Cognos bridge).
+
+## What goes on the bus
+
+- In-app signals between regions or between init-tasks and regions.
+- Examples: `authoring:entered`, `authoring:exited`, `properties:reloaded`, `tables:loaded`, `widget:dropped`, `filter:applied`.
+
+## What does NOT go on the bus
+
+- DOM events (`click`, `mousemove`, ...) — use `addEventListener` per `dom.mdc`.
+- Cognos host events (`onUiStateChange`, `onPageContextChange`, ...) — bridged into the bus by an init-task (see § Cognos bridge below), not consumed directly by regions.
+- Direct method calls between functions in the same region — the bus is for cross-region or bootstrap-to-region signals, not for local plumbing.
+
+## Naming
+
+- Event names follow `naming.mdc` § Event names: past tense, format `<region>:<verbPast>`.
+- The emitting region or init-task chooses the name; consumers reference it by string.
+- A central registry of event-name constants lives under **`KDB3/js/core/events/`** so consumers and emitters share the same string.
+
+## Subscribe / unsubscribe lifecycle
+
+- A region's orchestrator subscribes during its setup and stores the returned handle in `_KDB.state.<region>.subscriptions`.
+- On region cleanup, the orchestrator unsubscribes every handle in that array.
+- Sub-region orchestrators follow the same pattern, scoped to their own subtree.
+- Subscribing without a planned unsubscribe is forbidden (matches `dom.mdc` § Event listeners lifecycle discipline).
+
+## Emit discipline
+
+- An emit fires synchronously to all subscribers.
+- Handlers must be fast and non-blocking. Heavy work moves to a deferred call (per `performance.mdc` § No synchronous heavy work in the render path).
+- Handlers must not throw — implement with `fw(...)` per `function-wrapper.mdc` so errors are centralized; the bus implementation must still **isolate** each handler (catch per handler, log via `fLog("e", ...)` per `logging.mdc`, continue to the next subscriber) so one bad handler never breaks the emit loop for others.
+
+## Cognos bridge
+
+Cognos host events are bridged into the in-app bus by an init-task:
+
+- One init-task per Cognos event source (e.g. `subscribeAuthoringMode`, `subscribePageContextChange`).
+- The task subscribes to the Cognos event **once** at bootstrap (via **`KDB3/js/core/cognosApi/`** wrappers per `cognosAPI.mdc`, not raw host calls from feature folders).
+- On change, the task updates `_KDB.state.<x>` if applicable, then `_KDB.events.emit(...)` with a domain-meaningful event name.
+- Regions never call `stateFeature.onUiStateChange(...)` directly. They listen to the bridged event.
+
+This keeps Cognos coupling in one folder per event and prevents drift.
+
+## Storage in state
+
+- `_KDB.state.<region>.subscriptions` — array of handles owned by the region orchestrator (canonical writer per `state.mdc`).
+- Mirrors `_KDB.state.<region>.listeners` (DOM event listeners) — same lifecycle pattern, different mechanism.
+
+See also: `architecture.mdc`, `ai-discipline.mdc` § Event / subscribe, `dependencies.mdc`, `naming.mdc`, `state.mdc`, `dom.mdc`.

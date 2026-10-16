@@ -1,0 +1,28 @@
+# Archives / generated packages
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+
+# Logs / temp
+*.log
+*.tmp
+*.temp
+*.bak
+
+# Archives
+*.zip
+*.7z
+*.rar
+
+# Dependencies / generated output
+node_modules/
+dist/
+build/
+
+# Secrets
+.env
+.env.*
+*.pem
+*.key

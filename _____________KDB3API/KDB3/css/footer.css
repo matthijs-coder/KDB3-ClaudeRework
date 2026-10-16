@@ -1,0 +1,83 @@
+#KDB_bottomFooterWrapper {
+  position: relative;
+  z-index: 10001;
+  box-sizing: border-box;
+  border: none !important;
+  border-top: 1.5px solid rgb(232, 232, 232) !important;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  color: black;
+  width: -webkit-fill-available;
+  max-width: 100%;
+  padding-left: 100px;
+  padding-right: 100px;
+  transform: translateY(0);
+  font-size: 13px;
+  padding-top: 0;
+  padding-bottom: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  transform: translateY(-16px);
+}
+
+#KDB_bottomFooter_emptyLeft {
+  display: grid;
+}
+
+#KDB_bottomFooter_emptyRight {
+  display: grid;
+}
+
+#KDB_bottomFooter {
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  gap: 50px;
+  width: 100%;
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.KDB_bottomFooter_column {
+  display: grid;
+  grid-template-rows: repeat(2, auto);
+  gap: 0;
+  line-height: 1.1;
+}
+
+#KDB_bottomFooter_leftContainer {
+  justify-content: left;
+  padding-left: 20px;
+}
+
+#KDB_bottomFooter_centerContainer {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+#KDB_bottomFooter_rightContainer {
+  justify-content: right;
+  padding-right: 20px;
+}
+
+#KDB_footer_dashboardTitle {
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+  margin: 0;
+}
+
+#KDB_footer_dashboardTitle:empty::before {
+  content: "text hier eingeben";
+  color: inherit;
+  font-weight: inherit;
+}
+
+#KDB_footer_pageIndicator {
+  text-align: right;
+}

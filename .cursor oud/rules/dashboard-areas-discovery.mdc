@@ -1,0 +1,26 @@
+---
+description: When to read scoped dashboard area rules (launchpad, filters, Top N helper, header).
+alwaysApply: true
+---
+
+# Dashboard area rules — discovery
+
+Per-area behavior rules live under **`_______KDB3/.cursor/rules/`** with the prefix **`dashboard-area-`**. If the Cursor workspace root **is** `_______KDB3`, resolve as **`.cursor/rules/`** (see `ai-discipline.mdc` § project output root).
+
+- Do **not** read these area files by default.
+- Read the listed **area rule** when the user or task clearly targets that dashboard region (keywords or paths under `KDB3/js/dashboard/...`).
+- **Cross-cutting** orchestration for live visualization widgets (binding order, helper-table contract, stale async, launchpad visibility *during* Top N resolution): stay authoritative in **`live-visualization-binding.mdc`** — area rules add **region-specific** expectations and must not contradict it.
+- **Special-right** single-select (`dstleitung`, `Personengruppe`, `Alle` rights): stay authoritative in **`filters-special-rights.mdc`** — the single-select area rule covers **general** single-select behavior and points there for overlap.
+
+## Map — read this area rule when …
+
+| Read | When the task mentions or edits |
+|------|----------------------------------|
+| **`dashboard-area-launchpad.mdc`** | launchpad, send to launchpad, launchpad slot/pad, `inLaunchpad`, `KDB3/js/dashboard/launchpad/` |
+| **`dashboard-area-topn-helper.mdc`** | Top N helper, helper table / helper widget for Top N, Top N resolution pipeline, `.../live/topN/` |
+| **`dashboard-area-filter-sicht.mdc`** | Sicht filter, Sicht cascade, `filter_sichtCascade`, `KDB3/js/dashboard/filters/sicht/` |
+| **`dashboard-area-filter-stelle-hierarchy.mdc`** | Dienststelle / Stelle hierarchy filter, `filter_stelleHierarchy`, downstream hierarchy effect, `KDB3/js/dashboard/filters/stelleHierarchy/` |
+| **`dashboard-area-filter-single-select.mdc`** | single-select filter (general), Personengruppe/dstleitung *outside* special-rights-only tweaks, `KDB3/js/dashboard/filters/singleSelect/` |
+| **`dashboard-area-header.mdc`** | header / footer toggle, title / subtitle edit, `KDB3/js/dashboard/header/` |
+
+If multiple regions apply (e.g. Top N + launchpad), read **`live-visualization-binding.mdc`** first when binding orchestration is in scope, then the matching area rules.

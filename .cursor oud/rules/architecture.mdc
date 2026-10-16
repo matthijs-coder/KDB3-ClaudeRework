@@ -1,0 +1,28 @@
+---
+description: Mandatory architecture catalog files for humans and AI
+globs:
+alwaysApply: true
+---
+
+# Architecture documentation (mandatory)
+
+Two files under `_______KDB3/architecture/` are the **canonical catalog** for navigating the redesign. They are written for **both humans and AI**. When you add, remove, rename, or split JS modules or folders under `KDB3/js/`, you **must** update the relevant catalog in the same change (or in the same PR/session), unless the user explicitly defers documentation.
+
+## `_______KDB3/architecture/filesExplained.md`
+
+- **Purpose:** short explanations of what each important **file** and **folder** under `KDB3/js/` (and related app roots if listed there) is for.
+- **Format:** at most **3 lines** of prose per file or folder (no wall of text). Use a stable heading or bullet key per path (e.g. ``### `KDB3/js/dashboard/header/` ``) so grep and search stay easy.
+- **When to update:** any new folder from a **150-line split** (see `structure.mdc`), new region/task, renamed orchestrator, or new leaf module that other areas might import.
+
+## `_______KDB3/architecture/eventSubscribe.md`
+
+- **Purpose:** overview of **application events** (emit/publish) and **subscribers** (listen/subscribe): event name, who emits, who subscribes, and one line on ordering or teardown if non-obvious.
+- **Format:** table or bullet list; keep it scannable. Cross-reference real module paths where helpful.
+- **When to update:** new event keys, new cross-region subscriptions, or changes to who owns teardown (see `dom.mdc` / `state.mdc`).
+
+## Discipline
+
+- Do not duplicate long design docs here — **pointers + 3-line intent** only. Briefs and code remain authoritative for details.
+- If you are unsure what to document, add a one-line stub and a `TODO(user):` note rather than inventing structure — then ask the user (per `ai-discipline.mdc`).
+
+See also: `structure.mdc` (file size, orchestrators), `naming.mdc` (`__controller`, event name shapes), `dashboard-areas-discovery.mdc` (which `dashboard-area-*.mdc` to read per dashboard region).

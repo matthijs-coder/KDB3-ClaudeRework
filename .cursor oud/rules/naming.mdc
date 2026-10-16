@@ -1,0 +1,81 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Naming rules
+
+## Identifier casing
+
+- Functions and variables: `camelCase` (`buildHeader`, `widgetCount`).
+- Constants (truly invariant, module-level): `UPPER_SNAKE_CASE` (`DEFAULT_INTERVAL_MS`).
+- Classes / constructors: `PascalCase`. (Currently unused — if introduced, follow this.)
+- Files: `camelCase.js` (`buildHeaderDom.js`).
+- Folders: `camelCase` or single-word noun (`widgets`, `dragdrop`, `controlContainer`).
+- CSS classes: `kebab-case` (Cognos convention) — `.kdb-header`, `.kdb-widget-title`.
+
+## Underscore-prefix conventions
+
+Three distinct uses of underscore — never mix them:
+
+### Single underscore prefix `_X` — global root and injected references
+
+- `_KDB` is the only allowed underscore-prefixed global.
+- Function parameters that are objects/refs passed by the caller use `_<name>` to signal "this is an injected reference, not constructed here". This makes it trivial to trace where the value came from.
+  - Examples: `_KDB`, `_widgetObj`, `_popupMount`, `_handlers`.
+- Local variables (non-parameters) do NOT use the underscore prefix.
+- Private module helpers (functions **below** `__controller`) do NOT use the underscore prefix — privacy is enforced by AMD scope, not by name.
+
+### Double underscore prefix `__X` — file marker for orchestrators
+
+- Orchestrator files use the `__<folderName>Orchestrator.js` convention (per `structure.mdc`).
+- This is a file-naming pattern; it is not for arbitrary files.
+
+### `__controller` — the single public function per module
+
+Every AMD module has exactly **one** public callable surface for its main behavior: **`__controller`** (per `amd.mdc`).
+
+- **`__controller`** is the **first function** defined in the module, immediately after constants.
+- It is what `define(...)` returns (or the primary property of the returned object when static exports are attached).
+- Call sites use the **import binding** from AMD (the module file name / path documents which `__controller` is invoked), not a second function name inside the module.
+
+Orchestrator files (`__<folderName>Orchestrator.js`) follow the same rule: the file contains **only** `__controller` plus imports — no extra business-logic function definitions (per `structure.mdc` § Thin orchestrator rule).
+
+### Exception: Cognos API wrappers (`core/cognosApi/`)
+
+**Separate rules from the rest of `KDB3/js/`** — see `cognosAPI.mdc`.
+
+- **Module file names are nouns only** — the Cognos host **area** / surface (e.g. `dashboard.js` for `_KDB.cognosAPI.dashboard.*`, `dashboardApi.js` for the sanctioned `__getDashboardAPI` resolver). Do **not** add a leading verb to the **file** name (forbidden examples: `getDashboardApi.js`, `registerDashboardMethods.js`).
+- **Registered method names** on `_KDB.cognosAPI.<area>` stay verb-shaped where they mirror the API (`getLanguage`, `setFullScreen`, …), per `cognosAPI.mdc`.
+- **Registration modules** (e.g. `dashboard.js`) use one top-level `__controller` that attaches those methods; individual wrappers are plain `function` bodies, not each an `__controller`.
+
+## Boolean naming
+
+Booleans use a question-style prefix:
+
+- `is*` — current state: `isReady`, `isVisible`, `isDirty`.
+- `has*` — possession: `hasFilter`, `hasPermission`.
+- `can*` — capability: `canDrop`, `canEdit`.
+- `should*` — intent: `shouldRefresh`.
+- `did*` — past event check: `didMount`, `didLoad`.
+
+Forbidden as boolean names (ambiguous):
+
+- `flag`, `state`, `status`.
+- Bare adjectives such as `enabled`, `active`, `visible` — use `isEnabled`, `isActive`, `isVisible`.
+
+Negative names are forbidden:
+
+- Not `isNotReady`. Use `isReady` and apply `!`.
+
+## Event names
+
+- Event names are past tense: something happened.
+  - `headerToggled`, `widgetDropped`, `filterApplied`.
+- Region-prefixed for cross-region clarity, format `<region>:<verbPast>`:
+  - `header:toggled`, `widget:dropped`, `filter:applied`.
+- This format is the canonical key for emit / subscribe (see `events.mdc` when present). **Also document** each event and subscriber in `_______KDB3/architecture/eventSubscribe.md` (per `architecture.mdc`).
+- Action names (intent) are imperative and never past tense:
+  - `enableHeader`, `applyFilter`.
+- Events and actions are distinct concepts (per `structure.mdc`). Their names must not be confused.

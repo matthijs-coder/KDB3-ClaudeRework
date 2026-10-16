@@ -1,0 +1,33 @@
+define([], function () {
+  return {
+    MOUNT_STARTED: "widgetBase/mountStarted",
+    MOUNT_SUCCEEDED: "widgetBase/mountSucceeded",
+    REGISTER_FRAME: "widgetBase/registerFrame",
+    MARK_PENDING: "widgetBase/markPending",
+    PLACE_ON_CANVAS_SUCCEEDED: "widgetBase/placeOnCanvasSucceeded",
+    ROUTE_TO_LAUNCHPAD_SUCCEEDED: "widgetBase/routeToLaunchpadSucceeded",
+    REMOVE_SUCCEEDED: "widgetBase/removeSucceeded",
+    ERROR_RECORDED: "widgetBase/errorRecorded",
+    DESTROY: "widgetBase/destroy",
+    DROP_CREATE: "widgetBase/dropCreate",
+    ROUTE_TO_LAUNCHPAD: "widgetBase/routeToLaunchpad",
+    ROUTE_ALL_TO_LAUNCHPAD: "widgetBase/routeAllToLaunchpad",
+    ENSURE_TAB_WIDGETS_ROUTED: "widgetBase/ensureTabWidgetsRouted",
+    RENDER_TAB_WIDGETS: "widgetBase/renderTabWidgetsRequested",
+    TAKE_FROM_LAUNCHPAD: "widgetBase/takeFromLaunchpad",
+    ENABLE_MOVE: "widgetBase/enableMove",
+    SET_MOVE_MODE: "widgetBase/setMoveMode",
+    RESIZE_TOGGLE: "widgetBase/resizeToggle",
+    MOVE: "widgetBase/move",
+    RESIZE: "widgetBase/resize",
+    SET_COLOUR: "widgetBase/setColour",
+    APPLY_COLOUR: "widgetBase/applyColour",
+    REMOVE: "widgetBase/remove",
+    REPORT_ERROR: "widgetBase/reportError",
+    PARAMETER_SET_RESET: "widgetBase/parameterSetResetRequested",
+    PARAMETER_SET_RESTORE: "widgetBase/parameterSetRestoreRequested",
+    PREPARE_TAB_MUTATION: "widgetBase/prepareTabMutation",
+    APPLY_TAB_MUTATION: "widgetBase/applyTabMutation",
+    RESTORE_TAB_MUTATION_SNAPSHOT: "widgetBase/restoreTabMutationSnapshot"
+  };
+});

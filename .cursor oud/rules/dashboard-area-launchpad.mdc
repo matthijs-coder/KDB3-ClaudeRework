@@ -1,0 +1,29 @@
+---
+description: Expected behaviors for the launchpad dashboard region (slots, transfer, visibility) — area layer; not live-binding orchestration.
+# Project output root: `_______KDB3/`. If workspace root is `_______KDB3/KDB3`, use `js/dashboard/launchpad/**/*.js`
+globs:
+  - "KDB3/js/dashboard/launchpad/**/*.js"
+alwaysApply: false
+---
+
+# Dashboard area — launchpad
+
+## Separation of concerns
+
+- **This file** — product/region rules: what launchpad is for, slot/transfer semantics, visibility expectations, state keys this region owns (`_KDB.state.*` as implemented), events, history keys if any.
+- **`live-visualization-binding.mdc`** — when launchpad visibility interacts with **Top N helper-table** flows, binding order, or canvas widget routes; that rule stays the technical contract (e.g. production flow must not show launchpad for a mere Top N selection).
+
+## Scope
+
+Code under **`KDB3/js/dashboard/launchpad/`** and any orchestrator that owns launchpad DOM and launchpad-related state transitions.
+
+## Related rules
+
+- `state.mdc` — e.g. `inLaunchpad` widget lifecycle.
+- `structure.mdc` — region / orchestrator ownership.
+- `events.mdc` — if launchpad emits or reacts to cross-region signals.
+- `history-adapters.mdc` / `.cursor/history-service-guide.md` — only when undo/redo for launchpad transfer is explicitly in scope.
+
+## Behavior (to be expanded)
+
+- TODO(user): document expected user-visible behavior, error handling, and invariants for this region as the redesign stabilizes.

@@ -1,0 +1,63 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Comments rules
+
+## Language
+
+- All comments in `.js` and `.css` files MUST be written in English.
+- This applies regardless of the language used in the chat or in briefs. A Dutch chat / Dutch brief still produces English comments in source files.
+- The German exception applies only to user-facing strings (per `labels.mdc`), not to comments.
+
+- Every `__controller` has a brief docblock above it (1–5 lines).
+- Format: one line "what", optional follow-up lines for "why" / non-obvious constraints.
+- Do not use JSDoc tags (`@param`, `@returns`, etc.) unless they add information that the signature does not.
+- Required: any non-obvious decision documented with one sentence ("Why this approach: ...").
+
+Example:
+
+```js
+// Polling-loop that runs all handlers idempotently while the popup is in the DOM.
+// Why this approach: a "settled-once" stop condition would die during Cognos rerenders.
+function __controller(_KDB, _popupMount, _handlers, _options) {
+  ...
+}
+```
+
+## No parafrasing comments
+
+- Do not add comments that narrate what the code does.
+  - BAD: `i++; // increment i`
+  - BAD: `// Loop over widgets` followed by an obvious widget loop.
+- Use comments only for non-obvious intent, trade-offs, constraints, or external references that the code itself cannot convey.
+- Prefer better names over explanatory comments. If a function needs a comment to explain it, rename the function.
+
+## File-header comment (optional)
+
+- A file-header comment is optional.
+- Recommended for orchestrators and complex region coordination: a 2–5 line block describing the region's responsibility and any cross-cutting concerns.
+- Discouraged for single-purpose action / builder / placer / mutator files — the file name and `__controller` docblock are sufficient.
+- If a file-header is added, it sits above the `define([...])` call.
+
+Example (for an orchestrator):
+
+```js
+// __widgetsOrchestrator
+// Owns the widgets region of _KDB.state. Coordinates drop, lifecycle,
+// rerender, and cleanup. Public actions live in widgets/actions/.
+define([...], function (...) {
+  ...
+});
+```
+
+## TODO / FIXME / HACK markers
+
+- `TODO` — intentional future work. Format: `// TODO(<brief-id or topic>): <what>`.
+- `FIXME` — known broken behavior left in for now. Format: `// FIXME(<brief-id or topic>): <what>`.
+- `HACK` — workaround that needs replacement. Format: `// HACK(<reason>): <what>`.
+- `XXX` is forbidden — too vague.
+- A bare `// TODO` without a reason is forbidden.
+- All `TODO` / `FIXME` / `HACK` markers must be findable via grep with their reason intact.

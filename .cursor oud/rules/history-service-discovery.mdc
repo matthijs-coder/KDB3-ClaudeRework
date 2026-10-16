@@ -1,0 +1,19 @@
+---
+description: Discovery rule for the KDB3 history service guide
+alwaysApply: true
+---
+
+# History service discovery
+
+- KDB3 has a detailed history-service guide at **`_______KDB3/.cursor/history-service-guide.md`**. If the Cursor workspace root **is** `_______KDB3`, use **`.cursor/history-service-guide.md`** (see `ai-discipline.mdc` § project output root).
+- For adapter layout (registry vs `apply`, replay contract, key grouping): **`_______KDB3/.cursor/rules/history-adapters.mdc`** (or **`rules/history-adapters.mdc`** when the workspace root is `_______KDB3`).
+- Do NOT read the history-service guide by default.
+- Read it only when the user explicitly talks about app-level history behavior, for example:
+  - `history commit`
+  - `undo`
+  - `redo`
+  - `history step`
+  - `pushCommittedStep`
+  - history controls / history service behavior
+- Do NOT treat normal git commits as history-service work.
+- If the user means `git commit`, stay in git workflow and do not read the history-service guide unless they also mention app undo/redo history.

@@ -1,0 +1,9 @@
+define([], function () {
+  "use strict";
+
+  return {
+    HOST_UNAVAILABLE: "MESSAGES_HOST_UNAVAILABLE",
+    HOST_CAPABILITY_MISSING: "MESSAGES_HOST_CAPABILITY_MISSING",
+    WRITE_FAILED: "MESSAGES_WRITE_FAILED"
+  };
+});

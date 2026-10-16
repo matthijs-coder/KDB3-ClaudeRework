@@ -1,0 +1,169 @@
+/* ^KDB_DRAGANDDROP*/
+
+.visAvatar,
+.textAvatar,
+.headerAvatar {
+  display: flex;
+  position: relative;
+  z-index: 9999;
+  visibility: visible;
+}
+
+/* Avatar clone during drag - uses fixed positioning for consistent behavior across zoom levels */
+.avatarClone {
+  position: fixed !important;
+  z-index: 99999 !important;
+  visibility: visible !important;
+  pointer-events: none !important;
+  display: block !important;
+}
+
+.KDB_dragAvatarTemplate {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+.kdb_drag-source-active {
+  opacity: 0 !important;
+}
+
+[kdb_dropbox] {
+  border: solid 1px var(--cognosMediumGrey) !important;
+  margin: 0px;
+  padding: 0px !important;
+  box-sizing: content-box;
+}
+
+/* .page.pagecontainer {
+  padding-top: 30px; 
+}*/
+
+.page.pagegenericPage {
+  border: solid 1px darkgrey !important;
+  padding: 1px;
+  /* transform: translateY(21px); */
+  top: 16px !important;
+}
+
+
+
+.page.pagegenericPage.kdb_drag-over {
+  border: dashed 3px #27a567 !important;
+}
+
+/*upon selection of widget action toolbar appears*/
+/* .actionToolbarPopover visibility styling intentionally omitted */
+
+/*hide pagecontext filter block*/
+/*.filterDockContainer #other,
+.filterDockContainer #filter-dock-dragger-container {
+  display: none;
+}
+*/
+
+/*^cognos items */
+/* [id="com.ibm.bi.dashboard.saveMenu"] {
+  display: none !important;
+} */
+
+/*$cognos items */
+
+/* ALT ALT ALT $KDB_DRAGANDDROP*/
+
+/*KDB_CB ^KDB_CONFIGURATIONBLOCK**/
+
+/* .KDB_CB_RenameTabsContainer label {
+  display: inline-block;
+  width: 20px;  Custom size for the visual representation of the radio button 
+  height: 20px;  Custom size for the visual representation of the radio button 
+  border-radius: 50%;  Make it circular 
+  border: 1px solid black;
+  background-color: white;  Default background 
+  margin-right: 1px;  Space between custom radio buttons 
+  cursor: pointer;  Indicate clickable items 
+  transition: background-color 0.3s ease;  Smooth transition for background color 
+} */
+/* 
+.KDB_CB_RenameTabsContainer input:checked + label {
+  background-color: var(
+    --cognosMediumBlue
+  ); Color when the radio button is selected 
+} */
+
+/* Optionally, for a more interactive effect, add a shadow or border on hover */
+/* .KDB_CB_RenameTabsContainer label:hover {
+  box-shadow: 0 0 2px #000;  Simple shadow effect 
+} */
+
+/* .KDB_CB_SettingsContainer {
+  grid-area: SettingsContainer;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  grid-template-areas:
+    "SettingsButton"
+    "";
+} */
+
+/* .KDB_CB_CanvasSettingsBlock input {
+  height: 30px;
+  width: 100%;
+} */
+
+/*alt*/
+
+.KDB_absoluteLayoutGrid {
+  background-size: 10px 10px;
+  background-image: repeating-linear-gradient(
+      0deg,
+      #d8d8d8,
+      #d8d8d8 1px,
+      transparent 1px,
+      transparent 100%
+    ),
+    repeating-linear-gradient(
+      -90deg,
+      #d8d8d8,
+      #d8d8d8 1px,
+      transparent 1px,
+      transparent 100%
+    );
+  height: 100%;
+  width: 100%;
+  opacity: 0.4;
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: visible;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  border: solid 1px;
+  border-color: #e0e0e0;
+  border-color: hsla(
+    var(--ui-03-h, 0),
+    var(--ui-03-s, 0%),
+    var(--ui-03-l, 87.8431372549%),
+    1
+  );
+  box-sizing: border-box;
+  background-image: repeating-linear-gradient(
+      0deg,
+      #878787,
+      #878787 1px,
+      transparent 1px,
+      transparent 100%
+    ),
+    repeating-linear-gradient(
+      -90deg,
+      #878787,
+      #878787 1px,
+      transparent 1px,
+      transparent 100%
+    ) !important;
+}
+
+.page.pagetemplateIndicator{
+  border: none !important;
+}

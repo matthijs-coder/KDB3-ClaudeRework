@@ -1,0 +1,13 @@
+.KDB_sichtSingleSelect .KDB_sichtHideAlle,
+.KDB_sichtSingleSelect .ba-common-listItem-wrapper:has([aria-label="duplicates"]),
+.KDB_sichtSingleSelect .KDB_sichtOptionBw ~ .KDB_sichtOptionBw,
+.KDB_sichtSingleSelect .KDB_sichtOptionDezpv ~ .KDB_sichtOptionDezpv
+{
+  display: none !important;
+}
+
+.KDB_sichtSingleSelect .KDB_sichtOptionDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}

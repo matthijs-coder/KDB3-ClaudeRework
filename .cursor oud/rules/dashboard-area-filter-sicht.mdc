@@ -1,0 +1,29 @@
+---
+description: Sicht (cascade) filter dashboard region — area behaviors; not generic live-widget binding order.
+# Project output root: `_______KDB3/`. If workspace root is `_______KDB3/KDB3`, use `js/dashboard/filters/sicht/**/*.js`
+globs:
+  - "KDB3/js/dashboard/filters/sicht/**/*.js"
+alwaysApply: false
+---
+
+# Dashboard area — Sicht filter
+
+## Separation of concerns
+
+- **This file** — Sicht-specific UX and state: cascade relevance, pending vs confirmed selection, startup, Cognos mirror rules for this filter type, history key `filter_sichtCascade` when applicable.
+- **`live-visualization-binding.mdc`** — when a Sicht change must participate in **live visualization** binding order or Top N coordination; follow that rule for route semantics.
+- **`filters-special-rights.mdc`** — only for `dstleitung` / `Personengruppe` special-right flows under `singleSelect/`; Sicht code does not replace that.
+
+## Scope
+
+**`KDB3/js/dashboard/filters/sicht/`** (`__sichtOrchestrator`, history adapter, commit/apply helpers).
+
+## Related rules
+
+- `cognosAPI.mdc` — host calls for filter context.
+- `state.mdc` — filter state ownership under `_KDB.state.filters.*` as implemented.
+- `history-adapters.mdc` — Sicht history replay.
+
+## Behavior (to be expanded)
+
+- TODO(user): Sicht-specific acceptance criteria and invariants.

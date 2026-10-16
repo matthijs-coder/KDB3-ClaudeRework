@@ -1,0 +1,267 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Structure rules
+
+Paths below are under the redesign JS tree: `KDB3/js/` (from project root `_______KDB3/`).
+
+Top-level split:
+
+- `core/` = generic cross-cutting infrastructure.
+- `dashboard/` = dashboard-specific features and UI areas.
+
+Top-level `KDB3/js/core/…` is this infrastructure root. A nested `…/core/` inside a region or task is the **theme-folder** `core/` (small leaf modules), not the whole infrastructure tree.
+
+**Catalog:** every structural change that adds or renames folders/modules must be reflected in `_______KDB3/architecture/filesExplained.md` and, if events/subscriptions change, in `_______KDB3/architecture/eventSubscribe.md` (per `architecture.mdc`).
+
+## Folder concepts
+
+Four kinds of folder exist in this project. Knowing which kind you are looking at decides what goes inside.
+
+1. **Region** — a folder that owns a visible UI area in the dashboard (e.g. `dashboard/header/`, `dashboard/widgets/`, `dashboard/canvas/`). Regions exist ONLY in `dashboard/`. Each region has an orchestrator that owns its DOM, state, and lifecycle.
+2. **Task** — a folder for ONE specific job that needs more than one file (e.g. `core/tasks/getProperties/`). The folder name is `verb + noun`. A task has an orchestrator and the supporting files needed to do that one job, kept flat.
+3. **Function-cluster** — a folder for a thematic collection of small functions that all do the same kind of thing (e.g. `core/cognosApi/`, `core/generalFunctions/`). The folder name is `noun` only. No orchestrator unless coordination is needed; usually a flat list of leaf files exposed through a registry.
+4. **Theme-folder** — `actions/`, `core/`, `state/`, `events/`, `api/`, `config/`, `utils/`, `types/`, `services/`. Theme folders are *types of code*, used as sub-folders inside large regions or tasks for navigation. They are never the root unit of work themselves.
+
+How to tell them apart by folder name:
+
+- `verb + noun` → task (`getProperties`, `loadTables`, `applyFilters`).
+- `noun` only → region (in `dashboard/`) or function-cluster (in `core/`).
+- Theme-folder names are fixed: see list above.
+
+## Naming
+
+- Folder names: see § Folder concepts above (region/function-cluster = noun, task = verb + noun, theme-folder = fixed name).
+- File names must be verb + noun.
+- Avoid vague files like `utils.ts`, `helpers.ts`, `common.ts`, `manager.ts`.
+- Avoid weak verbs like `handle`, `do`, `process`.
+
+Files:
+
+- **Hard limit:** see § File size (hard limit) — every non-exempt JS file stays at or below **150** lines; split early when approaching the limit.
+- Prefer small focused files with explicit responsibility.
+- Optimize for clarity, locality, and navigability.
+
+## File size (hard limit)
+
+- Every `*.js` file under `KDB3/js/` **outside** `KDB3/js/core/config/` must not exceed **150** lines **total** in the file (count from first line to last line of the file — includes comments and blank lines so the check is objective).
+- **`KDB3/js/core/config/**` is exempt** — declarative config, labels, and similar tables may exceed the limit; still split when readability suffers.
+
+## When a file must split
+
+If implementation would exceed **150** lines in a non-exempt file, **STOP** and follow `ai-discipline.mdc` — do not silently violate the limit; ask the user if the refactor scope is unclear.
+
+Refactor pattern (required):
+
+1. Create a **new folder** for that unit of work (name per § Folder concepts: task = verb+noun, region = noun under `dashboard/`).
+2. Move work into **multiple leaf modules**, each under the line limit, each with one clear role.
+3. Add **`__<folderName>Orchestrator.js`** at that folder’s coordination root.
+
+## Thin orchestrator rule
+
+The orchestrator file:
+
+- Defines **only** the coordinating **`__controller`** (per `naming.mdc`, `amd.mdc`) — no extra `function ...` definitions for business logic in this file.
+- **Only** imports sibling/step modules, calls them in order, passes `_KDB` (and plain data), and composes results. Branching allowed only for sequencing (if/else order), not for inlined algorithms.
+- All algorithms, DOM, state mutations, and listeners live in **leaf** modules (e.g. `steps/` in a task, `actions/`, builders, placers).
+
+## Ownership rules
+
+True ownership rule:
+
+- The area that owns a UI control owns the listener for that control.
+- The area that is affected by the action owns the implementation of the effect.
+- A source area may trigger a target area, but it must not absorb the target area's internal responsibilities.
+- Source area = interaction ownership.
+- Target area = effect ownership.
+
+Boundary rule:
+
+- Source area owns user input.
+- Target area owns target behavior.
+- The source area should trigger an intent or public action.
+- The target area should implement its own lifecycle, sequencing, and internal state changes.
+
+Placement rule:
+
+- Always consider whether logic belongs in the current folder, the parent folder, or `core`.
+- If something is shared by sibling folders, prefer the parent folder.
+- Example: logic shared by `live/` and `text/` may belong in `widgets/`.
+- If something is shared across multiple dashboard areas, prefer `core/`.
+- Cross-feature interactions should get their own feature folder.
+- Keep domain-specific logic out of `core`.
+- Keep shared infrastructure out of `dashboard` unless it is dashboard-only.
+- If placement is unclear, ask the user before deciding.
+
+Example:
+
+- A control block contains a toggle for building and showing a header.
+- The toggle listener belongs to the control block area.
+- The functions that build, mount, show, hide, or update the header belong to the header area.
+- The control block should call a public header action such as `enableHeader`, not implement header behavior itself.
+
+## Theme categories
+
+Inside both `core/` and any feature folder, code is grouped by theme:
+
+- `api` = code that talks to external or host interfaces (e.g. Cognos API wrapper, DOM host adapter, storage adapter)
+- `core` = central rules, domain logic, engines (e.g. drag-drop rules, undo engine, selection rules)
+- `state` = current state + reading/writing/selecting state (e.g. current drag session, header visible, selected widget ids)
+- `events` = signals that something happened (e.g. `headerToggled`, `dragStarted`, `widgetDropped`)
+- `actions` = direct area-level operations triggered by user intent or orchestrator (e.g. `moveWidget`, `setDimension`, `deleteWidget`)
+- `services` = shared infrastructure capabilities — `core/` only (e.g. `eventBusService`, `writebackService`, `permissionService`)
+- `utils` = small generic helpers without domain knowledge (e.g. debounce, clamp, group array, deep merge)
+- `types` = interfaces, type contracts, shapes (e.g. `HeaderState`, `DragItem`, `DropTarget`)
+- `config` = declarative settings, defaults, mappings (e.g. defaults, limits, feature flags, allowed mappings)
+
+Quick test:
+
+- "does it talk to the outside world?" → api
+- "is it a rule/engine?" → core
+- "is it current state?" → state
+- "is it a signal?" → events
+- "is it a concrete operation?" → actions
+- "is it shared infrastructure capability?" → services (core/ only)
+- "is it small and generic?" → utils
+- "is it a data shape?" → types
+- "is it a setting/table/default?" → config
+
+Important distinctions:
+
+- event = something happened
+- state = what is currently true
+- action = perform a concrete operation in the owning area
+- service = a shared infrastructure capability available to many areas (core/ only)
+- core = defines the rules the system works by
+- actions and orchestrators execute flows using those rules
+
+## Scope rule
+
+- Theme folders (`api`, `core`, `state`, `events`, `actions`, `utils`, `types`, `config`) may exist both in `core/` and inside dashboard areas or features.
+- Their placement depends on scope and ownership, not on the category name itself.
+- `services/` is the exception: it is allowed ONLY in `core/`.
+
+Examples:
+
+- `core/events/` = cross-cutting events
+- `dashboard/header/events/` = header-only events
+- `core/services/writebackService.js` = shared infrastructure capability
+- `dashboard/canvas/dragdrop/actions/` = dragdrop-specific operations
+
+## Folder structure rule
+
+### Orchestrator
+
+Use an orchestrator file when a folder owns coordination, state transitions, public actions, or sequencing across its subparts.
+
+- The orchestrator module is the **public coordination surface** for that folder (import it from outside the folder). It exports **`__controller`** only as the callable surface (per `naming.mdc`); static attachments are rare and documented.
+- Name the file `__<folderName>Orchestrator.js`.
+- The orchestrator file stays **thin** (per § Thin orchestrator rule).
+- Do not force an orchestrator into very small folders that do not coordinate anything meaningful.
+
+### Allowed folders inside `dashboard/` and feature folders
+
+Theme folders allowed: `actions/`, `events/`, `state/`, `core/`, `api/`, `config/`, `types/`, `utils/`. Plus owned subdomain folders (region / task / function-cluster, see § Folder concepts).
+
+Anything else requires discussion before adding.
+
+### When to use theme folders
+
+Theme folders (`actions/`, `core/`, ...) are tools for navigation in LARGE regions or tasks.
+
+- A region or task with fewer than ~10 files: keep flat. Place files directly under the region/task folder. `config/` may still be used for purely declarative data.
+- A region or task with ~10+ files OR multiple distinct sub-responsibilities: introduce theme folders.
+- Do not pre-emptively create theme folders for a small unit "in case it grows" — flatten now, split later when growth happens.
+
+The goal is fast navigation: a developer or AI looking at the folder should see all the work in one glance.
+
+### `actions/` placement
+
+- `actions/` is a theme folder. It exists ONLY as a sub-folder of a region (in `dashboard/`) or a task (in `core/tasks/` or in a region).
+- `actions/` never sits directly under `core/`. Use `core/tasks/<verb><Noun>/` for one-purpose work in `core`.
+
+### Top-level folders under `core/`
+
+These conventional folders exist under `core/` and should be created when first needed:
+
+- `cognosApi/` — Cognos API wrappers (function-cluster, see `cognosAPI.mdc` when present).
+- `services/` — shared infrastructure capabilities (per § `services/` placement).
+- `tasks/` — one-purpose units of work (per § `tasks/` folder under `core/`).
+- `utils/` — pure technical transforms (per § `utils/` discipline).
+- `events/` — cross-cutting event names / emitters.
+- `types/` — cross-cutting data shapes.
+- `elements/` — central DOM selectors / ids / classnames (populates `_KDB.elements.*`).
+
+This list is the conventional minimum. Extra top-level folders under `core/` are allowed when there is a clear reason; introduce them via `ai-discipline.mdc` § Placement uncertainty (ask first).
+
+### `tasks/` folder under `core/`
+
+`core/tasks/` is the home for one-purpose units of work that don't belong to any dashboard region.
+
+Two kinds of tasks live here:
+
+- **`core/tasks/init/<verbNoun>/`** — bootstrap-only tasks. Run once during dashboard startup, before any user interaction. Verb prefixes are typically `load*` / `setup*` / `populate*` / `register*` / `get*`. Examples: `getProperties`, `loadTables`, `setupGlobalErrorHandlers`, `registerElements`.
+- **`core/tasks/<verbNoun>/`** — on-demand tasks. Triggered by user action or events later in the session. No further sub-folder; placed directly under `tasks/`.
+
+Layout of a task with a `steps/` sub-folder (init example):
+
+```
+core/tasks/init/getProperties/
+  __getPropertiesOrchestrator.js   ← public coordination; only __controller + imports/calls
+  steps/                           ← what the orchestrator delegates to
+    loadObjectProperties.js
+    loadToggleProperties.js
+    parsePropertyInput.js
+    readPropertyValue.js
+  config/                          ← only when there is purely declarative data
+    getObjectPropertyDefinitions.js
+    getTogglePropertyDefinitions.js
+```
+
+Rules:
+
+- Folder name is `verb + noun` (the task's goal).
+- Orchestrator file name: `__<folderName>Orchestrator.js` → here `__getPropertiesOrchestrator.js`. Inside: only `__controller` (thin), per `naming.mdc`.
+- The orchestrator delegates to files in `steps/`. Each step does one concrete part of the task.
+- `steps/` is preferred over a flat task when there are 3+ supporting files OR when the orchestrator would exceed the line limit. For 1–2 supporting files, flat is fine.
+- `config/` is fine even in a small task (purely declarative data has its own character).
+- Other theme folders (`actions/`, `core/`, `api/`) only when the task is genuinely large.
+
+### `services/` placement
+
+- `services/` is allowed ONLY inside `core/`, for shared infrastructure and reusable system capabilities (e.g. `writebackService`, `eventBusService`).
+- In `dashboard/` and feature folders, use `actions/` for direct operations and the orchestrator for sequencing. Do not use `services/` there.
+
+### `utils/` discipline
+
+`utils/` is allowed ONLY for:
+
+- pure, stateless, technical transforms (e.g. debounce, clamp, deep merge)
+- no orchestration
+- no DOM wiring
+- no feature flow
+- no domain knowledge
+
+If a util grows beyond this, extract it into a folder with a specific name.
+
+### Forbidden folder names
+
+Do not use vague catch-all folders such as `helpers/`, `common/`, `misc/`, `manager/`, `shared/`, `stuff/`, `lib/`.
+
+Why these are forbidden: they signal "things that didn't fit elsewhere". Inside a task, the natural place for files the orchestrator delegates to is `steps/` (per § `tasks/` folder under `core/`).
+
+Small helper functions should stay private inside the module that uses them (per `amd.mdc`). Only extract code into its own file when it has a clear, specific responsibility — and name it accordingly (verb + noun).
+
+### Example
+
+```
+canvas/
+  __canvasOrchestrator.js
+  actions/
+  widgets/
+  layout/
+  dragdrop/
+```

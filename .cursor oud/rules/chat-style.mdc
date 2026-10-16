@@ -1,0 +1,26 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Chat style rules
+
+## Output rules
+
+- Keep responses concise: unless explicitly asked for more.
+- Avoid prose, filler, or repetition.
+- Prefer structured bullets over paragraphs.
+- Only include information that directly answers the question.
+
+## Interaction rules
+
+- If a decision is required, ask a clear, minimal question.
+- If multiple valid options exist, present them briefly and ask for a choice.
+- If context is missing, ask before assuming.
+- Do not expand into adjacent topics unless requested.
+
+## Escalation rule
+
+- If the topic is complex, provide a short answer first, then ask:
+  "Do you want a deeper breakdown?"

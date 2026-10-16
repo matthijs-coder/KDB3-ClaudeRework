@@ -1,0 +1,164 @@
+/* custom-jstree.css */
+
+.kdb-control_metrics_subcontainer,
+.kdb-metrics-tree__source {
+  display: contents;
+}
+
+.kdb-control_metrics_source-title {
+  font-weight: bold;
+  padding-top: 10px;
+  padding-bottom: 5px;
+}
+
+.metricsTree {
+  font-family: "Wiener Melange Cd Office","IBM Plex Sans", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  background-color: transparent;
+  border: 1px solid white;
+  width: 100%; /* Set width of the container */
+  /*height: calc(100% - 30px);*/ /* Set height of the container */
+  box-sizing: border-box; /* Ensure padding and border are included in the dimensions */
+  overflow: auto;
+  padding-bottom: 40px;
+  /*overflow: hidden; */ /* Prevent scrolls on the main container */
+}
+
+.treeSearch,
+.treeSearch:focus-visible {
+  box-sizing: border-box;
+  border: none !important;
+  outline: none !important;
+  border-bottom: 1px solid black !important;
+  height: 30px;
+}
+
+/*nodes with children*/
+.jstree-node:not(.jstree-leaf),
+.jstree-node:not(.jstree-leaf) > .jstree-anchor {
+  background-color: transparent !important;
+  border: none !important;
+  outline: none !important;
+  cursor: default;
+}
+
+/*childless nodes*/
+.jstree-node.jstree-leaf:hover,
+.jstree-node.jstree-leaf > .jstree-anchor:hover,
+.jstree-node.jstree-leaf > .jstree-icon {
+  background-color: lightskyblue;
+  cursor: pointer !important;
+}
+
+/*top nodes*/
+.jstree-node:has(> .jstree-anchor[aria-level="1"]) {
+  margin-left: 0px !important;
+}
+
+/*all but the top nodes*/
+.jstree-node:has(> .jstree-anchor:not([aria-level="1"])) {
+  margin-left: 15px !important;
+}
+
+.searchContainer {
+  position: relative !important;
+  width: 100% !important;
+  height: 30px;
+  box-sizing: border-box;
+}
+
+.treeSearch {
+  width: 100%;
+  padding-right: 30px; /* Add padding to the right to make room for the icon */
+  padding-left: 10px;
+  margin-bottom: 5px;
+}
+
+#kdb-control_metrics_container:has(#kdb-control_metrics_dropdown)
+  .searchContainer {
+  margin-top: 40px;
+}
+
+.searchIcon {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 16px; /* Adjust the size of the icon */
+}
+
+/* Override the default search result styling */
+.jstree-search {
+  font-weight: normal !important ; /* Remove the bold font */
+  font-style: normal !important;
+  color: black !important; /* Change text color to light green */
+  background-color: lightgreen; /* Ensure background stays transparent */
+}
+
+.jstree-anchor.jstree-hovered {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/*removed to allow arrow pointing downward*/
+/* .jstree-node:not(.jstree-leaf) > .jstree-icon {
+  background-position: -3px -4px !important;
+  transform: translateY(-4px) !important;
+} */
+
+/* Change the icon container color to lightskyblue on hover */
+.jstree-node:hover:not(.jstree-leaf) > .jstree-icon {
+  background-color: lightgrey !important; /* Change the background color to lightskyblue */
+  border-radius: 50%; /* Make the container circular */
+  width: 24px; /* Set a fixed width */
+  height: 24px; /* Set a fixed height */
+  display: inline-block; /* Ensure it's inline so it appears next to the text */
+  line-height: 20px; /* Align the icon vertically */
+  text-align: center; /* Align the icon horizontally */
+  margin: 0px !important;
+  padding: 0px !important;
+}
+
+.jstree-container-ul {
+  padding-top: 5px !important;
+}
+
+.jstree-anchor {
+  /*transform: translateY(-3px) !important;*/ /*Move text upwards*/
+  box-shadow: none !important;
+}
+
+.jstree-clicked {
+  background-color: transparent !important;
+}
+
+.custom-drag-preview {
+  background-color: lightskyblue;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  border: 2px solid darkblue;
+  width: 200px;
+  height: 200px;
+}
+
+/*hide the default dnd avatar*/
+#vakata-dnd {
+  display: none !important;
+}
+
+#kdb-control_metrics_dropdown {
+  height: 30px;
+  margin: 0px;
+  padding: 5px;
+  display: inline-block;
+  position: absolute;
+  transform: translateX(-1px) translateY(-1px);
+  /* transform: translateX(-6px) translateY(-10px); */
+  z-index: 9999;
+  border: solid 1px lightgray;
+  width: calc(100% - 10px);
+  border-radius: 8px;
+}

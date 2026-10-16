@@ -1,0 +1,783 @@
+input.svgIcon {
+  width: 22px;
+  height: 22px;
+}
+
+.liveWidget .KDB_widgetSettingsButton,
+.textWidget .KDB_widgetSettingsButton,
+.widget .KDB_widgetSettingsButton {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  display: inline-block;
+  min-width: 22px;
+  min-height: 22px;
+  vertical-align: middle;
+}
+
+.widget .KDB_widgetSettingsButton.KDB_hide {
+  display: none !important;
+}
+
+.KDB_widgetSettingsButton input.svgIcon {
+  height: 22px;
+  width: 22px;
+  position: absolute;
+  right: 2px;
+  top: 0;
+  display: block;
+}
+
+.KDB_widgetSettingsButton .svgIcon:focus:not(:focus-visible),
+.KDB_widgetSettings .dataWidgetIcon .svgIcon:focus:not(:focus-visible),
+.KDB_focusModeSettingsPanel .dataWidgetIcon .svgIcon:focus:not(:focus-visible),
+.KDB_widgetSettings .dataWidgetIcon:focus:not(:focus-visible),
+.KDB_focusModeSettingsPanel .dataWidgetIcon:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+.KDB_widgetSettingsButton .svgIcon:focus:not(:focus-visible),
+.KDB_widgetSettings .dataWidgetIcon .svgIcon:focus:not(:focus-visible),
+.KDB_focusModeSettingsPanel .dataWidgetIcon .svgIcon:focus:not(:focus-visible) {
+  border: none;
+}
+
+.widgetContentWrapper {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.KDB_widgetSettings {
+  display: none;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-between;
+  overflow: hidden;
+  min-height: 16px;
+  min-width: 300px;
+  background-color: #d3d3d3 !important;
+  border: 1px solid #a8a8a8;
+  box-sizing: border-box;
+  opacity: 1;
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding-top: 5px;
+  z-index: 50;
+}
+
+.KDB_widgetSettings.KDB_visible {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  overflow: visible;
+  opacity: 1;
+  z-index: 9999;
+  transform: translateY(-30px) translateX(-2px);
+}
+
+/* Open canvas bar stays at least as wide as its own chrome and stays centered on the shell. */
+.KDB_widgetSettings.KDB_visible:not(.KDB_focusModeSettingsPanel) {
+  left: 50%;
+  min-width: max-content;
+  transform: translateY(-30px) translateX(-50%);
+}
+
+
+.dashboardFrame:not(.kdb-widget-chrome-always) .widget:not(.nodeSelected) .KDB_widgetSettingsButton {
+  display: none !important;
+}
+
+.widget:not(.nodeSelected) .KDB_widgetSettings {
+  display: none !important;
+}
+
+.liveWidget .KDB_widgetSettings {
+  width: calc(100%);
+  padding-left: 2px;
+}
+
+.textWidget .KDB_widgetSettings {
+  width: calc(100% + 2px);
+}
+
+.textWidget .KDB_widgetSettings.KDB_visible {
+  width: calc(100% + 4px);
+}
+
+.liveWidget .KDB_widgetSettings.KDB_visible {
+  width: calc(100% + 2px);
+}
+
+.KDB_widgetSettingsHeaderRow {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 24px;
+  box-sizing: border-box;
+  gap: 6px;
+  padding: 0;
+}
+
+.KDB_settingsLeading {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.KDB_settingsLeading .KDB_widgetInfoButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  position: relative;
+  transform: translateY(-2px) !important;
+}
+
+.KDB_settingsTitleStretch {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(-3px);
+}
+
+.KDB_settingsTitleStretch .KDB_settingsTitleWrap {
+  position: static;
+  transform: none;
+  max-width: 100%;
+  pointer-events: none;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
+.KDB_widgetSettings .widgetTitle {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.KDB_widgetSettings .KDB_settingsTitleWrap.widgetTitle {
+  width: auto;
+  justify-content: center;
+}
+
+.KDB_settingsTitleWrap .textArea {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.25em;
+}
+
+.KDB_settingsHeadlineFixed {
+  margin: 0;
+  padding: 0;
+  transform: none !important;
+  line-height: 1.25;
+  white-space: nowrap;
+  color: #161616 !important;
+}
+
+.KDB_widgetSettings .KDB_widgetSettingsHeaderRow .KDB_widgetSettingsIcons {
+  flex: 0 0 auto;
+  margin-left: auto;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap;
+  align-items: center !important;
+  align-self: center !important;
+  justify-items: flex-start;
+  overflow: visible;
+  text-align: right;
+  order: 2;
+  gap: 2px;
+  z-index: 1;
+}
+
+.KDB_widgetSettings .KDB_widgetSettingsHeaderRow .KDB_widgetSettingsIcons > .dataWidgetIcon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  min-height: 22px;
+  padding: 0 !important;
+  box-sizing: border-box;
+  transform: translateX(0px) translateY(-2px);
+}
+
+.KDB_widgetSettings .dataWidgetIcon input.svgIcon {
+  height: 18px;
+  width: 18px;
+  display: block;
+  top: 0;
+}
+
+.KDB_widgetSettings .KDB_widgetSettingsIcons > .dataWidgetIcon.KDB_groupingButton input.svgIcon,
+.KDB_widgetSettings .KDB_widgetSettingsIcons > .dataWidgetIcon.KDB_showValuesButton input.svgIcon,
+.KDB_focusModeSettingsPanel .dataWidgetIcon.KDB_groupingButton input.svgIcon,
+.KDB_focusModeSettingsPanel .dataWidgetIcon.KDB_showValuesButton input.svgIcon {
+  width: 22px;
+  height: 22px;
+}
+
+.KDB_widgetSettings .dataWidgetIcon .svgIcon {
+  top: 0;
+}
+
+.defaultTheme .widget .dataWidgetIcon {
+  fill: #161616;
+}
+
+.KDB_widgetSettings .KDB_deleteButton {
+  height: 18px;
+  width: 18px;
+}
+
+.liveWidget .widgetHeader {
+  margin-right: 4px;
+}
+
+.KDB_widgetSettings.KDB_widgetSettings .KDB_widgetSettingsIcons.KDB_widgetSettingsIcons .dataWidgetIcon.dataWidgetIcon svg.svgIcon.svgIcon {
+  fill: black !important;
+}
+
+.KDB_widgetSettings .badgeContainer:empty {
+  display: none;
+}
+
+.KDB_IconsDropdown {
+  z-index: 10050;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(5px);
+  background-color: #ffffff !important;
+  opacity: 1;
+  padding: 3px;
+  border: 1px solid #000000;
+  border-radius: 3px;
+  box-sizing: border-box;
+  height: max-content;
+  max-height: 350px;
+  overflow-y: auto;
+  margin-top: 0;
+  width: max-content;
+  display: none;
+}
+
+.KDB_IconsDropdown.KDB_visible {
+  display: block;
+}
+
+.KDB_IconsDropdown .dataWidgetIcon:not(.KDB_widgetSettings_colorOption) {
+  z-index: 10051;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+  color: black !important;
+  padding: 6px 8px 6px 34px;
+  position: relative;
+}
+
+.KDB_IconsDropdown .dataWidgetIcon:hover:not(.KDB_widgetSettings_colorOption) {
+  background-color: var(--cognosMediumBlue) !important;
+}
+
+.KDB_widgetSettingsIcons > .dataWidgetIcon.KDB_dropdownPending .svgIcon {
+  opacity: 0.55;
+}
+
+.KDB_IconsDropdown .dataWidgetIcon.KDB_optionSelected:not(.KDB_widgetSettings_colorOption) {
+  background-color: #e0e0e0 !important;
+  font-weight: normal;
+  text-decoration: none;
+}
+
+.KDB_IconsDropdown .dataWidgetIcon::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  border: 1px solid #000000;
+  border-radius: 50%;
+  background-color: transparent;
+  box-sizing: border-box;
+  transform: translateY(-50%);
+}
+
+.KDB_IconsDropdown .dataWidgetIcon.KDB_optionSelected::before {
+  background-color: #000000;
+}
+
+.KDB_IconsDropdown .dataWidgetIcon.KDB_optionSelected::after {
+  content: "✓";
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  transform: translate(-50%, -55%);
+}
+
+.KDB_IconsDropdown .dataWidgetIcon[data-kdb-default="1"] {
+  border-bottom: black 2px dashed;
+}
+
+.KDB_IconsDropdown .textIcon {
+  top: 4px;
+  position: relative;
+}
+
+.KDB_IconsDropdown .dataWidgetIcon.KDB_widgetSettings_iconTextOption {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  min-width: 180px;
+}
+
+.KDB_visualizationsContainer .KDB_widgetSettings_iconTextOption {
+  display: grid !important;
+  grid-template-columns: 22px minmax(0, 1fr);
+  align-items: center !important;
+  min-height: 32px;
+  padding: 5px 8px 5px 34px;
+  column-gap: 8px;
+  background-color: #ffffff !important;
+}
+
+.KDB_visualizationsContainer .KDB_widgetSettings_iconTextOption input.svgIcon {
+  position: relative;
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  min-height: 22px !important;
+  margin: 0;
+  transform: translateX(50%);
+}
+
+.KDB_visualizationsContainer .KDB_widgetSettings_iconTextOption .textIcon {
+  position: static;
+  top: auto;
+  display: block;
+  width: 100%;
+  margin: 0;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.liveWidget .KDB_widgetSettings .KDB_fontSizeButton,
+.liveWidget .KDB_widgetSettings .KDB_textButton,
+.liveWidget .KDB_widgetSettings .KDB_titleButton {
+  display: none;
+}
+
+.liveWidget .KDB_widgetSettings .KDB_widgetSettingsHeaderRow .KDB_widgetSettingsIcons > .dataWidgetIcon.KDB_maximizeButton {
+  display: none;
+}
+
+.liveWidget .KDB_widgetSettings[data-kdb-vis-type="list"] .KDB_widgetSettingsHeaderRow .KDB_widgetSettingsIcons > .dataWidgetIcon.KDB_showValuesButton {
+  display: none;
+}
+
+.liveWidget .KDB_widgetSettings[data-kdb-vis-type="prognose"] .KDB_widgetSettingsHeaderRow .KDB_widgetSettingsIcons > .dataWidgetIcon.KDB_groupingButton,
+.liveWidget .KDB_widgetSettings[data-kdb-vis-type="com.ibm.vis.custom.prognoseyear"] .KDB_widgetSettingsHeaderRow .KDB_widgetSettingsIcons > .dataWidgetIcon.KDB_groupingButton,
+.liveWidget .KDB_widgetSettings[data-kdb-vis-type="com.ibm.vis.custom.prognoseyearlinechart"] .KDB_widgetSettingsHeaderRow .KDB_widgetSettingsIcons > .dataWidgetIcon.KDB_groupingButton {
+  display: none;
+}
+
+.textWidget .KDB_widgetSettings .KDB_titleButton,
+.textWidget .KDB_widgetSettings .KDB_visualizationsButton,
+.textWidget .KDB_widgetSettings .KDB_dimensionsButton,
+.textWidget .KDB_widgetSettings .KDB_topNButton,
+.textWidget .KDB_widgetSettings .KDB_maximizeButton {
+  display: none;
+}
+
+.KDB_widgetHeader_allBordersStyle {
+  border: 2px solid black;
+}
+
+.KDB_widgetHeader_bottomBorderStyle {
+  border-bottom: 2px solid black;
+}
+
+.KDB_widgetHeader_topBorderStyle {
+  border-top: 2px solid black;
+}
+
+.KDB_widgetHeader_centeredStyle {
+  text-align: center;
+}
+
+.KDB_widgetHeader_allBordersCenteredStyle {
+  border: 2px solid black;
+  text-align: center;
+}
+
+.KDB_widgetHeader_bottomBorderCenteredStyle {
+  border-bottom: 2px solid black;
+  text-align: center;
+}
+
+.KDB_widgetHeader_topBorderCenteredStyle {
+  border-top: 2px solid black;
+  text-align: center;
+}
+
+.KDB_widgetHeader_defaultStyle {
+  border: none;
+}
+
+/* WP1+WP2 showValues nest: header once + rows. Pill rules = outer direct-child showValues only. Shared radio/pad/dashed/display:block stay above. */
+.KDB_IconsDropdown.KDB_showValuesContainer.KDB_visible {
+  display: grid;
+  grid-template-columns: max-content auto 22px 22px 22px auto;
+  grid-template-rows: auto 22px;
+  grid-auto-rows: 22px;
+  padding: 9px;
+  row-gap: 6px;
+  column-gap: 0;
+  width: max-content;
+  overflow: visible;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer::before {
+  content: "Werte anzeigen";
+  grid-column: 1;
+  grid-row: 2;
+  padding-right: 8px;
+  line-height: 22px;
+  align-self: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer::after {
+  content: "aus / Std. / ein";
+  grid-column: 2 / span 5;
+  grid-row: 1;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"] {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  grid-row: 2;
+  width: 22px;
+  min-width: 22px;
+  max-width: 22px;
+  height: 22px;
+  padding: 0 !important;
+  line-height: 0;
+  font-size: 0;
+  background-color: transparent !important;
+  background-image: none;
+  cursor: pointer;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"][data-kdb-option-value="off"] {
+  grid-column: 3;
+  border-top-left-radius: 22px;
+  border-bottom-left-radius: 22px;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"][data-kdb-option-value="inherit"] {
+  grid-column: 4;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"][data-kdb-option-value="on"] {
+  grid-column: 5;
+  border-top-right-radius: 22px;
+  border-bottom-right-radius: 22px;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"] .textIcon {
+  display: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"]::before,
+.KDB_IconsDropdown.KDB_showValuesContainer > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected::before {
+  content: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"][data-kdb-default="1"] {
+  border-bottom: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"]:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected {
+  background-color: transparent !important;
+  background-image: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer:has(> .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected[data-kdb-option-value="off"]) > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"],
+.KDB_IconsDropdown.KDB_showValuesContainer:has(> .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected[data-kdb-option-value="off"]) > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"]:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer:has(> .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected[data-kdb-option-value="off"]) > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected,
+.KDB_IconsDropdown.KDB_showValuesContainer:has(> .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected[data-kdb-option-value="inherit"]) > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"],
+.KDB_IconsDropdown.KDB_showValuesContainer:has(> .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected[data-kdb-option-value="inherit"]) > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"]:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer:has(> .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected[data-kdb-option-value="inherit"]) > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected {
+  background-color: #ccc !important;
+  background-image: none;
+  border: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer:has(> .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected[data-kdb-option-value="on"]) > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"],
+.KDB_IconsDropdown.KDB_showValuesContainer:has(> .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected[data-kdb-option-value="on"]) > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"]:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer:has(> .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected[data-kdb-option-value="on"]) > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected {
+  background-color: var(--kdb-control-steuerung-switch-on, #0056b3) !important;
+  background-image: none;
+  border: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  background-color: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  color: transparent;
+  font-size: 0;
+  font-weight: 400;
+  line-height: 0;
+  transform: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .dataWidgetIcon[data-kdb-dropdown-kind="showValues"].KDB_optionSelected[data-kdb-option-value="inherit"]::after {
+  background-color: var(--kdb-control-steuerung-switch-on, #0056b3);
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="iterator"] {
+  grid-row: 3;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="zoom"] {
+  grid-row: 4;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="valueCaption"] {
+  grid-row: 5;
+}
+
+.KDB_widgetSettings[data-kdb-vis-type="prognose"] .KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="zoom"],
+.KDB_focusModeSettingsPanel[data-kdb-vis-type="prognose"] .KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="zoom"] {
+  grid-row: 3;
+}
+
+.KDB_widgetSettings[data-kdb-vis-type="prognose"] .KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="valueCaption"],
+.KDB_focusModeSettingsPanel[data-kdb-vis-type="prognose"] .KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="valueCaption"] {
+  grid-row: 4;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_showValuesRowPhrase {
+  grid-column: 1;
+  padding-right: 8px;
+  line-height: 22px;
+  align-self: center;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"],
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"],
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] {
+  display: grid;
+  grid-template-columns: 22px 22px 22px;
+  grid-template-rows: 22px;
+  grid-column: 3 / span 3;
+  position: static;
+  top: auto;
+  left: auto;
+  transform: none;
+  z-index: auto;
+  width: 66px;
+  min-width: 66px;
+  max-width: 66px;
+  height: 22px;
+  max-height: none;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+  background-color: transparent !important;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"] > .dataWidgetIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"] > .dataWidgetIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] > .dataWidgetIcon {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  width: 22px;
+  min-width: 22px;
+  max-width: 22px;
+  height: 22px;
+  padding: 0 !important;
+  line-height: 0;
+  font-size: 0;
+  background-color: transparent !important;
+  background-image: none;
+  cursor: pointer;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"] > .dataWidgetIcon[data-kdb-option-value="off"],
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"] > .dataWidgetIcon[data-kdb-option-value="off"],
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] > .dataWidgetIcon[data-kdb-option-value="off"] {
+  grid-column: 1;
+  border-top-left-radius: 22px;
+  border-bottom-left-radius: 22px;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"] > .dataWidgetIcon[data-kdb-option-value="inherit"],
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"] > .dataWidgetIcon[data-kdb-option-value="inherit"],
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] > .dataWidgetIcon[data-kdb-option-value="inherit"] {
+  grid-column: 2;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"] > .dataWidgetIcon[data-kdb-option-value="on"],
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"] > .dataWidgetIcon[data-kdb-option-value="on"],
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] > .dataWidgetIcon[data-kdb-option-value="on"] {
+  grid-column: 3;
+  border-top-right-radius: 22px;
+  border-bottom-right-radius: 22px;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"] > .dataWidgetIcon .textIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"] > .dataWidgetIcon .textIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] > .dataWidgetIcon .textIcon {
+  display: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"] > .dataWidgetIcon::before,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"] > .dataWidgetIcon.KDB_optionSelected::before,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"] > .dataWidgetIcon::before,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"] > .dataWidgetIcon.KDB_optionSelected::before,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] > .dataWidgetIcon::before,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] > .dataWidgetIcon.KDB_optionSelected::before {
+  content: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"] > .dataWidgetIcon[data-kdb-default="1"],
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"] > .dataWidgetIcon[data-kdb-default="1"],
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] > .dataWidgetIcon[data-kdb-default="1"] {
+  border-bottom: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"] > .dataWidgetIcon:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"] > .dataWidgetIcon.KDB_optionSelected,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"] > .dataWidgetIcon:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"] > .dataWidgetIcon.KDB_optionSelected,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] > .dataWidgetIcon:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] > .dataWidgetIcon.KDB_optionSelected {
+  background-color: transparent !important;
+  background-image: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="off"]) > .dataWidgetIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="off"]) > .dataWidgetIcon:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="off"]) > .dataWidgetIcon.KDB_optionSelected,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="inherit"]) > .dataWidgetIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="inherit"]) > .dataWidgetIcon:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="inherit"]) > .dataWidgetIcon.KDB_optionSelected,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="off"]) > .dataWidgetIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="off"]) > .dataWidgetIcon:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="off"]) > .dataWidgetIcon.KDB_optionSelected,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="inherit"]) > .dataWidgetIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="inherit"]) > .dataWidgetIcon:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="inherit"]) > .dataWidgetIcon.KDB_optionSelected,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="off"]) > .dataWidgetIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="off"]) > .dataWidgetIcon:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="off"]) > .dataWidgetIcon.KDB_optionSelected,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="inherit"]) > .dataWidgetIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="inherit"]) > .dataWidgetIcon:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="inherit"]) > .dataWidgetIcon.KDB_optionSelected {
+  background-color: #ccc !important;
+  background-image: none;
+  border: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="on"]) > .dataWidgetIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="on"]) > .dataWidgetIcon:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="on"]) > .dataWidgetIcon.KDB_optionSelected,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="on"]) > .dataWidgetIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="on"]) > .dataWidgetIcon:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="on"]) > .dataWidgetIcon.KDB_optionSelected,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="on"]) > .dataWidgetIcon,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="on"]) > .dataWidgetIcon:hover,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"]:has(> .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="on"]) > .dataWidgetIcon.KDB_optionSelected {
+  background-color: var(--kdb-control-steuerung-switch-on, #0056b3) !important;
+  background-image: none;
+  border: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"] > .dataWidgetIcon.KDB_optionSelected::after,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"] > .dataWidgetIcon.KDB_optionSelected::after,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] > .dataWidgetIcon.KDB_optionSelected::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  background-color: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  color: transparent;
+  font-size: 0;
+  font-weight: 400;
+  line-height: 0;
+  transform: none;
+}
+
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="iterator"] > .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="inherit"]::after,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="zoom"] > .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="inherit"]::after,
+.KDB_IconsDropdown.KDB_showValuesContainer > .KDB_IconsDropdown[data-kdb-dropdown-kind="valueCaption"] > .dataWidgetIcon.KDB_optionSelected[data-kdb-option-value="inherit"]::after {
+  background-color: var(--kdb-control-steuerung-switch-on, #0056b3);
+}
+
+.KDB_widgetSettings[data-kdb-vis-type="pie"] .KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="zoom"],
+.KDB_focusModeSettingsPanel[data-kdb-vis-type="pie"] .KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="zoom"] {
+  display: none;
+}
+
+.KDB_widgetSettings[data-kdb-vis-type="pie"] .KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="valueCaption"],
+.KDB_focusModeSettingsPanel[data-kdb-vis-type="pie"] .KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="valueCaption"] {
+  display: none;
+}
+
+.KDB_widgetSettings[data-kdb-vis-type="prognose"] .KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="iterator"],
+.KDB_focusModeSettingsPanel[data-kdb-vis-type="prognose"] .KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row="iterator"] {
+  display: none;
+}
+
+.KDB_widgetSettings[data-kdb-vis-type="list"] .KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row],
+.KDB_focusModeSettingsPanel[data-kdb-vis-type="list"] .KDB_IconsDropdown.KDB_showValuesContainer > [data-kdb-showvalues-row] {
+  display: none;
+}

@@ -1,0 +1,420 @@
+#kdb-control-settings-outer.kdb-control__settings-outer {
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+}
+#kdb-control-content.kdb-control__content.kdb-control_settings-open #kdb-control-settings-outer.kdb-control__settings-outer {
+  padding-bottom: 4px;
+}
+#kdb-control-save-load-slot.kdb-control__save-load-slot {
+  box-sizing: border-box;
+  min-height: 1.25rem;
+  width: 100%;
+  padding: calc(2 * var(--kdb-control-settings-block-vpad)) 0 calc(2 * var(--kdb-control-settings-block-vpad)) 0;
+}
+#kdb-control-main-toggles.kdb-control__main-toggles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--kdb-control-settings-block-vpad);
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+  margin-bottom: 0;
+  box-sizing: border-box;
+  align-self: stretch;
+}
+#kdb-control-main-toggles .kdb-control__top-toggle.kdb-toggle,
+#kdb-control-content .kdb-control__section-head {
+  min-height: 50px;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 8px;
+  margin: 0;
+  box-sizing: border-box;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #d3d3d3;
+  border: 1px solid #b0b0b0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+#kdb-control-main-toggles .kdb-control__top-toggle.kdb-toggle {
+  border-radius: 8px;
+  width: 100%;
+  max-width: 100%;
+}
+#kdb-control-content .kdb-control__section-head {
+  border-radius: 8px;
+}
+.kdb-control_section_open .kdb-control__section-head {
+  border-radius: 8px 8px 0 0;
+  border-bottom: 1px solid #ccc;
+  box-shadow: none;
+}
+#kdb-control-main-toggles .kdb-control__top-toggle.kdb-toggle:hover,
+#kdb-control-content .kdb-control__section-head:hover {
+  background-color: #c8c8c8;
+}
+#kdb-control-main-toggles .kdb-control__top-toggle.kdb-toggle.kdb-control_selected,
+#kdb-control-content .kdb-control__section-head.kdb-control_section-head_selected {
+  color: #000;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 8px;
+}
+#kdb-control-main-blocks.kdb-control__main-blocks {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  align-items: stretch;
+  border: 1px solid #d3d3d3;  
+  margin-top: 10px;
+}
+#kdb-control_metrics_container.kdb-control__panel-metrics,
+#kdb-control_toolbox_container.kdb-control__panel-toolbox,
+#kdb-control_settings_container.kdb-control__panel-settings {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+#kdb-control_metrics_container.kdb-control__panel-metrics.KDB_visible {
+  width: calc(100%);
+  margin: 0 0 0 0;
+  padding: 5px;
+  text-align: left;
+  border-radius: 8px;
+  ;
+  background-color: transparent;
+  min-height: 4rem;
+  display: grid;
+  grid-template-rows: min-content;
+}
+#kdb-control_toolbox_container.kdb-control__panel-toolbox.KDB_visible {
+  margin: 0;
+  padding: 12px 20px 16px;
+  border-radius: 8px;
+  border: none;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+ 
+}
+#kdb-control_settings_container.kdb-control__panel-settings.KDB_visible {
+  margin: 0;
+  padding: 12px 20px 16px;
+  border-radius: 8px;
+  border: 1px solid #d3d3d3;
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.kdb-control__section-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 var(--kdb-control-settings-block-vpad) 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: none;
+  background: transparent;
+  text-align: center;
+}
+.kdb-control__section-body-container {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  border: 1px solid #d3d3d3;
+  border-radius: 8px 8px 8px 8px;
+  background-color: #fafafa;
+}
+.kdb-control__section-body {
+  text-align: center;
+  margin: 0;
+  padding: 12px 10px 16px;
+  min-height: 2rem;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.kdb-control_settings-inline-row {
+  display: grid;
+  align-items: start;
+  justify-items: center;
+  margin-bottom: 12px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+.kdb-control_settings-inline-row.kdb-control_twoinput-row {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  width: 100%;
+}
+.kdb-control_twoinput-row-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  align-items: start;
+  justify-items: center;
+  min-width: 0;
+}
+.kdb-control_settings-inline-row.kdb-control_twoinput-row > .kdb-control_twoinput-row-split {
+  width: 100%;
+  max-width: 100%;
+}
+.kdb-control_settings-inline-row.kdb-control_oneinput-row {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px 0;
+}
+.kdb-control_settings-inline-row > *:only-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+  width: 100%;
+  max-width: 20rem;
+}
+.kdb-control_twoinput-row-split > .kdb-control_color-field {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+.kdb-control_toolbox-block {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+}
+.kdb-control_toolbox-block--tab-add {
+  gap: 10px;
+}
+.kdb-control_toolbox-block--tab-add .kdb-control_toolbox-hint {
+  margin-bottom: 0;
+}
+.kdb-control_toolbox-hint {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 8px;
+  color: #333;
+  text-align: center;
+}
+.kdb-control_subheading {
+  font-weight: 400;
+  font-size: 16px;
+  margin: 8px 0 6px;
+  color: #222;
+  text-align: center;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+.kdb-control_tab-edit-area {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.kdb-control_tab-edit-placeholder {
+  margin-top: 8px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.kdb-control_settings-body--dashboard > .kdb-control_settings-inline-row:first-of-type .kdb-control_twoinput-row-split .kdb-control_input-row {
+  gap: 2px;
+}
+.kdb-control_settings-body--dashboard > .kdb-control_settings-inline-row:first-of-type .kdb-control_twoinput-row-split .kdb-control_input-label {
+  margin: 0;
+  padding: 0;
+  line-height: 1.15;
+}
+.kdb-control_settings-inline-row--dashboard-row2 .kdb-control_color-field {
+  margin-bottom: 0;
+  gap: 2px;
+}
+.kdb-control_settings-chrome-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  gap: 2px;
+}
+.kdb-control_settings-chrome-block > .kdb-control_input-label {
+  margin: 0;
+  padding: 0;
+  line-height: 1.15;
+  text-align: center;
+}
+.kdb-control_dashboard-toggles-column {
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+.kdb-control_dashboard-toggle-pair {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: 3px;
+}
+.kdb-control_dashboard-toggle-pair .kdb-control_switch-row {
+  max-width: none;
+  width: auto;
+  flex: 0 0 auto;
+  gap: 10px;
+}
+.kdb-control_dashboard-toggle-pair .kdb-control_switch-label {
+  flex: 0 0 auto;
+}
+.kdb-control_dashboard-toggles-column--developer-mode-gated,
+.kdb-control_dashboard-toggles-column--diagram-chrome {
+  align-items: center;
+}
+.kdb-control_dashboard-toggles-column--developer-mode-gated .kdb-control_switch-label {
+  display: none;
+}
+.kdb-control_dashboard-toggles-column--developer-mode-gated .kdb-control_dashboard-toggle-pair .kdb-control_switch-row {
+  gap: 0;
+  justify-content: center;
+}
+.kdb-control_dashboard-toggles-column--developer-mode-gated:not(.kdb-control_dashboard-toggles-column--developer-mode-visible) {
+  display: none;
+}
+.kdb-control_twoinput-row-split:has(> .kdb-control_dashboard-toggles-column--developer-mode-gated:not(.kdb-control_dashboard-toggles-column--developer-mode-visible)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+.kdb-control_settings-inline-row--dashboard-row2 .kdb-control_twoinput-row-split,
+.kdb-control_diagram-bg-chrome-row .kdb-control_twoinput-row-split {
+  align-items: start;
+}
+.kdb-control_toolbox-header-footer:has(.kdb-control_switch-input[data-kdb-action="header.toggle"]:not(:checked)) .kdb-control_header-footer-row2 {
+  display: none !important;
+}
+.kdb-control_toolbox-header-footer:has(.kdb-control_switch-input[data-kdb-action="header.subtitle.toggle"]:not(:checked))
+  .kdb-control_header-footer-row2
+  .kdb-control__radio-label:has(input[value="renameHeaderSubtitle"]) {
+  display: none !important;
+}
+.kdb-control_toolbox-header-footer .kdb-control_header-footer-row2 .kdb-control_radio-group {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+}
+.kdb-control_toolbox-header-footer .kdb-control_header-footer-row2 .kdb-control_switch-row {
+  max-width: 100%;
+}
+#kdb-control_settings_container .kdb-control__section-head {
+  width: calc(50% + 15px);
+  align-self: anchor-center;
+}
+#kdb-control_toolbox_container .kdb-control__section-head {
+  width: calc(50% + 15px);
+  align-self: anchor-center;
+}
+#kdb-control_settings_container .kdb-control__section-body {
+  gap: 0;
+  padding: var(--kdb-control-settings-block-vpad) var(--kdb-control-settings-block-hpad);
+}
+#kdb-control_toolbox_container .kdb-control__section-body {
+  gap: 0;
+  padding: var(--kdb-control-settings-block-vpad) var(--kdb-control-settings-block-hpad);
+}
+#kdb-control_toolbox_container .kdb-control__section-body-container {
+  box-sizing: border-box;
+}
+#kdb-control_toolbox_container .kdb-control__section-body > .kdb-control_settings-inline-row {
+  margin-bottom: 0;
+}
+#kdb-control_toolbox_container .kdb-control_settings-inline-row.kdb-control_oneinput-row > .kdb-control_toolbox-block--tab-add {
+  max-width: 100%;
+  width: 100%;
+}
+#kdb-control_settings_container .kdb-control__section-body > .kdb-control_settings-inline-row {
+  margin-bottom: 0;
+}
+#kdb-control_settings_container .kdb-control__section-body > *:not(:first-child),
+#kdb-control_toolbox_container .kdb-control__section-body > *:not(:first-child) {
+  margin-top: var(--kdb-control-settings-block-vpad);
+  border-top: 1px solid #b0b0b0;
+  padding-top: var(--kdb-control-settings-block-vpad);
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+#kdb-control_toolbox-header-footer-row-kopf-fuss {
+  margin-top: 0 !important;
+  border-top: none !important;
+  padding-bottom: 8px;
+}
+#kdb-control_toolbox-header-footer-row-kopf-fuss .kdb-control_switch-row {
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+#kdb-control_toolbox-header-footer-row-kopf-fuss .kdb-control_switch-track {
+  margin-top: 5px;
+}
+#kdb-control_toolbox-header-footer-row-kopf-fuss .kdb-control_switch-label {
+  flex: 0 0 auto;
+}
+.kdb-control_header-footer-edit-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.kdb-control_header-footer-edit-column > .kdb-control_subheading {
+  margin: 0;
+  text-align: center;
+}
+#kdb-control_settings_container .kdb-control__section-body-container {
+  box-sizing: border-box;
+}
+#kdb-control_settings_container .kdb-control__section-shell:has([data-section-id="settingsComments"]) .kdb-control_text-input,
+#kdb-control_settings_container .kdb-control__section-shell:has([data-section-id="settingsControlPanel"]) .kdb-control_text-input {
+  max-width: 16rem;
+}
+#kdb-control_settings_container .kdb-control__section-shell:has([data-section-id="settingsControlPanel"]) .kdb-control_settings-inline-row .kdb-control_color-field {
+  margin-bottom: 0;
+}
