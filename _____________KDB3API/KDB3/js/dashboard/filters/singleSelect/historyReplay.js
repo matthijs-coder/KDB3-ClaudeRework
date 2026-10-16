@@ -8,8 +8,7 @@ define([
   "./commit/ownerNotify.js",
   "../../../core/utils/normalizeCognosScopeId.js",
   "../../../core/utils/kit/history.js",
-  "../../widgets/widgetVis/actions/runTopNFilterConfirmWave.js",
-  "../../../core/config/visualizations/topNHelper.js"
+  "../_core/events.js"
 ], function (
   _config,
   _history,
@@ -20,8 +19,7 @@ define([
   _ownerNotify,
   _normalizeScopeId,
   _kitHistory,
-  _runTopNFilterConfirmWave,
-  _topNHelper
+  _filterEvents
 ) {
   "use strict";
 
@@ -368,26 +366,16 @@ define([
     return { ok: true };
   }
 
-  function logTopNWave(_err) {
-    console.error("[singleSelect.applyHistoryReplay] topN wave failed", _err);
-  }
-
   function startTopNWave(_KDB, _record) {
-    var table = _topNHelper.resolveTableEntry();
-    var columnId = _record && _record.itemId != null ? String(_record.itemId) : "";
     if (_record.scopeType === "pageContext" && !_record.scopeId) {
       return;
     }
-    try {
-      Promise.resolve(_runTopNFilterConfirmWave(_KDB, {
-        scopeType: _record.scopeType,
-        scopeId: _record.scopeId,
-        isJahr: !!(table && columnId === table.jahrColumnId),
-        filterType: "singleSelect"
-      })).then(null, logTopNWave);
-    } catch (err) {
-      logTopNWave(err);
-    }
+    _filterEvents.emitConfirmed(_KDB, {
+      filterType: "singleSelect",
+      scopeType: _record.scopeType,
+      scopeId: _record.scopeId,
+      columnId: _record && _record.itemId != null ? String(_record.itemId) : ""
+    });
   }
 
   function reportFailure(_KDB, _filterInstanceId, _errorCode, _message) {

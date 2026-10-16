@@ -3,10 +3,8 @@ define([
   "./state.js",
   "./inventory.js",
   "../../../core/utils/kit/history.js",
-  "../../widgets/widgetVis/actions/runTopNFilterConfirmWave.js",
-  "../../../core/config/visualizations/topNHelper.js",
-  "../../widgets/widgetVis/effects/readConfirmedJahrYear.js"
-], function (_config, _state, _inventory, _historyKit, _runTopNFilterConfirmWave, _topNHelper, _readConfirmedJahrYear) {
+  "../_core/events.js"
+], function (_config, _state, _inventory, _historyKit, _filterEvents) {
   "use strict";
 
   var actions = _config.actions;
@@ -223,26 +221,15 @@ define([
 
   // ---------- TopN wave ----------
 
-  function logTopNWave(_err) {
-    console.error("[nativeMultiSelect.startTopNWave] topN wave failed", _err);
-  }
-
   function startTopNWave(_KDB, _scopeKey, _columnId, _tabId, _values) {
-    var table = _topNHelper.resolveTableEntry();
-    var isJahr = !!(table && _columnId === table.jahrColumnId);
-    try {
-      Promise.resolve(_runTopNFilterConfirmWave(_KDB, {
-        scopeType: _scopeKey === "global" ? "global" : "pageContext",
-        tabId: _tabId,
-        scopeId: _scopeKey === "global" ? null : _scopeKey,
-        isJahr: isJahr,
-        selectedYearKnown: isJahr,
-        selectedYear: isJahr ? _readConfirmedJahrYear(_values) : null,
-        filterType: "nativeMultiSelect"
-      })).then(null, logTopNWave);
-    } catch (err) {
-      logTopNWave(err);
-    }
+    _filterEvents.emitConfirmed(_KDB, {
+      filterType: "nativeMultiSelect",
+      scopeType: _scopeKey === "global" ? "global" : "pageContext",
+      tabId: _tabId,
+      scopeId: _scopeKey === "global" ? null : _scopeKey,
+      columnId: _columnId,
+      confirmedValues: Array.isArray(_values) ? _values : []
+    });
   }
 
   // ---------- dock confirm ----------

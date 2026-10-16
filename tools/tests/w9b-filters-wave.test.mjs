@@ -1,7 +1,7 @@
 // W9b: how the filters start the TopN wave (singleSelect commit and replay, nativeMultiSelect confirm and replay).
 // The assertions describe the call contract only: payload, position in the commit flow, never awaited, failures
 // logged and swallowed, skip guards. They hold for both delivery mechanisms: the direct widgetVis wave import
-// (recorded first, shim still present) and the `filters:confirmed` event handled by widgetVis.
+// (recorded first on the old code) and the `filters:confirmed` event handled by widgetVis.
 // Run: node --test tools/tests/w9b-filters-wave.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -12,8 +12,7 @@ import { JS_ROOT } from "../lib/amd-graph.mjs";
 
 const SS = path.join(JS_ROOT, "dashboard/filters/singleSelect");
 const NMS = path.join(JS_ROOT, "dashboard/filters/nativeMultiSelect");
-const WAVE_SHIM = path.join(JS_ROOT, "dashboard/widgets/widgetVis/actions/runTopNFilterConfirmWave.js");
-const DIRECT_IMPORT = fs.existsSync(WAVE_SHIM);
+const DIRECT_IMPORT = fs.readFileSync(path.join(NMS, "commit.js"), "utf8").includes("runTopNFilterConfirmWave");
 const JAHR_COL = "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]";
 
 const clone = (value) => JSON.parse(JSON.stringify(value));

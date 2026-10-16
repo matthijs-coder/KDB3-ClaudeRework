@@ -144,6 +144,7 @@ function boot(opts) {
       filterPropObj: { Personal_KDB: { filterInstances: options.filterInstances || filterInstances() } }
     },
     services: { cognosHost: { filters: facet, tabs: tabsFacet }, history },
+    events: options.events,
     api: {
       tabs: {
         dispatch(action) {
@@ -500,15 +501,16 @@ test("dispatch: unknown action reduces and returns state; reducer errors do not 
 // ---------- TopN wave payloads ----------
 const JAHR_COL = "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]";
 
-// Runs the confirm and replay paths against a stubbed runTopNFilterConfirmWave and returns the payloads it received.
-// waveSpec is the AMD path of the stub as written in the module under test.
-async function captureWavePayloads(nmsDir, waveSpec) {
+// Runs the confirm and replay paths and returns the wave payloads widgetVis builds from the `filters:confirmed`
+// events (the real waveRequest mapper; the wave itself is not started).
+async function captureWavePayloads(nmsDir) {
   const calls = [];
-  const modules = {};
-  modules[waveSpec] = (_KDB, payload) => { calls.push(clone(payload)); return Promise.resolve({ ok: true }); };
+  const events = loadAmd(path.join(JS_ROOT, "core/events/createEventBus.js"))();
+  const waveRequest = loadAmd(path.join(JS_ROOT, "dashboard/widgets/widgetVis/topN/waveRequest.js"));
+  events.subscribe("filters:confirmed", (event) => { calls.push(clone(waveRequest.buildWavePayload(event))); });
   const items = defaultItems().concat([item(JAHR_COL, "Jahr", "global", [v("2022", "[J].[2022]")])]).filter((i) => !(i.itemName === "Jahr" && i.itemId === JAHR_ID && i.rawScopeId === "global"));
   const instances = Object.assign(filterInstances(), { jahrCol: { scopeType: "global", itemName: "Jahr", itemId: JAHR_COL, isNative: true } });
-  const b = boot({ items, filterInstances: instances, nmsDir, modules });
+  const b = boot({ items, filterInstances: instances, nmsDir, events });
   const out = {};
   const confirm = (payload) => b.api.dispatch({ type: A.confirm, payload: Object.assign({ interactionType: "confirm", confirmedLabels: ["2023", "2024"] }, payload) });
   const replay = (targetValue) => b.api.dispatch({ type: A.replay, payload: { targetValue, isHistoryReplay: true, skipHistory: true } });
@@ -584,7 +586,7 @@ const OLD_WAVE_PAYLOADS = {
 };
 
 test("TopN wave payloads of confirm and history replay match the pre-restructure modules", async () => {
-  const captured = await captureWavePayloads(NMS, "../../widgets/widgetVis/actions/runTopNFilterConfirmWave.js");
+  const captured = await captureWavePayloads(NMS);
   assert.deepEqual(captured, OLD_WAVE_PAYLOADS);
 });
 
