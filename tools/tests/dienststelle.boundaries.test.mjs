@@ -94,3 +94,20 @@ test("filterDom: the overlay wrapper comes from the filterDock selector readActi
     null
   );
 });
+
+test("widgetVis notify: the dispatched type is the widgetVis-exported constant", () => {
+  const notify = load("dienststelle/effects/reconcile/widgetVisNotify.js", {
+    modules: { "../hierarchySnapshot.js": { readCurrentHierarchySnapshot: () => ({ nodes: [] }) } }
+  });
+  const widgetVisState = loadAmd(path.join(JS_ROOT, "dashboard/widgets/widgetVis/state.js"));
+  const dispatched = [];
+  const KDB = { api: { widgetVis: { dispatch: (action) => dispatched.push(action) } } };
+  const definition = { activeFilterKey: "Dienststelle_BW", visibleFilterLabel: "Dienststelle" };
+  const result = { resolution: { dominantValues: [{ useValue: "[a]", displayValue: "A" }] } };
+  notify.notifyWidgetChanged(KDB, { source: "startup", observedAt: 5 }, definition, result);
+  assert.equal(dispatched.length, 1);
+  assert.equal(dispatched[0].type, widgetVisState.ACTION_TYPES.DIENSTSTELLE_CHANGED);
+  assert.equal(dispatched[0].type, "widgetVis/dienststelleChanged");
+  assert.equal(dispatched[0].payload.selection.useValue, "[a]");
+  assert.equal(dispatched[0].payload.source, "sichtDefault");
+});
