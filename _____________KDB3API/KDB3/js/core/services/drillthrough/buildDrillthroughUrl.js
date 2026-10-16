@@ -1,14 +1,8 @@
 define([
   "./assemble.js",
   "./org/mapOrgPrompts.js",
-  "./encode/encodeDrillthroughUrl.js",
-  "./diagnostics/createBuildResult.js"
-], function (
-  _assemble,
-  _mapOrgPrompts,
-  _encodeDrillthroughUrl,
-  _createBuildResult
-) {
+  "./encode.js"
+], function (_assemble, _mapOrgPrompts, _encodeDrillthroughUrl) {
   "use strict";
 
   var MESSAGES = {
@@ -52,9 +46,32 @@ define([
     };
   }
 
+  function createBuildResult(_partial) {
+    var src = _partial && typeof _partial === "object" ? _partial : {};
+    var diagSrc = src.diagnostics && typeof src.diagnostics === "object" ? src.diagnostics : {};
+    var ok = src.ok === true;
+    return {
+      ok: ok,
+      status: ok ? "success" : "error",
+      errorCode: src.errorCode == null ? null : src.errorCode,
+      errorMessage: src.errorMessage == null ? null : src.errorMessage,
+      url: src.url == null ? null : src.url,
+      source: src.source == null ? null : src.source,
+      widgetId: src.widgetId == null ? null : src.widgetId,
+      drillConfig: src.drillConfig == null ? null : src.drillConfig,
+      diagnostics: {
+        service: "drillthrough",
+        operation: diagSrc.operation || "buildDrillthroughUrl",
+        hostEnv: diagSrc.hostEnv == null ? null : diagSrc.hostEnv,
+        failedStage: diagSrc.failedStage == null ? null : diagSrc.failedStage,
+        warnings: Array.isArray(diagSrc.warnings) ? diagSrc.warnings.slice() : []
+      }
+    };
+  }
+
   function failResult(_spec, _code, _stage, _warnings, _extra) {
     var extra = _extra || {};
-    return _createBuildResult({
+    return createBuildResult({
       ok: false,
       errorCode: _code,
       errorMessage: MESSAGES[_code] || _code,
@@ -71,7 +88,7 @@ define([
     });
   }
 
-  function __controller(_spec, _deps) {
+  function buildDrillthroughUrl(_spec, _deps) {
     try {
       var invalid = validateSpec(_spec);
       var warnings;
@@ -96,7 +113,7 @@ define([
       if (encoded && encoded.errorCode) {
         return failResult(_spec, encoded.errorCode, "encodeUrl", warnings, { drillConfig: drillConfig });
       }
-      return _createBuildResult({
+      return createBuildResult({
         ok: true,
         url: encoded.url,
         source: _spec.source,
@@ -115,5 +132,8 @@ define([
     }
   }
 
-  return __controller;
+  return {
+    buildDrillthroughUrl: buildDrillthroughUrl,
+    createBuildResult: createBuildResult
+  };
 });

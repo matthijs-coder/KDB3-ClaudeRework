@@ -1,11 +1,14 @@
 define([
-  "../config.js",
-  "./resolveHostEnv.js"
-], function (_config, _resolveHostEnv) {
+  "./config.js"
+], function (_config) {
   "use strict";
 
-  var _promptCatalog = _config.promptCatalog;
-  var _datenart = _config.datenart;
+  var promptCatalog = _config.promptCatalog;
+  var ORG_PARAMS = {
+    p_p_gruppe_DrillFromGDB: true,
+    p_p_dienststelle_DrillFromGDB: true,
+    p_p_dezpv_DrillFromGDB: true
+  };
 
   function encodeOrg(_raw) {
     var source = String(_raw == null ? "" : _raw).replace(/~/g, " ");
@@ -16,20 +19,28 @@ define([
     return _value == null || _value === "" ? "" : String(_value);
   }
 
-  function pair(_name, _value) {
-    if (_value == null || _value === "") {
-      return "";
+  function resolveHostEnv(_spec) {
+    var env = _spec && _spec.hostEnv;
+    var href;
+    if (env === "dev" || env === "test" || env === "prod") {
+      return env;
     }
-    return "&" + _name + "=" + _value;
-  }
-
-  function isOrgParam(_name) {
-    return _name === "p_p_gruppe_DrillFromGDB" || _name === "p_p_dienststelle_DrillFromGDB" || _name === "p_p_dezpv_DrillFromGDB";
+    href = typeof window !== "undefined" && window.location && window.location.href ? String(window.location.href) : "";
+    if (!href) {
+      return null;
+    }
+    if (href.indexOf("-dev") !== -1) {
+      return "dev";
+    }
+    if (href.indexOf("-test") !== -1) {
+      return "test";
+    }
+    return "prod";
   }
 
   function collectValues(_drillConfig, _spec) {
     var cfg = _drillConfig && typeof _drillConfig === "object" ? _drillConfig : {};
-    var constants = _promptCatalog.constants;
+    var constants = promptCatalog.constants;
     var sicht = String(cfg.p_art || (_spec && _spec.sicht) || "").toUpperCase().trim();
     var source = cfg.source || (_spec && _spec.source) || "";
     var range = omitEmpty(cfg.p_range_DrillFromGDB);
@@ -38,7 +49,7 @@ define([
     var gruppe = omitEmpty(cfg.p_gruppe_drillFromGDB);
     var values = {};
     values.p_p_art = omitEmpty(cfg.p_art);
-    values.p_p_datenart = _datenart.HASH;
+    values.p_p_datenart = _config.datenart.HASH;
     values.p_p_gruppe_DrillFromGDB = gruppe;
     values.p_p_dienststelle_DrillFromGDB = "";
     values.p_p_dezpv_DrillFromGDB = "";
@@ -65,39 +76,31 @@ define([
     return values;
   }
 
-  function __controller(_drillConfig, _links, _spec) {
-    try {
-      var hostEnv = _resolveHostEnv(_spec);
-      var base;
-      var values;
-      var parts;
-      var order;
-      var i;
-      var name;
-      var raw;
-      var encoded;
-      if (!hostEnv) {
-        return { errorCode: "DRILLTHROUGH_HOST_UNRESOLVED" };
-      }
-      base = _links && _links.pkzAnalysetool ? _links.pkzAnalysetool[hostEnv] : "";
-      if (!base) {
-        return { errorCode: "DRILLTHROUGH_LINK_MISSING" };
-      }
-      values = collectValues(_drillConfig, _spec);
-      parts = "";
-      order = _promptCatalog.emitOrder;
-      for (i = 0; i < order.length; i += 1) {
-        name = order[i];
-        raw = values[name];
-        encoded = isOrgParam(name) ? encodeOrg(raw) : encodeURIComponent(String(raw == null ? "" : raw));
-        parts += pair(name, raw == null || raw === "" ? "" : encoded);
-      }
-      return { url: String(base) + parts + _promptCatalog.constants.tail, hostEnv: hostEnv };
-    } catch (err) {
-      console.error("[drillthrough.encodeDrillthroughUrl]", err);
-      throw err;
+  function encodeDrillthroughUrl(_drillConfig, _links, _spec) {
+    var hostEnv = resolveHostEnv(_spec);
+    var base;
+    var values;
+    var query = "";
+    var i;
+    var name;
+    var raw;
+    if (!hostEnv) {
+      return { errorCode: "DRILLTHROUGH_HOST_UNRESOLVED" };
     }
+    base = _links && _links.pkzAnalysetool ? _links.pkzAnalysetool[hostEnv] : "";
+    if (!base) {
+      return { errorCode: "DRILLTHROUGH_LINK_MISSING" };
+    }
+    values = collectValues(_drillConfig, _spec);
+    for (i = 0; i < promptCatalog.emitOrder.length; i += 1) {
+      name = promptCatalog.emitOrder[i];
+      raw = values[name];
+      if (raw != null && raw !== "") {
+        query += "&" + name + "=" + (ORG_PARAMS[name] ? encodeOrg(raw) : encodeURIComponent(String(raw)));
+      }
+    }
+    return { url: String(base) + query + promptCatalog.constants.tail, hostEnv: hostEnv };
   }
 
-  return __controller;
+  return encodeDrillthroughUrl;
 });
