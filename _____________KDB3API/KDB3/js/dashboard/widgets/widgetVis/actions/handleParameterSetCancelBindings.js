@@ -1,9 +1,9 @@
 define([
   "../state.js",
   "../runtime.js",
-  "../effects/gates/topNGate.js",
-  "./handleCleanupContent.js"
-], function (_state, _visRuntime, _topNGate, _handleCleanupContent) {
+  "../binding/gates.js",
+  "../cleanup.js"
+], function (_state, _visRuntime, _gates, _cleanup) {
   "use strict";
 
   var RESET_FAILED = "WRITEBACK_WIDGET_RESET_FAILED";
@@ -52,39 +52,16 @@ define([
   }
 
   function cancelPendingWork(_KDB, _runtimeRoot, _widgetId) {
+    _gates.cancelGateWaitersForWidget(_KDB, _widgetId);
     const widgetRuntime = _runtimeRoot.byId ? _runtimeRoot.byId[_widgetId] : null;
     if (widgetRuntime) {
-      const topNPending = widgetRuntime.pendingPromises ? widgetRuntime.pendingPromises.topNGate : null;
-      if (topNPending) {
-        _topNGate.cancelTopNGateWaiter(_KDB, _widgetId, topNPending.opSeq);
-      }
       _visRuntime.rejectContentReadyWaiters(_KDB, _widgetId, { ok: false, widgetId: _widgetId, status: "cancelled", errorCode: CANCELLED });
       _visRuntime.abortActiveApply(widgetRuntime);
     }
-    rejectDienststelleWaitersForWidget(_runtimeRoot, _widgetId);
-  }
-
-  function rejectDienststelleWaitersForWidget(_runtimeRoot, _widgetId) {
-    const bucket = _runtimeRoot.pendingPromises ? _runtimeRoot.pendingPromises.dienststelleGate : null;
-    if (!bucket || !Array.isArray(bucket.waiters)) {
-      return;
-    }
-    const remaining = [];
-    bucket.waiters.forEach(function (entry) {
-      if (entry.widgetId !== _widgetId) {
-        remaining.push(entry);
-        return;
-      }
-      clearTimeout(entry.timerId);
-      if (typeof entry.reject === "function") {
-        entry.reject({ cancelled: true });
-      }
-    });
-    bucket.waiters = remaining;
   }
 
   function runContentCleanup(_context, _widgetId) {
-    return Promise.resolve(_handleCleanupContent(_context, {
+    return Promise.resolve(_cleanup.handleCleanupContent(_context, {
       type: _state.ACTION_TYPES.CLEANUP_CONTENT,
       widgetId: _widgetId,
       payload: {

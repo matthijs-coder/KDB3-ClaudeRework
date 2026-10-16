@@ -2,17 +2,17 @@ define([
   "../dom.js",
   "../view/syncLegendVisibility.js",
   "../runtime.js",
-  "./widgetFocusMode.js",
-  "./cleanupDrillthroughDecorations.js",
-  "./cleanupCanvasMaximize.js",
+  "../focus/focusMode.js",
+  "../drillthrough/install.js",
+  "../focus/maximizeIcon.js",
   "../../../../core/cognosHost/config/widgetChromeSelectors.js"
 ], function (
   _dom,
   _syncLegendVisibility,
   _visRuntime,
-  _widgetFocusMode,
-  _clearDrillthroughDecorations,
-  _cleanupCanvasMaximize,
+  _focusMode,
+  _drillthroughInstall,
+  _maximizeIcon,
   _widgetChrome
 ) {
   "use strict";
@@ -86,8 +86,8 @@ define([
     }
   }
   function cleanupFocusModeArtifacts(_KDB, widgetId, runtime, diagnostics) {
-    _widgetFocusMode.exitNativeFocus(_KDB, widgetId, diagnostics);
-    diagnostics.focusMode = _widgetFocusMode.disposeFocusMode(_KDB, widgetId, runtime).diagnostics || {};
+    _focusMode.exitNativeFocus(_KDB, widgetId, diagnostics);
+    diagnostics.focusMode = _focusMode.disposeFocusMode(_KDB, widgetId, runtime).diagnostics || {};
   }
   function resetCleanupRuntimeFields(_runtime, _diagnostics) {
     _runtime.lastSuccessfulPlan = null;
@@ -121,9 +121,9 @@ define([
       var runtime = options.runtime || _visRuntime.ensureWidgetRuntime(_KDB, widgetId);
       cleanupFocusModeArtifacts(_KDB, widgetId, runtime, diagnostics);
       diagnostics.legendObserver = _syncLegendVisibility.disconnectLegendTextObserver(runtime);
-      _cleanupCanvasMaximize(runtime, diagnostics);
+      _maximizeIcon.cleanupCanvasMaximize(runtime, diagnostics);
       if (payload.clearDrillthrough === true) {
-        _clearDrillthroughDecorations(runtime, diagnostics);
+        _drillthroughInstall.cleanupDrillthroughDecorations(runtime, diagnostics);
       }
       if (payload.clearDomDecorations === true) {
         var queryRoot = _dom.resolveQueryRoot(runtime, widgetId);

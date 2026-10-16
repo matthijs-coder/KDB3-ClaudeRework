@@ -1,9 +1,9 @@
 define([
   "./resolveTopNJahrFilterValue.js",
-  "./readDrillthroughJahrYear.js",
+  "../drillthrough/year.js",
   "../../../../core/config/visualizations/topNHelper.js",
   "../runtime.js"
-], function (_resolveTopNJahrFilterValue, _readDrillthroughJahrYear, _topNHelper, _visRuntime) {
+], function (_resolveTopNJahrFilterValue, _drillthroughYear, _topNHelper, _visRuntime) {
   "use strict";
 
   var STICHTAG_CODE = "WIDGET_TOPN_STICHTAG_UNAVAILABLE";
@@ -78,17 +78,17 @@ define([
     var pageId;
     var pageYear;
     if (!_request || _request.selectedYearKnown !== true) {
-      return _readDrillthroughJahrYear(_KDB, _metricsTable);
+      return _drillthroughYear.readDrillthroughJahrYear(_KDB, _metricsTable);
     }
     if (_request.scopeType === "pageContext") {
       if (_request.selectedYear != null) {
         return _request.selectedYear;
       }
-      return _readDrillthroughJahrYear(_KDB, _metricsTable, "global");
+      return _drillthroughYear.readDrillthroughJahrYear(_KDB, _metricsTable, "global");
     }
     pageId = readActivePageId(_KDB);
     if (pageId) {
-      pageYear = _readDrillthroughJahrYear(_KDB, _metricsTable, pageId);
+      pageYear = _drillthroughYear.readDrillthroughJahrYear(_KDB, _metricsTable, pageId);
       if (pageYear != null) {
         return pageYear;
       }

@@ -5,9 +5,9 @@ define([
   "./runtime/cleanupRuntime.js",
   "./results.js",
   "./actions/actionRouter.js",
-  "./actions/handleDienststelleChanged.js",
+  "./binding/dienststelleChanged.js",
   "./context.js"
-], function (_state, _selectors, _visRuntime, _cleanupRuntime, _results, _routeAction, _handleDienststelleHandlers, _visContext) {
+], function (_state, _selectors, _visRuntime, _cleanupRuntime, _results, _routeAction, _dienststelleChanged, _visContext) {
   "use strict";
 
   function createWidgetVisController(_deps) {
@@ -91,7 +91,7 @@ define([
         return Promise.resolve(_results.normalizeDispatchResult({ ok: false, errorCode: action.errorCode }));
       }
       if (action.type === _state.ACTION_TYPES.DIENSTSTELLE_CHANGED && !action.widgetId) {
-        return _handleDienststelleHandlers.broadcastDienststelleChanged(_visContext.buildContext(instance), action)
+        return _dienststelleChanged.broadcastDienststelleChanged(_visContext.buildContext(instance), action)
           .then(_results.normalizeDispatchResult);
       }
       return _routeAction(_visContext.buildContext(instance), action);

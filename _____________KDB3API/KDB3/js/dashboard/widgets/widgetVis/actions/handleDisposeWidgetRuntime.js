@@ -1,9 +1,9 @@
 define([
   "../runtime.js",
-  "../effects/gates/topNGate.js",
-  "../effects/widgetFocusMode.js",
-  "../view/syncLegendVisibility.js"
-], function (_visRuntime, _topNGate, _widgetFocusMode, _syncLegendVisibility) {
+  "../binding/gates.js",
+  "../focus/focusMode.js",
+  "../legend/sweep.js"
+], function (_visRuntime, _gates, _focusMode, _legendSweep) {
   "use strict";
 
   // Park, tab-delete en remove zijn dispose-punten (adapter-contract §3.7 /
@@ -18,15 +18,15 @@ define([
     var runtimeRoot = _KDB.runtime && _KDB.runtime.widgetVis ? _KDB.runtime.widgetVis : null;
     var diagnostics = { reason: (_action.payload || {}).reason || null };
     if (runtimeRoot) {
-      rejectDienststelleGateWaitersForWidget(runtimeRoot, widgetId, diagnostics);
+      diagnostics.dienststelleWaitersCancelled = _gates.cancelGateWaitersForWidget(_KDB, widgetId).dienststelleCancelled;
     }
     var widgetRuntime = runtimeRoot && runtimeRoot.byId ? runtimeRoot.byId[widgetId] : null;
     if (!widgetRuntime) {
       return { ok: true, skipped: true, widgetId: widgetId, status: "success", diagnostics: diagnostics };
     }
-    _widgetFocusMode.exitNativeFocus(_KDB, widgetId, diagnostics);
-    diagnostics.focusMode = _widgetFocusMode.disposeFocusMode(_KDB, widgetId, widgetRuntime).diagnostics || {};
-    diagnostics.legendObserver = _syncLegendVisibility.disconnectLegendTextObserver(widgetRuntime);
+    _focusMode.exitNativeFocus(_KDB, widgetId, diagnostics);
+    diagnostics.focusMode = _focusMode.disposeFocusMode(_KDB, widgetId, widgetRuntime).diagnostics || {};
+    diagnostics.legendObserver = _legendSweep.disconnectLegendTextObserver(widgetRuntime);
     cancelPendingWidgetWork(_KDB, widgetId, widgetRuntime);
     disposeRemainingHandles(widgetRuntime);
     delete runtimeRoot.byId[widgetId];
@@ -34,10 +34,6 @@ define([
   }
 
   function cancelPendingWidgetWork(_KDB, widgetId, widgetRuntime) {
-    var topNPending = widgetRuntime.pendingPromises ? widgetRuntime.pendingPromises.topNGate : null;
-    if (topNPending) {
-      _topNGate.cancelTopNGateWaiter(_KDB, widgetId, topNPending.opSeq);
-    }
     _visRuntime.rejectContentReadyWaiters(_KDB, widgetId, {
       ok: false,
       widgetId: widgetId,
@@ -69,28 +65,6 @@ define([
         /* noop */
       }
     });
-  }
-
-  // Zelfde per-widget opruiming als handleParameterSetCancelBindings (de
-  // waiters staan op de module-root, gefilterd op widgetId).
-  function rejectDienststelleGateWaitersForWidget(_runtimeRoot, _widgetId, _diagnostics) {
-    var bucket = _runtimeRoot.pendingPromises ? _runtimeRoot.pendingPromises.dienststelleGate : null;
-    if (!bucket || !Array.isArray(bucket.waiters)) {
-      return;
-    }
-    var remaining = [];
-    bucket.waiters.forEach(function (entry) {
-      if (entry.widgetId !== _widgetId) {
-        remaining.push(entry);
-        return;
-      }
-      clearTimeout(entry.timerId);
-      if (typeof entry.reject === "function") {
-        entry.reject({ cancelled: true });
-      }
-    });
-    _diagnostics.dienststelleWaitersCancelled = bucket.waiters.length - remaining.length;
-    bucket.waiters = remaining;
   }
 
   return handleDisposeWidgetRuntime;

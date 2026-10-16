@@ -3,9 +3,9 @@ define([
   "../view/sweepLegendCaptions.js",
   "../view/syncTooltipMetadata.js",
   "../dom.js",
-  "./installAllDrillthrough.js",
-  "./installCanvasMaximize.js"
-], function (_syncVisualizationTitle, _sweepLegendCaptions, _syncTooltipMetadata, _dom, _installDrillthrough, _installCanvasMaximize) {
+  "../drillthrough/install.js",
+  "../focus/maximizeIcon.js"
+], function (_syncVisualizationTitle, _sweepLegendCaptions, _syncTooltipMetadata, _dom, _drillthroughInstall, _maximizeIcon) {
   "use strict";
 
   function readDerivedRecord(_KDB, _widgetId) {
@@ -64,13 +64,13 @@ define([
       diagnostics.tooltip = { error: String(err && err.message ? err.message : err) };
     }
     try {
-      diagnostics.drillthrough = _installDrillthrough({ _KDB: options._KDB, widgetId: widgetId });
+      diagnostics.drillthrough = _drillthroughInstall.installDrillthrough({ _KDB: options._KDB, widgetId: widgetId });
     } catch (err) {
       console.error("[widgetVis.applyPostRenderCleanup] drillthrough install failed", widgetId, err);
       diagnostics.drillthrough = { ok: false, errorCode: "WIDGET_VIS_DRILLTHROUGH_FAILED" };
     }
     try {
-      diagnostics.maximize = _installCanvasMaximize({ _KDB: options._KDB, widgetId: widgetId });
+      diagnostics.maximize = _maximizeIcon.installCanvasMaximize({ _KDB: options._KDB, widgetId: widgetId });
     } catch (err) {
       console.error("[widgetVis.applyPostRenderCleanup] maximize install failed", widgetId, err);
       diagnostics.maximize = { ok: false, errorCode: "WIDGET_VIS_MAXIMIZE_FAILED" };

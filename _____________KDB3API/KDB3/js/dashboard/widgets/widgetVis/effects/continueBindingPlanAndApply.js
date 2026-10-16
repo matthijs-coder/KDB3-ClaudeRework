@@ -2,40 +2,12 @@ define([
   "./buildBindingSpec.js",
   "./buildDerivedPatch.js",
   "../config.js",
-  "../view/resolveLegendQueryRoot.js",
-  "../view/legend/installLegendTextObserver.js"
-], function (_buildBindingSpec, _buildDerivedPatch, _config, _resolveLegendQueryRoot, _installLegendTextObserver) {
+  "../legend/sweep.js"
+], function (_buildBindingSpec, _buildDerivedPatch, _config, _legendSweep) {
   "use strict";
 
   function isCleanupMode(_input) {
     return !!(_input && (_input.reason === "cleanup" || _input.forceEmpty === true));
-  }
-
-  function installLegendObserverBeforeApply(_context, _input, _ctx) {
-    try {
-      var settings = (_input && _input.settings) || {};
-      var legendRoot = _resolveLegendQueryRoot(_ctx.runtime, _ctx.widgetId);
-      if (!legendRoot.queryRoot) {
-        return {
-          action: "skipped",
-          reason: legendRoot.skipReason || "no_query_root"
-        };
-      }
-      return _installLegendTextObserver(legendRoot.queryRoot, {
-        widgetId: _ctx.widgetId,
-        opSeq: _ctx.opSeq,
-        reason: "preApplyBinding",
-        dimension: settings.dimension != null ? settings.dimension : null,
-        visType: settings.visType != null ? settings.visType : null,
-        runtime: _ctx.runtime,
-        isStaleOpSeq: _context.isStaleOpSeq,
-        skipReason: legendRoot.skipReason,
-        isShell: legendRoot.isShell === true
-      });
-    } catch (err) {
-      console.error("[widgetVis.continueBindingPlanAndApply] legend observer install failed", _ctx.widgetId, err);
-      return { action: "failed", error: String(err && err.message ? err.message : err) };
-    }
   }
 
   function continueBindingPlanAndApply(_context, _input, _ctx, _propertyResult) {
@@ -86,7 +58,13 @@ define([
       applyOptions.renderWait = { waitForStart: false, waitForComplete: false };
     }
     if (!isCleanupMode(_input)) {
-      installLegendObserverBeforeApply(_context, _input, _ctx);
+      var legendSettings = (_input && _input.settings) || {};
+      _legendSweep.installLegendObserverBeforeApply(_ctx.runtime, widgetId, {
+        opSeq: opSeq,
+        isStaleOpSeq: _context.isStaleOpSeq,
+        dimension: legendSettings.dimension,
+        visType: legendSettings.visType
+      });
     }
     return Promise.resolve(applyService.applyBinding(plan, applyOptions)).then(function (applyResult) {
       if (_context.isStaleOpSeq(widgetId, opSeq)

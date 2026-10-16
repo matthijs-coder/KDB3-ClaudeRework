@@ -1,9 +1,9 @@
 define([
   "../../state.js",
-  "../../effects/runBindingPipeline.js",
+  "../../binding/pipeline.js",
   "../../results.js",
   "./runDecorationCleanup.js"
-], function (_state, _runBindingPipeline, _results, _runDecorationCleanup) {
+], function (_state, _bindingPipeline, _results, _runDecorationCleanup) {
   "use strict";
 
   function buildCleanupBindingInput(_context, _widgetId, _opSeq, _payload) {
@@ -37,7 +37,7 @@ define([
   }
 
   function runBindingCleanup(_context, _widgetId, _opSeq, _payload) {
-    return _runBindingPipeline(_context, buildCleanupBindingInput(_context, _widgetId, _opSeq, _payload)).then(function (result) {
+    return _bindingPipeline.runBindingPipeline(_context, buildCleanupBindingInput(_context, _widgetId, _opSeq, _payload)).then(function (result) {
       if (result && result.stale === true) {
         return _results.normalizeDispatchResult(result);
       }

@@ -1,9 +1,9 @@
 define([
-  "./applyVisualizationProperties.js",
+  "../render/visProperties.js",
   "../visTypes.js",
   "./continueBindingPlanAndApply.js",
-  "./syncVisualizationTitle.js"
-], function (_applyVisualizationProperties, _visTypes, _continueBindingPlanAndApply, _syncVisualizationTitle) {
+  "../render/title.js"
+], function (_visProperties, _visTypes, _continueBindingPlanAndApply, _title) {
   "use strict";
 
   function isCleanupMode(_input) {
@@ -18,7 +18,7 @@ define([
     var opSeq = _ctx.opSeq;
     var settings = (_input && _input.settings) || {};
     var visualizationType = settings.visType || _visTypes.resolveDefaultVisualizationType(_ctx._KDB);
-    return Promise.resolve(_applyVisualizationProperties(_ctx._KDB, {
+    return Promise.resolve(_visProperties.applyVisualizationProperties(_ctx._KDB, {
       widgetId: widgetId,
       visualizationType: visualizationType,
       runtime: _ctx.runtime,
@@ -47,7 +47,7 @@ define([
         };
       }
       // Cognos title once before render (legacy parity); post-render is DOM-only.
-      return Promise.resolve(_syncVisualizationTitle.applyPreRenderTitle({
+      return Promise.resolve(_title.applyPreRenderTitle({
         _KDB: _ctx._KDB, widgetId: widgetId, metric: (_input && _input.metric) || {}, settings: settings, runtime: _ctx.runtime, signal: _ctx.abortController && _ctx.abortController.signal
       })).then(function (titleResult) {
         if (titleResult && titleResult.aborted === true) {

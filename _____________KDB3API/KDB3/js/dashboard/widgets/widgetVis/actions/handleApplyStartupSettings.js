@@ -3,9 +3,8 @@ define([
   "../effects/runBindingPipeline.js",
   "../runtime.js",
   "../results.js",
-  "../settingsSnapshot.js",
-  "./handleApplyIteratorZoom.js"
-], function (_state, _runBindingPipeline, _visRuntime, _results, _settingsSnapshot, _handleApplyIteratorZoom) {
+  "../settingsSnapshot.js"
+], function (_state, _runBindingPipeline, _visRuntime, _results, _settingsSnapshot) {
   "use strict";
 
   function resolveSettingsFromSnapshot(_snapshot) {
@@ -123,7 +122,6 @@ define([
   }
 
   return {
-    handleApplyStartupSettings: handleApplyStartupSettings,
-    handleApplyIteratorZoom: _handleApplyIteratorZoom
+    handleApplyStartupSettings: handleApplyStartupSettings
   };
 });

@@ -1,11 +1,10 @@
 define([
   "../runtime.js",
-  "../effects/resolveBindingPrerequisites.js"
-], function (_visRuntime, _resolveBindingPrerequisites) {
+  "../binding/gates.js"
+], function (_visRuntime, _gates) {
   function cleanupRuntime(_KDB) {
     try {
-      _resolveBindingPrerequisites.rejectAllDienststelleGateWaiters(_KDB);
-      _resolveBindingPrerequisites.rejectAllTopNGateWaiters(_KDB);
+      _gates.rejectAllGateWaiters(_KDB);
       _visRuntime.rejectAllContentReadyWaiters(_KDB, {
         ok: false,
         status: "error",

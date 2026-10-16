@@ -1,10 +1,10 @@
 define([
   "../runtime.js",
-  "../view/sweepLegendCaptions.js",
-  "./ensureFocusObserver.js",
-  "../effects/installAllDrillthrough.js",
-  "../effects/installCanvasMaximize.js"
-], function (_visRuntime, _sweepLegendCaptions, _ensureFocusObserver, _installDrillthrough, _installCanvasMaximize) {
+  "../legend/sweep.js",
+  "../focus/maximizeToggle.js",
+  "../drillthrough/install.js",
+  "../focus/maximizeIcon.js"
+], function (_visRuntime, _legendSweep, _maximizeToggle, _drillthroughInstall, _maximizeIcon) {
   "use strict";
 
   // Unpark = rebuild (adapter-contract §3.7): a widget that returns to
@@ -22,18 +22,18 @@ define([
         return { ok: true, skipped: true, widgetId: widgetId, status: "success" };
       }
       var runtime = _visRuntime.ensureWidgetRuntime(_context._KDB, widgetId);
-      var focusResult = _ensureFocusObserver(_context, widgetId, runtime);
+      var focusResult = _maximizeToggle.ensureFocusObserver(_context, widgetId, runtime);
       var legendLog = sweepLegendOnUnpark(_context, widgetId, runtime);
       var drillthroughResult = null;
       var maximizeResult = null;
       try {
-        drillthroughResult = _installDrillthrough({ _KDB: _context._KDB, widgetId: widgetId });
+        drillthroughResult = _drillthroughInstall.installDrillthrough({ _KDB: _context._KDB, widgetId: widgetId });
       } catch (err) {
         console.error("[widgetVis.handleEnsureObservers] drillthrough", widgetId, err);
         drillthroughResult = { ok: false, errorCode: "WIDGET_VIS_DRILLTHROUGH_FAILED" };
       }
       try {
-        maximizeResult = _installCanvasMaximize({ _KDB: _context._KDB, widgetId: widgetId });
+        maximizeResult = _maximizeIcon.installCanvasMaximize({ _KDB: _context._KDB, widgetId: widgetId });
       } catch (err) {
         console.error("[widgetVis.handleEnsureObservers] maximize", widgetId, err);
         maximizeResult = { ok: false, errorCode: "WIDGET_VIS_MAXIMIZE_FAILED" };
@@ -65,7 +65,7 @@ define([
   function sweepLegendOnUnpark(_context, _widgetId, _runtime) {
     var settings = _context.readSettingsSnapshot(_widgetId, {}) || {};
     try {
-      return _sweepLegendCaptions(_runtime, _widgetId, {
+      return _legendSweep.sweepLegendCaptions(_runtime, _widgetId, {
         widgetId: _widgetId,
         opSeq: _runtime.opSeq,
         reason: "ensureObservers",

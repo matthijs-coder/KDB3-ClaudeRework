@@ -2,11 +2,11 @@ define([
   "../state.js",
   "../runtime.js",
   "../dom.js",
-  "../effects/runBindingPipeline.js",
+  "../binding/pipeline.js",
   "../results.js",
-  "./ensureFocusObserver.js",
-  "../effects/runContentCreateDrillthroughInstall.js"
-], function (_state, _visRuntime, _dom, _runBindingPipeline, _results, _ensureFocusObserver, _runContentCreateDrillthroughInstall) {
+  "../focus/maximizeToggle.js",
+  "../drillthrough/install.js"
+], function (_state, _visRuntime, _dom, _bindingPipeline, _results, _maximizeToggle, _drillthroughInstall) {
   "use strict";
 
   function buildExplicitInitialSettings(_payload) {
@@ -50,7 +50,7 @@ define([
       }
     });
     _visRuntime.resolveContentReadyWaiters(_KDB, widgetId);
-    _ensureFocusObserver(_context, widgetId, runtime);
+    _maximizeToggle.ensureFocusObserver(_context, widgetId, runtime);
   }
 
   function runExplicitInitialBinding(_context, _action, _metric, _settings) {
@@ -59,7 +59,7 @@ define([
       widgetId: _action.widgetId,
       payload: { kind: "contentCreate", opSeq: _action.opSeq }
     });
-    return _runBindingPipeline(_context, {
+    return _bindingPipeline.runBindingPipeline(_context, {
       widgetId: _action.widgetId,
       opSeq: _action.opSeq,
       reason: "contentCreate",
@@ -90,7 +90,7 @@ define([
       }
 
       registerContentContext(_context, _action, metric);
-      _runContentCreateDrillthroughInstall(_context, widgetId);
+      _drillthroughInstall.installContentDecorations(_context, widgetId);
 
       if (!hasExplicitBindingIntent(payload)) {
         return Promise.resolve(_results.normalizeDispatchResult({

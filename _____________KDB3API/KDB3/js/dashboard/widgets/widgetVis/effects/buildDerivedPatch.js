@@ -1,19 +1,17 @@
 define([
   "../state.js",
   "../results.js",
-  "./applyPostRenderCleanup.js",
-  "./applyVisualizationProperties.js",
+  "../render/postRender.js",
+  "../render/visProperties.js",
   "../visTypes.js",
-  "../view/sweepLegendCaptions.js",
-  "./applyPrognoseSeriesSegmentIndexes.js"
+  "../legend/sweep.js"
 ], function (
   _state,
   _results,
-  _applyPostRenderCleanup,
-  _applyVisualizationProperties,
+  _postRender,
+  _visProperties,
   _visTypes,
-  _sweepLegendCaptions,
-  _applyPrognoseSeriesSegmentIndexes
+  _legendSweep
 ) {
   "use strict";
 
@@ -98,7 +96,7 @@ define([
     var postRenderVisType = settings.visType
       || _visTypes.resolveDefaultVisualizationType(_ctx._KDB);
     try {
-      _sweepLegendCaptions(_ctx.runtime, widgetId, {
+      _legendSweep.sweepLegendCaptions(_ctx.runtime, widgetId, {
         widgetId: widgetId,
         opSeq: opSeq,
         reason: _plan && _plan.reason ? _plan.reason : null,
@@ -110,8 +108,8 @@ define([
     } catch (err) {
       console.error("[widgetVis.handleApplyBindingSuccess] legend sweep failed", widgetId, err);
     }
-    return Promise.resolve(_applyPrognoseSeriesSegmentIndexes(_ctx._KDB, _plan, widgetId, _ctx.abortController.signal, settings)).then(
-      _applyVisualizationProperties.bind(null, _ctx._KDB, {
+    return Promise.resolve(_postRender.applyPrognoseSeriesSegmentIndexes(_ctx._KDB, _plan, widgetId, _ctx.abortController.signal, settings)).then(
+      _visProperties.applyVisualizationProperties.bind(null, _ctx._KDB, {
         widgetId: widgetId, visualizationType: postRenderVisType, runtime: _ctx.runtime, input: _input,
         signal: _ctx.abortController.signal, phase: "postRender", force: true
       })
@@ -128,7 +126,7 @@ define([
         normalized.postRenderPropertyDiagnostics = postRenderPropertyDiagnostics;
       }
       if (!_context.isStaleOpSeq(widgetId, opSeq)) {
-        postRender = _applyPostRenderCleanup({
+        postRender = _postRender.applyPostRenderCleanup({
           _KDB: _ctx._KDB, widgetId: widgetId, opSeq: opSeq, input: _input, plan: _plan,
           applyResult: _applyResult, runtime: _ctx.runtime, isStaleOpSeq: _context.isStaleOpSeq.bind(_context)
         });

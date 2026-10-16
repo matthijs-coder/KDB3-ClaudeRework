@@ -1,11 +1,11 @@
 define([
   "../state.js",
   "../runtime.js",
-  "./handleWaitUntilContentReady.js",
+  "../lifecycle.js",
   "./handleApplyStartupSettings.js",
   "../settingsSnapshot.js",
   "./parameterSetBindingHelpers.js"
-], function (_state, _visRuntime, _handleWaitUntilContentReady, _handleApplyStartupSettings, _settingsSnapshot, _helpers) {
+], function (_state, _visRuntime, _lifecycle, _handleApplyStartupSettings, _settingsSnapshot, _helpers) {
   "use strict";
 
   var DEGRADED = "WRITEBACK_WIDGET_BINDING_DEGRADED";
@@ -40,7 +40,7 @@ define([
         return stale.result;
       }
 
-      var readyResult = await _handleWaitUntilContentReady(_context, {
+      var readyResult = await _lifecycle.handleWaitUntilContentReady(_context, {
         type: _state.ACTION_TYPES.WAIT_UNTIL_CONTENT_READY,
         widgetId: widgetId,
         payload: { timeoutMs: 3000 }

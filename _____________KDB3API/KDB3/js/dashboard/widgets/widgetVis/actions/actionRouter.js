@@ -2,30 +2,26 @@ define([
   "../state.js",
   "./handleContentCreate.js",
   "./handleWaitUntilContentReady.js",
-  "./handleApplySetting.js",
-  "./handleApplyShowValues.js",
-  "./handleApplyStartupSettings.js",
-  "./handleDienststelleChanged.js",
-  "./handleTopNResolved.js",
+  "../settings.js",
+  "../render/displayOptions.js",
+  "../binding/dienststelleChanged.js",
+  "../topN/gate.js",
   "./handleCleanupContent.js",
-  "./handleParameterSetBinding.js",
-  "./handleParameterSetCancelBindings.js",
-  "./handleMaximizeToggle.js",
+  "../restore.js",
+  "../focus/maximizeToggle.js",
   "./handleWidgetRuntimeLifecycle.js",
   "../results.js"
 ], function (
   _state,
   _handleContentCreate,
   _handleWaitUntilContentReady,
-  _handleApplySetting,
-  _handleApplyShowValues,
-  _handleApplyStartupSettings,
-  _handleDienststelleHandlers,
-  _handleTopNResolved,
+  _settings,
+  _displayOptions,
+  _dienststelleChanged,
+  _topNGate,
   _handleCleanupContent,
-  _handleParameterSetBinding,
-  _handleParameterSetCancelBindings,
-  _handleMaximizeToggle,
+  _restore,
+  _maximizeToggle,
   _handleWidgetRuntimeLifecycle,
   _results
 ) {
@@ -44,21 +40,21 @@ define([
     var routes = {};
     routes[_state.ACTION_TYPES.CONTENT_CREATE] = _handleContentCreate;
     routes[_state.ACTION_TYPES.WAIT_UNTIL_CONTENT_READY] = _handleWaitUntilContentReady;
-    routes[_state.ACTION_TYPES.APPLY_STARTUP_SETTINGS] = _handleApplyStartupSettings.handleApplyStartupSettings;
-    routes[_state.ACTION_TYPES.APPLY_DIMENSION] = _handleApplySetting;
-    routes[_state.ACTION_TYPES.APPLY_VIS_TYPE] = _handleApplySetting;
-    routes[_state.ACTION_TYPES.APPLY_TOPN_CHOICE] = _handleApplySetting;
-    routes[_state.ACTION_TYPES.APPLY_SHOW_VALUES] = _handleApplyShowValues;
-    routes[_state.ACTION_TYPES.APPLY_GROUPING] = _handleApplySetting;
-    routes[_state.ACTION_TYPES.APPLY_ITERATOR_ZOOM] = _handleApplyStartupSettings.handleApplyIteratorZoom;
-    routes[_state.ACTION_TYPES.DIENSTSTELLE_CHANGED] = _handleDienststelleHandlers.handleDienststelleChanged;
-    routes[_state.ACTION_TYPES.TOPN_RESOLVED] = _handleTopNResolved;
+    routes[_state.ACTION_TYPES.APPLY_STARTUP_SETTINGS] = _settings.handleApplyStartupSettings;
+    routes[_state.ACTION_TYPES.APPLY_DIMENSION] = _settings.handleApplySetting;
+    routes[_state.ACTION_TYPES.APPLY_VIS_TYPE] = _settings.handleApplySetting;
+    routes[_state.ACTION_TYPES.APPLY_TOPN_CHOICE] = _settings.handleApplySetting;
+    routes[_state.ACTION_TYPES.APPLY_SHOW_VALUES] = _displayOptions.handleApplyShowValues;
+    routes[_state.ACTION_TYPES.APPLY_GROUPING] = _settings.handleApplySetting;
+    routes[_state.ACTION_TYPES.APPLY_ITERATOR_ZOOM] = _displayOptions.handleApplyIteratorZoom;
+    routes[_state.ACTION_TYPES.DIENSTSTELLE_CHANGED] = _dienststelleChanged.handleDienststelleChanged;
+    routes[_state.ACTION_TYPES.TOPN_RESOLVED] = _topNGate.handleTopNResolved;
     routes[_state.ACTION_TYPES.CLEANUP_CONTENT] = _handleCleanupContent;
     routes[_state.ACTION_TYPES.DISPOSE_WIDGET_RUNTIME] = _handleWidgetRuntimeLifecycle.handleDisposeWidgetRuntime;
     routes[_state.ACTION_TYPES.ENSURE_OBSERVERS] = _handleWidgetRuntimeLifecycle.handleEnsureObservers;
-    routes[_state.ACTION_TYPES.PARAMETER_SET_BINDING] = _handleParameterSetBinding;
-    routes[_state.ACTION_TYPES.PARAMETER_SET_CANCEL_BINDINGS] = _handleParameterSetCancelBindings;
-    routes[_state.ACTION_TYPES.MAXIMIZE_TOGGLE] = _handleMaximizeToggle;
+    routes[_state.ACTION_TYPES.PARAMETER_SET_BINDING] = _restore.handleParameterSetBinding;
+    routes[_state.ACTION_TYPES.PARAMETER_SET_CANCEL_BINDINGS] = _restore.handleParameterSetCancelBindings;
+    routes[_state.ACTION_TYPES.MAXIMIZE_TOGGLE] = _maximizeToggle.handleMaximizeToggle;
     routes[_state.ACTION_TYPES.ERROR] = handleError;
     var handler = routes[_action.type];
     if (!handler) {
