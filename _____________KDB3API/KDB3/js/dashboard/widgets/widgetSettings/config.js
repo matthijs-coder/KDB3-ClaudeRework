@@ -25,7 +25,6 @@ define([
     reset: { target: "widgetBase", actionType: "widgetBase/routeToLaunchpad" }
   };
   const FALLBACK_TARGET = "widgetBase";
-  const SCAFFOLD_TARGETS = ["widgetVis", "widgetText", "widgetSettings"];
   const KIND_ALIASES = {
     dimensions: "dimension",
     restyle: "layout",
@@ -74,7 +73,7 @@ define([
   function resolveType(target, kind, interaction) {
     const entry = readKindEntry(kind);
     if (!entry || !isTargetOfEntry(entry, target)) {
-      return SCAFFOLD_TARGETS.indexOf(target) >= 0 ? target + "/scaffoldNoop" : "widgetBase/scaffoldNoop";
+      return null;
     }
     const byInteraction = entry.actionTypeByInteraction;
     if (!byInteraction) {

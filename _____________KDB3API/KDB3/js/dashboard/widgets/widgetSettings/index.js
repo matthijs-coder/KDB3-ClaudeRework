@@ -145,7 +145,7 @@ define([
     } catch (err) {
       console.error("[widgetSettings.dispatch] failed", err);
       writeLifecycle(_KDB, "error", err);
-      return { ok: false, skipped: true, reasonCode: "SCAFFOLD_ERROR" };
+      return { ok: false, skipped: true, reasonCode: "WIDGET_SETTINGS_DISPATCH_FAILED" };
     }
   }
 
@@ -154,7 +154,7 @@ define([
     if (Object.prototype.hasOwnProperty.call(ROUTES, action.type)) {
       return ROUTES[action.type](_KDB, payload);
     }
-    return { ok: true, skipped: true, reasonCode: "SCAFFOLD_NOOP", actionType: action.type || null };
+    return { ok: true, skipped: true, reasonCode: "WIDGET_SETTINGS_ACTION_UNKNOWN", actionType: action.type || null };
   }
 
   function normalizeActionPayload(action) {

@@ -11,7 +11,6 @@ define([
     return {
       lifecycle: "idle",
       byWidget: {},
-      ui: { openForWidgetId: null },
       errorCode: null,
       errorMessage: null
     };

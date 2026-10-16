@@ -63,6 +63,9 @@ define([
       }
       const target = _config.resolveTarget(intent.widgetType, intent.kind);
       const type = _config.resolveType(target, intent.kind, intent.interaction);
+      if (!type) {
+        return { ok: false, skipped: true, reasonCode: "WIDGET_SETTINGS_KIND_UNSUPPORTED", kind: intent.kind || null };
+      }
       const planned = Object.assign({}, intent, { target: target, type: type });
       const blocked = _topNGrouping.validateTopNGroupingDimension(_KDB, planned);
       if (blocked) {

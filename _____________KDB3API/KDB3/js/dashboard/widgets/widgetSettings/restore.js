@@ -86,9 +86,6 @@ define([
       if (settings && settings.byWidget && settings.byWidget[_widgetId]) {
         delete settings.byWidget[_widgetId];
       }
-      if (settings && settings.ui && settings.ui.openForWidgetId === _widgetId) {
-        settings.ui.openForWidgetId = null;
-      }
     } catch (err) {
       _diagnostics.push({
         code: RESET_FAILED,
