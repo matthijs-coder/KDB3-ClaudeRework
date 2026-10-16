@@ -1,1 +1,269 @@
+/* filters.css */
 #filterDockContainer .filterItemWrapper:has([data-id="Jahr"]) .ba-common-listItem-wrapper:has([aria-label="Gesamt"])  {display: none !important; }
+
+/* singleSelect.css */
+.filterItemWrapper.KDB_singleSelectFilter .ba-common-listItem-wrapper:has([aria-label="ALLE"]),
+.filterItemWrapper.KDB_singleSelectFilter .ba-common-listItem-wrapper:has([aria-label="Gesamt"]),
+.filterItemWrapper.KDB_singleSelectFilter
+  .ba-common-listItem-wrapper:not(.KDB_singleSelect_AlleOption):has([aria-label="Alle"])
+ {
+  opacity: 0;
+  height: 10px;
+}
+
+.KDB_singleSelectFilter .bx--checkbox-label:before{
+  border-radius: 10px;
+} 
+
+.KDB_singleSelect_AlleOption {
+  display: block;
+  left: 10px !important;
+  position: relative;
+  top: 35px !important;
+  font-weight: bold;
+  width: 90% !important;
+}
+
+.KDB_singleSelect_AlleOption .ba-common-truncatedText{
+transform: translateY(4px);
+}
+
+/*search option gives an error after creating the single select -- temp hide*/
+.KDB_singleSelectFilter .ba-common-container > [data-tid="clearAllClickable"],
+.KDB_singleSelectFilter
+  .ba-common-container
+  > [data-tid="invertSelectionClickable"],
+.KDB_singleSelectFilter .ba-common-searchInput {
+  display: none;
+}
+
+/*chekcbox background*/
+.KDB_singleSelectFilter:not(.KDB_hideAlleOption)
+  .ba-common-listItem-wrapper:not(.KDB_selectedOption)
+  .bx--checkbox:checked
+  + .bx--checkbox-label:before {
+  /* background-color: hsla(var(--ui-05-h, 0), var(--ui-05-s, 0%), var(--ui-05-l, 8.6274509804%), 1);*/
+  background-color: transparent !important;
+  border-color: hsla(
+    var(--ui-05-h, 0),
+    var(--ui-05-s, 0%),
+    var(--ui-05-l, 8.6274509804%),
+    1
+  );
+  border-width: 1px;
+}
+
+.KDB_singleSelectFilter
+  .ba-common-listItem-wrapper.KDB_selectedOption
+  .bx--checkbox
+  + .bx--checkbox-label:before {
+  background-color: hsla(
+    var(--ui-05-h, 0),
+    var(--ui-05-s, 0%),
+    var(--ui-05-l, 8.6274509804%),
+    1
+  );
+  /* background-color: transparent !important;*/
+  border-width: 1px;
+}
+
+/*chekcbox check*/
+.KDB_singleSelectFilter
+  .ba-common-listItem-wrapper:not(.KDB_selectedOption)
+  .bx--checkbox:checked
+  + .bx--checkbox-label:after {
+  visibility: hidden;
+}
+
+.KDB_singleSelectFilter
+  .ba-common-listItem-wrapper.KDB_selectedOption
+  .bx--checkbox
+  + .bx--checkbox-label:after {
+  visibility: visible;
+  transform: scale(1) rotate(-45deg);
+}
+
+.KDB_singleSelectFilter
+  .ba-common-listItem-wrapper:not(.KDB_selectedOption)
+  .ba-common-listItem.is-selected {
+  background-color: transparent !important;
+}
+
+/*make */
+#filterDockContainer .filterItemWrapper.KDB_singleSelectFilter.KDB_hideAlleOption .ba-common-listItem-wrapper {
+  pointer-events: none;
+}
+
+/*chekcbox check*/
+#filterDockContainer .filterItemWrapper.KDB_singleSelectFilter.KDB_hideAlleOption
+.bx--checkbox
+  + .bx--checkbox-label:before {
+  background-color: hsla(
+    var(--ui-05-h, 0),
+    var(--ui-05-s, 0%),
+    var(--ui-05-l, 8.6274509804%),
+    1
+  );
+  /* background-color: transparent !important;*/
+  border-width: 1px;
+}
+
+#filterDockContainer .filterItemWrapper.KDB_singleSelectFilter.KDB_hideAlleOption 
+  .ba-common-listItem-wrapper
+  .bx--checkbox
+  + .bx--checkbox-label:after {
+  visibility: visible;
+  transform: scale(1) rotate(-45deg);
+}
+
+#filterDockContainer .filterItemWrapper.KDB_singleSelectFilter.KDB_singleSelectCommitInProgress,
+#filterDockContainer
+  .filterItemWrapper.KDB_singleSelectFilter
+  .wa-filterDock-filterItemMount.KDB_singleSelectCommitInProgress {
+  cursor: progress;
+}
+
+#filterDockContainer
+  .filterItemWrapper.KDB_singleSelectFilter.KDB_singleSelectCommitInProgress
+  .ba-common-listItem-wrapper,
+#filterDockContainer
+  .filterItemWrapper.KDB_singleSelectFilter
+  .wa-filterDock-filterItemMount.KDB_singleSelectCommitInProgress
+  .ba-common-listItem-wrapper {
+  pointer-events: none;
+}
+
+#filterDockContainer
+  .filterItemWrapper.KDB_singleSelectFilter.KDB_singleSelectCommitInProgress
+  .ba-common-listItem-wrapper
+  .bx--checkbox-label:before,
+#filterDockContainer
+  .filterItemWrapper.KDB_singleSelectFilter.KDB_singleSelectCommitInProgress
+  .ba-common-listItem-wrapper
+  .bx--checkbox-label:after,
+#filterDockContainer
+  .filterItemWrapper.KDB_singleSelectFilter.KDB_singleSelectCommitInProgress
+  .ba-common-listItem-wrapper
+  .ba-common-truncatedText,
+#filterDockContainer
+  .filterItemWrapper.KDB_singleSelectFilter
+  .wa-filterDock-filterItemMount.KDB_singleSelectCommitInProgress
+  .ba-common-listItem-wrapper
+  .bx--checkbox-label:before,
+#filterDockContainer
+  .filterItemWrapper.KDB_singleSelectFilter
+  .wa-filterDock-filterItemMount.KDB_singleSelectCommitInProgress
+  .ba-common-listItem-wrapper
+  .bx--checkbox-label:after,
+#filterDockContainer
+  .filterItemWrapper.KDB_singleSelectFilter
+  .wa-filterDock-filterItemMount.KDB_singleSelectCommitInProgress
+  .ba-common-listItem-wrapper
+  .ba-common-truncatedText {
+  opacity: 0;
+}
+
+/* specialSingleSelect.css */
+/*
+ * specialSingleSelect visibility — root class on #filterDockContainer drives show/hide.
+ * Uses :has() for wrapper-level targeting (Chrome 105+, Firefox 121+, Safari 15.4+).
+ * Pre-JS: all special filter wrappers hidden until root class is synced.
+ */
+
+#filterDockContainer .filterItemWrapper:has([data-id="Personengruppe"]),
+#filterDockContainer .filterItemWrapper:has([data-id="Dienststellenleitung"]) {
+  display: none !important;
+}
+
+#filterDockContainer.KDB_sssSicht_BW
+  #filterDock__global
+  .filterItemWrapper.KDB_specialSingleSelect.KDB_SSS_right:has([data-id="Personengruppe"]),
+#filterDockContainer.KDB_sssSicht_BW
+  #filterDock__other
+  .filterItemWrapper.KDB_specialSingleSelect.KDB_SSS_right:has([data-id="Personengruppe"]),
+#filterDockContainer.KDB_sssSicht_BW
+  #filterDock__global
+  .filterItemWrapper.KDB_specialSingleSelect.KDB_SSS_right:has([data-id="Dienststellenleitung"]),
+#filterDockContainer.KDB_sssSicht_BW
+  #filterDock__other
+  .filterItemWrapper.KDB_specialSingleSelect.KDB_SSS_right:has([data-id="Dienststellenleitung"]) {
+  display: inline-flex !important;
+}
+
+/* Popup Alle row — separate from wrapper visibility; not controlled by KDB_SSS_alleOption on wrapper alone */
+#filterDockContainer
+  .filterItemWrapper.KDB_specialSingleSelect:not(.KDB_SSS_alleOption)
+  .ba-common-listItem-wrapper:has([aria-label="Alle"]),
+#filterDockContainer
+  .filterItemWrapper.KDB_specialSingleSelect:not(.KDB_SSS_alleOption)
+  .ba-common-listItem-wrapper:has([aria-label="Gesamt"]) {
+  display: none !important;
+}
+
+/* dienststelle.css */
+/*
+ * Dienststelle variant visibility — root class on #filterDockContainer drives show/hide.
+ * Uses :has() for wrapper-level targeting (Chrome 105+, Firefox 121+, Safari 15.4+).
+ * Pre-JS: all variant wrappers hidden until root class is synced.
+ */
+
+#filterDockContainer .filterItemWrapper:has([data-id="Dienststelle_BW"]),
+#filterDockContainer .filterItemWrapper:has([data-id="Dienststelle_DEZPV"]) {
+  display: none !important;
+  width: 150px !important;
+  max-width: 225px !important;
+}
+
+#filterDockContainer.KDB_dienststelleActive_BW
+  #filterDock__global
+  .filterItemWrapper:has([data-id="Dienststelle_BW"]),
+#filterDockContainer.KDB_dienststelleActive_BW
+  #filterDock__other
+  .filterItemWrapper:has([data-id="Dienststelle_BW"]),
+#filterDockContainer.KDB_dienststelleActive_DEZPV
+  #filterDock__global
+  .filterItemWrapper:has([data-id="Dienststelle_DEZPV"]),
+#filterDockContainer.KDB_dienststelleActive_DEZPV
+  #filterDock__other
+  .filterItemWrapper:has([data-id="Dienststelle_DEZPV"]) {
+  display: inline-flex !important; 
+}
+
+/*
+ * Hide raw Cognos hierarchy labels until each node is marked ready by display sync.
+ */
+#filterDockContainer.KDB_dienststelleActive_DEZPV
+  .filterItemWrapper:has([data-id="Dienststelle_DEZPV"])
+  .wa-filterDock-filterItemMount
+  .ba-common-truncatedText:has(
+    .ba-common-truncatedText__text:not(.KDB_dienststelle_popupLabelsReady),
+    [data-tid="ba-common-truncated-text__text-node"]:not(.KDB_dienststelle_popupLabelsReady)
+  ),
+#filterDockContainer.KDB_dienststelleActive_DEZPV
+  .filterItemWrapper:has([data-id="Dienststelle_DEZPV"])
+  .wa-filterDock-filterItemMount
+  .ba-common-truncatedText__text:not(.KDB_dienststelle_popupLabelsReady),
+#filterDockContainer.KDB_dienststelleActive_DEZPV
+  .filterItemWrapper:has([data-id="Dienststelle_DEZPV"])
+  .wa-filterDock-filterItemMount
+  [data-tid="ba-common-truncated-text__text-node"]:not(.KDB_dienststelle_popupLabelsReady) {
+  visibility: hidden;
+  opacity: 0;
+  color: transparent;
+}
+
+
+/* sichtSingleSelect.css */
+.KDB_sichtSingleSelect .KDB_sichtHideAlle,
+.KDB_sichtSingleSelect .ba-common-listItem-wrapper:has([aria-label="duplicates"]),
+.KDB_sichtSingleSelect .KDB_sichtOptionBw ~ .KDB_sichtOptionBw,
+.KDB_sichtSingleSelect .KDB_sichtOptionDezpv ~ .KDB_sichtOptionDezpv
+{
+  display: none !important;
+}
+
+.KDB_sichtSingleSelect .KDB_sichtOptionDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}

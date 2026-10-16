@@ -22,10 +22,6 @@ define([], function () {
     "./v1/ext/KDB3/css/widgets/pdfCapture.css",
     "./v1/ext/KDB3/css/hideSpot.css",
     "./v1/ext/KDB3/css/filters/filters.css",
-    "./v1/ext/KDB3/css/filters/singleSelect.css",
-    "./v1/ext/KDB3/css/filters/specialSingleSelect.css",
-    "./v1/ext/KDB3/css/filters/dienststelle.css",
-    "./v1/ext/KDB3/css/filters/sichtSingleSelect.css",
     "./v1/ext/KDB3/css/kdb.css"
   ];
 });
