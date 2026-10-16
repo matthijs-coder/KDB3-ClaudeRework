@@ -279,6 +279,48 @@ test("remove twice: widgetVis dispose and history steps", async () => {
   });
 });
 
+test("a release for an owner whose frame is removed: its records", async () => {
+  await withEnv({}, async (env) => {
+    await env.resolve("o1", 1);
+    await env.settle();
+    await env.remove("o1");
+    const released = await env.topN().dispatch({
+      type: "widgetTopN/cleanup",
+      widgetId: "o1",
+      payload: { ownerVisId: "o1", reason: "remove", clearHelperBinding: true, releaseClaim: true }
+    });
+    assert.equal(released.ok, true);
+    assert.equal(env.ownerState("o1").helperWidgetId, null, "claim released");
+    assert.ok(env.ownerState("o1"), "state record is kept");
+    assert.ok(env.ownerRuntime("o1"), "runtime record is kept");
+    assert.deepEqual(env.helperAttrs("h1"), [null, null]);
+    const second = await env.resolve("o2", 1);
+    assert.equal(second.status, "success");
+  });
+});
+
+test("a remove/destroy release whose helper clear cannot be planned: result and claim", async () => {
+  await withEnv({ applyMs: 300 }, async (env) => {
+    const running = env.resolve("o1", 1);
+    await sleep(30);
+    assert.equal(env.ownerRuntime("o1").lastHelperDataConfig, null);
+    const released = await env.topN().dispatch({
+      type: "widgetTopN/cleanup",
+      widgetId: "o1",
+      payload: { ownerVisId: "o1", reason: "remove", clearHelperBinding: true, releaseClaim: true }
+    });
+    await running;
+    await env.settle();
+    assert.equal(released.ok, false);
+    assert.equal(released.errorCode, "WIDGET_TOPN_CLEANUP_FAILED");
+    assert.equal(env.ownerState("o1").helperWidgetId, "h1", "claim kept in state");
+    assert.equal(env.ownerRuntime("o1").claimToken !== null, true, "claim kept in runtime");
+    assert.equal(env.helperAttrs("h1")[0], "o1", "mirror kept");
+    const second = await env.resolve("o2", 1);
+    assert.equal(second.status, "noHelperAvailable");
+  });
+});
+
 test("remove of a text widget creates no TopN record", async () => {
   await withEnv({}, async (env) => {
     const removed = await env.remove("txt1");
