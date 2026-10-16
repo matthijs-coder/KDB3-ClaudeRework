@@ -35,9 +35,11 @@ _KDB.services.tableData.readRows("pkz");                                        
 Consumers rely on these semantics; keep them:
 
 - `readRows(tableName)`: pure cache read, never starts a load.
-- `waitForRows(tableName)`: waits only for a load already in flight.
+- `waitForRows(tableName, { signal }?)`: waits only for a load already in flight; an aborted `signal` ends the wait with an `AbortError`, never the load.
 - `reloadTable(tableName, options)`: explicit reload from Cognos.
 - `ensureFreshRows(tableName)`: reloads when not ready or stale, otherwise reads.
+- `loadTables(inputs)` resolves an array (one entry per input); `loadTable` unwraps a single input.
+- `readTableState(inputs?)` returns frozen copies of the entries, never the live state.
 
 ## Disposed-state guard
 

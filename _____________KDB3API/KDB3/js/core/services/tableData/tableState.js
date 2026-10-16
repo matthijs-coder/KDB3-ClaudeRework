@@ -147,7 +147,30 @@ define(["./config.js"], function (_config) {
     return _KDB.state.tableData;
   }
 
+  // Read-only copy of one entry: own fields are frozen and `pick` is copied; `rows`/`sourceRows` stay shared by
+  // reference (callers must not mutate them) so a read does not cost O(rows).
+  function viewTableState(entry) {
+    if (!entry) {
+      return entry;
+    }
+    const view = Object.assign({}, entry);
+    if (Array.isArray(entry.pick)) {
+      view.pick = copyPick(entry.pick);
+    }
+    return Object.freeze(view);
+  }
+
+  function viewAllTableStates(_KDB) {
+    const view = {};
+    Object.keys(_KDB.state.tableData).forEach(function (key) {
+      view[key] = viewTableState(_KDB.state.tableData[key]);
+    });
+    return Object.freeze(view);
+  }
+
   return {
+    viewTableState: viewTableState,
+    viewAllTableStates: viewAllTableStates,
     readString: readString,
     readRowCount: readRowCount,
     initialTableState: initialTableState,
