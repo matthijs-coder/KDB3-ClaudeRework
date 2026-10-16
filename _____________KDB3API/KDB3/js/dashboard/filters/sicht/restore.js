@@ -6,8 +6,8 @@ define([
   "./delegation.js",
   "./commit.js",
   "../_core/parameterSetRun.js",
-  "../dienststelle/state.js"
-], function (_config, _selectors, _availability, _operations, _delegation, _commit, _parameterSetRun, _dienststelleState) {
+  "../dienststelle/selectors.js"
+], function (_config, _selectors, _availability, _operations, _delegation, _commit, _parameterSetRun, _dienststelleSelectors) {
   "use strict";
 
   var INVALID_PAYLOAD = "WRITEBACK_INVALID_V3_PAYLOAD";
@@ -280,7 +280,7 @@ define([
         return { ok: true, skipped: true };
       }
       await Promise.resolve(api.dispatch({
-        type: _dienststelleState.ACTIONS.SICHT_CHANGED,
+        type: _dienststelleSelectors.actionTypes.SICHT_CHANGED,
         payload: {
           activeSichtValue: _selection.displayValue,
           selection: {

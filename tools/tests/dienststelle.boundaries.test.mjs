@@ -111,3 +111,15 @@ test("widgetVis notify: the dispatched type is the widgetVis-exported constant",
   assert.equal(dispatched[0].payload.selection.useValue, "[a]");
   assert.equal(dispatched[0].payload.source, "sichtDefault");
 });
+
+test("dienststelle selectors publish the action types sicht dispatches; they equal the owner's own constants", () => {
+  const selectors = load("dienststelle/selectors.js");
+  const state = load("dienststelle/state.js");
+  assert.deepEqual(Object.assign({}, selectors.actionTypes), {
+    SICHT_CHANGED: "dienststelle/sichtChanged",
+    HISTORY_REPLAY_REQUESTED: "dienststelle/historyReplayRequested"
+  });
+  assert.equal(selectors.actionTypes.SICHT_CHANGED, state.ACTIONS.SICHT_CHANGED);
+  assert.equal(selectors.actionTypes.HISTORY_REPLAY_REQUESTED, state.ACTIONS.HISTORY_REPLAY_REQUESTED);
+  assert.equal(Object.isFrozen(selectors.actionTypes), true);
+});
