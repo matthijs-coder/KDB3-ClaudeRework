@@ -1,12 +1,13 @@
 // Golden tests for dashboard/filters/dienststelle (WS-I, Task A: state, selectors, history, restore index, labels, scope plan).
 // Run: node --test tools/tests/dienststelle-core.test.mjs
 // Expected values live in tools/tests/fixtures/dienststelle-core.golden.json. They were captured from the
-// pre-refactor modules on main with `GOLDEN_WRITE=1 node --test tools/tests/dienststelle-core.test.mjs`.
+// pre-refactor modules on main (commit 9d5dac6 of this workstream, GOLDEN_WRITE=1) and must not be regenerated
+// from the refactored code. Tests that need the effects/ files of Task B are skipped until those exist.
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { loadAmd } from '../lib/amd-loader.mjs';
 import { JS_ROOT } from '../lib/amd-graph.mjs';
@@ -52,29 +53,24 @@ function load(rel) {
   return loadAmd(path.join(D, rel), { stubs });
 }
 
-// Adapter: the same fixtures run against the module API, whatever the file layout.
-const actions = load('config/actions.js');
-const createReducer = load('state/createDienststelleReducer.js');
+const state = load('state.js');
+const config = load('config.js');
+const labels = load('view/labels.js');
+const hasEffects = existsSync(path.join(D, 'effects/hostScope/filterRef.js'));
 const mod = {
-  immutableReducer: false,
-  liveState: false,
-  actions,
-  createInitialState: load('state/initialState.js'),
-  reduce: createReducer(),
-  selectors: load('state/selectors.js'),
-  hierarchy: load('actions/parameterSet/buildDienststelleHierarchyIndex.js'),
-  history: Object.assign(
-    {
-      buildCommittedStep: load('history/buildCommittedStep.js'),
-      pushDienststelleHistoryStep: load('history/pushDienststelleHistoryStep.js')
-    },
-    load('history/normalizeReplayTargetSnapshot.js')
-  ),
-  sanitizeVisibleLabel: load('view/sanitizeDienststelleVisibleLabel.js'),
-  displaySanitizing: load('view/applyDienststelleDisplaySanitizing.js')(),
-  domSelectors: load('config/selectors.js'),
-  resolveDefinition: load('effects/resolveDienststelleDataKey.js'),
-  buildRestoreScopePlan: load('actions/parameterSet/buildRestoreScopePlan.js')
+  actions: state.ACTIONS,
+  createInitialState: state.createInitialState,
+  reduce: state.reduceDienststelle,
+  selectors: load('selectors.js'),
+  hierarchy: load('restore/hierarchyIndex.js'),
+  history: load('history.js'),
+  sanitizeVisibleLabel: labels.sanitizeVisibleLabel,
+  displaySanitizing: {
+    sanitizePopupLabelsInRoot: (root) => labels.sanitizePopupLabelsInRoot(root),
+    sanitizeCommittedDisplay: (wrapper, _sanitize, _selectors, hostDisplay) => labels.sanitizeCommittedDisplay(wrapper, hostDisplay)
+  },
+  domSelectors: config.DOM_SELECTORS,
+  resolveDefinition: config.resolveDefinition
 };
 
 function entry(use, display, hostDisplay) {
@@ -244,10 +240,10 @@ const REDUCER_CASES = {
 test('T1 reducer: each action against the baseline', () => {
   Object.keys(REDUCER_CASES).forEach((name) => {
     const state = cloneState(buildState());
-    if (mod.immutableReducer) deepFreeze(state);
+    deepFreeze(state);
     const result = mod.reduce(state, REDUCER_CASES[name]);
     check('reducer.' + name, result);
-    if (mod.immutableReducer) assert.deepStrictEqual(toJson(state), toJson(buildState()), name + ' mutated its input');
+    assert.deepStrictEqual(toJson(state), toJson(buildState()), name + ' mutated its input');
   });
 });
 
@@ -258,14 +254,12 @@ test('T1 reducer: missing state and sequence', () => {
   const states = [];
   const live = [];
   Object.keys(REDUCER_CASES).forEach((name) => {
-    if (mod.immutableReducer) deepFreeze(state);
+    deepFreeze(state);
     state = mod.reduce(state, REDUCER_CASES[name]);
     states.push(cloneState(state));
     live.push(state);
   });
-  if (mod.immutableReducer) {
-    live.forEach((entryState, idx) => assert.deepStrictEqual(toJson(entryState), states[idx], 'state ' + idx + ' changed later'));
-  }
+  live.forEach((entryState, idx) => assert.deepStrictEqual(toJson(entryState), states[idx], 'state ' + idx + ' changed later'));
   check('reducer.sequenceFinal', state);
   check('reducer.sequenceStepHashes', states.map((s) => createHash('sha1').update(JSON.stringify(s)).digest('hex').slice(0, 12)));
 });
@@ -274,7 +268,7 @@ test('T2 selectors', () => {
   const K = { state: { filters: { dienststelle: buildState() } } };
   const state = mod.selectors.readDienststelleState(K);
   check('selectors.state', state);
-  if (mod.liveState) assert.strictEqual(state, K.state.filters.dienststelle);
+  assert.strictEqual(state, K.state.filters.dienststelle);
   check('selectors.snapshot', mod.selectors.readDienststelleSnapshot(K));
   check('selectors.context', mod.selectors.readActiveDienststelleContext(K));
   check('selectors.stateMissing', mod.selectors.readDienststelleState({ state: { filters: {} } }));
@@ -352,7 +346,8 @@ test('T5 labels and definitions', () => {
   assert.strictEqual(mod.resolveDefinition('BW').activeFilterKey, 'Dienststelle_BW');
 });
 
-test('T6 restore scope plan', () => {
+test('T6 restore scope plan (needs the effects/ files of Task B)', { skip: !hasEffects }, () => {
+  mod.buildRestoreScopePlan = load('restore/scopePlan.js').buildRestoreScopePlan;
   const diagnostics = [];
   const K = {
     runtime: {
@@ -444,4 +439,77 @@ test('T5 display sanitizing on fake DOM', () => {
     mod.displaySanitizing.sanitizeCommittedDisplay(null, sanitize, sel, ''),
     mod.displaySanitizing.sanitizeCommittedDisplay(fakeEl({ text: '' }), sanitize, sel, '')
   ]);
+});
+
+test('config: runtime defaults are fresh per call, filter keys and action strings are stable', () => {
+  const first = config.createRuntimeDefaults();
+  const second = config.createRuntimeDefaults();
+  assert.deepStrictEqual(first, { parameterSetRunId: 0, tabMutationRunId: 0, tabMutationSnapshots: {} });
+  assert.notStrictEqual(first, second);
+  assert.notStrictEqual(first.tabMutationSnapshots, second.tabMutationSnapshots);
+  assert.deepStrictEqual(config.FILTER_KEYS, ['Dienststelle_BW', 'Dienststelle_DEZPV']);
+  assert.strictEqual(Object.keys(state.ACTIONS).length, 24);
+  assert.ok(Object.values(state.ACTIONS).every((value) => /^dienststelle\/[A-Za-z]+$/.test(value)));
+  assert.strictEqual(config.PARAMETER_SET_CODES.CANCELLED, 'WRITEBACK_RESTORE_CANCELLED');
+  assert.ok(Object.isFrozen(config.PARAMETER_SET_CODES));
+  assert.ok(config.isRelevantTableName({ config: { tables: { dienststelle_bw_hierarchy: { name: ' Org Tree ' } } } }, 'org tree'));
+  assert.ok(config.isRelevantTableName({}, 'DIENSTSTELLE_BW_DEFAULT'));
+  assert.ok(!config.isRelevantTableName({}, 'other'));
+  assert.deepStrictEqual(config.buildTableInput({ config: { tables: { t: { shape: 's', pick: 'p' } } } }, 't'), [{ tableName: 't', shape: 's', pick: 'p' }]);
+  assert.strictEqual(config.buildTableInput({}, 't'), null);
+});
+
+test('state: a null value entry becomes the empty entry (old copy threw)', () => {
+  assert.deepStrictEqual(state.copyValueEntries([null, { useValue: 3 }]), [
+    { displayValue: '', useValue: '', source: 'cognos', hostDisplay: '' },
+    { displayValue: '', useValue: '3', source: 'cognos', hostDisplay: '' }
+  ]);
+  assert.deepStrictEqual(state.copyValueEntries('x'), []);
+});
+
+test('history: equal snapshots are left to the history service to reject', () => {
+  const pushed = [];
+  const K = {
+    state: { filters: { dienststelle: buildState() } },
+    services: { history: { pushCommittedStep: (step) => (pushed.push(step), false) } }
+  };
+  const snapshot = mod.selectors.readDienststelleSnapshot(K);
+  const result = { ok: true };
+  assert.strictEqual(mod.history.pushDienststelleHistoryStep(K, snapshot, result), result);
+  assert.strictEqual(pushed.length, 1);
+  assert.strictEqual(mod.history.pushDienststelleHistoryStep({ state: K.state }, snapshot, result), result);
+});
+
+test('tab mutation: duplicate and restoreDeleted report the diagnostics of both slots (needs effects/)', { skip: !hasEffects }, async () => {
+  const tabMutation = load('tabMutation.js');
+  const targets = { 0: { scopeId: 'tabA' }, 1: { scopeId: 'tabB' } };
+  const K = { state: { filters: { dienststelle: buildState() } }, runtime: {}, services: {} };
+  const runtime = { tabMutationRunId: 0, tabMutationSnapshots: {} };
+  const ctx = {
+    _KDB: K,
+    runtime,
+    dispatchInternal: (action) => { K.state.filters.dienststelle = state.reduceDienststelle(K.state.filters.dienststelle, action); }
+  };
+  const route = (type, payload) => tabMutation.routeTabMutationAction(ctx, { type, payload });
+  const badMove = [{ fromTabIdx: 3, toTabIdx: 4 }];
+  let runId = 0;
+  const results = {};
+  for (const operation of ['duplicate', 'restoreDeleted']) {
+    runId += 1;
+    const base = { runId, operationId: 'op' + runId, tabIdxToScopeId: targets };
+    const plan = { operation, sourceSlot: { tabIdx: 0 }, insertSlot: { tabIdx: 1 }, slotMoves: [{ fromTabIdx: 0, toTabIdx: 1 }] };
+    const prepared = await route(state.ACTIONS.PREPARE_TAB_MUTATION, Object.assign({ plan }, base));
+    assert.strictEqual(prepared.ok, true);
+    results[operation] = await route(
+      state.ACTIONS.APPLY_TAB_MUTATION,
+      Object.assign({ plan: Object.assign({}, plan, { slotMoves: badMove }) }, base)
+    );
+  }
+  ['duplicate', 'restoreDeleted'].forEach((operation) => {
+    assert.strictEqual(results[operation].ok, false);
+    assert.deepStrictEqual(
+      results[operation].diagnostics.map((diagnostic) => diagnostic.message),
+      ['scopeId could not be resolved for tabIdx 3', 'scopeId could not be resolved for tabIdx 4']
+    );
+  });
 });
