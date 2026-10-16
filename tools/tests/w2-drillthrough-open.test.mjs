@@ -55,13 +55,13 @@ test("opener: the opened window loses its opener, the URL and target stay the sa
   assert.equal(win.handle.opener, null);
 });
 
-test("opener: the deferred wait window loses its opener as well", () => {
+test("opener: the deferred wait window loses its opener as well", () => withFakeTimers(async () => {
   const win = fakeWindow();
   const { service } = setup({ windowOpen: () => win.handle, readRows: () => [], readPendingLoad: () => new Promise(() => {}) });
   const result = service.openDrillthrough(SPEC);
   assert.equal(result.ok, true);
   assert.equal(win.handle.opener, null);
-});
+}));
 
 test("opener: a window.open result that rejects the opener write does not fail the open", () => {
   const handle = { get opener() { return null; }, set opener(_v) { throw new Error("cross-origin"); } };
@@ -70,3 +70,61 @@ test("opener: a window.open result that rejects the opener write does not fail t
   assert.equal(result.ok, true);
   assert.ok(con.errors.some((args) => String(args[0]).includes("detaching the opener")));
 });
+
+function withFakeTimers(run) {
+  const realSetTimeout = globalThis.setTimeout;
+  const realClearTimeout = globalThis.clearTimeout;
+  const timers = new Map();
+  let nextId = 1;
+  globalThis.setTimeout = (fn, ms) => { timers.set(nextId, { fn, ms }); return nextId++; };
+  globalThis.clearTimeout = (id) => { timers.delete(id); };
+  return Promise.resolve(run(timers)).finally(() => {
+    globalThis.setTimeout = realSetTimeout;
+    globalThis.clearTimeout = realClearTimeout;
+  });
+}
+
+test("timeout: a hierarchy load that never settles ends in the load-failed text after 120 s", () => withFakeTimers(async (timers) => {
+  const win = fakeWindow();
+  const { service, con } = setup({ windowOpen: () => win.handle, readRows: () => [], readPendingLoad: () => new Promise(() => {}) });
+  service.openDrillthrough(SPEC);
+  assert.equal(timers.size, 1);
+  const [timer] = timers.values();
+  assert.equal(timer.ms, 120000);
+  timer.fn();
+  assert.match(win.handle.document.body.textContent, /konnten nicht geladen werden/);
+  assert.ok(con.errors.some((args) => String(args[0]).includes("timed out")));
+  assert.equal(win.calls.replace.length, 0);
+}));
+
+test("timeout: settling the load clears the timer and a later timer callback does nothing", () => withFakeTimers(async (timers) => {
+  const win = fakeWindow();
+  let release;
+  const pending = new Promise((resolve) => { release = resolve; });
+  const { service } = setup({ windowOpen: () => win.handle, readRows: () => [], readPendingLoad: () => pending });
+  service.openDrillthrough(SPEC);
+  const [timer] = timers.values();
+  release();
+  await pending;
+  await tick();
+  assert.equal(timers.size, 0);
+  const before = win.handle.document.body.textContent;
+  timer.fn();
+  assert.equal(win.handle.document.body.textContent, before);
+}));
+
+test("timeout: a late fulfilment after the timeout does not navigate", () => withFakeTimers(async (timers) => {
+  const win = fakeWindow();
+  let release;
+  const pending = new Promise((resolve) => { release = resolve; });
+  let ready = false;
+  const { service } = setup({ windowOpen: () => win.handle, readRows: () => (ready ? BW_ROWS : []), readPendingLoad: () => pending });
+  service.openDrillthrough(SPEC);
+  const [timer] = timers.values();
+  timer.fn();
+  ready = true;
+  release();
+  await pending;
+  await tick();
+  assert.deepStrictEqual(win.calls.replace, []);
+}));

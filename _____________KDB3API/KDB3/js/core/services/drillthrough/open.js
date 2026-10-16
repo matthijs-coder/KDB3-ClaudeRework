@@ -77,9 +77,21 @@ define([
     }
   }
 
+  function settleContext(_ctx) {
+    _ctx.settled = true;
+    if (_ctx.timerId != null) {
+      clearTimeout(_ctx.timerId);
+      _ctx.timerId = null;
+    }
+  }
+
   function onDeferredFulfilled(_ctx) {
     var record;
     var built;
+    if (_ctx.settled) {
+      return;
+    }
+    settleContext(_ctx);
     try {
       if (isHandleClosed(_ctx)) {
         return;
@@ -101,6 +113,10 @@ define([
   }
 
   function onDeferredRejected(_ctx, _error) {
+    if (_ctx.settled) {
+      return;
+    }
+    settleContext(_ctx);
     try {
       console.error("[drillthrough.finishDeferredDrillthroughOpen]", _error);
       writeBody(_ctx, "loadFailedBody");
@@ -109,7 +125,22 @@ define([
     }
   }
 
+  function onDeferredTimeout(_ctx) {
+    if (_ctx.settled) {
+      return;
+    }
+    settleContext(_ctx);
+    try {
+      console.error("[drillthrough.finishDeferredDrillthroughOpen] hierarchy load timed out", { timeoutMs: _config.DEFERRED_OPEN_TIMEOUT_MS });
+      writeBody(_ctx, "loadFailedBody");
+    } catch (error) {
+      console.error("[drillthrough.finishDeferredDrillthroughOpen]", error);
+    }
+  }
+
   function finishDeferredDrillthroughOpen(_ctx) {
+    _ctx.settled = false;
+    _ctx.timerId = setTimeout(onDeferredTimeout.bind(null, _ctx), _config.DEFERRED_OPEN_TIMEOUT_MS);
     _ctx.pending.then(onDeferredFulfilled.bind(null, _ctx), onDeferredRejected.bind(null, _ctx));
   }
 
