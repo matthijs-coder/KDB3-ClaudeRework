@@ -76,7 +76,7 @@ Do **not** implement opportunistically. Each item needs explicit approval and a 
 
 **Current:** removed from `config/launchpadChannels.js` (unused).
 
-**Remaining:** `contracts/widgetBase-port-execution-spec.md` still lists `LEGACY_REMAP` in launchpad config return shape.
+**Remaining:** `contracts/_archive/widgetBase-port-execution-spec.md` still lists `LEGACY_REMAP` in launchpad config return shape.
 
 **Action:** doc-only delta when next contract sync tranche runs.
 

@@ -38,16 +38,11 @@ Long-lived architecture documents that govern the project at a higher level than
 |---|---|
 | `projectStructureRules.md` | Authority document for project structure: folder layout, file size, orchestrator/controller, services vs APIs. The rules in `.cursor/rules/` operationalise this. |
 | `stateOwnership.md` | Authority document for state ownership: one canonical writer per subtree, the full ownership map referenced from `state.mdc`. |
-| `migrationContext.md` | Historical context for the redesign: what was wrong with earlier KDB versions, why the new structure exists. |
-| `openDesignCandidates.md` | Architectural ideas not yet adopted as canonical rules (e.g. `widgetBindingService`, `authoringMode` dashboard-level split, `controlDefinitions[]` data layer). Promotion requires an explicit decision. |
 | `eventSubscribe.md` | Canonical catalog of all events on `_KDB.events`. An event without a catalog entry is not considered published. |
-| `kdbControl-litmustest-report.md` | Empirical outcome of the kdbControl litmustest (2026-05-12): which rules and template sections worked, where the executing AI deviated, recommended follow-ups R1–R8. |
-| `tableDataService-litmustest-report.md` | Empirical outcome of the tableDataService litmustest (2026-05-12): validation of the shared-service path (named methods on `_KDB.services.tableData`), empirical confirmation of R5+R6, new gaps G1–G4 and follow-ups R9–R13. |
-| `midtierHandoffTemplate.md` | Generic standing-instruction template for a mid-tier AI orchestrating **exploratory** port work via TEST sandbox + browser harness: five-phase workflow per module-port, contract-first gate, CP-1 + CP-2 (browser-level), forbidden actions, escalation triggers, session-task wrapper slot. |
-| `midtierDirectPortTemplate.md` | Generic standing-instruction template for a mid-tier AI orchestrating **direct ports** of legacy-known-good code straight into the production tree, without TEST sandbox or browser harness: four-phase workflow (contract → execution spec → cheap-AI exec → review + integration check), CP-2 = diff-walk + bootstrap import check. Forbids behavioral changes beyond rule-alignment. |
-| `filesExplained.md` | This file. Short catalog of files and folders. |
 | `jsModuleMap.md` | Living JS on-ramp: module → folder → `_KDB.api` / `_KDB.services` → one sentence. **The JS-on-ramp is `jsModuleMap.md`.** Source: live `KDB3/js/KDB.js`, not `contracts/`. |
-| `readability-maintainability.md` | 2026-08-16 captain proposal: human readability, folder uniformity, naming, overdesign, and on-ramp indexes for `KDB3/js`. Complementary to `structure-audit-2.md` (Cognos/size/leaks). No code changes. |
+| `conventions.md` | Practical conventions beyond the rules: event timing and memoization, CSS file conventions, where labels live. |
+| `filesExplained.md` | This file. Short catalog of files and folders. |
+| `_archive/` | Historical only: design reviews, port reports, legacy surveys, structure audits, hand-off templates, litmus-test reports, and the pre-redesign rules (`cursor-rules-old/`). Do not implement against it. |
 
 ## `_____________KDB3API/contracts/`
 
@@ -93,7 +88,7 @@ This is the target module template (`feature-structure.mdc`); many modules still
 
 ## `_______REDESIGN2/`, `_______LAATSTEORIGINAL/`, `_______KDB3/`
 
-Legacy reference trees for older redesign attempts and the original code base. Treated as reference, not as a blueprint per `migrationContext.md`. Legacy code is rewritten against the current rules, not copy-pasted.
+Legacy reference trees for older redesign attempts and the original code base. Treated as reference, not as a blueprint (see `_archive/migrationContext.md`). Legacy code is rewritten against the current rules, not copy-pasted.
 
 ## Adding A New Entry
 

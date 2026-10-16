@@ -24,7 +24,7 @@
 | Runtime ownership | `_KDB.runtime.historyControls` owns DOM refs, subscriptions, abort controllers, observers and pending mount promises. |
 | History calls | Call `_KDB.services.history.undo()`, `redo()`, `canUndo()`, `canRedo()`, `getSnapshot()` only through the service surface. |
 | Event catalog | Update existing `history:changed` catalog entry to list `historyControls` as subscriber. |
-| CSS | Add `KDB3/css/historyControls.css` and register it in `core/css/config/cssHrefList.js`. |
+| CSS | Add `KDB3/css/customButtons/toolbarControls.css` and register it in `core/css/config/cssHrefList.js`. |
 | Bootstrap | Import, register, mount and destroy via `KDB3/js/KDB.js`. |
 
 ## 1. Legacy Evidence
@@ -53,7 +53,7 @@ Production evidence:
 - `historyService/events/eventNames.js` already owns the `history:changed` event constant.
 - `architecture/eventSubscribe.md` already catalogs `history:changed`, but its subscriber is still `TBD`.
 - `KDB3/js/KDB.js` currently registers and mounts header, footer, kdbControl, launchpad, dragDrop and metricsTree; it does not yet wire `historyControls`.
-- `KDB3/css/historyControls.css` does not exist yet.
+- `KDB3/css/customButtons/toolbarControls.css` does not exist yet.
 
 ## 2. Purpose
 
@@ -257,7 +257,7 @@ This is a documented DOM host selector touchpoint, not a Cognos API wrapper.
 Add:
 
 ```txt
-KDB3/css/historyControls.css
+KDB3/css/customButtons/toolbarControls.css
 ```
 
 Register in:
@@ -344,7 +344,7 @@ The current production bootstrap registers historyService after feature registra
 3. Approve no `_KDB.state.historyControls` and runtime-only ownership?
 4. Approve updating `KDB.js` for import, register, mount and destroy wiring?
 5. Approve updating `eventSubscribe.md` for the existing `history:changed` subscriber entry?
-6. Approve adding `KDB3/css/historyControls.css` and registering it in `cssHrefList.js`?
+6. Approve adding `KDB3/css/customButtons/toolbarControls.css` and registering it in `cssHrefList.js`?
 
 ---
 

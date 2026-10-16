@@ -164,7 +164,7 @@ KDB3/js/dashboard/controls/shareControls/
   __orchestratorShareControls.js
 ```
 
-CSS: disk file `KDB3/css/customButtons/shareControls.css` (button chrome plus the `#main.kdb-share-read-only` hide-set); `cssHrefList.js` entry **`./v1/ext/KDB3/css/customButtons/shareControls.css`** (do not copy the repo-relative disk path into the href list).
+CSS: disk file `KDB3/css/customButtons/toolbarControls.css` (button chrome plus the `#main.kdb-share-read-only` hide-set); `cssHrefList.js` entry **`./v1/ext/KDB3/css/customButtons/toolbarControls.css`** (do not copy the repo-relative disk path into the href list).
 
 Icons: canonical asset is `KDB3/images/share.png` (512×512 ARGB, ~3KB). Runtime href: `./v1/ext/KDB3/images/share.png` (same `./v1/ext/` prefix as PDF). `resolveShareIconHref` uses the same toolbar-host luminance formula as `pdfExportControls`. Do **not** ship the bulky AI `share-black.png` / `share-white.png` (1024×1024, 24bpp opaque, baked light background, ~700–800KB). Implementation may either (a) luminance-select between two **tiny ARGB** copies derived from `share.png` whose filenames are **not** `share-black.png` / `share-white.png`, or (b) one `share.png` href plus CSS luminance invert when the host foreground is light (legacy). Missing `share.png` is the asset blocker, not the generated pair.
 

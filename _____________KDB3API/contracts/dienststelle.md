@@ -991,7 +991,7 @@ Q6. Confirm CP-1 approval for the minimum-selection delta in Section 11.1: S1-S6
 If CP-1 approves this contract, the next phase is:
 
 ```txt
-_____________KDB3API/contracts/dienststelle-minimum-selection-execution-spec.md
+_____________KDB3API/contracts/_archive/dienststelle-minimum-selection-execution-spec.md
 ```
 
 The execution spec must include the mapping table, per-file `Rules to apply` checklist, anti-D1 / anti-D2 acceptance criteria, and explicit mapping from modified production files to legacy/current-architecture evidence. The direct-port no-behavior-change rule does not apply to this behavior-completion delta; implementation is limited to the approved CP-1 scenario set and must not silently add deferred behavior.

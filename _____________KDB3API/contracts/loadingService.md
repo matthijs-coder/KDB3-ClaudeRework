@@ -4,7 +4,7 @@
 
 ---
 
-**Status:** `Approved` — live Q3 A / Q8 / Q12 A as ported; overlay coverage + German caption: `contracts/loadingService-overlay-coverage-contractdelta.md` (PO vastenburg 2026-09-02); PDF mid-run captions: `contracts/loadingService-dashboardPdf-progress-caption-contractdelta.md` (`updateLoadingMessage`, PO vastenburg 2026-09-04)
+**Status:** `Approved` — live Q3 A / Q8 / Q12 A as ported; overlay coverage + German caption: `contracts/_archive/loadingService-overlay-coverage-contractdelta.md` (PO vastenburg 2026-09-02); PDF mid-run captions: `contracts/_archive/loadingService-dashboardPdf-progress-caption-contractdelta.md` (`updateLoadingMessage`, PO vastenburg 2026-09-04)
 **Owner module / service:** `loadingService`
 **Type:** `shared service candidate / runtime-DOM boundary`
 **Authoring AI:** GPT-5.5, 2026-05-16
@@ -177,7 +177,7 @@ Reason: legacy has no loading events, no event subscribers and no known independ
 - `window.getComputedStyle`, `setTimeout`, `clearTimeout` through the browser runtime; no Cognos host wrappers.
 - Default mount fallback: preserve the legacy fallback to `_KDB.elements.kdbWidget` unless CP-1 explicitly approves a rule-forced replacement.
 
-No services, adapters or event bus dependency is required for overlay start/finish. The boot watchdog **may** call `_KDB.runtime.homeDialog.presentHomeChoice` after `finishLoading` (`contracts/loadingService-watchdog-dialog-contractdelta.md`); that is not a public loading method and not a `_KDB.services.homeDialog`.
+No services, adapters or event bus dependency is required for overlay start/finish. The boot watchdog **may** call `_KDB.runtime.homeDialog.presentHomeChoice` after `finishLoading` (`contracts/_archive/loadingService-watchdog-dialog-contractdelta.md`); that is not a public loading method and not a `_KDB.services.homeDialog`.
 
 ## 8. Cognos Touchpoints
 

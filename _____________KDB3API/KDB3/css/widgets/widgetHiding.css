@@ -1,3 +1,4 @@
+/* pdfCapture.css */
 #main.kdb-pdf-capturing .KDB_widgetSettings,
 #main.kdb-pdf-capturing .KDB_widgetSettings.KDB_visible,
 #main.kdb-pdf-capturing .KDB_widgetSettingsButton,
@@ -15,3 +16,12 @@
 #main.kdb-pdf-capturing .widget .widgetHeader .dataWidgetIcon:has(.kdb_hyperlink_icon) {
   display: none !important;
 }
+
+/* hideSpot.css */
+#KDB_HideSpot {
+    visibility: hidden;
+    width: 0px;
+    height: 0px;
+    overflow: hidden;
+    z-index: -99;
+  }
