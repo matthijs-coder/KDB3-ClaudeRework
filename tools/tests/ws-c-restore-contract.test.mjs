@@ -392,7 +392,7 @@ test("destroy aborts controllers, clears timers and resets restore flags; get-ow
   let timerFired = false;
   const runtime = Object.assign(kdb._KDB.runtime.writeback = {}, {
     abortControllers: { someWait: controller },
-    timers: { someTimer: setTimeout(() => { timerFired = true; }, 5) },
+    timers: { someTimer: Number(setTimeout(() => { timerFired = true; }, 5)) },
     pendingPromises: { getPersistLoading: persistLoading },
     pendingUrlShareMessage: { parameterId: "1" },
     pendingRestoreFailure: true,
@@ -417,7 +417,7 @@ test("destroy aborts controllers, clears timers and resets restore flags; get-ow
   return new Promise((resolve) => setTimeout(() => { assert.equal(timerFired, false); resolve(); }, 20));
 });
 
-test("destroy also releases subscriptions and resets run and URL-share flags", { todo: "C2 step 4" }, () => {
+test("destroy also releases subscriptions and resets run and URL-share flags", () => {
   const createService = load("service");
   const kdb = createKdb();
   const service = createService({ _KDB: kdb._KDB });
