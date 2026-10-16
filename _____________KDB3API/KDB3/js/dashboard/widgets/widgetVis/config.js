@@ -1,11 +1,5 @@
-define([], function () {
+define(["./config/visTypeRules.js"], function (_rules) {
   "use strict";
-
-  var GROUPINGS = ["stichtag", "jahr", "jahrStichtag", "stichtagProJahrH", "stichtagProJahrV"];
-
-  function isGroupingValue(_value) {
-    return GROUPINGS.indexOf(_value) !== -1;
-  }
 
   return {
     applyTimeoutProfile: "vis",
@@ -18,7 +12,7 @@ define([], function () {
     expandDrillthroughColumnClass: "kdb-expand-drillthrough-column",
     focusModePollMs: 50,
     focusModeWaitMs: 1200,
-    GROUPINGS: GROUPINGS,
-    isGroupingValue: isGroupingValue
+    GROUPINGS: _rules.GRAINS,
+    isGroupingValue: _rules.isGrain
   };
 });

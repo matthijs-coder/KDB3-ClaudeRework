@@ -1,8 +1,9 @@
 define([
   "../../schema/errorCodes.js",
   "../../../../../dashboard/widgets/widgetSettings/config/dropdownDefaults.js",
+  "../../../../../dashboard/widgets/widgetVis/config/visTypeRules.js",
   "./collectorSupport.js",
-], function (_errorCodes, _dropdownDefaults, _support) {
+], function (_errorCodes, _dropdownDefaults, _visTypeRules, _support) {
   "use strict";
 
   // Builds a single v3 `wgts` object per contracts/writeback.md §4.5.1.
@@ -14,33 +15,6 @@ define([
   const TOP_N_DEFAULT = _dropdownDefaults.topN.useValue;
   const COLOUR_DEFAULT = _dropdownDefaults.backgroundColor.useValue;
   const RESTYLE_DEFAULT = _dropdownDefaults.layout.useValue;
-  const TYPE_ALIAS = {
-    line: "Line", pie: "Pie", stackedbar: "StackedBar", stackedcolumn: "StackedColumn",
-    list: "List", prognose: "Prognose",
-    "com.ibm.vis.custom.prognoseyear": "Prognose",
-    "com.ibm.vis.custom.prognoseyearlinechart": "Prognose",
-  };
-  const TYPE_BUCKET = {
-    Line: "Line", StackedBar: "StackedBar", StackedColumn: "StackedColumn", Pie: "pie", pie: "pie",
-    List: "List", Prognose: "com.ibm.vis.custom.prognoseyearlinechart",
-    "com.ibm.vis.custom.prognoseyearlinechart": "com.ibm.vis.custom.prognoseyearlinechart",
-    "com.ibm.vis.custom.prognoseyear": "com.ibm.vis.custom.prognoseyearlinechart",
-  };
-  const GRAINS = { stichtag: 1, jahr: 1, jahrStichtag: 1, stichtagProJahrH: 1, stichtagProJahrV: 1 };
-
-  function resolveGetBucket(_type) {
-    const alias = TYPE_ALIAS[String(_type == null ? "" : _type).toLowerCase()] || _type;
-    return TYPE_BUCKET[alias] || alias;
-  }
-
-  function isAllowedGrain(_bucket, _grain) {
-    if (_bucket === "List") { return _grain === "jahr" || _grain === "jahrStichtag"; }
-    if (_bucket === "com.ibm.vis.custom.prognoseyearlinechart") { return false; }
-    if (_bucket === "pie" || _bucket === "StackedBar" || _bucket === "StackedColumn") {
-      return !!GRAINS[_grain] && _grain !== "stichtag";
-    }
-    return !!GRAINS[_grain];
-  }
 
   function buildWidgetObject(frame, tabIdx, settingsRecord, visRecord, textRecord, diagnostics) {
     const widgetId = frame && frame.widgetId ? frame.widgetId : null;
@@ -92,7 +66,7 @@ define([
     assignOptionalString(common, "dim", settings.dimension, DIMENSION_DEFAULT);
     assignOptionalString(common, "topn", settings.topNChoice, TOP_N_DEFAULT);
     _support.assignOptionalFlag01(common, "vals", settings.showValues);
-    if (GRAINS[settings.grouping] && isAllowedGrain(resolveGetBucket(common.type), settings.grouping)) {
+    if (_visTypeRules.isAllowedGrain(_visTypeRules.resolveBucket(common.type), settings.grouping)) {
       common.grp = settings.grouping;
     }
     _support.assignOptionalFlag01(common, "iter", settings.iterator);

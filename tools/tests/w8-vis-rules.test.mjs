@@ -176,16 +176,35 @@ if (RECORD) {
   fs.writeFileSync(GOLDEN, `${JSON.stringify(actual, null, 1)}\n`);
 }
 
-// Deltas of the W8 migration against the golden, each with its reason (see internal/phase2/w8-plan.md section 3).
-const PINNED_DELTAS = {};
+// Deltas of the W8 migration against the golden (internal/phase2/w8-plan.md section 3). None is reachable from the UI:
+// the dropdowns only produce the six canonical type values and the five grain values.
+//  1. writeback save: the grain gate is one array lookup now. A grouping that is not a grain ("constructor", an
+//     Object.prototype key that the old object lookup accepted) is no longer written, and a padded " pie " is trimmed
+//     like widgetVis/widgetSettings always did, so its "stichtag" grain is dropped as for "pie".
+//  2. stamp: a record grouping that is not allowed for the type is cleared whatever the value; the old code only
+//     cleared known grains, so "inherit"/"bogus"/"constructor" stayed in a record (state.js never stores them).
+const NON_GRAIN_VALUES = ["inherit", "bogus", "constructor"];
+const grainOfKey = (key) => key.slice(key.lastIndexOf("|") + 1);
+const PINNED_DELTAS = {
+  writeback(expected) {
+    for (const [key, value] of Object.entries(expected)) {
+      if (grainOfKey(key) === "constructor") value.grp = null;
+    }
+    expected[" pie |stichtag"].grp = null;
+  },
+  stamp(expected) {
+    for (const [key, value] of Object.entries(expected)) {
+      if (NON_GRAIN_VALUES.includes(grainOfKey(key))) value.groupingKept = null;
+    }
+  },
+  agreement(expected) {
+    for (const key of Object.keys(expected)) delete expected[key];
+  }
+};
 
 function expectedSection(section) {
   const expected = structuredClone(golden[section]);
-  const deltas = PINNED_DELTAS[section] || {};
-  for (const [key, value] of Object.entries(deltas)) {
-    if (value === undefined) delete expected[key];
-    else expected[key] = value;
-  }
+  if (PINNED_DELTAS[section]) PINNED_DELTAS[section](expected);
   return expected;
 }
 

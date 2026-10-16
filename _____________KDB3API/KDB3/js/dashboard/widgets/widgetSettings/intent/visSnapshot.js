@@ -1,8 +1,9 @@
 define([
   "../config/dropdownDefaults.js",
   "../config.js",
-  "../state.js"
-], function (_dropdownDefaults, _config, _state) {
+  "../state.js",
+  "../../widgetVis/config/visTypeRules.js"
+], function (_dropdownDefaults, _config, _state, _visTypeRules) {
   "use strict";
 
   const VIS_DEFAULTS = {
@@ -11,7 +12,6 @@ define([
     topNChoice: _dropdownDefaults.topN.useValue
   };
   const BOOLEAN_CONTROLS = ["showValues", "iterator", "zoom", "valueCaption"];
-  const GROUPING_GRAINS = ["stichtag", "jahr", "jahrStichtag", "stichtagProJahrH", "stichtagProJahrV"];
 
   function readEffectiveControlValue(_record, _stateKey) {
     if (_record && _record[_stateKey] != null) {
@@ -31,7 +31,7 @@ define([
         snapshot[control] = _record[control];
       }
     });
-    if (_record && GROUPING_GRAINS.indexOf(_record.grouping) >= 0) {
+    if (_record && _visTypeRules.isGrain(_record.grouping)) {
       snapshot.grouping = _record.grouping;
     }
     return snapshot;
@@ -60,7 +60,7 @@ define([
         changedControls.push(buildRestoreControlEntry(control, snapshot[control]));
       }
     });
-    if (GROUPING_GRAINS.indexOf(snapshot.grouping) >= 0) {
+    if (_visTypeRules.isGrain(snapshot.grouping)) {
       changedControls.push(buildRestoreControlEntry("grouping", snapshot.grouping));
     }
     return {

@@ -1,10 +1,10 @@
 define([
   "./config.js",
-  "../../../core/utils/kit/data.js"
-], function (_config, _kitData) {
+  "../../../core/utils/kit/data.js",
+  "../widgetVis/config/visTypeRules.js"
+], function (_config, _kitData, _visTypeRules) {
   "use strict";
 
-  const GROUPING_GRAINS = ["stichtag", "jahr", "jahrStichtag", "stichtagProJahrH", "stichtagProJahrV"];
   const BOOLEAN_KINDS = ["showValues", "iterator", "zoom", "valueCaption"];
 
   function createInitialState() {
@@ -70,7 +70,7 @@ define([
     if (kind !== "grouping" && stateKey !== "grouping") {
       return false;
     }
-    return value === "inherit" || GROUPING_GRAINS.indexOf(value) < 0;
+    return value === "inherit" || !_visTypeRules.isGrain(value);
   }
 
   function isBooleanInheritAbsence(kind, stateKey, value) {

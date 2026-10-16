@@ -1,30 +1,14 @@
 define([
-  "./config.js",
+  "./config/visTypeRules.js",
   "../../../core/utils/kit/data.js",
   "../../../core/utils/kennzahlAggregationFilter.js"
-], function (_config, _data, _kennzahlAggregationFilter) {
+], function (_rules, _data, _kennzahlAggregationFilter) {
   "use strict";
-
-  var SETTINGS_VIS_TYPE_ALIASES = {
-    line: "Line",
-    pie: "Pie",
-    stackedbar: "StackedBar",
-    stackedcolumn: "StackedColumn",
-    list: "List",
-    prognose: "Prognose",
-    "com.ibm.vis.custom.prognoseyear": "Prognose",
-    "com.ibm.vis.custom.prognoseyearlinechart": "Prognose"
-  };
 
   var LOCAL_METRICS_DATASOURCE_FALLBACK = "Personal_KDB";
 
   function normalizeVisualizationType(_rawType) {
-    if (_rawType == null || _rawType === "") {
-      return null;
-    }
-    var text = String(_rawType).trim();
-    var alias = SETTINGS_VIS_TYPE_ALIASES[text.toLowerCase()];
-    return alias || text;
+    return _rules.normalizeVisType(_rawType);
   }
 
   function readVisualizationsConfig(_KDB) {
@@ -85,17 +69,8 @@ define([
   }
 
   function resolveVisPropBucketKey(_visualizationType, _KDB) {
-    var visConfig = readVisualizationsConfig(_KDB);
-    var bindingSpecs = visConfig.bindingSpecs || {};
-    var map = bindingSpecs.visualizationTypeToBucket || {};
-    var normalized = normalizeVisualizationType(_visualizationType);
-    if (normalized && map[normalized]) {
-      return map[normalized];
-    }
-    if (normalized && map[normalized.toLowerCase()]) {
-      return map[normalized.toLowerCase()];
-    }
-    return normalized;
+    var bindingSpecs = readVisualizationsConfig(_KDB).bindingSpecs || {};
+    return _rules.resolveBucket(_visualizationType, bindingSpecs.visualizationTypeToBucket);
   }
 
   function resolveCognosVisualizationTypeId(_visualizationType, _KDB) {
@@ -139,29 +114,12 @@ define([
     return entry && typeof entry.defaultGrain === "string" ? entry.defaultGrain : undefined;
   }
 
-  function isPieStackedBucket(_bucket) {
-    return _bucket === "pie" || _bucket === "StackedBar" || _bucket === "StackedColumn";
-  }
-
-  function isAllowedGrain(_bucket, _grain) {
-    if (_bucket === "List") {
-      return _grain === "jahr" || _grain === "jahrStichtag";
-    }
-    if (_bucket === "com.ibm.vis.custom.prognoseyearlinechart") {
-      return false;
-    }
-    if (isPieStackedBucket(_bucket)) {
-      return _grain === "jahr" || _grain === "jahrStichtag" || _grain === "stichtagProJahrH" || _grain === "stichtagProJahrV";
-    }
-    return _config.isGroupingValue(_grain);
-  }
-
   function resolveGrainOverlay(_visualizationType, _grain, _KDB) {
     var bucket = resolveVisPropBucketKey(_visualizationType, _KDB);
     if (bucket === "com.ibm.vis.custom.prognoseyearlinechart") {
       return undefined;
     }
-    if (typeof _grain === "string" && !isAllowedGrain(bucket, _grain)) {
+    if (typeof _grain === "string" && !_rules.isAllowedGrain(bucket, _grain)) {
       return undefined;
     }
     var grains = (readGrainEntry(_visualizationType, _KDB) || {}).grains;
@@ -173,7 +131,7 @@ define([
   }
 
   function resolveEffectiveGrain(_visualizationType, _grouping, _KDB) {
-    if (_config.isGroupingValue(_grouping) && isAllowedGrain(resolveVisPropBucketKey(_visualizationType, _KDB), _grouping)) {
+    if (_rules.isAllowedGrain(resolveVisPropBucketKey(_visualizationType, _KDB), _grouping)) {
       return _grouping;
     }
     return resolveDefaultGrain(_visualizationType, _KDB);
@@ -185,7 +143,7 @@ define([
       return "stichtag";
     }
     var grain = resolveEffectiveGrain(_visualizationType, _grouping, _KDB);
-    if (!isAllowedGrain(bucket, grain)) {
+    if (!_rules.isAllowedGrain(bucket, grain)) {
       grain = resolveDefaultGrain(_visualizationType, _KDB);
     }
     if (bucket === "List") {
@@ -194,7 +152,7 @@ define([
     if (grain === "jahr") {
       return "jahr";
     }
-    return _config.isGroupingValue(grain) ? "stichtag" : grain;
+    return _rules.isGrain(grain) ? "stichtag" : grain;
   }
 
   return {

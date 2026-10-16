@@ -1,6 +1,7 @@
 define([
   "./validatePrimitives.js",
-], function (_primitives) {
+  "../../../../../dashboard/widgets/widgetVis/config/visTypeRules.js",
+], function (_primitives, _visTypeRules) {
   "use strict";
 
   const pushInvalid = _primitives.pushInvalid;
@@ -32,8 +33,7 @@ define([
       case "string":
         if (typeof value !== "string" || (fieldSpec.required && value === "" && fieldName !== "text")) {
           pushInvalid(diagnostics, "widget field must be a string", details);
-        } else if (fieldName === "grp" && value !== "stichtag" && value !== "jahr" &&
-            value !== "jahrStichtag" && value !== "stichtagProJahrH" && value !== "stichtagProJahrV") {
+        } else if (fieldName === "grp" && !_visTypeRules.isGrain(value)) {
           pushInvalid(diagnostics, "widget grp must be a grouping grain", details);
         }
         break;
