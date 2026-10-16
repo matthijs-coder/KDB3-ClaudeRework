@@ -1,0 +1,1960 @@
+{
+  "abort": {
+    "state": {
+      "T1": {
+        "lifecycle": "ready",
+        "freshness": "fresh",
+        "tableHandle": "T1",
+        "tableName": "T1",
+        "title": "Tabelle 1",
+        "widgetId": "wT1",
+        "role": null,
+        "shape": "row",
+        "pick": [
+          "display",
+          "use"
+        ],
+        "rows": [
+          {
+            "Jahr": {
+              "display": "2024",
+              "use": 2024
+            },
+            "Wert": {
+              "display": "1",
+              "use": 1
+            }
+          },
+          {
+            "Jahr": {
+              "display": "2025",
+              "use": 2025
+            },
+            "Wert": {
+              "display": "2",
+              "use": 2
+            }
+          }
+        ],
+        "sourceRows": {
+          "columnNames": [
+            "Jahr",
+            "Wert"
+          ],
+          "rowCount": 2,
+          "columns": {
+            "Jahr": [
+              {
+                "d": "2024",
+                "u": 2024
+              },
+              {
+                "d": "2025",
+                "u": 2025
+              }
+            ],
+            "Wert": [
+              {
+                "d": "1",
+                "u": 1
+              },
+              {
+                "d": "2",
+                "u": 2
+              }
+            ]
+          }
+        },
+        "rowCount": 2,
+        "isHierarchy": false,
+        "hasData": true,
+        "errorCode": null,
+        "errorMessage": null,
+        "lastLoadedAt": "<ts>",
+        "isCoreTable": true
+      }
+    },
+    "calls": [
+      {
+        "fn": "listCanvasWidgets",
+        "options": {
+          "waitUntilReady": true
+        }
+      },
+      {
+        "fn": "readQueryRows",
+        "widgetId": "wT1",
+        "budgetMs": 60000,
+        "intervalMs": 100
+      },
+      {
+        "fn": "readQueryRows",
+        "widgetId": "wT1",
+        "budgetMs": 60000,
+        "intervalMs": 100
+      },
+      {
+        "fn": "readQueryRows",
+        "widgetId": "wT1",
+        "budgetMs": 60000,
+        "intervalMs": 100
+      },
+      {
+        "fn": "readQueryRows",
+        "widgetId": "wT1",
+        "budgetMs": 60000,
+        "intervalMs": 100
+      }
+    ]
+  },
+  "boot": {
+    "rows": [
+      {
+        "Jahr": {
+          "display": "2024",
+          "use": 2024
+        },
+        "Wert": {
+          "display": "1",
+          "use": 1
+        }
+      },
+      {
+        "Jahr": {
+          "display": "2025",
+          "use": 2025
+        },
+        "Wert": {
+          "display": "2",
+          "use": 2
+        }
+      }
+    ],
+    "state": {
+      "T1": {
+        "lifecycle": "ready",
+        "freshness": "fresh",
+        "tableHandle": "T1",
+        "tableName": "T1",
+        "title": "Tabelle 1",
+        "widgetId": "wT1",
+        "role": null,
+        "shape": "row",
+        "pick": [
+          "display",
+          "use"
+        ],
+        "rows": [
+          {
+            "Jahr": {
+              "display": "2024",
+              "use": 2024
+            },
+            "Wert": {
+              "display": "1",
+              "use": 1
+            }
+          },
+          {
+            "Jahr": {
+              "display": "2025",
+              "use": 2025
+            },
+            "Wert": {
+              "display": "2",
+              "use": 2
+            }
+          }
+        ],
+        "sourceRows": {
+          "columnNames": [
+            "Jahr",
+            "Wert"
+          ],
+          "rowCount": 2,
+          "columns": {
+            "Jahr": [
+              {
+                "d": "2024",
+                "u": 2024
+              },
+              {
+                "d": "2025",
+                "u": 2025
+              }
+            ],
+            "Wert": [
+              {
+                "d": "1",
+                "u": 1
+              },
+              {
+                "d": "2",
+                "u": 2
+              }
+            ]
+          }
+        },
+        "rowCount": 2,
+        "isHierarchy": false,
+        "hasData": true,
+        "errorCode": null,
+        "errorMessage": null,
+        "lastLoadedAt": "<ts>",
+        "isCoreTable": true
+      }
+    },
+    "events": [
+      {
+        "name": "tableData:loadFinished",
+        "payload": {
+          "tableName": "T1",
+          "rowCount": 2
+        }
+      }
+    ],
+    "calls": [
+      {
+        "fn": "listCanvasWidgets",
+        "options": {
+          "waitUntilReady": true
+        }
+      },
+      {
+        "fn": "readQueryRows",
+        "widgetId": "wT1",
+        "budgetMs": 60000,
+        "intervalMs": 100
+      }
+    ],
+    "toasts": []
+  },
+  "configuredLoads": {
+    "keys": [
+      "A",
+      "C"
+    ],
+    "keysExplicit": [
+      "B"
+    ],
+    "state": {
+      "A": {
+        "lifecycle": "ready",
+        "freshness": "fresh",
+        "tableHandle": "A",
+        "tableName": "A",
+        "title": "Tabelle 1",
+        "widgetId": "wT1",
+        "role": null,
+        "shape": "column",
+        "pick": [
+          "use"
+        ],
+        "rows": {
+          "columnNames": [
+            "Jahr",
+            "Wert"
+          ],
+          "rowCount": 2,
+          "columns": {
+            "Jahr": [
+              {
+                "use": 2024
+              },
+              {
+                "use": 2025
+              }
+            ],
+            "Wert": [
+              {
+                "use": 1
+              },
+              {
+                "use": 2
+              }
+            ]
+          }
+        },
+        "sourceRows": {
+          "columnNames": [
+            "Jahr",
+            "Wert"
+          ],
+          "rowCount": 2,
+          "columns": {
+            "Jahr": [
+              {
+                "d": "2024",
+                "u": 2024
+              },
+              {
+                "d": "2025",
+                "u": 2025
+              }
+            ],
+            "Wert": [
+              {
+                "d": "1",
+                "u": 1
+              },
+              {
+                "d": "2",
+                "u": 2
+              }
+            ]
+          }
+        },
+        "rowCount": 2,
+        "isHierarchy": false,
+        "hasData": true,
+        "errorCode": null,
+        "errorMessage": null,
+        "lastLoadedAt": "<ts>",
+        "isCoreTable": true
+      },
+      "C": {
+        "lifecycle": "ready",
+        "freshness": "fresh",
+        "tableHandle": "C",
+        "tableName": "C",
+        "title": "Chart",
+        "widgetId": null,
+        "role": null,
+        "shape": "row",
+        "pick": [
+          "display",
+          "use"
+        ],
+        "rows": null,
+        "sourceRows": null,
+        "rowCount": 0,
+        "isHierarchy": false,
+        "hasData": false,
+        "errorCode": null,
+        "errorMessage": null,
+        "lastLoadedAt": "<ts>",
+        "isCoreTable": true
+      },
+      "B": {
+        "lifecycle": "ready",
+        "freshness": "fresh",
+        "tableHandle": "B",
+        "tableName": "B",
+        "title": "Boot fail",
+        "widgetId": "wT4",
+        "role": null,
+        "shape": "row",
+        "pick": [
+          "display",
+          "use"
+        ],
+        "rows": [
+          {
+            "Jahr": {
+              "display": "2024",
+              "use": 2024
+            },
+            "Wert": {
+              "display": "1",
+              "use": 1
+            }
+          },
+          {
+            "Jahr": {
+              "display": "2025",
+              "use": 2025
+            },
+            "Wert": {
+              "display": "2",
+              "use": 2
+            }
+          }
+        ],
+        "sourceRows": {
+          "columnNames": [
+            "Jahr",
+            "Wert"
+          ],
+          "rowCount": 2,
+          "columns": {
+            "Jahr": [
+              {
+                "d": "2024",
+                "u": 2024
+              },
+              {
+                "d": "2025",
+                "u": 2025
+              }
+            ],
+            "Wert": [
+              {
+                "d": "1",
+                "u": 1
+              },
+              {
+                "d": "2",
+                "u": 2
+              }
+            ]
+          }
+        },
+        "rowCount": 2,
+        "isHierarchy": false,
+        "hasData": true,
+        "errorCode": null,
+        "errorMessage": null,
+        "lastLoadedAt": "<ts>",
+        "isCoreTable": true
+      }
+    },
+    "events": [
+      {
+        "name": "tableData:loadFinished",
+        "payload": {
+          "tableName": "C",
+          "rowCount": 0
+        }
+      },
+      {
+        "name": "tableData:loadFinished",
+        "payload": {
+          "tableName": "A",
+          "rowCount": 2
+        }
+      },
+      {
+        "name": "tableData:loadFinished",
+        "payload": {
+          "tableName": "B",
+          "rowCount": 2
+        }
+      }
+    ]
+  },
+  "failures": {
+    "boot": {
+      "message": "E"
+    },
+    "second": {
+      "message": "E"
+    },
+    "recovered": [
+      {
+        "Jahr": {
+          "display": "2024",
+          "use": 2024
+        },
+        "Wert": {
+          "display": "1",
+          "use": 1
+        }
+      },
+      {
+        "Jahr": {
+          "display": "2025",
+          "use": 2025
+        },
+        "Wert": {
+          "display": "2",
+          "use": 2
+        }
+      }
+    ],
+    "third": {
+      "message": "E"
+    },
+    "noFacet": {
+      "message": "dataQueryFacet missing"
+    },
+    "thrown": {
+      "message": "boom"
+    },
+    "noCode": {
+      "message": "DATAQUERY_READ_FAILED"
+    },
+    "state": {
+      "T1": {
+        "lifecycle": "error",
+        "freshness": "stale",
+        "tableHandle": "T1",
+        "tableName": "T1",
+        "title": "Tabelle 1",
+        "widgetId": "wT1",
+        "role": null,
+        "shape": "row",
+        "pick": [
+          "display",
+          "use"
+        ],
+        "rows": [
+          {
+            "Jahr": {
+              "display": "2024",
+              "use": 2024
+            },
+            "Wert": {
+              "display": "1",
+              "use": 1
+            }
+          },
+          {
+            "Jahr": {
+              "display": "2025",
+              "use": 2025
+            },
+            "Wert": {
+              "display": "2",
+              "use": 2
+            }
+          }
+        ],
+        "sourceRows": {
+          "columnNames": [
+            "Jahr",
+            "Wert"
+          ],
+          "rowCount": 2,
+          "columns": {
+            "Jahr": [
+              {
+                "d": "2024",
+                "u": 2024
+              },
+              {
+                "d": "2025",
+                "u": 2025
+              }
+            ],
+            "Wert": [
+              {
+                "d": "1",
+                "u": 1
+              },
+              {
+                "d": "2",
+                "u": 2
+              }
+            ]
+          }
+        },
+        "rowCount": 2,
+        "isHierarchy": false,
+        "hasData": true,
+        "errorCode": "TABLE_DATA_LOAD_FAILED",
+        "errorMessage": "E",
+        "lastLoadedAt": "<ts>",
+        "isCoreTable": true
+      }
+    },
+    "events": [
+      {
+        "name": "tableData:loadFailed",
+        "payload": {
+          "tableName": "T1",
+          "errorCode": "TABLE_DATA_LOAD_FAILED",
+          "errorMessage": "E"
+        }
+      },
+      {
+        "name": "tableData:loadFailed",
+        "payload": {
+          "tableName": "T1",
+          "errorCode": "TABLE_DATA_LOAD_FAILED",
+          "errorMessage": "E"
+        }
+      },
+      {
+        "name": "tableData:loadFinished",
+        "payload": {
+          "tableName": "T1",
+          "rowCount": 2
+        }
+      },
+      {
+        "name": "tableData:loadFailed",
+        "payload": {
+          "tableName": "T1",
+          "errorCode": "TABLE_DATA_LOAD_FAILED",
+          "errorMessage": "E"
+        }
+      }
+    ],
+    "toasts": [
+      {
+        "severity": "error",
+        "message": "Tabellendaten konnten nicht geladen werden: Tabelle 1"
+      },
+      {
+        "severity": "error",
+        "message": "Tabellendaten konnten nicht geladen werden: Tabelle 1"
+      }
+    ]
+  },
+  "invalidInput": {
+    "loadTableNotArray": {
+      "message": "tableDataService input must be an array."
+    },
+    "loadTableEmptyItem": {
+      "message": "tableDataService input item must include tableName, tableid, or widgetId."
+    },
+    "waitForRowsNotArray": {
+      "message": "tableDataService input must be an array."
+    },
+    "waitForRowsEmptyItem": {
+      "message": "tableDataService input item must include tableName, tableid, or widgetId."
+    },
+    "reloadTableNotArray": {
+      "message": "tableDataService input must be an array."
+    },
+    "reloadTableEmptyItem": {
+      "message": "tableDataService input item must include tableName, tableid, or widgetId."
+    },
+    "ensureFreshRowsNotArray": {
+      "message": "tableDataService input must be an array."
+    },
+    "ensureFreshRowsEmptyItem": {
+      "message": "tableDataService input item must include tableName, tableid, or widgetId."
+    },
+    "abortTableNotArray": {
+      "message": "tableDataService input must be an array."
+    },
+    "abortTableEmptyItem": {
+      "message": "tableDataService input item must include tableName, tableid, or widgetId."
+    }
+  },
+  "normalizeInputs": {
+    "result": {
+      "tableName": [
+        {
+          "tableHandle": "T1",
+          "tableName": "T1",
+          "title": "Tab",
+          "widgetId": null,
+          "role": "r",
+          "shape": "column",
+          "pick": [
+            "use"
+          ],
+          "isCoreTable": true
+        }
+      ],
+      "widgetId": [
+        {
+          "tableHandle": "w1",
+          "tableName": null,
+          "title": "Named",
+          "widgetId": "w1",
+          "role": null,
+          "shape": "row",
+          "pick": [
+            "display",
+            "use"
+          ]
+        }
+      ],
+      "both": [
+        {
+          "tableHandle": "T1",
+          "tableName": "T1",
+          "title": null,
+          "widgetId": "w1",
+          "role": null,
+          "shape": "row",
+          "pick": [
+            "display",
+            "use"
+          ]
+        }
+      ],
+      "defaults": [
+        {
+          "tableHandle": "T1",
+          "tableName": "T1",
+          "title": null,
+          "widgetId": null,
+          "role": null,
+          "shape": "row",
+          "pick": [
+            "display",
+            "use"
+          ]
+        },
+        {
+          "tableHandle": "T2",
+          "tableName": "T2",
+          "title": null,
+          "widgetId": null,
+          "role": null,
+          "shape": "row",
+          "pick": [
+            "display",
+            "use"
+          ]
+        }
+      ],
+      "mapping": [
+        {
+          "tableHandle": "T1",
+          "tableName": "T1",
+          "title": null,
+          "widgetId": null,
+          "role": null,
+          "shape": "row",
+          "pick": [
+            "d",
+            "use"
+          ]
+        }
+      ],
+      "empty": []
+    },
+    "errors": {
+      "notArray": "tableDataService input must be an array.",
+      "nullInput": "tableDataService input must be an array.",
+      "emptyItem": "tableDataService input item must include tableName, tableid, or widgetId.",
+      "blankName": "tableDataService input item must include tableName, tableid, or widgetId.",
+      "blankWidget": "tableDataService input item must include tableName, tableid, or widgetId.",
+      "primitive": "tableDataService input item must include tableName, tableid, or widgetId.",
+      "nested": "tableDataService input item must include tableName, tableid, or widgetId."
+    }
+  },
+  "park": {
+    "calls": [
+      {
+        "fn": "listCanvasWidgets",
+        "options": {
+          "waitUntilReady": true
+        }
+      },
+      {
+        "fn": "removeLocalFilter",
+        "widgetId": "wT3",
+        "itemId": "[P]",
+        "hasSignal": true
+      },
+      {
+        "fn": "removeLocalFilter",
+        "widgetId": "wT3",
+        "itemId": "[P]_none",
+        "hasSignal": true
+      },
+      {
+        "fn": "removeLocalFilter",
+        "widgetId": "wT3",
+        "itemId": "[P]_1",
+        "hasSignal": true
+      },
+      {
+        "fn": "renderWidget",
+        "widgetId": "wT3",
+        "hasSignal": true
+      },
+      {
+        "fn": "readQueryRows",
+        "widgetId": "wT3",
+        "budgetMs": 60000,
+        "intervalMs": 100
+      },
+      {
+        "fn": "readQueryRows",
+        "widgetId": "wT3",
+        "budgetMs": 60000,
+        "intervalMs": 100
+      },
+      {
+        "fn": "readQueryRows",
+        "widgetId": "wT3",
+        "budgetMs": 60000,
+        "intervalMs": 100
+      },
+      {
+        "fn": "addOrReplaceLocalFilter",
+        "widgetId": "wT3",
+        "itemId": "[P]",
+        "body": {
+          "kind": "park"
+        }
+      },
+      {
+        "fn": "renderWidget",
+        "widgetId": "wT3",
+        "hasSignal": false
+      }
+    ],
+    "events": [
+      {
+        "name": "tableData:loadFinished",
+        "payload": {
+          "tableName": "T3",
+          "rowCount": 2
+        }
+      }
+    ],
+    "state": {
+      "T3": {
+        "lifecycle": "ready",
+        "freshness": "fresh",
+        "tableHandle": "T3",
+        "tableName": "T3",
+        "title": "Park",
+        "widgetId": "wT3",
+        "role": null,
+        "shape": "row",
+        "pick": [
+          "display",
+          "use"
+        ],
+        "rows": [
+          {
+            "Jahr": {
+              "display": "2024",
+              "use": 2024
+            },
+            "Wert": {
+              "display": "1",
+              "use": 1
+            }
+          },
+          {
+            "Jahr": {
+              "display": "2025",
+              "use": 2025
+            },
+            "Wert": {
+              "display": "2",
+              "use": 2
+            }
+          }
+        ],
+        "sourceRows": {
+          "columnNames": [
+            "Jahr",
+            "Wert"
+          ],
+          "rowCount": 2,
+          "columns": {
+            "Jahr": [
+              {
+                "d": "2024",
+                "u": 2024
+              },
+              {
+                "d": "2025",
+                "u": 2025
+              }
+            ],
+            "Wert": [
+              {
+                "d": "1",
+                "u": 1
+              },
+              {
+                "d": "2",
+                "u": 2
+              }
+            ]
+          }
+        },
+        "rowCount": 2,
+        "isHierarchy": false,
+        "hasData": true,
+        "errorCode": null,
+        "errorMessage": null,
+        "lastLoadedAt": "<ts>"
+      }
+    }
+  },
+  "parkFailures": {
+    "failedRead": {
+      "message": "READ"
+    },
+    "failedReadCalls": [
+      "removeLocalFilter",
+      "removeLocalFilter",
+      "removeLocalFilter",
+      "renderWidget",
+      "readQueryRows",
+      "addOrReplaceLocalFilter",
+      "renderWidget"
+    ],
+    "renderFails": {
+      "message": "RENDER"
+    },
+    "noWidgets": {
+      "message": "widgetsFacet.renderWidget missing"
+    },
+    "abortedCalls": [
+      "removeLocalFilter",
+      "removeLocalFilter",
+      "removeLocalFilter",
+      "renderWidget",
+      "readQueryRows",
+      "addOrReplaceLocalFilter",
+      "renderWidget"
+    ]
+  },
+  "reads": {
+    "readColumn": {
+      "columnNames": [
+        "Jahr",
+        "Wert"
+      ],
+      "rowCount": 2,
+      "columns": {
+        "Jahr": [
+          {
+            "use": 2024
+          },
+          {
+            "use": 2025
+          }
+        ],
+        "Wert": [
+          {
+            "use": 1
+          },
+          {
+            "use": 2
+          }
+        ]
+      }
+    },
+    "readLabel": [
+      {
+        "Jahr": {
+          "label": "2024"
+        },
+        "Wert": {
+          "label": "1"
+        }
+      },
+      {
+        "Jahr": {
+          "label": "2025"
+        },
+        "Wert": {
+          "label": "2"
+        }
+      }
+    ],
+    "statePending": null,
+    "pendingMulti": null,
+    "ensureFresh": [
+      {
+        "Jahr": {
+          "display": "2024",
+          "use": 2024
+        },
+        "Wert": {
+          "display": "1",
+          "use": 1
+        }
+      },
+      {
+        "Jahr": {
+          "display": "2025",
+          "use": 2025
+        },
+        "Wert": {
+          "display": "2",
+          "use": 2
+        }
+      }
+    ],
+    "load": {
+      "columnNames": [
+        "Jahr",
+        "Wert"
+      ],
+      "rowCount": 2,
+      "columns": {
+        "Jahr": [
+          {
+            "use": 2024
+          },
+          {
+            "use": 2025
+          }
+        ],
+        "Wert": [
+          {
+            "use": 1
+          },
+          {
+            "use": 2
+          }
+        ]
+      }
+    },
+    "reload": [
+      {
+        "Jahr": {
+          "display": "2024",
+          "use": 2024
+        },
+        "Wert": {
+          "display": "1",
+          "use": 1
+        }
+      },
+      {
+        "Jahr": {
+          "display": "2025",
+          "use": 2025
+        },
+        "Wert": {
+          "display": "2",
+          "use": 2
+        }
+      }
+    ],
+    "waitWhilePending": {
+      "columnNames": [
+        "Jahr",
+        "Wert"
+      ],
+      "rowCount": 2,
+      "columns": {
+        "Jahr": [
+          {
+            "use": 2024
+          },
+          {
+            "use": 2025
+          }
+        ],
+        "Wert": [
+          {
+            "use": 1
+          },
+          {
+            "use": 2
+          }
+        ]
+      }
+    },
+    "byWidgetId": [
+      {
+        "Jahr": {
+          "display": "2024",
+          "use": 2024
+        },
+        "Wert": {
+          "display": "1",
+          "use": 1
+        }
+      },
+      {
+        "Jahr": {
+          "display": "2025",
+          "use": 2025
+        },
+        "Wert": {
+          "display": "2",
+          "use": 2
+        }
+      }
+    ],
+    "byWidgetIdState": {
+      "lifecycle": "ready",
+      "freshness": "fresh",
+      "tableHandle": "wH",
+      "tableName": "wH",
+      "title": "Hier",
+      "widgetId": "wH",
+      "role": null,
+      "shape": "row",
+      "pick": [
+        "display",
+        "use"
+      ],
+      "rows": [
+        {
+          "Jahr": {
+            "display": "2024",
+            "use": 2024
+          },
+          "Wert": {
+            "display": "1",
+            "use": 1
+          }
+        },
+        {
+          "Jahr": {
+            "display": "2025",
+            "use": 2025
+          },
+          "Wert": {
+            "display": "2",
+            "use": 2
+          }
+        }
+      ],
+      "sourceRows": {
+        "columnNames": [
+          "Jahr",
+          "Wert"
+        ],
+        "rowCount": 2,
+        "columns": {
+          "Jahr": [
+            {
+              "d": "2024",
+              "u": 2024
+            },
+            {
+              "d": "2025",
+              "u": 2025
+            }
+          ],
+          "Wert": [
+            {
+              "d": "1",
+              "u": 1
+            },
+            {
+              "d": "2",
+              "u": 2
+            }
+          ]
+        }
+      },
+      "rowCount": 2,
+      "isHierarchy": false,
+      "hasData": true,
+      "errorCode": null,
+      "errorMessage": null,
+      "lastLoadedAt": "<ts>"
+    },
+    "chartTitle": null,
+    "chartTitleState": {
+      "lifecycle": "ready",
+      "freshness": "fresh",
+      "tableHandle": "Chart",
+      "tableName": "Chart",
+      "title": null,
+      "widgetId": null,
+      "role": null,
+      "shape": "row",
+      "pick": [
+        "display",
+        "use"
+      ],
+      "rows": null,
+      "sourceRows": null,
+      "rowCount": 0,
+      "isHierarchy": false,
+      "hasData": false,
+      "errorCode": null,
+      "errorMessage": null,
+      "lastLoadedAt": "<ts>"
+    },
+    "multi": [
+      [
+        {
+          "Jahr": {
+            "display": "2024",
+            "use": 2024
+          },
+          "Wert": {
+            "display": "1",
+            "use": 1
+          }
+        },
+        {
+          "Jahr": {
+            "display": "2025",
+            "use": 2025
+          },
+          "Wert": {
+            "display": "2",
+            "use": 2
+          }
+        }
+      ],
+      null
+    ],
+    "multiRead": [
+      [
+        {
+          "Jahr": {
+            "display": "2024",
+            "use": 2024
+          },
+          "Wert": {
+            "display": "1",
+            "use": 1
+          }
+        },
+        {
+          "Jahr": {
+            "display": "2025",
+            "use": 2025
+          },
+          "Wert": {
+            "display": "2",
+            "use": 2
+          }
+        }
+      ],
+      null
+    ],
+    "multiState": [
+      "ready",
+      "ready"
+    ],
+    "multiLoad": 3,
+    "keys": [
+      "Chart",
+      "T1",
+      "T2",
+      "wH"
+    ],
+    "state": {
+      "T1": {
+        "lifecycle": "ready",
+        "freshness": "fresh",
+        "tableHandle": "T1",
+        "tableName": "T1",
+        "title": "Tabelle 1",
+        "widgetId": "wT1",
+        "role": null,
+        "shape": "row",
+        "pick": [
+          "display",
+          "use"
+        ],
+        "rows": [
+          {
+            "Jahr": {
+              "display": "2024",
+              "use": 2024
+            },
+            "Wert": {
+              "display": "1",
+              "use": 1
+            }
+          },
+          {
+            "Jahr": {
+              "display": "2025",
+              "use": 2025
+            },
+            "Wert": {
+              "display": "2",
+              "use": 2
+            }
+          }
+        ],
+        "sourceRows": {
+          "columnNames": [
+            "Jahr",
+            "Wert"
+          ],
+          "rowCount": 2,
+          "columns": {
+            "Jahr": [
+              {
+                "d": "2024",
+                "u": 2024
+              },
+              {
+                "d": "2025",
+                "u": 2025
+              }
+            ],
+            "Wert": [
+              {
+                "d": "1",
+                "u": 1
+              },
+              {
+                "d": "2",
+                "u": 2
+              }
+            ]
+          }
+        },
+        "rowCount": 2,
+        "isHierarchy": false,
+        "hasData": true,
+        "errorCode": null,
+        "errorMessage": null,
+        "lastLoadedAt": "<ts>",
+        "isCoreTable": true
+      },
+      "wH": {
+        "lifecycle": "ready",
+        "freshness": "fresh",
+        "tableHandle": "wH",
+        "tableName": "wH",
+        "title": "Hier",
+        "widgetId": "wH",
+        "role": null,
+        "shape": "row",
+        "pick": [
+          "display",
+          "use"
+        ],
+        "rows": [
+          {
+            "Jahr": {
+              "display": "2024",
+              "use": 2024
+            },
+            "Wert": {
+              "display": "1",
+              "use": 1
+            }
+          },
+          {
+            "Jahr": {
+              "display": "2025",
+              "use": 2025
+            },
+            "Wert": {
+              "display": "2",
+              "use": 2
+            }
+          }
+        ],
+        "sourceRows": {
+          "columnNames": [
+            "Jahr",
+            "Wert"
+          ],
+          "rowCount": 2,
+          "columns": {
+            "Jahr": [
+              {
+                "d": "2024",
+                "u": 2024
+              },
+              {
+                "d": "2025",
+                "u": 2025
+              }
+            ],
+            "Wert": [
+              {
+                "d": "1",
+                "u": 1
+              },
+              {
+                "d": "2",
+                "u": 2
+              }
+            ]
+          }
+        },
+        "rowCount": 2,
+        "isHierarchy": false,
+        "hasData": true,
+        "errorCode": null,
+        "errorMessage": null,
+        "lastLoadedAt": "<ts>"
+      },
+      "Chart": {
+        "lifecycle": "ready",
+        "freshness": "fresh",
+        "tableHandle": "Chart",
+        "tableName": "Chart",
+        "title": null,
+        "widgetId": null,
+        "role": null,
+        "shape": "row",
+        "pick": [
+          "display",
+          "use"
+        ],
+        "rows": null,
+        "sourceRows": null,
+        "rowCount": 0,
+        "isHierarchy": false,
+        "hasData": false,
+        "errorCode": null,
+        "errorMessage": null,
+        "lastLoadedAt": "<ts>"
+      },
+      "T2": {
+        "lifecycle": "ready",
+        "freshness": "fresh",
+        "tableHandle": "T2",
+        "tableName": "T2",
+        "title": "Missing",
+        "widgetId": null,
+        "role": null,
+        "shape": "row",
+        "pick": [
+          "display",
+          "use"
+        ],
+        "rows": null,
+        "sourceRows": null,
+        "rowCount": 0,
+        "isHierarchy": false,
+        "hasData": false,
+        "errorCode": null,
+        "errorMessage": null,
+        "lastLoadedAt": "<ts>"
+      }
+    },
+    "events": [
+      {
+        "name": "tableData:loadFinished",
+        "payload": {
+          "tableName": "T1",
+          "rowCount": 2
+        }
+      },
+      {
+        "name": "tableData:loadFinished",
+        "payload": {
+          "tableName": "T1",
+          "rowCount": 2
+        }
+      },
+      {
+        "name": "tableData:loadFinished",
+        "payload": {
+          "tableName": "T1",
+          "rowCount": 2
+        }
+      },
+      {
+        "name": "tableData:loadFinished",
+        "payload": {
+          "tableName": "wH",
+          "rowCount": 2
+        }
+      },
+      {
+        "name": "tableData:loadFinished",
+        "payload": {
+          "tableName": "Chart",
+          "rowCount": 0
+        }
+      },
+      {
+        "name": "tableData:loadFinished",
+        "payload": {
+          "tableName": "T2",
+          "rowCount": 0
+        }
+      }
+    ],
+    "calls": [
+      {
+        "fn": "listCanvasWidgets",
+        "options": {
+          "waitUntilReady": true
+        }
+      },
+      {
+        "fn": "readQueryRows",
+        "widgetId": "wT1",
+        "budgetMs": 60000,
+        "intervalMs": 100
+      },
+      {
+        "fn": "readQueryRows",
+        "widgetId": "wT1",
+        "budgetMs": 60000,
+        "intervalMs": 100
+      },
+      {
+        "fn": "readQueryRows",
+        "widgetId": "wT1",
+        "budgetMs": 60000,
+        "intervalMs": 100
+      },
+      {
+        "fn": "readQueryRows",
+        "widgetId": "wH",
+        "budgetMs": 60000,
+        "intervalMs": 100
+      }
+    ]
+  },
+  "shapeColumnar": {
+    "default": {
+      "row": [
+        {
+          "Jahr": {
+            "display": "2024",
+            "use": 2024
+          },
+          "Wert": {
+            "display": "1",
+            "use": 1
+          }
+        },
+        {
+          "Jahr": {
+            "display": "2025",
+            "use": 2025
+          },
+          "Wert": {
+            "display": "2",
+            "use": 2
+          }
+        }
+      ],
+      "column": {
+        "columnNames": [
+          "Jahr",
+          "Wert"
+        ],
+        "rowCount": 2,
+        "columns": {
+          "Jahr": [
+            {
+              "display": "2024",
+              "use": 2024
+            },
+            {
+              "display": "2025",
+              "use": 2025
+            }
+          ],
+          "Wert": [
+            {
+              "display": "1",
+              "use": 1
+            },
+            {
+              "display": "2",
+              "use": 2
+            }
+          ]
+        }
+      }
+    },
+    "use": {
+      "row": [
+        {
+          "Jahr": {
+            "use": 2024
+          },
+          "Wert": {
+            "use": 1
+          }
+        },
+        {
+          "Jahr": {
+            "use": 2025
+          },
+          "Wert": {
+            "use": 2
+          }
+        }
+      ],
+      "column": {
+        "columnNames": [
+          "Jahr",
+          "Wert"
+        ],
+        "rowCount": 2,
+        "columns": {
+          "Jahr": [
+            {
+              "use": 2024
+            },
+            {
+              "use": 2025
+            }
+          ],
+          "Wert": [
+            {
+              "use": 1
+            },
+            {
+              "use": 2
+            }
+          ]
+        }
+      }
+    },
+    "display": {
+      "row": [
+        {
+          "Jahr": {
+            "display": "2024"
+          },
+          "Wert": {
+            "display": "1"
+          }
+        },
+        {
+          "Jahr": {
+            "display": "2025"
+          },
+          "Wert": {
+            "display": "2"
+          }
+        }
+      ],
+      "column": {
+        "columnNames": [
+          "Jahr",
+          "Wert"
+        ],
+        "rowCount": 2,
+        "columns": {
+          "Jahr": [
+            {
+              "display": "2024"
+            },
+            {
+              "display": "2025"
+            }
+          ],
+          "Wert": [
+            {
+              "display": "1"
+            },
+            {
+              "display": "2"
+            }
+          ]
+        }
+      }
+    },
+    "labelMapping": {
+      "row": [
+        {
+          "Jahr": {
+            "label": "2024"
+          },
+          "Wert": {
+            "label": "1"
+          }
+        },
+        {
+          "Jahr": {
+            "label": "2025"
+          },
+          "Wert": {
+            "label": "2"
+          }
+        }
+      ],
+      "column": {
+        "columnNames": [
+          "Jahr",
+          "Wert"
+        ],
+        "rowCount": 2,
+        "columns": {
+          "Jahr": [
+            {
+              "label": "2024"
+            },
+            {
+              "label": "2025"
+            }
+          ],
+          "Wert": [
+            {
+              "label": "1"
+            },
+            {
+              "label": "2"
+            }
+          ]
+        }
+      }
+    },
+    "shortKeys": {
+      "row": [
+        {
+          "Jahr": {
+            "d": "2024",
+            "u": 2024
+          },
+          "Wert": {
+            "d": "1",
+            "u": 1
+          }
+        },
+        {
+          "Jahr": {
+            "d": "2025",
+            "u": 2025
+          },
+          "Wert": {
+            "d": "2",
+            "u": 2
+          }
+        }
+      ],
+      "column": {
+        "columnNames": [
+          "Jahr",
+          "Wert"
+        ],
+        "rowCount": 2,
+        "columns": {
+          "Jahr": [
+            {
+              "d": "2024",
+              "u": 2024
+            },
+            {
+              "d": "2025",
+              "u": 2025
+            }
+          ],
+          "Wert": [
+            {
+              "d": "1",
+              "u": 1
+            },
+            {
+              "d": "2",
+              "u": 2
+            }
+          ]
+        }
+      }
+    },
+    "mapped": {
+      "row": [
+        {
+          "Jahr": {
+            "shown": "2024",
+            "raw": 2024
+          },
+          "Wert": {
+            "shown": "1",
+            "raw": 1
+          }
+        },
+        {
+          "Jahr": {
+            "shown": "2025",
+            "raw": 2025
+          },
+          "Wert": {
+            "shown": "2",
+            "raw": 2
+          }
+        }
+      ],
+      "column": {
+        "columnNames": [
+          "Jahr",
+          "Wert"
+        ],
+        "rowCount": 2,
+        "columns": {
+          "Jahr": [
+            {
+              "shown": "2024",
+              "raw": 2024
+            },
+            {
+              "shown": "2025",
+              "raw": 2025
+            }
+          ],
+          "Wert": [
+            {
+              "shown": "1",
+              "raw": 1
+            },
+            {
+              "shown": "2",
+              "raw": 2
+            }
+          ]
+        }
+      }
+    },
+    "unknownKey": {
+      "row": [
+        {
+          "Jahr": {
+            "display": "2024"
+          },
+          "Wert": {
+            "display": "1"
+          }
+        },
+        {
+          "Jahr": {
+            "display": "2025"
+          },
+          "Wert": {
+            "display": "2"
+          }
+        }
+      ],
+      "column": {
+        "columnNames": [
+          "Jahr",
+          "Wert"
+        ],
+        "rowCount": 2,
+        "columns": {
+          "Jahr": [
+            {
+              "display": "2024"
+            },
+            {
+              "display": "2025"
+            }
+          ],
+          "Wert": [
+            {
+              "display": "1"
+            },
+            {
+              "display": "2"
+            }
+          ]
+        }
+      }
+    },
+    "empty": {
+      "row": [
+        {
+          "Jahr": {
+            "display": "2024",
+            "use": 2024
+          },
+          "Wert": {
+            "display": "1",
+            "use": 1
+          }
+        },
+        {
+          "Jahr": {
+            "display": "2025",
+            "use": 2025
+          },
+          "Wert": {
+            "display": "2",
+            "use": 2
+          }
+        }
+      ],
+      "column": {
+        "columnNames": [
+          "Jahr",
+          "Wert"
+        ],
+        "rowCount": 2,
+        "columns": {
+          "Jahr": [
+            {
+              "display": "2024",
+              "use": 2024
+            },
+            {
+              "display": "2025",
+              "use": 2025
+            }
+          ],
+          "Wert": [
+            {
+              "display": "1",
+              "use": 1
+            },
+            {
+              "display": "2",
+              "use": 2
+            }
+          ]
+        }
+      }
+    }
+  },
+  "shapeRowArray": {
+    "rowShape": [
+      {
+        "a": {
+          "use": "x"
+        },
+        "b": {
+          "use": 1
+        },
+        "c": {}
+      },
+      {
+        "a": {
+          "use": "y"
+        },
+        "b": {},
+        "c": {
+          "use": "U"
+        }
+      },
+      {
+        "a": {},
+        "b": {},
+        "c": {}
+      }
+    ],
+    "columnShape": {
+      "columnNames": [
+        "a",
+        "b",
+        "c"
+      ],
+      "rowCount": 3,
+      "columns": {
+        "a": [
+          {
+            "display": "x",
+            "use": "x"
+          },
+          {
+            "display": "y",
+            "use": "y"
+          },
+          {}
+        ],
+        "b": [
+          {
+            "display": 1,
+            "use": 1
+          },
+          {},
+          {}
+        ],
+        "c": [
+          {},
+          {
+            "display": "D",
+            "use": "U"
+          },
+          {}
+        ]
+      }
+    },
+    "emptyArray": [],
+    "emptyArrayColumn": {
+      "columnNames": [],
+      "rowCount": 0,
+      "columns": {}
+    },
+    "nullCells": [
+      {
+        "a": {},
+        "b": {}
+      }
+    ],
+    "nestedCell": [
+      {
+        "a": {
+          "use": [
+            1,
+            2
+          ]
+        }
+      }
+    ]
+  }
+}
