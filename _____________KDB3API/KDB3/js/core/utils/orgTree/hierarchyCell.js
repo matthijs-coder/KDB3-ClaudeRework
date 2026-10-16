@@ -5,7 +5,7 @@ define([], function () {
   var SOURCE_KEYS = ["use", "useValue", "u", "value"];
 
   // Last "[token]" of a unique name, trimmed; "" when there is none. A newline ends the lookahead, so with
-  // several lines the last bracket of the last line is not guaranteed to win.
+  // several lines the result is the last bracket of the first line that contains one.
   function extractLastBracketToken(_value) {
     var source = String(_value == null ? "" : _value).trim();
     var match;
