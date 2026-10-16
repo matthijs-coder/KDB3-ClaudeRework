@@ -1,7 +1,8 @@
 define([
   "./buildDrillthroughUrl.js",
-  "./config.js"
-], function (_build, _config) {
+  "./config.js",
+  "../../utils/orgTree/hierarchyTable.js"
+], function (_build, _config, _hierarchyTable) {
   "use strict";
 
   var buildDrillthroughUrl = _build.buildDrillthroughUrl;
@@ -203,11 +204,6 @@ define([
     });
   }
 
-  function hierarchyTableKey(_spec) {
-    var keys = _config.HIERARCHY_TABLE_KEYS;
-    return String(_spec && _spec.sicht || "").toUpperCase().trim() === "DEZPV" ? keys.DEZPV : keys.BW;
-  }
-
   function openPendingOrFail(_session, _spec, _deps, _built, _slot) {
     var tableKey;
     var pending;
@@ -215,7 +211,7 @@ define([
     if (!_built || _built.errorCode !== "DRILLTHROUGH_ORG_TREE_MISSING" || !_deps || typeof _deps.readPendingLoad !== "function") {
       return failureResult(_built);
     }
-    tableKey = hierarchyTableKey(_spec);
+    tableKey = _hierarchyTable.hierarchyTableKey(_spec && _spec.sicht);
     pending = _deps.readPendingLoad([{ tableName: tableKey }]);
     if (!(pending && typeof pending.then === "function")) {
       return failureResult(_built);
