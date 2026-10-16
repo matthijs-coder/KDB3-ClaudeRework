@@ -139,16 +139,11 @@ define([
 
   function resolveKennzahlPack(_visualizationType, _grouping, _KDB) {
     var bucket = resolveVisPropBucketKey(_visualizationType, _KDB);
-    if (bucket === "com.ibm.vis.custom.prognoseyearlinechart") {
-      return "stichtag";
+    if (_kennzahlAggregationFilter.hasKennzahlPackRule(bucket)) {
+      return _kennzahlAggregationFilter.resolveKennzahlPack(bucket, _grouping);
     }
+    // No pack rule for this bucket: legacy answer (echo of the effective grain), pinned by the widgetVis-core golden.
     var grain = resolveEffectiveGrain(_visualizationType, _grouping, _KDB);
-    if (!_rules.isAllowedGrain(bucket, grain)) {
-      grain = resolveDefaultGrain(_visualizationType, _KDB);
-    }
-    if (bucket === "List") {
-      return grain === "jahr" ? "jahr" : "list";
-    }
     if (grain === "jahr") {
       return "jahr";
     }

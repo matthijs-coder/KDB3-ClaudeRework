@@ -5,7 +5,7 @@ define([
   "../defaults/normalizeDefaultValue.js",
   "../../../utils/kennzahlAggregationFilter.js",
   "../../../utils/kit/data.js",
-], function (_filterItemIds, _buildTopNFilter, _buildHierarchyFilter, _normalizeDefaultValue, _buildKennzahlAggregationFilter, _data) {
+], function (_filterItemIds, _buildTopNFilter, _buildHierarchyFilter, _normalizeDefaultValue, _kennzahlAggregationFilter, _data) {
   "use strict";
 
   function normalizeFilterValue(_value) {
@@ -44,12 +44,7 @@ define([
 
   function resolveKennzahlPack(_dataConfig) {
     var bucket = _normalizeDefaultValue(_dataConfig && _dataConfig.visPropBucketKey);
-    var grouping = _dataConfig && _dataConfig.grouping;
-    if (bucket === "com.ibm.vis.custom.prognoseyearlinechart") { return "stichtag"; }
-    if (bucket === "List") { return grouping === "jahr" ? "jahr" : "list"; }
-    if (grouping === "jahr") { return "jahr"; }
-    if (grouping === "jahrStichtag" || grouping === "stichtagProJahrH" || grouping === "stichtagProJahrV") { return "stichtag"; }
-    return bucket === "Line" ? "stichtag" : "jahr";
+    return _kennzahlAggregationFilter.resolveKennzahlPack(bucket, _dataConfig && _dataConfig.grouping);
   }
 
   function upsertKennzahlFilter(_map, _filters) {
@@ -93,7 +88,7 @@ define([
     if (!root) {
       return { ok: true };
     }
-    var built = _buildKennzahlAggregationFilter.buildKennzahlAggregationFilter(root, resolveKennzahlPack(_spec.dataConfig));
+    var built = _kennzahlAggregationFilter.buildKennzahlAggregationFilter(root, resolveKennzahlPack(_spec.dataConfig));
     upsertKennzahlFilter(_map, built.filter);
     upsertKennzahlFilter(_map, built.extraFilter);
     return { ok: true };
