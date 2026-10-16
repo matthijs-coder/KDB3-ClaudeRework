@@ -94,13 +94,19 @@ function findFooterTitle(fakeDocument) {
   return footerRoot.find((node) => node.id === "KDB_footer_dashboardTitle");
 }
 
-test("header reducer: setIcon rejects unsafe icon keys and strips .png", () => {
+test("header reducer: setIcon keeps catalog-like stems and rejects URL-changing keys", () => {
   const state = loadAmd(path.join(DASHBOARD, "header/state.js"));
   const initial = state.createInitialHeaderState();
-  assert.equal(state.reduceHeader(initial, { type: "header/setIcon", payload: { iconKey: "Logo.png" } }).iconKey, "Logo");
-  assert.equal(state.reduceHeader(initial, { type: "header/setIcon", payload: { iconKey: "../../x" } }), initial);
-  const changed = state.reduceHeader({ ...initial, iconKey: "Logo" }, { type: "header/setIcon", payload: { iconKey: "//evil/x" } });
-  assert.equal(changed.iconKey, "Stadt-wien");
+  const setIcon = (current, iconKey) => state.reduceHeader(current, { type: "header/setIcon", payload: { iconKey } });
+  assert.equal(setIcon(initial, "Logo.png").iconKey, "Logo");
+  for (const stem of ["Mein Logo", "com.ibm.vis.custom", "Gr\u00fcn-Logo", "a_b-c"]) {
+    assert.equal(setIcon(initial, stem + ".png").iconKey, stem, stem);
+  }
+  const custom = { ...initial, iconKey: "Logo" };
+  for (const unsafe of ["../../x", "//evil/x", "a/b", "a\\b", "http:x", "a?b", "a#b", "a%20b", "a..b", "a\u0001b"]) {
+    assert.equal(setIcon(custom, unsafe).iconKey, "Stadt-wien", JSON.stringify(unsafe));
+  }
+  assert.equal(setIcon(initial, "   "), initial);
 });
 
 test("header state has no draft fields", () => {

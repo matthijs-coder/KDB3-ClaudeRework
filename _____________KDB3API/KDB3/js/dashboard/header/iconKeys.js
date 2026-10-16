@@ -14,7 +14,7 @@ define(["./config.js"], function (_config) {
   }
 
   function isSafeIconKey(_iconKey) {
-    return _config.ICON_KEY_PATTERN.test(_iconKey);
+    return _iconKey.trim() !== "" && !_config.ICON_KEY_UNSAFE_PATTERN.test(_iconKey);
   }
 
   function readHeaderIconCatalog(_KDB) {
