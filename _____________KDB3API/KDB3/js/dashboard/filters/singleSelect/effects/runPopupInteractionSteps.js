@@ -2,12 +2,12 @@ define([
   "./applyPendingSelection.js",
   "./commitConfirmedSelection.js",
   "./revertToBackupSelection.js",
-  "./restorePopupSelection.js"
+  "../dockHandoff/popup.js"
 ], function (
   _applyPendingSelection,
   _commitConfirmedSelection,
   _revertToBackupSelection,
-  _restorePopupSelection
+  _popup
 ) {
   "use strict";
 
@@ -15,6 +15,6 @@ define([
     applyPendingSelection: _applyPendingSelection,
     commitConfirmedSelection: _commitConfirmedSelection,
     revertToBackupSelection: _revertToBackupSelection,
-    restorePopupSelection: _restorePopupSelection
+    restorePopupSelection: _popup.restorePopupSelection
   };
 });

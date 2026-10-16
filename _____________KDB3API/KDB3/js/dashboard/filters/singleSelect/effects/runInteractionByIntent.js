@@ -2,14 +2,14 @@ define([
   "../state/instance.js",
   "./deriveInteractionIntent.js",
   "./runPopupInteractionSteps.js",
-  "./requestFilterDockPopupAction.js",
+  "../dockHandoff/popup.js",
   "../runtime.js",
   "./guardInteractionFreshness.js"
 ], function (
   _ensureFilterState,
   _deriveInteractionIntent,
   _popupSteps,
-  _requestFilterDockPopupAction,
+  _popup,
   _singleSelectRuntime,
   _guardInteractionFreshness
 ) {
@@ -19,7 +19,7 @@ define([
     var singleSelectRoot = _KDB.state.filters.singleSelect;
     try {
       singleSelectRoot.meta.isProgrammaticClick = true;
-      _requestFilterDockPopupAction.requestOriginalButtonClick(
+      _popup.requestOriginalButtonClick(
         _KDB,
         _handoffContext,
         "cancelClickable",
@@ -31,7 +31,7 @@ define([
   }
 
   function invokeClosePopup(_KDB, _options) {
-    _requestFilterDockPopupAction.requestClosePopup(_KDB, _options);
+    _popup.requestClosePopup(_KDB, _options);
   }
 
   async function runInteraction(_KDB, _runtime, _handoffContext, _options) {

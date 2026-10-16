@@ -2,18 +2,16 @@ define([
   "./executeConfirmedCommit.js",
   "../state/selection.js",
   "../hostFilterIo.js",
-  "./requestFilterDockPopupAction.js",
+  "../dockHandoff/popup.js",
   "./finalizeConfirmedCommit.js",
-  "./setCommitUiState.js",
   "../state/instance.js",
   "../runtime.js"
 ], function (
   _executeConfirmedCommit,
   _selectionState,
   _hostFilterIo,
-  _requestFilterDockPopupAction,
+  _popup,
   _finalizeConfirmedCommit,
-  _setCommitUiState,
   _lookupLiveFilterState,
   _singleSelectRuntime
 ) {
@@ -67,7 +65,7 @@ define([
     }
     liveState.isCommitInProgress = true;
     _singleSelectRuntime.inFlight.begin(_runtime, instanceId);
-    _setCommitUiState(_KDB, _runtime, true);
+    _popup.setCommitUiState(_runtime, true);
     try {
       var executed = await _executeConfirmedCommit(
         _KDB, _runtime, _handoffContext, nextSelectionLabel
@@ -101,12 +99,12 @@ define([
       return false;
     } finally {
       if (commitSucceeded === true && !(options.signal && options.signal.aborted === true)) {
-        _requestFilterDockPopupAction.requestClosePopup(_KDB, options);
+        _popup.requestClosePopup(_KDB, options);
       }
       liveState = _lookupLiveFilterState.lookupLiveFilterState(_KDB, _handoffContext, liveState);
       liveState.isCommitInProgress = false;
       _singleSelectRuntime.inFlight.end(_runtime, instanceId);
-      _setCommitUiState(_KDB, _runtime, false);
+      _popup.setCommitUiState(_runtime, false);
     }
   }
 

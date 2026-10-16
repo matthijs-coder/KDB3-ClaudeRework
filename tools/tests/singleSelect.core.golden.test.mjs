@@ -9,7 +9,7 @@ import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
 const SS = path.join(JS_ROOT, "dashboard/filters/singleSelect");
-const L2_DONE = false;
+const L2_DONE = true;
 const C1_DONE = false;
 const logged = [];
 const quietConsole = {
