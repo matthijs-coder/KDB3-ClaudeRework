@@ -3,14 +3,14 @@
 **Status:** CP-1 approved (draft resolved; implementation follows execution specs).  
 **Owner module:** `footer`  
 **Type:** feature module  
-**Related:** `stateOwnership.md` (subtree `_KDB.state.footer`), `module-public-api.mdc`, `state.mdc`, `runtime.mdc`, `dom.mdc`, `events.mdc`, `header.md`, [footer-update-date-contractdelta.md](./footer-update-date-contractdelta.md) (Datenaktualisierung from `update_date`; PO 2026-09-02), [footer-created-user-contractdelta.md](./footer-created-user-contractdelta.md) (Erstellt `userName`; PO 2026-09-02), [footer-page-indicator-contractdelta.md](./footer-page-indicator-contractdelta.md) (page = physical tab index + 1; PO 2026-09-02), [footer-cognos-url-contractdelta.md](./footer-cognos-url-contractdelta.md) (URL from `document.location`; DEX hardcoded; **Implemented** PO 2026-09-02)  
-**Supersedes placeholder intent:** toolbox chrome drives **known owner** `footer` via `_KDB.api.footer.dispatch` — see [kdbControl-header-footer-toolbox-contractdelta.md](./kdbControl-header-footer-toolbox-contractdelta.md); legacy `kdbControl.md` §6 `footer:toggleRequested` is **not** the path for toolbox footer toggle once approved.
+**Related:** `stateOwnership.md` (subtree `_KDB.state.footer`), `module-public-api.mdc`, `state.mdc`, `runtime.mdc`, `dom.mdc`, `events.mdc`, `header.md`, [footer-update-date-contractdelta.md](./_archive/footer-update-date-contractdelta.md) (Datenaktualisierung from `update_date`; PO 2026-09-02), [footer-created-user-contractdelta.md](./_archive/footer-created-user-contractdelta.md) (Erstellt `userName`; PO 2026-09-02), [footer-page-indicator-contractdelta.md](./_archive/footer-page-indicator-contractdelta.md) (page = physical tab index + 1; PO 2026-09-02), [footer-cognos-url-contractdelta.md](./_archive/footer-cognos-url-contractdelta.md) (URL from `document.location`; DEX hardcoded; **Implemented** PO 2026-09-02)  
+**Supersedes placeholder intent:** toolbox chrome drives **known owner** `footer` via `_KDB.api.footer.dispatch` — see [kdbControl-header-footer-toolbox-contractdelta.md](./_archive/kdbControl-header-footer-toolbox-contractdelta.md); legacy `kdbControl.md` §6 `footer:toggleRequested` is **not** the path for toolbox footer toggle once approved.
 
 ---
 
 ## 1. Purpose
 
-Owns dashboard **Fußzeile** semantics: serialisable footer state (domeinveld **`status`** = chrome presence, niet module-**`lifecycle`**), footer region **mount/DOM**. **Reads** header truth for guards and **subscribes** to **`header:confirmedChanged`** for coordinated policy when header wijzigt zonder gelijktijdige footer-dispatch. Footer does not own a second zoom-hint copy; footer effects may import `header/effects/notifyZoomHint.js` per [header-footer-zoom-hint-contractdelta.md](./header-footer-zoom-hint-contractdelta.md). **PO 2026-09-07:** trigger parked (commented `_notifyZoomHint` call in footer effects); import + header helper remain — not dead code.
+Owns dashboard **Fußzeile** semantics: serialisable footer state (domeinveld **`status`** = chrome presence, niet module-**`lifecycle`**), footer region **mount/DOM**. **Reads** header truth for guards and **subscribes** to **`header:confirmedChanged`** for coordinated policy when header wijzigt zonder gelijktijdige footer-dispatch. Footer does not own a second zoom-hint copy; footer effects may import `header/effects/notifyZoomHint.js` per [header-footer-zoom-hint-contractdelta.md](./_archive/header-footer-zoom-hint-contractdelta.md). **PO 2026-09-07:** trigger parked (commented `_notifyZoomHint` call in footer effects); import + header helper remain — not dead code.
 
 ---
 
@@ -36,8 +36,8 @@ _KDB.state.footer = {
   - **`idle`** — nooit geplaatst/geactiveerd.  
   - **`active`** — zichtbaar en gemount.  
   - **`removed`** — eerder actief geweest en bewust verwijderd (footer-DOM weg volgens execution spec).
-- **`aktualisierungsDatumRaw` / `aktualisierungsDatumFormatted`:** session-derived chrome cache from tableData `update_date` (vis-title `aktualisierungsDatum`). Not history, not writeback `foot`. Authority: [footer-update-date-contractdelta.md](./footer-update-date-contractdelta.md). German keys are PO-locked; grandfather on `initialState.js`.
-- **`createdUserName`:** session-derived Cognos `UserProfile` `userName` (English key). Not history, not writeback `foot`. Authority: [footer-created-user-contractdelta.md](./footer-created-user-contractdelta.md). View coalesces `null`/`""` → `"unbekannt"`.
+- **`aktualisierungsDatumRaw` / `aktualisierungsDatumFormatted`:** session-derived chrome cache from tableData `update_date` (vis-title `aktualisierungsDatum`). Not history, not writeback `foot`. Authority: [footer-update-date-contractdelta.md](./_archive/footer-update-date-contractdelta.md). German keys are PO-locked; grandfather on `initialState.js`.
+- **`createdUserName`:** session-derived Cognos `UserProfile` `userName` (English key). Not history, not writeback `foot`. Authority: [footer-created-user-contractdelta.md](./_archive/footer-created-user-contractdelta.md). View coalesces `null`/`""` → `"unbekannt"`.
 
 ---
 
@@ -74,8 +74,8 @@ _KDB.state.footer = {
 | `footer/toggle` | Zelfde **toggle-logica** als header: **`idle` \| `removed` → `active`**, **`active` → `removed`**, **alleen** als header **`active`** is; als header **`idle`** of **`removed`** → **no-op** (footer kan niet actief worden). |
 | `footer/show` | Naar **`active`** vanuit **`idle`** of **`removed`** **alleen** als `readHeaderStatus(_KDB) === "active"`; anders no-op. |
 | `footer/hide` | **`active` → `removed`**; **`idle`** / **`removed`** → no-op. Preserves date fields and `createdUserName`. |
-| `footer/applyUpdateDate` | Session write of `aktualisierungsDatumRaw` / `aktualisierungsDatumFormatted`. `payload.source: "bootstrap"`. Does not change `status` or `createdUserName`. See [footer-update-date-contractdelta.md](./footer-update-date-contractdelta.md). |
-| `footer/applyCreatedUser` | Session write of `createdUserName`. `payload.source: "bootstrap"`. Does not change `status` or date fields. See [footer-created-user-contractdelta.md](./footer-created-user-contractdelta.md). |
+| `footer/applyUpdateDate` | Session write of `aktualisierungsDatumRaw` / `aktualisierungsDatumFormatted`. `payload.source: "bootstrap"`. Does not change `status` or `createdUserName`. See [footer-update-date-contractdelta.md](./_archive/footer-update-date-contractdelta.md). |
+| `footer/applyCreatedUser` | Session write of `createdUserName`. `payload.source: "bootstrap"`. Does not change `status` or date fields. See [footer-created-user-contractdelta.md](./_archive/footer-created-user-contractdelta.md). |
 
 ---
 
@@ -122,8 +122,8 @@ _KDB.state.footer = {
 
 - **`header`:** guards + subscription (geen gedeelde `headerFooter` module).  
 - **Does not depend on** `kdbControl` for correctness.
-- **`cognosHost.dashboard`:** stamped `runtime.footer.dashboardFacet` for `getUserName` only ([footer-created-user-contractdelta.md](./footer-created-user-contractdelta.md)). Footer does not call `_KDB.cognosAPI`.
-- **Right-column URL (chrome, not state):** `document.location` host + first path segment (typically `/cognos`). Not `getDashboardBiBaseUrl`. **DEX** stays the literal `"Data Excellence Conform"`. Authority: [footer-cognos-url-contractdelta.md](./footer-cognos-url-contractdelta.md).
+- **`cognosHost.dashboard`:** stamped `runtime.footer.dashboardFacet` for `getUserName` only ([footer-created-user-contractdelta.md](./_archive/footer-created-user-contractdelta.md)). Footer does not call `_KDB.cognosAPI`.
+- **Right-column URL (chrome, not state):** `document.location` host + first path segment (typically `/cognos`). Not `getDashboardBiBaseUrl`. **DEX** stays the literal `"Data Excellence Conform"`. Authority: [footer-cognos-url-contractdelta.md](./_archive/footer-cognos-url-contractdelta.md).
 
 ---
 
@@ -160,9 +160,9 @@ footer/
 
 | Date | Actor | Note |
 |------|-------|------|
-| 2026-05-13 | user | CP-1: footer-**`status`** (domein chrome presence) gelijk aan header; guards + `header:removed` effect op `removed` vs `idle` — zie [kdbControl-header-footer-toolbox-contractdelta.md](./kdbControl-header-footer-toolbox-contractdelta.md) §2. |
-| 2026-09-02 | PO | Datenaktualisierung from `update_date`: state fields + T1/F1. Delta [footer-update-date-contractdelta.md](./footer-update-date-contractdelta.md). |
-| 2026-09-02 | PO | Erstellt user from Cognos `userName` via dashboard facet `getUserName`. Delta [footer-created-user-contractdelta.md](./footer-created-user-contractdelta.md). |
-| 2026-09-02 | PO | Page indicator = physical tab index + 1. Delta [footer-page-indicator-contractdelta.md](./footer-page-indicator-contractdelta.md). |
-| 2026-09-02 | PO | Footer Cognos URL from `document.location` (DEV/TEST/PROD host). DEX stays hardcoded. Delta [footer-cognos-url-contractdelta.md](./footer-cognos-url-contractdelta.md). |
+| 2026-05-13 | user | CP-1: footer-**`status`** (domein chrome presence) gelijk aan header; guards + `header:removed` effect op `removed` vs `idle` — zie [kdbControl-header-footer-toolbox-contractdelta.md](./_archive/kdbControl-header-footer-toolbox-contractdelta.md) §2. |
+| 2026-09-02 | PO | Datenaktualisierung from `update_date`: state fields + T1/F1. Delta [footer-update-date-contractdelta.md](./_archive/footer-update-date-contractdelta.md). |
+| 2026-09-02 | PO | Erstellt user from Cognos `userName` via dashboard facet `getUserName`. Delta [footer-created-user-contractdelta.md](./_archive/footer-created-user-contractdelta.md). |
+| 2026-09-02 | PO | Page indicator = physical tab index + 1. Delta [footer-page-indicator-contractdelta.md](./_archive/footer-page-indicator-contractdelta.md). |
+| 2026-09-02 | PO | Footer Cognos URL from `document.location` (DEV/TEST/PROD host). DEX stays hardcoded. Delta [footer-cognos-url-contractdelta.md](./_archive/footer-cognos-url-contractdelta.md). |
 | 2026-09-02 | PO | Cognos green. Footer URL leftover **Implemented** / spec **Frozen**. |

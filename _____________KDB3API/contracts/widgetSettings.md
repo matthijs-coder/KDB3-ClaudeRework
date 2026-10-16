@@ -111,7 +111,7 @@ TopN startup defaults are included in the visual startup batch. `widgetVis` owns
 Selectors: `readSettings(_KDB, id)`, `readPanelOpenFor(_KDB)`.
 
 ## 6. Events
-None. The Diagramme “Buttons verstecken” toggle does **not** flow through a widgetSettings selector or `KDB_hide`. Canvas gear visibility is the `.dashboardFrame` class `kdb-widget-chrome-always` ([kdbControl-widget-chrome-always-contractdelta.md](./kdbControl-widget-chrome-always-contractdelta.md)). No authoring coupling.
+None. The Diagramme “Buttons verstecken” toggle does **not** flow through a widgetSettings selector or `KDB_hide`. Canvas gear visibility is the `.dashboardFrame` class `kdb-widget-chrome-always` ([kdbControl-widget-chrome-always-contractdelta.md](./_archive/kdbControl-widget-chrome-always-contractdelta.md)). No authoring coupling.
 
 ## 7. Dependencies
 `_KDB`, `_KDB.api.widgetVis` / `_KDB.api.widgetText` / `_KDB.api.widgetBase` (consequence-owners for `apply*`), `_KDB.services.history`, kdbControl selector, `_shared/`.
