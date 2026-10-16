@@ -6,9 +6,9 @@
 
 ## Purpose
 
-Renders the searchable Kennzahlen (metrics) jsTree inside the kdbControl metrics container (`#kdb-control_metrics_container`) and makes leaf nodes draggable sources for `dragDrop`. It reads table data through `_KDB.services.tableData` (table key `personal_kdb`, plus `superuser` for the super-user allowance) and the per-source configuration in `_KDB.properties.metricsTreePropObj` / `metricsTablesPropObj` (read in `catalog.js`).
+Renders the searchable Kennzahlen (metrics) jsTree inside the kdbControl metrics container (`#kdb-control_metrics_container`) and makes leaf nodes draggable sources for `dragDrop`. It reads table data through `_KDB.services.tableData` (table key `personal_kdb`, plus `superuser` for the super-user allowance). The tree source configuration comes from `_KDB.properties.kennzahlenTreePropObj` (Cognos property `kennzahlenTreePropId`, saved shape `{ "<Table name>": { pathColumnNamesArr: [...] } }`, looked up by source key `personal_kdb`, then by table name `Personal_KDB`); `catalog.js` uses `pathColumnNamesArr` as the group path columns and falls back to `Gruppe1`/`Gruppe2`/`Gruppe3` when the property is absent, unparsable or has no entry or no non-empty array for the source. The `dynamicTree` flag in the saved value is not read.
 
-**Known mismatch (code, not docs):** `core/properties/propertyDefinitions.js` publishes the Cognos properties as `_KDB.properties.kennzahlenTreePropObj` / `kennzahlenTablesPropObj`; `metricsTree/catalog.js` reads the `metrics*` names. Confirm against the live report before relying on either spelling.
+**Known mismatch (code, not docs):** the table column mapping in `catalog.js` still reads `_KDB.properties.metricsTablesPropObj`, which nothing sets; `core/properties/propertyDefinitions.js` publishes `kennzahlenTablesPropObj`. Today the column mapping therefore always falls back to `config.tables.personal_kdb` and the column-name candidate lists. Aligning it would activate the saved `code`/`kurztext`/`hardcoded` mapping and can change leaf labels, so it needs a decision against real data (Phase 2 follow-up). The tree name was aligned in P2-X3.
 
 ## Surface
 
