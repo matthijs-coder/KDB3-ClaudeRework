@@ -96,3 +96,46 @@ export function hostDescriptor(itemName, scopeType, itemId) {
     values: []
   };
 }
+
+export const CLASSIFICATION_FIXTURE = path.resolve(here, "../fixtures/filterOwnerClassification.golden.json");
+export const COMBO_KEYS = [...flagCombinations()].map((combo) => combo.key);
+
+// Fixture rows hold one outcome code per flag combination (order of flagCombinations()) per scope/name class.
+export function expandClassificationRows(stored) {
+  const lookup = {};
+  for (const [rowKey, row] of Object.entries(stored.rows)) {
+    if (rowKey.endsWith("|<missing>")) {
+      lookup[rowKey] = stored.legend[row.charCodeAt(0) - 65];
+    } else {
+      COMBO_KEYS.forEach((comboKey, index) => { lookup[rowKey + "|" + comboKey] = stored.legend[row.charCodeAt(index) - 65]; });
+    }
+  }
+  return lookup;
+}
+
+export function readClassificationFixture() {
+  return expandClassificationRows(JSON.parse(fs.readFileSync(CLASSIFICATION_FIXTURE, "utf8")));
+}
+
+export function buildClassificationRows(summarize) {
+  const legend = [];
+  const code = (outcome) => {
+    if (!legend.includes(outcome)) { legend.push(outcome); }
+    return String.fromCharCode(65 + legend.indexOf(outcome));
+  };
+  const rows = {};
+  for (const scopeType of SCOPE_TYPES) {
+    for (const nameClass of NAME_CLASSES) {
+      let row = "";
+      for (const combo of flagCombinations()) {
+        const KDB = { properties: legacyProperties(scopeType, nameClass.itemName, combo.definition) };
+        row += code(summarize(KDB, scopeType, nameClass.itemName, combo.definition.itemId));
+      }
+      rows[scopeType + "|" + nameClass.id] = row;
+      rows[scopeType + "|" + nameClass.id + "|<missing>"] = code(
+        summarize({ properties: missingProperties() }, scopeType, nameClass.itemName, "[X].[Y]")
+      );
+    }
+  }
+  return { legend, rows };
+}

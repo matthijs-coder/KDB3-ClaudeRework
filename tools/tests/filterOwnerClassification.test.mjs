@@ -12,16 +12,14 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 import {
-  NAME_CLASSES, SCOPE_TYPES, flagCombinations, legacyProperties, missingProperties, instanceProperties,
-  hostDescriptor, readConfiguredProperties
+  CLASSIFICATION_FIXTURE, buildClassificationRows, expandClassificationRows, readClassificationFixture,
+  instanceProperties, hostDescriptor, readConfiguredProperties
 } from "./lib/filter-owner-matrix.mjs";
 
 const FILTERS = path.join(JS_ROOT, "dashboard/filters");
-const FIXTURE = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures/filterOwnerClassification.golden.json");
 const quiet = { log() {}, info() {}, debug() {}, warn() {}, error() {} };
 const load = (rel) => loadAmd(path.join(FILTERS, rel), { stubs: { console: quiet } });
 
@@ -91,59 +89,13 @@ test("every configured filter of the real filterPropObj maps to exactly one owne
   ].sort());
 });
 
-const COMBO_KEYS = [...flagCombinations()].map((combo) => combo.key);
-
-// The fixture stores one outcome code per flag combination (order of flagCombinations()) per scope/name class.
-function buildTable() {
-  const legend = [];
-  const code = (outcome) => {
-    if (!legend.includes(outcome)) { legend.push(outcome); }
-    return String.fromCharCode(65 + legend.indexOf(outcome));
-  };
-  const rows = {};
-  for (const scopeType of SCOPE_TYPES) {
-    for (const nameClass of NAME_CLASSES) {
-      let row = "";
-      for (const combo of flagCombinations()) {
-        const KDB = { properties: legacyProperties(scopeType, nameClass.itemName, combo.definition) };
-        row += code(summarize(KDB, scopeType, nameClass.itemName, combo.definition.itemId));
-      }
-      rows[scopeType + "|" + nameClass.id] = row;
-      rows[scopeType + "|" + nameClass.id + "|<missing>"] = code(
-        summarize({ properties: missingProperties() }, scopeType, nameClass.itemName, "[X].[Y]")
-      );
-    }
-  }
-  return { legend, rows };
-}
-
-function readFixture() {
-  const stored = JSON.parse(fs.readFileSync(FIXTURE, "utf8"));
-  const lookup = {};
-  for (const [rowKey, row] of Object.entries(stored.rows)) {
-    if (rowKey.endsWith("|<missing>")) {
-      lookup[rowKey] = stored.legend[row.charCodeAt(0) - 65];
-    } else {
-      COMBO_KEYS.forEach((comboKey, index) => { lookup[rowKey + "|" + comboKey] = stored.legend[row.charCodeAt(index) - 65]; });
-    }
-  }
-  return lookup;
-}
-
 test("classification matrix (singleSelect classification + native claim) is unchanged", () => {
-  const table = buildTable();
+  const table = buildClassificationRows(summarize);
   if (process.env.FILTER_OWNER_RECORD === "1") {
-    fs.writeFileSync(FIXTURE, JSON.stringify({ legend: table.legend, rows: table.rows }, null, 1) + "\n");
+    fs.writeFileSync(CLASSIFICATION_FIXTURE, JSON.stringify(table, null, 1) + "\n");
   }
-  const expected = readFixture();
-  const actual = {};
-  for (const [rowKey, row] of Object.entries(table.rows)) {
-    if (rowKey.endsWith("|<missing>")) {
-      actual[rowKey] = table.legend[row.charCodeAt(0) - 65];
-    } else {
-      COMBO_KEYS.forEach((comboKey, index) => { actual[rowKey + "|" + comboKey] = table.legend[row.charCodeAt(index) - 65]; });
-    }
-  }
+  const expected = readClassificationFixture();
+  const actual = expandClassificationRows(table);
   assert.deepEqual(Object.keys(actual).sort(), Object.keys(expected).sort());
   const diff = Object.keys(actual).filter((key) => actual[key] !== expected[key]).slice(0, 10)
     .map((key) => key + ": " + actual[key] + " != " + expected[key]);
@@ -166,12 +118,12 @@ const OVERLAPS = [
 
 for (const overlap of OVERLAPS) {
   test("overlap pinned: " + overlap.id, () => {
-    assert.equal(readFixture()[overlap.key], overlap.expected);
+    assert.equal(readClassificationFixture()[overlap.key], overlap.expected);
   });
 }
 
 test("every overlap in the fixture is one of the documented classes", () => {
-  const expected = readFixture();
+  const expected = readClassificationFixture();
   const both = Object.keys(expected).filter((key) => {
     const value = expected[key];
     return value.endsWith("nms=1") && /^supported|^excluded/.test(value);
