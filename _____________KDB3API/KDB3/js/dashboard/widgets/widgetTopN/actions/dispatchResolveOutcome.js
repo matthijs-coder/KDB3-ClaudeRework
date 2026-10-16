@@ -46,7 +46,6 @@ define([
   }
 
   async function postResolutionCleanup(_context, request, opSeq, spec) {
-    return { ok: true, status: "skipped", diagnostics: { skippedCleanup: true, reason: "TEMP" } };
     if (!spec || _validateResolve.isDefaultTopN(request.topNChoice)) {
       return null;
     }

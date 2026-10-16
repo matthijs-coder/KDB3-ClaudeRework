@@ -27,9 +27,6 @@ define([
   }
 
   function restoreHelperPlacement(_KDB, helperWidgetId, placement) {
-    if (leaveHelperOnCanvas(_KDB, helperWidgetId)) {
-      return false;
-    }
     var helperShell = _resolveWidgetShell(_KDB, helperWidgetId);
     if (!helperShell || !placement || !placement.parentNode) {
       _dismissHelperTitleEdit(_KDB, helperWidgetId);
@@ -44,10 +41,6 @@ define([
       _dismissHelperTitleEdit(_KDB, helperWidgetId);
       return false;
     }
-  }
-
-  function leaveHelperOnCanvas(_KDB, _helperWidgetId) {
-    return true;
   }
 
   return {
