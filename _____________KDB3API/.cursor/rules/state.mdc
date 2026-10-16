@@ -1,6 +1,6 @@
 ---
 description: KDB3 _KDB namespaces and _KDB.state discipline. What goes where, canonical writers, selectors vs commands, lifecycle and freshness, Cognos mirror, ownership decisions.
-globs: KDB3/js/**/state/**/*.js, KDB3/js/**/state.js, KDB3/js/**/selectors.js, KDB3/js/core/services/writeback/**/*.js
+globs: **/KDB3/js/**/state/**/*.js, **/KDB3/js/**/state.js, **/KDB3/js/**/selectors.js, **/KDB3/js/core/services/writeback/**/*.js
 alwaysApply: false
 ---
 
@@ -53,7 +53,7 @@ Inside the owner, reducers (`state.js`) produce the next state. Selectors are pl
 
 ## Cognos mirror
 
-Some values exist both in `_KDB.state` and in Cognos (filter selections, active tab, widget visualisation). `_KDB.state` is authoritative for our logic, Cognos for its engine. The owner that writes the mirrored value also performs the matching cognosHost facet call. After Cognos-driven changes the owner re-syncs; it does not assume every change came through our code.
+Some values exist both in `_KDB.state` and in Cognos (filter selections, active tab, widget visualisation). `_KDB.state` is authoritative for our logic, Cognos for its engine. The owner that writes the mirrored value also performs the matching cognosHost facet call. After Cognos-driven changes the owner re-syncs; it does not assume every change came through our code. Mirror a multi-step Cognos update only once it is complete, never its intermediate states (see `cognos-adapter.mdc`).
 
 ## Ids
 

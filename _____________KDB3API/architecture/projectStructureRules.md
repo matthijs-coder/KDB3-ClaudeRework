@@ -34,8 +34,9 @@ Why: two writers for one subtree cause races and unclear restore behaviour.
 - `KDB.js`: bootstrap wiring only (register, mount, destroy order, root namespaces).
 - `core/`: infrastructure. `core/services/<service>` publishes `_KDB.services.<service>` with named methods. `core/utils/` is pure helpers; `core/utils/kit/` is the shared helper kit (clone, isPlainObject, sleep, poll, runtime cleanup, coded errors), imported by AMD path.
 - `dashboard/`: feature modules, each publishing `_KDB.api.<module>` as `{ mount, destroy, dispatch, getState, register*? }`.
-- `core` never imports `dashboard`. Existing exceptions (writeback and dashboardPdf importing dashboard files) are scheduled to move in Phase 2.
+- `core` never imports `dashboard`. The existing violations (writeback importing tabs, kdbControl, widgetSettings and singleSelect files) are scheduled to move in Phase 2.
 - Cognos is reached only through three rings: `core/cognosAPI` (SDK), `core/services/cognosHost` (facets returning Outcome objects), `core/cognosHost` (DOM chrome selectors). Features use the facet stamped into their runtime.
+- The rings stay separate (product-owner decision): the pure Cognos wrappers in `core/cognosAPI` remain isolated and usable on their own, for example from the console, so Cognos upgrades stay contained.
 
 Why: dependencies point one way, and Cognos changes stay in one place.
 
@@ -52,7 +53,9 @@ Why: dependencies point one way, and Cognos changes stay in one place.
   history.js, restore.js, tabMutation.js, events.js   optional
 ```
 
-Small modules use fewer files. Large modules split by sub-domain (`binding.js`, `drillthrough.js`, or a `binding/` folder), at most 3 folder levels deep. New and refactored code does not use the `__controller` / `__orchestrator` entry names. The existing `__orchestrator<M>.js` files that `KDB.js` imports stay until the Phase 2 bootstrap rework; in refactored modules they are one-line shims to `index.js`. Full details: `.cursor/rules/feature-structure.mdc`.
+Small modules use fewer files. Large modules split by sub-domain (`binding.js`, `drillthrough.js`, or a `binding/` folder), at most 3 folder levels deep. New and refactored code does not use the `__controller` / `__orchestrator` entry names.
+
+Phase 1 transition: `KDB.js` (feature orchestrators) and `core/services/__orchestratorServices.js` (service orchestrators) are not edited in Phase 1, so the existing `__orchestrator<M>.js` paths stay as one-line shims to `index.js`. The same applies to any file that is imported from outside its module: when a refactor moves or merges it, the old path stays as a one-line path-preserving shim until Phase 2. Find such imports with `node tools/check-imports.mjs --json` or a grep for the path. Full details: `.cursor/rules/feature-structure.mdc`.
 
 Why: one predictable shape per module lets a reader find any concept without a map.
 
@@ -79,7 +82,7 @@ Split by cohesion, not by count. One concept per file.
 | over 800 | justify in a header comment |
 | functions over about 60 | split into named steps |
 
-No line packing (lines over 180 characters). No files that only forward to or wrap another file. No folder for fewer than about 4 files unless it is a named sub-domain. Measure with `node tools/line-report.mjs`.
+No line packing (lines over 180 characters). No files that only forward to or wrap another file, except the Phase 1 path-preserving shims. No folder for fewer than about 4 files unless it is a named sub-domain. Measure with `node tools/line-report.mjs`.
 
 Why: the old 150-line cap split single concepts across many tiny files and folders, which made the code harder to read, not easier.
 
