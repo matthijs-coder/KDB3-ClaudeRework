@@ -25,6 +25,7 @@ define([
       if (services.ok !== true) {
         return services;
       }
+      var bindingService = _KDB.services && _KDB.services.widgetBinding;
       var preProperties = await applyHelperVisualizationProperties(_KDB, _context, "preBinding", false);
       if (hasPropertyBlockers(preProperties)) {
         return _results.failure(
@@ -33,14 +34,21 @@ define([
           preProperties.diagnostics
         );
       }
-      var plan = services.plan.buildPlan(_context.spec);
-      if (!plan || plan.ok !== true || plan.status !== "success") {
+      var outcome = bindingService ? await bindingService.run(_context.spec, {
+        beforeApply: function () { return !_results.isAborted(_context.signal); },
+        applyOptions: function (plan) { return buildHelperApplyOptions(_context, plan); }
+      }) : { stage: "unavailable" };
+      if (outcome.stage === "unavailable") {
+        outcome = await planAndApplyDirect(services, _context);
+      }
+      var plan = outcome.plan;
+      if (outcome.stage === "plan") {
         return _results.failure("WIDGET_TOPN_HELPER_PLAN_FAILED", readPlanError(plan), { plan: plan, preProperties: preProperties });
       }
-      if (_results.isAborted(_context.signal)) {
+      if (outcome.stage === "cancelled") {
         return abortedApply(plan, null);
       }
-      var applyResult = await services.apply.applyBinding(plan, buildHelperApplyOptions(_context, plan));
+      var applyResult = outcome.applyResult;
       if (_results.isAborted(_context.signal) || (applyResult && applyResult.status === "aborted")) {
         return abortedApply(plan, applyResult);
       }
@@ -63,6 +71,19 @@ define([
       // Helper still parked beside owner here; restore runs after this returns.
       _placement.dismissHelperTitleEdit(_KDB, _context.helperWidgetId);
     }
+  }
+
+  // `run` reads the services from _KDB.services on every call and answers "unavailable" once the dashboard was torn
+  // down (services set to null) while this flow was waiting; the services captured at the start still finish it.
+  async function planAndApplyDirect(_services, _context) {
+    var plan = _services.plan.buildPlan(_context.spec);
+    if (!plan || plan.ok !== true || plan.status !== "success") {
+      return { stage: "plan", plan: plan, applyResult: null };
+    }
+    if (_results.isAborted(_context.signal)) {
+      return { stage: "cancelled", plan: plan, applyResult: null };
+    }
+    return { stage: "applied", plan: plan, applyResult: await _services.apply.applyBinding(plan, buildHelperApplyOptions(_context, plan)) };
   }
 
   function applyHelperVisualizationProperties(_KDB, _context, phase, force) {

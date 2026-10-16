@@ -7,7 +7,7 @@ define([
   "../../widgetBase/state/selectors.js",
   "../../../tabs/events/eventNames.js",
   "../../../tabs/state/selectors.js",
-  "../../../../core/services/widgetBindingPlan/defaults/normalizeDefaultValue.js"
+  "../../../../core/utils/normalizeDefaultValue.js"
 ], function (_pipeline, _visContext, _visRuntime, _topNGate, _periodPin, _baseSelectors, _tabsEvents, _tabsSelectors, _normalizeDefaultValue) {
   "use strict";
 

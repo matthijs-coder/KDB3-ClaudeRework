@@ -1,7 +1,8 @@
 define([
   "../../../core/cognosHost/config/filterDockChromeSelectors.js",
+  "../../../core/utils/orgTree/hierarchyTable.js",
   "../_core/tableDataWatcher.js"
-], function (_filterDockChrome, _tableDataWatcher) {
+], function (_filterDockChrome, _hierarchyTable, _tableDataWatcher) {
   "use strict";
 
   var chrome = _filterDockChrome.filterDock.strings;
@@ -14,7 +15,7 @@ define([
       activeFilterKey: "Dienststelle_BW",
       visibleFilterLabel: "Dienststelle",
       defaultTableKey: "dienststelle_bw_default",
-      hierarchyTableKey: "dienststelle_bw_hierarchy",
+      hierarchyTableKey: _hierarchyTable.HIERARCHY_TABLE_KEYS.BW,
       shouldSanitizeOptionDisplay: false
     },
     DEZPV: {
@@ -22,7 +23,7 @@ define([
       activeFilterKey: "Dienststelle_DEZPV",
       visibleFilterLabel: "Dienststelle",
       defaultTableKey: "dienststelle_dezpv_default",
-      hierarchyTableKey: "dienststelle_dezpv_hierarchy",
+      hierarchyTableKey: _hierarchyTable.HIERARCHY_TABLE_KEYS.DEZPV,
       shouldSanitizeOptionDisplay: true
     }
   };
@@ -67,8 +68,8 @@ define([
   var TABLE_KEYS = [
     "dienststelle_bw_default",
     "dienststelle_dezpv_default",
-    "dienststelle_bw_hierarchy",
-    "dienststelle_dezpv_hierarchy"
+    _hierarchyTable.HIERARCHY_TABLE_KEYS.BW,
+    _hierarchyTable.HIERARCHY_TABLE_KEYS.DEZPV
   ];
 
   // Fresh object per call: core writes tabMutationSnapshots in place.

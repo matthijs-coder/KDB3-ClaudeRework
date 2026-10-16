@@ -110,7 +110,7 @@ If apply fails (`ok: false`, missing `reportToSettings`, or upstream `widgetTopN
 TopN startup defaults are included in the visual startup batch. `widgetVis` owns interpreting `topNChoice`, including `none`; `widgetSettings` must not send a separate startup `applyTopNChoice` for the same widget. A default `none` TopN may be committed as a settings value after the visual batch confirms, while future non-default TopN behavior may return documented deferred/report data without adding a second startup binding pipeline.
 
 ## 5. Readers / Writers (outline)
-No selector file. Read via `_KDB.api.widgetSettings.getState()` (cloned `_KDB.state.widgets.settings`). `config/selectors.js` holds DOM selectors (widget/panel/toolbar lookups), not state readers.
+Published file `widgetSettings/selectors.js` (the only import target for other modules): `readWidgetSettings(_KDB, widgetId)` (copy of one widget's record, `undefined` when missing or after destroy), `ACTION_TYPES`, `domSelectors` (the DOM selector registry of `config/selectors.js`), `focusOnlyControls`, and a TRANSITIONAL settings-panel kit for the widgetVis focus panel (`buildSettingsIcon`, `markSelectedOption`, `shouldKeepDropdownsOpen`, `resolveWidgetEl`, `dispatchDropdownOptionIntent`, `dispatchIconIntent`, `startWidgetRenderLoading`; removed when the focus panel is hosted here and the intent/loading calls go through `api.widgetSettings.dispatch`). The bulk read stays `_KDB.api.widgetSettings.getState()` (cloned `_KDB.state.widgets.settings`). Other modules must not import `config/`, `view/` or `effects/` files.
 
 ## 6. Events
 None. The Diagramme “Buttons verstecken” toggle does **not** flow through a widgetSettings selector or `KDB_hide`. Canvas gear visibility is the `.dashboardFrame` class `kdb-widget-chrome-always` ([kdbControl-widget-chrome-always-contractdelta.md](./_archive/kdbControl-widget-chrome-always-contractdelta.md)). No authoring coupling.
@@ -175,7 +175,7 @@ KDB3/js/dashboard/widgets/widgetSettings/
     actionTypes.js        # widgetSettings/* action type constants (frozen external path)
     controlDefinitions.js # gear/toolbar/dropdown control definitions (live, text, focus-only)
     dropdownDefaults.js   # default dropdown option per control (frozen external path)
-    selectors.js          # DOM selectors: widget/panel/toolbar lookups, chrome classes
+    selectors.js          # DOM selectors: widget/panel/toolbar lookups, chrome classes (internal; published as `domSelectors` by ../selectors.js)
   state.js            # initial state, byWidget bookkeeping, commitWidgetSettingValue, seed error/deferred records
   runtime.js          # ensureWidgetSettingsRuntime
   history.js          # settings history steps and replay handler (option replay, push after confirmed apply)

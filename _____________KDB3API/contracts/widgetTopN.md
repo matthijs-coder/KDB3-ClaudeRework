@@ -545,6 +545,7 @@ Published selectors from `dashboard/widgets/widgetTopN/selectors.js`:
 | `readTopNResolution(_KDB, ownerVisId)` | `byOwner[ownerVisId]` | Cloned per-owner resolution or `undefined`. |
 | `readTopNHelperWidgetId(_KDB, ownerVisId)` | `byOwner[ownerVisId].helperWidgetId` | Helper id or `null`. |
 | `readTopNStatus(_KDB, ownerVisId)` | `byOwner[ownerVisId].resolutionStatus` | Status string or `undefined`. |
+| `readOwnerState(_KDB, ownerVisId)` | `byOwner[ownerVisId]` | Copy of ONE owner record (no clone of the other owners); `undefined` for a missing owner and after destroy. Used by `widgetVis/topN/gate.js`. |
 
 Internal reducer actions:
 
@@ -687,7 +688,7 @@ dashboard/widgets/widgetTopN/
   index.js                                            registerWidgetTopN
   resolve.js                                          handleResolveRequested
   results.js                                          messageFromError, failure, staleAborted, staleOperation, ownerIdConflict, isAborted, isAbortError, ...
-  selectors.js                                        readWidgetTopNState, readOwnerClaim, isHelperClaimedByOtherOwner
+  selectors.js                                        readWidgetTopNState, readOwnerState, readOwnerClaim, isHelperClaimedByOtherOwner
   state.js                                            ACTION_TYPES, createInitialState, reduceWidgetTopN, validateAction, validateResolveRequest, validateCleanupRequest, isDefaultTopN, ...
 ```
 

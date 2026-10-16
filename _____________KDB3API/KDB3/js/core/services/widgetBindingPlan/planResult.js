@@ -1,7 +1,7 @@
 define([
   "./config.js",
   "./planIntent.js",
-  "./defaults/normalizeDefaultValue.js",
+  "../../utils/normalizeDefaultValue.js",
   "../../utils/kit/data.js",
 ], function (_config, _planIntent, _normalizeDefaultValue, _data) {
   "use strict";

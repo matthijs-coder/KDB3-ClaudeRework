@@ -67,73 +67,109 @@ define([
     }).catch(decodeGateFailure.bind(null, input));
   }
 
-  async function applyPlan(_context, _input, _ctx, _propertyResult) {
-    var widgetId = _ctx.widgetId;
-    var opSeq = _ctx.opSeq;
-    var isCleanup = _applyResult.isCleanupInput(_input);
-    var propertyDiagnostics = _propertyResult && _propertyResult.diagnostics ? _propertyResult.diagnostics : null;
-    var spec = _spec.resolvePipelineSpec(_ctx._KDB, Object.assign({}, _input, { widgetId: widgetId, opSeq: opSeq }), _ctx.spec);
-    var plan = _ctx.planService.buildPlan(spec);
-    var planDiagnostics;
-    var applyService;
-    var applyOptions;
-    var legendSettings;
+  function planFailedResult(_ctx, _plan, _propertyDiagnostics) {
+    var planDiagnostics = Object.assign({}, _plan && _plan.diagnostics ? _plan.diagnostics : {});
+    if (_propertyDiagnostics) {
+      planDiagnostics.visualizationProperties = _propertyDiagnostics;
+    }
+    return {
+      ok: false, widgetId: _ctx.widgetId, opSeq: _ctx.opSeq, status: "error",
+      errorCode: "WIDGET_VIS_BINDING_PLAN_FAILED",
+      errorMessage: _plan && _plan.errorMessage ? _plan.errorMessage : "Binding plan failed.",
+      diagnostics: Object.keys(planDiagnostics).length ? planDiagnostics : null,
+      propertyDiagnostics: _propertyDiagnostics
+    };
+  }
+
+  // Reached when `run` answers "unavailable": a service is not registered, or _KDB.services was nulled by a teardown
+  // while the pipeline was waiting (never in production otherwise). Keeps the old order plan failure > stale >
+  // skipped / cleanup error with the plan service captured at the start, which `run` cannot give because it checks
+  // availability first.
+  function settleWithoutApplyService(_context, _input, _ctx, _spec, _propertyDiagnostics) {
+    var plan = _ctx.planService.buildPlan(_spec);
     if (!plan || plan.ok !== true || plan.status !== "success") {
-      planDiagnostics = Object.assign({}, plan && plan.diagnostics ? plan.diagnostics : {});
-      if (propertyDiagnostics) {
-        planDiagnostics.visualizationProperties = propertyDiagnostics;
-      }
+      return planFailedResult(_ctx, plan, _propertyDiagnostics);
+    }
+    if (_context.isStaleOpSeq(_ctx.widgetId, _ctx.opSeq)) {
+      return _applyResult.abortedStaleResult(_ctx.widgetId, _ctx.opSeq);
+    }
+    if (_applyResult.isCleanupInput(_input)) {
       return {
-        ok: false, widgetId: widgetId, opSeq: opSeq, status: "error",
-        errorCode: "WIDGET_VIS_BINDING_PLAN_FAILED",
-        errorMessage: plan && plan.errorMessage ? plan.errorMessage : "Binding plan failed.",
-        diagnostics: Object.keys(planDiagnostics).length ? planDiagnostics : null,
-        propertyDiagnostics: propertyDiagnostics
+        ok: false, widgetId: _ctx.widgetId, opSeq: _ctx.opSeq, status: "error",
+        errorCode: plan.emptyIntent && plan.emptyIntent.enabled === true ? "WIDGET_VIS_EMPTY_APPLY_FAILED" : "WIDGET_VIS_BINDING_APPLY_FAILED",
+        errorMessage: "widgetBindingApply.applyBinding is not registered."
       };
     }
-    if (_context.isStaleOpSeq(widgetId, opSeq)) {
-      return _applyResult.abortedStaleResult(widgetId, opSeq);
-    }
-    applyService = _ctx._KDB.services && _ctx._KDB.services.widgetBindingApply;
-    if (!applyService || typeof applyService.applyBinding !== "function") {
-      if (isCleanup) {
-        return {
-          ok: false, widgetId: widgetId, opSeq: opSeq, status: "error",
-          errorCode: plan.emptyIntent && plan.emptyIntent.enabled === true ? "WIDGET_VIS_EMPTY_APPLY_FAILED" : "WIDGET_VIS_BINDING_APPLY_FAILED",
-          errorMessage: "widgetBindingApply.applyBinding is not registered."
-        };
-      }
-      return {
-        ok: true, widgetId: widgetId, opSeq: opSeq, status: "skipped", skipped: true,
-        diagnostics: { propertyDiagnostics: propertyDiagnostics }
-      };
-    }
-    applyOptions = {
-      target: { widgetId: widgetId, targetKind: "vis", ownerWidgetId: null, opSeq: opSeq, reason: plan.reason },
+    return {
+      ok: true, widgetId: _ctx.widgetId, opSeq: _ctx.opSeq, status: "skipped", skipped: true,
+      diagnostics: { propertyDiagnostics: _propertyDiagnostics }
+    };
+  }
+
+  function buildApplyOptions(_input, _ctx, _plan) {
+    var options = {
+      target: { widgetId: _ctx.widgetId, targetKind: "vis", ownerWidgetId: null, opSeq: _ctx.opSeq, reason: _plan.reason },
       signal: _ctx.abortController.signal,
       previousManagedFilterItemIds: _ctx.runtime.managedFilterItemIds || [],
       timeoutProfile: _config.applyTimeoutProfile
     };
     if (_input.payload && _input.payload.deferRenderWait === true) {
-      applyOptions.renderWait = { waitForStart: false, waitForComplete: false };
+      options.renderWait = { waitForStart: false, waitForComplete: false };
     }
-    if (!isCleanup) {
-      legendSettings = _input.settings || {};
-      _legendSweep.installLegendObserverBeforeApply(_ctx.runtime, widgetId, {
-        opSeq: opSeq,
-        mode: _input.mode,
-        isStaleOpSeq: _context.isStaleOpSeq,
-        dimension: legendSettings.dimension,
-        visType: legendSettings.visType
-      });
-    }
+    return options;
+  }
+
+  function installLegendObserver(_context, _input, _ctx) {
+    var legendSettings = _input.settings || {};
+    _legendSweep.installLegendObserverBeforeApply(_ctx.runtime, _ctx.widgetId, {
+      opSeq: _ctx.opSeq,
+      mode: _input.mode,
+      isStaleOpSeq: _context.isStaleOpSeq,
+      dimension: legendSettings.dimension,
+      visType: legendSettings.visType
+    });
+  }
+
+  // Plan failure > stale > apply, as before. Only a failure of applyBinding or of the result handlers becomes a
+  // result envelope; a throw before the apply (buildPlan, stale check, legend install) still rejects.
+  async function applyPlan(_context, _input, _ctx, _propertyResult) {
+    var widgetId = _ctx.widgetId;
+    var opSeq = _ctx.opSeq;
+    var propertyDiagnostics = _propertyResult && _propertyResult.diagnostics ? _propertyResult.diagnostics : null;
+    var spec = _spec.resolvePipelineSpec(_ctx._KDB, Object.assign({}, _input, { widgetId: widgetId, opSeq: opSeq }), _ctx.spec);
+    var reachedApply = false;
+    var outcome;
     try {
-      var applied = await applyService.applyBinding(plan, applyOptions);
-      if (_applyResult.isAbortedApply(_context, _ctx)) {
+      outcome = !_ctx.bindingService ? { stage: "unavailable" } : await _ctx.bindingService.run(spec, {
+        beforeApply: function () {
+          if (_context.isStaleOpSeq(widgetId, opSeq)) {
+            return false;
+          }
+          if (!_applyResult.isCleanupInput(_input)) {
+            installLegendObserver(_context, _input, _ctx);
+          }
+          return true;
+        },
+        applyOptions: function (plan) {
+          var options = buildApplyOptions(_input, _ctx, plan);
+          reachedApply = true;
+          return options;
+        }
+      });
+      if (outcome.stage === "unavailable") {
+        return settleWithoutApplyService(_context, _input, _ctx, spec, propertyDiagnostics);
+      }
+      if (outcome.stage === "plan") {
+        return planFailedResult(_ctx, outcome.plan, propertyDiagnostics);
+      }
+      if (outcome.stage === "cancelled" || _applyResult.isAbortedApply(_context, _ctx)) {
         return _applyResult.abortedStaleResult(widgetId, opSeq);
       }
-      return await _applyResult.handleApplyBindingSuccess(_context, _ctx, _input, plan, applied, _propertyResult);
+      return await _applyResult.handleApplyBindingSuccess(_context, _ctx, _input, outcome.plan, outcome.applyResult, _propertyResult);
     } catch (err) {
+      if (!reachedApply) {
+        throw err;
+      }
       return _applyResult.handleApplyBindingFailure(_ctx, err);
     }
   }
@@ -192,6 +228,7 @@ define([
     var runtime = _visRuntime.ensureWidgetRuntime(_KDB, widgetId);
     var abortController;
     var planService;
+    var bindingService;
     _visRuntime.abortActiveApply(runtime);
 
     if (typeof AbortController !== "function") {
@@ -209,6 +246,7 @@ define([
     runtime.abortControllers.applyBinding = abortController;
 
     planService = _KDB.services && _KDB.services.widgetBindingPlan;
+    bindingService = _KDB.services && _KDB.services.widgetBinding;
     if (!planService || typeof planService.buildPlan !== "function") {
       console.error("[widgetVis.runBindingPipeline] widgetBindingPlan service missing");
       return Promise.resolve({
@@ -230,6 +268,7 @@ define([
         runtime: runtime,
         abortController: abortController,
         planService: planService,
+        bindingService: bindingService,
         spec: _gateResult.spec
       });
     });

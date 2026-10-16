@@ -1,4 +1,5 @@
-define(["../../../../core/utils/kit/data.js"], function (_data) {
+// Published reads of widgetBase. readWidgetShell(_KDB, widgetId) -> the widget shell element in the owner document | null.
+define(["../../../../core/utils/kit/data.js", "../view/resolveWidgetShell.js"], function (_data, _shellModule) {
   function readBaseRoot(_KDB) {
     if (!_KDB || !_KDB.state || !_KDB.state.widgets || !_KDB.state.widgets.base) {
       return undefined;
@@ -77,7 +78,12 @@ define(["../../../../core/utils/kit/data.js"], function (_data) {
     return Object.keys(base.byId);
   }
 
+  function readWidgetShell(_KDB, _widgetId) {
+    return _shellModule.resolveWidgetShell(_KDB, _widgetId);
+  }
+
   return {
+    readWidgetShell: readWidgetShell,
     readWidgetBaseState: readWidgetBaseState,
     readFrame: readFrame,
     readWidgetsByTab: readWidgetsByTab,

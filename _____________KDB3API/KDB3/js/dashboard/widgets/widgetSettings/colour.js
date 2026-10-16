@@ -64,7 +64,7 @@ define([
         );
       }
       const committedColour = result.colour || optionValue;
-      applyReadableTextColour(_KDB, widgetId, payload, committedColour);
+      applyReadableTextColour(_KDB, widgetId, payload, committedColour, record);
       return { ok: true, widgetId: widgetId, colour: committedColour };
     }).catch(function (err) {
       console.error("[widgetSettings.runCommitColour] apply failed", { widgetId: widgetId }, err);
@@ -81,8 +81,10 @@ define([
     };
   }
 
-  // Fire-and-forget: a text widget gets a readable text colour for its new background.
-  function applyReadableTextColour(_KDB, widgetId, payload, backgroundHex) {
+  // Fire-and-forget: a text widget gets a readable text colour for its new background. The background colour is
+  // already committed, so a failed text colour is recorded on the widget record (like the other handlers) and not
+  // returned as a failed commit.
+  function applyReadableTextColour(_KDB, widgetId, payload, backgroundHex, record) {
     try {
       const readableFn = _KDB.utils && _KDB.utils.readableTextColorForHex;
       const textApi = _KDB.api && _KDB.api.widgetText;
@@ -97,12 +99,22 @@ define([
         type: "widgetText/applyReadableTextColor",
         widgetId: widgetId,
         payload: { textColor: readableFn(backgroundHex) }
-      })).catch(function (err) {
-        console.warn("[widgetSettings.applyReadableTextColor] failed", { widgetId: widgetId }, err);
+      })).then(function (result) {
+        if (!result || (result.ok !== true && result.stale !== true)) {
+          recordTextColourFailure(record, widgetId, "WIDGET_SETTINGS_TEXT_COLOUR_FAILED", result || {});
+        }
+      }, function (err) {
+        recordTextColourFailure(record, widgetId, "WIDGET_SETTINGS_TEXT_COLOUR_ERROR", { errorMessage: String(err && err.message || err) });
       });
     } catch (err) {
       console.warn("[widgetSettings.applyReadableTextColor] failed", { widgetId: widgetId }, err);
     }
+  }
+
+  function recordTextColourFailure(record, widgetId, fallbackCode, result) {
+    record.errorCode = String(result.errorCode || fallbackCode);
+    record.errorMessage = result.errorMessage ? String(result.errorMessage) : null;
+    console.warn("[widgetSettings.applyReadableTextColor] failed", { widgetId: widgetId, errorCode: record.errorCode });
   }
 
   function finishFailure(record, errorCode, errorMessage) {

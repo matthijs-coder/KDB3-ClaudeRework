@@ -1,9 +1,9 @@
 define([
-  "../../widgetSettings/config/actionTypes.js",
-  "../../widgetText/config/actionTypes.js",
-  "../../widgetVis/config/actionTypes.js",
+  "../../widgetSettings/selectors.js",
+  "../../widgetText/selectors.js",
+  "../../widgetVis/selectors.js",
   "../../../../core/services/writeback/set/state/ensureWritebackRuntime.js"
-], function (_settingsActionTypes, _textActionTypes, _visActionTypes, _ensureWritebackRuntime) {
+], function (_settingsSelectors, _textSelectors, _visSelectors, _ensureWritebackRuntime) {
   "use strict";
 
   var FILL_FAILED = "WRITEBACK_WIDGET_RESTORE_FAILED";
@@ -54,14 +54,14 @@ define([
       runtime.parameterSetRestoreRunId += 1;
       var fillRunId = runtime.parameterSetRestoreRunId;
       var batch = { widgets: widgets, widgetCorrelation: widgetCorrelation };
-      var settingsResult = await dispatchOwner(_context, "widgetSettings", _settingsActionTypes.PARAMETER_SET_RESTORE_BATCH, batch, fillRunId);
+      var settingsResult = await dispatchOwner(_context, "widgetSettings", _settingsSelectors.ACTION_TYPES.PARAMETER_SET_RESTORE_BATCH, batch, fillRunId);
       collectDegraded(degraded, settingsResult, "duplicate widgetSettings restore batch failed");
       if (widgets.some(function (entry) { return entry && entry.kind === "txt"; })) {
-        var textResult = await dispatchOwner(_context, "widgetText", _textActionTypes.PARAMETER_SET_RESTORE, batch, fillRunId);
+        var textResult = await dispatchOwner(_context, "widgetText", _textSelectors.ACTION_TYPES.PARAMETER_SET_RESTORE, batch, fillRunId);
         collectDegraded(degraded, textResult, "duplicate widgetText restore failed");
       }
       if (widgets.some(function (entry) { return entry && entry.kind === "vis"; })) {
-        var visResult = await dispatchOwner(_context, "widgetVis", _visActionTypes.PARAMETER_SET_BINDING, { widgetCorrelation: widgetCorrelation }, fillRunId);
+        var visResult = await dispatchOwner(_context, "widgetVis", _visSelectors.ACTION_TYPES.PARAMETER_SET_BINDING, { widgetCorrelation: widgetCorrelation }, fillRunId);
         collectDegraded(degraded, visResult, "duplicate widgetVis binding failed");
       }
     } catch (err) {
