@@ -14,20 +14,6 @@ define(["./normalizeTableCell.js", "./effectResultHelpers.js"], function (_norma
       }
       var columnKey = resolveValueColumn(_readResult);
       var values = extractValues(_readResult, columnKey, count);
-      try {
-        var probeRows = _readResult && _readResult.rows ? _readResult.rows : [];
-        console.info("[sicht-jahr] TEMP helperRows", {
-          dimension: _dataConfig && _dataConfig.dimension,
-          topNChoice: _topNChoice,
-          rowCount: probeRows.length,
-          colKeys: colKeys,
-          chosenColumn: columnKey,
-          extractedCount: values.length,
-          firstRow: probeRows.length ? probeRows[0] : null
-        });
-      } catch (probeErr) {
-        console.info("[widgetTopN.extractTopNResult] TEMP probe failed", probeErr);
-      }
       if (!values.length) {
         return failure("WIDGET_TOPN_RESULT_EMPTY", "Helper read returned no usable TopN values.");
       }

@@ -18,13 +18,6 @@ define(["../view/sanitizeDienststelleVisibleLabel.js"], function (_sanitizeLabel
       return null;
     }
     var sanitized = _sanitizeLabel(display);
-    console.info("[sicht-jahr] TEMP dienststelle value", {
-      rawDisplay: display,
-      sanitizedDisplay: sanitized,
-      useValue: useValue,
-      hasPipe: display.indexOf("|") !== -1,
-      hasHash: display.indexOf("#") !== -1
-    });
     return {
       displayValue: sanitized,
       useValue: useValue,
