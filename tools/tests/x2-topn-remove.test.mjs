@@ -298,7 +298,7 @@ test("a release for an owner whose frame is removed prunes its records", async (
   });
 });
 
-test("two overlapping releases of a removed owner: records afterwards", async () => {
+test("two overlapping releases of a removed owner leave no records", async () => {
   await withEnv({ cleanupMs: 100 }, async (env) => {
     await env.resolve("o1", 1);
     await waitUntil(() => env.applyStarts.some((e) => e.kind === "cleanup"));
@@ -314,7 +314,7 @@ test("two overlapping releases of a removed owner: records afterwards", async ()
     await env.settle();
     assert.deepEqual(results.map((r) => r.ok), [true, true]);
     assert.equal(env.ownerRuntime("o1"), undefined);
-    assert.equal(env.ownerState("o1").helperWidgetId, null, "idle state record left behind");
+    assert.equal(env.ownerState("o1"), undefined, "state record pruned");
     assert.deepEqual(env.helperAttrs("h1"), [null, null]);
   });
 });
