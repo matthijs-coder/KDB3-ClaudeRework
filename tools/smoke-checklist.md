@@ -112,6 +112,17 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Performance tab (record 10 s, switch tabs, hover): exactly **one** `MutationObserver` on the body for the toolbar (see section 4).
 - [ ] Close/reopen the dashboard: exactly one toolbar (no duplicate buttons).
 
+#### WS-E (toolbarControls module)
+- [ ] Visual order in the toolbar, left to right: **Teilen, Wien-KI, PDF, Undo/Redo** (declared order in `toolbarControls/config.js`; identical to the baseline DOM). The first bullet of this section lists a different order; the baseline DOM order is Share, WienKI, PDF, History.
+- [ ] Reload the dashboard 3 times: icons, labels, tooltips and spacing are identical to baseline (same CSS classes and `data-kdb-*` attributes).
+- [ ] DevTools console: `getKDB().runtime.toolbarControls.observers` has exactly one entry (`toolbar`) while all four buttons are mounted; no `runtime.historyControls`, `runtime.pdfExportControls`, `runtime.shareControls` or `runtime.wienKiControls` objects exist any more.
+- [ ] Toolbar re-render: switch tabs, open and close a dialog, toggle authoring mode. The four buttons stay in order, never duplicate, and Undo/Redo still react to clicks afterwards (baseline bug: the Undo/Redo click handler stayed dead after Cognos rebuilt the toolbar).
+- [ ] Switch the Cognos theme between light and dark (reload): PDF icon is black on light and white on dark; Teilen icon is inverted on dark.
+- [ ] PDF export error: with the PDF service failing (for example block the capture), the button recovers (label "PDF", not busy) and the console shows a single `[pdfExportControls.export]` entry.
+- [ ] Wien-KI: popup opens at the right edge of the screen; the console shows no `[wienKiControls.openWienKiPopup]` warnings in the normal case.
+- [ ] Share via URL: open a share link with `readOnly=1`; the dashboard has the class `kdb-share-read-only` (KDB chrome hidden); a link without the token removes it.
+- [ ] Close the dashboard: all four toolbar buttons disappear, `runtime.toolbarControls` has no observer, timer or pending wait left (DevTools: no `MutationObserver` for the toolbar remains).
+
 ### WS-F Tabs + dragDrop + pageSurface
 - [ ] Tabs: add, rename, delete, duplicate, move (reorder) - each with undo and redo. Expected: widgets and filters of the tab follow, same as baseline.
 - [ ] Startup traversal: on boot the tabs are traversed once (no visible endless tab flipping).

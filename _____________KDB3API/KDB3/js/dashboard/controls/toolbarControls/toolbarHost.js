@@ -219,7 +219,6 @@ define([
   return {
     attachButton: attachButton,
     detachButton: detachButton,
-    ensureHostRuntime: ensureHostRuntime,
-    readToolbarHostSelector: readToolbarHostSelector
+    ensureHostRuntime: ensureHostRuntime
   };
 });
