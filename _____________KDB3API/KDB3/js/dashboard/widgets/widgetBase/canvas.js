@@ -265,6 +265,7 @@ define([
       return Promise.resolve(normalizeDispatchResult({ ok: false, errorCode: "WIDGET_BASE_WIDGET_ID_MISSING" }));
     }
     _effects.dispatchWidgetVisDispose(_context._KDB, { widgetId: widgetId, reason: "remove" });
+    _effects.dispatchWidgetSettingsCleanup(_context._KDB, { widgetId: widgetId });
     detachShell(_context._KDB, widgetId);
     cleanupWidgetRuntime(_context._KDB, widgetId);
     _context.dispatchInternal({ type: _context.actionTypes.REMOVE_SUCCEEDED, widgetId: widgetId });
