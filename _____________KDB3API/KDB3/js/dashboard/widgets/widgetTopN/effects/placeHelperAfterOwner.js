@@ -35,7 +35,7 @@ define([
   }
 
   function restoreHelperPlacement(_KDB, helperWidgetId, placement, ownerRuntime) {
-    if (placement && isLeasedToNewerOp(ownerRuntime, placement)) {
+    if (placement && ownerRuntime && ownerRuntime.helperPlacement !== placement) {
       return false;
     }
     releaseLease(ownerRuntime, placement);
@@ -75,11 +75,6 @@ define([
   function readLeasedSlot(ownerRuntime, helperWidgetId) {
     var lease = ownerRuntime ? ownerRuntime.helperPlacement : null;
     return lease && lease.helperWidgetId === helperWidgetId ? lease.slot : null;
-  }
-
-  function isLeasedToNewerOp(ownerRuntime, placement) {
-    var lease = ownerRuntime ? ownerRuntime.helperPlacement : null;
-    return !!(lease && lease.helperWidgetId === placement.helperWidgetId && lease.opSeq !== placement.opSeq);
   }
 
   function releaseLease(ownerRuntime, placement) {
