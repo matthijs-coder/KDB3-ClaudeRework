@@ -22,7 +22,7 @@ Every entry has the following fields:
 1. Propose the event with the user; confirm fact vs request and naming.
 2. Add a new section below using the template at the end of this file.
 3. Implement emit / subscribe / teardown in the owning module.
-4. Reference this catalog entry from the relevant module contract per `_____________KDB3API/contracts/_template.md` section 6.
+4. Reference this catalog entry from the relevant module contract per `_____________KDB3API/contracts/_archive/_template.md` section 6.
 
 A new event without a catalog entry is not allowed to land in code.
 
@@ -55,7 +55,7 @@ Catalog entries for `_____________KDB3API/contracts/kdbControl.md` Section 6. Em
 
 ### ~~Toolbox request-events superseded (CP-1)~~
 
-The following **request** catalog rows applied when toolbox used `_KDB.events` for header/footer chrome. **CP-1 (2026-05-13):** known-owner controls use **`_KDB.api.header.dispatch`** / **`_KDB.api.footer.dispatch`** instead; these request names are **not** emitted from the sandbox port. See `contracts/kdbControl-header-footer-toolbox-contractdelta.md` §4–5 and `contracts/kdbControl.md` §6.
+The following **request** catalog rows applied when toolbox used `_KDB.events` for header/footer chrome. **CP-1 (2026-05-13):** known-owner controls use **`_KDB.api.header.dispatch`** / **`_KDB.api.footer.dispatch`** instead; these request names are **not** emitted from the sandbox port. See `contracts/_archive/kdbControl-header-footer-toolbox-contractdelta.md` §4–5 and `contracts/kdbControl.md` §6.
 
 - ~~`header:toggleRequested`~~ — superseded by direct `header/toggle` dispatch.
 - ~~`header:editRequested`~~ — superseded by direct `header/startTitleEdit` / related header actions.
@@ -92,7 +92,7 @@ The following **request** catalog rows applied when toolbox used `_KDB.events` f
   ```
 - **Subscribers:**
   - `kdbControl` — file: `kdbControl/__orchestratorKdbControl.js` (or documented wiring) — handler: subscription registered in `mount`; unsubscribe fn stored under `_KDB.runtime.kdbControl.subscriptions.authoringEntered`.
-- **Teardown owner:** **`kdbControl.destroy()`** — must clear **`authoringEntered`** (and all other `kdbControl` subscription handles) per `_____________KDB3API/contracts/kdbControl-authoring-mode-contractdelta.md` §7 and `_____________KDB3API/contracts/kdbControl.md` §3.
+- **Teardown owner:** **`kdbControl.destroy()`** — must clear **`authoringEntered`** (and all other `kdbControl` subscription handles) per `_____________KDB3API/contracts/_archive/kdbControl-authoring-mode-contractdelta.md` §7 and `_____________KDB3API/contracts/kdbControl.md` §3.
 
 ### `authoring:exited`
 
@@ -108,7 +108,7 @@ The following **request** catalog rows applied when toolbox used `_KDB.events` f
   ```
 - **Subscribers:**
   - `kdbControl` — file: `kdbControl/__orchestratorKdbControl.js` (or documented wiring) — handler: subscription registered in `mount`; unsubscribe fn stored under `_KDB.runtime.kdbControl.subscriptions.authoringExited`.
-- **Teardown owner:** **`kdbControl.destroy()`** — must clear **`authoringExited`** (and all other `kdbControl` subscription handles) per `_____________KDB3API/contracts/kdbControl-authoring-mode-contractdelta.md` §7 and `_____________KDB3API/contracts/kdbControl.md` §3.
+- **Teardown owner:** **`kdbControl.destroy()`** — must clear **`authoringExited`** (and all other `kdbControl` subscription handles) per `_____________KDB3API/contracts/_archive/kdbControl-authoring-mode-contractdelta.md` §7 and `_____________KDB3API/contracts/kdbControl.md` §3.
 
 ---
 
@@ -207,7 +207,7 @@ Catalog entry for `_____________KDB3API/contracts/dragDrop.md` Section 8. Emitte
 
 ## Module: tabs
 
-Catalog entry for `_____________KDB3API/contracts/tabs-activationEvent-contractdelta.md` and `_____________KDB3API/contracts/tabs-kdbControl-clickAhead-follow-contractdelta.md`. Emitter uses `_KDB.events` per `events.mdc`. **Status: approved and implemented 2026-07-11; click-ahead 2026-09-04, Cognos groen.**
+Catalog entry for `_____________KDB3API/contracts/_archive/tabs-activationEvent-contractdelta.md` and `_____________KDB3API/contracts/_archive/tabs-kdbControl-clickAhead-follow-contractdelta.md`. Emitter uses `_KDB.events` per `events.mdc`. **Status: approved and implemented 2026-07-11; click-ahead 2026-09-04, Cognos groen.**
 
 ### `tabs:activationStarted`
 
@@ -249,7 +249,7 @@ Catalog entry for `_____________KDB3API/contracts/tabs-activationEvent-contractd
   - `widgetBase` — file: `KDB3/js/dashboard/widgets/widgetBase/effects/subscribeTabsChanged.js` — handler: dispatches `widgetBase/ensureTabWidgetsRouted` on every activation with a non-null `tabId` (idempotent via `routedTabIds`; bugfix sync 2026-07-12, the earlier `firstActivation` filter made retry of a raced first ensure unreachable) per `widgetBase-lazyLaunchpadRouting-contractdelta.md` §4; suppression predicate matches tabs in-flight work (`pendingPromises.traverse || pendingPromises.startup || pendingPromises.tabMutation`); handle at `_KDB.runtime.widgetBase.subscriptions.tabsChanged`.
   - `kdbControl` — file: `KDB3/js/dashboard/canvas/kdbControl/framework/followActiveTab.js` — handler: re-parents the `.KDB3Widget` host (control shell + launchpad) into the active tab's page element resolved by payload `pageId` per `kdbControl-tabFollow-contractdelta.md` §2 (CP-1) and `tabs-kdbControl-clickAhead-follow-contractdelta.md`; ignores events while tabs work is in flight (`_KDB.runtime.tabs.pendingPromises.traverse || .startup || .tabMutation`); handle at `_KDB.runtime.kdbControl.subscriptions.tabsChanged` (wrapper clears the `tabFollowRetry` timer before unsubscribing). Also subscribes to `tabs:activationStarted` (`subscriptions.tabsActivationStarted`).
   - `footer` — file: `KDB3/js/dashboard/footer/createFooterController.js` — handler: internal `__tabsSync` → `syncFooterFromState` (page indicator = physical `readActiveTabIndex` + 1). No in-flight suppression (paint only; must not use `__mountSync`). Handle: `_KDB.runtime.footer.subscriptions.tabsChanged`. Teardown: `footer.destroy()`.
-  - `dragDrop` — file: `KDB3/js/dashboard/canvas/dragDrop/dropboxes/subscribeTabsChangedRebind.js` — handler: on every activation re-runs `refreshDropboxes` (immediate, then a bounded repair poll — 200ms interval, ~3s cap — until the activated tab's page element carries `kdb_dropbox="true"`; bugfix sync 2026-07-13, the earlier `firstActivation`-only handling with a single 400ms retry lost the race against Cognos' lazy page render and left new tabs permanently unbound); suppression predicate matches tabs in-flight work (`pendingPromises.traverse || pendingPromises.startup || pendingPromises.tabMutation`); handle at `_KDB.runtime.dragDrop.subscriptions.tabsChanged`, poll timer at `runtime.dragDrop.timers.tabsChangedRebind`.
+  - `dragDrop` — file: `KDB3/js/dashboard/canvas/dragDrop/dropboxes/rebind.js` (binding in `dropboxes/bind.js`) — handler: per-page rebind. On every activation it binds only the activated page's dropbox (element looked up by payload `pageId`, then `tabId`; no document-wide rebind, other pages keep their bound listeners; a payload without both ids falls back to a document-wide bind). Bound dropboxes are kept idempotently, one AbortController per dropbox element. After every activation one bounded kit `pollUntil` (200ms interval, 3s cap) re-binds the page until a pass finds the same connected, bound element one interval after the previous pass (covers Cognos' lazy page render and a page node swapped right after the first bind; a helper page ends the poll at once). A newer activation aborts the previous poll. A timeout with a recorded error is logged once with `console.error`. Suppression predicate: kit `readTabsBusy` (`pendingPromises.traverse || .startup || .tabMutation`). `dragDrop.mount` subscribes before its initial document-wide bind. Handle at `_KDB.runtime.dragDrop.subscriptions.tabsChanged`, poll abort controller at `_KDB.runtime.dragDrop.abortControllers.tabsChangedRebind` (replaces the former `timers.tabsChangedRebind`)
 - **Teardown owner:** each subscriber's `destroy()` clears its own `subscriptions.tabsChanged` (and kdbControl also `tabsActivationStarted`); `tabs.destroy()` disconnects the activation observer (`_KDB.runtime.tabs.observers.activeTabObserver`) and aborts `abortControllers.tabListClick`.
 
 ---
@@ -274,4 +274,4 @@ Catalog entry for `_____________KDB3API/contracts/tabs-activationEvent-contractd
 - **Teardown owner:** `<who unsubscribes when>`
 ````
 
-See also: `_____________KDB3API/.cursor/rules/events.mdc`, `naming.mdc`, `module-public-api.mdc`, `_____________KDB3API/contracts/_template.md`.
+See also: `_____________KDB3API/.cursor/rules/events.mdc`, `naming.mdc`, `module-public-api.mdc`, `_____________KDB3API/contracts/_archive/_template.md`.

@@ -107,7 +107,7 @@ _KDB.services.drillthrough = {
 | Method | Signature | Contract |
 |---|---|---|
 | `buildDrillthroughUrl` | `(spec: DrillthroughSpec) => DrillthroughBuildResult` | Sync. Validate spec, run the assembler for `spec.source`, map org prompts, encode URL. Known failures return `ok:false`; do not throw. |
-| `openDrillthrough` | `(spec: DrillthroughSpec) => DrillthroughOpenResult` | Sync. Calls `buildDrillthroughUrl(spec)` internally, then `window.open(url, "_blank")` when the build succeeds. On `DRILLTHROUGH_ORG_TREE_MISSING` while `tableData.readPendingLoad` already holds that hierarchy key, opens `about:blank` in the same turn. `location.replace` runs only when that load later leaves the table `ready` and a rebuild succeeds. Every other settle follows `contracts/drillthrough-hierarchy-wait-open-contractdelta.md` §3. Every other build failure still opens nothing. |
+| `openDrillthrough` | `(spec: DrillthroughSpec) => DrillthroughOpenResult` | Sync. Calls `buildDrillthroughUrl(spec)` internally, then `window.open(url, "_blank")` when the build succeeds. On `DRILLTHROUGH_ORG_TREE_MISSING` while `tableData.readPendingLoad` already holds that hierarchy key, opens `about:blank` in the same turn. `location.replace` runs only when that load later leaves the table `ready` and a rebuild succeeds. Every other settle follows `contracts/_archive/drillthrough-hierarchy-wait-open-contractdelta.md` §3. Every other build failure still opens nothing. |
 
 `openDrillthrough` always takes a spec (not a raw URL). It may call build internally.
 
@@ -216,7 +216,7 @@ How the service receives the tree (no DOM scrape):
 | Forbidden | `_KDB.api.dienststelle.getCurrentHierarchySnapshot()` as the tree | Planner `useValue[]` has no parent/children/level. |
 | Forbidden | Widget/header DOM, `_KDB.runtime.widgetVis`, `_KDB.cognosAPI` | — |
 
-Missing/empty tree when `orgSelection.selectedValues.length > 0` (and not the BW MAG/level-0 empty case) → `DRILLTHROUGH_ORG_TREE_MISSING`. If that failure happens while the hierarchy load is already in flight, `openDrillthrough` opens a wait window instead of returning the failure (`contracts/drillthrough-hierarchy-wait-open-contractdelta.md`). The tree read stays cache-only `readRows`.
+Missing/empty tree when `orgSelection.selectedValues.length > 0` (and not the BW MAG/level-0 empty case) → `DRILLTHROUGH_ORG_TREE_MISSING`. If that failure happens while the hierarchy load is already in flight, `openDrillthrough` opens a wait window instead of returning the failure (`contracts/_archive/drillthrough-hierarchy-wait-open-contractdelta.md`). The tree read stays cache-only `readRows`.
 
 Tree walk is **tranche-1 for icon**, not datapoint-only. Icon open uses the same BW/DEZPV orchestrators as datapoint.
 
@@ -428,7 +428,7 @@ Emit order (live): art, datenart, org group, range, stichtag_or_range, dummy_val
 }
 ```
 
-Open result adds nothing except `operation:"openDrillthrough"` and `failedStage:"openWindow"` on popup-block / open throw. `url` is still the built URL when open is blocked. A hierarchy wait window returns `ok: true`, `url: null`, and warning `DRILLTHROUGH_HIERARCHY_PENDING` (`contracts/drillthrough-hierarchy-wait-open-contractdelta.md`).
+Open result adds nothing except `operation:"openDrillthrough"` and `failedStage:"openWindow"` on popup-block / open throw. `url` is still the built URL when open is blocked. A hierarchy wait window returns `ok: true`, `url: null`, and warning `DRILLTHROUGH_HIERARCHY_PENDING` (`contracts/_archive/drillthrough-hierarchy-wait-open-contractdelta.md`).
 
 ---
 
@@ -515,7 +515,7 @@ Injected at orchestrator / factory (no deep `window._KDB` in leaf files):
 - `_KDB` — orchestrator registration only, plus factory close-over of `config.links`.
 - `_KDB.config.links.pkzAnalysetool` — **home for PER125 URLs** (see below).
 - Optional: `_KDB.services.tableData.readRows` — cache-only hierarchy rows when `spec.orgTree` omitted.
-- Optional: `_KDB.services.tableData.readPendingLoad` and `readTableState` — join an in-flight hierarchy load without starting one (`contracts/drillthrough-hierarchy-wait-open-contractdelta.md`). Not a read of `_KDB.runtime.tableData`.
+- Optional: `_KDB.services.tableData.readPendingLoad` and `readTableState` — join an in-flight hierarchy load without starting one (`contracts/_archive/drillthrough-hierarchy-wait-open-contractdelta.md`). Not a read of `_KDB.runtime.tableData`.
 
 No dependencies on `_KDB.api.*`, `_KDB.events`, `_KDB.cognosAPI.*`, `_KDB.runtime.*`, `_KDB.services.cognosHost.*`, history, or dashboard DOM queries (except `window.location` for host key, `window.open` in effects, and `document.title` / `textContent` on the window that `window.open` just returned).
 

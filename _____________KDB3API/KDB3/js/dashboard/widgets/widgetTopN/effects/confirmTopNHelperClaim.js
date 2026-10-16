@@ -1,8 +1,9 @@
 define([
   "../config/actionTypes.js",
   "./mirrorTopNHelperClaim.js",
+  "./placeHelperAfterOwner.js",
   "./effectResultHelpers.js"
-], function (_actionTypes, _mirrorTopNHelperClaim, _helpers) {
+], function (_actionTypes, _mirrorTopNHelperClaim, _placeHelper, _helpers) {
   "use strict";
 
   var CLAIM_CONFIRM_MS = 50;
@@ -13,7 +14,8 @@ define([
 
   async function confirmCurrent(_deps, _context, _widgets) {
     var helperWidgetId = readCurrentHelperId(_deps, _context);
-    if (!helperWidgetId || !isWidgetInList(_widgets, helperWidgetId)) {
+    // A superseded op can still hold this owner's helper beside the owner.
+    if (!helperWidgetId || !(isWidgetInList(_widgets, helperWidgetId) || _placeHelper.isHelperOnLoanToOwner(_context.ownerRuntime, helperWidgetId))) {
       return null;
     }
     var claimToken = readOwnerClaimToken(_deps, _context.ownerVisId) || _context.ownerRuntime.claimToken || generateClaimToken();

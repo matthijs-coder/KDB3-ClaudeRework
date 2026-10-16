@@ -17,7 +17,7 @@
 
 | ID | Decision |
 |----|----------|
-| **Q1** | **C — Hierarchy deferred.** Skeleton handles only list-type tables. Hierarchy data is recorded as a deferred design candidate (`hierarchyDataService`) in `_____________KDB3API/architecture/openDesignCandidates.md`; promotion criterion is the first hierarchy consumer in a later port. |
+| **Q1** | **C — Hierarchy deferred.** Skeleton handles only list-type tables. Hierarchy data is recorded as a deferred design candidate (`hierarchyDataService`) in `_____________KDB3API/architecture/_archive/openDesignCandidates.md`; promotion criterion is the first hierarchy consumer in a later port. |
 | **Q2** | **Flat state subtree.** `_KDB.state.tableData.<tableName>` (e.g. `_KDB.state.tableData.pkz`). Keeps selector paths short and consistent with the `_KDB.state.kdbControl.<subsystem>` shape from the first litmustest. Leaves room for sibling `_KDB.state.tableData._meta` if ever needed. |
 | **Q3** | **Name-based.** `tableName` corresponds to a Cognos visualisation title; callers pass strings like `"pkz"`. Handle-based resolution may be added later as an internal helper without changing the public method signatures. |
 | **Q4** | **`_KDB.services.tableData`.** Aligns with the architecture authority documents (`stateOwnership.md`, `state.mdc`). Legacy `_KDB.services.getTableData` is not part of this contract; any compat-shim is a separate concern. |

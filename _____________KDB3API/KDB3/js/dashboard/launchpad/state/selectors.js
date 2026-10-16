@@ -1,53 +1,40 @@
 define([], function () {
-  const selectors = {
-    readLaunchpadState: readLaunchpadState,
-    readLaunchpadReady: readLaunchpadReady,
-    readLaunchpadTabs: readLaunchpadTabs,
-    readLaunchpadHelperTabIds: readLaunchpadHelperTabIds,
-    readLaunchpadSlotMeta: readLaunchpadSlotMeta
-  };
+  "use strict";
+  // Path frozen in Phase 1: widgetBase imports readLaunchpadReady and readLaunchpadSlotMeta from here.
+
   function readLaunchpadState(_KDB) {
     if (!_KDB || !_KDB.state) { return undefined; }
     return _KDB.state.launchpad;
   }
+
   function readLaunchpadReady(_KDB) {
     const state = readLaunchpadState(_KDB);
     return !!state && state.lifecycle === "ready" && state.domReady === true;
   }
-  function readLaunchpadTabs(_KDB) {
-    const state = readLaunchpadState(_KDB);
-    return state && Array.isArray(state.tabs) ? state.tabs.slice() : [];
-  }
-  function readLaunchpadHelperTabIds(_KDB) {
-    const state = readLaunchpadState(_KDB);
-    return state && Array.isArray(state.helperTabIds) ? state.helperTabIds.slice() : [];
-  }
-  function readLaunchpadSlotMeta(_KDB, _padKey, _tabId) {
+
+  // Slots of one pad. With a tabId only the slots whose tabId or alias matches; without, all slots.
+  function readLaunchpadSlots(_KDB, _padKey, _tabId) {
     const padSlots = readPadSlots(readLaunchpadState(_KDB), _padKey);
-    let index = 0;
-    while (index < padSlots.length) {
-      if (doesSlotMatchTab(padSlots[index], _tabId)) { return copySlotMeta(padSlots[index]); }
-      index += 1;
-    }
-    return undefined;
+    if (!_tabId) { return padSlots.slice(); }
+    return padSlots.filter(function (slot) { return doesSlotMatchTab(slot, _tabId); });
   }
+
+  function readLaunchpadSlotMeta(_KDB, _padKey, _tabId) {
+    if (!_tabId) { return undefined; }
+    const slot = readLaunchpadSlots(_KDB, _padKey, _tabId)[0];
+    return slot ? copySlotMeta(slot) : undefined;
+  }
+
   function readPadSlots(state, _padKey) {
     if (!state || !state.padsByKey || !Array.isArray(state.padsByKey[_padKey])) { return []; }
     return state.padsByKey[_padKey];
   }
+
   function doesSlotMatchTab(slot, _tabId) {
     if (!slot || !_tabId) { return false; }
-    return slot.tabId === _tabId || doesAliasMatch(slot.aliases, _tabId);
+    return slot.tabId === _tabId || (Array.isArray(slot.aliases) && slot.aliases.indexOf(_tabId) !== -1);
   }
-  function doesAliasMatch(_aliases, _tabId) {
-    let index = 0;
-    if (!Array.isArray(_aliases)) { return false; }
-    while (index < _aliases.length) {
-      if (_aliases[index] === _tabId) { return true; }
-      index += 1;
-    }
-    return false;
-  }
+
   function copySlotMeta(_slot) {
     return {
       aliases: Array.isArray(_slot.aliases) ? _slot.aliases.slice() : [],
@@ -59,5 +46,11 @@ define([], function () {
       slotKey: _slot.slotKey || null
     };
   }
-  return selectors;
+
+  return {
+    readLaunchpadState: readLaunchpadState,
+    readLaunchpadReady: readLaunchpadReady,
+    readLaunchpadSlots: readLaunchpadSlots,
+    readLaunchpadSlotMeta: readLaunchpadSlotMeta
+  };
 });

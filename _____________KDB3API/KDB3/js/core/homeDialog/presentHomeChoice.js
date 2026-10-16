@@ -18,45 +18,31 @@ define([], function () {
   }
 
   function navigateHomeClose(_dashboardFacet) {
-    try {
-      if (!_dashboardFacet || typeof _dashboardFacet.replaceWithBiHomePerspective !== "function") {
-        console.warn("[homeDialog.presentHomeChoice] dashboardFacet.replaceWithBiHomePerspective is missing");
-        return;
-      }
-      _dashboardFacet.replaceWithBiHomePerspective();
-    } catch (error) {
-      console.error("[homeDialog.presentHomeChoice] close navigation failed", error);
+    if (!_dashboardFacet || typeof _dashboardFacet.replaceWithBiHomePerspective !== "function") {
+      console.warn("[homeDialog.presentHomeChoice] dashboardFacet.replaceWithBiHomePerspective is missing");
+      return;
     }
+    _dashboardFacet.replaceWithBiHomePerspective();
   }
 
   async function navigateHomeMinimize(_dashboardFacet) {
-    try {
-      if (!_dashboardFacet || typeof _dashboardFacet.openAppView !== "function") {
-        console.warn("[homeDialog.presentHomeChoice] dashboardFacet.openAppView is missing");
-        return;
-      }
-      await _dashboardFacet.openAppView("home");
-    } catch (error) {
-      console.error("[homeDialog.presentHomeChoice] minimize navigation failed", error);
+    if (!_dashboardFacet || typeof _dashboardFacet.openAppView !== "function") {
+      console.warn("[homeDialog.presentHomeChoice] dashboardFacet.openAppView is missing");
+      return;
     }
+    await _dashboardFacet.openAppView("home");
   }
 
   async function applySelectedHomeChoice(_KDB, _choiceId) {
-    try {
-      var dashboardFacet = readStampedDashboardFacet(_KDB);
-      if (_choiceId === "home-close") {
-        navigateHomeClose(dashboardFacet);
-        return;
-      }
-      if (_choiceId === "home-minimize") {
-        await navigateHomeMinimize(dashboardFacet);
-      }
-    } catch (error) {
-      console.error("[homeDialog.presentHomeChoice] selected choice failed", error);
+    var dashboardFacet = readStampedDashboardFacet(_KDB);
+    if (_choiceId === "home-close") {
+      navigateHomeClose(dashboardFacet);
+    } else if (_choiceId === "home-minimize") {
+      await navigateHomeMinimize(dashboardFacet);
     }
   }
 
-  async function __controller(_KDB, _options) {
+  async function presentHomeChoice(_KDB, _options) {
     try {
       var options = _options || {};
       var labels = readHomeDialogLabels(_KDB);
@@ -100,5 +86,5 @@ define([], function () {
     }
   }
 
-  return __controller;
+  return presentHomeChoice;
 });

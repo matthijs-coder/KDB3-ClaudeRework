@@ -11,7 +11,8 @@ define([], function () {
       claimToken: null,
       helperManagedFilterItemIds: [],
       lastHelperPlan: null,
-      lastHelperDataConfig: null
+      lastHelperDataConfig: null,
+      helperPlacement: null
     };
   }
 
@@ -93,6 +94,7 @@ define([], function () {
     ownerRuntime.helperManagedFilterItemIds = [];
     ownerRuntime.lastHelperPlan = null;
     ownerRuntime.lastHelperDataConfig = null;
+    ownerRuntime.helperPlacement = null;
   }
 
   function abortControllerMap(map) {
