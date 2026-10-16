@@ -26,7 +26,7 @@ define(["../config.js", "./filterDom.js"], function (_config, _filterDom) {
       return false;
     }
     return _config.FILTER_KEYS.some(function (hostKey) {
-      return !!_wrapperEl.querySelector("[" + attr + '="' + CSS.escape(String(hostKey)) + '"]');
+      return !!_wrapperEl.querySelector("[" + attr + '="' + _filterDom.escapeAttributeValue(hostKey) + '"]');
     });
   }
 

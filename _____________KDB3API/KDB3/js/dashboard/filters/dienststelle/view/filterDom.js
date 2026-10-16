@@ -7,8 +7,15 @@ define(["../config.js"], function (_config) {
     return _filterScope === "global" ? SELECTORS.globalDockBucketSelector : SELECTORS.pageContextDockBucketSelector;
   }
 
+  function escapeAttributeValue(_value) {
+    if (typeof CSS !== "undefined" && CSS && typeof CSS.escape === "function") {
+      return CSS.escape(String(_value));
+    }
+    return String(_value).replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  }
+
   function filterHostSelector(_filterKey) {
-    return "[" + SELECTORS.filterDataIdAttr + '="' + CSS.escape(String(_filterKey)) + '"]';
+    return "[" + SELECTORS.filterDataIdAttr + '="' + escapeAttributeValue(_filterKey) + '"]';
   }
 
   function findScopedFilterWrapper(_activeFilterKey, _filterScope) {
@@ -105,6 +112,7 @@ define(["../config.js"], function (_config) {
   }
 
   return {
+    escapeAttributeValue: escapeAttributeValue,
     findScopedFilterWrapper: findScopedFilterWrapper,
     findScopedPopupMount: findScopedPopupMount,
     resolveUniqueOtherDockFilterWrapper: resolveUniqueOtherDockFilterWrapper
