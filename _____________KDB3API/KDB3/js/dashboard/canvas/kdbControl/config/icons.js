@@ -12,11 +12,5 @@ define([], function () {
     return typeof configured === "string" && configured ? configured : DEFAULT_ICON_SRC[optionKey];
   }
 
-  function readHandbookUrl(_KDB) {
-    var links = _KDB && _KDB.config && _KDB.config.links;
-    var url = links && links.kdbControlHandbookUrl;
-    return typeof url === "string" && url.trim() ? url.trim() : "";
-  }
-
-  return { readIconSrc: readIconSrc, readHandbookUrl: readHandbookUrl };
+  return { readIconSrc: readIconSrc };
 });

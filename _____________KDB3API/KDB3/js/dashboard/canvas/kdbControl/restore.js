@@ -13,9 +13,8 @@ define([
   function roleField(value) { return { name: "role", value: value }; }
   function propertyField(value) { return { name: "field", value: value }; }
 
-  // Catalog per contracts/writeback.md section 4.1.1: every restorable canv/sett key maps to exactly one owner state path
-  // and one settings action. Restore is absolute: an omitted v3 key means owner default (section 4.6.1), so the desired
-  // value is default + payload overlay, diffed against current state.
+  // Catalog: every restorable canv/sett key maps to exactly one owner state path and one settings action. Restore is
+  // absolute: an omitted v3 key means owner default, so the desired value is default + payload overlay, diffed against current state.
   var CATALOG = [
     { key: "canv.w", kind: "dim", statePath: ["dashboard", "width"], v3Path: ["canvas", "w"],
       type: _types.ACTION_SETTINGS_SET_DASHBOARD_DIMENSION, field: dimensionField("width") },
@@ -116,10 +115,9 @@ define([
     return resultPromise(false, [], [], [{ code: code, message: message }]);
   }
 
-  // kdbControl/parameterSetRestoreRequested per contracts/kdbControl-parameterSetRestore-contractdelta.md. Applies the
-  // desired canv/sett end state (owner defaults + payload overlay; defaults only for status "newDashboard") through the
-  // normal settings action path, so canvas intents, panel visuals and history suppression reuse the existing owner flows.
-  // Ends with one configuration UI sync.
+  // kdbControl/parameterSetRestoreRequested: applies the desired canv/sett end state (owner defaults + payload overlay;
+  // defaults only for status "newDashboard") through the normal settings action path, so canvas intents, panel visuals
+  // and history suppression reuse the existing owner flows. Ends with one configuration UI sync.
   function restoreParameterSet(_KDB, deps, action) {
     var payload = (action && action.payload) || {};
     if (typeof payload.runId !== "number") {

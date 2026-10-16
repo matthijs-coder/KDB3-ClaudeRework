@@ -19,7 +19,17 @@ define([
   function readTabsState(_KDB) {
     var tabsApi = _KDB.api && _KDB.api.tabs;
     if (!tabsApi || typeof tabsApi.getState !== "function") return null;
-    var state = tabsApi.getState();
+    var state;
+    try {
+      state = tabsApi.getState();
+    } catch (err) {
+      var warned = _KDB.runtime && _KDB.runtime.kdbControl && _KDB.runtime.kdbControl.warnedMissingApis;
+      if (!warned || warned.tabsGetState !== true) {
+        if (warned) warned.tabsGetState = true;
+        console.warn("[kdbControl.syncFormControls] tabs.getState failed; tab edit sync skipped", err);
+      }
+      return null;
+    }
     return state && typeof state === "object" ? state : null;
   }
 

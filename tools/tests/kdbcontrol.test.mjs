@@ -16,6 +16,8 @@ const reduceKdbControl = loadAmd(at("state/reducer.js"));
 const selectors = loadAmd(at("state/selectors.js"));
 const settingsInputs = loadAmd(at("config/settingsInputs.js"));
 const gate = loadAmd(at("dimensionGate.js"), { stubs: { document: domStub, console: quietConsole } });
+const actionsModule = loadAmd(at("actions.js"), { stubs: { document: domStub, console: quietConsole } });
+const syncFormControls = loadAmd(at("framework/syncFormControls.js"), { stubs: { console: quietConsole } });
 const history = loadAmd(at("history.js"));
 const restore = loadAmd(at("restore.js"));
 const registerKdbControl = loadAmd(at("__orchestratorKdbControl.js"), { stubs: { console: quietConsole } });
@@ -220,4 +222,46 @@ test("controller: API surface and disposed guard", () => {
   assert.deepEqual(api.dispatch({ type: "kdbControl/settings/toggleDeveloperMode" }), { ok: false, errorCode: "KDB_CONTROL_DISPOSED" });
   api.mount({});
   assert.equal(_KDB.runtime.kdbControl, undefined, "mount after destroy does not create runtime");
+});
+
+test("failure paths: developer-mode hook error keeps history push and view sync", () => {
+  const { steps, _KDB } = createHistoryHarness();
+  let syncs = 0;
+  _KDB.state = { kdbControl: initialState() };
+  _KDB.runtime = { kdbControl: { warnedMissingApis: {}, frameworkBindContext: { syncView: () => { syncs += 1; } } } };
+  _KDB.api = { properties: { applyDeveloperMode: () => { throw new Error("boom"); } } };
+  const runner = actionsModule.createActionRunner(_KDB);
+  assert.equal(runner.applySettingsAction({ type: "kdbControl/settings/setDeveloperMode", payload: { value: true } }), true);
+  assert.equal(_KDB.state.kdbControl.settings.dashboard.isDeveloperMode, true);
+  assert.equal(steps.length, 1);
+  assert.equal(syncs, 1);
+});
+
+test("failure paths: a throwing message service does not stop the minimum clamp", () => {
+  const _KDB = { services: { message: { notify: () => { throw new Error("x"); }, notifyAnchored: () => { throw new Error("x"); } } } };
+  assert.deepEqual(gate.gateSettingsDimensionAction(_KDB, dimensionAction("1px")).action.payload, { dimension: "width", value: "200mm" });
+  assert.deepEqual(gate.gateSettingsDimensionAction(_KDB, dimensionAction("abc")), { proceed: false });
+});
+
+test("failure paths: tabs.getState error skips only the tab-edit sync", () => {
+  const gallery = { querySelectorAll: () => [], querySelector: () => null };
+  const _KDB = {
+    state: { kdbControl: initialState() }, runtime: { kdbControl: { warnedMissingApis: {} } },
+    api: { tabs: { getState: () => { throw new Error("tabs"); } } }
+  };
+  assert.doesNotThrow(() => syncFormControls(_KDB, gallery));
+  assert.doesNotThrow(() => syncFormControls(_KDB, gallery));
+  assert.equal(_KDB.runtime.kdbControl.warnedMissingApis.tabsGetState, true);
+});
+
+test("failure paths: restore dispatch error returns restore diagnostics", async () => {
+  const _KDB = { api: {}, state: { kdbControl: initialState() }, runtime: { kdbControl: {} },
+    services: { history: { pushCommittedStep: () => { throw new Error("history down"); } } } };
+  registerKdbControl(_KDB);
+  const result = await _KDB.api.kdbControl.dispatch({
+    type: "kdbControl/parameterSetRestoreRequested", payload: { runId: 1, status: "restore", canvas: { w: 777 } }
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.diagnostics[0].code, "WRITEBACK_KDBCONTROL_RESTORE_FAILED");
+  assert.match(result.diagnostics[0].message, /history down/);
 });

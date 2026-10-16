@@ -4,8 +4,8 @@ define([
 ], function (_tabsEventNames, _rt) {
   "use strict";
 
-  // Bounded lazy-render retry (contracts/kdbControl-tabFollow-contractdelta.md section 2): a first tab activation can render
-  // the page well after a single settle delay, so retry for about 4 s before giving up.
+  // Bounded lazy-render retry: a first tab activation can render the page well after a single settle delay,
+  // so retry for about 4 s before giving up.
   var RETRY_DELAY_MS = 400;
   var MAX_RETRIES = 10;
   var RETRY_TIMER_KEY = "tabFollowRetry";

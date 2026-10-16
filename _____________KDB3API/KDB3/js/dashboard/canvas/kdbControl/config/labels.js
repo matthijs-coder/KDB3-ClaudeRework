@@ -4,7 +4,15 @@ define([], function () {
   // German UI texts of the control panel. Persisted keys elsewhere keep their spelling.
   var TAB_EDIT_COUNT = 5;
 
+  // Handbook link of the header info icon (`_KDB.config.links.kdbControlHandbookUrl`); empty when not configured.
+  function readHandbookUrl(_KDB) {
+    var links = _KDB && _KDB.config && _KDB.config.links;
+    var url = links && links.kdbControlHandbookUrl;
+    return typeof url === "string" && url.trim() ? url.trim() : "";
+  }
+
   return {
+    readHandbookUrl: readHandbookUrl,
     header: {
       title: "Dashboard-Steuerung",
       settingsButton: "Allgemeine Dashboard-Einstellungen",

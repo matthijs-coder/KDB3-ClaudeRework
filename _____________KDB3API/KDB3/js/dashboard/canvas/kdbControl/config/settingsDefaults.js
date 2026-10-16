@@ -1,8 +1,7 @@
 define([], function () {
   "use strict";
 
-  // Dimensions: minimum (validation/clamp) and default (init + DOM).
-  // Dashboard defaults are px; diagram follows REDESIGN2 visualizationsPropId (cm); comment follows textWidgetPropId (cm).
+  // Dimensions: minimum (validation/clamp) and default (init + DOM). Dashboard defaults are px; diagram and comment defaults are cm.
   var DIMENSIONS = {
     dashboard: {
       width: { minimum: "200mm", default: "1800px" },

@@ -80,11 +80,15 @@ define([
     if (service && typeof service.notify === "function") {
       var anchor = payload.fieldId ? document.getElementById(payload.fieldId) : null;
       var notification = { code: payload.code, message: payload.message, severity: severity };
-      if (anchor && typeof service.notifyAnchored === "function") {
-        notification.anchor = anchor;
-        service.notifyAnchored(notification);
-      } else {
-        service.notify(notification);
+      try {
+        if (anchor && typeof service.notifyAnchored === "function") {
+          notification.anchor = anchor;
+          service.notifyAnchored(notification);
+        } else {
+          service.notify(notification);
+        }
+      } catch (err) {
+        console.warn("[kdbControl] services.message notification failed", err);
       }
       return;
     }

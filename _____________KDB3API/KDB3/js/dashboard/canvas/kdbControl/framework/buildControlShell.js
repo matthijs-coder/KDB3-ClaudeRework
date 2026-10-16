@@ -38,7 +38,7 @@ define([
   }
 
   function createHandbookLink(_KDB) {
-    var handbookUrl = _icons.readHandbookUrl(_KDB);
+    var handbookUrl = _labels.readHandbookUrl(_KDB);
     var link = _createElement("a", null, "kdb-control__header-icon-button kdb-control__header-icon-info", handbookUrl
       ? { href: handbookUrl, target: "_blank", rel: "noopener noreferrer", title: HEADER_TEXTS.handbook, "aria-label": HEADER_TEXTS.handbook }
       : { href: "#", tabindex: "-1", "aria-label": HEADER_TEXTS.handbookInactive, "aria-hidden": "true" });

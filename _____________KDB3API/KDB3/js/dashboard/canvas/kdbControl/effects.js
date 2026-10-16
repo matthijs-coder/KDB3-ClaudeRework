@@ -27,8 +27,9 @@ define([
       return true;
     }
     var rt = readRuntime(_KDB);
-    if (!rt || rt.warnedMissingApis[owner] !== true) {
-      if (rt) rt.warnedMissingApis[owner] = true;
+    var warned = rt ? (rt.warnedMissingApis = rt.warnedMissingApis || {}) : null;
+    if (!warned || warned[owner] !== true) {
+      if (warned) warned[owner] = true;
       console.warn("[kdbControl] _KDB.api." + owner + ".dispatch is missing; actions for " + owner + " are ignored.");
     }
     return false;
@@ -66,7 +67,11 @@ define([
       console.error("[kdbControl] _KDB.api.properties.applyDeveloperMode is not available");
       return;
     }
-    applyDeveloperMode({ enabled: !!dashboard.isDeveloperMode, source: (action.payload && action.payload.source) || "kdbControl" });
+    try {
+      applyDeveloperMode({ enabled: !!dashboard.isDeveloperMode, source: (action.payload && action.payload.source) || "kdbControl" });
+    } catch (err) {
+      console.error("[kdbControl.applyDeveloperModeAfterDispatch] applyDeveloperMode failed", err);
+    }
   }
 
   function readCssColor(value) {

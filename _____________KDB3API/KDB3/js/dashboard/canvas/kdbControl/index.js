@@ -34,6 +34,12 @@ define([
         return runner.dispatchAction(action);
       } catch (err) {
         console.error("[kdbControl.dispatch] " + (action && action.type) + " failed", err);
+        if (action && action.type === _types.ACTION_PARAMETER_SET_RESTORE) {
+          return {
+            ok: false, appliedKeys: [], skippedKeys: [], errorCode: "KDB_CONTROL_DISPATCH_FAILED",
+            diagnostics: [{ code: "WRITEBACK_KDBCONTROL_RESTORE_FAILED", message: String(err) }]
+          };
+        }
         return { ok: false, errorCode: "KDB_CONTROL_DISPATCH_FAILED" };
       }
     }
