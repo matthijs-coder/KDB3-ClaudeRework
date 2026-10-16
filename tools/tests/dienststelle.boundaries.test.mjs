@@ -67,3 +67,30 @@ test("route: without api.tabs the kit read of the same tabMutation key answers",
   KDB.runtime.tabs.pendingPromises = { traverse: {} };
   assert.equal((await tableDataChanged(KDB)).length, 1);
 });
+
+test("filterDom: the overlay wrapper comes from the filterDock selector readActiveFilterEl, not from the dock runtime", () => {
+  const config = load("dienststelle/config.js");
+  const wrapperClass = config.DOM_SELECTORS.filterItemWrapperClass;
+  const overlayWrapper = { name: "overlay" };
+  const otherWrapper = { name: "other" };
+  const activeEl = {
+    isConnected: true,
+    closest: (selector) => (selector === "." + wrapperClass ? overlayWrapper : {}),
+    getAttribute: () => "Dienststelle_BW",
+    querySelectorAll: () => []
+  };
+  const matches = [{ closest: () => otherWrapper }, { closest: () => overlayWrapper }];
+  const document = {
+    querySelector: () => ({ querySelectorAll: () => matches })
+  };
+  const filterDom = load("dienststelle/view/filterDom.js", { stubs: { console: quietConsole, document } });
+  const KDB = { runtime: { filterDock: { domRefs: { activeFilterEl: activeEl } } } };
+  assert.strictEqual(filterDom.resolveUniqueOtherDockFilterWrapper(KDB, "Dienststelle_BW"), overlayWrapper);
+  assert.strictEqual(filterDom.resolveUniqueOtherDockFilterWrapper({ runtime: { filterDock: { domRefs: {} } } }, "Dienststelle_BW"), null);
+  assert.strictEqual(filterDom.resolveUniqueOtherDockFilterWrapper({}, "Dienststelle_BW"), null);
+  const detached = Object.assign({}, activeEl, { isConnected: false });
+  assert.strictEqual(
+    filterDom.resolveUniqueOtherDockFilterWrapper({ runtime: { filterDock: { domRefs: { activeFilterEl: detached } } } }, "Dienststelle_BW"),
+    null
+  );
+});
