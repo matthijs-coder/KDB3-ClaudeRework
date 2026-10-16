@@ -292,7 +292,6 @@ define([
     clearScopeForAllFilters: clearScopeForAllFilters,
     writeScopeFromSnapshot: writeScopeFromSnapshot,
     resyncHostScope: resyncHostScope,
-    dispatchScopeWrite: dispatchScopeWrite,
-    applyHostScope: applyHostScope
+    dispatchScopeWrite: dispatchScopeWrite
   };
 });

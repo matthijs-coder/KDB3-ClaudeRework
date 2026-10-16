@@ -237,7 +237,6 @@ define(["../../../../tabs/state/selectors.js"], function (_tabsSelectors) {
     resolveRawPageContextScope: resolveRawPageContextScope,
     listTabDescriptors: listTabDescriptors,
     listDashboardTabScopeIds: listDashboardTabScopeIds,
-    resolvePlannerPageScopeId: resolvePlannerPageScopeId,
     pickPageContextScopeMap: pickPageContextScopeMap
   };
 });

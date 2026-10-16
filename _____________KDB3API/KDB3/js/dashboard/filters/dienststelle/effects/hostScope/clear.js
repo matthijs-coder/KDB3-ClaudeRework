@@ -2,10 +2,9 @@ define([
   "../../state.js",
   "../../config.js",
   "../../view/chromeClasses.js",
-  "../../../../../core/utils/kit/runtime.js",
   "./filterRef.js",
   "./selection.js"
-], function (_state, _config, _chromeClasses, _kitRuntime, _filterRef, _selection) {
+], function (_state, _config, _chromeClasses, _filterRef, _selection) {
   "use strict";
 
   var CLEAR_REMAINING = "COGNOS_SCOPE_CLEAR_REMAINING";
@@ -236,7 +235,6 @@ define([
   }
 
   function deactivateInactiveVariants(_KDB, _dispatchInternal, _activeDefinition) {
-    var runtime = _kitRuntime.ensureRuntime(_KDB, "dienststelle", _config.createRuntimeDefaults());
     var keys = Object.keys(_config.DEFINITIONS);
     var idx;
     var definition;
@@ -252,7 +250,7 @@ define([
       chain = chain.then(deactivateOneVariant.bind(null, _KDB, _dispatchInternal, definition));
     }
     return chain.then(function () {
-      _chromeClasses.syncDienststelleWrapperClasses(runtime, _activeDefinition, _KDB);
+      _chromeClasses.syncDienststelleWrapperClasses(_activeDefinition, _KDB);
     });
   }
 

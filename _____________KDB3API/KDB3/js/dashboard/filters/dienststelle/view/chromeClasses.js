@@ -47,7 +47,7 @@ define(["../config.js", "./filterDom.js", "./dockNames.js"], function (_config, 
     toggleSichtClasses(wrapper, _definition);
   }
 
-  function syncDienststelleWrapperClasses(_runtime, _activeDefinition, _KDB) {
+  function syncDienststelleWrapperClasses(_activeDefinition, _KDB) {
     var keys = Object.keys(_config.DEFINITIONS);
     syncDienststelleRootClass(_activeDefinition);
     keys.forEach(function (key) {
@@ -61,7 +61,6 @@ define(["../config.js", "./filterDom.js", "./dockNames.js"], function (_config, 
   }
 
   return {
-    syncDienststelleRootClass: syncDienststelleRootClass,
     syncDienststelleWrapperClasses: syncDienststelleWrapperClasses
   };
 });

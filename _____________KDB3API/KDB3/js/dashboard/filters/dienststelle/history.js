@@ -120,7 +120,6 @@ define([
   }
 
   return {
-    HISTORY_KEY: HISTORY_KEY,
     buildCommittedStep: buildCommittedStep,
     pushDienststelleHistoryStep: pushDienststelleHistoryStep,
     applyReplay: applyReplay,

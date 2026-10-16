@@ -136,7 +136,6 @@ define(["../hierarchySnapshot.js"], function (_hierarchySnapshot) {
 
   return {
     readEffectiveSelection: readEffectiveSelection,
-    buildPayload: buildPayload,
     notifyWidgetChanged: notifyWidgetChanged
   };
 });
