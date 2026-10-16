@@ -3,9 +3,8 @@ define([
   "./selectors.js",
   "./bindingConfig.js",
   "./runtime.js",
-  "./settingsSnapshot.js",
-  "../../../core/utils/kit/errors.js"
-], function (_state, _selectors, _bindingConfig, _runtime, _settingsSnapshot, _errors) {
+  "./settingsSnapshot.js"
+], function (_state, _selectors, _bindingConfig, _runtime, _settingsSnapshot) {
   "use strict";
 
   function buildContext(_instance) {
@@ -14,7 +13,7 @@ define([
       selectors: _instance.selectors,
       actionTypes: _state.ACTION_TYPES,
       dispatchInternal: _instance.dispatchInternal,
-      isDisposed: _instance.guard.isDisposed(),
+      isDisposed: _instance.isDisposed === true,
       ensureOpSeq: ensureOpSeq.bind(null, _instance),
       isStaleOpSeq: isStaleOpSeq.bind(null, _instance),
       readMetric: readMetric.bind(null, _instance),
@@ -28,7 +27,7 @@ define([
       _KDB: _KDB,
       selectors: _selectors,
       reducer: _state.createWidgetVisReducer(),
-      guard: _errors.createDisposedGuard("widgetVis")
+      isDisposed: false
     };
     instance.dispatchInternal = function (_action) {
       dispatchInternal(instance, _action);

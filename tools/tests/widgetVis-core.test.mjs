@@ -767,3 +767,364 @@ test("widgetDataTable: mount, dispatch, destroy, dispatch after destroy, getStat
   api.destroy();
   assert.equal(_KDB.state.widgets.dataTable.lifecycle, "disposed");
 });
+
+const QUIET_CONSOLE = { error() {}, warn() {}, log() {} };
+const FAKE_DOCUMENT = { getElementById: () => null, querySelector: () => null, querySelectorAll: () => [] };
+
+function loadIndex() {
+  return load(W + "index.js", { stubs: { document: FAKE_DOCUMENT, window: {}, console: QUIET_CONSOLE } });
+}
+
+function createTrace() {
+  const calls = [];
+  const record = (name, result) => (...args) => {
+    calls.push(name);
+    return typeof result === "function" ? result(...args) : result;
+  };
+  return { calls, record };
+}
+
+function loadLifecycle(trace, overrides) {
+  const gates = {
+    cancelGateWaitersForWidget: trace.record("cancelGateWaiters", { dienststelleCancelled: 2, topNCancelled: false }),
+    rejectAllGateWaiters: trace.record("rejectAllGateWaiters")
+  };
+  const focus = {
+    exitNativeFocus: trace.record("exitNativeFocus"),
+    disposeFocusMode: trace.record("disposeFocusMode", { ok: true, diagnostics: { disposed: true } })
+  };
+  const legend = {
+    sweepLegendCaptions: trace.record("sweepLegend", { action: "swept" }),
+    disconnectLegendTextObserver: trace.record("disconnectLegend", { disconnected: true })
+  };
+  const modules = Object.assign({
+    "./binding/pipeline.js": { runBindingPipeline: trace.record("runBindingPipeline", () => Promise.resolve({ ok: true, derived: { titleText: "X" } })) },
+    "./binding/gates.js": gates,
+    "./focus/maximizeToggle.js": { ensureFocusObserver: trace.record("ensureFocusObserver", { ok: true, diagnostics: { observerInstalled: true } }) },
+    "./focus/maximizeIcon.js": { installCanvasMaximize: trace.record("installMaximize", { ok: true }) },
+    "./focus/focusMode.js": focus,
+    "./drillthrough/install.js": {
+      installDrillthrough: trace.record("installDrillthrough", { ok: true }),
+      installContentDecorations: trace.record("installContentDecorations")
+    },
+    "./legend/sweep.js": legend
+  }, overrides || {});
+  return load(W + "lifecycle.js", { modules, stubs: { document: FAKE_DOCUMENT, console: QUIET_CONSOLE } });
+}
+
+function createWidgetKdb(widgetIds) {
+  const state = load(W + "state.js");
+  const runtime = load(W + "runtime.js");
+  const reducer = state.createWidgetVisReducer();
+  let vis = state.createInitialWidgetVisState();
+  widgetIds.forEach((id) => {
+    vis = reducer(vis, { type: state.ACTION_TYPES.REGISTER_CONTENT, widgetId: id, payload: { record: { derived: { code: "K-" + id } } } });
+  });
+  const _KDB = { state: { widgets: { vis } }, runtime: {}, api: {} };
+  widgetIds.forEach((id) => runtime.ensureWidgetRuntime(_KDB, id));
+  return { _KDB, state, runtime, reducer };
+}
+
+function createContext(_KDB, extra) {
+  const context = load(W + "context.js");
+  return Object.assign(context.createDetachedContext(_KDB), extra || {});
+}
+
+test("ensureWidgetRuntime: standard buckets plus owner fields, repeated calls keep the runtime and facet stamps", () => {
+  const { _KDB, runtime } = createWidgetKdb([]);
+  _KDB.runtime.widgetVis = { visualizationFacet: { marker: 1 } };
+  const first = runtime.ensureWidgetRuntime(_KDB, "w1");
+  assert.deepStrictEqual(Object.keys(first).sort(), [
+    "abortControllers", "domRefs", "drillthrough", "focusMode", "lastAppliedVisPropertiesType", "lastSuccessfulPlan", "listeners",
+    "managedFilterItemIds", "observers", "opSeq", "pendingPromises", "subscriptions", "timers"
+  ]);
+  assert.deepStrictEqual(Object.keys(first.domRefs), ["contentEl", "headerEl", "titleLinkEl", "drillthroughIconEl", "datapointDrillthroughIconEl",
+    "canvasMaximizeIconEl"]);
+  assert.equal(runtime.ensureWidgetRuntime(_KDB, "w1"), first);
+  assert.equal(runtime.readWidgetRuntime(_KDB, "w1"), first);
+  assert.equal(runtime.readWidgetRuntime(_KDB, "nope"), null);
+  assert.equal(_KDB.runtime.widgetVis.visualizationFacet.marker, 1);
+  assert.equal(runtime.readHostFacet(_KDB, "visualizationFacet").marker, 1);
+  assert.equal(runtime.readHostFacet(_KDB, "filtersFacet"), null);
+  assert.equal(runtime.initializeRuntime(_KDB).enableDrillthrough, true);
+  first.focusMode = null;
+  assert.equal(runtime.ensureWidgetRuntime(_KDB, "w1").focusMode.observedExpanded, false);
+});
+
+test("lifecycle: content ready waiter resolves, times out and is rejected by dispose", async () => {
+  const trace = createTrace();
+  const lifecycle = loadLifecycle(trace);
+  const { _KDB, runtime } = createWidgetKdb(["w1"]);
+  assert.deepStrictEqual(await lifecycle.handleWaitUntilContentReady(createContext(_KDB), { widgetId: "w1" }),
+    envelope({ ok: true, widgetId: "w1", ready: true }));
+  assert.equal(runtime.isContentReady(_KDB, "w1"), true);
+
+  const unregistered = createWidgetKdb([]);
+  const waiting = lifecycle.handleWaitUntilContentReady(createContext(unregistered._KDB), { widgetId: "w9", payload: { timeoutMs: 5 } });
+  const pending = unregistered._KDB.runtime.widgetVis.byId.w9.pendingPromises;
+  assert.ok(pending.contentReady.timerId);
+  const timedOut = await waiting;
+  assert.deepStrictEqual([timedOut.ok, timedOut.status, timedOut.errorCode], [false, "timeout", "WIDGET_VIS_CONTENT_READY_TIMEOUT"]);
+  assert.equal(pending.contentReady, null);
+
+  const pendingKdb = createWidgetKdb([]);
+  const ctx3 = createContext(pendingKdb._KDB);
+  const first = lifecycle.handleWaitUntilContentReady(ctx3, { widgetId: "wx", payload: { timeoutMs: 5000 } });
+  const second = lifecycle.handleWaitUntilContentReady(ctx3, { widgetId: "wx" });
+  lifecycle.disposeWidgetRuntime(pendingKdb._KDB, "wx", {});
+  const results = await Promise.all([first, second]);
+  assert.deepStrictEqual(results.map((r) => [r.ok, r.status, r.errorCode]), [[false, "cancelled", "WIDGET_VIS_WIDGET_DISPOSED"],
+    [false, "cancelled", "WIDGET_VIS_WIDGET_DISPOSED"]]);
+
+  const disposed = await lifecycle.handleWaitUntilContentReady(Object.assign({}, ctx3, { isDisposed: true }), { widgetId: "wy" });
+  assert.equal(disposed.errorCode, "WIDGET_VIS_DESTROY_FAILED");
+});
+
+test("lifecycle: dispose order, bucket teardown, record kept on transfer and rollback, pruned on remove", async () => {
+  const trace = createTrace();
+  const lifecycle = loadLifecycle(trace);
+  for (const reason of ["transfer", "rollback", "remove", undefined]) {
+    trace.calls.length = 0;
+    const { _KDB, state } = createWidgetKdb(["w1", "w2"]);
+    const widgetRuntime = _KDB.runtime.widgetVis.byId.w1;
+    const released = [];
+    widgetRuntime.timers.pending = Number(setTimeout(() => released.push("timer-fired"), 20));
+    widgetRuntime.listeners.click = () => released.push("listener");
+    widgetRuntime.observers.legend = { disconnect: () => released.push("observer") };
+    widgetRuntime.abortControllers.apply = { abort: () => released.push("abort") };
+    const context = createContext(_KDB);
+    const result = lifecycle.handleDisposeWidgetRuntime(context, { type: state.ACTION_TYPES.DISPOSE_WIDGET_RUNTIME, widgetId: "w1", payload: { reason } });
+    assert.deepStrictEqual(trace.calls, ["cancelGateWaiters", "exitNativeFocus", "disposeFocusMode", "disconnectLegend"]);
+    assert.deepStrictEqual(released.sort(), ["abort", "listener", "observer"]);
+    await new Promise((resolve) => setTimeout(resolve, 40));
+    assert.ok(!released.includes("timer-fired"));
+    assert.equal(result.ok, true);
+    assert.equal(result.skipped, undefined);
+    assert.deepStrictEqual(Object.keys(result.diagnostics), ["reason", "dienststelleWaitersCancelled", "focusMode", "legendObserver"]);
+    assert.equal(result.diagnostics.reason, reason || null);
+    assert.equal(result.diagnostics.dienststelleWaitersCancelled, 2);
+    assert.deepStrictEqual(result.diagnostics.legendObserver, { disconnected: true });
+    assert.equal(_KDB.runtime.widgetVis.byId.w1, undefined);
+    assert.ok(_KDB.runtime.widgetVis.byId.w2);
+    assert.equal(Object.keys(_KDB.state.widgets.vis.byId).includes("w1"), reason !== "remove");
+    assert.ok(_KDB.state.widgets.vis.byId.w2);
+  }
+});
+
+test("lifecycle: dispose of an unknown runtime is a skipped success, a missing widget id an error", () => {
+  const trace = createTrace();
+  const lifecycle = loadLifecycle(trace);
+  const { _KDB } = createWidgetKdb(["w1"]);
+  const context = createContext(_KDB);
+  const skipped = lifecycle.handleDisposeWidgetRuntime(context, { widgetId: "nope", payload: { reason: "remove" } });
+  assert.deepStrictEqual([skipped.ok, skipped.skipped, skipped.status, skipped.diagnostics.reason], [true, true, "success", "remove"]);
+  assert.deepStrictEqual(trace.calls, ["cancelGateWaiters"]);
+  assert.deepStrictEqual(lifecycle.handleDisposeWidgetRuntime(context, { payload: {} }), { ok: false, errorCode: "WIDGET_VIS_WIDGET_ID_MISSING" });
+  assert.deepStrictEqual(lifecycle.handleEnsureObservers(context, {}), { ok: false, errorCode: "WIDGET_VIS_WIDGET_ID_MISSING" });
+  assert.deepStrictEqual(lifecycle.handleEnsureObservers(context, { widgetId: "nope" }), { ok: true, skipped: true, widgetId: "nope", status: "success" });
+  const noRoot = createWidgetKdb([]);
+  noRoot._KDB.runtime = {};
+  const bare = lifecycle.handleDisposeWidgetRuntime(createContext(noRoot._KDB), { widgetId: "w9" });
+  assert.deepStrictEqual([bare.ok, bare.skipped, bare.diagnostics], [true, true, { reason: null }]);
+});
+
+test("lifecycle: ensureObservers rebuilds focus, legend, drillthrough and maximize in order", () => {
+  const trace = createTrace();
+  const lifecycle = loadLifecycle(trace);
+  const { _KDB } = createWidgetKdb(["w1"]);
+  const result = lifecycle.handleEnsureObservers(createContext(_KDB), { widgetId: "w1" });
+  assert.deepStrictEqual(trace.calls, ["ensureFocusObserver", "sweepLegend", "installDrillthrough", "installMaximize"]);
+  assert.deepStrictEqual(result, {
+    ok: true,
+    widgetId: "w1",
+    status: "success",
+    errorCode: undefined,
+    diagnostics: { focus: { observerInstalled: true }, legend: { action: "swept" }, drillthrough: { ok: true }, maximize: { ok: true } }
+  });
+  const failing = loadLifecycle(createTrace(), {
+    "./drillthrough/install.js": { installDrillthrough() { throw new Error("boom"); }, installContentDecorations() {} },
+    "./legend/sweep.js": { sweepLegendCaptions() { throw new Error("sweep"); }, disconnectLegendTextObserver: () => ({ disconnected: true }) }
+  });
+  const degraded = failing.handleEnsureObservers(createContext(_KDB), { widgetId: "w1" });
+  assert.equal(degraded.ok, true);
+  assert.deepStrictEqual(degraded.diagnostics.drillthrough, { ok: false, errorCode: "WIDGET_VIS_DRILLTHROUGH_FAILED" });
+  assert.deepStrictEqual(degraded.diagnostics.legend, { action: "failed", error: "sweep" });
+  const focusFailed = loadLifecycle(createTrace(), {
+    "./focus/maximizeToggle.js": { ensureFocusObserver: () => ({ ok: false, errorCode: "WIDGET_VIS_MAXIMIZE_FAILED" }) }
+  }).handleEnsureObservers(createContext(_KDB), { widgetId: "w1" });
+  assert.deepStrictEqual([focusFailed.ok, focusFailed.status, focusFailed.errorCode], [false, "error", "WIDGET_VIS_MAXIMIZE_FAILED"]);
+});
+
+test("lifecycle: contentCreate registers the record, installs decorations and binds only on explicit intent", async () => {
+  const trace = createTrace();
+  const lifecycle = loadLifecycle(trace);
+  const { _KDB } = createWidgetKdb([]);
+  _KDB.state.widgets.vis = load(W + "state.js").createInitialWidgetVisState();
+  const context = createContext(_KDB);
+  const missing = await lifecycle.handleContentCreate(context, { widgetId: "w1", payload: {} });
+  assert.deepStrictEqual([missing.ok, missing.status, missing.errorCode], [false, "error", "WIDGET_VIS_CONTENT_CREATE_FAILED"]);
+
+  const plain = await lifecycle.handleContentCreate(context, { widgetId: "w1", opSeq: 4, payload: { metric: { code: "K1", display: "Kennzahl" } } });
+  assert.deepStrictEqual([plain.ok, plain.status, plain.opSeq], [true, "success", 4]);
+  assert.deepStrictEqual(trace.calls, ["ensureFocusObserver", "installContentDecorations"]);
+  const record = _KDB.state.widgets.vis.byId.w1;
+  assert.deepStrictEqual([record.derived.code, record.derived.titleText, record.derived.datasourceName], ["K1", "Kennzahl", null]);
+
+  trace.calls.length = 0;
+  const bound = await lifecycle.handleContentCreate(context, {
+    widgetId: "w1", opSeq: 5, payload: { metric: { code: "K1" }, initialSettings: { dimension: "d1" } }
+  });
+  assert.deepStrictEqual(trace.calls, ["ensureFocusObserver", "installContentDecorations", "runBindingPipeline"]);
+  assert.deepStrictEqual([bound.ok, _KDB.state.widgets.vis.byId.w1.derived.titleText, _KDB.state.widgets.vis.byId.w1.pending], [true, "X", { kind: null, opSeq: null }]);
+});
+
+test("lifecycle: disposeModuleRuntime rejects waiters, disposes every widget, clears module buckets and the runtime root", async () => {
+  const trace = createTrace();
+  const lifecycle = loadLifecycle(trace);
+  const { _KDB } = createWidgetKdb(["w1", "w2"]);
+  const root = _KDB.runtime.widgetVis;
+  const released = [];
+  root.subscriptions.bus = () => released.push("subscription");
+  root.observers.focusMode = { disconnect: () => released.push("observer") };
+  root.timers.focusCheck = { kind: "timeout", id: Number(setTimeout(() => released.push("timer-fired"), 20)) };
+  const waiting = lifecycle.handleWaitUntilContentReady(createContext(_KDB), { widgetId: "w3", payload: { timeoutMs: 5000 } });
+  lifecycle.disposeModuleRuntime(_KDB);
+  const result = await waiting;
+  assert.deepStrictEqual([result.ok, result.status, result.errorCode, result.errorMessage], [false, "error", "WIDGET_VIS_DESTROY_FAILED", "widgetVis destroyed."]);
+  assert.equal(trace.calls[0], "rejectAllGateWaiters");
+  assert.equal(trace.calls.filter((name) => name === "exitNativeFocus").length, 0);
+  assert.equal(trace.calls.filter((name) => name === "disposeFocusMode").length, 3);
+  assert.deepStrictEqual(released.sort(), ["observer", "subscription"]);
+  await new Promise((resolve) => setTimeout(resolve, 40));
+  assert.ok(!released.includes("timer-fired"));
+  assert.deepStrictEqual(_KDB.runtime.widgetVis, {});
+});
+
+test("cleanup: decoration-only, semantic empty, technical reset and failure mapping", async () => {
+  const pipelineInputs = [];
+  let pipelineResult = { ok: true, derived: { lastAppliedVisType: "Line" }, diagnostics: { p: 1 } };
+  let decorationResult = { ok: true, diagnostics: { removed: 3 } };
+  const { handleCleanupContent } = load(W + "cleanup.js", {
+    modules: {
+      "./binding/pipeline.js": { runBindingPipeline: (ctx, input) => { pipelineInputs.push(input); return Promise.resolve(pipelineResult); } },
+      "./render/postRender.js": { cleanupVisualizationContent: () => decorationResult }
+    }
+  });
+  const topNCalls = [];
+  const setup = () => {
+    const { _KDB } = createWidgetKdb(["w1"]);
+    _KDB.api.widgetTopN = { dispatch: (action) => { topNCalls.push(action); return { ok: true }; } };
+    return { _KDB, context: createContext(_KDB) };
+  };
+  const run = (context, payload) => handleCleanupContent(context, { type: "widgetVis/cleanupContent", widgetId: "w1", opSeq: 7, payload });
+
+  let { _KDB, context } = setup();
+  let result = await run(context, { reason: "settingsDelete" });
+  assert.deepStrictEqual(pipelineInputs, []);
+  assert.deepStrictEqual([result.ok, result.opSeq, result.diagnostics], [true, 7, { cleanup: { removed: 3 } }]);
+  assert.deepStrictEqual(topNCalls[0], {
+    type: "widgetTopN/cleanup", widgetId: "w1",
+    payload: { ownerVisId: "w1", reason: "settingsDelete", clearHelperBinding: true, releaseClaim: false }
+  });
+  assert.deepStrictEqual([_KDB.state.widgets.vis.byId.w1.derived.emptyStatus, _KDB.state.widgets.vis.byId.w1.maximized], [null, false]);
+
+  ({ _KDB, context } = setup());
+  result = await run(context, { reason: "remove", clearBinding: true });
+  assert.equal(topNCalls[1].payload.releaseClaim, true);
+  assert.equal(pipelineInputs.length, 1);
+  const forced = pipelineInputs[0];
+  assert.deepStrictEqual([forced.reason, forced.mode, forced.forceEmpty, forced.emptyReason, forced.emptyIntent, forced.resetIntent],
+    ["cleanup", "cleanup", true, "remove", undefined, undefined]);
+  assert.deepStrictEqual(Object.keys(forced.metric).sort(), ["code", "display", "metricsTable"]);
+  assert.deepStrictEqual([result.ok, _KDB.state.widgets.vis.byId.w1.derived.emptyStatus, _KDB.state.widgets.vis.byId.w1.derived.emptyReason],
+    [true, "intentional", "remove"]);
+
+  for (const reason of ["settingsDelete", "parameterSetReset"]) {
+    ({ _KDB, context } = setup());
+    pipelineInputs.length = 0;
+    result = await run(context, { reason, clearBinding: true });
+    const reset = pipelineInputs[0];
+    assert.deepStrictEqual([reset.mode, reset.forceEmpty, reset.emptyIntent, reset.resetIntent], ["cleanup", undefined,
+      { enabled: false, reason: null, itemId: null, value: null },
+      { enabled: true, scope: "visTarget", clearAllSlots: true, clearAllLocalFilters: true, reason }]);
+    assert.equal(_KDB.state.widgets.vis.byId.w1.derived.emptyStatus, reason === "settingsDelete" ? null : "intentional");
+  }
+
+  ({ _KDB, context } = setup());
+  pipelineResult = { ok: false, errorCode: "WIDGET_VIS_BINDING_APPLY_FAILED", errorMessage: "bad" };
+  result = await run(context, { reason: "x", clearBinding: true });
+  assert.deepStrictEqual([result.ok, result.errorCode, result.opSeq], [false, "WIDGET_VIS_EMPTY_APPLY_FAILED", 7]);
+  assert.deepStrictEqual([_KDB.state.widgets.vis.byId.w1.errorCode, _KDB.state.widgets.vis.byId.w1.errorMessage], ["WIDGET_VIS_EMPTY_APPLY_FAILED", "bad"]);
+  pipelineResult = { ok: false };
+  result = await run(setup().context, { reason: "x", clearBinding: true });
+  assert.equal(result.errorCode, "WIDGET_VIS_CLEANUP_FAILED");
+  pipelineResult = { ok: false, stale: true, status: "aborted", opSeq: 7 };
+  result = await run(setup().context, { clearBinding: true });
+  assert.deepStrictEqual([result.ok, result.stale, result.status], [false, true, "aborted"]);
+
+  decorationResult = { ok: false, errorCode: "DECO", errorMessage: "deco failed" };
+  ({ _KDB, context } = setup());
+  result = await run(context, {});
+  assert.deepStrictEqual([result.ok, result.errorCode, _KDB.state.widgets.vis.byId.w1.errorMessage], [false, "DECO", "deco failed"]);
+  decorationResult = { ok: false, stale: true };
+  result = await run(setup().context, {});
+  assert.deepStrictEqual([result.stale, result.status], [true, "aborted"]);
+  decorationResult = null;
+  result = await run(setup().context, {});
+  assert.equal(result.errorCode, "WIDGET_VIS_CLEANUP_FAILED");
+});
+
+test("controller: mount, routing, unknown action, id conflict, error action, destroy, calls after destroy", async () => {
+  const register = loadIndex();
+  const _KDB = {
+    services: { cognosHost: { visualization: { v: 1 }, widgets: { w: 1 }, filters: { f: 1 }, dataQuery: { d: 1 } }, drillthrough: { open() {} },
+      tableData: { readRows() { return this === _KDB.services.tableData ? "bound" : "unbound"; } } }
+  };
+  const api = register(_KDB, {});
+  assert.equal(_KDB.api.widgetVis, api);
+  assert.deepStrictEqual(Object.keys(api), ["mount", "destroy", "dispatch", "getState"]);
+  const facets = _KDB.runtime.widgetVis;
+  assert.deepStrictEqual([facets.visualizationFacet, facets.widgetsFacet, facets.filtersFacet, facets.dataQueryFacet],
+    [{ v: 1 }, { w: 1 }, { f: 1 }, { d: 1 }]);
+  assert.equal(typeof facets.drillthroughService.open, "function");
+  assert.equal(facets.tableDataReadRows(), "bound");
+  assert.equal(api.mount({ enableDrillthrough: false }), true);
+  assert.equal(_KDB.runtime.widgetVis.enableDrillthrough, false);
+  assert.equal(_KDB.runtime.widgetVis.visualizationFacet.v, 1);
+  assert.deepStrictEqual(api.getState(), { lifecycle: "ready", byId: {}, errorCode: null, errorMessage: null });
+  assert.notEqual(api.getState(), _KDB.state.widgets.vis);
+  assert.equal(api.mount({}), true);
+  assert.equal(_KDB.runtime.widgetVis.enableDrillthrough, true);
+
+  const unknown = await api.dispatch({ type: "widgetVis/scaffoldNoop", widgetId: "w1" });
+  assert.deepStrictEqual([unknown.ok, unknown.errorCode, unknown.errorMessage], [false, "WIDGET_VIS_UNKNOWN_ACTION", "Unknown widgetVis action: widgetVis/scaffoldNoop"]);
+  assert.equal((await api.dispatch(undefined)).errorCode, "WIDGET_VIS_UNKNOWN_ACTION");
+  const conflict = await api.dispatch({ type: "widgetVis/contentCreate", widgetId: "a", payload: { widgetId: "b" } });
+  assert.deepStrictEqual(conflict, envelope({ errorCode: "WIDGET_VIS_WIDGET_ID_CONFLICT" }));
+  const errored = await api.dispatch({ type: "widgetVis/error", payload: { errorCode: "E1", errorMessage: "m" } });
+  assert.deepStrictEqual([errored.ok, api.getState().errorCode], [true, "E1"]);
+  const noRecord = await api.dispatch({ type: "widgetVis/maximizeToggle", widgetId: "ghost" });
+  assert.equal(noRecord.ok, false);
+  const missingContent = await api.dispatch({ type: "widgetVis/contentCreate", widgetId: "w1", payload: {} });
+  assert.deepStrictEqual([missingContent.ok, missingContent.errorCode], [false, "WIDGET_VIS_CONTENT_CREATE_FAILED"]);
+
+  api.destroy();
+  assert.deepStrictEqual(_KDB.runtime.widgetVis, {});
+  assert.equal(_KDB.state.widgets.vis.lifecycle, "disposed");
+  assert.equal(api.getState(), undefined);
+  assert.equal(api.mount({}), false);
+  const afterDestroy = await api.dispatch({ type: "widgetVis/contentCreate", widgetId: "w1" });
+  assert.deepStrictEqual(afterDestroy, envelope({ outcome: "aborted", reason: "disposed", skipped: true, status: "aborted" }));
+  api.destroy();
+});
+
+test("controller: getState returns undefined when the state cannot be cloned", () => {
+  const register = loadIndex();
+  const _KDB = {};
+  const api = register(_KDB, {});
+  api.mount({});
+  const cyclic = {};
+  cyclic.self = cyclic;
+  _KDB.state.widgets.vis.byId.w1 = cyclic;
+  assert.equal(api.getState(), undefined);
+});

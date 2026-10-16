@@ -86,7 +86,9 @@ define([
       options: _options || {},
       selectors: _selectors,
       reducer: _state.createWidgetVisReducer(),
-      guard: guard,
+      get isDisposed() {
+        return guard.isDisposed();
+      },
       dispatchInternal: function (_action) {
         _visContext.dispatchInternal(instance, _action);
       }
