@@ -1,10 +1,5 @@
-define(["../schema/errorCodes.js"], function (_errorCodes) {
+define(["../schema/errorCodes.js", "../set/config/restoreConstants.js"], function (_errorCodes, _restoreConstants) {
   "use strict";
-
-  // Local copy of the status default; restoreConstants.normalizeStatus replaces it once both tasks are merged.
-  function normalizeStatus(status) {
-    return status === undefined || status === null ? "notDefaultParamSet" : String(status);
-  }
 
   function toBridgeDiagnostic(error) {
     if (error && error.diagnostic) {
@@ -25,7 +20,7 @@ define(["../schema/errorCodes.js"], function (_errorCodes) {
   }
 
   return {
-    normalizeStatus: normalizeStatus,
+    normalizeStatus: _restoreConstants.normalizeStatus,
     toBridgeDiagnostic: toBridgeDiagnostic,
     failureResult: failureResult,
     cancelledResult: cancelledResult

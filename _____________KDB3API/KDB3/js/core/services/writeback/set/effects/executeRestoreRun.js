@@ -8,7 +8,7 @@ define([
   "./runNewDashboardReset.js",
   "./executeRestoreRunCleanup.js",
   "./notifyRestoreOutcome.js",
-  "../../bridge/parameterSetSelectConstants.js"
+  "../../bridge/hostParameterSetSelect.js"
 ], function (
   _constants,
   _errorCodes,
@@ -19,25 +19,9 @@ define([
   _runNewDashboardReset,
   _executeRestoreRunCleanup,
   _notifyRestoreOutcome,
-  _parameterSetSelectConstants
+  _hostParameterSetSelect
 ) {
   "use strict";
-
-  function captureParameterSetSelectId() {
-    var select;
-    var value;
-    try {
-      select = document.getElementById(_parameterSetSelectConstants.SELECT_ID);
-      if (!select) return null;
-      value = select.value;
-      if (value === _parameterSetSelectConstants.NEW_DASHBOARD_VALUE) return null;
-      if (_parameterSetSelectConstants.PLACEHOLDER_VALUES.indexOf(value) !== -1) return null;
-      return value;
-    } catch (error) {
-      console.error("[writebackSet.captureParameterSetSelectId] failed", error);
-      return null;
-    }
-  }
 
   // Common §6 steps 3-6, branch execution and guaranteed finish/cleanup for one
   // restore run. Coordinates named steps only; owner effects live in the
@@ -52,7 +36,7 @@ define([
 
     try {
       runtime = _ensureWritebackRuntime(_KDB);
-      capturedId = captureParameterSetSelectId();
+      capturedId = _hostParameterSetSelect.readSelectedId();
       runtime.parameterSetRestoreActive = true;
       runtime.parameterSetRestoreActiveCount += 1;
       runtime.pendingRunId = run.runId;

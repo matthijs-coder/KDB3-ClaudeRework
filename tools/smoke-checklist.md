@@ -95,6 +95,16 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Save while a **non-first tab** is active; reopen. Expected: lands on the same tab as baseline.
 - [ ] Destroy + re-boot 3x in one browser tab (close/reopen the dashboard). Expected: no growth in console warnings, restore still works on the 3rd time (see 4.3).
 - [ ] `spec.json` properties still readable: header title/subtitle come from the saved header property.
+- [ ] Save, then immediately switch tabs or close the dashboard: the save overlay disappears without lag and there is no console error from persist landing after destroy.
+- [ ] Save in a dashboard with 2+ visible tabs while on the second tab: the host lands on the first tab for the Cognos save popup, then returns to the second tab; the overlay is gone afterwards.
+- [ ] Load parameter set A, then quickly load B before A finishes: A ends `cancelled`, B is applied, the loading overlay disappears and undo/redo is not polluted.
+- [ ] Destroy the dashboard while a restore or the URL-share startup is running: no console errors after destroy, and the save overlay still disappears.
+- [ ] Default restore with a stalled lifecycle (DevTools breakpoint before `ready`): after 180 s the console shows `WRITEBACK_TIMEOUT` and the outcome is `cancelled`. Without the block a normal boot restores as baseline.
+- [ ] Destroy + re-boot 3x without reload: `top.WBParameterGetFunction.__kdbOwner` is set on the live boot; a kept reference from a destroyed boot reads `null`. Heap snapshot shows one live `_KDB`.
+- [ ] "Ein neues Dashboard erstellen" is the first option of `#selectParameterSet`, also after the select re-renders and when the save/load slot mounts late (up to 0.5 s). No KDB `MutationObserver` on `document.body`.
+- [ ] Discard-confirm cancel reverts the select and restores nothing.
+- [ ] Developer mode on/off follows `KDB_developerMode`; after destroy and re-boot there is at most one `[data-kdb-hidedata-hint]` badge.
+- [ ] One save + one load cycle: no duplicate console lines for the same failure compared with baseline.
 
 ### WS-D Feature services (message, loading, history, PDF, drillthrough)
 - [ ] Toasts/dialogs: trigger an info message (restore with fallback), a share dialog and a confirm dialog ("discard unsaved changes"). Expected: placement unchanged; scroll/resize keeps them in place; closing leaves no dark backdrop.
