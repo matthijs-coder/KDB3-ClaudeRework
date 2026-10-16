@@ -179,7 +179,7 @@ function realSpec(overrides = {}) {
   };
 }
 
-const withoutTiming = (value) => JSON.parse(JSON.stringify(value, (key, item) => (key === "elapsedMs" ? undefined : item)));
+const withoutTiming = (value) => JSON.parse(JSON.stringify(value, (key, item) => (/Ms$/.test(key) ? undefined : item)));
 
 function realKdb() {
   const calls = [];
