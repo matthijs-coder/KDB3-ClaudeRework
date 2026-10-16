@@ -1,8 +1,8 @@
 define([
   "./visTypes.js",
-  "../../../core/config/visualizations/sorting.js",
+  "./config/visualizations/sorting.js",
   "../../../core/config/mapping/parameterMap.js",
-  "../../../core/config/visualizations/topNHelper.js"
+  "./config/visualizations/topNHelper.js"
 ], function (_visTypes, _visSorting, _parameterMap, _topNHelperConfig) {
   "use strict";
 

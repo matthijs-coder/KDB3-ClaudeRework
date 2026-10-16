@@ -3,7 +3,7 @@ define([
   "./buildTopNFilter.js",
   "./buildHierarchyFilter.js",
   "../defaults/normalizeDefaultValue.js",
-  "../../../config/visualizations/buildKennzahlAggregationFilter.js",
+  "../../../utils/kennzahlAggregationFilter.js",
   "../../../utils/kit/data.js",
 ], function (_filterItemIds, _buildTopNFilter, _buildHierarchyFilter, _normalizeDefaultValue, _buildKennzahlAggregationFilter, _data) {
   "use strict";

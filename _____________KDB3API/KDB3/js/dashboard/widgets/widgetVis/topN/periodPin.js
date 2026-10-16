@@ -3,7 +3,7 @@ define([
   "../runtime.js",
   "../years.js",
   "../../../tabs/state/selectors.js",
-  "../../../../core/config/visualizations/topNHelper.js"
+  "../config/visualizations/topNHelper.js"
 ], function (_drillthroughYear, _visRuntime, _years, _tabsSelectors, _topNHelperConfig) {
   "use strict";
 

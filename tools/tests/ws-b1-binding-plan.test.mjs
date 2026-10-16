@@ -17,7 +17,7 @@ const RECORD = process.env.WS_B_RECORD === "1";
 const quiet = { error() {}, warn() {}, log() {}, info() {}, debug() {} };
 const buildPlan = loadAmd(path.join(JS_ROOT, "core/services/widgetBindingPlan/buildPlan.js"), { stubs: { console: quiet } });
 const normalizeDefaultValue = loadAmd(path.join(JS_ROOT, "core/services/widgetBindingPlan/defaults/normalizeDefaultValue.js"));
-const visTypes = loadAmd(path.join(JS_ROOT, "core/config/visualizations/bindingSpecsVisTypes.js"));
+const visTypes = loadAmd(path.join(JS_ROOT, "dashboard/widgets/widgetVis/config/visualizations/bindingSpecsVisTypes.js"));
 const topNHelperConfig = loadAmd(path.join(JS_ROOT, "core/config/visualizations/topNHelper.js"));
 
 const clone = (value) => structuredClone(value);

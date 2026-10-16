@@ -1,7 +1,7 @@
 define([
   "./config.js",
   "../../../core/utils/kit/data.js",
-  "../../../core/config/visualizations/buildKennzahlAggregationFilter.js"
+  "../../../core/utils/kennzahlAggregationFilter.js"
 ], function (_config, _data, _kennzahlAggregationFilter) {
   "use strict";
 
