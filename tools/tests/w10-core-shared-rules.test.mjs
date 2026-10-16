@@ -104,3 +104,16 @@ test("shared tab rules and constants keep the recorded answers", () => {
   assert.deepStrictEqual(Object.keys(actual), Object.keys(expected));
   for (const name of Object.keys(expected)) assert.deepStrictEqual(actual[name], expected[name], name);
 });
+
+test("core/events/tabs.js holds the recorded values and the tabs paths re-export the same objects", () => {
+  const expected = JSON.parse(fs.readFileSync(GOLDEN, "utf8"));
+  const vocabulary = at("core/events/tabs.js");
+  assert.deepStrictEqual(json(vocabulary.ACTIONS), expected.actionTypes);
+  assert.deepStrictEqual(json(vocabulary.EVENTS), expected.eventNames);
+  assert.deepStrictEqual(Object.keys(vocabulary.ACTIONS), Object.keys(expected.actionTypes));
+  assert.deepStrictEqual(Object.keys(vocabulary.EVENTS), Object.keys(expected.eventNames));
+  const shared = loadAmd(path.join(JS_ROOT, "dashboard/tabs/config/actionTypes.js"), { overrides: { "core/events/tabs.js": vocabulary } });
+  assert.strictEqual(shared, vocabulary.ACTIONS);
+  const events = loadAmd(path.join(JS_ROOT, "dashboard/tabs/events/eventNames.js"), { overrides: { "core/events/tabs.js": vocabulary } });
+  assert.strictEqual(events, vocabulary.EVENTS);
+});

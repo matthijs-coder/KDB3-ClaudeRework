@@ -1,12 +1,12 @@
 define([
-  "../../../../../dashboard/tabs/events/eventNames.js",
+  "../../../../events/tabs.js",
   "../../../../utils/kit/async.js",
   "../../../../utils/kit/runtime.js",
   "../../set/state/ensureWritebackRuntime.js",
   "../collectors/collectorSupport.js",
   "./persistLoadingOverlay.js",
   "./persistPopupProbe.js"
-], function (_eventNames, _kitAsync, _kitRuntime, _ensureWritebackRuntime, _support, _persistLoading, _persistPopupProbe) {
+], function (_tabsVocabulary, _kitAsync, _kitRuntime, _ensureWritebackRuntime, _support, _persistLoading, _persistPopupProbe) {
   "use strict";
 
   // After a bridge save the host shows the Cognos "save parameter set" popup on the first visible dashboard
@@ -14,7 +14,7 @@ define([
   // Every wait is tied to runtime.persistRestoreGeneration and abortControllers.persistLanding, so a
   // cancel, a new GET or destroy stops the whole flow within one tick.
 
-  const PERSIST_LANDING_TYPE = "tabs/writebackGetPersistLandingRequested";
+  const PERSIST_LANDING_TYPE = _tabsVocabulary.ACTIONS.WRITEBACK_GET_PERSIST_LANDING;
   const RESTORE_TIMER_KEY = "persistRestoreTab";
   const HOST_WAIT_ATTEMPTS = 10;
   const HOST_WAIT_MS = 400;
@@ -51,7 +51,7 @@ define([
       const events = _KDB && _KDB.events;
       if (events && typeof events.subscribe === "function") {
         runtime.subscriptions.persistRestoreTab = events.subscribe(
-          _eventNames.CHANGED, onPersistRestoreTabChanged.bind(null, _KDB)
+          _tabsVocabulary.EVENTS.CHANGED, onPersistRestoreTabChanged.bind(null, _KDB)
         );
       }
       startRestoreWatch(_KDB, capturedIndex, generation);
