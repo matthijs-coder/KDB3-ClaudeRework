@@ -10,13 +10,20 @@ define([
     return { widgetId: _widgetId, text: _text != null ? String(_text) : "" };
   }
 
+  // Boundary around the history service: a throwing push becomes a failure result instead of a rejected commit.
   function pushTextEditHistory(_KDB, _widgetId, _previousText, _nextText) {
-    return _history.pushHistoryStep(_KDB, {
-      key: STEP_KEY,
-      timestamp: Date.now(),
-      old: buildSnapshot(_widgetId, _previousText),
-      new: buildSnapshot(_widgetId, _nextText)
-    });
+    try {
+      var committed = _history.pushHistoryStep(_KDB, {
+        key: STEP_KEY,
+        timestamp: Date.now(),
+        old: buildSnapshot(_widgetId, _previousText),
+        new: buildSnapshot(_widgetId, _nextText)
+      });
+      return committed ? { ok: true } : { ok: false, errorMessage: "history step was not committed" };
+    } catch (err) {
+      console.error("[widgetText.pushTextEditHistory] failed", { widgetId: _widgetId }, err);
+      return { ok: false, errorMessage: String(err && err.message ? err.message : err) };
+    }
   }
 
   async function applyTextEditReplay(_KDB, _targetValue) {

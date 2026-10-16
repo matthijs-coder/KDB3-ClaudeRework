@@ -3,8 +3,9 @@ define([
   "./effects.js",
   "./textEdit.js",
   "./view.js",
-  "./widgetRuntime.js"
-], function (_actionTypes, _effects, _textEdit, _view, _widgetRuntime) {
+  "./widgetRuntime.js",
+  "./dispatchResult.js"
+], function (_actionTypes, _effects, _textEdit, _view, _widgetRuntime, _dispatchResult) {
   "use strict";
 
   var RESTORE_FAILED = "WRITEBACK_WIDGET_RESTORE_FAILED";
@@ -48,6 +49,16 @@ define([
     });
   }
 
+  // Boundary per restore/reset entry: one throwing widget becomes a failure result and the loop continues.
+  async function callEntry(_widgetId, _failCode, _run) {
+    try {
+      return await _run();
+    } catch (err) {
+      console.error("[widgetText.restore] entry failed", { widgetId: _widgetId, errorCode: _failCode }, err);
+      return _dispatchResult.failureResult(_widgetId, undefined, _failCode, err);
+    }
+  }
+
   function describeFailure(_result) {
     return String(_result && _result.errorCode ? _result.errorCode : "unknown");
   }
@@ -89,7 +100,9 @@ define([
       }
       var widgetId = String(linked.widgetId);
       var nextText = widget.text != null ? String(widget.text) : "";
-      var createResult = await ensureTextRegion(_context, widgetId, nextText);
+      var createResult = await callEntry(widgetId, "WIDGET_TEXT_CONTENT_CREATE_FAILED", function () {
+        return ensureTextRegion(_context, widgetId, nextText);
+      });
       if (isStaleRun(runtimeRoot, payload.runId)) {
         return cancelRun(result, runtimeRoot, payload.runId);
       }
@@ -98,16 +111,18 @@ define([
           "text region create/locate failed for widgetId " + widgetId + ": " + describeFailure(createResult));
         continue;
       }
-      var commitResult = await _textEdit.handleCommitTextEdit(_context, {
-        type: _actionTypes.COMMIT_TEXT_EDIT,
-        widgetId: widgetId,
-        payload: {
-          nextText: nextText,
-          isHistoryReplay: payload.skipHistory === true,
-          skipHistory: payload.skipHistory === true,
-          runId: payload.runId,
-          source: payload.source
-        }
+      var commitResult = await callEntry(widgetId, "WIDGET_TEXT_EDIT_COMMIT_FAILED", function () {
+        return _textEdit.handleCommitTextEdit(_context, {
+          type: _actionTypes.COMMIT_TEXT_EDIT,
+          widgetId: widgetId,
+          payload: {
+            nextText: nextText,
+            isHistoryReplay: payload.skipHistory === true,
+            skipHistory: payload.skipHistory === true,
+            runId: payload.runId,
+            source: payload.source
+          }
+        });
       });
       if (isStaleRun(runtimeRoot, payload.runId)) {
         return cancelRun(result, runtimeRoot, payload.runId);
@@ -145,10 +160,12 @@ define([
       if (!byId[widgetId]) {
         continue;
       }
-      var cleanupResult = await _effects.handleCleanupContent(_context, {
-        type: _actionTypes.CLEANUP_CONTENT,
-        widgetId: widgetId,
-        payload: { reason: "parameterSetReset" }
+      var cleanupResult = await callEntry(widgetId, "WIDGET_TEXT_CLEANUP_FAILED", function () {
+        return _effects.handleCleanupContent(_context, {
+          type: _actionTypes.CLEANUP_CONTENT,
+          widgetId: widgetId,
+          payload: { reason: "parameterSetReset" }
+        });
       });
       if (!cleanupResult || cleanupResult.ok !== true) {
         diagnostics.push({

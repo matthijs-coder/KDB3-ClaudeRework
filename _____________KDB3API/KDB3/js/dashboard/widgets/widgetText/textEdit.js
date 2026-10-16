@@ -52,10 +52,17 @@ define([
     return target ? String(target.textContent || "") : "";
   }
 
+  // Best effort: the text is already committed, so a failing refit must not fail the edit.
   async function refitAutomaticFont(_context, _widgetId, _nodes) {
     var runtime = _widgetRuntime.ensureWidgetRuntime(_context._KDB, _widgetId);
-    if ((runtime.fontSize || _config.automaticFontSize) === _config.automaticFontSize) {
-      await _fontSize.applyFontSize(_context._KDB, _widgetId, _nodes, _config.automaticFontSize);
+    if ((runtime.fontSize || _config.automaticFontSize) !== _config.automaticFontSize) {
+      return { ok: true, skipped: true };
+    }
+    try {
+      return await _fontSize.applyFontSize(_context._KDB, _widgetId, _nodes, _config.automaticFontSize);
+    } catch (err) {
+      console.error("[widgetText.refitAutomaticFont] failed", { widgetId: _widgetId }, err);
+      return { ok: false };
     }
   }
 
@@ -81,8 +88,11 @@ define([
       widgetId: _widgetId,
       payload: { text: nextText }
     });
-    if (!isReplay && !_history.pushTextEditHistory(KDB, _widgetId, previousText, nextText)) {
-      return _dispatchResult.failureResult(_widgetId, _opSeq, "WIDGET_TEXT_HISTORY_COMMIT_FAILED", "history step was not committed");
+    if (!isReplay) {
+      var historyResult = _history.pushTextEditHistory(KDB, _widgetId, previousText, nextText);
+      if (!historyResult.ok) {
+        return _dispatchResult.failureResult(_widgetId, _opSeq, "WIDGET_TEXT_HISTORY_COMMIT_FAILED", historyResult.errorMessage);
+      }
     }
     await refitAutomaticFont(_context, _widgetId, nodes);
     return { ok: true, widgetId: _widgetId, opSeq: _opSeq, status: "success" };

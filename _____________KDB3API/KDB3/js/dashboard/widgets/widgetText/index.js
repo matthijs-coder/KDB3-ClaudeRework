@@ -26,23 +26,30 @@ define([
   _rt
 ) {
   "use strict";
-  // Lifecycle terms: idle, mounted, disposed.
+  // Lifecycle terms: idle, initializing, ready, error, disposed.
 
   var UNKNOWN_ACTION = "WIDGET_TEXT_UNKNOWN_ACTION";
 
-  // One table for routing and validation: perWidget routes require action.widgetId.
+  // One table for routing and validation. perWidget routes require action.widgetId; recordsError routes also record the
+  // failure on the widget record.
   var ROUTES = {};
-  ROUTES[_actionTypes.CONTENT_CREATE] = { handler: _effects.handleContentCreate, perWidget: true, failCode: "WIDGET_TEXT_CONTENT_CREATE_FAILED" };
-  ROUTES[_actionTypes.COMMIT_TEXT_EDIT] = { handler: _textEdit.handleCommitTextEdit, perWidget: true, failCode: "WIDGET_TEXT_EDIT_COMMIT_FAILED" };
-  ROUTES[_actionTypes.APPLY_FONT_SIZE] = { handler: _effects.handleApplyFontSize, perWidget: true, failCode: "WIDGET_TEXT_FONT_APPLY_FAILED" };
-  ROUTES[_actionTypes.APPLY_RESTYLE] = { handler: _effects.handleApplyRestyle, perWidget: true, failCode: "WIDGET_TEXT_RESTYLE_APPLY_FAILED" };
-  ROUTES[_actionTypes.APPLY_TITLE] = { handler: handleApplyTitle, perWidget: true, failCode: "WIDGET_TEXT_EDIT_COMMIT_FAILED" };
-  ROUTES[_actionTypes.APPLY_READABLE_TEXT_COLOR] = {
-    handler: _effects.handleApplyReadableTextColor, perWidget: true, failCode: "WIDGET_TEXT_COLOR_APPLY_FAILED"
-  };
-  ROUTES[_actionTypes.CLEANUP_CONTENT] = { handler: _effects.handleCleanupContent, perWidget: true, failCode: "WIDGET_TEXT_CLEANUP_FAILED" };
-  ROUTES[_actionTypes.PARAMETER_SET_RESET] = { handler: _restore.handleParameterSetReset, perWidget: false, failCode: UNKNOWN_ACTION };
-  ROUTES[_actionTypes.PARAMETER_SET_RESTORE] = { handler: _restore.handleParameterSetRestore, perWidget: false, failCode: UNKNOWN_ACTION };
+  addRoute(_actionTypes.CONTENT_CREATE, _effects.handleContentCreate, "WIDGET_TEXT_CONTENT_CREATE_FAILED", true, true);
+  addRoute(_actionTypes.COMMIT_TEXT_EDIT, _textEdit.handleCommitTextEdit, "WIDGET_TEXT_EDIT_COMMIT_FAILED", true, false);
+  addRoute(_actionTypes.APPLY_FONT_SIZE, _effects.handleApplyFontSize, "WIDGET_TEXT_FONT_APPLY_FAILED", true, true);
+  addRoute(_actionTypes.APPLY_RESTYLE, _effects.handleApplyRestyle, "WIDGET_TEXT_RESTYLE_APPLY_FAILED", true, true);
+  addRoute(_actionTypes.APPLY_TITLE, handleApplyTitle, "WIDGET_TEXT_EDIT_COMMIT_FAILED", true, false);
+  addRoute(_actionTypes.APPLY_READABLE_TEXT_COLOR, _effects.handleApplyReadableTextColor, "WIDGET_TEXT_COLOR_APPLY_FAILED", true, false);
+  addRoute(_actionTypes.CLEANUP_CONTENT, _effects.handleCleanupContent, "WIDGET_TEXT_CLEANUP_FAILED", true, false);
+  addRoute(_actionTypes.PARAMETER_SET_RESET, _restore.handleParameterSetReset, "WRITEBACK_WIDGET_RESET_FAILED", false, false);
+  addRoute(_actionTypes.PARAMETER_SET_RESTORE, _restore.handleParameterSetRestore, "WRITEBACK_WIDGET_RESTORE_FAILED", false, false);
+
+  function addRoute(_type, _handler, _failCode, _perWidget, _recordsError) {
+    ROUTES[_type] = { handler: _handler, failCode: _failCode, perWidget: _perWidget, recordsError: _recordsError };
+  }
+
+  function findRoute(_type) {
+    return Object.prototype.hasOwnProperty.call(ROUTES, _type) ? ROUTES[_type] : null;
+  }
 
   function handleApplyTitle(_context, _action) {
     return {
@@ -59,7 +66,7 @@ define([
     if (!action.type) {
       return { errorCode: UNKNOWN_ACTION };
     }
-    var route = ROUTES[action.type];
+    var route = findRoute(action.type);
     if (route && route.perWidget && !action.widgetId) {
       return { errorCode: "WIDGET_TEXT_WIDGET_ID_MISSING" };
     }
@@ -119,11 +126,13 @@ define([
         return _dispatchResult.normalizeDispatchResult(await _route.handler(context, _action));
       } catch (err) {
         console.error("[widgetText.dispatch] " + _action.type + " failed", { widgetId: _action.widgetId }, err);
-        dispatchInternal({
-          type: _actionTypes.ERROR_RECORDED,
-          widgetId: _action.widgetId,
-          payload: { moduleLevel: !_action.widgetId, errorCode: _route.failCode, errorMessage: String(err && err.message ? err.message : err) }
-        });
+        if (_route.recordsError) {
+          dispatchInternal({
+            type: _actionTypes.ERROR_RECORDED,
+            widgetId: _action.widgetId,
+            payload: { errorCode: _route.failCode, errorMessage: String(err && err.message ? err.message : err) }
+          });
+        }
         return _dispatchResult.normalizeDispatchResult(
           _dispatchResult.failureResult(_action.widgetId, _action.opSeq, _route.failCode, err)
         );
@@ -141,7 +150,7 @@ define([
       if (action.errorCode) {
         return Promise.resolve(_dispatchResult.normalizeDispatchResult({ ok: false, errorCode: action.errorCode }));
       }
-      var route = ROUTES[action.type];
+      var route = findRoute(action.type);
       if (!route) {
         return Promise.resolve(_dispatchResult.normalizeDispatchResult(
           { ok: false, widgetId: action.widgetId, errorCode: UNKNOWN_ACTION }

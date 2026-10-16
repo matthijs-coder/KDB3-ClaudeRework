@@ -44,6 +44,16 @@ define([
     return { ok: true, target: "editable" };
   }
 
+  // The reflow only nudges Cognos to re-fit; a failure must not fail the font change.
+  function tryReflow(_widgetId, _nodes) {
+    try {
+      return forceTextDomReflow(_widgetId, _nodes);
+    } catch (err) {
+      console.error("[widgetText.forceTextDomReflow] failed", { widgetId: _widgetId }, err);
+      return { ok: false, errorCode: "WIDGET_TEXT_REFLOW_FAILED", errorMessage: String(err && err.message ? err.message : err) };
+    }
+  }
+
   function targetTag(_nodes) {
     if (_nodes.spanEl) {
       return "span";
@@ -77,7 +87,7 @@ define([
       _textStyle.removeFixedFontSize(_KDB, _widgetId);
       _nodes.textNodeForFont.style.fontSize = "";
       runtime.fontSize = _config.automaticFontSize;
-      var reflowResult = forceTextDomReflow(_widgetId, _nodes);
+      var reflowResult = tryReflow(_widgetId, _nodes);
       return {
         ok: true,
         appliedValue: _config.automaticFontSize,
