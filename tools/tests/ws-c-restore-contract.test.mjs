@@ -641,7 +641,7 @@ test("whenUrlShareRestoreSettled: no parameterId resolves absent once and clears
   assert.deepEqual(await whenSettled(fresh._KDB), { kind: "failed", parameterId: null });
 });
 
-test("whenUrlShareRestoreSettled: settled startup controller is released", { todo: "C2 step 3" }, async () => {
+test("whenUrlShareRestoreSettled: settled startup controller is released", async () => {
   const whenSettled = load("whenUrlShareRestoreSettled");
   const kdb = createUrlShareKdb(null);
   await whenSettled(kdb._KDB);
