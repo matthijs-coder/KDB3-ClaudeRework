@@ -534,3 +534,159 @@ test("singleSelect: STATE handlers return the state snapshot, ERROR is reduced, 
     "lastDiagnostics", "lastInteraction", "lifecycle", "meta"
   ]);
 });
+
+// --------------------------------------------------------------------------------------------------------------------
+// dienststelle / nativeMultiSelect: pieces the kit adoption (Phase 2 W5) moves: tableData watcher, run guard,
+// destroy resets, return values. Recorded on the code BEFORE W5.
+// --------------------------------------------------------------------------------------------------------------------
+
+function bootDienststelleWithEvents() {
+  const con = makeConsole();
+  const register = loadAmd(path.join(FILTERS, "dienststelle/__orchestratorDienststelle.js"), { stubs: { console: con } });
+  const handlers = [];
+  const counter = { subscribed: [], unsubscribed: 0 };
+  const { KDB, arm } = armableKDB({
+    state: { filters: {} }, runtime: {}, api: {}, elements: {},
+    config: { tables: { dienststelle_bw_hierarchy: { name: " Org Tree " } } },
+    services: { cognosHost: {} },
+    events: {
+      subscribe(name, handler) {
+        counter.subscribed.push(name);
+        handlers.push(handler);
+        return function unsubscribe() { counter.unsubscribed += 1; };
+      }
+    }
+  });
+  const api = register(KDB, {});
+  return { api, KDB, arm, con, name: "dienststelle", key: "dienststelle", counter, handlers };
+}
+
+test("dienststelle: tableData handler dispatches TABLE_DATA_CHANGED for relevant tables only, through the public dispatch", () => {
+  const h = bootDienststelleWithEvents();
+  h.api.mount({});
+  const seen = [];
+  h.api.dispatch = (action) => { seen.push(action); };
+  const fire = h.handlers[h.handlers.length - 1];
+  fire({ tableName: "other", rowCount: 1 });
+  fire({ tableName: "" });
+  fire(undefined);
+  fire({});
+  fire({ tableName: "dienststelle_bw_default", rowCount: 3 });
+  fire({ tableName: "ORG TREE", rowCount: 0 });
+  fire({ tableName: "dienststelle_dezpv_hierarchy" });
+  assert.deepEqual(seen, [
+    { type: "dienststelle/tableDataChanged", payload: { tableName: "dienststelle_bw_default", rowCount: 3, source: "tableData" } },
+    { type: "dienststelle/tableDataChanged", payload: { tableName: "ORG TREE", rowCount: 0, source: "tableData" } },
+    { type: "dienststelle/tableDataChanged", payload: { tableName: "dienststelle_dezpv_hierarchy", rowCount: undefined, source: "tableData" } }
+  ]);
+});
+
+test("dienststelle: a tableData event after destroy warns once through dispatch and does not throw", () => {
+  const h = bootDienststelleWithEvents();
+  h.api.mount({});
+  const fire = h.handlers[h.handlers.length - 1];
+  h.api.destroy();
+  fire({ tableName: "dienststelle_bw_default", rowCount: 1 });
+  fire({ tableName: "dienststelle_bw_default", rowCount: 1 });
+  assert.deepEqual(warnTexts(h), ["[dienststelle.dispatch] called after destroy"]);
+  assert.deepEqual(errorTexts(h), []);
+});
+
+test("dienststelle: parameterSet run guard (invalid, accepted + stamped, equal, stale) and its destroy behaviour", async () => {
+  const h = bootDienststelleWithEvents();
+  const run = (type, runId) => h.api.dispatch({ type: "dienststelle/" + type, payload: { runId } });
+  const cancelledMessage = async (promise) => {
+    const result = await promise;
+    assert.equal(result.ok, false);
+    assert.equal(result.diagnostics.length, 1);
+    assert.equal(result.diagnostics[0].code, "WRITEBACK_RESTORE_CANCELLED");
+    return result.diagnostics[0].message;
+  };
+  const INVALID = "dienststelle parameterSet action requires a numeric runId";
+  for (const bad of [undefined, "7", NaN, Infinity]) {
+    assert.equal(await cancelledMessage(run("parameterSetRestoreRequested", bad)), INVALID);
+  }
+  assert.equal(await cancelledMessage(h.api.dispatch({ type: "dienststelle/parameterSetClearRequested" })), INVALID);
+  assert.equal(h.KDB.runtime.dienststelle.parameterSetRunId, 0);
+  await run("parameterSetClearRequested", 5);
+  assert.equal(h.KDB.runtime.dienststelle.parameterSetRunId, 5);
+  assert.equal(await cancelledMessage(run("parameterSetRestoreRequested", 3)), "stale parameterSet runId 3 superseded by 5");
+  assert.equal(h.KDB.runtime.dienststelle.parameterSetRunId, 5);
+  await run("parameterSetClearRequested", 5);
+  assert.equal(h.KDB.runtime.dienststelle.parameterSetRunId, 5);
+  await run("parameterSetClearRequested", 9);
+  assert.equal(h.KDB.runtime.dienststelle.parameterSetRunId, 9);
+  h.api.mount({});
+  h.api.destroy();
+  assert.equal(h.KDB.runtime.dienststelle.parameterSetRunId, 9);
+});
+
+test("dienststelle: unknown actions return the live state, getState is a copy, history replay answers a promise of a boolean", async () => {
+  const h = bootDienststelle();
+  h.api.mount({});
+  const live = h.KDB.state.filters.dienststelle;
+  assert.strictEqual(h.api.dispatch({ type: "dienststelle/unknownThing" }), live);
+  assert.strictEqual(h.api.dispatch(undefined), live);
+  assert.notStrictEqual(h.api.getState(), live);
+  assert.deepEqual(h.api.getState(), live);
+  const replay = h.api.dispatch({ type: "dienststelle/historyReplayRequested", payload: {} });
+  assert.equal(typeof replay.then, "function");
+  assert.equal(typeof (await replay), "boolean");
+  const snapshot = h.api.getCurrentHierarchySnapshot({});
+  assert.ok(snapshot === null || typeof snapshot === "object");
+  assert.deepEqual(errorTexts(h), []);
+});
+
+test("dienststelle: tab-mutation actions before mount create the runtime lazily and answer through the saga routes", async () => {
+  const h = bootDienststelle();
+  const result = h.api.dispatch({ type: "dienststelle/prepareTabMutation", payload: { operationId: "op-7" } });
+  assert.equal(typeof result.then, "function");
+  const settled = await result;
+  assert.equal(settled.ok, false);
+  assert.equal(h.KDB.runtime.dienststelle.tabMutationRunId >= 0, true);
+});
+
+test("nativeMultiSelect: destroy resets run bookkeeping; the run guard stamps and rejects through dispatch", async () => {
+  const h = bootNative();
+  h.api.mount({});
+  const cancelled = (message) => ({ ok: false, diagnostics: [{ code: "WRITEBACK_RESTORE_CANCELLED", message }] });
+  const clear = (runId) => h.api.dispatch({ type: "nativeMultiSelect/parameterSetClearRequested", payload: { runId } });
+  assert.deepEqual(await clear(undefined), cancelled("NativeMultiSelect parameterSet action requires a numeric runId"));
+  assert.deepEqual(await clear("3"), cancelled("NativeMultiSelect parameterSet action requires a numeric runId"));
+  assert.equal(h.KDB.runtime.nativeMultiSelect.parameterSetRunId, 0);
+  await clear(8);
+  assert.equal(h.KDB.runtime.nativeMultiSelect.parameterSetRunId, 8);
+  assert.deepEqual(await clear(2), cancelled("stale parameterSet runId 2 superseded by 8"));
+  await clear(8);
+  assert.equal(h.KDB.runtime.nativeMultiSelect.parameterSetRunId, 8);
+  h.KDB.runtime.nativeMultiSelect.tabMutationRunId = 4;
+  h.KDB.runtime.nativeMultiSelect.tabMutationSnapshots = { a: 1 };
+  h.api.destroy();
+  const rt = h.KDB.runtime.nativeMultiSelect;
+  assert.equal(rt.parameterSetRunId, 0);
+  assert.equal(rt.tabMutationRunId, 0);
+  assert.deepEqual(rt.tabMutationSnapshots, {});
+  assert.deepEqual(rt.subscriptions, {});
+  assert.strictEqual(rt.historyReplayHandlerContribution, null);
+  assert.equal(h.KDB.state.filters.nativeMultiSelect.lifecycle, "disposed");
+});
+
+test("nativeMultiSelect: runtime release failures are logged once as an array, destroy still completes", () => {
+  const h = bootNative();
+  h.api.mount({});
+  h.KDB.runtime.nativeMultiSelect.observers = { bad: { disconnect() { throw new Error("disconnect boom"); } } };
+  h.api.destroy();
+  assert.equal(h.con.logged.error.length, 1);
+  assert.equal(h.con.logged.error[0][0], "[nativeMultiSelect.destroy] runtime cleanup failed");
+  assert.equal(Array.isArray(h.con.logged.error[0][1]), true);
+  assert.equal(h.KDB.state.filters.nativeMultiSelect.lifecycle, "disposed");
+});
+
+test("dienststelle: runtime release failures warn per error and destroy still completes", () => {
+  const h = bootDienststelle();
+  h.api.mount({});
+  h.KDB.runtime.dienststelle.observers = { bad: { disconnect() { throw new Error("disconnect boom"); } } };
+  h.api.destroy();
+  assert.deepEqual(warnTexts(h), ["[dienststelle.destroy] runtime release failed"]);
+  assert.equal(h.KDB.state.filters.dienststelle.lifecycle, "disposed");
+});

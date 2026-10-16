@@ -6,8 +6,9 @@ define([
   "./availability.js",
   "./operations.js",
   "../singleSelect/selectors.js",
-  "../singleSelect/config.js"
-], function (_config, _state, _selectors, _view, _availability, _operations, _singleSelectSelectors, _singleSelectConfig) {
+  "../singleSelect/config.js",
+  "../_core/dockHandoff.js"
+], function (_config, _state, _selectors, _view, _availability, _operations, _singleSelectSelectors, _singleSelectConfig, _dockHandoff) {
   "use strict";
 
   var actions = _state.actions;
@@ -49,36 +50,40 @@ define([
     return !!(_mappedHandoff.popup && _mappedHandoff.popup.isVisible === true);
   }
 
+  var HANDOFF_PROFILE = {
+    filterType: "sicht",
+    labelDefault: "",
+    scopeMode: "scopeTypeOnly",
+    keyScope: "scopeType",
+    timestamp: "timestampFirst",
+    fields: [
+      ["filterId", "orNull"],
+      ["filterKey", "derived"],
+      ["filterInstanceId", "orNull"],
+      ["filterLabel", "derived"],
+      ["filterScope", "derived"],
+      ["filterType", "filterType"],
+      ["scopeType", "derived"],
+      ["tabId", "nonNull"],
+      ["scopeId", "scopeIdGlobalDefault"],
+      ["scopeResolution", function (_raw, _derived) {
+        return _raw.scopeResolution || (_derived.scopeType === "global" ? "global" : "ownerRequired");
+      }],
+      ["itemIdHint", "nonNull"],
+      ["itemNameHint", function (_raw, _derived) { return _raw.itemNameHint || _derived.filterLabel; }],
+      ["semanticInstanceKeyHint", "nonNull"],
+      ["filterConfig", "refOrEmpty"],
+      ["interactionType", "derived"],
+      ["optionLabel", "optionLabel"],
+      ["isAlleOption", "isTrue"],
+      ["popup", function (_raw) { return readSerializablePopup(_raw.popup); }],
+      ["capabilities", "derived"],
+      ["timestamp", "derived"]
+    ]
+  };
+
   function mapFilterDockHandoff(_handoff) {
-    if (!_handoff || typeof _handoff !== "object" || _handoff.filterType !== "sicht") {
-      return null;
-    }
-    var scopeType = _handoff.scopeType || "global";
-    var filterLabel = _handoff.filterLabel || "";
-    var filterKey = _handoff.filterKey || _handoff.filterId || scopeType + "__" + filterLabel;
-    var capabilities = _handoff.capabilities ? _handoff.capabilities : {};
-    return {
-      filterId: _handoff.filterId || null,
-      filterKey: filterKey,
-      filterInstanceId: _handoff.filterInstanceId || null,
-      filterLabel: filterLabel,
-      filterScope: scopeType,
-      filterType: "sicht",
-      scopeType: scopeType,
-      tabId: _handoff.tabId != null ? _handoff.tabId : null,
-      scopeId: _handoff.scopeId != null ? _handoff.scopeId : (scopeType === "global" ? "global" : null),
-      scopeResolution: _handoff.scopeResolution || (scopeType === "global" ? "global" : "ownerRequired"),
-      itemIdHint: _handoff.itemIdHint != null ? _handoff.itemIdHint : null,
-      itemNameHint: _handoff.itemNameHint || filterLabel,
-      semanticInstanceKeyHint: _handoff.semanticInstanceKeyHint != null ? _handoff.semanticInstanceKeyHint : null,
-      filterConfig: _handoff.filterConfig || {},
-      interactionType: _handoff.interactionType || "unknown",
-      optionLabel: _handoff.optionLabel || _handoff.selectedOptionLabel || null,
-      isAlleOption: _handoff.isAlleOption === true,
-      popup: readSerializablePopup(_handoff.popup),
-      capabilities: Object.assign({}, capabilities),
-      timestamp: _handoff.timestamp || _handoff.observedAt || Date.now()
-    };
+    return _dockHandoff.mapDockHandoff(_handoff, HANDOFF_PROFILE);
   }
 
   function readSerializablePopup(_popup) {

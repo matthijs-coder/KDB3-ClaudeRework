@@ -541,7 +541,7 @@ KDB3/js/dashboard/filters/sicht/
   availability.js          readSichtAvailabilityFromTableData, evaluateSichtOptions, evaluateAndStoreSichtOptions
   options.js               routeSyncAction, selectStartupSichtDefault (startup default)
   view.js                  syncSichtOptionAvailability (popup option DOM sync)
-  delegation.js            filterDock handoff mapping and delegation to singleSelect
+  delegation.js            filterDock handoff mapping (profile over _core/dockHandoff.js mapDockHandoff) and delegation to singleSelect
   validation.js            singleSelect draft/commit payload validation (applySingleSelectDraft)
   commit.js                applySingleSelectCommit, commitConfirmedSicht, notifySpecialSingleSelect
   operations.js            delegated operation ids (register / begin commit / mark committed / abandon)

@@ -28,14 +28,6 @@ define(["../config.js", "./filterDom.js", "./dockNames.js"], function (_config, 
     return !!targetClass;
   }
 
-  function toggleSichtClasses(_wrapper, _definition) {
-    var classMap = SELECTORS.sichtClassByValue;
-    var sichtValue = sichtValueOf(_definition);
-    Object.keys(classMap).forEach(function (key) {
-      _wrapper.classList.toggle(classMap[key], sichtValue === String(key));
-    });
-  }
-
   function syncOneVariantWrapper(_definition, _activeDefinition, _filterScope) {
     var wrapper = _filterDom.findScopedFilterWrapper(_definition.activeFilterKey, _filterScope);
     var isActive = _activeDefinition && _definition.activeFilterKey === _activeDefinition.activeFilterKey;
@@ -44,7 +36,6 @@ define(["../config.js", "./filterDom.js", "./dockNames.js"], function (_config, 
     }
     wrapper.classList.toggle(SELECTORS.markerClass, true);
     wrapper.classList.toggle(SELECTORS.activeClass, isActive === true);
-    toggleSichtClasses(wrapper, _definition);
   }
 
   function syncDienststelleWrapperClasses(_activeDefinition, _KDB) {

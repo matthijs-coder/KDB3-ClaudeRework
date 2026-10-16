@@ -1,4 +1,7 @@
-define(["../hierarchySnapshot.js"], function (_hierarchySnapshot) {
+define([
+  "../hierarchySnapshot.js",
+  "../../../../widgets/widgetVis/state.js"
+], function (_hierarchySnapshot, _widgetVisState) {
   "use strict";
 
   var NOTIFY_CONTEXT_SOURCES = {
@@ -110,7 +113,7 @@ define(["../hierarchySnapshot.js"], function (_hierarchySnapshot) {
     var widgetVisApi = _KDB && _KDB.api ? _KDB.api.widgetVis : null;
     if (widgetVisApi && typeof widgetVisApi.dispatch === "function") {
       widgetVisApi.dispatch({
-        type: "widgetVis/dienststelleChanged",
+        type: _widgetVisState.ACTION_TYPES.DIENSTSTELLE_CHANGED,
         payload: _payload
       });
     }
