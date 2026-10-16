@@ -1,15 +1,16 @@
 define([
-  "./resolveDropboxGeometry.js"
-], function (_resolveDropboxGeometry) {
+  "./geometry.js",
+  "./lookup.js"
+], function (_geometry, _lookup) {
   "use strict";
 
-  function __controller(_KDB, _dropboxEl, _transferPayload, _layout) {
+  function validateDropIntent(_KDB, _dropboxEl, _transferPayload, _layout) {
     const transferPayload = _transferPayload || null;
 
     if (!_dropboxEl || _dropboxEl.getAttribute("kdb_dropbox") !== "true") {
       return buildResult(false, "invalid-dropbox");
     }
-    if (isHelperDropbox(_KDB, _dropboxEl, _layout)) {
+    if (_lookup.isHelperDropbox(_KDB, _dropboxEl, readLayoutHelperTabIds(_layout))) {
       return buildResult(false, "helper-tab");
     }
     if (!transferPayload || !isAcceptedType(transferPayload.draggedElementType)) {
@@ -31,29 +32,8 @@ define([
     };
   }
 
-  function isHelperDropbox(_KDB, dropboxEl, layout) {
-    const helperTabIds = layout && Array.isArray(layout.helperTabIds)
-      ? layout.helperTabIds
-      : [];
-    const dropboxId = String(dropboxEl.id || "").trim();
-    const tabId = readParentTabId(_KDB, dropboxEl);
-
-    return helperTabIds.indexOf(dropboxId) !== -1
-      || (tabId != null && helperTabIds.indexOf(tabId) !== -1);
-  }
-
-  function readPageContainerSelector(_KDB) {
-    var dragDrop = _KDB && _KDB.elements && _KDB.elements.selectors && _KDB.elements.selectors.dragDrop;
-    return dragDrop && dragDrop.pageContainerSelector ? dragDrop.pageContainerSelector : null;
-  }
-
-  function readParentTabId(_KDB, dropboxEl) {
-    const pageContainerSelector = readPageContainerSelector(_KDB);
-    const tabEl = dropboxEl && dropboxEl.parentNode && dropboxEl.parentNode.id
-      ? dropboxEl.parentNode
-      : (dropboxEl && dropboxEl.closest && pageContainerSelector ? dropboxEl.closest(pageContainerSelector) : null);
-
-    return tabEl && tabEl.id ? String(tabEl.id).trim() : null;
+  function readLayoutHelperTabIds(layout) {
+    return layout && Array.isArray(layout.helperTabIds) ? layout.helperTabIds : [];
   }
 
   function isAcceptedType(draggedElementType) {
@@ -68,7 +48,7 @@ define([
     const width = normalizePositiveNumber(transferPayload.defaultWidth, 300) * scaleX;
     const height = normalizePositiveNumber(transferPayload.defaultHeight, 300) * scaleY;
 
-    return _resolveDropboxGeometry.isPlacementWithinBounds(pointer, dragOffset, width, height, dropboxEl);
+    return _geometry.isPlacementWithinBounds(pointer, dragOffset, width, height, dropboxEl);
   }
 
   function hasFilterNameConflict(_KDB, transferPayload) {
@@ -118,5 +98,5 @@ define([
     return isFinite(parsed) && parsed >= 0 ? parsed : fallback;
   }
 
-  return __controller;
+  return validateDropIntent;
 });
