@@ -387,6 +387,19 @@ test("an explicit clear that cannot be planned keeps the claim (only remove and 
   });
 });
 
+test("a late resolve for an owner that was removed: claim and terminal", async () => {
+  await withEnv({}, async (env) => {
+    await env.remove("o1");
+    await env.settle();
+    const late = await env.resolve("o1", 5);
+    await env.settle();
+    assert.equal(late.status, "success", "binds a helper for the removed owner");
+    assert.equal(env.terminals.length, 1);
+    assert.equal(env.ownerState("o1").helperWidgetId, "h1");
+    assert.equal(env.helperAttrs("h1")[0], "o1");
+  });
+});
+
 test("remove of a text widget sends no TopN cleanup and creates no TopN record", async () => {
   await withEnv({}, async (env) => {
     const calls = [];
