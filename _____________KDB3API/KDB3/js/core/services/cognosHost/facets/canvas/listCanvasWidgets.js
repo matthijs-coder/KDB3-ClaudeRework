@@ -1,15 +1,12 @@
 define([
   "../../outcome.js",
   "../../errorCodes.js",
-  "../../hostAccess.js"
-], function (_outcome, _errorCodes, _hostAccess) {
+  "../../hostAccess.js",
+  "../../runtime.js"
+], function (_outcome, _errorCodes, _hostAccess, _runtime) {
   "use strict";
 
   var CODES = _errorCodes.canvas;
-
-  // Layout of the tab containers, cached per _KDB instance: canonicalising a canvas container id
-  // onto a tab id would otherwise re-read the layout for every widget.
-  var layoutItemsCache = { kdb: null, items: null };
 
   function toHostString(_value) {
     return _value == null || _value === "" ? null : String(_value);
@@ -58,11 +55,15 @@ define([
     }));
   }
 
+  // Layout of the tab containers, cached in runtime.cognosHostService.adapters.layoutItems (per _KDB instance,
+  // dropped by clearRuntime): canonicalising a canvas container id onto a tab id would otherwise re-read
+  // the layout for every widget.
   function readLayoutItems(_KDB) {
+    var adapters = _runtime.ensureRuntime(_KDB).adapters;
     var tabsApi;
     var items;
-    if (layoutItemsCache.kdb === _KDB && layoutItemsCache.items) {
-      return layoutItemsCache.items;
+    if (adapters.layoutItems) {
+      return adapters.layoutItems;
     }
     tabsApi = _hostAccess.resolveHostApi(_KDB, "tabs");
     if (!tabsApi || typeof tabsApi.getTabsContainers !== "function") {
@@ -73,8 +74,7 @@ define([
     } catch (_err) {
       items = [];
     }
-    layoutItemsCache.kdb = _KDB;
-    layoutItemsCache.items = items;
+    adapters.layoutItems = items;
     return items;
   }
 

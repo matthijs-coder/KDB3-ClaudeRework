@@ -126,7 +126,7 @@ test("runtime.ensureRuntime shape and idempotence", () => {
   const rt = runtime.ensureRuntime(_KDB);
   assert.deepEqual(rt, {
     generation: 0, subscriptions: [], abortControllers: {}, waitSequence: 0,
-    adapters: { filterItemsByKey: {}, selectionUnsubscribeByWidgetId: {}, lastSelectionDtoByWidgetId: {} },
+    adapters: { filterItemsByKey: {}, selectionUnsubscribeByWidgetId: {}, lastSelectionDtoByWidgetId: {}, layoutItems: null },
     pendingPromises: { filterWritesByKey: {} }
   });
   rt.adapters.filterItemsByKey.k = 1;
@@ -153,7 +153,7 @@ test("runtime.nextGeneration / clearRuntime keep counters, reset buckets, releas
   assert.equal(registration.controller.signal.aborted, true);
   assert.deepEqual(_KDB.runtime.cognosHostService, {
     generation: 2, waitSequence: 1, subscriptions: [], abortControllers: {},
-    adapters: { filterItemsByKey: {}, selectionUnsubscribeByWidgetId: {}, lastSelectionDtoByWidgetId: {} },
+    adapters: { filterItemsByKey: {}, selectionUnsubscribeByWidgetId: {}, lastSelectionDtoByWidgetId: {}, layoutItems: null },
     pendingPromises: { filterWritesByKey: {} }
   });
   assert.equal(runtime.nextGeneration(_KDB), 3);
