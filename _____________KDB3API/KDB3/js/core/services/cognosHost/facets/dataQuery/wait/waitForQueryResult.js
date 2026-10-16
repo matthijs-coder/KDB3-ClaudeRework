@@ -57,22 +57,6 @@ define([
     }
   }
 
-  function logZeroRowStop(_widgetId, _probe) {
-    try {
-      if (!_probe || _probe.rowCount !== 0) {
-        return;
-      }
-      console.info("[sicht-jahr] TEMP query wait stopped with zero rows", {
-        widgetId: _widgetId,
-        itemCount: _probe.itemCount,
-        rowCount: _probe.rowCount,
-        isEmpty: _probe.isEmpty
-      });
-    } catch (err) {
-      console.info("[sicht-jahr] TEMP query wait log failed", err);
-    }
-  }
-
   function abortedOutcome(_ctx) {
     return _ctx.isDisposed()
       ? _buildDataQueryOutcome.buildDisposed()
@@ -116,7 +100,6 @@ define([
             }
             probe = _inspectQueryResult(result);
             if (probe.itemCount > 0) {
-              logZeroRowStop(_widgetId, probe);
               // Keep the host result in ring 1 so readQueryRows can flatten
               // it without a second getDataQueryResult (old owner did wait,
               // then one fetch; do not add a third round-trip).

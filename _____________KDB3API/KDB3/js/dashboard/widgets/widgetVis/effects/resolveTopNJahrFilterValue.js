@@ -102,18 +102,8 @@ define([
         jahrFilterValue: { d: year, u: year },
         monatFilterValue: { d: String(monthCaption), u: String(monthCaption) }
       };
-      console.info("[widgetVis.NewestStichtag] TEMP parsed pin", {
-        yearText: yearText,
-        monthText: monthText,
-        jahrFilterValue: pin.jahrFilterValue,
-        monatFilterValue: pin.monatFilterValue
-      });
       return pin;
     } catch (err) {
-      console.info("[widgetVis.NewestStichtag] TEMP pin failed", {
-        errorCode: err && err.errorCode,
-        errorMessage: err && (err.errorMessage || err.message)
-      });
       if (err && err.errorCode === STICHTAG_UNAVAILABLE) {
         throw err;
       }

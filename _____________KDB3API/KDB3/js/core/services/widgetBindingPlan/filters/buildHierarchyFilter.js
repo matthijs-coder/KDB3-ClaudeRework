@@ -99,7 +99,6 @@ define([
     var values = _spec.targetKind === "topNHelper"
       ? collectTopNHelperHierarchyValues(snapshot.resolution)
       : _sanitizeWidgetDownstreamDisplayValues(rawValues);
-    logHelperHierarchy(_spec, snapshot, itemId, values);
     if (!values.length) {
       return {
         ok: false,
@@ -118,26 +117,6 @@ define([
         options: hierarchyFilterOptions(_spec, matched),
       },
     };
-  }
-
-  function logHelperHierarchy(_spec, _snapshot, _itemId, _values) {
-    var resolution;
-    if (!_spec || _spec.targetKind !== "topNHelper") {
-      return;
-    }
-    try {
-      resolution = _snapshot && _snapshot.resolution;
-      console.info("[sicht-jahr] TEMP helper hierarchy", {
-        activeDownstream: _snapshot && _snapshot.activeDownstreamName,
-        itemId: _itemId,
-        displayValues: resolution && resolution.displayValues,
-        downstreamValues: resolution && resolution.downstreamValues,
-        dominantValues: resolution && resolution.dominantValues,
-        helperValues: _values
-      });
-    } catch (err) {
-      console.warn("[sicht-jahr] TEMP helper hierarchy failed", err);
-    }
   }
 
   return __controller;
