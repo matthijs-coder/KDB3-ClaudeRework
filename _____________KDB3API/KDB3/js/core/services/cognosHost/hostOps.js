@@ -87,11 +87,22 @@ define(["./outcome.js", "./hostAccess.js"], function (_outcome, _hostAccess) {
     }
   }
 
+  // guard + run in one call; early exits of a write are still delivered as a promise.
+  function readOp(_ctx, _valid, _spec) {
+    return guardRead(_ctx, _valid, _spec.codes) || runSync(_ctx, _spec);
+  }
+
+  function writeOp(_ctx, _options, _valid, _spec) {
+    var early = guardWrite(_ctx, _options, _valid, _spec.codes);
+    return early ? Promise.resolve(early) : runWrite(_ctx, _options, _spec);
+  }
+
   return {
     hostFail: hostFail,
-    guardRead: guardRead,
     guardWrite: guardWrite,
     runSync: runSync,
-    runWrite: runWrite
+    runWrite: runWrite,
+    readOp: readOp,
+    writeOp: writeOp
   };
 });
