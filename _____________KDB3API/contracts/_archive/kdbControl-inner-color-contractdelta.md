@@ -2,7 +2,7 @@
 
 **Status:** Approved for this slice (PO vastenburg, 2026-09-24, “go” after the second-pass review).
 **Datum:** 2026-09-24
-**Relatie:** extends [_archive/kdbControl-settings-cp1-contractdelta.md](./_archive/kdbControl-settings-cp1-contractdelta.md) §3–§4 and §6 for one new control-panel colour. Extends [writeback.md](./writeback.md) §4.1.1 and [kdbControl-parameterSetRestore-contractdelta.md](./kdbControl-parameterSetRestore-contractdelta.md) §3 with one key. History step key stays `kdbControl_settingsChange`.
+**Relatie:** extends [_archive/kdbControl-settings-cp1-contractdelta.md](./kdbControl-settings-cp1-contractdelta.md) §3–§4 and §6 for one new control-panel colour. Extends [writeback.md](../writeback.md) §4.1.1 and [kdbControl-parameterSetRestore-contractdelta.md](../kdbControl-parameterSetRestore-contractdelta.md) §3 with one key. History step key stays `kdbControl_settingsChange`.
 
 Dashboard width/height/background and Diagramme/Kommentare defaults are **out of scope**. Do not apply them.
 

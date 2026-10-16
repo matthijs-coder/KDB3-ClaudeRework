@@ -283,7 +283,7 @@ The CSS ports only the custom button styling from legacy `KDB.css` and must not 
 #com.ibm.bi.dashboard.redoPluginContainer
 ```
 
-Those native Cognos plugin controls are out of scope. **2026-09-03:** they stay hidden by `cognosButtons.css` when they are `.pluginContainer` inside `[id="com.ibm.bi.dashboard.toolbars.actionBar"]` ([cognosButtons-allowlist-invert-contractdelta.md](./cognosButtons-allowlist-invert-contractdelta.md) §3.2), not by `[id$="PluginContainer"]` and not by this module’s CSS.
+Those native Cognos plugin controls are out of scope. **2026-09-03:** they stay hidden by `cognosButtons.css` when they are `.pluginContainer` inside `[id="com.ibm.bi.dashboard.toolbars.actionBar"]` ([cognosButtons-allowlist-invert-contractdelta.md](./_archive/cognosButtons-allowlist-invert-contractdelta.md) §3.2), not by `[id$="PluginContainer"]` and not by this module’s CSS.
 
 ## 13. Folder Layout
 

@@ -51,7 +51,7 @@ Production evidence:
 
 ## 2. Purpose
 
-`kennzahlenTree` renders Kennzahlen hierarchy data as one searchable jsTree per configured source. It preserves the REDESIGN2 behavior of deriving group/leaf tree nodes from hierarchy rows, filtering unreleased rows for non-superusers, rendering searchable tree blocks, and preparing the same leaf drag payload shape. **Production `metricsTree` SuperUser source (2026-09-02):** [kdbControl-developer-mode-toggle-contractdelta.md](./kdbControl-developer-mode-toggle-contractdelta.md) Slice B — do not read `_KDB.superUser`.
+`kennzahlenTree` renders Kennzahlen hierarchy data as one searchable jsTree per configured source. It preserves the REDESIGN2 behavior of deriving group/leaf tree nodes from hierarchy rows, filtering unreleased rows for non-superusers, rendering searchable tree blocks, and preparing the same leaf drag payload shape. **Production `metricsTree` SuperUser source (2026-09-02):** [kdbControl-developer-mode-toggle-contractdelta.md](./_archive/kdbControl-developer-mode-toggle-contractdelta.md) Slice B — do not read `_KDB.superUser`.
 
 The direct port does not introduce new selection semantics, new fact-events, widget binding, filter writes, launchpad writes, or Cognos mutations. Those were not present in the legacy source tranche and would be behavior changes.
 

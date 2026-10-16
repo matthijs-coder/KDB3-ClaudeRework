@@ -105,7 +105,7 @@ The owner must:
 1. validate `runId` against the active writeback restore run if available;
 2. when `status === "newDashboard"`, ignore supplied `canvas`/`settings` restore values and apply owner defaults;
 3. otherwise apply `canv` to dashboard dimension settings;
-4. otherwise apply `sett.dash`, `sett.panel`, `sett.newwg` through the same reducer/effect paths used by normal settings changes; **`sett.dash.devOn`** uses `kdbControl/settings/setDeveloperMode` then `_KDB.api.properties.applyDeveloperMode` (`source: "writebackRestore"`). **`sett.dash.hidSu` is ignored.** See [kdbControl-developer-mode-toggle-contractdelta.md](./kdbControl-developer-mode-toggle-contractdelta.md);
+4. otherwise apply `sett.dash`, `sett.panel`, `sett.newwg` through the same reducer/effect paths used by normal settings changes; **`sett.dash.devOn`** uses `kdbControl/settings/setDeveloperMode` then `_KDB.api.properties.applyDeveloperMode` (`source: "writebackRestore"`). **`sett.dash.hidSu` is ignored.** See [kdbControl-developer-mode-toggle-contractdelta.md](./_archive/kdbControl-developer-mode-toggle-contractdelta.md);
 5. sync configuration UI controls after state commit;
 6. avoid history writes when `skipHistory === true`;
 7. return applied/skipped diagnostics.

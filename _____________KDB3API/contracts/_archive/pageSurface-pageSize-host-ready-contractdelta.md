@@ -8,7 +8,7 @@
 **Status:** `Implemented` — PO live green 2026-10-06
 **Owner:** `pageSurface` (`_KDB.api.canvas`); ring-1 op remains `cognosHost.canvas.setCanvasPageSize`
 **Authoring AI:** Cursor coordinator, 2026-10-06
-**Related:** [pageSurface.md](./pageSurface.md), [cognosHostService.md](./cognosHostService.md) `setCanvasPageSize` / `whenCanvasReady`
+**Related:** [pageSurface.md](../pageSurface.md), [cognosHostService.md](../cognosHostService.md) `setCanvasPageSize` / `whenCanvasReady`
 
 ---
 
