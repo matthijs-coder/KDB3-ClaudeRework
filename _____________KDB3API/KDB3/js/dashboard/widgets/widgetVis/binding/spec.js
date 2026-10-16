@@ -3,7 +3,7 @@ define([
   "../config.js",
   "../state.js",
   "../visTypes.js",
-  "../../../../core/services/widgetBindingPlan/defaults/normalizeDefaultValue.js",
+  "../../../../core/utils/normalizeDefaultValue.js",
   "../../../../core/utils/kit/data.js"
 ], function (_bindingConfig, _config, _state, _visTypes, _normalizeDefaultValue, _data) {
   "use strict";

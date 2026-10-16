@@ -1,7 +1,8 @@
 define([
   "../config.js",
-  "./visSnapshot.js"
-], function (_config, _visSnapshot) {
+  "./visSnapshot.js",
+  "../../widgetVis/selectors.js"
+], function (_config, _visSnapshot, _visSelectors) {
   "use strict";
 
   const warnedMissingApi = {};
@@ -99,18 +100,8 @@ define([
       return;
     }
     if (normalizedKind === "maximize") {
-      payload.nextMaximized = !readVisMaximizedFromApi(_KDB, planned.widgetId);
+      payload.nextMaximized = !_visSelectors.readVisMaximized(_KDB, planned.widgetId);
     }
-  }
-
-  function readVisMaximizedFromApi(_KDB, widgetId) {
-    const api = _KDB && _KDB.api ? _KDB.api.widgetVis : null;
-    if (!api || typeof api.getState !== "function") {
-      return false;
-    }
-    const state = api.getState();
-    const record = state && state.byId ? state.byId[String(widgetId || "")] : null;
-    return !!(record && record.maximized === true);
   }
 
   function dispatchToTargetApi(_KDB, _target, _action) {

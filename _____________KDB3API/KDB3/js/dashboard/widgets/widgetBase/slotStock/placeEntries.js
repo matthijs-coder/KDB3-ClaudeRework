@@ -4,12 +4,12 @@ define([
   "../launchpadRoute.js",
   "../launchpadTransfer.js",
   "../canvas.js",
-  "../../widgetVis/config/actionTypes.js",
-  "../../widgetText/config/actionTypes.js",
+  "../../widgetVis/selectors.js",
+  "../../widgetText/selectors.js",
   "../../../tabs/effects/hasTabInnerFrame.js",
   "../../../tabs/actions/guardParameterSetRun.js"
 ], function (
-  _runtimeModule, _effects, _launchpadRoute, _launchpadTransfer, _canvas, _widgetVisActionTypes, _widgetTextActionTypes, _hasTabInnerFrame, _guardParameterSetRun
+  _runtimeModule, _effects, _launchpadRoute, _launchpadTransfer, _canvas, _widgetVisSelectors, _widgetTextSelectors, _hasTabInnerFrame, _guardParameterSetRun
 ) {
   "use strict";
 
@@ -35,7 +35,7 @@ define([
       return Promise.resolve({ ok: false, message: "widgetVis API is unavailable for restore contentCreate dispatch", diagnostics: diagnostics });
     }
     return _effects.dispatchContentAction(api, {
-      type: _widgetVisActionTypes.CONTENT_CREATE,
+      type: _widgetVisSelectors.ACTION_TYPES.CONTENT_CREATE,
       widgetId: _widgetId,
       payload: {
         metric: {
@@ -67,7 +67,7 @@ define([
       return Promise.resolve({ ok: false, message: "widgetText API is unavailable for restore contentCreate dispatch" });
     }
     return _effects.dispatchContentAction(api, {
-      type: _widgetTextActionTypes.CONTENT_CREATE,
+      type: _widgetTextSelectors.ACTION_TYPES.CONTENT_CREATE,
       widgetId: _widgetId,
       payload: {
         source: _payload.source || "writebackSet",

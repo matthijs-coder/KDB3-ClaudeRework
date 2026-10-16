@@ -2,11 +2,11 @@ define([
   "../config/selectors.js",
   "../../../../core/config/dropdownDefaults.js",
   "../state.js",
-  "../../widgetVis/config/resolveVisualizationBindingConfig.js",
+  "../../widgetVis/selectors.js",
   "../../../../core/config/visualizations/visTypeRules.js",
   "./dropdownOptionSelection.js",
   "./resolveWidgetPlacementContext.js"
-], function (_selectors, _dropdownDefaults, _state, _resolveVisualizationBindingConfig, _visTypeRules, _dropdownOptionSelection, _placementContext) {
+], function (_selectors, _dropdownDefaults, _state, _visSelectors, _visTypeRules, _dropdownOptionSelection, _placementContext) {
   "use strict";
 
   function findOptionByChoice(dropdown, choice) {
@@ -84,7 +84,7 @@ define([
     if (!record || record.grouping == null) {
       return;
     }
-    var bucket = _resolveVisualizationBindingConfig.resolveVisPropBucketKey(record.visType, _KDB);
+    var bucket = _visSelectors.readVisPropBucketKey(_KDB, record.visType);
     if (!_visTypeRules.isAllowedGrain(bucket, record.grouping)) {
       delete record.grouping;
       delete record.groupingMeta;
@@ -94,7 +94,7 @@ define([
   function hideDisallowedGroupingRows(panel, visType, _KDB) {
     var dropdown = panel.querySelector(".KDB_groupingContainer");
     var rows = dropdown ? dropdown.querySelectorAll(_selectors.dropdownOptionSelector) : [];
-    var bucket = _resolveVisualizationBindingConfig.resolveVisPropBucketKey(visType, _KDB);
+    var bucket = _visSelectors.readVisPropBucketKey(_KDB, visType);
     Array.prototype.forEach.call(rows, function (row) {
       var token = row.getAttribute(_selectors.optionKeyAttr) || row.getAttribute(_selectors.optionValueAttr) || "";
       var isGrainRow = _visTypeRules.isGrain(token) && token !== "inherit";

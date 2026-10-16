@@ -1,8 +1,8 @@
 define([
-  "../widgetSettings/config/selectors.js",
+  "../widgetSettings/selectors.js",
   "./view/placement.js",
   "./view/colour.js"
-], function (_settingsSelectors, _placement, _colour) {
+], function (_widgetSettings, _placement, _colour) {
   "use strict";
 
   const CONTENT_CREATE_FAILED = "WIDGET_BASE_CONTENT_CREATE_FAILED";
@@ -80,7 +80,7 @@ define([
     if (!shellEl || !shellEl.getAttribute) {
       return "";
     }
-    return shellEl.getAttribute(_settingsSelectors.kennzahlenTableAttr) || shellEl.getAttribute(_settingsSelectors.kennzahlenTableAttrAlt) || "";
+    return shellEl.getAttribute(_widgetSettings.domSelectors.kennzahlenTableAttr) || shellEl.getAttribute(_widgetSettings.domSelectors.kennzahlenTableAttrAlt) || "";
   }
 
   function readPlaceControlsResult(result, widgetId) {

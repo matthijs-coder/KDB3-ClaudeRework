@@ -5,9 +5,8 @@ define([
   "./runtime.js",
   "./settingsSnapshot.js",
   "./state.js",
-  "../widgetSettings/effects/startWidgetRenderLoading.js",
-  "../widgetSettings/view/resolveWidgetPlacementContext.js"
-], function (_pipeline, _config, _results, _visRuntime, _settingsSnapshot, _state, _startWidgetRenderLoading, _resolveWidgetPlacementContext) {
+  "../widgetSettings/selectors.js"
+], function (_pipeline, _config, _results, _visRuntime, _settingsSnapshot, _state, _widgetSettings) {
   "use strict";
 
   var REASON_BY_CONTROL = { dimension: "dimension", visType: "visType", topNChoice: "topN" };
@@ -95,9 +94,9 @@ define([
     var widgetEl = _payload.widgetEl;
     try {
       if (!widgetEl || widgetEl.nodeType !== 1) {
-        widgetEl = _resolveWidgetPlacementContext.resolveWidgetEl(_context._KDB, widgetId);
+        widgetEl = _widgetSettings.resolveWidgetEl(_context._KDB, widgetId);
       }
-      _startWidgetRenderLoading(_context._KDB, {
+      _widgetSettings.startWidgetRenderLoading(_context._KDB, {
         widgetId: widgetId,
         widgetType: "live",
         isHistoryReplay: _payload.isHistoryReplay === true,

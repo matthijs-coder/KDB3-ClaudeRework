@@ -1,10 +1,10 @@
 define([
-  "../widgetBase/view/resolveWidgetShell.js",
+  "../widgetBase/state/selectors.js",
   "./config.js"
-], function (_shellModule, _config) {
+], function (_widgetBaseSelectors, _config) {
   "use strict";
 
-  var _resolveWidgetShell = _shellModule.resolveWidgetShell;
+  var _resolveWidgetShell = _widgetBaseSelectors.readWidgetShell;
 
   // ownerRuntime.helperPlacement is the placement lease: the latest op that
   // moved the helper beside the owner, plus the launchpad slot it came from.

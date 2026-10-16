@@ -1,7 +1,7 @@
 define([
   "../config.js",
   "../filters/filterItemIds.js",
-  "../defaults/normalizeDefaultValue.js",
+  "../../../utils/normalizeDefaultValue.js",
   "./slotComposition.js",
 ], function (_config, _filterItemIds, _normalizeDefaultValue, _slotComposition) {
   "use strict";

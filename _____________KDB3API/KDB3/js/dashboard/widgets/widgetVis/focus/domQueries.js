@@ -2,11 +2,12 @@ define([
   "../config.js",
   "../dom.js",
   "../../../../core/utils/kit/async.js",
-  "../../widgetSettings/config/selectors.js",
+  "../../widgetSettings/selectors.js",
   "../../../../core/cognosHost/config/widgetChromeSelectors.js"
-], function (_config, _dom, _async, _settingsSelectors, _widgetChrome) {
+], function (_config, _dom, _async, _widgetSettings, _widgetChrome) {
   "use strict";
 
+  var _settingsSelectors = _widgetSettings.domSelectors;
   var focus = _widgetChrome.focusMode.strings;
   var KEPT_FOCUS_PANEL_ICONS = [
     "KDB_widgetInfoButton", "KDB_visualizationsButton", "KDB_groupingButton", "KDB_showValuesButton", "KDB_dimensionsButton", "KDB_topNButton"

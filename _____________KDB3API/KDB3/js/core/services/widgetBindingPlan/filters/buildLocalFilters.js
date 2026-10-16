@@ -2,7 +2,7 @@ define([
   "./filterItemIds.js",
   "./buildTopNFilter.js",
   "./buildHierarchyFilter.js",
-  "../defaults/normalizeDefaultValue.js",
+  "../../../utils/normalizeDefaultValue.js",
   "../../../config/visualizations/buildKennzahlAggregationFilter.js",
   "../../../utils/kit/data.js",
 ], function (_filterItemIds, _buildTopNFilter, _buildHierarchyFilter, _normalizeDefaultValue, _kennzahlAggregationFilter, _data) {

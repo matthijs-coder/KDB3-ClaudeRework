@@ -49,6 +49,7 @@ function createClock() {
 function buildKdb(extra) {
   const _KDB = Object.assign({ config: { options: {} }, api: {}, properties: {}, state: {}, runtime: {} }, extra || {});
   load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/services/widgetBinding/index.js")(_KDB);
   return _KDB;
 }
 
@@ -151,8 +152,7 @@ function loadDienststelleChanged(fakes) {
 function loadSettings(fakes) {
   const modules = {
     "./binding/pipeline.js": { runBindingPipeline: fakes.pipeline },
-    "../widgetSettings/effects/startWidgetRenderLoading.js": fakes.startLoading,
-    "../widgetSettings/view/resolveWidgetPlacementContext.js": { resolveWidgetEl: () => ({ nodeType: 1, id: "el" }) }
+    "../widgetSettings/selectors.js": { startWidgetRenderLoading: fakes.startLoading, resolveWidgetEl: () => ({ nodeType: 1, id: "el" }) }
   };
   return load(W + "settings.js", { stubs: { console: QUIET }, modules });
 }
@@ -372,7 +372,7 @@ async function computeGateFixtures() {
   };
   const fakes = { pin: async () => ({ jahrFilterValue: { d: "2024", u: "2024" }, monatFilterValue: { d: "Dez", u: "Dez" } }) };
   const gateApi = loadTopNGate(clock, fakes);
-  const _KDB = buildKdb({ api: { widgetTopN: topNApi } });
+  const _KDB = buildKdb({ api: { widgetTopN: topNApi }, state: { widgets: { topN: topNState } } });
   const waitersGate = loadGates(clock);
   const { context } = makeContext(_KDB);
   topNApi.dispatch = async (action) => {

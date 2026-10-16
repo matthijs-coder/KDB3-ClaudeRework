@@ -552,6 +552,7 @@ Published selectors from `widgetBase/state/selectors.js` (also `readCanvasWidget
 | `readWidgetsByTab(_KDB, tabId)` | `byId[*].tabId` | Array of cloned frames for a tab. |
 | `readPlacement(_KDB, widgetId)` | frame placement fields | `{ placement, launchpadPad, launchpadSlotKey, layout }` or `undefined`. |
 | `readAllWidgetIds(_KDB)` | `Object.keys(byId)` | Array of widget ids. |
+| `readWidgetShell(_KDB, widgetId)` | owner document `getElementById(widgetId)` | The widget shell element or `null` (the `view/resolveWidgetShell.js` lookup; used by widgetTopN helper placement). |
 
 Internal writer/reducer actions:
 
@@ -719,7 +720,7 @@ KDB3/js/dashboard/widgets/widgetBase/
   index.js            # createWidgetBaseController: mount/dispatch/destroy, ROUTES table, drop/tabs subscriptions, startup route-all
   config.js           # launchpad channels, skip reasons, chart types, writeback titles, host widget id, labels
   state.js            # ACTION_TYPES, initial state, frame reducer, normalizeDispatchResult
-  state/selectors.js  # published read selectors (readWidgetBaseState, readFrame, readWidgetsByTab, readCanvasWidgetsByTab, readPlacement, readAllWidgetIds)
+  state/selectors.js  # published read selectors (readWidgetBaseState, readFrame, readWidgetsByTab, readCanvasWidgetsByTab, readPlacement, readAllWidgetIds, readWidgetShell)
   runtime.js          # ensureWidgetBaseRuntime, ensureWidgetBaseWidgetRuntime
   launchpadRoute.js   # resolveLaunchpadRoute (descriptor -> kind/role/pad, skip reasons), resolveClaimedWidget, readPadShellEligibility
   discovery.js        # discoverCanvasWidgets: canvas item scan, descriptors, ownership/shell checks

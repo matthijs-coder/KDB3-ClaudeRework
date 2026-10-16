@@ -1,24 +1,15 @@
 define([
   "../drillthrough/install.js",
   "./domQueries.js",
-  "../../widgetSettings/config/selectors.js",
-  "../../widgetSettings/config/controlDefinitions.js",
-  "../../widgetSettings/view/buildSettingsIcon.js",
-  "../../widgetSettings/effects/dispatchWidgetSettingsIntent.js",
-  "../../widgetSettings/view/dropdownOptionSelection.js",
-  "../../widgetSettings/view/panelOutsidePointerBehavior.js"
+  "../../widgetSettings/selectors.js"
 ], function (
   _drillthroughInstall,
   _domQueries,
-  _settingsSelectors,
-  _controlDefinitions,
-  _buildSettingsIcon,
-  _dispatchIntent,
-  _dropdownOptionSelection,
-  _panelOutsidePointerBehavior
+  _widgetSettings
 ) {
   "use strict";
 
+  var _settingsSelectors = _widgetSettings.domSelectors;
   var PANEL_VIS_TYPE_ATTR = "data-kdb-vis-type";
   var KEEP_DROPDOWN_OPEN_KINDS = ["showValues", "iterator", "zoom", "valueCaption"];
 
@@ -31,8 +22,8 @@ define([
     if (option && panelRoot.contains(option)) {
       ev.preventDefault();
       ev.stopPropagation();
-      _dropdownOptionSelection.markSelectedOption(option);
-      _dispatchIntent.dropdownOption(_KDB, panelRoot, option, { isHistoryReplay: false });
+      _widgetSettings.markSelectedOption(option);
+      _widgetSettings.dispatchDropdownOptionIntent(_KDB, panelRoot, option, { isHistoryReplay: false });
       dropdown = option.closest(_settingsSelectors.dropdownSelector);
       kind = option.getAttribute(_settingsSelectors.dropdownKindAttr) || (dropdown && dropdown.getAttribute(_settingsSelectors.dropdownKindAttr)) || "";
       if (KEEP_DROPDOWN_OPEN_KINDS.indexOf(kind) === -1) {
@@ -46,7 +37,7 @@ define([
     }
     dropdown = icon.querySelector(_settingsSelectors.dropdownSelector);
     if (!dropdown) {
-      _dispatchIntent.icon(_KDB, panelRoot, icon, { isHistoryReplay: false });
+      _widgetSettings.dispatchIconIntent(_KDB, panelRoot, icon, { isHistoryReplay: false });
       return;
     }
     if (ev.target.closest(_settingsSelectors.dropdownSelector) === dropdown) {
@@ -64,7 +55,7 @@ define([
 
   function onDocumentPointerDown(panelRoot, ev) {
     try {
-      if (_panelOutsidePointerBehavior.shouldKeepDropdownsOpen(panelRoot, ev.target, _settingsSelectors.focusPanelPointerIconSelector)) {
+      if (_widgetSettings.shouldKeepDropdownsOpen(panelRoot, ev.target, _settingsSelectors.focusPanelPointerIconSelector)) {
         return;
       }
       _domQueries.hidePanelDropdowns(panelRoot);
@@ -119,14 +110,14 @@ define([
   }
 
   function appendFocusUnmaximizeButton(_KDB, panelRoot) {
-    var focusOnly = _controlDefinitions.focusOnly;
+    var focusOnly = _widgetSettings.focusOnlyControls;
     var definition = focusOnly && focusOnly.unmaximize ? focusOnly.unmaximize : null;
     var icons = panelRoot.querySelector(_settingsSelectors.settingsIconsSelector) ||
       panelRoot.querySelector(_settingsSelectors.widgetIconsSelector);
     if (!definition || !icons || icons.querySelector("." + definition.className)) {
       return;
     }
-    icons.appendChild(_buildSettingsIcon(_KDB, definition));
+    icons.appendChild(_widgetSettings.buildSettingsIcon(_KDB, definition));
   }
 
   function buildFocusPanelFromSource(sourcePanel, widgetId, _KDB) {
