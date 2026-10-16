@@ -12,7 +12,7 @@ define(["./state.js", "./visTypes.js"], function (_state, _visTypes) {
   // Returns the stored record itself: callers must treat it as read-only.
   function readVisRecord(_KDB, _widgetId) {
     var state = _KDB && _KDB.state && _KDB.state.widgets && _KDB.state.widgets.vis;
-    if (!state || !_widgetId || !state.byId[_widgetId]) {
+    if (!state || !state.byId || !_widgetId || !state.byId[_widgetId]) {
       return undefined;
     }
     return state.byId[_widgetId];

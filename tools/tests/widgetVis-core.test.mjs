@@ -723,8 +723,8 @@ test("years: parseYear first vs last, parseYearFromCell cells, first equals read
 test("published selectors: action types and bucket key equal the leaves", () => {
   const state = load(W + "state.js");
   const visTypes = load(W + "visTypes.js");
-  const published = load(W + "selectors.js");
-  assert.deepStrictEqual(json(published.ACTION_TYPES), json(state.ACTION_TYPES));
+  const published = load(W + "selectors.js", { overrides: { [W + "state.js"]: state } });
+  assert.equal(published.ACTION_TYPES, state.ACTION_TYPES);
   assert.equal(published.readVisPropBucketKey({}, "Line"), visTypes.resolveVisPropBucketKey("Line", {}));
 });
 

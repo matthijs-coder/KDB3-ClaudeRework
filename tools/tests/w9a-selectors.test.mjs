@@ -155,3 +155,15 @@ test("widgetSettings selectors.js with the real modules: members exist with the 
   ["buildSettingsIcon", "dispatchDropdownOptionIntent", "dispatchIconIntent", "markSelectedOption", "shouldKeepDropdownsOpen",
     "startWidgetRenderLoading", "resolveWidgetEl"].forEach((key) => assert.equal(typeof facade[key], "function", key));
 });
+
+test("widgetVis readVisRecord / readVisMaximized tolerate a missing vis subtree or byId", () => {
+  const vis = load("dashboard/widgets/widgetVis/selectors.js");
+  [{}, { state: {} }, { state: { widgets: {} } }, { state: { widgets: { vis: {} } } }].forEach((kdb) => {
+    assert.equal(vis.readVisRecord(kdb, "w1"), undefined);
+    assert.equal(vis.readVisMaximized(kdb, "w1"), false);
+  });
+  const record = { maximized: true };
+  const _KDB = { state: { widgets: { vis: { byId: { w1: record } } } } };
+  assert.equal(vis.readVisRecord(_KDB, "w1"), record);
+  assert.equal(vis.readVisMaximized(_KDB, "w1"), true);
+});
