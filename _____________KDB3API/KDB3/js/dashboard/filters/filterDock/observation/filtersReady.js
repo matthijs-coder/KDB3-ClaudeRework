@@ -100,7 +100,7 @@ define([
   function detectFiltersReady(ctx, dockRoot) {
     var selectors = _selectors.readDockSelectors(ctx._KDB);
     var wrapperCount;
-    if (!dockRoot || !selectors || ctx.isDisposed()) {
+    if (!dockRoot || !selectors || ctx.isDisposed() || isFiltersReady(ctx)) {
       return false;
     }
     if (!selectors.filterItemSelector) {

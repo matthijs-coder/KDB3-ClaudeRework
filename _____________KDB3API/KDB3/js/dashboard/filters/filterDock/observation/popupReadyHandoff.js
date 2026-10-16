@@ -44,18 +44,16 @@ define([
   function dispatchPopupReadyHandoff(ctx, popup, mutationSummary, dockRoot, selectors, lastClickedFilter, lastInteraction) {
     var runtime = ctx.runtime;
     var handoff;
-    var selectionSyncGap;
     var decision;
     if (_popupReadySession.shouldDispatchPopupReadyTransition(runtime, popup, lastClickedFilter)) {
       handoff = buildPopupReadyHandoff(lastClickedFilter, lastInteraction, popup);
     } else {
-      selectionSyncGap = _dockDom.readPopupSelectionSyncGap(dockRoot, selectors, runtime);
       decision = _popupReadySession.decidePostReadyResync(
         _popupReadySession.ensurePopupReadyState(runtime),
         popup,
         lastClickedFilter,
         mutationSummary,
-        function () { return selectionSyncGap; }
+        function () { return _dockDom.readPopupSelectionSyncGap(dockRoot, selectors, runtime); }
       );
       if (!decision.dispatch) {
         return;

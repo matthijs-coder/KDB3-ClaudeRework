@@ -1,4 +1,8 @@
-define(["./config.js", "./selectors.js"], function (_config, _selectors) {
+define([
+  "./config.js",
+  "./selectors.js",
+  "../../../core/utils/kit/errors.js"
+], function (_config, _selectors, _errors) {
   "use strict";
 
   function trackChromeWait(_KDB, key, promise) {
@@ -9,27 +13,91 @@ define(["./config.js", "./selectors.js"], function (_config, _selectors) {
     return checks.trackWait(_KDB, key, promise);
   }
 
+  // Waits for the three Cognos dock containers with one shared observer and one timer.
+  // Rejects with code ABORTED (signal) or FILTER_DOCK_CHROME_WAIT_TIMEOUT.
   function waitForDockChrome(_KDB, signal) {
-    var waitForElObserver = _KDB.utils && typeof _KDB.utils.waitForElObserver === "function"
-      ? _KDB.utils.waitForElObserver
-      : null;
     var selectors = _selectors.readDockSelectors(_KDB);
-    var waitOptions = { timeoutMs: _config.CHROME_WAIT_TIMEOUT_MS, signal: signal || null };
-    if (!waitForElObserver) {
-      return Promise.reject(new Error("filterDock: waitForElObserver is missing"));
-    }
+    var pending = [];
+    var observer = null;
+    var timeoutId = null;
+    var promises;
+    var wanted;
+
     if (!selectors || !selectors.rootSelector || !selectors.globalDockSelector || !selectors.pageContextDockSelector) {
       return Promise.reject(new Error("filterDock: Cognos dock selectors are not configured"));
     }
-    return Promise.all([
-      trackChromeWait(_KDB, "filterDock.rootSelector", waitForElObserver(selectors.rootSelector, document, waitOptions)),
-      trackChromeWait(_KDB, "filterDock.globalDockSelector", waitForElObserver(selectors.globalDockSelector, document, waitOptions)),
-      trackChromeWait(
-        _KDB,
-        "filterDock.pageContextDockSelector",
-        waitForElObserver(selectors.pageContextDockSelector, document, waitOptions)
-      )
-    ]);
+    wanted = [
+      { key: "filterDock.rootSelector", selector: selectors.rootSelector },
+      { key: "filterDock.globalDockSelector", selector: selectors.globalDockSelector },
+      { key: "filterDock.pageContextDockSelector", selector: selectors.pageContextDockSelector }
+    ];
+
+    function stopWatching() {
+      if (observer) {
+        observer.disconnect();
+        observer = null;
+      }
+      if (timeoutId !== null) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      if (signal) {
+        signal.removeEventListener("abort", onAbort);
+      }
+    }
+
+    function rejectPending(buildError) {
+      var entries = pending;
+      pending = [];
+      stopWatching();
+      entries.forEach(function (entry) {
+        entry.reject(buildError(entry));
+      });
+    }
+
+    function onAbort() {
+      rejectPending(function () {
+        return _errors.codedError("ABORTED", "filterDock chrome wait aborted");
+      });
+    }
+
+    function resolveFound() {
+      pending = pending.filter(function (entry) {
+        var element = document.querySelector(entry.selector);
+        if (element) {
+          entry.resolve(element);
+        }
+        return !element;
+      });
+      if (pending.length === 0) {
+        stopWatching();
+      }
+    }
+
+    promises = wanted.map(function (item) {
+      return trackChromeWait(_KDB, item.key, new Promise(function (resolve, reject) {
+        pending.push({ selector: item.selector, resolve: resolve, reject: reject });
+      }));
+    });
+
+    if (signal && signal.aborted) {
+      onAbort();
+      return Promise.all(promises);
+    }
+    resolveFound();
+    if (pending.length > 0) {
+      observer = new MutationObserver(resolveFound);
+      observer.observe(document, { childList: true, subtree: true });
+      timeoutId = setTimeout(function () {
+        rejectPending(function (entry) {
+          return _errors.codedError("FILTER_DOCK_CHROME_WAIT_TIMEOUT", "Timeout waiting for " + entry.selector);
+        });
+      }, _config.CHROME_WAIT_TIMEOUT_MS);
+      if (signal) {
+        signal.addEventListener("abort", onAbort, { once: true });
+      }
+    }
+    return Promise.all(promises);
   }
 
   return { waitForDockChrome: waitForDockChrome };

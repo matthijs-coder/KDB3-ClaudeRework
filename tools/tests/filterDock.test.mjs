@@ -296,3 +296,166 @@ test("click handoff builders match golden", () => {
   const resolution = api.buildClickResolution(handoff, "FILTER_EL", 42);
   check("clickResolution", Object.assign({}, resolution, { filterEl: resolution.filterEl }));
 });
+
+// ---- chromeWait (Cognos dock chrome wait) with stubbed document / MutationObserver / timers ----
+function createChromeWaitHarness(present) {
+  const found = new Set(present);
+  const observers = [];
+  const timers = [];
+  const tracked = [];
+  const doc = { querySelector: (selector) => (found.has(selector) ? { selector } : null) };
+  class FakeObserver {
+    constructor(callback) { this.callback = callback; this.disconnected = false; observers.push(this); }
+    observe() {}
+    disconnect() { this.disconnected = true; }
+  }
+  const fakeSetTimeout = (fn, ms) => { timers.push({ fn, ms, cleared: false }); return timers.length - 1; };
+  const fakeClearTimeout = (id) => { if (timers[id]) timers[id].cleared = true; };
+  const { waitForDockChrome } = load("chromeWait.js", {
+    stubs: { document: doc, MutationObserver: FakeObserver, setTimeout: fakeSetTimeout, clearTimeout: fakeClearTimeout }
+  });
+  const selectors = { rootSelector: "#root", globalDockSelector: "#global", pageContextDockSelector: "#other" };
+  const _KDB = {
+    elements: { selectors: { filterDock: selectors } },
+    runtime: { cognosHost: { chromeChecks: { trackWait: (K, key, promise) => { tracked.push({ key, promise }); return promise; } } } }
+  };
+  return { waitForDockChrome, _KDB, observers, timers, tracked, appear: (selector) => found.add(selector), selectors };
+}
+
+test("chromeWait resolves synchronously found containers without an observer", async () => {
+  const h = createChromeWaitHarness(["#root", "#global", "#other"]);
+  const elements = await h.waitForDockChrome(h._KDB, null);
+  assert.deepEqual(elements.map((el) => el.selector), ["#root", "#global", "#other"]);
+  assert.equal(h.observers.length, 0);
+  assert.equal(h.timers.length, 0);
+  assert.deepEqual(h.tracked.map((entry) => entry.key), ["filterDock.rootSelector", "filterDock.globalDockSelector", "filterDock.pageContextDockSelector"]);
+});
+
+test("chromeWait uses one observer and one timer and cleans up when all containers appear", async () => {
+  const h = createChromeWaitHarness(["#root"]);
+  const controller = new AbortController();
+  const result = h.waitForDockChrome(h._KDB, controller.signal);
+  assert.equal(h.observers.length, 1);
+  assert.equal(h.timers.length, 1);
+  assert.equal(h.timers[0].ms, 30000);
+  h.appear("#global");
+  h.observers[0].callback([]);
+  assert.equal(h.observers[0].disconnected, false);
+  h.appear("#other");
+  h.observers[0].callback([]);
+  const elements = await result;
+  assert.deepEqual(elements.map((el) => el.selector), ["#root", "#global", "#other"]);
+  assert.equal(h.observers[0].disconnected, true);
+  assert.equal(h.timers[0].cleared, true);
+  const { getEventListeners } = await import("node:events");
+  assert.equal(getEventListeners(controller.signal, "abort").length, 0);
+});
+
+test("chromeWait timeout rejects the pending keys with FILTER_DOCK_CHROME_WAIT_TIMEOUT", async () => {
+  const h = createChromeWaitHarness(["#root"]);
+  const result = h.waitForDockChrome(h._KDB, null);
+  h.timers[0].fn();
+  await assert.rejects(result, (error) => error.code === "FILTER_DOCK_CHROME_WAIT_TIMEOUT" && /Timeout waiting for #(global|other)/.test(error.message));
+  const settled = await Promise.allSettled(h.tracked.map((entry) => entry.promise));
+  assert.deepEqual(settled.map((entry) => entry.status), ["fulfilled", "rejected", "rejected"]);
+  assert.equal(settled[1].reason.message, "Timeout waiting for #global");
+  assert.equal(settled[2].reason.message, "Timeout waiting for #other");
+  assert.equal(h.observers[0].disconnected, true);
+});
+
+test("chromeWait abort rejects with ABORTED, also for an already aborted signal", async () => {
+  const h = createChromeWaitHarness([]);
+  const controller = new AbortController();
+  const result = h.waitForDockChrome(h._KDB, controller.signal);
+  controller.abort();
+  await assert.rejects(result, (error) => error.code === "ABORTED");
+  assert.equal(h.observers[0].disconnected, true);
+  assert.equal(h.timers[0].cleared, true);
+
+  const aborted = new AbortController();
+  aborted.abort();
+  const second = createChromeWaitHarness(["#root"]);
+  await assert.rejects(second.waitForDockChrome(second._KDB, aborted.signal), (error) => error.code === "ABORTED");
+  assert.equal(second.observers.length, 0);
+});
+
+test("chromeWait rejects when the dock selectors are not configured", async () => {
+  const h = createChromeWaitHarness([]);
+  h._KDB.elements.selectors.filterDock = { rootSelector: "#root" };
+  await assert.rejects(h.waitForDockChrome(h._KDB, null), /Cognos dock selectors are not configured/);
+});
+
+test("lazy selection-sync gap is only read when the decision reaches it", () => {
+  const runtime = {};
+  let reads = 0;
+  const decide = (popup, last, summary) =>
+    popupReadySession.decidePostReadyResync(popupReadySession.ensurePopupReadyState(runtime), popup, last, summary, () => { reads += 1; return false; });
+  decide(popupReady("tab1__A"), lastA, null);
+  popupReadySession.shouldDispatchPopupReadyTransition(runtime, popupReady("tab1__A"), lastA);
+  decide(popupReady("tab1__A"), lastA, null);
+  assert.equal(reads, 0);
+  decide(popupReady("tab1__A"), lastA, summaryOf("attributeOwnedBySingleSelect"));
+  assert.equal(reads, 1);
+});
+
+// ---- filters-ready watch (kit timers, 30 s max-wait armed once per watch) ----
+function createFiltersReadyHarness() {
+  const timers = [];
+  const dispatched = [];
+  const ownerCalls = [];
+  const fakeSetTimeout = (fn, ms) => { timers.push({ fn, ms, cleared: false, fired: false }); return timers.length - 1; };
+  const fakeClearTimeout = (id) => { if (timers[id]) timers[id].cleared = true; };
+  const filtersReady = load("observation/filtersReady.js", { stubs: { setTimeout: fakeSetTimeout, clearTimeout: fakeClearTimeout, Date: FixedDate } });
+  const state = { filtersReady: false };
+  const dock = { count: 0, queries: 0, querySelectorAll() { this.queries += 1; return { length: this.count }; } };
+  const _KDB = {
+    state: { filters: { filterDock: state } },
+    elements: { selectors: { filterDock: { filterItemSelector: ".item" } } },
+    api: {
+      singleSelect: { dispatch: (action) => ownerCalls.push(action) },
+      dienststelle: { dispatch: (action) => ownerCalls.push(action) }
+    }
+  };
+  const runtime = { timers: {}, observers: {}, domRefs: {} };
+  const ctx = { _KDB, runtime, dispatch: (action) => dispatched.push(action), isDisposed: () => false };
+  const fire = (index) => { timers[index].fired = true; timers[index].fn(); };
+  return { filtersReady, dock, ctx, runtime, timers, dispatched, ownerCalls, fire };
+}
+
+test("filters-ready watch arms the max-wait timer once and restarts the stability timer", () => {
+  const h = createFiltersReadyHarness();
+  h.dock.count = 2;
+  assert.equal(h.filtersReady.detectFiltersReady(h.ctx, h.dock), true);
+  assert.deepEqual(h.timers.map((t) => t.ms), [30000, 500]);
+  assert.deepEqual(Object.keys(h.runtime.timers).sort(), ["filtersReadyMaxWait", "filtersReadyStability"]);
+  h.dock.count = 3;
+  h.filtersReady.detectFiltersReady(h.ctx, h.dock);
+  assert.deepEqual(h.timers.map((t) => t.ms), [30000, 500, 500]);
+  assert.equal(h.timers[1].cleared, true);
+  assert.equal(h.filtersReady.detectFiltersReady(h.ctx, h.dock), true);
+  assert.equal(h.timers.length, 3);
+
+  h.dock.count = 0;
+  h.fire(0);
+  assert.equal(h.ctx.runtime.filtersReadyDispatched, undefined);
+  h.dock.count = 4;
+  h.filtersReady.detectFiltersReady(h.ctx, h.dock);
+  assert.deepEqual(h.timers.map((t) => t.ms), [30000, 500, 500, 500]);
+});
+
+test("filters-ready dispatches once, then detect returns before touching the DOM", () => {
+  const h = createFiltersReadyHarness();
+  h.dock.count = 2;
+  h.filtersReady.detectFiltersReady(h.ctx, h.dock);
+  h.fire(1);
+  assert.deepEqual(h.dispatched.map((a) => a.type), ["filterDock/filtersReadyObserved"]);
+  assert.deepEqual(plain(h.dispatched[0].payload), { filtersReady: true, filtersReadyAt: 5000, filterWrapperCount: 2 });
+  assert.deepEqual(h.ownerCalls.map((a) => a.type), ["singleSelect/reconcileFilterInstances", "dienststelle/filterDockFiltersReady"]);
+  assert.deepEqual(plain(h.ownerCalls[0].payload), { reason: "filtersReady", source: "filterDockFiltersReady", observedAt: 5000, filterWrapperCount: 2 });
+  assert.equal(h.ctx.runtime.filtersReadyDispatched, true);
+  assert.equal(h.ctx.runtime.filtersReadyWatch, undefined);
+  assert.deepEqual(Object.keys(h.ctx.runtime.timers), []);
+  const queriesBefore = h.dock.queries;
+  assert.equal(h.filtersReady.detectFiltersReady(h.ctx, h.dock), false);
+  assert.equal(h.dock.queries, queriesBefore);
+});

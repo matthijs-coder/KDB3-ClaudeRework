@@ -16,18 +16,8 @@ define([
     return dockRoot.querySelectorAll(selector).length;
   }
 
-  function isCommittedDisplayMutationTarget(node) {
-    var element = !node ? null : node.nodeType === 1 ? node : node.parentElement || null;
-    if (!element) {
-      return false;
-    }
-    if (typeof element.matches === "function" && element.matches(COMMITTED_DISPLAY_SELECTOR)) {
-      return true;
-    }
-    if (typeof element.closest === "function" && element.closest(COMMITTED_DISPLAY_SELECTOR)) {
-      return true;
-    }
-    return !!(typeof element.querySelector === "function" && element.querySelector(COMMITTED_DISPLAY_SELECTOR));
+  function dockHasCommittedDisplay(dockRoot) {
+    return !!(dockRoot && (dockRoot.closest(COMMITTED_DISPLAY_SELECTOR) || dockRoot.querySelector(COMMITTED_DISPLAY_SELECTOR)));
   }
 
   function shouldDispatchHeaderObserved(summary) {
@@ -65,7 +55,7 @@ define([
     ) {
       return true;
     }
-    return ((summary.addedCount || 0) > 0 || (summary.removedCount || 0) > 0) && isCommittedDisplayMutationTarget(dockRoot);
+    return ((summary.addedCount || 0) > 0 || (summary.removedCount || 0) > 0) && dockHasCommittedDisplay(dockRoot);
   }
 
   function evaluateCommittedDisplayResync(_KDB, summary, dockRoot, selectors) {
@@ -92,6 +82,7 @@ define([
 
   return {
     readFilterWrapperCount: readFilterWrapperCount,
+    dockHasCommittedDisplay: dockHasCommittedDisplay,
     evaluateHeaderResync: evaluateHeaderResync,
     evaluateCommittedDisplayResync: evaluateCommittedDisplayResync
   };
