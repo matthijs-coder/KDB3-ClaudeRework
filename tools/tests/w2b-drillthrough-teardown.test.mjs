@@ -27,7 +27,7 @@ const handle = {
   document: { title: '', body: { firstChild: { textContent: '' }, textContent: '' }, open() {}, write() {}, close() {} },
 };
 
-test('service teardown: a pending wait window is closed before tableData is destroyed and cannot be rewritten by it', async () => {
+test('service teardown: drillthrough is destroyed before tableData and its pending wait window is closed by then (the order itself is asserted via the order array and the manifest-order test)', async () => {
   const order = [];
   let rejectLoad;
   const pending = new Promise((_resolve, reject) => { rejectLoad = reject; });
