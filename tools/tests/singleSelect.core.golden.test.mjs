@@ -335,6 +335,26 @@ test("waitForFilterInventory: retries, abort, timeout code", async () => {
   );
 });
 
+test("waitForFilterInventory: concurrent waits do not cancel each other and leave no listeners", { skip: !has("inventory/enumerate.js") }, async () => {
+  const KDB = { runtime: { singleSelect: { timers: {}, abortControllers: {} } } };
+  const makeEnumerate = (name) => {
+    let calls = 0;
+    return () => {
+      calls += 1;
+      if (calls < 4) { throw new Error(name + " not ready"); }
+      return { name };
+    };
+  };
+  const controller = new AbortController();
+  const [first, second] = await Promise.all([
+    A.waitForFilterInventory(KDB, makeEnumerate("a"), 2000, controller.signal),
+    A.waitForFilterInventory(KDB, makeEnumerate("b"), 2000, controller.signal)
+  ]);
+  assert.deepEqual([first.name, second.name], ["a", "b"]);
+  assert.equal("inventoryRetry" in KDB.runtime.singleSelect.timers, false);
+  assert.equal(getEventListeners(controller.signal, "abort").length, 0);
+});
+
 test("notifyInventoryReconciledOwners: policy flags, acks, dedupe, failures", async () => {
   const notify = A.notifyOwners;
   const received = [];
