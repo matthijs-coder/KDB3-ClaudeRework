@@ -8,7 +8,6 @@ define([], function () {
     "./v1/ext/KDB3/css/kdb-control/panels.css",
     "./v1/ext/KDB3/css/kdb-control/controls.css",
     "./v1/ext/KDB3/css/loadingAnimation.css",
-    "./v1/ext/KDB3/css/libraries/all.min.css",
     "./v1/ext/KDB3/css/libraries/jquery-ui.css",
     "./v1/ext/KDB3/css/libraries/style.min.css",
     "./v1/ext/KDB3/css/metricsTree.css",
