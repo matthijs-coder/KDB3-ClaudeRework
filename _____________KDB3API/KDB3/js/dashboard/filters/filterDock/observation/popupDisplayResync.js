@@ -78,6 +78,14 @@ define([
     return !!popup && popup.isVisible === false;
   }
 
+  function dispatchCharacterDataResync(ctx) {
+    try {
+      _dispatch.dispatchPopupDisplayResync(ctx, "mountMutationCharacterDataSync");
+    } catch (error) {
+      console.error("[filterDock.dispatchPopupDisplayResync] failed", error);
+    }
+  }
+
   // MutationObserver boundary.
   function onPopupDisplayMutations(ctx, records) {
     try {
@@ -92,7 +100,7 @@ define([
         return;
       }
       if (hasRelevantCharacterDataMutation(records)) {
-        _dispatch.dispatchPopupDisplayResync(ctx, "mountMutationCharacterDataSync");
+        dispatchCharacterDataResync(ctx);
       }
       _dispatch.schedulePopupDisplayResync(ctx, "mountMutation");
     } catch (error) {
@@ -186,7 +194,13 @@ define([
       detachPopupDisplayResync(ctx.runtime);
       return;
     }
-    attachPopupDisplayResync(ctx, toLastClickedFilter(interaction));
+    // Boundary: a failed attach must not stop the owner's stateChanged dispatch of the open click.
+    try {
+      attachPopupDisplayResync(ctx, toLastClickedFilter(interaction));
+    } catch (error) {
+      console.error("[filterDock.attachPopupDisplayResyncObserver] failed", error);
+      detachPopupDisplayResync(ctx.runtime);
+    }
   }
 
   return {

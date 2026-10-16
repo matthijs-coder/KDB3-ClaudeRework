@@ -589,3 +589,76 @@ test("dockHasCommittedDisplay is true when the dock root is or contains a commit
   assert.equal(ownerResync.dockHasCommittedDisplay(make(null, {})), true);
   assert.equal(ownerResync.dockHasCommittedDisplay(null), false);
 });
+
+// ---- popup display resync boundaries ----
+function createResyncHarness(options) {
+  const timers = [];
+  const observers = [];
+  const mount = options.mountHasQuery ? { querySelectorAll: () => [] } : {};
+  const wrapper = { querySelector: () => mount };
+  const bucket = { querySelector: () => ({ closest: () => wrapper }) };
+  const dockRoot = { querySelector: () => bucket };
+  class FakeObserver {
+    constructor(callback) { this.callback = callback; this.disconnected = false; observers.push(this); }
+    observe() { if (options.observeThrows) throw new Error("observe boom"); }
+    disconnect() { this.disconnected = true; }
+  }
+  const resync = load("observation/popupDisplayResync.js", {
+    stubs: {
+      CSS: cssStub, MutationObserver: FakeObserver, Date: FixedDate,
+      document: { querySelector: () => dockRoot, documentElement: { contains: () => true } },
+      setTimeout: (fn, ms) => { timers.push({ fn, ms }); return timers.length - 1; },
+      clearTimeout: () => {}
+    }
+  });
+  const chrome = load("config.js").CHROME;
+  const selectors = {
+    rootSelector: "#root", popupMountSelector: ".mount", globalDockSelector: "#g", pageContextDockSelector: "#p",
+    filterDataIdAttr: "data-id", filterItemSelector: ".item", filterLabelSelector: "[data-id]", optionSelector: ".opt"
+  };
+  const lastClicked = { filterId: "tab1__Dienststelle_DEZPV", filterKey: "pageContext__Dienststelle_DEZPV", filterLabel: "Dienststelle_DEZPV", filterType: "dienststelle", scopeType: "pageContext" };
+  const runtime = { timers: {}, observers: {}, domRefs: {} };
+  const _KDB = {
+    elements: { selectors: { filterDock: selectors } },
+    state: { filters: { filterDock: { lastClickedFilter: lastClicked, lastInteraction: null, popup: { isVisible: true } } } },
+    api: {}
+  };
+  const ctx = { _KDB, runtime, dispatch: () => {}, isDisposed: () => false };
+  const interaction = Object.assign({ interactionType: "open" }, lastClicked);
+  return { resync, ctx, runtime, interaction, observers, timers, chrome };
+}
+
+async function captureErrors(fn) {
+  const original = console.error;
+  const errors = [];
+  console.error = (...args) => errors.push(args[0]);
+  try {
+    await fn();
+  } finally {
+    console.error = original;
+  }
+  return errors;
+}
+
+test("a failing resync attach on an open click is logged and does not throw into the click handler", async () => {
+  const h = createResyncHarness({ observeThrows: true });
+  const errors = await captureErrors(() => {
+    assert.doesNotThrow(() => h.resync.attachPopupDisplayResyncOnOpen(h.ctx, h.interaction));
+  });
+  assert.deepEqual(errors, ["[filterDock.attachPopupDisplayResyncObserver] failed"]);
+  assert.equal(h.runtime.popupDisplayResyncSession, undefined);
+  assert.equal(h.runtime.observers.popupDisplayResync, null);
+});
+
+test("a failing characterData resync dispatch is logged and keeps the resync session", async () => {
+  const h = createResyncHarness({ mountHasQuery: false });
+  h.resync.attachPopupDisplayResyncOnOpen(h.ctx, h.interaction);
+  const observer = h.observers[0];
+  assert.ok(h.runtime.popupDisplayResyncSession);
+  const labelParent = { nodeType: 1, getAttribute: () => h.chrome.optionLabelTid, classList: { contains: () => false } };
+  const errors = await captureErrors(() => observer.callback([{ type: "characterData", target: { parentElement: labelParent } }]));
+  assert.deepEqual(errors, ["[filterDock.dispatchPopupDisplayResync] failed"]);
+  assert.ok(h.runtime.popupDisplayResyncSession);
+  assert.equal(observer.disconnected, false);
+  assert.equal(h.runtime.popupDisplayResyncPendingSource, "mountMutation");
+});

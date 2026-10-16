@@ -14,7 +14,7 @@ define([
     var runtime = ctx.runtime;
     var summary = _mutationSummary.summarizeMutations(records);
     readDiagnostics(runtime).mutationBatches += 1;
-    if (runtime.timers.dockEvaluation != null) {
+    if (runtime.timers.dockEvaluation != null && runtime.pendingEvaluationMerge) {
       _mutationSummary.mergePendingSummary(runtime.pendingEvaluationMerge, summary);
       return;
     }
@@ -26,12 +26,13 @@ define([
 
   // Frame boundary.
   function runDockEvaluation(ctx) {
-    var diagnostics = readDiagnostics(ctx.runtime);
+    var diagnostics;
     var summary = ctx.runtime.pendingEvaluationMerge;
     ctx.runtime.pendingEvaluationMerge = null;
     if (ctx.isDisposed()) {
       return;
     }
+    diagnostics = readDiagnostics(ctx.runtime);
     try {
       _evaluateDock.evaluateDockState(ctx, summary);
     } catch (error) {
