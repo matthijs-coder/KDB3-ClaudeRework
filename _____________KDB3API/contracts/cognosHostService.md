@@ -30,9 +30,9 @@ Feature and service writers **consume** Cognos. They do not add SDK wrappers or 
 **Recipe for a new host need**
 
 1. Find an existing facet op in §4 / §7 that already has a live `KDB3/js/**` caller. Reuse it.
-2. Owner orchestrator stamps once: `_KDB.runtime.<owner>.<facetName> = _KDB.services.cognosHost.<facet>`. Deep files read that stamp through `effects/read*Facet.js` (or the same one-line read). They do **not** look up `_KDB.services.cognosHost` and do **not** call `_KDB.cognosAPI` / `__getDashboardAPI`.
+2. Owner orchestrator stamps once: `_KDB.runtime.<owner>.<facetName> = _KDB.services.cognosHost.<facet>`. Deep files read that stamp from the owner's runtime bucket (`_KDB.runtime.<owner>.<facetName>`). They do **not** look up `_KDB.services.cognosHost` and do **not** call `_KDB.cognosAPI` / `__getDashboardAPI`.
 3. Map `Outcome` in the owner. Do not return the host Promise. `budgetMs` only when this owner passes a finite number (no shared `getCanvasWhenReady` join).
-4. No matching op and no live caller → **stop**. Do not invent a facet, op, or `createCognos*Adapter.js` in the feature. Ask PO; write a contract first (D4 / Module Contract First).
+4. No matching op and no live caller → **stop**. Do not invent a facet, op, or a `createCognos*Adapter` factory in the feature. Ask PO; write a contract first (D4 / Module Contract First).
 
 Writeback `get/` `set/` `effects/`, other services, and feature `effects/` follow the same recipe. `runtime.<owner>.adapters` is an instance slot, not the Cognos stamp.
 
@@ -72,7 +72,7 @@ Stale Approved parents that still say “call `_KDB.cognosAPI` from this module�
 - Buckets in slice 0:
   - `generation` — monotone integer token per `_KDB` instance (`runtime.mdc` scalar, not a resource bucket; prescribed by design doc §3.5.1). Never reset downwards, so a stale token can never become current again.
   - `subscriptions` — nul-arg unsubscribe closures (cluster A pattern, `createAuthoringController.js`).
-- Buckets added in slice 1 (filters facet), each with a cleanup path in `clearCognosHostRuntime.js`:
+- Buckets added in slice 1 (filters facet), each with a cleanup path in `runtime.js` (`clearRuntime`):
   - `adapters.filterItemsByKey` — the handle index of design doc §2.3 (see D3). Entries are `{ handle, descriptor, generation }`; the live host item never leaves ring 1. Cleared on destroy and atomically replaced on every full inventory.
   - `abortControllers` — internal budget timers for facet waits, aborted on destroy. Every wait registers under its **own** key (`pageContextWait:<n>`), so two concurrent waits can never share a slot and leave one unreachable for destroy.
   - `waitSequence` — monotone integer that supplies those key suffixes (`runtime.mdc` scalar, like `generation`). Not a resource; it only guarantees key uniqueness.
@@ -157,7 +157,7 @@ _KDB.services.cognosHost.canvas = {
 
 **`setCanvasPageSize` (2026-09-24; names/equality 2026-10-06).** Op on the existing `canvas` facet (not a new facet). Ring 1 calls existing `getCanvasPropertiesList` then `setCanvasPropertyValue`. Width: first exact hit `pageSizeWidth`. Height: `pageSizeHeight`. Caller passes `"width"` or `"height"` plus a px CSS string (`"1800px"`). Skip-if-equal treats host number `1800`, `"1800"`, and `"1800px"` as the same as `"1800px"`; null/undefined writes. Sync `Outcome`, never throws, never returns the host list or canvas handle. Missing candidate is `CANVAS_HOST_CAPABILITY_MISSING`. D4 caller: `pageSurface`. See [pageSurface.md](./pageSurface.md) and [pageSurface-pageSize-host-ready-contractdelta.md](./_archive/pageSurface-pageSize-host-ready-contractdelta.md).
 
-Slice 3 adds the `visualization` facet. Host-SDK locals inside ring 1 are `visualizationApi`; owner stamps are `visualizationFacet`; the key over the boundary is `widgetId` (string). Factory name stays `createVisualizationAdapter`. D5 is unchanged: `CanvasWidgetDescriptor.visType` / `visTitle` are still filled in ring 1 via `facets/canvas/resolveVisualizationHostApi.js`, not by calling the new facet from canvas flatten.
+Slice 3 adds the `visualization` facet. Host-SDK locals inside ring 1 are `visualizationApi`; owner stamps are `visualizationFacet`; the key over the boundary is `widgetId` (string). Factory name stays `createVisualizationAdapter`. D5 is unchanged: `CanvasWidgetDescriptor.visType` / `visTitle` are still filled in ring 1 via `hostAccess.js` (`resolveHostApi`), not by calling the new facet from canvas flatten.
 
 ```js
 _KDB.services.cognosHost.visualization = {
@@ -194,7 +194,7 @@ When host `getSelections` is missing or returns null/empty (live `widgets.getCon
 
 `subscribeSelections(widgetId, cb)` returns a nul-arg unsubscribe (not an Outcome). Filter host events `change:selections:select|deselect|clearAll`. Callback receives a flat DTO `{ kind, widgetId, categories }` (`kind`: `select` | `deselect` | `clearAll`). Per-`widgetId` **replace** (install can run four times): unsubscribe the previous host listener before arming the new one. Owner stores the unsubscribe on `listeners.drillthrough*` and unsubs on dispose / tab / re-install; the service `subscriptions` array is not enough alone.
 
-Split subscribe vs flatten files (150-line cap). Do not clone `subscribeUiState` into one file. widgetVis deep files read the existing stamp through `effects/readVisualizationFacet.js`. No `_KDB.cognosAPI` / `content.on` in widgetVis.
+Split subscribe vs flatten files (150-line cap). Do not clone `subscribeUiState` into one file. widgetVis deep files read the existing stamp from `runtime.widgetVis.visualizationFacet` (`widgetVis/runtime.js`, `readHostFacet`). No `_KDB.cognosAPI` / `content.on` in widgetVis.
 
 Slice 4 adds the `dataQuery` facet. Host-SDK locals inside ring 1 are `dataQueryApi`; owner stamps are `dataQueryFacet`; the key over the boundary is `widgetId` (string). Factory name stays `createDataQueryAdapter`. Live host `getDataQueryResult` still accepts a widget object; ring 1 does **not**.
 
@@ -212,7 +212,7 @@ _KDB.services.cognosHost.dataQuery = {
 
 Defaults for `readQueryRows` match the live owner: `budgetMs` 60000, `intervalMs` 100 (`core/services/tableData/queryRead.js` (`readTableQueryResult`)). The caller chooses; the facet documents the defaults. A live query handle never leaves ring 1.
 
-**`TableRowsResult`.** `{ columns, columnNames, rowCount }` with cells `{d,u,value,v,label,caption}` — the shape `normalizeTableData.js` already emits. `rowCount === 0` with at least one result item is **ok**, not `degraded` and not `failed` (empty structured query is valid elsewhere; Top-N Jahr-fallback 2026 is out of slice 4). Timeout after budget is `failed` (`DATAQUERY_WAIT_TIMEOUT`), never `{status:"empty"}`. Caller abort / disposed is `aborted`. Flatten/parse crash is `failed` (`DATAQUERY_FLATTEN_FAILED`). Host `dataQueryApi` is resolved **per poll iteration**, never captured for the whole wait (cluster A nulls `_KDB.cognosAPI`).
+**`TableRowsResult`.** `{ columns, columnNames, rowCount }` with cells `{d,u,value,v,label,caption}` — the shape the legacy `normalizeTableData` emitted (now `facets/dataQuery/rows.js`, `flattenQueryRows`). `rowCount === 0` with at least one result item is **ok**, not `degraded` and not `failed` (empty structured query is valid elsewhere; Top-N Jahr-fallback 2026 is out of slice 4). Timeout after budget is `failed` (`DATAQUERY_WAIT_TIMEOUT`), never `{status:"empty"}`. Caller abort / disposed is `aborted`. Flatten/parse crash is `failed` (`DATAQUERY_FLATTEN_FAILED`). Host `dataQueryApi` is resolved **per poll iteration**, never captured for the whole wait (cluster A nulls `_KDB.cognosAPI`).
 
 Owner dialect `{status:"ready"|"failed"|"aborted"|"empty"}` maps at the tableData boundary: `ok` → `ready`, `failed` → `failed`, `aborted` → `aborted`. `"empty"` stays owner-only (`!widgetId` before the facet is called).
 
@@ -303,7 +303,7 @@ Inner ring `core/cognosAPI/` is the allowed and required caller of `__getDashboa
 
 | Exception | Where | Why |
 |---|---|---|
-| PDF capture root | `dashboardPdf/effects/captureTabPage.js` via `cognosAPI.dashboard.resolveCaptureRoot` | html2canvas needs a live DOM node; pulling the whole capture into the facet was rejected as too heavy (§6.3 option a). |
+| PDF capture root | `dashboardPdf/capture/captureTabPage.js` via `cognosAPI.dashboard.resolveCaptureRoot` | html2canvas needs a live DOM node; pulling the whole capture into the facet was rejected as too heavy (§6.3 option a). |
 
 **Dead but kept (layer 1).** The `core/cognosAPI/` folder is also a knowledge base of host calls. Never delete layer-1 functions unless the user orders it. Named unused getters `getWidget`, `getDashboardState`, `getUserInfo` stay 0-caller. Fuller unused list: `CLUSTER_E_RAPPORT_2026-08-20.md` §S6.1. The `cognosAPI.dataSources` theme (6 functions) is still the inner ring; ring 1 now exposes `cognosHost.dataSources.hasErrorDataSource` (WP6 consumer: `core/homeDialog/`). Do not add `hasErrorDataSource` to layer-1 `dataSources.js`.
 
@@ -311,10 +311,10 @@ Inner ring `core/cognosAPI/` is the allowed and required caller of `__getDashboa
 
 - Deliberate read methods on `_KDB.services.cognosHost`: slice 0 has `getGeneration`, `isCurrentGeneration`, `isDisposed`; from slice 1 the facet read operations (`listFilterItems`, `readFilterValues`, `listCanvasWidgets`, …).
 - Internal writers: none — the service owns no state subtree. Runtime writes stay inside these files and nowhere else:
-  - `runtime/ensureCognosHostRuntime.js` — creates the bucket and its keys, idempotently (merge with `|| {}`, never replace).
-  - `runtime/nextCognosHostGeneration.js` — the **only** place that increments `generation`; it is monotone and never resets. Later slices must not add a second increment site or a reset in `ensure`, or tokens would be reused.
-  - `facets/filters/wait/waitForPageContextReady.js` (`registerWait`) and `facets/dataQuery/wait/waitForQueryResult.js` (slice 4) — the **only** two increment sites for `waitSequence`, and the only writers of `abortControllers`. Same counter, distinct key prefixes (`pageContextWait:<n>` / `queryResultWait:<n>`). No third increment site and no reset in `ensure`.
-  - `runtime/clearCognosHostRuntime.js` — unsubscribes, aborts pending waits and resets the bucket to an empty shape, keeping **both** counter values (`generation` and `waitSequence`).
+  - `runtime.js` (`ensureRuntime`) — creates the bucket and its keys, idempotently (merge with `|| {}`, never replace).
+  - `runtime.js` (`nextGeneration`) — the **only** place that increments `generation`; it is monotone and never resets. Later slices must not add a second increment site or a reset in `ensure`, or tokens would be reused.
+  - `facets/filters/waitForPageContextReady.js` (`registerWait`) and `facets/dataQuery/waitForQueryResult.js` (slice 4) — the **only** two increment sites for `waitSequence`, and the only writers of `abortControllers`. Same counter, distinct key prefixes (`pageContextWait:<n>` / `queryResultWait:<n>`). No third increment site and no reset in `ensure`.
+  - `runtime.js` (`clearRuntime`) — unsubscribes, aborts pending waits and resets the bucket to an empty shape, keeping **both** counter values (`generation` and `waitSequence`).
   - `core/services/cognosHost/facets/filters/filterIndex.js` (`refreshFilterIndex`) — the **only** writer of `adapters.filterItemsByKey`; it replaces the entries of one scope atomically after a fresh inventory.
   - `core/services/cognosHost/facets/filters/filterIndex.js` (`invalidateFilterIndexEntry`) — drops the entries of one item after a successful write, so a mutation can never leave a stale handle behind (design doc §2.3 point 3).
   - `core/services/cognosHost/facets/filters/write.js` (`serializeFilterWrite`) — the **only** writer of `pendingPromises.filterWritesByKey`. Chains conflicting writes on one ref key; no second writer, no reset in `ensure`.
@@ -334,29 +334,29 @@ Inner ring `core/cognosAPI/` is the allowed and required caller of `__getDashboa
   - *nativeMultiSelect* — strict injection. The orchestrator resolves the facet once and the controller puts it on all four dispatch contexts; every effect receives it as a parameter.
   - *writeback-SET* — injected through the run context. `state/createRunContext.js` is the composition point of a restore run and resolves the facet there; `waitForPageContextHost` reads `run.filtersFacet` and performs no lookup of its own.
   - *dienststelle* — **recorded deviation.** Its effects take only `_KDB`, so full threading would change signatures in roughly fifteen files inside the riskiest step of the plan, several of which already sit near the 150-line limit. The facet is injected where a context exists (the **parameterSet** context, covering `applyRestorePlan`) and resolved from `_KDB.services.cognosHost.filters` in **one** named place for the remaining effects — the module's host choke point next to the lookup, which every dienststelle host path already goes through. The tab-mutation effects use that choke point too; the context deliberately does not carry the facet, so there is no dead wiring. Full threading stays an open item for a later slice.
-  - *singleSelect* — orchestrator composition root. `__orchestratorSingleSelect` resolves the facet once and stamps `_KDB.runtime.singleSelect.filtersFacet`. Every effect reads that stamp through `effects/readFiltersFacet.js` (which also accepts a `_runtime` already carrying the stamp). Deep files do not look up `_KDB.services.cognosHost`. The stamp is an adapter reference, not a live host handle; it is the same DI rule as nativeMultiSelect, using the `_runtime` argument singleSelect already threads instead of a fourth dispatch-context field.
-  - *widgetBase (slice 2)* — `__orchestratorWidgetBase` stamps `_KDB.runtime.widgetBase.widgetsFacet` and `.canvasFacet` and puts both on the controller dispatch context. Colour/layout coordinators in `effects/` read the stamp through `effects/readWidgetsFacet.js` / `readCanvasFacet.js`. View files stay DOM-only.
-  - *widgetText (slice 2)* — `__orchestratorWidgetText` stamps `_KDB.runtime.widgetText.widgetsFacet`. Font apply goes through `effects/applyTextFontSize.js`; `view/applyTextFontSize.js` is DOM-only.
+  - *singleSelect* — orchestrator composition root. `__orchestratorSingleSelect` resolves the facet once and stamps `_KDB.runtime.singleSelect.filtersFacet`. Every effect reads that stamp from the runtime bucket (`singleSelect/runtime.js`, `readFiltersFacet`). Deep files do not look up `_KDB.services.cognosHost`. The stamp is an adapter reference, not a live host handle; it is the same DI rule as nativeMultiSelect, using the `_runtime` argument singleSelect already threads instead of a fourth dispatch-context field.
+  - *widgetBase (slice 2)* — `__orchestratorWidgetBase` stamps `_KDB.runtime.widgetBase.widgetsFacet` and `.canvasFacet` and puts both on the controller dispatch context. The widgetBase effects read the stamps from `runtime.widgetBase` (`runtime.js`). View files stay DOM-only.
+  - *widgetText (slice 2)* — `__orchestratorWidgetText` stamps `_KDB.runtime.widgetText.widgetsFacet`. Font apply goes through `widgetText/fontSize.js` (`applyFontSize`, reads `widgetsFacet`); `textStyle.js` is DOM-only.
   - *launchpad (slice 2)* — `__orchestratorLaunchpad` stamps `_KDB.runtime.launchpad.canvasFacet`. `buildLaunchpadTabsFromCanvas` reads unique `tabId`s from `listCanvasWidgets()` descriptors. `dashboard/launchpad/index.js` (`createLaunchpadController`) is not thickened (141-line cap).
-  - *tableData (slice 2)* — `__orchestratorTableData` stamps `_KDB.runtime.tableData.canvasFacet`. `resolveTableWidgetId` reads it through `effects/readCanvasFacet.js`. `core/services/tableData/index.js` (`createTableDataService`) (150/10) is not thickened.
-  - *tableData (slice 4)* — `__orchestratorTableData` also stamps `_KDB.runtime.tableData.dataQueryFacet`. `readTableQueryResult` reads it through `effects/readDataQueryFacet.js`. `waitForTableQueryResult.js` is dead (not on the load path). Deep files do not look up `_KDB.services.cognosHost`. `core/services/tableData/loadLifecycle.js` (`runLoadTableWork`) consumes the flattened `TableRowsResult` (AMD must replace `normalizeTableData`, not add). `abortTable` is unchanged.
+  - *tableData (slice 2)* — `__orchestratorTableData` stamps `_KDB.runtime.tableData.canvasFacet`. `resolveTableWidgetId.js` reads it from the runtime bucket. `core/services/tableData/index.js` (`createTableDataService`) (150/10) is not thickened.
+  - *tableData (slice 4)* — `__orchestratorTableData` also stamps `_KDB.runtime.tableData.dataQueryFacet`. `readTableQueryResult` (`queryRead.js`) reads it from the runtime bucket. A former dead wait helper for table query results has been removed. Deep files do not look up `_KDB.services.cognosHost`. `core/services/tableData/loadLifecycle.js` (`runLoadTableWork`) consumes the flattened `TableRowsResult` (AMD must replace `normalizeTableData`, not add). `abortTable` is unchanged.
   - *tableData (HideData park, 2026-09-09)* — `__orchestratorTableData` also stamps `_KDB.runtime.tableData.visualizationFacet` and `.widgetsFacet` (existing facets, new owner stamps, **not** a new op / not D4). Wrap: `removeLocalFilter` (`HideData`, `HideData_none`, `HideData_1`) → `renderWidget` → `readQueryRows` → `addOrReplaceLocalFilter` (live `containsignorecase` `"b"`) → unsignaled `renderWidget` if successor guard still this load. Authority: `contracts/_archive/tableData-hierarchy-park-filter-contractdelta.md`.
-  - *widgetVis (slice 3)* — `__orchestratorWidgetVis` stamps `_KDB.runtime.widgetVis.visualizationFacet`, `.widgetsFacet` and `.filtersFacet`. Deep files read those stamps through `effects/readVisualizationFacet.js` / `readWidgetsFacet.js` / `readFiltersFacet.js`. Focus chrome stays in `widgetFocusMode`; dispose/cleanup call `exitNativeFocus` (click only, no wait).
+  - *widgetVis (slice 3)* — `__orchestratorWidgetVis` stamps `_KDB.runtime.widgetVis.visualizationFacet`, `.widgetsFacet` and `.filtersFacet`. Deep files read those stamps through `widgetVis/runtime.js` (`readHostFacet`). Focus chrome stays in `widgetFocusMode`; dispose/cleanup call `exitNativeFocus` (click only, no wait).
   - *widgetVis (drillthrough vis year, 2026-08-29)* — already stamps `_KDB.runtime.widgetVis.dataQueryFacet`. Icon assemble calls `peekQueryRows` through that stamp (`dashboard/widgets/widgetVis/drillthrough/year.js` (`readDrillthroughVisYear`)). Does not await `readQueryRows`. Deep files do not look up `_KDB.services.cognosHost`. `peekQueryRows` is not a selection API.
-  - *widgetVis (drillthrough T2 / F1c, 2026-08-30)* — already stamps `_KDB.runtime.widgetVis.visualizationFacet`. T2 consumes `getSelections` / `subscribeSelections` through `effects/readVisualizationFacet.js`. Deep files do not look up `_KDB.services.cognosHost` and do not call `_KDB.cognosAPI` / `content.on`. D4 live caller for the F1c ops.
+  - *widgetVis (drillthrough T2 / F1c, 2026-08-30)* — already stamps `_KDB.runtime.widgetVis.visualizationFacet`. T2 consumes `getSelections` / `subscribeSelections` through `widgetVis/runtime.js` (`readHostFacet`). Deep files do not look up `_KDB.services.cognosHost` and do not call `_KDB.cognosAPI` / `content.on`. D4 live caller for the F1c ops.
   - *widgetBindingApply (slice 3)* — `__orchestratorWidgetBindingApply` stamps `_KDB.runtime.widgetBindingApply.visualizationFacet`, `.widgetsFacet` and `.canvasFacet`. `createWidgetBindingApplyService` builds the thin facade from those stamps. Apply-effects map `Outcome` through `bindingApplyStepHelpers.mapFacetOutcome`; `status:"aborted"` becomes `stale:true` in `reportApplyResult` and must not dispatch `APPLY_SUCCEEDED`.
-  - *widgetTopN (slice 3)* — `__orchestratorWidgetTopN` stamps `_KDB.runtime.widgetTopN.widgetsFacet`. `readHelperTableRows` renders the helper through `effects/readWidgetsFacet.js`.
+  - *widgetTopN (slice 3)* — `__orchestratorWidgetTopN` stamps `_KDB.runtime.widgetTopN.widgetsFacet`. `readHelperTableRows` renders the helper through the stamped `widgetsFacet` (`widgetTopN/helperBinding.js`).
   - *widgetBase render (slice 3)* — already stamped in slice 2. `renderTabWidgets` now uses `widgetsFacet.renderWidget` and `canvasFacet.whenRenderComplete` (arm before render; `withCap` 2500 ms on `Outcome.data.ready`).
   - *dashboardPdf (slice 5)* — `__orchestratorDashboardPdf` stamps `_KDB.runtime.dashboardPdf.dashboardFacet`. Deep files read that stamp; `captureTabPage.js` `resolveCaptureRoot` stays on the exceptions register.
   - *authoring (slice 5)* — `__orchestratorAuthoring` stamps `_KDB.runtime.authoring.dashboardFacet`. `syncAuthoringFromDashboardMode` reads that stamp. If cognosHost is not yet published, a one-shot `pendingDashboardFacetStamp` runs after create.
   - *messageService (slice 5)* — `__orchestratorMessageService` stamps `_KDB.runtime.messageService.messagesFacet`. `core/services/messageService/notifications.js` (`showGlassToast`) reads that stamp.
   - *tabs (slice 5)* — `__orchestratorTabs` stamps `_KDB.runtime.tabs.tabsFacet` and `.canvasFacet`. Adapter wrap uses `tabsFacet`. `readCurrentTab` wrap injects `tabsFacet` plus a chrome index reader; chrome clicks stay chrome.
-  - *widgetBase canvas waits (slice 5)* — existing `canvasFacet` stamp (slice 2). `waitForTransferReady.js` calls `whenCanvasReady` / `whenWidgetReady`; owner dialect stays `Promise<boolean>`.
-  - *pageSurface (page size, 2026-10-06)* — existing `canvasFacet` stamp. `effects/applyPageSurfaceWhenReady.js` calls `whenCanvasReady({ signal })` with no `budgetMs`, then one `setCanvasPageSize` flush. Abort/dispose does not flush. Authority: `contracts/_archive/pageSurface-pageSize-host-ready-contractdelta.md`.
+  - *widgetBase canvas waits (slice 5)* — existing `canvasFacet` stamp (slice 2). `widgetBase/launchpadTransfer.js` calls `whenCanvasReady` / `whenWidgetReady`; owner dialect stays `Promise<boolean>`.
+  - *pageSurface (page size, 2026-10-06)* — existing `canvasFacet` stamp. `pageSurface/index.js` calls `whenCanvasReady({ signal })` with no `budgetMs`, then one `setCanvasPageSize` flush. Abort/dispose does not flush. Authority: `contracts/_archive/pageSurface-pageSize-host-ready-contractdelta.md`.
   - *writeback URL inbound* — writeback inbound does **not** stamp `canvasFacet` and does **not** call `whenCanvasReady` (dropdown wait only; see `writeback-urlParameterId-contractdelta.md`).
   - *launchpad (slice 5)* — `__orchestratorLaunchpad` also stamps `_KDB.runtime.launchpad.tabsFacet` (canvasFacet already slice 2). `readLaunchpadTabSources` reads `listTabs` DTO ids.
   - *dienststelle (slice 5)* — `__orchestratorDienststelle` stamps `_KDB.runtime.dienststelle.tabsFacet`. Tabs-leak only, not filter-DI.
-  - *nativeMultiSelect (slice 5)* — `__orchestratorNativeMultiSelect` stamps `_KDB.runtime.nativeMultiSelect.tabsFacet`. Match `id` / `pageId`; sibling `guardTabMutation.js` is not a second copy.
+  - *nativeMultiSelect (slice 5)* — `__orchestratorNativeMultiSelect` stamps `_KDB.runtime.nativeMultiSelect.tabsFacet`. Match `id` / `pageId`; the sibling `tabMutation/guard.js` is not a second copy.
   - *shareControls* — `__orchestratorShareControls` stamps `_KDB.runtime.shareControls.dashboardFacet`. Effects read that stamp through `dashboard/controls/toolbarControls/shareButton.js` (`readDashboardFacet`). ShareControls boots **after** `__orchestratorServices`; no `pendingDashboardFacetStamp`. `mount` / runtime normalize **must preserve** the stamp (same as `dashboardPdf` `normalizeRuntime`). Deep files do not look up `_KDB.services.cognosHost`.
   - *footer (created-user, 2026-09-02)* — `__orchestratorFooter` stamps `_KDB.runtime.footer.dashboardFacet`. D4 live caller of `getUserName`. Effects read the stamp through `dashboard/controls/toolbarControls/shareButton.js` (`readDashboardFacet`). Footer boots **after** `__orchestratorServices`; no `pendingDashboardFacetStamp`. Preserve the stamp if runtime is re-seeded. Deep files / view do not look up `_KDB.services.cognosHost` and do not call `_KDB.cognosAPI`. Authority: `contracts/_archive/footer-created-user-contractdelta.md`.
   - *homeDialog (WP6+WP7, 2026-09-08)* — `__orchestratorHomeDialog` stamps `_KDB.runtime.homeDialog.dataSourcesFacet` and `.dashboardFacet`. Not a `_KDB.services.*`. D4 live caller of `hasErrorDataSource`, `replaceWithBiHomePerspective`, `openAppView("home")`. Deep files read stamps only. Authority: `contracts/_archive/cubes-unavailable-home-dialog-contractdelta.md`.
@@ -367,131 +367,62 @@ Inner ring `core/cognosAPI/` is the allowed and required caller of `__getDashboa
 - Slice 0: **none**. The skeleton performs no host call.
 - From slice 1 the service becomes the only caller of `_KDB.cognosAPI` (filters, widgets, visualization, canvas, tabs, dataQuery, dashboard, glassMessages), per the review rule in §4.
 - Slice 2 ring 1 additionally calls `_KDB.cognosAPI.widgets`, `.canvas`, and internally `.visualization` / `.tabs` from the canvas flatten (D5). Live handles never leave ring 1.
-- Slice 3 ring 1 additionally calls `_KDB.cognosAPI.visualization` from the visualization facet (`facets/visualization/resolveVisualizationHostApi.js`, a second copy of the D5 canvas resolver so canvas flatten does not import the new facet) and `_KDB.cognosAPI.async` from canvas waits (`resolveAsyncHostApi.js`). Focus uses `_KDB.cognosAPI.widgets.enterWidgetFocusMode` / `exitWidgetFocusMode`. Live handles and host Promises never leave ring 1.
+- Slice 3 ring 1 additionally calls `_KDB.cognosAPI.visualization` from the visualization facet (via `hostAccess.js` `resolveHostApi`; formerly a second copy of the D5 canvas resolver) and `_KDB.cognosAPI.async` from canvas waits (`facets/canvas/waits.js`). Focus uses `_KDB.cognosAPI.widgets.enterWidgetFocusMode` / `exitWidgetFocusMode`. Live handles and host Promises never leave ring 1.
 - F1c (2026-08-30) ring 1 additionally uses `resolveWidgetsHostApi` / `_KDB.cognosAPI.widgets.getContent`, then host `getSelections` / `on`, from the **visualization** facet. It does **not** call the widgets facet and does **not** add `_KDB.cognosAPI.visualization.getSelections`. Flattened DTOs only; live content/event handles never leave ring 1.
-- Slice 4 ring 1 additionally calls `_KDB.cognosAPI.dataQuery` from `facets/dataQuery/resolveDataQueryHostApi.js`. Flattening (`core/services/cognosHost/facets/dataQuery/rows.js` (`flattenQueryRows`)) lives in ring 1. Owners no longer call `getDataQueryResult`.
+- Slice 4 ring 1 additionally calls `_KDB.cognosAPI.dataQuery` from `facets/dataQuery/` (`hostAccess.js` `resolveHostApi`). Flattening (`core/services/cognosHost/facets/dataQuery/rows.js` (`flattenQueryRows`)) lives in ring 1. Owners no longer call `getDataQueryResult`.
 - Slice 5 ring 1 additionally calls `_KDB.cognosAPI.dashboard` (metadata + uiState subscribe; not `resolveCaptureRoot`), `_KDB.cognosAPI.glassMessages` (`messagesApi`), and `_KDB.cognosAPI.tabs` from the tabs facet. Live handles, spec arrays and DOM nodes never leave ring 1.
 - Dashboard share primitives: ring 1 additionally calls `_KDB.cognosAPI.dashboard.getBoardId` and `.getDashboardBiBaseUrl`. The host `getDashboardInfo` object stays inside the inner wrapper. Empty/missing **boardId** and unavailable **bi-base** (`document.location` missing) are `ok` + `data: null`.
 - No new `window.top` globals. If one is ever needed it must follow the existing stamp pattern (`__kdbOwner` + restorable previous), like `installGetKDB` and the frozen writeback bridge.
 
 ## 9. Folder Layout
 
-After slice 1:
+As built (33 files; exports per file). The slice-by-slice trees of earlier revisions are replaced by this listing; facets are one folder per host area, each with a `create<Facet>Adapter.js` plus a few topic files. `__orchestratorCognosHost.js` is a shim over `index.js`.
 
 ```txt
 core/services/cognosHost/
-  facets/filters/
-    config/filterErrorCodes.js
-    read/    listFilterItems.js  findFilterItem.js
-             readFilterValues.js  listPageContextScopes.js
-    write/   writeFilter.js  clearFilter.js  serializeFilterWrite.js
-    wait/    waitForPageContextReady.js  readPageContextReadiness.js
-             awaitPollInterval.js  readAbortState.js
-    buildFilterItemDescriptor.js  buildFilterItemKeys.js  buildFilterOutcome.js
-    resolveFiltersHostApi.js  readHostFilterItems.js  refreshFilterIndex.js
-    resolveFilterItemHandle.js  invalidateFilterIndexEntry.js
-    buildFilterReadSurface.js  buildFilterWriteSurface.js
-    createFiltersAdapter.js
-  runtime/
-    ensureCognosHostRuntime.js
-    nextCognosHostGeneration.js
-    clearCognosHostRuntime.js
-  createCognosHostService.js
-  __orchestratorCognosHost.js
-```
-
-After slice 2:
-
-```txt
-core/services/cognosHost/
-  facets/filters/…  (unchanged)
-  facets/widgets/
-    config/widgetErrorCodes.js
-    read/    hasContent.js  getWidgetType.js
-    write/   setWidgetProperty.js  setWidgetLayout.js
-    resolveWidgetsHostApi.js  buildWidgetOutcome.js
-    buildWidgetReadSurface.js  buildWidgetWriteSurface.js
-    createWidgetsAdapter.js
-  facets/canvas/
-    config/canvasErrorCodes.js
-    read/    listCanvasWidgets.js
-    resolveCanvasHostApi.js  resolveVisualizationHostApi.js  resolveTabsHostApi.js
-    normalizeCanvasContentItems.js  readCanvasItemIdentity.js
-    readCanvasWidgetHostMeta.js  flattenCanvasWidgetDescriptor.js
-    buildCanvasOutcome.js  createCanvasAdapter.js
-  runtime/…
-  createCognosHostService.js
-  __orchestratorCognosHost.js
-```
-
-After slice 3:
-
-```txt
-core/services/cognosHost/
-  facets/filters/…  (unchanged)
-  facets/widgets/…  write/ also: renderWidget.js  enterFocusMode.js  exitFocusMode.js
-  facets/canvas/…   wait/whenRenderStart.js  wait/whenRenderComplete.js
-                    wait/awaitRenderEvent.js  resolveAsyncHostApi.js
-                    buildCanvasWaitSurface.js
-  facets/visualization/
-    config/visualizationErrorCodes.js
-    read/    getVisType.js  getVisTitle.js
-    write/   setVisType.js  setVisTitle.js  setContentProperty.js  setDataSource.js
-             clearAllSlots.js  addDataItemsToSlot.js  setTopBottomOnSlot.js
-             sortDataItemInSlot.js  setCustomLabelInSlot.js  clearAllLocalFilters.js
-             addOrReplaceLocalFilter.js  removeLocalFilter.js
-    resolveVisualizationHostApi.js  buildVisualizationOutcome.js
-    buildVisualizationReadSurface.js  buildVisualizationWriteSurface.js
-    buildVisualizationSlotSurface.js  buildVisualizationFilterSurface.js
-    buildVisualizationBindingSurface.js
-    createVisualizationAdapter.js
-  runtime/…
-  composeCognosHostFacets.js
-  createCognosHostService.js          (4 AMD: 3 runtime + compose)
-  __orchestratorCognosHost.js
-```
-
-After slice 4:
-
-```txt
-core/services/cognosHost/
-  facets/filters/…  facets/widgets/…  facets/canvas/…  facets/visualization/…
-  facets/dataQuery/
-    config/dataQueryErrorCodes.js
-    resolveDataQueryHostApi.js  buildDataQueryOutcome.js
-    flatten/flattenQueryRows.js
-    wait/waitForQueryResult.js  wait/inspectQueryResult.js  wait/awaitPollInterval.js
-    read/readQueryRows.js
-    createDataQueryAdapter.js
-  runtime/…
-  composeCognosHostFacets.js          (5 AMD)
-  createCognosHostService.js          (4 AMD: 3 runtime + compose; public key dataQuery)
-  __orchestratorCognosHost.js
-```
-
-`core/services/cognosHost/index.js` (`createCognosHostService`) stays at **4 AMD** because `composeCognosHostFacets.js` owns the facet factories. Slice 4 adds the fifth factory import on compose (4→5, under the >6 smell). Adding visualization as a fifth factory import on the service file would have been 7 (smell). Canvas flatten still uses its own `facets/canvas/resolveVisualizationHostApi.js` (D5); the visualization facet has a matching resolver and does not import the canvas file.
-
-Slice 5 compose-split (does not change slice 4 behaviour): `composeCognosHostFacets.js` is a 2-AMD merger of core + edge. Core keeps the original five factories (AMD 5). Edge imports `createDashboardAdapter`, `createMessagesAdapter`, `createTabsAdapter` (AMD 3, under the cap of 6). Merge is `Object.assign({}, core, edge)` — edge keys win on collision; there should be none. `core/services/cognosHost/index.js` (`createCognosHostService`) stays 4 AMD and exposes `dashboard` / `messages` / `tabs` from the merger result. Owner orchestrators stamp `dashboardFacet` / `messagesFacet` / `tabsFacet`; compose only publishes the service keys.
-
-The facet factory is `createFiltersAdapter.js` / `createFiltersAdapter`, not `create…Facet`: `naming.mdc` allows only `Controller`, `Service` and `Adapter` as factory role suffixes, and a domain-scoped part of the ring-1 host adapter is an adapter. "Facet" stays the architectural term used in the design doc and in folder naming. Same for `createWidgetsAdapter` / `createCanvasAdapter` / `createVisualizationAdapter` / `createDataQueryAdapter` / `createDashboardAdapter` / `createMessagesAdapter` / `createTabsAdapter`.
-
-`resolveFiltersHostApi.js` is the single place in ring 1 that reads `_KDB.cognosAPI.filters`; `resolveWidgetsHostApi.js` for `.widgets`; `resolveCanvasHostApi.js` for `.canvas`; `facets/visualization/resolveVisualizationHostApi.js` for `.visualization` (canvas flatten keeps its own copy for D5); `resolveAsyncHostApi.js` for `.async`; `facets/dataQuery/resolveDataQueryHostApi.js` for `.dataQuery`. Each is resolved per call and never captured, because the cluster A teardown invariant nulls that namespace.
-
-Target after slice 5 — large facets become subfolders with small files (writeback `get/`/`set/` precedent), so no facet file passes the 150-line limit:
-
-```txt
-core/services/cognosHost/
-  facets/filters/…  facets/widgets/…  facets/visualization/…
-  facets/canvas/…   facets/dataQuery/…
-  facets/dashboard/  createDashboardAdapter.js  …
-  facets/messages/   createMessagesAdapter.js   …
-  facets/tabs/       createTabsAdapter.js       …
-  runtime/…
-  composeCognosHostCoreFacets.js      (5 AMD)
-  composeCognosHostEdgeFacets.js      (3 AMD)
-  composeCognosHostFacets.js          (2 AMD merger; edge keys win)
-  createCognosHostService.js          (4 AMD: 3 runtime + compose; public keys + dashboard, messages, tabs)
-  __orchestratorCognosHost.js
+  __orchestratorCognosHost.js                         shim over index.js (path kept for KDB.js)
+  errorCodes.js                                       canvas, HOST_CAPABILITY_MISSING, INVENTORY_FAILED, READ_FAILED, INVALID_ID, WAIT_FAILED, WAIT_TIMEOUT, ...
+  hostAccess.js                                       resolveHostApi, resolveHostMethod, isAborted, isValidWidgetId, isThenable, isFacetStale, detachHostSubscription
+  hostOps.js                                          hostFail, guardWrite, runSync, runWrite, readOp, writeOp
+  index.js                                            registerCognosHost
+  outcome.js                                          buildOk, buildDegraded, buildAborted, buildDisposed, buildFailed, buildDiagnostic
+  runtime.js                                          ensureRuntime, clearRuntime, nextGeneration, registerWait, releaseWait, addSubscription, pruneSubscription
+  facets/
+    canvas/
+      createCanvasAdapter.js                          createCanvasAdapter
+      listCanvasWidgets.js                            listCanvasWidgets
+      setCanvasPageSize.js                            setCanvasPageSize
+      waits.js                                        createWaitOps
+    dashboard/
+      createDashboardAdapter.js                       createDashboardAdapter
+      navigation.js                                   openAppView, replaceWithBiHomePerspective
+      read.js                                         createValueGetters, buildUiStateSnapshot
+      subscribeUiState.js                             subscribeUiState
+    dataQuery/
+      createDataQueryAdapter.js                       createDataQueryAdapter
+      rows.js                                         readQueryRows, peekQueryRows
+      waitForQueryResult.js                           waitForQueryResult
+    dataSources/
+      createDataSourcesAdapter.js                     createDataSourcesAdapter
+    filters/
+      createFiltersAdapter.js                         createFiltersAdapter
+      filterIndex.js                                  buildScopeContext, buildIdKey, buildNameKey, readHostFilterItems, resolveFilterMethodApi, refreshFilterIndex, invalidateFilterIndexEntry, ...
+      read.js                                         listFilterItems, findFilterItem, readFilterValues, listPageContextScopes
+      waitForPageContextReady.js                      waitForPageContextReady
+      write.js                                        writeFilter, clearFilter
+    messages/
+      createMessagesAdapter.js                        createMessagesAdapter
+    tabs/
+      createTabsAdapter.js                            createTabsAdapter
+    visualization/
+      createVisualizationAdapter.js                   createVisualizationAdapter
+      localFilters.js                                 createLocalFilterOps
+      properties.js                                   createPropertyOps
+      read.js                                         createReadOps
+      selections.js                                   createSelectionOps, flattenSelectionCategories
+      slots.js                                        createSlotOps
+    widgets/
+      createWidgetsAdapter.js                         createWidgetsAdapter
 ```
 
 ## 10. Out Of Scope
