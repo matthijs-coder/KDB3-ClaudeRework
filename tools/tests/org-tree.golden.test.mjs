@@ -37,12 +37,12 @@ function check(name, actual) {
 function loadImpls() {
   const errors = [];
   const options = { stubs: { console: { error: (...args) => errors.push(args), log() {}, warn() {} } } };
-  const core = (rel) => loadAmd(path.join(JS_ROOT, "core/services/drillthrough/org", rel), options);
+  const owner = (rel) => loadAmd(path.join(JS_ROOT, "core/utils/orgTree", rel), options);
   const vis = loadAmd(path.join(JS_ROOT, "dashboard/widgets/widgetVis/drillthrough/orgTree.js"), options);
   return {
     errors,
-    coreParse: core("parseHierarchyCell.js"),
-    coreBuild: core("buildOrgTreeFromRows.js"),
+    coreParse: owner("hierarchyCell.js").parseHierarchyCell,
+    coreBuild: owner("buildOrgTree.js").buildOrgTreeFromRows,
     visParse: vis.parseHierarchyCell,
     visBuild: vis.buildOrgTree
   };

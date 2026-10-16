@@ -33,8 +33,8 @@ const rowsByName = Object.fromEntries(ROW_SETS);
 function loadImpls() {
   const options = { stubs: { console: quiet } };
   const vis = loadAmd(path.join(JS_ROOT, "dashboard/widgets/widgetVis/drillthrough/orgTree.js"), options);
-  const build = loadAmd(path.join(JS_ROOT, "core/services/drillthrough/org/buildOrgTreeFromRows.js"), options);
-  return { visBuild: vis.buildOrgTree, coreBuild: build };
+  const build = loadAmd(path.join(JS_ROOT, "core/utils/orgTree/buildOrgTree.js"), options);
+  return { visBuild: vis.buildOrgTree, coreBuild: build.buildOrgTreeFromRows };
 }
 
 function loadService(readRows) {

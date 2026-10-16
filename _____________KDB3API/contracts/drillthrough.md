@@ -573,12 +573,11 @@ core/services/drillthrough/
   __orchestratorDrillthrough.js                       shim over index.js (path kept for KDB.js)
   assemble.js                                         assembleIconDrillConfig, assembleDatapointDrillConfig
   buildDrillthroughUrl.js                             buildDrillthroughUrl, createBuildResult
-  config.js                                           aufrissMatchers, promptCatalog, monthLabels, drillthroughLabels, HIERARCHY_TABLE_KEYS, DEFERRED_OPEN_TIMEOUT_MS, datenart
+  config.js                                           aufrissMatchers, promptCatalog, monthLabels, drillthroughLabels, DEFERRED_OPEN_TIMEOUT_MS, datenart
   encode.js                                           encodeDrillthroughUrl
   index.js                                            registerDrillthrough
   open.js                                             createOpener
   org/
-    buildOrgTreeFromRows.js                           default export: buildOrgTreeFromRows
     collectBwGruppeCandidates.js                      default export: collectBwGruppeCandidates
     expandBwLevel001Children.js                       default export: expandBwLevel001Children
     highestWins.js                                    default export: highestWins
@@ -586,12 +585,11 @@ core/services/drillthrough/
     mapDezpvOrgPrompts.js                             default export: mapDezpvOrgPrompts
     mapOrgPrompts.js                                  default export: mapOrgPrompts
     normalizeDezpvValue.js                            default export: normalizeDezpvValue
-    parseHierarchyCell.js                             default export: parseHierarchyCell
-    rankHierarchyRowKeys.js                           default export: rankHierarchyRowKeys
     resolveOrgNodeId.js                               default export: resolveOrgNodeId
     sanitizeHashValue.js                              default export: sanitizeHashValue
 ```
 
+- Org-tree building and hierarchy-cell parsing live in the pure core util `core/utils/orgTree/` (`hierarchyTable.js`: table keys per sicht; `hierarchyCell.js`: `parseHierarchyCell`, `extractLastBracketToken`, `parseLevelNumber`; `buildOrgTree.js`: `buildOrgTreeFromRows`, `readOrgTree`). `org/mapOrgPrompts.js` calls `readOrgTree` when `spec.orgTree` is omitted; widgetVis builds the same tree with the same module.
 - `config.js` — hashes, catalogs, maps, and the German drillthrough label seed. URLs stay in `_KDB.config.links`.
 - `open.js` — `window.open(url, "_blank")`, the wait document, and the deferred navigation. No `loadTable` / `waitForRows`.
 - **No** `state/`, `view/`, `events/` or `adapters/` folder.
