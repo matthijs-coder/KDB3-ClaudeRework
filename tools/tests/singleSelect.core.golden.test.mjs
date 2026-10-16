@@ -739,6 +739,55 @@ test("applySpecialSelectionPolicy: validation, apply, clear, mismatch", async ()
   assert.equal(failedWrite.applied[0].errorCode, "SPECIAL_SINGLE_SELECT_POLICY_APPLY_FAILED");
 });
 
+test("applySpecialSelectionPolicy: unverifiable rollback maps to COMMIT_VERIFICATION_MISMATCH and logs", async () => {
+  const special = { itemId: "p1", itemName: "Personengruppe", scopeId: "global", values: [{ d: "Alle", u: "" }] };
+  const facet = fakeFacet([], { items: [special] });
+  const { KDB, api } = await bootReconciled(facet, {
+    properties: {
+      kennzahlenTablesPropObj: { personal: {} },
+      filterPropObj: { personal: { filterInstances: {
+        i1: { scopeType: "global", itemName: "Personengruppe", itemId: "p1", filterLabel: "Personengruppe", instanceKey: "pg", condition: "personengruppe" }
+      } } }
+    }
+  });
+  const id = "g|s=global|i=p1";
+  const payload = {
+    semanticSpecialFilterId: "Personengruppe", source: "specialSingleSelect", skipHistory: true, filterInstanceIds: [id],
+    operation: "applyDefault", selection: { displayValue: "Alle Gruppen", useValue: "7" }
+  };
+  const expected = [{ filterInstanceId: id, ok: false, degraded: false, errorCode: "SINGLE_SELECT_COMMIT_VERIFICATION_MISMATCH" }];
+  const rollbackModes = {
+    "rollback write throws": async () => { throw new Error("rollback boom"); },
+    "rollback write returns false": async () => ({ ok: false }),
+    "rollback write succeeds but host still differs": async () => {
+      facet.stored = [{ d: "Anders", u: "9" }];
+      return { ok: true };
+    }
+  };
+  for (const [label, rollback] of Object.entries(rollbackModes)) {
+    facet.stored = [];
+    facet.writes.length = 0;
+    logged.length = 0;
+    facet.writeFilter = async function (req) {
+      facet.writes.push(req.values.slice());
+      if (facet.writes.length === 1) {
+        facet.stored = [{ d: "Anders", u: "9" }];
+        return { ok: true };
+      }
+      return rollback(req);
+    };
+    const result = await api.dispatch({ type: "singleSelect/applySpecialSelectionPolicy", payload });
+    assert.deepEqual(result.applied, expected, label);
+    assert.equal(result.ok, false, label);
+    assert.equal(facet.writes.length, 2, label);
+    assert.ok(
+      logged.some((entry) => entry[0] === "error" && /rollback could not be verified/.test(String(entry[1]))),
+      label + ": rollback failure is logged"
+    );
+    assert.equal(KDB.state.filters.singleSelect.instancesById[id].currentSelection.useValue, "", label);
+  }
+});
+
 test("history: contribution handler, step building, push rules and replay", async () => {
   const facet = fakeFacet([GESCHLECHT.values[0]], { items: [GESCHLECHT] });
   const { KDB, rt } = await bootReconciled(facet);

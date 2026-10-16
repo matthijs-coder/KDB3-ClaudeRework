@@ -1,14 +1,13 @@
 define([
   "../config.js",
-  "../../../../core/utils/kit/data.js",
   "./routeInteraction.js"
-], function (_config, _kitData, _routeInteraction) {
+], function (_config, _routeInteraction) {
   "use strict";
 
   var codes = _config.errorCodes;
 
   function cloneSelection(_selection) {
-    return _selection ? _kitData.cloneJson(_selection) : null;
+    return _selection ? Object.assign({}, _selection) : null;
   }
 
   function cloneOwnerSelectionContext(_ownerSelectionContext) {

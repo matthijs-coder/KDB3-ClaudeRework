@@ -284,11 +284,15 @@ define([
     catcher.addEventListener("click", function () {
       var live;
       delete _runtime.abortControllers[key];
-      live = _instance.lookupLiveFilterState(_KDB, _handoff, _filterState);
-      if (live.isCommitInProgress !== true) {
-        live.pendingSelection = _selectionState.createPendingSelection(
-          _selectionState.getConfirmedDisplayValue(live.backupSelection)
-        );
+      try {
+        live = _instance.lookupLiveFilterState(_KDB, _handoff, _filterState);
+        if (live.isCommitInProgress !== true) {
+          live.pendingSelection = _selectionState.createPendingSelection(
+            _selectionState.getConfirmedDisplayValue(live.backupSelection)
+          );
+        }
+      } catch (error) {
+        console.error("[singleSelect.outClickRevert] failed", error);
       }
     }, { once: true, signal: controller.signal });
   }
