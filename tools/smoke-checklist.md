@@ -104,7 +104,7 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Drillthrough: click a header icon and a datapoint on a line/pie/table widget for 3-4 org/year combinations (BW and DEZPV). Expected: the target URL (Network tab or `window.open` target) equals baseline.
 
 ### WS-E Toolbar controls (wienKi, pdf, history, share)
-- [ ] Button order and icons in the toolbar are unchanged: Undo, Redo, Teilen, PDF, Wien-KI (as on baseline). Test with the dark and the light Cognos theme (icon inversion).
+- [ ] Button order and icons in the toolbar are unchanged from baseline. DOM order, left to right: Share (Teilen), WienKI, PDF, History (Undo/Redo). Confirm the visual order once in Cognos. Test with the dark and the light Cognos theme (icon inversion).
 - [ ] PDF busy state: while exporting, the PDF button is disabled/busy; afterwards enabled.
 - [ ] Share dialog opens, "Nur Lesen" toggle works, read-only link hides the KDB chrome.
 - [ ] Undo/redo enabled state follows the history (disabled at start, enabled after a change).
@@ -113,7 +113,7 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Close/reopen the dashboard: exactly one toolbar (no duplicate buttons).
 
 #### WS-E (toolbarControls module)
-- [ ] Visual order in the toolbar, left to right: **Teilen, Wien-KI, PDF, Undo/Redo** (declared order in `toolbarControls/config.js`; identical to the baseline DOM). The first bullet of this section lists a different order; the baseline DOM order is Share, WienKI, PDF, History.
+- [ ] Declared order in `toolbarControls/config.js` (Share, WienKI, PDF, History) matches the DOM: inspect the action bar `.leading` element and confirm the four roots appear in exactly this order, identical to baseline.
 - [ ] Reload the dashboard 3 times: icons, labels, tooltips and spacing are identical to baseline (same CSS classes and `data-kdb-*` attributes).
 - [ ] DevTools console: `getKDB().runtime.toolbarControls.observers` has exactly one entry (`toolbar`) while all four buttons are mounted; no `runtime.historyControls`, `runtime.pdfExportControls`, `runtime.shareControls` or `runtime.wienKiControls` objects exist any more.
 - [ ] Toolbar re-render: switch tabs, open and close a dialog, toggle authoring mode. The four buttons stay in order, never duplicate, and Undo/Redo still react to clicks afterwards (baseline bug: the Undo/Redo click handler stayed dead after Cognos rebuilt the toolbar).

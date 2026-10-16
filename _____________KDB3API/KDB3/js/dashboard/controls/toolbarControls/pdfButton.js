@@ -10,6 +10,7 @@ define([
   var ID = "pdf";
   var LABELS = _config.LABELS.pdf;
   var EXPORT_KEY = "pdfExportRun";
+  var STOP_ERROR_CODES = ["DASHBOARD_PDF_ABORTED", "DASHBOARD_PDF_DISPOSED"];
 
   function readExportService(_KDB) {
     var service = _KDB.services && _KDB.services.dashboardPdf;
@@ -36,9 +37,19 @@ define([
     }
   }
 
-  function reportExportResult(_KDB, result) {
+  function isExpectedStop(inst, errorCode) {
+    return inst.isDisposed || STOP_ERROR_CODES.indexOf(errorCode) !== -1;
+  }
+
+  function reportExportResult(_KDB, inst, result) {
+    var errorCode = result && result.errorCode;
     if (result && result.ok === true) return true;
-    if (!result || result.errorCode !== "DASHBOARD_PDF_BUSY") showFatalError(_KDB, result || {});
+    if (errorCode === "DASHBOARD_PDF_BUSY") return false;
+    if (isExpectedStop(inst, errorCode)) {
+      console.debug("[pdfExportControls.export] stopped", errorCode);
+      return false;
+    }
+    showFatalError(_KDB, result || {});
     return false;
   }
 
@@ -56,9 +67,10 @@ define([
         }
       }));
     })
-      .then(reportExportResult.bind(null, _KDB))
+      .then(reportExportResult.bind(null, _KDB, inst))
       .catch(function (error) {
-        console.error("[pdfExportControls.export]", error);
+        if (isExpectedStop(inst, error && error.code)) console.debug("[pdfExportControls.export] stopped", error && error.code);
+        else console.error("[pdfExportControls.export]", error);
         return false;
       })
       .finally(function () {

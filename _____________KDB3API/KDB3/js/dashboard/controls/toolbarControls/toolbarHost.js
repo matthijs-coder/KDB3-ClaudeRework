@@ -188,7 +188,13 @@ define([
       return false;
     }
     rt.buttons[inst.id] = inst;
-    if (!rt.isHostReady) return startToolbarWait(_KDB, rt);
+    try {
+      if (!rt.isHostReady) return startToolbarWait(_KDB, rt);
+    } catch (error) {
+      delete rt.buttons[inst.id];
+      disposeHostWhenUnused(rt);
+      throw error;
+    }
     runToolbarSync(_KDB, rt);
     return true;
   }
@@ -202,14 +208,21 @@ define([
   function detachButton(_KDB, inst) {
     var rt = ensureHostRuntime(_KDB);
     var key = inst.id + BIND_SCOPE_SUFFIX;
-    var errors;
     inst.isDisposed = true;
     if (rt.buttons[inst.id] !== inst) return;
     if (rt.abortControllers[key]) rt.abortControllers[key].abort();
     delete rt.abortControllers[key];
-    if (inst.def.onDetach) inst.def.onDetach(_KDB, inst);
-    removeButtonRoot(inst);
-    delete rt.buttons[inst.id];
+    try {
+      if (inst.def.onDetach) inst.def.onDetach(_KDB, inst);
+    } finally {
+      removeButtonRoot(inst);
+      delete rt.buttons[inst.id];
+      disposeHostWhenUnused(rt);
+    }
+  }
+
+  function disposeHostWhenUnused(rt) {
+    var errors;
     if (Object.keys(rt.buttons).length > 0) return;
     errors = _rt.disposeRuntimeBuckets(rt);
     rt.isHostReady = false;

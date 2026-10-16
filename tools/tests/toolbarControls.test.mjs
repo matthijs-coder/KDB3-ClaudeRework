@@ -32,8 +32,17 @@ const GOLDEN_DARK_SHARE_AND_PDF = [
 
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
+function trackHistoryHandlers(events, counter) {
+  const subscribe = events.subscribe;
+  events.subscribe = (name, handler, options) => subscribe(name, (payload) => {
+    if (name === "history:changed") counter.handlerCalls += 1;
+    handler(payload);
+  }, options);
+  return events;
+}
+
 function createHarness(options = {}) {
-  const dom = createFakeDom();
+  const dom = options.dom || createFakeDom();
   const logs = { warn: [], error: [] };
   const stubs = {
     document: dom.document,
@@ -51,14 +60,15 @@ function createHarness(options = {}) {
   const createEventBus = loadAmd(path.join(JS_ROOT, "core/events/createEventBus.js"), { stubs });
   const waits = [];
   const calls = [];
-  const host = dom.createHost();
-  host.appendChild(dom.document.createElement("span"));
+  const host = options.host || dom.createHost();
+  if (!options.host) host.appendChild(dom.document.createElement("span"));
+  const historyEvents = { handlerCalls: 0 };
   const _KDB = {
     api: {},
     runtime: {},
     config: { links: { wienKiUrl: "https://wienki.test/chat" } },
     elements: { selectors: { toolbar: { actionBarLeadingSelector: "#host" }, root: { dashboardClassHost: "#chost" } } },
-    events: createEventBus(),
+    events: trackHistoryHandlers(createEventBus(), historyEvents),
     utils: {
       waitForElObserver(selector, _root, opts) {
         return new Promise((resolve, reject) => {
@@ -109,7 +119,7 @@ function createHarness(options = {}) {
   const rootIds = () => host.childNodes
     .filter((node) => node.attributes.has("class") && /controls/.test(node.getAttribute("class")))
     .map((node) => node.getAttribute("class"));
-  return { dom, host, _KDB, waits, calls, logs, settle, rootIds, runtime: () => _KDB.runtime.toolbarControls };
+  return { dom, host, _KDB, waits, calls, logs, historyEvents, settle, rootIds, runtime: () => _KDB.runtime.toolbarControls };
 }
 
 async function mountAll(harness, order = KEYS) {
@@ -284,4 +294,148 @@ test("applyReadOnlyChrome toggles the class from the url token", async () => {
   harness.dom.document.location.href = "https://host.test/dashboard#perspective=dashboard";
   harness._KDB.api.shareControls.applyReadOnlyChrome();
   assert.equal(classHost.classList.contains("kdb-share-read-only"), false);
+});
+
+function createRejectingPdfHarness(reason) {
+  return createHarness({ pdfService: { exportDashboardPdf: () => reason() } });
+}
+
+async function clickPdf(harness) {
+  harness.host.querySelector('[data-kdb-pdf-export-button="true"]').click();
+  await tick();
+  await tick();
+}
+
+function readPdfState(harness) {
+  const buttonEl = harness.host.querySelector('[data-kdb-pdf-export-button="true"]');
+  return { busy: buttonEl.getAttribute("aria-busy"), disabled: buttonEl.disabled };
+}
+
+test("pdf export rejection recovers the button and logs the failure once", async () => {
+  const harness = createRejectingPdfHarness(() => Promise.reject(new Error("boom")));
+  await mountAll(harness);
+  await clickPdf(harness);
+  assert.deepEqual(readPdfState(harness), { busy: "false", disabled: false });
+  assert.equal(harness.logs.error.filter((line) => /pdfExportControls\.export/.test(line)).length, 1);
+  assert.deepEqual(harness.calls, []);
+});
+
+test("pdf export stopped by abort or dispose does not show the fatal alert", async () => {
+  const aborted = createRejectingPdfHarness(() => Promise.resolve({ ok: false, errorCode: "DASHBOARD_PDF_ABORTED" }));
+  await mountAll(aborted);
+  await clickPdf(aborted);
+  const disposedCode = createRejectingPdfHarness(() => Promise.reject(Object.assign(new Error("x"), { code: "DASHBOARD_PDF_DISPOSED" })));
+  await mountAll(disposedCode);
+  await clickPdf(disposedCode);
+  for (const harness of [aborted, disposedCode]) {
+    assert.deepEqual(harness.calls, []);
+    assert.deepEqual(harness.logs.error, []);
+    assert.deepEqual(readPdfState(harness), { busy: "false", disabled: false });
+  }
+});
+
+test("pdf export failure shows the alert, unless the button was destroyed meanwhile", async () => {
+  const failed = createRejectingPdfHarness(() => Promise.resolve({ ok: false, errorCode: "DASHBOARD_PDF_EXPORT_FAILED" }));
+  await mountAll(failed);
+  await clickPdf(failed);
+  assert.deepEqual(failed.calls, ["alert Dashboard PDF Export"]);
+
+  let finish;
+  const destroyed = createRejectingPdfHarness(() => new Promise((resolve) => { finish = resolve; }));
+  await mountAll(destroyed);
+  destroyed.host.querySelector('[data-kdb-pdf-export-button="true"]').click();
+  destroyed._KDB.api.pdfExportControls.destroy();
+  finish({ ok: false, errorCode: "DASHBOARD_PDF_EXPORT_FAILED" });
+  await tick();
+  await tick();
+  assert.deepEqual(destroyed.calls, []);
+});
+
+test("icons follow a theme change on the next toolbar sync", async () => {
+  const harness = createHarness();
+  await mountAll(harness);
+  const pdfIcon = () => harness.host.querySelector('[data-kdb-pdf-export-icon="true"]');
+  const shareIcon = () => harness.host.querySelector('[data-kdb-share-icon="true"]');
+  assert.equal(pdfIcon().getAttribute("src"), "./v1/ext/KDB3/images/pdf-black.png");
+  assert.equal(shareIcon().classList.contains("kdb-share-controls__icon--invert"), false);
+  harness.dom.setTextColor("rgb(240, 240, 240)");
+  harness.host.appendChild(harness.dom.document.createElement("span"));
+  await harness.settle();
+  assert.equal(pdfIcon().getAttribute("src"), "./v1/ext/KDB3/images/pdf-white.png");
+  assert.equal(shareIcon().classList.contains("kdb-share-controls__icon--invert"), true);
+  harness.dom.setTextColor("rgb(0, 0, 0)");
+  harness.host.appendChild(harness.dom.document.createElement("span"));
+  await harness.settle();
+  assert.equal(pdfIcon().getAttribute("src"), "./v1/ext/KDB3/images/pdf-black.png");
+  assert.equal(shareIcon().classList.contains("kdb-share-controls__icon--invert"), false);
+});
+
+test("history:changed has one live subscription after a re-render and none after destroy", async () => {
+  const harness = createHarness();
+  await mountAll(harness);
+  harness.host.childNodes.slice().forEach((node) => harness.host.removeChild(node));
+  harness.host.appendChild(harness.dom.document.createElement("span"));
+  await harness.settle();
+  harness._KDB.events.emit("history:changed", { canUndo: true, canRedo: true });
+  assert.equal(harness.historyEvents.handlerCalls, 1);
+  harness._KDB.api.historyControls.destroy();
+  harness._KDB.events.emit("history:changed", { canUndo: true, canRedo: true });
+  assert.equal(harness.historyEvents.handlerCalls, 1);
+});
+
+test("two _KDB instances on one document: destroying the first keeps the second working", async () => {
+  const first = createHarness();
+  const second = createHarness({ dom: first.dom, host: first.host });
+  await mountAll(first);
+  KEYS.forEach((key) => second._KDB.api[key].mount({}));
+  second.waits.forEach((wait) => wait.resolve());
+  await second.settle();
+  assert.deepEqual(first.rootIds(), BUTTON_CLASSES);
+  KEYS.forEach((key) => first._KDB.api[key].destroy());
+  await second.settle();
+  assert.deepEqual(second.rootIds(), BUTTON_CLASSES);
+  assert.equal(first.runtime().isHostReady, false);
+  assert.equal(second.runtime().isHostReady, true);
+  second.host.querySelector('[data-kdb-history-action="undo"]').click();
+  await tick();
+  assert.deepEqual(second.calls, ["undo"]);
+  assert.deepEqual(first.calls, []);
+  KEYS.forEach((key) => second._KDB.api[key].destroy());
+  await second.settle();
+  assert.deepEqual(second.rootIds(), []);
+  assert.equal(first.dom.liveObserverCount(), 0);
+});
+
+test("a throwing onDetach still unregisters the button and disposes the host", async () => {
+  const harness = createHarness();
+  await mountAll(harness);
+  harness.runtime().abortControllers.pdfExportRun = { abort() { throw new Error("abort failed"); } };
+  harness._KDB.api.pdfExportControls.destroy();
+  assert.ok(harness.logs.error.some((line) => /pdfExportControls\.destroy/.test(line)));
+  assert.equal(harness.runtime().buttons.pdf, undefined);
+  ["wienKiControls", "shareControls", "historyControls"].forEach((key) => harness._KDB.api[key].destroy());
+  await harness.settle();
+  assert.equal(harness.dom.liveObserverCount(), 0);
+  assert.equal(harness.dom.pendingFrameCount(), 0);
+  assert.equal(harness.runtime().isHostReady, false);
+  assert.deepEqual(harness.rootIds(), []);
+});
+
+test("a throwing onDetach on the last button still disposes the host", async () => {
+  const harness = createHarness();
+  await mountAll(harness, ["pdfExportControls"]);
+  harness.runtime().abortControllers.pdfExportRun = { abort() { throw new Error("abort failed"); } };
+  harness._KDB.api.pdfExportControls.destroy();
+  assert.equal(harness.dom.liveObserverCount(), 0);
+  assert.equal(harness.runtime().isHostReady, false);
+  assert.deepEqual(harness.rootIds(), []);
+});
+
+test("mount rolls back its registration when the toolbar wait throws synchronously", async () => {
+  const harness = createHarness();
+  harness._KDB.utils.waitForElObserver = () => { throw new Error("wait failed"); };
+  assert.equal(harness._KDB.api.historyControls.mount({}), false);
+  assert.ok(harness.logs.error.some((line) => /historyControls\.mount/.test(line)));
+  assert.deepEqual(harness.runtime().buttons, {});
+  assert.equal(harness.dom.liveObserverCount(), 0);
 });
