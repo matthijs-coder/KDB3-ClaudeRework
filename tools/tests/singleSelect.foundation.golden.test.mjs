@@ -43,6 +43,7 @@ function adapter() {
       tableKey: load("config/resolveFilterOptionsTableKey.js"),
       tableRows: load("effects/parseFilterOptionTableRows.js"),
       resolveFilterValueFromTable: load("effects/resolveFilterValueFromTable.js").resolveFilterValueFromTable,
+      reconcileFilterInstances: load("actions/reconcileFilterInstances.js"),
       ensureRuntime: load("effects/ensureSingleSelectRuntime.js"),
       resetRuntime: runtime.resetSingleSelectRuntime,
       seq: runtime,
@@ -77,6 +78,7 @@ function adapter() {
     tableKey: tv.resolveFilterOptionsTableKey,
     tableRows: tv,
     resolveFilterValueFromTable: tv.resolveFilterValueFromTable,
+    reconcileFilterInstances: load("inventory/reconcile.js").reconcileFilterInstances,
     ensureRuntime: rt.ensureSingleSelectRuntime,
     resetRuntime: rt.resetSingleSelectRuntime,
     seq: rt,
@@ -553,4 +555,51 @@ test("runtime: resetSingleSelectRuntime releases resources and resets owner fiel
     assert.equal(key in rt, false, key);
   });
   assert.equal(rt.historyReplayHandlerContribution, "keep");
+});
+
+test("reconcileFilterInstances: run bookkeeping, generation and result shape", async () => {
+  const items = [
+    { itemId: "g1", itemName: "Geschlecht", scopeId: "global", values: [{ d: "Frau", u: "2" }] },
+    { itemId: "x9", itemName: "Unbekannt", scopeId: "global", values: [] },
+    { itemId: "d1", itemName: "Dienststelle", scopeId: "global", values: [] }
+  ];
+  const facet = {
+    listFilterItems(input) {
+      return { ok: true, data: input.scopeId === "global" ? items : [] };
+    }
+  };
+  const KDB = {
+    properties: {
+      kennzahlenTablesPropObj: { personal: {} },
+      filterPropObj: { personal: { filterInstances: {
+        i1: { scopeType: "global", itemName: "Geschlecht", itemId: "g1", filterLabel: "Geschlecht", instanceKey: "geschlecht", isSingleSelect: true }
+      } } }
+    },
+    state: { filters: { singleSelect: { instancesById: {}, inventory: {} } } }
+  };
+  const runtime = A.ensureRuntime(KDB);
+  runtime.filtersFacet = facet;
+  const invalid = await A.reconcileFilterInstances(KDB, runtime, { reason: "nope" });
+  assert.equal(invalid.ok, false);
+  assert.equal(invalid.diagnostics[0].code, "SINGLE_SELECT_RECONCILE_REASON_INVALID");
+  const first = await A.reconcileFilterInstances(KDB, runtime, { reason: "parameterRestore" });
+  assert.equal(first.ok, true);
+  assert.equal(first.generation, 1);
+  assert.equal(first.discovered.length, 1);
+  assert.deepEqual(first.diagnostics.map((d) => d.code), ["SINGLE_SELECT_HOST_ITEM_UNKNOWN"]);
+  const root = KDB.state.filters.singleSelect;
+  assert.equal(Object.keys(root.instancesById).length, 1);
+  assert.equal(root.inventory.freshness, "fresh");
+  assert.equal(root.inventory.reconcileInFlight, false);
+  assert.equal(runtime.reconcileRunId, 1);
+  assert.deepEqual(runtime.pendingPromises, {});
+  assert.deepEqual(runtime.abortControllers, {});
+  const second = await A.reconcileFilterInstances(KDB, runtime, { reason: "historyReplay" });
+  assert.equal(second.generation, 2);
+  facet.listFilterItems = () => { throw new Error("host down"); };
+  const failed = await A.reconcileFilterInstances(KDB, runtime, { reason: "parameterRestore", timeoutMs: 60 });
+  assert.equal(failed.ok, false);
+  assert.equal(failed.diagnostics[0].code, "SINGLE_SELECT_RECONCILE_TIMEOUT");
+  assert.equal(root.inventory.freshness, "stale");
+  assert.equal(root.inventory.reconcileInFlight, false);
 });
