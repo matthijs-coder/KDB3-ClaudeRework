@@ -328,6 +328,18 @@ test("readSelectedParameterSet reads id and sanitised label from the host select
   assert.deepEqual(bridge.readSelectedParameterSet(), { id: null, label: null });
 });
 
+test("hostParameterSetSelect.readSelectedId skips the placeholder and the new-dashboard sentinel", () => {
+  const env = makeEnv();
+  const host = loadAmd(path.join(WB, "bridge/hostParameterSetSelect.js"), { stubs: env.stubs });
+  assert.equal(host.readSelectedId(), null);
+  env.doc.byId.selectParameterSet = { value: "p9" };
+  assert.equal(host.readSelectedId(), "p9");
+  ["-", "", "__KDB_NEW_DASHBOARD__"].forEach((value) => {
+    env.doc.byId.selectParameterSet.value = value;
+    assert.equal(host.readSelectedId(), null, value);
+  });
+});
+
 test("selectParameterSetById times out when the host select never gets options", async () => {
   const env = makeEnv();
   const kdb = makeKdb();
@@ -787,7 +799,7 @@ test("properties: the hide-data hint badge is appended once after the rows arriv
   assert.equal(widget.children.length, 0, "switching developer mode off removes the badge");
 });
 
-test("properties: a stale hint from a disposed boot is not appended", { todo: "fixed by C3 step 6 (hintSeq per instance, disposed check)" }, async () => {
+test("properties: a stale hint from a disposed boot is not appended", async () => {
   const env = makeEnv();
   let release;
   const gate = new Promise((resolve) => { release = resolve; });
