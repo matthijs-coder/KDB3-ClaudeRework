@@ -7,6 +7,7 @@ define([
   "./historyService/__orchestratorHistoryService.js",
   "./widgetBindingPlan/__orchestratorWidgetBindingPlan.js",
   "./widgetBindingApply/__orchestratorWidgetBindingApply.js",
+  "./widgetBinding/index.js",
   "./dashboardPdf/__orchestratorDashboardPdf.js",
   "./writeback/__orchestratorWriteback.js",
   "./drillthrough/__orchestratorDrillthrough.js"
@@ -19,6 +20,7 @@ define([
   _orchestratorHistoryService,
   _orchestratorWidgetBindingPlan,
   _orchestratorWidgetBindingApply,
+  _registerWidgetBinding,
   _orchestratorDashboardPdf,
   _orchestratorWriteback,
   _orchestratorDrillthrough
@@ -34,6 +36,7 @@ define([
     _orchestratorMessageService(_KDB);
     _orchestratorWidgetBindingPlan(_KDB);
     _orchestratorWidgetBindingApply(_KDB);
+    _registerWidgetBinding(_KDB);
     _orchestratorDashboardPdf(_KDB);
     if (!_KDB.services.history) {
       _orchestratorHistoryService(_KDB, { replayHandlers: {} });
