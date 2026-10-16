@@ -1,6 +1,6 @@
 ---
 description: KDB3 error handling. try/catch only at boundaries, no log-and-rethrow, error state and codes, Outcome results, abort handling. Use when writing or reviewing try/catch, console.error, error state or async/abort code.
-globs: KDB3/js/**/*.js
+globs: **/KDB3/js/**/*.js
 alwaysApply: false
 ---
 
@@ -52,7 +52,8 @@ console.error("[tableData.reloadTable] readQueryRows failed", { tableName: table
 
 ## Error results and state
 
-- Error codes are `UPPER_SNAKE_CASE` strings with a module prefix: `WIDGET_VIS_DRILLTHROUGH_FAILED`, `TABS_ERROR`. Use the kit's `codedError(code, message)` when an `Error` must carry a code.
+- New error codes are `UPPER_SNAKE_CASE` strings with a module prefix: `WIDGET_VIS_DRILLTHROUGH_FAILED`, `TABS_ERROR`. Use the kit's `codedError(code, message)` when an `Error` must carry a code.
+- Existing codes keep their spelling, including camelCase ones (`tableDataUnavailable`), and existing result keys stay as they are (`errorCode`, and `code` where `{ ok: false, code }` is used): other code compares them by string.
 - Expected failures are values, not exceptions. Cognos facets return an Outcome `{ ok, outcome: "ok" | "degraded" | "aborted" | "failed", data?, errorCode?, reason?, diagnostics? }`. Check `ok`; do not wrap facet calls in try/catch to detect failure.
 - Dispatch results use `{ ok: true, ... }` or `{ ok: false, errorCode, ... }`.
 - An owner records failure in its own subtree: `lifecycle: "error"` plus JSON-serialisable `errorCode` / `errorMessage`. Keep `freshness` (`fresh` / `stale`) as a separate field: a failed reload may keep stale rows.

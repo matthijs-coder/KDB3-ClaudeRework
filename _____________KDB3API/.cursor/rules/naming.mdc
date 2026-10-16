@@ -1,6 +1,6 @@
 ---
 description: KDB3 naming for identifiers, files, folders, action types, booleans, selectors and error codes; language rules (English, German domain nouns).
-globs: KDB3/js/**/*.js
+globs: **/KDB3/js/**/*.js
 alwaysApply: false
 ---
 
@@ -20,7 +20,7 @@ alwaysApply: false
 - Booleans: `is*`, `has*`, `can*`, `should*`, `did*`; no negative names (`isNotReady`).
 - Selectors: `read*` (`readSelectedWidgetId(_KDB)`). Owner-internal writers: `set*` / `write*`.
 - Action types: `<module>/<intent>` (`kdbControl/toggleLaunchpad`, `filters/applyFilter`, `history/commitStep`). No bare `set`, `update`, `change`.
-- Event names: see `events.mdc`. Error codes: `<MODULE>_<WHAT>` in `UPPER_SNAKE_CASE` (see `error-handling.mdc`).
+- Event names: see `events.mdc`. New error codes: `<MODULE>_<WHAT>` in `UPPER_SNAKE_CASE`; existing codes keep their spelling (see `error-handling.mdc`).
 - Existing convention: AMD import bindings and parameters received from other files carry a leading underscore (`_KDB`, `_tabsSelectors`, `_options`); locally built values and inline callback parameters do not. `_KDB` is the only underscore global.
 
 ## Files and folders
