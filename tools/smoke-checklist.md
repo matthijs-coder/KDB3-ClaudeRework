@@ -235,6 +235,8 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Open a dropdown in a widget's settings panel, then click empty canvas (KDB edit mode off). Expected: the dropdown closes, and move/resize mode turns off for widgets not under the pointer. With edit mode on, the modes stay.
 - [ ] Load a parameter set that has styled widgets (colour, font size, TopN, visType). Expected: the widgets and their settings match the set, and the console shows no `[widgetBase.` / `[widgetSettings.` errors.
 - [ ] Focus mode: click the info icon and change one dropdown. Expected: no new console error, and the dropdown applies.
+- [ ] Focus-mode info icon: no new console error (kind returns `WIDGET_SETTINGS_KIND_UNSUPPORTED` without dispatch).
+- [ ] Place 20 widgets, open/close panels, delete all: `getEventListeners(document).pointerdown` count is back to baseline (single shared listener).
 
 ### WS-M widgetVis + widgetDataTable
 - [ ] Drillthrough header icon and datapoint icon: compare URLs for 3-4 org/year combinations (see WS-D).
