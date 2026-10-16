@@ -1,18 +1,11 @@
 define([
-  "../runtime/ensureWidgetRuntime.js",
-  "../view/resolveVisualizationContent.js",
+  "../runtime.js",
+  "../dom.js",
   "../view/renderDrillthroughIcon.js",
   "./bindDrillthroughIconClick.js",
   "./focusMode/domQueries.js",
   "../view/ensureExpandDrillthroughHost.js"
-], function (
-  _ensureWidgetRuntime,
-  _resolveVisualizationContent,
-  _renderDrillthroughIcon,
-  _bindDrillthroughIconClick,
-  _domQueries,
-  _ensureExpandDrillthroughHost
-) {
+], function (_visRuntime, _dom, _renderDrillthroughIcon, _bindDrillthroughIconClick, _domQueries, _ensureExpandDrillthroughHost) {
   "use strict";
 
   function readEnableFlag(_KDB) {
@@ -53,7 +46,7 @@ define([
       if (_domQueries.isWidgetExpanded(_widgetId)) {
         return _ensureExpandDrillthroughHost(_widgetId);
       }
-      content = _resolveVisualizationContent(_widgetId);
+      content = _dom.resolveVisualizationContent(_widgetId);
       header = content && content.headerEl ? content.headerEl : null;
       if (!header && _runtime && _runtime.domRefs) {
         header = _runtime.domRefs.headerEl;
@@ -77,7 +70,7 @@ define([
       if (!readEnableFlag(_KDB)) {
         return { ok: true, skipped: true, reason: "disabled" };
       }
-      runtime = _ensureWidgetRuntime(_KDB, widgetId);
+      runtime = _visRuntime.ensureWidgetRuntime(_KDB, widgetId);
       stamps = readStamps(_KDB);
       if (!stamps.drillthroughService || typeof stamps.drillthroughService.openDrillthrough !== "function") {
         return {

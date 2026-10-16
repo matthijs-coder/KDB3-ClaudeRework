@@ -1,15 +1,15 @@
 define([
   "./buildCanvasMaximizeIcon.js",
-  "./resolveVisualizationContent.js",
-  "../config/defaults.js"
-], function (_buildCanvasMaximizeIcon, _resolveVisualizationContent, _defaults) {
+  "../dom.js",
+  "../config.js"
+], function (_buildCanvasMaximizeIcon, _dom, _config) {
   "use strict";
 
   function resolveWidgetEl(_widgetId) {
     var content;
     var node;
     try {
-      content = _resolveVisualizationContent(_widgetId);
+      content = _dom.resolveVisualizationContent(_widgetId);
       node = content && content.contentEl ? content.contentEl : null;
       if (node && typeof node.closest === "function") {
         return node.closest(".widget");
@@ -62,7 +62,7 @@ define([
       findTopRightResizeEdge(widgetEl);
       built = _buildCanvasMaximizeIcon({
         hostEl: widgetEl,
-        wrapperClass: _defaults.canvasMaximizeWrapperClass
+        wrapperClass: _config.canvasMaximizeWrapperClass
       });
       if (!built || built.ok !== true) {
         return built || {

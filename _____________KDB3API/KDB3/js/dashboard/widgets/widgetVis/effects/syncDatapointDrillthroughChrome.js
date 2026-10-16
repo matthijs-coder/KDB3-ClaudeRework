@@ -1,14 +1,9 @@
 define([
   "../view/placeDatapointDrillthroughIcon.js",
   "./bindDatapointDrillthroughIconClick.js",
-  "./readVisualizationFacet.js",
+  "../runtime.js",
   "./retryCanvasMaximize.js"
-], function (
-  _placeDatapointDrillthroughIcon,
-  _bindDatapointDrillthroughIconClick,
-  _readVisualizationFacet,
-  _retryCanvasMaximize
-) {
+], function (_placeDatapointDrillthroughIcon, _bindDatapointDrillthroughIconClick, _visRuntime, _retryCanvasMaximize) {
   "use strict";
 
   function hasCategories(_categories) {
@@ -80,7 +75,7 @@ define([
   }
 
   function peekSelections(_KDB, _widgetId) {
-    var facet = _readVisualizationFacet(_KDB);
+    var facet = _visRuntime.readHostFacet(_KDB, "visualizationFacet");
     var outcome;
     if (!facet || typeof facet.getSelections !== "function") {
       return null;

@@ -1,43 +1,9 @@
-define([], function () {
+define(["../years.js"], function (_years) {
   "use strict";
 
   function readDataQueryStamp(_KDB) {
     var rt = _KDB && _KDB.runtime ? _KDB.runtime.widgetVis : null;
     return rt && rt.dataQueryFacet ? rt.dataQueryFacet : null;
-  }
-
-  function parseYearFromCell(_raw) {
-    try {
-      var fields;
-      var index;
-      var text;
-      var year;
-      var match;
-      if (_raw && typeof _raw === "object") {
-        fields = [_raw.d, _raw.display, _raw.displayValue, _raw.u, _raw.use, _raw.useValue];
-      } else {
-        fields = [_raw];
-      }
-      for (index = 0; index < fields.length; index += 1) {
-        if (fields[index] == null || fields[index] === "") {
-          continue;
-        }
-        text = String(fields[index]);
-        year = parseInt(text, 10);
-        if (year >= 1900 && year <= 2100) {
-          return year;
-        }
-        match = text.match(/(\d{4})/g);
-        year = match ? parseInt(match[match.length - 1], 10) : NaN;
-        if (year >= 1900 && year <= 2100) {
-          return year;
-        }
-      }
-      return null;
-    } catch (err) {
-      console.error("[widgetVis.readDrillthroughVisYear]", err);
-      return null;
-    }
   }
 
   function findJahrColumnName(_columnNames) {
@@ -85,7 +51,7 @@ define([], function () {
       }
       maxYear = null;
       for (index = 0; index < cells.length; index += 1) {
-        year = parseYearFromCell(cells[index]);
+        year = _years.parseYearFromCell(cells[index]);
         if (year != null) {
           maxYear = maxYear == null ? year : Math.max(maxYear, year);
         }

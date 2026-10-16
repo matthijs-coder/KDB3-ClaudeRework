@@ -1,6 +1,4 @@
-define([
-  "../config/resolveVisualizationBindingConfig.js"
-], function (_resolveVisualizationBindingConfig) {
+define(["./visTypes.js"], function (_visTypes) {
   "use strict";
 
   var VIS_CONTROL_DEFAULTS = {
@@ -22,7 +20,8 @@ define([
     if (_source && typeof _source.valueCaption === "boolean") {
       _target.valueCaption = _source.valueCaption;
     }
-    if (_source && (_source.grouping === "stichtag" || _source.grouping === "jahr" || _source.grouping === "jahrStichtag" || _source.grouping === "stichtagProJahrH" || _source.grouping === "stichtagProJahrV")) {
+    if (_source && (_source.grouping === "stichtag" || _source.grouping === "jahr" || _source.grouping === "jahrStichtag"
+      || _source.grouping === "stichtagProJahrH" || _source.grouping === "stichtagProJahrV")) {
       _target.grouping = _source.grouping;
     }
     return _target;
@@ -65,10 +64,23 @@ define([
       dimension: null,
       visType: _visRecord && _visRecord.derived && _visRecord.derived.lastAppliedVisType
         ? _visRecord.derived.lastAppliedVisType
-        : _resolveVisualizationBindingConfig.resolveDefaultVisualizationType(_KDB),
+        : _visTypes.resolveDefaultVisualizationType(_KDB),
       topNChoice: null
     };
   }
 
-  return readEffectiveSettingsContext;
+  function isCompleteSettingsSnapshot(_snapshot) {
+    if (!_snapshot || typeof _snapshot !== "object") {
+      return false;
+    }
+    return _snapshot.dimension !== undefined
+      && _snapshot.visType !== undefined
+      && _snapshot.topNChoice !== undefined;
+  }
+
+  return {
+    VIS_CONTROL_DEFAULTS: VIS_CONTROL_DEFAULTS,
+    readEffectiveSettingsContext: readEffectiveSettingsContext,
+    isCompleteSettingsSnapshot: isCompleteSettingsSnapshot
+  };
 });

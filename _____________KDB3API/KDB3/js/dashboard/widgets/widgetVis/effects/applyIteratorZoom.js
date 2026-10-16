@@ -1,7 +1,7 @@
 define([
-  "./readVisualizationFacet.js",
-  "../config/visTypes/normalizeVisualizationType.js"
-], function (_readVisualizationFacet, _normalizeVisualizationType) {
+  "../runtime.js",
+  "../visTypes.js"
+], function (_visRuntime, _visTypes) {
   "use strict";
 
   var ITERATOR_HOST_BY_TYPE = {
@@ -95,7 +95,7 @@ define([
   function overlayIteratorZoomOnLayoutMap(_KDB, _widgetId, _layoutMap, _normalizedType) {
     try {
       var cloned = Object.assign({}, _layoutMap || {});
-      var type = _normalizeVisualizationType(_normalizedType) || _normalizedType;
+      var type = _visTypes.normalizeVisualizationType(_normalizedType) || _normalizedType;
       if (isListOrTopN(type)) { return cloned; }
       stampIteratorZoomHosts(cloned, readByWidgetRecord(_KDB, _widgetId), type);
       return cloned;
@@ -107,7 +107,7 @@ define([
 
   async function applyIteratorZoom(_KDB, _widgetId, _nextValue, _normalizedVisType, _control) {
     try {
-      var normalizedType = _normalizeVisualizationType(_normalizedVisType) || _normalizedVisType;
+      var normalizedType = _visTypes.normalizeVisualizationType(_normalizedVisType) || _normalizedVisType;
       var writeValue = effectiveHostBoolean(_control, normalizedType, _nextValue);
       var writes;
       var facet;
@@ -118,7 +118,7 @@ define([
       if (!writes.length) {
         return writeValue === true ? { ok: true, skipped: true } : { ok: true, skipped: false };
       }
-      facet = _readVisualizationFacet(_KDB);
+      facet = _visRuntime.readHostFacet(_KDB, "visualizationFacet");
       if (!facet || typeof facet.setContentProperty !== "function") {
         return { ok: false, errorCode: "WIDGET_VIS_FACET_MISSING" };
       }

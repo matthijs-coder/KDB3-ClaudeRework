@@ -1,12 +1,8 @@
 define([
   "./normalizeLegendHashSegment.js",
   "./collapseLegendCaptionDimParts.js",
-  "../../config/visTypes/normalizeVisualizationType.js"
-], function (
-  _normalizeLegendHashCaption,
-  _collapseLegendCaptionDimParts,
-  _normalizeVisualizationType
-) {
+  "../../visTypes.js"
+], function (_normalizeLegendHashCaption, _collapseLegendCaptionDimParts, _visTypes) {
   "use strict";
 
   var TOOLTIP_TOKEN_REGEX = /tooltip/gi;
@@ -22,7 +18,7 @@ define([
   }
 
   function isPrognoseVisualizationType(_visType) {
-    return _normalizeVisualizationType(_visType) === "Prognose";
+    return _visTypes.normalizeVisualizationType(_visType) === "Prognose";
   }
 
   function isDroppedLegendTitleToken(_token) {

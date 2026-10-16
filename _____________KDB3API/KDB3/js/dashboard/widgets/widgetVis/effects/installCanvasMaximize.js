@@ -1,8 +1,8 @@
 define([
-  "../runtime/ensureWidgetRuntime.js",
+  "../runtime.js",
   "../view/placeCanvasMaximizeIcon.js",
   "./bindCanvasMaximizeIconClick.js"
-], function (_ensureWidgetRuntime, _placeCanvasMaximizeIcon, _bindCanvasMaximizeIconClick) {
+], function (_visRuntime, _placeCanvasMaximizeIcon, _bindCanvasMaximizeIconClick) {
   "use strict";
 
   function __controller(_options) {
@@ -12,7 +12,7 @@ define([
       var widgetId = options.widgetId;
       var runtime;
       var placed;
-      runtime = _ensureWidgetRuntime(_KDB, widgetId);
+      runtime = _visRuntime.ensureWidgetRuntime(_KDB, widgetId);
       placed = _placeCanvasMaximizeIcon({ widgetId: widgetId });
       if (!placed || placed.ok !== true) {
         return placed || {

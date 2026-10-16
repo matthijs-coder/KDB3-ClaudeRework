@@ -1,8 +1,8 @@
-define(["./cloneSerializable.js"], function (_cloneSerializable) {
+define(["./state.js"], function (_state) {
   "use strict";
 
   function readWidgetVisState(_KDB) {
-    return _cloneSerializable(_KDB && _KDB.state && _KDB.state.widgets ? _KDB.state.widgets.vis : undefined);
+    return _state.cloneState(_KDB && _KDB.state && _KDB.state.widgets ? _KDB.state.widgets.vis : undefined);
   }
 
   function readVisRecord(_KDB, _widgetId) {
@@ -10,7 +10,7 @@ define(["./cloneSerializable.js"], function (_cloneSerializable) {
     if (!state || !_widgetId || !state.byId[_widgetId]) {
       return undefined;
     }
-    return _cloneSerializable(state.byId[_widgetId]);
+    return _state.cloneState(state.byId[_widgetId]);
   }
 
   function readVisDerived(_KDB, _widgetId) {

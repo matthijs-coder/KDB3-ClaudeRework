@@ -1,11 +1,10 @@
 define([
-  "../config/actionTypes.js",
+  "../state.js",
   "../effects/runBindingPipeline.js",
   "../effects/normalizeHierarchySnapshot.js",
   "../effects/resolveBindingPrerequisites.js",
-  "./normalizeDispatchResult.js",
-  "./finalizePipelineResult.js"
-], function (_actionTypes, _runBindingPipeline, _normalizeHierarchySnapshot, _resolveBindingPrerequisites, _normalizeDispatchResult, _finalizePipelineResult) {
+  "../results.js"
+], function (_state, _runBindingPipeline, _normalizeHierarchySnapshot, _resolveBindingPrerequisites, _results) {
   "use strict";
 
   function resolveIncomingDienststelleWaiters(_context, _payload) {
@@ -24,14 +23,14 @@ define([
       resolveIncomingDienststelleWaiters(_context, payload);
     }
     if (!widgetId) {
-      return Promise.resolve(_normalizeDispatchResult({
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: false,
         errorCode: "WIDGET_VIS_WIDGET_ID_MISSING",
         errorMessage: "dienststelleChanged requires widgetId for per-widget handling."
       }));
     }
     _context.dispatchInternal({
-      type: _actionTypes.MARK_PENDING,
+      type: _state.ACTION_TYPES.MARK_PENDING,
       widgetId: widgetId,
       payload: { kind: "dienststelle", opSeq: _action.opSeq }
     });
@@ -44,7 +43,7 @@ define([
       hierarchySnapshot: _normalizeHierarchySnapshot(payload),
       payload: payload
     }).then(function (result) {
-      return _finalizePipelineResult(_context, _action, result, {
+      return _results.finalizePipelineResult(_context, _action, result, {
         defaultErrorMessage: "Dienststelle re-apply failed."
       });
     });
@@ -67,7 +66,7 @@ define([
     var failed = 0;
     var skipped = 0;
     if (!widgetIds.length) {
-      return Promise.resolve(_normalizeDispatchResult({
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: true,
         skipped: true,
         broadcast: true,
@@ -93,7 +92,7 @@ define([
         return _result;
       });
     })).then(function () {
-      return _normalizeDispatchResult({
+      return _results.normalizeDispatchResult({
         ok: failed === 0 || succeeded > 0,
         broadcast: true,
         fanOutCount: widgetIds.length,

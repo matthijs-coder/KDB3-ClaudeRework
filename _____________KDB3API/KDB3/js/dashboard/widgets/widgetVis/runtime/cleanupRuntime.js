@@ -1,12 +1,12 @@
 define([
-  "./contentReady.js",
+  "../runtime.js",
   "../effects/resolveBindingPrerequisites.js"
-], function (_contentReady, _resolveBindingPrerequisites) {
+], function (_visRuntime, _resolveBindingPrerequisites) {
   function cleanupRuntime(_KDB) {
     try {
       _resolveBindingPrerequisites.rejectAllDienststelleGateWaiters(_KDB);
       _resolveBindingPrerequisites.rejectAllTopNGateWaiters(_KDB);
-      _contentReady.rejectAllContentReadyWaiters(_KDB, {
+      _visRuntime.rejectAllContentReadyWaiters(_KDB, {
         ok: false,
         status: "error",
         errorCode: "WIDGET_VIS_DESTROY_FAILED",

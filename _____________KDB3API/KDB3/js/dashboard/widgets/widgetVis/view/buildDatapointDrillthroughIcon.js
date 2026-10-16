@@ -1,4 +1,6 @@
-define(["../config/defaults.js"], function (_defaults) {
+define([
+  "../config.js"
+], function (_config) {
   "use strict";
 
   function findExistingWrapper(_host, _wrapperClass) {
@@ -45,23 +47,23 @@ define(["../config/defaults.js"], function (_defaults) {
     try {
       var options = _options || {};
       var hostEl = options.hostEl;
-      var wrapperClass = options.wrapperClass || _defaults.datapointDrillthroughWrapperClass;
-      var iconClass = options.iconClass || _defaults.drillthroughIconClass;
+      var wrapperClass = options.wrapperClass || _config.datapointDrillthroughWrapperClass;
+      var iconClass = options.iconClass || _config.drillthroughIconClass;
       var existingWrapper = findExistingWrapper(hostEl, wrapperClass);
       var existingAnchor = findExistingAnchor(existingWrapper, iconClass);
       var wrapperEl;
       var anchorEl;
       if (existingWrapper && existingAnchor) {
-        stampTitle(existingAnchor, _defaults);
+        stampTitle(existingAnchor, _config);
         return { ok: true, wrapperEl: existingWrapper, anchorEl: existingAnchor };
       }
       if (existingWrapper) {
-        anchorEl = createAnchor(_defaults);
+        anchorEl = createAnchor(_config);
         existingWrapper.appendChild(anchorEl);
         return { ok: true, wrapperEl: existingWrapper, anchorEl: anchorEl };
       }
       wrapperEl = createWrapper(wrapperClass);
-      anchorEl = createAnchor(_defaults);
+      anchorEl = createAnchor(_config);
       wrapperEl.appendChild(anchorEl);
       return { ok: true, wrapperEl: wrapperEl, anchorEl: anchorEl };
     } catch (err) {

@@ -1,8 +1,8 @@
 define([
-  "../../config/defaults.js",
+  "../../config.js",
   "../../../widgetSettings/config/selectors.js",
   "../../../../../core/cognosHost/config/widgetChromeSelectors.js"
-], function (_defaults, _settingsSelectors, _widgetChrome) {
+], function (_config, _settingsSelectors, _widgetChrome) {
   "use strict";
 
   var focus = _widgetChrome.focusMode.strings;
@@ -43,8 +43,8 @@ define([
   }
 
   function waitForExpandedState(widgetId, shouldExpand, maxMs) {
-    var deadline = Date.now() + (typeof maxMs === "number" ? maxMs : _defaults.focusModeWaitMs || 1200);
-    var pollMs = _defaults.focusModePollMs || 50;
+    var deadline = Date.now() + (typeof maxMs === "number" ? maxMs : _config.focusModeWaitMs || 1200);
+    var pollMs = _config.focusModePollMs || 50;
     return new Promise(waitForExpandedStateTick.bind(null, widgetId, shouldExpand, deadline, pollMs));
   }
 

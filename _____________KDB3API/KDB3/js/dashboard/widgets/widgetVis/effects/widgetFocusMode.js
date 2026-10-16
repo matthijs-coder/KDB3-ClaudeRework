@@ -3,14 +3,14 @@ define([
   "./focusMode/buildFocusPanel.js",
   "./focusMode/focusModeObserver.js",
   "./focusMode/disposeFocusMode.js",
-  "./readWidgetsFacet.js",
+  "../runtime.js",
   "./syncDrillthroughAfterFocusExit.js"
 ], function (
   _domQueries,
   _activateFocusModeChrome,
   _installFocusModeObserver,
   _disposeFocusMode,
-  _readWidgetsFacet,
+  _visRuntime,
   _syncDrillthroughAfterFocusExit
 ) {
   "use strict";
@@ -26,7 +26,7 @@ define([
   }
 
   function exitNativeFocus(_KDB, widgetId, diagnostics) {
-    var widgetsFacet = _readWidgetsFacet(_KDB);
+    var widgetsFacet = _visRuntime.readHostFacet(_KDB, "widgetsFacet");
     if (!_domQueries.isWidgetExpanded(widgetId)) {
       return;
     }
@@ -59,7 +59,7 @@ define([
         diagnostics: Object.assign({}, diagnostics, chromeResult.diagnostics || {})
       });
     }
-    widgetsFacet = _readWidgetsFacet(_KDB);
+    widgetsFacet = _visRuntime.readHostFacet(_KDB, "widgetsFacet");
     if (!widgetsFacet || typeof widgetsFacet.enterFocusMode !== "function") {
       return mapFocusFailure(null, "enterClickFailed");
     }
@@ -91,7 +91,7 @@ define([
       disposeChromeThenSyncDrillthrough(_KDB, widgetId, runtime);
       return Promise.resolve({ ok: true, diagnostics: { alreadyCollapsed: true } });
     }
-    widgetsFacet = _readWidgetsFacet(_KDB);
+    widgetsFacet = _visRuntime.readHostFacet(_KDB, "widgetsFacet");
     if (!widgetsFacet || typeof widgetsFacet.exitFocusMode !== "function") {
       return Promise.resolve(mapFocusFailure(null, "exitClickFailed"));
     }

@@ -1,4 +1,6 @@
-define(["../config/resolveVisualizationBindingConfig.js"], function (_resolveVisualizationBindingConfig) {
+define([
+  "../visTypes.js"
+], function (_visTypes) {
   "use strict";
 
   function includeOf(_filter, _key) {
@@ -36,10 +38,10 @@ define(["../config/resolveVisualizationBindingConfig.js"], function (_resolveVis
       var settings = options.settings || {};
       var code = String(metric.code == null ? "" : metric.code).trim();
       if (!code) { return ""; }
-      var visType = settings.visType || _resolveVisualizationBindingConfig.resolveDefaultVisualizationType(options._KDB);
-      var pack = _resolveVisualizationBindingConfig.resolveKennzahlPack(visType, settings.grouping, options._KDB);
-      var defaults = _resolveVisualizationBindingConfig.resolveKennzahlDefaults(code, options._KDB);
-      var built = _resolveVisualizationBindingConfig.buildKennzahlAggregationFilter(defaults, pack);
+      var visType = settings.visType || _visTypes.resolveDefaultVisualizationType(options._KDB);
+      var pack = _visTypes.resolveKennzahlPack(visType, settings.grouping, options._KDB);
+      var defaults = _visTypes.resolveKennzahlDefaults(code, options._KDB);
+      var built = _visTypes.buildKennzahlAggregationFilter(defaults, pack);
       var joined = joinCaptions(readAggregationInclude(built.filter));
       return joined ? "(" + joined + ")" : "";
     } catch (err) {

@@ -2,15 +2,15 @@ define([
   "./resolveTopNJahrFilterValue.js",
   "./readDrillthroughJahrYear.js",
   "../../../../core/config/visualizations/topNHelper.js",
-  "../runtime/initializeRuntime.js"
-], function (_resolveTopNJahrFilterValue, _readDrillthroughJahrYear, _topNHelper, _initializeRuntime) {
+  "../runtime.js"
+], function (_resolveTopNJahrFilterValue, _readDrillthroughJahrYear, _topNHelper, _visRuntime) {
   "use strict";
 
   var STICHTAG_CODE = "WIDGET_TOPN_STICHTAG_UNAVAILABLE";
 
   function __controller(_KDB, _metricsTable, _request) {
     try {
-      var runtime = _initializeRuntime(_KDB);
+      var runtime = _visRuntime.initializeRuntime(_KDB);
       var request = _request || {};
       var pending = runtime.pendingPromises.periodPinRead;
       var started;
@@ -43,7 +43,7 @@ define([
   }
 
   function dropPending(_KDB, _started) {
-    var runtime = _initializeRuntime(_KDB);
+    var runtime = _visRuntime.initializeRuntime(_KDB);
     if (runtime.pendingPromises.periodPinRead === _started) {
       delete runtime.pendingPromises.periodPinRead;
     }
@@ -102,7 +102,7 @@ define([
   }
 
   function storeSession(_KDB, _pin) {
-    _initializeRuntime(_KDB).sessionPeriodPin = _pin;
+    _visRuntime.initializeRuntime(_KDB).sessionPeriodPin = _pin;
     return _pin;
   }
 

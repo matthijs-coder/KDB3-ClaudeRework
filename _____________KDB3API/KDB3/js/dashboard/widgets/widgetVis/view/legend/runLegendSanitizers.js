@@ -1,12 +1,8 @@
 define([
   "./legendCaptionText.js",
   "./legendCaptionDom.js",
-  "../isVisualizationContentRoot.js"
-], function (
-  _legendCaptionText,
-  _legendCaptionDom,
-  _isVisualizationContentRoot
-) {
+  "../../dom.js"
+], function (_legendCaptionText, _legendCaptionDom, _dom) {
   "use strict";
 
   function isLineVisualizationType(_visType) {
@@ -17,7 +13,7 @@ define([
     var context = _context || {};
     var options = _options || {};
     var fromObserver = options.fromObserver === true;
-    var isShell = !_isVisualizationContentRoot(_queryRoot);
+    var isShell = !_dom.isVisualizationContentRoot(_queryRoot);
     var isCaptionsOnly = fromObserver === true || isShell === true;
     var diagnostics = {
       scanned: 0,

@@ -1,12 +1,20 @@
 define([
-  "../config/resolveVisualizationBindingConfig.js",
+  "../visTypes.js",
   "./applyPropertyMap.js",
   "./ensureVisType.js",
-  "./readVisualizationFacet.js",
+  "../runtime.js",
   "./applyShowValues.js",
   "./applyIteratorZoom.js",
   "./shouldApplyVisualizationProperties.js"
-], function (_resolveVisualizationBindingConfig, _applyPropertyMap, _ensureVisType, _readVisualizationFacet, _applyShowValues, _applyIteratorZoom, _shouldApplyVisualizationProperties) {
+], function (
+  _visTypes,
+  _applyPropertyMap,
+  _ensureVisType,
+  _visRuntime,
+  _applyShowValues,
+  _applyIteratorZoom,
+  _shouldApplyVisualizationProperties
+) {
   "use strict";
 
   async function applyVisualizationProperties(_KDB, _options) {
@@ -15,10 +23,10 @@ define([
     var visualizationType = options.visualizationType;
     var runtime = options.runtime || {};
     var input = options.input || {};
-    var normalizedVisType = _resolveVisualizationBindingConfig.normalizeVisualizationType(visualizationType)
+    var normalizedVisType = _visTypes.normalizeVisualizationType(visualizationType)
       || visualizationType;
     var phase = options.phase || "preBinding";
-    var visualizationFacet = _readVisualizationFacet(_KDB);
+    var visualizationFacet = _visRuntime.readHostFacet(_KDB, "visualizationFacet");
     var diagnostics = {
       phase: phase,
       skipped: false,
@@ -52,7 +60,7 @@ define([
       return { ok: false, skipped: false, diagnostics: diagnostics };
     }
 
-    propertyValues = _resolveVisualizationBindingConfig.resolveVisualizationPropertyValues(visualizationType, _KDB);
+    propertyValues = _visTypes.resolveVisualizationPropertyValues(visualizationType, _KDB);
     if (phase === "postRender" || options.omitTitleMode === true) {
       // titleMode only pre-binding on visible vis; post-render rewrite
       // reopened Cognos title edit (2026-07-13). Helpers must omit it too:
@@ -60,7 +68,7 @@ define([
       propertyValues = Object.assign({}, propertyValues);
       delete propertyValues.titleMode;
     }
-    layoutPropertyValues = _resolveVisualizationBindingConfig.resolveVisualizationLayoutPropertyValues(visualizationType, _KDB);
+    layoutPropertyValues = _visTypes.resolveVisualizationLayoutPropertyValues(visualizationType, _KDB);
     layoutPropertyValues = _applyShowValues.overlayShowValuesOnLayoutMap(layoutPropertyValues, input.settings, normalizedVisType);
     layoutPropertyValues = _applyIteratorZoom.overlayIteratorZoomOnLayoutMap(_KDB, widgetId, layoutPropertyValues, normalizedVisType);
 
@@ -72,7 +80,7 @@ define([
       visTypeReady = await _ensureVisType(
         visualizationFacet,
         widgetId,
-        _resolveVisualizationBindingConfig.resolveCognosVisualizationTypeId(visualizationType, _KDB),
+        _visTypes.resolveCognosVisualizationTypeId(visualizationType, _KDB),
         diagnostics,
         options.signal
       );

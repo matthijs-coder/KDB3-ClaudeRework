@@ -1,10 +1,10 @@
 define([
-  "../runtime/ensureWidgetRuntime.js",
+  "../runtime.js",
   "../view/sweepLegendCaptions.js",
   "./ensureFocusObserver.js",
   "../effects/installAllDrillthrough.js",
   "../effects/installCanvasMaximize.js"
-], function (_ensureWidgetRuntime, _sweepLegendCaptions, _ensureFocusObserver, _installDrillthrough, _installCanvasMaximize) {
+], function (_visRuntime, _sweepLegendCaptions, _ensureFocusObserver, _installDrillthrough, _installCanvasMaximize) {
   "use strict";
 
   // Unpark = rebuild (adapter-contract §3.7): a widget that returns to
@@ -21,7 +21,7 @@ define([
       if (!_context.selectors.readVisRecord(_context._KDB, widgetId)) {
         return { ok: true, skipped: true, widgetId: widgetId, status: "success" };
       }
-      var runtime = _ensureWidgetRuntime(_context._KDB, widgetId);
+      var runtime = _visRuntime.ensureWidgetRuntime(_context._KDB, widgetId);
       var focusResult = _ensureFocusObserver(_context, widgetId, runtime);
       var legendLog = sweepLegendOnUnpark(_context, widgetId, runtime);
       var drillthroughResult = null;

@@ -1,7 +1,7 @@
 define([
   "./buildVisualizationTitleText.js",
-  "./readVisualizationFacet.js"
-], function (_titleTextHelpers, _readVisualizationFacet) {
+  "../runtime.js"
+], function (_titleTextHelpers, _visRuntime) {
   "use strict";
 
   var _buildVisualizationTitleText = _titleTextHelpers.buildVisualizationTitleText;
@@ -10,7 +10,7 @@ define([
   // render reopened the note-editable title in inline-edit mode (2026-07-13).
   function applyPreRenderTitle(_options) {
     var options = _options || {};
-    var visualizationFacet = _readVisualizationFacet(options._KDB);
+    var visualizationFacet = _visRuntime.readHostFacet(options._KDB, "visualizationFacet");
     var titleText;
     try {
       titleText = _buildVisualizationTitleText(options);

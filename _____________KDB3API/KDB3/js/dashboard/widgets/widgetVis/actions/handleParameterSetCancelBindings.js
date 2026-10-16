@@ -1,11 +1,9 @@
 define([
-  "../config/actionTypes.js",
-  "../runtime/initializeRuntime.js",
-  "../runtime/contentReady.js",
-  "../effects/abortActiveApply.js",
+  "../state.js",
+  "../runtime.js",
   "../effects/gates/topNGate.js",
-  "./handleCleanupContent.js",
-], function (_actionTypes, _initializeRuntime, _contentReady, _abortActiveApply, _topNGate, _handleCleanupContent) {
+  "./handleCleanupContent.js"
+], function (_state, _visRuntime, _topNGate, _handleCleanupContent) {
   "use strict";
 
   var RESET_FAILED = "WRITEBACK_WIDGET_RESET_FAILED";
@@ -22,7 +20,7 @@ define([
       diagnostics.push({ code: RESET_FAILED, message: "widgetVis/parameterSetCancelBindingsRequested requires a numeric runId" });
       return { ok: false, status: "error", diagnostics: diagnostics };
     }
-    const runtimeRoot = _initializeRuntime(_context._KDB);
+    const runtimeRoot = _visRuntime.initializeRuntime(_context._KDB);
     if (typeof runtimeRoot.parameterSetRunId === "number" && payload.runId < runtimeRoot.parameterSetRunId) {
       diagnostics.push({ code: CANCELLED, message: "stale parameterSet runId " + payload.runId + " superseded by " + runtimeRoot.parameterSetRunId });
       return { ok: false, status: "cancelled", diagnostics: diagnostics };
@@ -60,8 +58,8 @@ define([
       if (topNPending) {
         _topNGate.cancelTopNGateWaiter(_KDB, _widgetId, topNPending.opSeq);
       }
-      _contentReady.rejectContentReadyWaiters(_KDB, _widgetId, { ok: false, widgetId: _widgetId, status: "cancelled", errorCode: CANCELLED });
-      _abortActiveApply(widgetRuntime);
+      _visRuntime.rejectContentReadyWaiters(_KDB, _widgetId, { ok: false, widgetId: _widgetId, status: "cancelled", errorCode: CANCELLED });
+      _visRuntime.abortActiveApply(widgetRuntime);
     }
     rejectDienststelleWaitersForWidget(_runtimeRoot, _widgetId);
   }
@@ -87,7 +85,7 @@ define([
 
   function runContentCleanup(_context, _widgetId) {
     return Promise.resolve(_handleCleanupContent(_context, {
-      type: _actionTypes.CLEANUP_CONTENT,
+      type: _state.ACTION_TYPES.CLEANUP_CONTENT,
       widgetId: _widgetId,
       payload: {
         reason: "parameterSetReset",

@@ -1,8 +1,7 @@
 define([
-  "../runtime/ensureWidgetRuntime.js",
-  "./readVisualizationFacet.js",
+  "../runtime.js",
   "./syncDatapointDrillthroughChrome.js"
-], function (_ensureWidgetRuntime, _readVisualizationFacet, _syncDatapointDrillthroughChrome) {
+], function (_visRuntime, _syncDatapointDrillthroughChrome) {
   "use strict";
 
   function readEnableFlag(_KDB) {
@@ -71,7 +70,7 @@ define([
       if (!readEnableFlag(_KDB)) {
         return { ok: true, skipped: true, reason: "disabled" };
       }
-      runtime = _ensureWidgetRuntime(_KDB, widgetId);
+      runtime = _visRuntime.ensureWidgetRuntime(_KDB, widgetId);
       stamps = readStamps(_KDB);
       if (!stamps.drillthroughService || typeof stamps.drillthroughService.openDrillthrough !== "function") {
         return {
@@ -81,7 +80,7 @@ define([
         };
       }
       ctx = buildInstallContext(options, runtime, stamps);
-      subscribeSelections(ctx, _readVisualizationFacet(_KDB), widgetId);
+      subscribeSelections(ctx, _visRuntime.readHostFacet(_KDB, "visualizationFacet"), widgetId);
       _syncDatapointDrillthroughChrome.syncFromPeek(ctx);
       return { ok: true, skipped: false };
     } catch (err) {

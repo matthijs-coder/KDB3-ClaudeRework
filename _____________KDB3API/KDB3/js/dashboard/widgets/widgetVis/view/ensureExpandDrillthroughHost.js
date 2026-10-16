@@ -1,7 +1,7 @@
 define([
   "../../../../core/cognosHost/config/widgetChromeSelectors.js",
-  "../config/defaults.js"
-], function (_widgetChrome, _defaults) {
+  "../config.js"
+], function (_widgetChrome, _config) {
   "use strict";
 
   function resolveContainer(_widgetId) {
@@ -30,7 +30,7 @@ define([
 
   function __controller(_widgetId) {
     var focus = _widgetChrome.focusMode.strings;
-    var columnClass = _defaults.expandDrillthroughColumnClass;
+    var columnClass = _config.expandDrillthroughColumnClass;
     var container;
     var column;
     var collapse;

@@ -1,19 +1,15 @@
 define([
-  "./config/actionTypes.js",
-  "./config/resolveVisualizationBindingConfig.js",
-  "./state/initialState.js",
-  "./state/selectors.js",
-  "./runtime/ensureWidgetRuntime.js",
-  "./effects/readEffectiveSettingsContext.js",
-  "./state/cloneSerializable.js"
+  "./state.js",
+  "./selectors.js",
+  "./bindingConfig.js",
+  "./runtime.js",
+  "./settingsSnapshot.js"
 ], function (
-  _actionTypes,
-  _resolveVisualizationBindingConfig,
-  _initialState,
+  _state,
   _selectors,
-  _ensureWidgetRuntime,
-  _readEffectiveSettingsContext,
-  _cloneSerializable
+  _bindingConfig,
+  _runtime,
+  _settingsSnapshot
 ) {
   "use strict";
 
@@ -21,7 +17,7 @@ define([
     return {
       _KDB: _instance._KDB,
       selectors: _instance.selectors,
-      actionTypes: _actionTypes,
+      actionTypes: _state.ACTION_TYPES,
       dispatchInternal: _instance.dispatchInternal,
       isDisposed: _instance.isDisposed,
       ensureOpSeq: ensureOpSeq.bind(null, _instance),
@@ -31,19 +27,29 @@ define([
     };
   }
 
+  function createDetachedContext(_KDB) {
+    var instance;
+    ensureVisState(_KDB);
+    instance = { _KDB: _KDB, selectors: _selectors, reducer: _state.createWidgetVisReducer(), isDisposed: false };
+    instance.dispatchInternal = function (_action) {
+      dispatchInternal(instance, _action);
+    };
+    return buildContext(instance);
+  }
+
   function readMetric(_instance, _widgetId) {
     var record = _instance.selectors.readVisRecord(_instance._KDB, _widgetId);
     var derived = record && record.derived ? record.derived : {};
     return {
       code: derived.code || derived.kennzahlCode || "",
       display: derived.display || derived.code || "",
-      metricsTable: derived.metricsTable || derived.datasourceName || _resolveVisualizationBindingConfig.resolveCurrentMetricsDataSource(_instance._KDB)
+      metricsTable: derived.metricsTable || derived.datasourceName || _bindingConfig.resolveCurrentMetricsDataSource(_instance._KDB)
     };
   }
 
   function readSettingsSnapshot(_instance, _widgetId, _payload) {
     var record = _instance.selectors.readVisRecord(_instance._KDB, _widgetId);
-    return _readEffectiveSettingsContext(
+    return _settingsSnapshot.readEffectiveSettingsContext(
       _instance._KDB,
       _widgetId,
       _payload,
@@ -67,12 +73,12 @@ define([
     _KDB.state = _KDB.state || {};
     _KDB.state.widgets = _KDB.state.widgets || {};
     if (!_KDB.state.widgets.vis) {
-      _KDB.state.widgets.vis = _initialState();
+      _KDB.state.widgets.vis = _state.createInitialWidgetVisState();
     }
   }
 
   function ensureOpSeq(_instance, _widgetId, _requestedOpSeq) {
-    var runtime = _ensureWidgetRuntime(_instance._KDB, _widgetId);
+    var runtime = _runtime.ensureWidgetRuntime(_instance._KDB, _widgetId);
     if (typeof _requestedOpSeq === "number") {
       runtime.opSeq = _requestedOpSeq;
       return _requestedOpSeq;
@@ -108,11 +114,12 @@ define([
   }
 
   function cloneVisState(_KDB) {
-    return _cloneSerializable(_KDB.state.widgets.vis);
+    return _state.cloneState(_KDB.state.widgets.vis);
   }
 
   return {
     buildContext: buildContext,
+    createDetachedContext: createDetachedContext,
     readMetric: readMetric,
     readSettingsSnapshot: readSettingsSnapshot,
     validateAction: validateAction,

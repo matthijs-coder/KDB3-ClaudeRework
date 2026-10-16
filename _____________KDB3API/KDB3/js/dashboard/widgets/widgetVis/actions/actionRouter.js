@@ -1,5 +1,5 @@
 define([
-  "../config/actionTypes.js",
+  "../state.js",
   "./handleContentCreate.js",
   "./handleWaitUntilContentReady.js",
   "./handleApplySetting.js",
@@ -12,9 +12,9 @@ define([
   "./handleParameterSetCancelBindings.js",
   "./handleMaximizeToggle.js",
   "./handleWidgetRuntimeLifecycle.js",
-  "./normalizeDispatchResult.js"
+  "../results.js"
 ], function (
-  _actionTypes,
+  _state,
   _handleContentCreate,
   _handleWaitUntilContentReady,
   _handleApplySetting,
@@ -27,13 +27,13 @@ define([
   _handleParameterSetCancelBindings,
   _handleMaximizeToggle,
   _handleWidgetRuntimeLifecycle,
-  _normalizeDispatchResult
+  _results
 ) {
   "use strict";
 
   function handleError(_context, _action) {
     _context.dispatchInternal({
-      type: _actionTypes.ERROR_RECORDED,
+      type: _state.ACTION_TYPES.ERROR_RECORDED,
       widgetId: _action.widgetId,
       payload: _action.payload || {}
     });
@@ -42,33 +42,33 @@ define([
 
   function routeAction(_context, _action) {
     var routes = {};
-    routes[_actionTypes.CONTENT_CREATE] = _handleContentCreate;
-    routes[_actionTypes.WAIT_UNTIL_CONTENT_READY] = _handleWaitUntilContentReady;
-    routes[_actionTypes.APPLY_STARTUP_SETTINGS] = _handleApplyStartupSettings.handleApplyStartupSettings;
-    routes[_actionTypes.APPLY_DIMENSION] = _handleApplySetting;
-    routes[_actionTypes.APPLY_VIS_TYPE] = _handleApplySetting;
-    routes[_actionTypes.APPLY_TOPN_CHOICE] = _handleApplySetting;
-    routes[_actionTypes.APPLY_SHOW_VALUES] = _handleApplyShowValues;
-    routes[_actionTypes.APPLY_GROUPING] = _handleApplySetting;
-    routes[_actionTypes.APPLY_ITERATOR_ZOOM] = _handleApplyStartupSettings.handleApplyIteratorZoom;
-    routes[_actionTypes.DIENSTSTELLE_CHANGED] = _handleDienststelleHandlers.handleDienststelleChanged;
-    routes[_actionTypes.TOPN_RESOLVED] = _handleTopNResolved;
-    routes[_actionTypes.CLEANUP_CONTENT] = _handleCleanupContent;
-    routes[_actionTypes.DISPOSE_WIDGET_RUNTIME] = _handleWidgetRuntimeLifecycle.handleDisposeWidgetRuntime;
-    routes[_actionTypes.ENSURE_OBSERVERS] = _handleWidgetRuntimeLifecycle.handleEnsureObservers;
-    routes[_actionTypes.PARAMETER_SET_BINDING] = _handleParameterSetBinding;
-    routes[_actionTypes.PARAMETER_SET_CANCEL_BINDINGS] = _handleParameterSetCancelBindings;
-    routes[_actionTypes.MAXIMIZE_TOGGLE] = _handleMaximizeToggle;
-    routes[_actionTypes.ERROR] = handleError;
+    routes[_state.ACTION_TYPES.CONTENT_CREATE] = _handleContentCreate;
+    routes[_state.ACTION_TYPES.WAIT_UNTIL_CONTENT_READY] = _handleWaitUntilContentReady;
+    routes[_state.ACTION_TYPES.APPLY_STARTUP_SETTINGS] = _handleApplyStartupSettings.handleApplyStartupSettings;
+    routes[_state.ACTION_TYPES.APPLY_DIMENSION] = _handleApplySetting;
+    routes[_state.ACTION_TYPES.APPLY_VIS_TYPE] = _handleApplySetting;
+    routes[_state.ACTION_TYPES.APPLY_TOPN_CHOICE] = _handleApplySetting;
+    routes[_state.ACTION_TYPES.APPLY_SHOW_VALUES] = _handleApplyShowValues;
+    routes[_state.ACTION_TYPES.APPLY_GROUPING] = _handleApplySetting;
+    routes[_state.ACTION_TYPES.APPLY_ITERATOR_ZOOM] = _handleApplyStartupSettings.handleApplyIteratorZoom;
+    routes[_state.ACTION_TYPES.DIENSTSTELLE_CHANGED] = _handleDienststelleHandlers.handleDienststelleChanged;
+    routes[_state.ACTION_TYPES.TOPN_RESOLVED] = _handleTopNResolved;
+    routes[_state.ACTION_TYPES.CLEANUP_CONTENT] = _handleCleanupContent;
+    routes[_state.ACTION_TYPES.DISPOSE_WIDGET_RUNTIME] = _handleWidgetRuntimeLifecycle.handleDisposeWidgetRuntime;
+    routes[_state.ACTION_TYPES.ENSURE_OBSERVERS] = _handleWidgetRuntimeLifecycle.handleEnsureObservers;
+    routes[_state.ACTION_TYPES.PARAMETER_SET_BINDING] = _handleParameterSetBinding;
+    routes[_state.ACTION_TYPES.PARAMETER_SET_CANCEL_BINDINGS] = _handleParameterSetCancelBindings;
+    routes[_state.ACTION_TYPES.MAXIMIZE_TOGGLE] = _handleMaximizeToggle;
+    routes[_state.ACTION_TYPES.ERROR] = handleError;
     var handler = routes[_action.type];
     if (!handler) {
-      return Promise.resolve(_normalizeDispatchResult({
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: false,
         errorCode: "WIDGET_VIS_UNKNOWN_ACTION",
         errorMessage: "Unknown widgetVis action: " + String(_action.type || "")
       }));
     }
-    return Promise.resolve(handler(_context, _action)).then(_normalizeDispatchResult);
+    return Promise.resolve(handler(_context, _action)).then(_results.normalizeDispatchResult);
   }
 
   return routeAction;

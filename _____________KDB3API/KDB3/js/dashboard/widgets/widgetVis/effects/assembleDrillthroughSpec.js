@@ -1,10 +1,10 @@
 define([
-  "./readEffectiveSettingsContext.js",
-  "./readVisualizationFacet.js",
+  "../settingsSnapshot.js",
+  "../runtime.js",
   "./buildOrgTreeForDrillthrough.js",
   "./readDrillthroughJahrYear.js",
   "./readDrillthroughVisYear.js"
-], function (_readEffectiveSettingsContext, _readVisualizationFacet, _buildOrgTreeForDrillthrough, _readDrillthroughJahrYear, _readDrillthroughVisYear) {
+], function (_settingsSnapshot, _visRuntime, _buildOrgTreeForDrillthrough, _readDrillthroughJahrYear, _readDrillthroughVisYear) {
   "use strict";
 
   function readDefaultCalendarYear() {
@@ -57,7 +57,7 @@ define([
 
   function readVisType(_KDB, _widgetId, _settings) {
     var visType = _settings && _settings.visType ? String(_settings.visType).toLowerCase() : "";
-    var facet = _readVisualizationFacet(_KDB);
+    var facet = _visRuntime.readHostFacet(_KDB, "visualizationFacet");
     var outcome;
     if (!facet || typeof facet.getVisType !== "function") {
       return visType;
@@ -83,7 +83,7 @@ define([
       var widgetId = options.widgetId;
       var vis = _KDB && _KDB.state && _KDB.state.widgets ? _KDB.state.widgets.vis : null;
       var visRecord = vis && vis.byId ? vis.byId[widgetId] : null;
-      var settings = _readEffectiveSettingsContext(_KDB, widgetId, {}, visRecord);
+      var settings = _settingsSnapshot.readEffectiveSettingsContext(_KDB, widgetId, {}, visRecord);
       var sichtApi = options.sichtApi;
       var dienststelleApi = options.dienststelleApi;
       var sicht = normalizeSicht(sichtApi && typeof sichtApi.getState === "function" ? sichtApi.getState() : null);

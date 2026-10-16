@@ -1,17 +1,16 @@
 define([
-  "./resolveVisualizationContent.js",
-  "./isVisualizationContentRoot.js"
-], function (_resolveVisualizationContent, _isVisualizationContentRoot) {
+  "../dom.js"
+], function (_dom) {
   "use strict";
 
   function resolveLegendQueryRoot(_runtime, _widgetId) {
     try {
-      var resolved = _resolveVisualizationContent(_widgetId);
+      var resolved = _dom.resolveVisualizationContent(_widgetId);
       var contentEl = resolved && resolved.contentEl ? resolved.contentEl : null;
       if (!contentEl) {
         return { queryRoot: null, skipReason: "no_query_root", isShell: false };
       }
-      var isShell = !_isVisualizationContentRoot(contentEl);
+      var isShell = !_dom.isVisualizationContentRoot(contentEl);
       if (_runtime && isShell !== true) {
         var domRefs = _runtime.domRefs || {};
         _runtime.domRefs = Object.assign({}, domRefs, {

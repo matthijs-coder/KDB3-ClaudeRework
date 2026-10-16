@@ -1,4 +1,7 @@
-define(["./readVisualizationFacet.js", "./resolveTitleAggregationLabel.js"], function (_readVisualizationFacet, _resolveTitleAggregationLabel) {
+define([
+  "../runtime.js",
+  "./resolveTitleAggregationLabel.js"
+], function (_visRuntime, _resolveTitleAggregationLabel) {
   "use strict";
   function asTrimmed(_value) { return String(_value == null ? "" : _value).trim(); }
   function normalizeSpaces(_value) { return asTrimmed(_value).replace(/\s+/g, " "); }
@@ -56,7 +59,7 @@ define(["./readVisualizationFacet.js", "./resolveTitleAggregationLabel.js"], fun
     return !!(title && label && new RegExp("\\s+" + escapeRegExp(label) + "\\s*$", "i").test(title));
   }
   function readCognosTitle(_KDB, _widgetId) {
-    var visualizationFacet = _readVisualizationFacet(_KDB);
+    var visualizationFacet = _visRuntime.readHostFacet(_KDB, "visualizationFacet");
     var outcome;
     if (!visualizationFacet || typeof visualizationFacet.getVisTitle !== "function") { return ""; }
     try {

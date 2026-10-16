@@ -1,12 +1,12 @@
 define([
   "../effects/applyIteratorZoom.js",
-  "../config/visTypes/normalizeVisualizationType.js",
-  "./normalizeDispatchResult.js"
-], function (_applyIteratorZoom, _normalizeVisualizationType, _normalizeDispatchResult) {
+  "../visTypes.js",
+  "../results.js"
+], function (_applyIteratorZoom, _visTypes, _results) {
   "use strict";
 
   function failClosed(_action, _errorCode) {
-    return _normalizeDispatchResult({
+    return _results.normalizeDispatchResult({
       ok: false,
       widgetId: _action && _action.widgetId,
       opSeq: _action && _action.opSeq,
@@ -31,7 +31,7 @@ define([
         nextValue: _payload.nextValue
       };
     }
-    return _normalizeDispatchResult(envelope);
+    return _results.normalizeDispatchResult(envelope);
   }
 
   function isIteratorZoomControl(_control) {
@@ -45,7 +45,7 @@ define([
       var snapshot = payload.settingsSnapshot || {};
       var nextValue = payload.nextValue;
       var control = payload.control;
-      var normalizedVisType = _normalizeVisualizationType(snapshot.visType) || snapshot.visType;
+      var normalizedVisType = _visTypes.normalizeVisualizationType(snapshot.visType) || snapshot.visType;
       var result;
       if (!_context.selectors.readVisRecord(_context._KDB, widgetId)) {
         return failClosed(_action, "WIDGET_VIS_CONTENT_CONTEXT_MISSING");

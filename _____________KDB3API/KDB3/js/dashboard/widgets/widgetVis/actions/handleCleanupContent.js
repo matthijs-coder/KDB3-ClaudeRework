@@ -1,8 +1,8 @@
 define([
-  "../config/actionTypes.js",
+  "../state.js",
   "./cleanup/runDecorationCleanup.js",
   "./cleanup/runBindingCleanup.js"
-], function (_actionTypes, _runDecorationCleanup, _runBindingCleanup) {
+], function (_state, _runDecorationCleanup, _runBindingCleanup) {
   "use strict";
 
   function dispatchTopNCleanup(_context, _widgetId, _payload) {
@@ -29,7 +29,7 @@ define([
     var opSeq = _context.ensureOpSeq(widgetId, _action.opSeq);
 
     _context.dispatchInternal({
-      type: _actionTypes.MARK_PENDING,
+      type: _state.ACTION_TYPES.MARK_PENDING,
       widgetId: widgetId,
       payload: { kind: "cleanup", opSeq: opSeq }
     });

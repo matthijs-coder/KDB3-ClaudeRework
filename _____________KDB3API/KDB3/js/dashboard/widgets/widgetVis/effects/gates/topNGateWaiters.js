@@ -1,7 +1,7 @@
 define([
-  "../../config/defaults.js",
-  "../../runtime/ensureWidgetRuntime.js"
-], function (_defaults, _ensureWidgetRuntime) {
+  "../../config.js",
+  "../../runtime.js"
+], function (_config, _visRuntime) {
   "use strict";
 
   function isDefaultTopNChoice(_value) {
@@ -13,8 +13,8 @@ define([
   }
 
   function waitForTopN(_KDB, _widgetId, _opSeq) {
-    var runtime = _ensureWidgetRuntime(_KDB, _widgetId);
-    var timeoutMs = _defaults.bindingPrerequisiteTimeoutMs;
+    var runtime = _visRuntime.ensureWidgetRuntime(_KDB, _widgetId);
+    var timeoutMs = _config.bindingPrerequisiteTimeoutMs;
     return new Promise(function (resolve, reject) {
       var entry = { opSeq: _opSeq, resolve: resolve, reject: reject };
       entry.timerId = setTimeout(rejectTimeout.bind(null, runtime, entry), timeoutMs);

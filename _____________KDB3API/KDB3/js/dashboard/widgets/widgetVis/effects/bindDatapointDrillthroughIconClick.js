@@ -1,7 +1,7 @@
 define([
   "./assembleDatapointDrillthroughSpec.js",
-  "./readVisualizationFacet.js"
-], function (_assembleDatapointDrillthroughSpec, _readVisualizationFacet) {
+  "../runtime.js"
+], function (_assembleDatapointDrillthroughSpec, _visRuntime) {
   "use strict";
 
   function peekHasOpenableData(_peek) {
@@ -15,7 +15,7 @@ define([
   }
 
   function peekSelections(_KDB, _widgetId) {
-    var facet = _readVisualizationFacet(_KDB);
+    var facet = _visRuntime.readHostFacet(_KDB, "visualizationFacet");
     var peek;
     if (!facet || typeof facet.getSelections !== "function") {
       return null;

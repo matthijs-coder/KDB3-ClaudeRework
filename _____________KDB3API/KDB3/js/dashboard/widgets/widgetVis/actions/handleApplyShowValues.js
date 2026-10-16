@@ -1,12 +1,12 @@
 define([
   "../effects/applyShowValues.js",
-  "../config/visTypes/normalizeVisualizationType.js",
-  "./normalizeDispatchResult.js"
-], function (_applyShowValues, _normalizeVisualizationType, _normalizeDispatchResult) {
+  "../visTypes.js",
+  "../results.js"
+], function (_applyShowValues, _visTypes, _results) {
   "use strict";
 
   function failClosed(_action, _errorCode) {
-    return _normalizeDispatchResult({
+    return _results.normalizeDispatchResult({
       ok: false,
       widgetId: _action && _action.widgetId,
       opSeq: _action && _action.opSeq,
@@ -16,7 +16,7 @@ define([
   }
 
   function succeedShowValues(_action, _payload, _result) {
-    return _normalizeDispatchResult({
+    return _results.normalizeDispatchResult({
       ok: true,
       widgetId: _action && _action.widgetId,
       opSeq: _action && _action.opSeq,
@@ -37,7 +37,7 @@ define([
       var widgetId = _action && _action.widgetId;
       var snapshot = payload.settingsSnapshot || {};
       var nextValue = payload.nextValue;
-      var normalizedVisType = _normalizeVisualizationType(snapshot.visType) || snapshot.visType;
+      var normalizedVisType = _visTypes.normalizeVisualizationType(snapshot.visType) || snapshot.visType;
       var result;
       if (!_context.selectors.readVisRecord(_context._KDB, widgetId)) {
         return failClosed(_action, "WIDGET_VIS_CONTENT_CONTEXT_MISSING");

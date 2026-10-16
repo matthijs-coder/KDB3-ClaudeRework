@@ -1,10 +1,9 @@
 define([
-  "../runtime/contentReady.js",
+  "../runtime.js",
   "../effects/gates/topNGate.js",
-  "../effects/abortActiveApply.js",
   "../effects/widgetFocusMode.js",
   "../view/syncLegendVisibility.js"
-], function (_contentReady, _topNGate, _abortActiveApply, _widgetFocusMode, _syncLegendVisibility) {
+], function (_visRuntime, _topNGate, _widgetFocusMode, _syncLegendVisibility) {
   "use strict";
 
   // Park, tab-delete en remove zijn dispose-punten (adapter-contract §3.7 /
@@ -39,13 +38,13 @@ define([
     if (topNPending) {
       _topNGate.cancelTopNGateWaiter(_KDB, widgetId, topNPending.opSeq);
     }
-    _contentReady.rejectContentReadyWaiters(_KDB, widgetId, {
+    _visRuntime.rejectContentReadyWaiters(_KDB, widgetId, {
       ok: false,
       widgetId: widgetId,
       status: "cancelled",
       errorCode: "WIDGET_VIS_WIDGET_DISPOSED"
     });
-    _abortActiveApply(widgetRuntime);
+    _visRuntime.abortActiveApply(widgetRuntime);
   }
 
   function disposeRemainingHandles(widgetRuntime) {

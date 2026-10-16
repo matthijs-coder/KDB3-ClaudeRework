@@ -1,11 +1,11 @@
 define([
   "../view/syncTitleLink.js",
-  "../view/resolveVisualizationContent.js",
+  "../dom.js",
   "./buildVisualizationTitleText.js",
   "./resolveTitleAggregationLabel.js",
   "./applyPreRenderTitle.js",
   "../../../../core/cognosHost/config/widgetChromeSelectors.js"
-], function (_syncTitleLink, _resolveVisualizationContent, _titleTextHelpers, _resolveTitleAggregationLabel, _applyPreRenderTitle, _widgetChrome) {
+], function (_syncTitleLink, _dom, _titleTextHelpers, _resolveTitleAggregationLabel, _applyPreRenderTitle, _widgetChrome) {
   "use strict";
   var widget = _widgetChrome.widget.strings;
   var _buildVisualizationTitleText = _titleTextHelpers.buildVisualizationTitleText;
@@ -109,7 +109,7 @@ define([
       var runtime = options.runtime || {};
       var domRefs = runtime.domRefs || {};
       if (!domRefs.titleLinkEl) {
-        domRefs = Object.assign({}, domRefs, _resolveVisualizationContent(options.widgetId));
+        domRefs = Object.assign({}, domRefs, _dom.resolveVisualizationContent(options.widgetId));
         runtime.domRefs = domRefs;
       }
       diagnostics.titleLink = _syncTitleLink(domRefs.titleLinkEl, titleText);

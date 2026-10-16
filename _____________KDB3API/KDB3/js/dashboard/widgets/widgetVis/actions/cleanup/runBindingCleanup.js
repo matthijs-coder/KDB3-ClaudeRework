@@ -1,9 +1,9 @@
 define([
-  "../../config/actionTypes.js",
+  "../../state.js",
   "../../effects/runBindingPipeline.js",
-  "../normalizeDispatchResult.js",
+  "../../results.js",
   "./runDecorationCleanup.js"
-], function (_actionTypes, _runBindingPipeline, _normalizeDispatchResult, _runDecorationCleanup) {
+], function (_state, _runBindingPipeline, _results, _runDecorationCleanup) {
   "use strict";
 
   function buildCleanupBindingInput(_context, _widgetId, _opSeq, _payload) {
@@ -39,7 +39,7 @@ define([
   function runBindingCleanup(_context, _widgetId, _opSeq, _payload) {
     return _runBindingPipeline(_context, buildCleanupBindingInput(_context, _widgetId, _opSeq, _payload)).then(function (result) {
       if (result && result.stale === true) {
-        return _normalizeDispatchResult(result);
+        return _results.normalizeDispatchResult(result);
       }
       if (!result || result.ok !== true) {
         var failureCode = result && result.errorCode
@@ -49,14 +49,14 @@ define([
           failureCode = "WIDGET_VIS_EMPTY_APPLY_FAILED";
         }
         _context.dispatchInternal({
-          type: _actionTypes.ERROR_RECORDED,
+          type: _state.ACTION_TYPES.ERROR_RECORDED,
           widgetId: _widgetId,
           payload: {
             errorCode: failureCode,
             errorMessage: result && result.errorMessage ? result.errorMessage : "Cleanup binding failed."
           }
         });
-        return _normalizeDispatchResult(Object.assign({}, result || {}, {
+        return _results.normalizeDispatchResult(Object.assign({}, result || {}, {
           ok: false,
           widgetId: _widgetId,
           opSeq: _opSeq,

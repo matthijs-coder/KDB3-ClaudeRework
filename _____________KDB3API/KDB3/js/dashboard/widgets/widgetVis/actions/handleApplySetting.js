@@ -1,12 +1,11 @@
 define([
-  "../config/actionTypes.js",
+  "../state.js",
   "../effects/runBindingPipeline.js",
-  "./normalizeDispatchResult.js",
-  "./isCompleteSettingsSnapshot.js",
-  "./finalizePipelineResult.js",
+  "../results.js",
+  "../settingsSnapshot.js",
   "../../widgetSettings/effects/startWidgetRenderLoading.js",
   "../../widgetSettings/view/resolveWidgetPlacementContext.js"
-], function (_actionTypes, _runBindingPipeline, _normalizeDispatchResult, _isCompleteSettingsSnapshot, _finalizePipelineResult, _startWidgetRenderLoading, _resolveWidgetPlacementContext) {
+], function (_state, _runBindingPipeline, _results, _settingsSnapshot, _startWidgetRenderLoading, _resolveWidgetPlacementContext) {
   "use strict";
 
   var REASON_BY_CONTROL = {
@@ -16,9 +15,9 @@ define([
   };
 
   var CONTROL_BY_ACTION = {};
-  CONTROL_BY_ACTION[_actionTypes.APPLY_DIMENSION] = "dimension";
-  CONTROL_BY_ACTION[_actionTypes.APPLY_VIS_TYPE] = "visType";
-  CONTROL_BY_ACTION[_actionTypes.APPLY_TOPN_CHOICE] = "topNChoice";
+  CONTROL_BY_ACTION[_state.ACTION_TYPES.APPLY_DIMENSION] = "dimension";
+  CONTROL_BY_ACTION[_state.ACTION_TYPES.APPLY_VIS_TYPE] = "visType";
+  CONTROL_BY_ACTION[_state.ACTION_TYPES.APPLY_TOPN_CHOICE] = "topNChoice";
 
   function normalizeIncomingSettingsPayload(_action) {
     var payload = Object.assign({}, (_action && _action.payload) || {});
@@ -46,7 +45,7 @@ define([
         errorMessage: "Apply actions require a complete settingsSnapshot from widgetSettings."
       };
     }
-    if (snapshot && !isStartup && !_isCompleteSettingsSnapshot(snapshot)) {
+    if (snapshot && !isStartup && !_settingsSnapshot.isCompleteSettingsSnapshot(snapshot)) {
       return {
         errorCode: "WIDGET_VIS_SETTINGS_SNAPSHOT_INCOMPLETE",
         errorMessage: "settingsSnapshot must include dimension, visType and topNChoice.",
@@ -114,7 +113,7 @@ define([
     var control = payload.control;
     var settings = resolveSettings(payload);
     if (settings.errorCode) {
-      return Promise.resolve(_normalizeDispatchResult({
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: false,
         widgetId: _action.widgetId,
         opSeq: _action.opSeq,
@@ -126,7 +125,7 @@ define([
     }
     var reason = REASON_BY_CONTROL[control] || control || "dimension";
     _context.dispatchInternal({
-      type: _actionTypes.MARK_PENDING,
+      type: _state.ACTION_TYPES.MARK_PENDING,
       widgetId: _action.widgetId,
       payload: { kind: reason, opSeq: _action.opSeq }
     });
@@ -141,7 +140,7 @@ define([
       settings: settings
     }).then(function (result) {
       finishApplySettingRenderLoadingIfFailed(_context, _action, result);
-      return _finalizePipelineResult(_context, _action, result);
+      return _results.finalizePipelineResult(_context, _action, result);
     });
   }
 

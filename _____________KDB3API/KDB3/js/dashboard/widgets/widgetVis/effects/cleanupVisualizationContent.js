@@ -1,12 +1,20 @@
 define([
-  "../view/resolveQueryRoot.js",
+  "../dom.js",
   "../view/syncLegendVisibility.js",
-  "../runtime/ensureWidgetRuntime.js",
+  "../runtime.js",
   "./widgetFocusMode.js",
   "./cleanupDrillthroughDecorations.js",
   "./cleanupCanvasMaximize.js",
   "../../../../core/cognosHost/config/widgetChromeSelectors.js"
-], function (_resolveQueryRoot, _syncLegendVisibility, _ensureWidgetRuntime, _widgetFocusMode, _clearDrillthroughDecorations, _cleanupCanvasMaximize, _widgetChrome) {
+], function (
+  _dom,
+  _syncLegendVisibility,
+  _visRuntime,
+  _widgetFocusMode,
+  _clearDrillthroughDecorations,
+  _cleanupCanvasMaximize,
+  _widgetChrome
+) {
   "use strict";
   var TOOLTIP_ATTR = "data-kdb-pipe-parts";
   var widget = _widgetChrome.widget.strings;
@@ -110,7 +118,7 @@ define([
       return { ok: false, stale: true, widgetId: widgetId, opSeq: opSeq, diagnostics: diagnostics };
     }
     try {
-      var runtime = options.runtime || _ensureWidgetRuntime(_KDB, widgetId);
+      var runtime = options.runtime || _visRuntime.ensureWidgetRuntime(_KDB, widgetId);
       cleanupFocusModeArtifacts(_KDB, widgetId, runtime, diagnostics);
       diagnostics.legendObserver = _syncLegendVisibility.disconnectLegendTextObserver(runtime);
       _cleanupCanvasMaximize(runtime, diagnostics);
@@ -118,7 +126,7 @@ define([
         _clearDrillthroughDecorations(runtime, diagnostics);
       }
       if (payload.clearDomDecorations === true) {
-        var queryRoot = _resolveQueryRoot(runtime, widgetId);
+        var queryRoot = _dom.resolveQueryRoot(runtime, widgetId);
         clearTitleLinkDecorations(runtime, widgetId, diagnostics);
         clearLegendDecorations(queryRoot, diagnostics);
         clearTooltipMetadataAttrs(queryRoot, diagnostics);

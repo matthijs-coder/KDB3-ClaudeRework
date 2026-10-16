@@ -1,5 +1,85 @@
-define(["../config/actionTypes.js", "./initialState.js", "./cloneSerializable.js"], function (_actionTypes, _initialState, _cloneSerializable) {
+define([], function () {
   "use strict";
+
+  var ACTION_TYPES = {
+    MOUNT_STARTED: "widgetVis/mountStarted",
+    MOUNT_SUCCEEDED: "widgetVis/mountSucceeded",
+    REGISTER_CONTENT: "widgetVis/registerContent",
+    MARK_PENDING: "widgetVis/markPending",
+    APPLY_SUCCEEDED: "widgetVis/applySucceeded",
+    CLEANUP_SUCCEEDED: "widgetVis/cleanupSucceeded",
+    MAXIMIZE_SUCCEEDED: "widgetVis/maximizeSucceeded",
+    ERROR_RECORDED: "widgetVis/errorRecorded",
+    DESTROY: "widgetVis/destroy",
+    CONTENT_CREATE: "widgetVis/contentCreate",
+    WAIT_UNTIL_CONTENT_READY: "widgetVis/waitUntilContentReady",
+    APPLY_STARTUP_SETTINGS: "widgetVis/applyStartupSettings",
+    APPLY_DIMENSION: "widgetVis/applyDimension",
+    APPLY_VIS_TYPE: "widgetVis/applyVisType",
+    APPLY_TOPN_CHOICE: "widgetVis/applyTopNChoice",
+    APPLY_SHOW_VALUES: "widgetVis/applyShowValues",
+    APPLY_GROUPING: "widgetVis/applyGrouping",
+    APPLY_ITERATOR_ZOOM: "widgetVis/applyIteratorZoom",
+    TOPN_RESOLVED: "widgetVis/topNResolved",
+    DIENSTSTELLE_CHANGED: "widgetVis/dienststelleChanged",
+    CLEANUP_CONTENT: "widgetVis/cleanupContent",
+    DISPOSE_WIDGET_RUNTIME: "widgetVis/disposeWidgetRuntime",
+    ENSURE_OBSERVERS: "widgetVis/ensureObservers",
+    PARAMETER_SET_CANCEL_BINDINGS: "widgetVis/parameterSetCancelBindingsRequested",
+    PARAMETER_SET_BINDING: "widgetVis/parameterSetBindingRequested",
+    MAXIMIZE_TOGGLE: "widgetVis/maximizeToggle",
+    ERROR: "widgetVis/error"
+  };
+
+  function createInitialWidgetVisState() {
+    return {
+      lifecycle: "idle",
+      byId: {},
+      errorCode: null,
+      errorMessage: null
+    };
+  }
+
+  function cloneState(_value) {
+    if (_value === null || _value === undefined) {
+      return _value;
+    }
+    try {
+      return JSON.parse(JSON.stringify(_value));
+    } catch (_err) {
+      return undefined;
+    }
+  }
+
+  function firstNonEmpty() {
+    for (var i = 0; i < arguments.length; i += 1) {
+      var value = arguments[i];
+      if (value != null && String(value).trim() !== "") {
+        return String(value);
+      }
+    }
+    return "";
+  }
+
+  function normalizeMetricIdentity(_source) {
+    var source = _source || {};
+    return {
+      code: firstNonEmpty(source.code, source.kennzahlCode),
+      display: firstNonEmpty(source.display, source.kennzahlDisplay, source.title),
+      metricsTable: firstNonEmpty(source.metricsTable, source.kennzahlenTable),
+      langtext: firstNonEmpty(source.langtext),
+      url: firstNonEmpty(source.url)
+    };
+  }
+
+  function resolveMetricFromContentCreatePayload(_payload) {
+    var payload = _payload || {};
+    if (payload.metric && typeof payload.metric === "object") {
+      return normalizeMetricIdentity(payload.metric);
+    }
+    var dropPayload = payload.payload || (payload.dropRequest && payload.dropRequest.payload) || {};
+    return normalizeMetricIdentity(dropPayload);
+  }
 
   function createEmptyVisRecord(_widgetId) {
     return {
@@ -27,27 +107,27 @@ define(["../config/actionTypes.js", "./initialState.js", "./cloneSerializable.js
 
   function createWidgetVisReducer() {
     return function widgetVisReducer(_state, _action) {
-      var state = _state || _initialState();
+      var state = _state || createInitialWidgetVisState();
       var action = _action || {};
       var payload = action.payload || {};
       switch (action.type) {
-        case _actionTypes.MOUNT_STARTED:
+        case ACTION_TYPES.MOUNT_STARTED:
           return Object.assign({}, state, { lifecycle: "initializing", errorCode: null, errorMessage: null });
-        case _actionTypes.MOUNT_SUCCEEDED:
+        case ACTION_TYPES.MOUNT_SUCCEEDED:
           return Object.assign({}, state, { lifecycle: "ready", errorCode: null, errorMessage: null });
-        case _actionTypes.REGISTER_CONTENT:
+        case ACTION_TYPES.REGISTER_CONTENT:
           return registerContent(state, action.widgetId, payload);
-        case _actionTypes.MARK_PENDING:
+        case ACTION_TYPES.MARK_PENDING:
           return markPending(state, action.widgetId, payload);
-        case _actionTypes.APPLY_SUCCEEDED:
+        case ACTION_TYPES.APPLY_SUCCEEDED:
           return applySucceeded(state, action.widgetId, payload);
-        case _actionTypes.CLEANUP_SUCCEEDED:
+        case ACTION_TYPES.CLEANUP_SUCCEEDED:
           return cleanupSucceeded(state, action.widgetId, payload);
-        case _actionTypes.MAXIMIZE_SUCCEEDED:
+        case ACTION_TYPES.MAXIMIZE_SUCCEEDED:
           return maximizeSucceeded(state, action.widgetId, payload);
-        case _actionTypes.ERROR_RECORDED:
+        case ACTION_TYPES.ERROR_RECORDED:
           return errorRecorded(state, action.widgetId, payload);
-        case _actionTypes.DESTROY:
+        case ACTION_TYPES.DESTROY:
           return Object.assign({}, state, { lifecycle: "disposed" });
         default:
           return state;
@@ -87,7 +167,7 @@ define(["../config/actionTypes.js", "./initialState.js", "./cloneSerializable.js
       return _state;
     }
     var byId = Object.assign({}, _state.byId);
-    var derived = Object.assign({}, byId[_widgetId].derived, _cloneSerializable(_payload.derived || {}));
+    var derived = Object.assign({}, byId[_widgetId].derived, cloneState(_payload.derived || {}));
     byId[_widgetId] = Object.assign({}, byId[_widgetId], Object.assign({
       derived: derived,
       pending: { kind: null, opSeq: null },
@@ -135,5 +215,12 @@ define(["../config/actionTypes.js", "./initialState.js", "./cloneSerializable.js
     });
   }
 
-  return createWidgetVisReducer;
+  return {
+    ACTION_TYPES: ACTION_TYPES,
+    createInitialWidgetVisState: createInitialWidgetVisState,
+    createWidgetVisReducer: createWidgetVisReducer,
+    cloneState: cloneState,
+    normalizeMetricIdentity: normalizeMetricIdentity,
+    resolveMetricFromContentCreatePayload: resolveMetricFromContentCreatePayload
+  };
 });

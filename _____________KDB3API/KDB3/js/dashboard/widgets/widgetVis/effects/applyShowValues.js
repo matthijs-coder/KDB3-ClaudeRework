@@ -1,8 +1,7 @@
 define([
-  "./readVisualizationFacet.js",
-  "../config/visTypes/normalizeVisualizationType.js",
-  "../config/visTypes/resolveVisualizationDefinitions.js"
-], function (_readVisualizationFacet, _normalizeVisualizationType, _resolveVisualizationDefinitions) {
+  "../runtime.js",
+  "../visTypes.js"
+], function (_visRuntime, _visTypes) {
   "use strict";
 
   var VALUE_LABELS_VISIBLE = "valueLabels.visible";
@@ -11,7 +10,7 @@ define([
   var VALUE_LABELS_COLOR = "valueLabels.color";
 
   function isListType(_normalizedType) {
-    return _normalizeVisualizationType(_normalizedType) === "List";
+    return _visTypes.normalizeVisualizationType(_normalizedType) === "List";
   }
 
   function stampContrastFlagsIfShown(_cloned) {
@@ -76,7 +75,7 @@ define([
 
   async function applyShowValues(_KDB, _widgetId, _nextValue, _normalizedVisType) {
     try {
-      var normalizedType = _normalizeVisualizationType(_normalizedVisType) || _normalizedVisType;
+      var normalizedType = _visTypes.normalizeVisualizationType(_normalizedVisType) || _normalizedVisType;
       var facet;
       var firstOutcome;
       var secondOutcome;
@@ -88,13 +87,13 @@ define([
       }
       writeValue = _nextValue;
       if (_nextValue === "inherit") {
-        catalog = _resolveVisualizationDefinitions.resolveVisualizationLayoutPropertyValues(
+        catalog = _visTypes.resolveVisualizationLayoutPropertyValues(
           normalizedType,
           _KDB
         );
         writeValue = !!(catalog && catalog[VALUE_LABELS_VISIBLE] === true);
       }
-      facet = _readVisualizationFacet(_KDB);
+      facet = _visRuntime.readHostFacet(_KDB, "visualizationFacet");
       if (!facet || typeof facet.setContentProperty !== "function") {
         return { ok: false, errorCode: "WIDGET_VIS_FACET_MISSING" };
       }

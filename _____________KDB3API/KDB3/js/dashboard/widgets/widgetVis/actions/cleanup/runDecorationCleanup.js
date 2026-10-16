@@ -1,8 +1,8 @@
 define([
   "../../effects/cleanupVisualizationContent.js",
-  "../../runtime/ensureWidgetRuntime.js",
+  "../../runtime.js",
   "./normalizeDecorationCleanupOutcome.js"
-], function (_cleanupVisualizationContent, _ensureWidgetRuntime, _normalizeDecorationCleanupOutcome) {
+], function (_cleanupVisualizationContent, _visRuntime, _normalizeDecorationCleanupOutcome) {
   "use strict";
 
   function runDecorationCleanup(_context, _widgetId, _opSeq, _payload, _bindingResult) {
@@ -10,7 +10,7 @@ define([
       widgetId: _widgetId,
       opSeq: _opSeq,
       payload: _payload,
-      runtime: _ensureWidgetRuntime(_context._KDB, _widgetId),
+      runtime: _visRuntime.ensureWidgetRuntime(_context._KDB, _widgetId),
       isStaleOpSeq: _context.isStaleOpSeq.bind(_context)
     })).then(function (cleanupResult) {
       return _normalizeDecorationCleanupOutcome(

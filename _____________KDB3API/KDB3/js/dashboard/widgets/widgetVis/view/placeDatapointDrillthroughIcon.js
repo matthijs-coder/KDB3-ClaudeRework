@@ -1,16 +1,10 @@
 define([
   "./buildDatapointDrillthroughIcon.js",
-  "./resolveVisualizationContent.js",
+  "../dom.js",
   "./ensureExpandDrillthroughHost.js",
-  "../config/defaults.js",
+  "../config.js",
   "../../../../core/cognosHost/config/widgetChromeSelectors.js"
-], function (
-  _buildDatapointDrillthroughIcon,
-  _resolveVisualizationContent,
-  _ensureExpandDrillthroughHost,
-  _defaults,
-  _widgetChrome
-) {
+], function (_buildDatapointDrillthroughIcon, _dom, _ensureExpandDrillthroughHost, _config, _widgetChrome) {
   "use strict";
 
   function resolveExpandedWidgetEl(_widgetId) {
@@ -26,7 +20,7 @@ define([
     var content;
     var node;
     try {
-      content = _resolveVisualizationContent(_widgetId);
+      content = _dom.resolveVisualizationContent(_widgetId);
       node = content && content.contentEl ? content.contentEl : null;
       if (node && typeof node.closest === "function") {
         return node.closest(".widget");
@@ -95,8 +89,8 @@ define([
       }
       built = _buildDatapointDrillthroughIcon({
         hostEl: widgetEl,
-        wrapperClass: _defaults.datapointDrillthroughWrapperClass,
-        iconClass: _defaults.drillthroughIconClass
+        wrapperClass: _config.datapointDrillthroughWrapperClass,
+        iconClass: _config.drillthroughIconClass
       });
       if (!built || built.ok !== true) {
         return built || {

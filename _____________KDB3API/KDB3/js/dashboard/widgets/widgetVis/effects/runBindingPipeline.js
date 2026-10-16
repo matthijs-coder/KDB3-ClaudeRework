@@ -1,17 +1,16 @@
 define([
   "./resolveBindingPrerequisites.js",
-  "./abortActiveApply.js",
-  "./continueBindingPipeline.js",
-  "../runtime/ensureWidgetRuntime.js"
-], function (_resolveBindingPrerequisites, _abortActiveApply, _continueBindingPipeline, _ensureWidgetRuntime) {
+  "../runtime.js",
+  "./continueBindingPipeline.js"
+], function (_resolveBindingPrerequisites, _visRuntime, _continueBindingPipeline) {
   "use strict";
 
   function runBindingPipeline(_context, _input) {
     var _KDB = _context._KDB;
     var widgetId = _input.widgetId;
     var opSeq = _context.ensureOpSeq(widgetId, _input.opSeq);
-    var runtime = _ensureWidgetRuntime(_KDB, widgetId);
-    _abortActiveApply(runtime);
+    var runtime = _visRuntime.ensureWidgetRuntime(_KDB, widgetId);
+    _visRuntime.abortActiveApply(runtime);
 
     if (typeof AbortController !== "function") {
       console.error("[widgetVis.runBindingPipeline] AbortController unavailable");

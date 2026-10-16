@@ -1,4 +1,6 @@
-define(["../config/defaults.js"], function (_defaults) {
+define([
+  "../config.js"
+], function (_config) {
   "use strict";
 
   function findExistingWrapper(_host, _wrapperClass) {
@@ -29,7 +31,7 @@ define(["../config/defaults.js"], function (_defaults) {
     try {
       var options = _options || {};
       var hostEl = options.hostEl;
-      var wrapperClass = options.wrapperClass || _defaults.canvasMaximizeWrapperClass;
+      var wrapperClass = options.wrapperClass || _config.canvasMaximizeWrapperClass;
       var existingWrapper = findExistingWrapper(hostEl, wrapperClass);
       if (existingWrapper) {
         return { ok: true, wrapperEl: existingWrapper };

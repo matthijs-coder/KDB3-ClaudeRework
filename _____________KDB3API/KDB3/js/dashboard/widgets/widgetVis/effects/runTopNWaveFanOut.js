@@ -1,8 +1,8 @@
 define([
   "./runBindingPipeline.js",
   "./applyTopNJahrMismatchPin.js",
-  "../runtime/initializeRuntime.js"
-], function (_runBindingPipeline, _applyTopNJahrMismatchPin, _initializeRuntime) {
+  "../runtime.js"
+], function (_runBindingPipeline, _applyTopNJahrMismatchPin, _visRuntime) {
   "use strict";
 
   function __controller(_KDB, _context, _widgetIds, _payload) {
@@ -75,13 +75,13 @@ define([
   }
 
   function beginWave(_KDB) {
-    var runtime = _initializeRuntime(_KDB);
+    var runtime = _visRuntime.initializeRuntime(_KDB);
     runtime.pendingPromises.periodPinWave = (runtime.pendingPromises.periodPinWave || 0) + 1;
     return runtime.pendingPromises.periodPinWave;
   }
 
   function isCurrent(_KDB, _waveId) {
-    return _initializeRuntime(_KDB).pendingPromises.periodPinWave === _waveId;
+    return _visRuntime.initializeRuntime(_KDB).pendingPromises.periodPinWave === _waveId;
   }
 
   return __controller;

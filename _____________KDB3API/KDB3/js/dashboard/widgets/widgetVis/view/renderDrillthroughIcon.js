@@ -1,7 +1,7 @@
 define([
   "../../../../core/cognosHost/config/widgetChromeSelectors.js",
-  "../config/defaults.js"
-], function (_widgetChrome, _defaults) {
+  "../config.js"
+], function (_widgetChrome, _config) {
   "use strict";
 
   function readChrome() {
@@ -34,7 +34,7 @@ define([
     try {
       var options = _options || {};
       var hostEl = options.hostEl;
-      var iconClass = options.iconClass || _defaults.drillthroughIconClass;
+      var iconClass = options.iconClass || _config.drillthroughIconClass;
       var chrome = readChrome().widget;
       var existing;
       var wrapperEl;
@@ -56,7 +56,7 @@ define([
         return { ok: true, wrapperEl: wrapperEl, anchorEl: existing };
       }
       wrapperEl = ensureWrapper(hostEl, chrome);
-      anchorEl = createAnchor(_defaults);
+      anchorEl = createAnchor(_config);
       wrapperEl.appendChild(anchorEl);
       if (hostEl.firstChild) {
         hostEl.insertBefore(wrapperEl, hostEl.firstChild);

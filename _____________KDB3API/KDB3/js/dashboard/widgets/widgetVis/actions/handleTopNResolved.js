@@ -1,7 +1,7 @@
 define([
   "../effects/resolveBindingPrerequisites.js",
-  "./normalizeDispatchResult.js"
-], function (_resolveBindingPrerequisites, _normalizeDispatchResult) {
+  "../results.js"
+], function (_resolveBindingPrerequisites, _results) {
   "use strict";
 
   function handleTopNResolved(_context, _action) {
@@ -10,14 +10,14 @@ define([
     var opSeq = payload.opSeq != null ? payload.opSeq : _action.opSeq;
     var helperTableResult = _resolveBindingPrerequisites.mapTopNPayloadToHelper(payload);
     if (payload.ownerVisId && payload.ownerVisId !== widgetId) {
-      return Promise.resolve(_normalizeDispatchResult({
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: false,
         widgetId: widgetId,
         errorCode: "WIDGET_VIS_WIDGET_ID_CONFLICT"
       }));
     }
     if (_context.isStaleOpSeq(widgetId, opSeq)) {
-      return Promise.resolve(_normalizeDispatchResult({
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: false,
         widgetId: widgetId,
         opSeq: opSeq,
@@ -31,14 +31,14 @@ define([
       helperTableResult
     );
     if (resolved) {
-      return Promise.resolve(_normalizeDispatchResult({
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: true,
         widgetId: widgetId,
         opSeq: opSeq,
         gateResolved: true
       }));
     }
-    return Promise.resolve(_normalizeDispatchResult({
+    return Promise.resolve(_results.normalizeDispatchResult({
       ok: false,
       widgetId: widgetId,
       opSeq: opSeq,

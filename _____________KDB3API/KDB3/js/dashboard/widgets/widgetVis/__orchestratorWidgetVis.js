@@ -1,6 +1,6 @@
 define([
   "./createWidgetVisController.js",
-  "./state/selectors.js"
+  "./selectors.js"
 ], function (_createWidgetVisController, _selectors) {
   "use strict";
   // Lifecycle terms for widgetVis:

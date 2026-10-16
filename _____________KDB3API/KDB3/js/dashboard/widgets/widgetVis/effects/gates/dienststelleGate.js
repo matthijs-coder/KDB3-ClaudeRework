@@ -1,8 +1,8 @@
 define([
-  "../../config/defaults.js",
-  "../../runtime/initializeRuntime.js",
+  "../../config.js",
+  "../../runtime.js",
   "../normalizeHierarchySnapshot.js"
-], function (_defaults, _initializeRuntime, _normalizeHierarchySnapshot) {
+], function (_config, _visRuntime, _normalizeHierarchySnapshot) {
   "use strict";
 
   function isConfirmedHierarchy(_snapshot) {
@@ -17,7 +17,7 @@ define([
   }
 
   function getDienststelleGateBucket(_KDB) {
-    var root = _initializeRuntime(_KDB);
+    var root = _visRuntime.initializeRuntime(_KDB);
     root.pendingPromises = root.pendingPromises || {};
     if (!root.pendingPromises.dienststelleGate) {
       root.pendingPromises.dienststelleGate = { waiters: [] };
@@ -30,7 +30,7 @@ define([
   }
 
   function waitForDienststelle(_KDB, _widgetId, _opSeq) {
-    var timeoutMs = _defaults.bindingPrerequisiteTimeoutMs;
+    var timeoutMs = _config.bindingPrerequisiteTimeoutMs;
     return new Promise(function (resolve, reject) {
       var bucket = getDienststelleGateBucket(_KDB);
       var entry = { widgetId: _widgetId, opSeq: _opSeq, resolve: resolve, reject: reject };

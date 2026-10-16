@@ -2,10 +2,10 @@ define([
   "./syncVisualizationTitle.js",
   "../view/sweepLegendCaptions.js",
   "../view/syncTooltipMetadata.js",
-  "../view/resolveQueryRoot.js",
+  "../dom.js",
   "./installAllDrillthrough.js",
   "./installCanvasMaximize.js"
-], function (_syncVisualizationTitle, _sweepLegendCaptions, _syncTooltipMetadata, _resolveQueryRoot, _installDrillthrough, _installCanvasMaximize) {
+], function (_syncVisualizationTitle, _sweepLegendCaptions, _syncTooltipMetadata, _dom, _installDrillthrough, _installCanvasMaximize) {
   "use strict";
 
   function readDerivedRecord(_KDB, _widgetId) {
@@ -58,7 +58,7 @@ define([
       diagnostics.legend = { error: String(err && err.message ? err.message : err) };
     }
     try {
-      diagnostics.tooltip = _syncTooltipMetadata(_resolveQueryRoot(runtime, widgetId));
+      diagnostics.tooltip = _syncTooltipMetadata(_dom.resolveQueryRoot(runtime, widgetId));
     } catch (err) {
       console.error("[widgetVis.applyPostRenderCleanup] tooltip sync failed", widgetId, err);
       diagnostics.tooltip = { error: String(err && err.message ? err.message : err) };

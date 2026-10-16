@@ -1,26 +1,12 @@
 define([
-  "../config/actionTypes.js",
-  "../runtime/ensureWidgetRuntime.js",
-  "../runtime/contentReady.js",
-  "../state/normalizeMetricIdentity.js",
-  "../view/resolveVisualizationContent.js",
+  "../state.js",
+  "../runtime.js",
+  "../dom.js",
   "../effects/runBindingPipeline.js",
-  "./normalizeDispatchResult.js",
+  "../results.js",
   "./ensureFocusObserver.js",
-  "./finalizePipelineResult.js",
   "../effects/runContentCreateDrillthroughInstall.js"
-], function (
-  _actionTypes,
-  _ensureWidgetRuntime,
-  _contentReady,
-  _normalizeMetricIdentity,
-  _resolveVisualizationContent,
-  _runBindingPipeline,
-  _normalizeDispatchResult,
-  _ensureFocusObserver,
-  _finalizePipelineResult,
-  _runContentCreateDrillthroughInstall
-) {
+], function (_state, _visRuntime, _dom, _runBindingPipeline, _results, _ensureFocusObserver, _runContentCreateDrillthroughInstall) {
   "use strict";
 
   function buildExplicitInitialSettings(_payload) {
@@ -43,11 +29,11 @@ define([
   function registerContentContext(_context, _action, _metric) {
     var widgetId = _action.widgetId;
     var _KDB = _context._KDB;
-    var runtime = _ensureWidgetRuntime(_KDB, widgetId);
-    var domRefs = _resolveVisualizationContent(widgetId);
+    var runtime = _visRuntime.ensureWidgetRuntime(_KDB, widgetId);
+    var domRefs = _dom.resolveVisualizationContent(widgetId);
     runtime.domRefs = Object.assign({}, runtime.domRefs || {}, domRefs);
     _context.dispatchInternal({
-      type: _actionTypes.REGISTER_CONTENT,
+      type: _state.ACTION_TYPES.REGISTER_CONTENT,
       widgetId: widgetId,
       payload: {
         record: {
@@ -63,13 +49,13 @@ define([
         }
       }
     });
-    _contentReady.resolveContentReadyWaiters(_KDB, widgetId);
+    _visRuntime.resolveContentReadyWaiters(_KDB, widgetId);
     _ensureFocusObserver(_context, widgetId, runtime);
   }
 
   function runExplicitInitialBinding(_context, _action, _metric, _settings) {
     _context.dispatchInternal({
-      type: _actionTypes.MARK_PENDING,
+      type: _state.ACTION_TYPES.MARK_PENDING,
       widgetId: _action.widgetId,
       payload: { kind: "contentCreate", opSeq: _action.opSeq }
     });
@@ -81,7 +67,7 @@ define([
       settings: _settings,
       payload: _action.payload || {}
     }).then(function (result) {
-      return _finalizePipelineResult(_context, _action, result, {
+      return _results.finalizePipelineResult(_context, _action, result, {
         defaultErrorCode: "WIDGET_VIS_CONTENT_CREATE_FAILED",
         defaultErrorMessage: "Content create binding failed."
       });
@@ -90,11 +76,11 @@ define([
   function handleContentCreate(_context, _action) {
     try {
       var payload = _action.payload || {};
-      var metric = _normalizeMetricIdentity.resolveMetricFromContentCreatePayload(payload);
+      var metric = _state.resolveMetricFromContentCreatePayload(payload);
       var widgetId = _action.widgetId;
 
       if (!metric.code) {
-        return Promise.resolve(_normalizeDispatchResult({
+        return Promise.resolve(_results.normalizeDispatchResult({
           ok: false,
           widgetId: widgetId,
           status: "error",
@@ -107,7 +93,7 @@ define([
       _runContentCreateDrillthroughInstall(_context, widgetId);
 
       if (!hasExplicitBindingIntent(payload)) {
-        return Promise.resolve(_normalizeDispatchResult({
+        return Promise.resolve(_results.normalizeDispatchResult({
           ok: true,
           widgetId: widgetId,
           opSeq: _action.opSeq,
@@ -119,14 +105,14 @@ define([
     } catch (err) {
       console.error("[widgetVis.handleContentCreate] failed", _action && _action.widgetId, err);
       _context.dispatchInternal({
-        type: _actionTypes.ERROR_RECORDED,
+        type: _state.ACTION_TYPES.ERROR_RECORDED,
         widgetId: _action.widgetId,
         payload: {
           errorCode: "WIDGET_VIS_CONTENT_CREATE_FAILED",
           errorMessage: String(err && err.message ? err.message : err)
         }
       });
-      return Promise.resolve(_normalizeDispatchResult({
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: false,
         widgetId: _action.widgetId,
         errorCode: "WIDGET_VIS_CONTENT_CREATE_FAILED",

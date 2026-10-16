@@ -1,10 +1,10 @@
 define([
-  "../config/actionTypes.js",
-  "../runtime/ensureWidgetRuntime.js",
+  "../state.js",
+  "../runtime.js",
   "../effects/widgetFocusMode.js",
-  "./normalizeDispatchResult.js",
+  "../results.js",
   "./ensureFocusObserver.js"
-], function (_actionTypes, _ensureWidgetRuntime, _widgetFocusMode, _normalizeDispatchResult, _ensureFocusObserver) {
+], function (_state, _visRuntime, _widgetFocusMode, _results, _ensureFocusObserver) {
   "use strict";
 
   function resolveNextMaximized(_context, _widgetId, _payload) {
@@ -18,13 +18,13 @@ define([
     var payload = _action.payload || {};
     var widgetId = _action.widgetId;
     var opSeq = _context.ensureOpSeq(widgetId, _action.opSeq);
-    var runtime = _ensureWidgetRuntime(_context._KDB, widgetId);
+    var runtime = _visRuntime.ensureWidgetRuntime(_context._KDB, widgetId);
     var nextMaximized = resolveNextMaximized(_context, widgetId, payload);
     var source = payload.source || "user";
     var focusOptions = { source: source, waitMs: undefined };
 
     if (!_context.selectors.readVisRecord(_context._KDB, widgetId)) {
-      return Promise.resolve(_normalizeDispatchResult({
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: false,
         widgetId: widgetId,
         opSeq: opSeq,
@@ -33,7 +33,7 @@ define([
     }
 
     _context.dispatchInternal({
-      type: _actionTypes.MARK_PENDING,
+      type: _state.ACTION_TYPES.MARK_PENDING,
       widgetId: widgetId,
       payload: { kind: "maximize", opSeq: opSeq }
     });
@@ -46,18 +46,18 @@ define([
         : _widgetFocusMode.exitFocusMode(_context._KDB, widgetId, runtime, focusOptions)
     ).then(function (result) {
       if (_context.isStaleOpSeq(widgetId, opSeq)) {
-        return _normalizeDispatchResult({ ok: false, widgetId: widgetId, opSeq: opSeq, stale: true });
+        return _results.normalizeDispatchResult({ ok: false, widgetId: widgetId, opSeq: opSeq, stale: true });
       }
       if (!result || result.ok !== true) {
         _context.dispatchInternal({
-          type: _actionTypes.ERROR_RECORDED,
+          type: _state.ACTION_TYPES.ERROR_RECORDED,
           widgetId: widgetId,
           payload: {
             errorCode: result && result.errorCode ? result.errorCode : "WIDGET_VIS_MAXIMIZE_FAILED",
             errorMessage: result && result.errorMessage ? result.errorMessage : "Focus mode toggle failed."
           }
         });
-        return _normalizeDispatchResult(Object.assign({}, result || {}, {
+        return _results.normalizeDispatchResult(Object.assign({}, result || {}, {
           ok: false,
           widgetId: widgetId,
           opSeq: opSeq,
@@ -65,11 +65,11 @@ define([
         }));
       }
       _context.dispatchInternal({
-        type: _actionTypes.MAXIMIZE_SUCCEEDED,
+        type: _state.ACTION_TYPES.MAXIMIZE_SUCCEEDED,
         widgetId: widgetId,
         payload: { nextMaximized: nextMaximized, source: source }
       });
-      return _normalizeDispatchResult({
+      return _results.normalizeDispatchResult({
         ok: true,
         widgetId: widgetId,
         opSeq: opSeq,
@@ -79,14 +79,14 @@ define([
     }).catch(function (err) {
       console.error("[widgetVis.handleMaximizeToggle] failed", widgetId, err);
       _context.dispatchInternal({
-        type: _actionTypes.ERROR_RECORDED,
+        type: _state.ACTION_TYPES.ERROR_RECORDED,
         widgetId: widgetId,
         payload: {
           errorCode: "WIDGET_VIS_MAXIMIZE_FAILED",
           errorMessage: String(err && err.message ? err.message : err)
         }
       });
-      return _normalizeDispatchResult({
+      return _results.normalizeDispatchResult({
         ok: false,
         widgetId: widgetId,
         opSeq: opSeq,

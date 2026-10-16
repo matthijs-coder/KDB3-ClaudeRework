@@ -1,9 +1,9 @@
 define([
   "./applyVisualizationProperties.js",
-  "../config/resolveVisualizationBindingConfig.js",
+  "../visTypes.js",
   "./continueBindingPlanAndApply.js",
   "./syncVisualizationTitle.js"
-], function (_applyVisualizationProperties, _resolveVisualizationBindingConfig, _continueBindingPlanAndApply, _syncVisualizationTitle) {
+], function (_applyVisualizationProperties, _visTypes, _continueBindingPlanAndApply, _syncVisualizationTitle) {
   "use strict";
 
   function isCleanupMode(_input) {
@@ -17,7 +17,7 @@ define([
     var widgetId = _ctx.widgetId;
     var opSeq = _ctx.opSeq;
     var settings = (_input && _input.settings) || {};
-    var visualizationType = settings.visType || _resolveVisualizationBindingConfig.resolveDefaultVisualizationType(_ctx._KDB);
+    var visualizationType = settings.visType || _visTypes.resolveDefaultVisualizationType(_ctx._KDB);
     return Promise.resolve(_applyVisualizationProperties(_ctx._KDB, {
       widgetId: widgetId,
       visualizationType: visualizationType,

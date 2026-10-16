@@ -1,11 +1,11 @@
 define([
-  "../config/actionTypes.js",
-  "../runtime/initializeRuntime.js",
+  "../state.js",
+  "../runtime.js",
   "./handleWaitUntilContentReady.js",
   "./handleApplyStartupSettings.js",
-  "./isCompleteSettingsSnapshot.js",
+  "../settingsSnapshot.js",
   "./parameterSetBindingHelpers.js"
-], function (_actionTypes, _initializeRuntime, _handleWaitUntilContentReady, _handleApplyStartupSettings, _isCompleteSettingsSnapshot, _helpers) {
+], function (_state, _visRuntime, _handleWaitUntilContentReady, _handleApplyStartupSettings, _settingsSnapshot, _helpers) {
   "use strict";
 
   var DEGRADED = "WRITEBACK_WIDGET_BINDING_DEGRADED";
@@ -22,7 +22,7 @@ define([
       return _helpers.failedResult(FAILED, "widgetVis/parameterSetBindingRequested requires a numeric runId");
     }
 
-    var runtimeRoot = _initializeRuntime(_context._KDB);
+    var runtimeRoot = _visRuntime.initializeRuntime(_context._KDB);
     if (typeof runtimeRoot.parameterSetRunId === "number" && payload.runId < runtimeRoot.parameterSetRunId) {
       return _helpers.cancelledResult(payload.runId, runtimeRoot.parameterSetRunId, diagnostics, bound, skipped);
     }
@@ -41,7 +41,7 @@ define([
       }
 
       var readyResult = await _handleWaitUntilContentReady(_context, {
-        type: _actionTypes.WAIT_UNTIL_CONTENT_READY,
+        type: _state.ACTION_TYPES.WAIT_UNTIL_CONTENT_READY,
         widgetId: widgetId,
         payload: { timeoutMs: 3000 }
       });
@@ -61,7 +61,7 @@ define([
       }
 
       var committed = _helpers.readCommittedSettings(_context._KDB, widgetId);
-      if (!_isCompleteSettingsSnapshot(committed)) {
+      if (!_settingsSnapshot.isCompleteSettingsSnapshot(committed)) {
         skipped.push({ widgetId: widgetId, code: FAILED });
         diagnostics.push({
           code: FAILED,
@@ -72,7 +72,7 @@ define([
       }
 
       var applyResult = await _handleApplyStartupSettings.handleApplyStartupSettings(_context, {
-        type: _actionTypes.APPLY_STARTUP_SETTINGS,
+        type: _state.ACTION_TYPES.APPLY_STARTUP_SETTINGS,
         widgetId: widgetId,
         opSeq: _context.ensureOpSeq(widgetId),
         payload: {

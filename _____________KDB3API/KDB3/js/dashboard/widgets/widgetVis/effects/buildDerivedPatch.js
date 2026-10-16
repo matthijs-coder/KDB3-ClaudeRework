@@ -1,12 +1,20 @@
 define([
-  "../state/normalizeMetricIdentity.js",
-  "./reportApplyResult.js",
+  "../state.js",
+  "../results.js",
   "./applyPostRenderCleanup.js",
   "./applyVisualizationProperties.js",
-  "../config/resolveVisualizationBindingConfig.js",
+  "../visTypes.js",
   "../view/sweepLegendCaptions.js",
   "./applyPrognoseSeriesSegmentIndexes.js"
-], function (_normalizeMetricIdentity, _reportApplyResult, _applyPostRenderCleanup, _applyVisualizationProperties, _resolveVisualizationBindingConfig, _sweepLegendCaptions, _applyPrognoseSeriesSegmentIndexes) {
+], function (
+  _state,
+  _results,
+  _applyPostRenderCleanup,
+  _applyVisualizationProperties,
+  _visTypes,
+  _sweepLegendCaptions,
+  _applyPrognoseSeriesSegmentIndexes
+) {
   "use strict";
 
   function isCleanupMode(_input) {
@@ -25,7 +33,7 @@ define([
   }
 
   function buildDerivedPatch(_plan, _applyResult, _input) {
-    var metric = _normalizeMetricIdentity.normalizeMetricIdentity((_input && _input.metric) || {});
+    var metric = _state.normalizeMetricIdentity((_input && _input.metric) || {});
     var settings = (_input && _input.settings) || {};
     var mirrorPatch = (_applyResult && _applyResult.mirrorPatch) || (_plan && _plan.mirrorPatch) || {};
     var derived = {
@@ -64,7 +72,7 @@ define([
   function handleApplyBindingSuccess(_context, _ctx, _input, _plan, _applyResult, _propertyResult) {
     var widgetId = _ctx.widgetId;
     var opSeq = _ctx.opSeq;
-    var normalized = _reportApplyResult({
+    var normalized = _results.reportApplyResult({
       widgetId: widgetId, opSeq: opSeq, payload: _input.payload || {}, control: _input.control,
       applyResult: _applyResult || {},
       propertyDiagnostics: _propertyResult && _propertyResult.diagnostics ? _propertyResult.diagnostics : null
@@ -88,7 +96,7 @@ define([
     _ctx.runtime.lastSuccessfulPlan = _plan;
     var settings = (_input && _input.settings) || {};
     var postRenderVisType = settings.visType
-      || _resolveVisualizationBindingConfig.resolveDefaultVisualizationType(_ctx._KDB);
+      || _visTypes.resolveDefaultVisualizationType(_ctx._KDB);
     try {
       _sweepLegendCaptions(_ctx.runtime, widgetId, {
         widgetId: widgetId,

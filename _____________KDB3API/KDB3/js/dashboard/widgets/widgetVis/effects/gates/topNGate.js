@@ -1,6 +1,6 @@
 define([
   "./blockedResult.js",
-  "../buildTopNHelperListConfig.js",
+  "../../bindingConfig.js",
   "../applyTopNJahrMismatchPin.js",
   "../buildBindingSpec.js",
   "../../../../../core/services/widgetBindingPlan/defaults/normalizeDefaultValue.js",
@@ -8,7 +8,7 @@ define([
   "./topNGateWaiters.js"
 ], function (
   _blockedResult,
-  _buildTopNHelperListConfig,
+  _bindingConfig,
   _applyTopNJahrMismatchPin,
   _buildBindingSpec,
   _normalizeDefaultValue,
@@ -49,7 +49,7 @@ define([
       settings: _settings,
       hierarchySnapshot: _hierarchySnapshot
     }));
-    helperListConfig = _buildTopNHelperListConfig(_context._KDB, partialSpec.dataConfig);
+    helperListConfig = _bindingConfig.resolveTopNHelperListConfig(_context._KDB, partialSpec.dataConfig);
     if (!helperListConfig) {
       return Promise.resolve({
         blocked: true,

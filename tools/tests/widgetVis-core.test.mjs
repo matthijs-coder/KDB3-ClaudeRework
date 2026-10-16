@@ -12,54 +12,34 @@ const W = "dashboard/widgets/widgetVis/";
 const load = (rel, options) => loadAmd(path.join(JS_ROOT, rel), options);
 
 function loadCore() {
-  const identity = load(W + "config/visTypes/resolveVisTypeIdentity.js");
-  const definitions = load(W + "config/visTypes/resolveVisualizationDefinitions.js");
-  const dataTable = load(W + "config/visTypes/resolveDataTableConfig.js");
-  const planConfig = load(W + "config/visTypes/resolvePlanConfig.js");
-  const metricIdentity = load(W + "state/normalizeMetricIdentity.js");
-  const contentReady = load(W + "runtime/contentReady.js");
+  const state = load(W + "state.js");
+  const results = load(W + "results.js");
+  const runtime = load(W + "runtime.js");
   return {
-    ACTION_TYPES: load(W + "config/actionTypes.js"),
-    createWidgetVisReducer: load(W + "state/createWidgetVisReducer.js"),
-    createInitialWidgetVisState: load(W + "state/initialState.js"),
-    cloneState: load(W + "state/cloneSerializable.js"),
-    normalizeMetricIdentity: metricIdentity.normalizeMetricIdentity,
-    resolveMetricFromContentCreatePayload: metricIdentity.resolveMetricFromContentCreatePayload,
-    selectors: load(W + "state/selectors.js"),
-    normalizeDispatchResult: load(W + "actions/normalizeDispatchResult.js"),
-    finalizePipelineResult: load(W + "actions/finalizePipelineResult.js"),
-    reportApplyResult: load(W + "effects/reportApplyResult.js"),
-    isContentReady: contentReady.isContentReady,
-    getContentReadyTimeoutMs: contentReady.getContentReadyTimeoutMs,
-    visTypes: {
-      normalizeVisualizationType: load(W + "config/visTypes/normalizeVisualizationType.js"),
-      readVisualizationsConfig: load(W + "config/visTypes/readVisualizationsConfig.js"),
-      resolveDefaultVisualizationType: definitions.resolveDefaultVisualizationType,
-      resolveVisualizationDefinition: definitions.resolveVisualizationDefinition,
-      resolveVisualizationPropertyValues: definitions.resolveVisualizationPropertyValues,
-      resolveVisualizationLayoutPropertyValues: definitions.resolveVisualizationLayoutPropertyValues,
-      resolveKennzahlDefaults: definitions.resolveKennzahlDefaults,
-      buildKennzahlAggregationFilter: definitions.buildKennzahlAggregationFilter,
-      resolveVisPropBucketKey: identity.resolveVisPropBucketKey,
-      resolveCognosVisualizationTypeId: identity.resolveCognosVisualizationTypeId,
-      resolveVisTypeConfig: identity.resolveVisTypeConfig,
-      resolveDefaultGrain: identity.resolveDefaultGrain,
-      resolveGrainOverlay: identity.resolveGrainOverlay,
-      resolveEffectiveGrain: identity.resolveEffectiveGrain,
-      resolveKennzahlPack: identity.resolveKennzahlPack
-    },
-    bindingConfig: {
-      resolveBindingContext: load(W + "config/visTypes/resolveBindingContext.js"),
-      resolveVisualizationDimensions: dataTable.resolveVisualizationDimensions,
-      resolveDataTableConfig: dataTable.resolveDataTableConfig,
-      resolveSortingConfig: load(W + "config/visTypes/resolveSortingConfig.js"),
-      resolvePlanConfigSnapshots: planConfig.resolvePlanConfigSnapshots,
-      resolveDatasourceIdentity: planConfig.resolveDatasourceIdentity,
-      resolveEmptyDataFilter: planConfig.resolveEmptyDataFilter,
-      resolveTopNHelperListConfig: load(W + "config/visTypes/resolveTopNHelperListConfig.js"),
-      resolveCurrentMetricsDataSource: load(W + "config/visTypes/resolveMetricsDataSource.js")
-    },
+    ACTION_TYPES: state.ACTION_TYPES,
+    createWidgetVisReducer: state.createWidgetVisReducer,
+    createInitialWidgetVisState: state.createInitialWidgetVisState,
+    cloneState: state.cloneState,
+    normalizeMetricIdentity: state.normalizeMetricIdentity,
+    resolveMetricFromContentCreatePayload: state.resolveMetricFromContentCreatePayload,
+    selectors: load(W + "selectors.js"),
+    normalizeDispatchResult: results.normalizeDispatchResult,
+    finalizePipelineResult: results.finalizePipelineResult,
+    reportApplyResult: results.reportApplyResult,
+    isContentReady: runtime.isContentReady,
+    getContentReadyTimeoutMs: runtime.getContentReadyTimeoutMs,
+    visTypes: load(W + "visTypes.js"),
+    bindingConfig: load(W + "bindingConfig.js"),
+    years: load(W + "years.js"),
     readConfirmedJahrYear: load(W + "effects/readConfirmedJahrYear.js")
+  };
+}
+
+function loadShims() {
+  return {
+    actionTypes: load(W + "config/actionTypes.js"),
+    bindingConfigFacade: load(W + "config/resolveVisualizationBindingConfig.js"),
+    visTypeIdentity: load(W + "config/visTypes/resolveVisTypeIdentity.js")
   };
 }
 
@@ -713,6 +693,40 @@ test("resolveBindingContext: derived definition keys equal the visTypes resolver
     assert.deepStrictEqual(ctx.propertyValues, core.visTypes.resolveVisualizationPropertyValues(visualizationType, _KDB));
     assert.deepStrictEqual(ctx.layoutPropertyValues, core.visTypes.resolveVisualizationLayoutPropertyValues(visualizationType, _KDB));
   }
+});
+
+test("years: parseYear first vs last, parseYearFromCell cells, first equals readConfirmedJahrYear", () => {
+  const { years, readConfirmedJahrYear } = loadCore();
+  const texts = [null, "", "  2024  ", "abc", "Jahr 2019 bis 2021", "Jahr 1899 bis 2021", "20221", "12345", 2100, 2101, "x 2101", "1899",
+    "2019/2020/2023"];
+  assert.deepStrictEqual(texts.map((t) => [years.parseYear(t, { match: "first" }), years.parseYear(t, { match: "last" }), years.parseYear(t)]), [
+    [null, null, null], [null, null, null], [2024, 2024, 2024], [null, null, null], [2019, 2021, 2019], [null, 2021, null],
+    [2022, 2022, 2022], [null, null, null], [2100, 2100, 2100], [null, null, null], [null, null, null], [null, null, null], [2019, 2019, 2019]
+  ]);
+  for (const t of texts) assert.equal(years.parseYear(t, { match: "first" }), readConfirmedJahrYear([t]), String(t));
+  const cells = [null, undefined, "", 2020, "2020", " 2021 ", "Jahr 2019 bis 2021", "2019 bis 2021", "12345", "20221", "2101", 1900, 2100,
+    false, 0, "abc", { d: "x", u: "2018" }, { display: "FY 2017" }, { d: "", displayValue: "1899", useValue: "2005" }, {}, { d: 2016 },
+    { use: "bis 2010 und 2012" }];
+  assert.deepStrictEqual(cells.map(years.parseYearFromCell),
+    [null, null, null, 2020, 2020, 2021, 2021, 2019, null, 2022, null, 1900, 2100, null, null, null, 2018, 2017, 2005, null, 2016, 2012]);
+});
+
+test("config shims: same objects and functions as the leaves", () => {
+  const state = load(W + "state.js");
+  const visTypes = load(W + "visTypes.js");
+  const shims = loadShims();
+  assert.equal(load(W + "config/actionTypes.js", { modules: { "../state.js": state } }), state.ACTION_TYPES);
+  assert.deepStrictEqual(json(shims.actionTypes), json(state.ACTION_TYPES));
+  const facade = load(W + "config/resolveVisualizationBindingConfig.js", { modules: { "../visTypes.js": visTypes } });
+  assert.deepStrictEqual(Object.keys(facade), ["resolveVisPropBucketKey"]);
+  assert.equal(facade.resolveVisPropBucketKey, visTypes.resolveVisPropBucketKey);
+  const identityKeys = ["resolveVisPropBucketKey", "resolveCognosVisualizationTypeId", "resolveVisTypeConfig", "resolveDefaultGrain",
+    "resolveGrainOverlay", "resolveEffectiveGrain", "resolveKennzahlPack"];
+  const identity = load(W + "config/visTypes/resolveVisTypeIdentity.js", { modules: { "../../visTypes.js": visTypes } });
+  assert.deepStrictEqual(Object.keys(identity), identityKeys);
+  for (const key of identityKeys) assert.equal(identity[key], visTypes[key], key);
+  assert.deepStrictEqual(Object.keys(shims.visTypeIdentity), identityKeys);
+  assert.equal(shims.bindingConfigFacade.resolveVisPropBucketKey("columnChart", "jahr"), visTypes.resolveVisPropBucketKey("columnChart", "jahr"));
 });
 
 test("widgetDataTable: mount, dispatch, destroy, dispatch after destroy, getState", () => {

@@ -1,12 +1,11 @@
 define([
-  "../config/actionTypes.js",
+  "../state.js",
   "../effects/runBindingPipeline.js",
-  "../runtime/contentReady.js",
-  "./normalizeDispatchResult.js",
-  "./isCompleteSettingsSnapshot.js",
-  "./finalizePipelineResult.js",
+  "../runtime.js",
+  "../results.js",
+  "../settingsSnapshot.js",
   "./handleApplyIteratorZoom.js"
-], function (_actionTypes, _runBindingPipeline, _contentReady, _normalizeDispatchResult, _isCompleteSettingsSnapshot, _finalizePipelineResult, _handleApplyIteratorZoom) {
+], function (_state, _runBindingPipeline, _visRuntime, _results, _settingsSnapshot, _handleApplyIteratorZoom) {
   "use strict";
 
   function resolveSettingsFromSnapshot(_snapshot) {
@@ -53,7 +52,7 @@ define([
     var applySource = resolveApplySource(payload);
 
     if (!applySource) {
-      return Promise.resolve(_normalizeDispatchResult({
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: false,
         widgetId: widgetId,
         opSeq: _action.opSeq,
@@ -63,8 +62,8 @@ define([
       }));
     }
 
-    if (!_isCompleteSettingsSnapshot(payload.settingsSnapshot)) {
-      return Promise.resolve(_normalizeDispatchResult({
+    if (!_settingsSnapshot.isCompleteSettingsSnapshot(payload.settingsSnapshot)) {
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: false,
         widgetId: widgetId,
         opSeq: _action.opSeq,
@@ -74,8 +73,8 @@ define([
       }));
     }
 
-    if (!_contentReady.isContentReady(_context._KDB, widgetId)) {
-      return Promise.resolve(_normalizeDispatchResult({
+    if (!_visRuntime.isContentReady(_context._KDB, widgetId)) {
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: false,
         widgetId: widgetId,
         opSeq: _action.opSeq,
@@ -87,7 +86,7 @@ define([
 
     var settings = resolveSettingsFromSnapshot(payload.settingsSnapshot);
     _context.dispatchInternal({
-      type: _actionTypes.MARK_PENDING,
+      type: _state.ACTION_TYPES.MARK_PENDING,
       widgetId: widgetId,
       payload: { kind: applySource === "historyReplay" ? "historyReplay" : "startup", opSeq: _action.opSeq }
     });
@@ -101,7 +100,7 @@ define([
       metric: payload.metric || _context.readMetric(widgetId),
       settings: settings
     }).then(function (result) {
-      return _finalizePipelineResult(_context, _action, result, {
+      return _results.finalizePipelineResult(_context, _action, result, {
         defaultErrorMessage: "Startup binding pipeline failed.",
         buildReportToSettings: function () {
           return buildBatchReportToSettings(

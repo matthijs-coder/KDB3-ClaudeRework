@@ -1,8 +1,8 @@
 define([
   "./applyPropertyMap.js",
-  "./readVisualizationFacet.js",
-  "../config/visTypes/normalizeVisualizationType.js"
-], function (_applyPropertyMap, _readVisualizationFacet, _normalizeVisualizationType) {
+  "../runtime.js",
+  "../visTypes.js"
+], function (_applyPropertyMap, _visRuntime, _visTypes) {
   "use strict";
 
   var JAHR_COLUMN_ID = "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]";
@@ -19,7 +19,7 @@ define([
   }
 
   function isPrognosePlan(_plan, _settings) {
-    return _normalizeVisualizationType(resolvePlanVisType(_plan, _settings)) === "Prognose";
+    return _visTypes.normalizeVisualizationType(resolvePlanVisType(_plan, _settings)) === "Prognose";
   }
 
   function readSeriesColumnIds(_plan) {
@@ -72,7 +72,7 @@ define([
       if (!Object.keys(propertyMap).length) {
         return { ok: true, skipped: true };
       }
-      facet = _readVisualizationFacet(_KDB);
+      facet = _visRuntime.readHostFacet(_KDB, "visualizationFacet");
       if (!facet || typeof facet.setContentProperty !== "function") {
         console.error("[widgetVis.applyPrognoseSeriesSegmentIndexes] visualizationFacet missing", _widgetId);
         return { ok: true, skipped: true };

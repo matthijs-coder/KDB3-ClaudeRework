@@ -1,13 +1,13 @@
 define([
-  "../../config/actionTypes.js",
-  "../normalizeDispatchResult.js",
+  "../../state.js",
+  "../../results.js",
   "./finalizeCleanupSuccess.js"
-], function (_actionTypes, _normalizeDispatchResult, _finalizeCleanupSuccess) {
+], function (_state, _results, _finalizeCleanupSuccess) {
   "use strict";
 
   function normalizeDecorationCleanupOutcome(_context, _widgetId, _opSeq, _payload, _cleanupResult, _bindingResult) {
     if (_cleanupResult && _cleanupResult.stale === true) {
-      return _normalizeDispatchResult({
+      return _results.normalizeDispatchResult({
         ok: false,
         widgetId: _widgetId,
         opSeq: _opSeq,
@@ -17,7 +17,7 @@ define([
     }
     if (!_cleanupResult || _cleanupResult.ok !== true) {
       _context.dispatchInternal({
-        type: _actionTypes.ERROR_RECORDED,
+        type: _state.ACTION_TYPES.ERROR_RECORDED,
         widgetId: _widgetId,
         payload: {
           errorCode: _cleanupResult && _cleanupResult.errorCode ? _cleanupResult.errorCode : "WIDGET_VIS_CLEANUP_FAILED",
@@ -26,7 +26,7 @@ define([
             : "Visual decoration cleanup failed."
         }
       });
-      return _normalizeDispatchResult(_cleanupResult || {
+      return _results.normalizeDispatchResult(_cleanupResult || {
         ok: false,
         widgetId: _widgetId,
         opSeq: _opSeq,

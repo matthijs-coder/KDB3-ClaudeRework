@@ -1,7 +1,7 @@
 define([
   "../../../../core/config/visualizations/topNHelper.js",
-  "./readWidgetsFacet.js"
-], function (_topNHelperConfig, _readWidgetsFacet) {
+  "../runtime.js"
+], function (_topNHelperConfig, _visRuntime) {
   "use strict";
 
   var STICHTAG_UNAVAILABLE = "WIDGET_TOPN_STICHTAG_UNAVAILABLE";
@@ -40,7 +40,7 @@ define([
       if (!leftoverId) {
         return rejectStichtagUnavailable("NewestStichtag leftover widgetId is unavailable.");
       }
-      widgetsFacet = _readWidgetsFacet(_KDB);
+      widgetsFacet = _visRuntime.readHostFacet(_KDB, "widgetsFacet");
       if (!widgetsFacet || typeof widgetsFacet.renderWidget !== "function") {
         return rejectStichtagUnavailable("widgetsFacet.renderWidget is unavailable.");
       }

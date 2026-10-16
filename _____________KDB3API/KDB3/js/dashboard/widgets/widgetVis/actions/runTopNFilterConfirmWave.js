@@ -1,21 +1,21 @@
 define([
-  "../controllerHelpers.js",
-  "../state/selectors.js",
-  "../state/createWidgetVisReducer.js",
+  "../context.js",
+  "../selectors.js",
+  "../state.js",
   "../effects/resolveWaveTabFromScope.js",
   "../effects/listTopNWaveWidgets.js",
   "../effects/runTopNWaveFanOut.js",
   "../../../tabs/events/eventNames.js",
-  "../runtime/initializeRuntime.js"
+  "../runtime.js"
 ], function (
-  _controllerHelpers,
-  _visSelectors,
-  _createWidgetVisReducer,
+  _visContext,
+  _selectors,
+  _state,
   _resolveWaveTabFromScope,
   _listTopNWaveWidgets,
   _runTopNWaveFanOut,
   _eventNames,
-  _initializeRuntime
+  _visRuntime
 ) {
   "use strict";
 
@@ -63,7 +63,7 @@ define([
   }
 
   function rememberTab(_KDB, _tabId, _payload) {
-    var runtime = _initializeRuntime(_KDB);
+    var runtime = _visRuntime.initializeRuntime(_KDB);
     runtime.pendingTopNWavesByTab = runtime.pendingTopNWavesByTab || {};
     runtime.pendingTopNWavesByTab[_tabId] = {
       scopeType: "pageContext",
@@ -76,7 +76,7 @@ define([
   }
 
   function ensureTabSubscription(_KDB) {
-    var runtime = _initializeRuntime(_KDB);
+    var runtime = _visRuntime.initializeRuntime(_KDB);
     runtime.subscriptions = runtime.subscriptions || {};
     if (runtime.subscriptions.topNFilterWave || !_KDB.events || typeof _KDB.events.subscribe !== "function") {
       return;
@@ -86,7 +86,7 @@ define([
 
   function onTabShown(_KDB, _event) {
     var tabId = _event && _event.tabId;
-    var runtime = _initializeRuntime(_KDB);
+    var runtime = _visRuntime.initializeRuntime(_KDB);
     var stored;
     if (!tabId || !runtime.pendingTopNWavesByTab) { return; }
     stored = runtime.pendingTopNWavesByTab[tabId];
@@ -101,16 +101,16 @@ define([
 
   function buildWaveContext(_KDB) {
     var instance;
-    _controllerHelpers.ensureVisState(_KDB);
-    instance = { _KDB: _KDB, selectors: _visSelectors, reducer: _createWidgetVisReducer(), isDisposed: isNotDisposed };
+    _visContext.ensureVisState(_KDB);
+    instance = { _KDB: _KDB, selectors: _selectors, reducer: _state.createWidgetVisReducer(), isDisposed: isNotDisposed };
     instance.dispatchInternal = dispatchWave.bind(null, instance);
-    return _controllerHelpers.buildContext(instance);
+    return _visContext.buildContext(instance);
   }
 
   function isNotDisposed() { return false; }
 
   function dispatchWave(_instance, _action) {
-    _controllerHelpers.dispatchInternal(_instance, _action);
+    _visContext.dispatchInternal(_instance, _action);
   }
 
   return __controller;

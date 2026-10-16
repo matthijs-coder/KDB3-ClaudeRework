@@ -1,8 +1,7 @@
 define([
-  "../runtime/ensureWidgetRuntime.js",
-  "../runtime/contentReady.js",
-  "./normalizeDispatchResult.js"
-], function (_ensureWidgetRuntime, _contentReady, _normalizeDispatchResult) {
+  "../runtime.js",
+  "../results.js"
+], function (_visRuntime, _results) {
   "use strict";
 
   function handleWaitUntilContentReady(_context, _action) {
@@ -12,7 +11,7 @@ define([
       var _KDB = _context._KDB;
 
       if (_context.isDisposed) {
-        return Promise.resolve(_normalizeDispatchResult({
+        return Promise.resolve(_results.normalizeDispatchResult({
           ok: false,
           widgetId: widgetId,
           status: "error",
@@ -21,25 +20,25 @@ define([
         }));
       }
 
-      if (_contentReady.isContentReady(_KDB, widgetId)) {
-        return Promise.resolve(_normalizeDispatchResult({ ok: true, widgetId: widgetId, ready: true }));
+      if (_visRuntime.isContentReady(_KDB, widgetId)) {
+        return Promise.resolve(_results.normalizeDispatchResult({ ok: true, widgetId: widgetId, ready: true }));
       }
 
-      var runtime = _ensureWidgetRuntime(_KDB, widgetId);
+      var runtime = _visRuntime.ensureWidgetRuntime(_KDB, widgetId);
       runtime.pendingPromises = runtime.pendingPromises || {};
       var existing = runtime.pendingPromises.contentReady;
       if (existing && existing.promise) {
-        return existing.promise.then(_normalizeDispatchResult);
+        return existing.promise.then(_results.normalizeDispatchResult);
       }
 
-      var timeoutMs = _contentReady.getContentReadyTimeoutMs(payload);
+      var timeoutMs = _visRuntime.getContentReadyTimeoutMs(payload);
       var settle = null;
       var promise = new Promise(function (resolve) {
         settle = resolve;
       });
 
       var timerId = setTimeout(function () {
-        _contentReady.clearContentReadyPending(runtime);
+        _visRuntime.clearContentReadyPending(runtime);
         settle({
           ok: false,
           widgetId: widgetId,
@@ -55,14 +54,14 @@ define([
         timerId: timerId
       };
 
-      if (_contentReady.isContentReady(_KDB, widgetId)) {
-        _contentReady.resolveContentReadyWaiters(_KDB, widgetId);
+      if (_visRuntime.isContentReady(_KDB, widgetId)) {
+        _visRuntime.resolveContentReadyWaiters(_KDB, widgetId);
       }
 
-      return promise.then(_normalizeDispatchResult);
+      return promise.then(_results.normalizeDispatchResult);
     } catch (err) {
       console.error("[widgetVis.handleWaitUntilContentReady] failed", _action && _action.widgetId, err);
-      return Promise.resolve(_normalizeDispatchResult({
+      return Promise.resolve(_results.normalizeDispatchResult({
         ok: false,
         widgetId: _action.widgetId,
         status: "error",

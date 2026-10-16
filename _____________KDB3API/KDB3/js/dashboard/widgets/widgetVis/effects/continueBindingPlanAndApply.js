@@ -1,10 +1,10 @@
 define([
   "./buildBindingSpec.js",
   "./buildDerivedPatch.js",
-  "../config/resolveVisualizationBindingConfig.js",
+  "../config.js",
   "../view/resolveLegendQueryRoot.js",
   "../view/legend/installLegendTextObserver.js"
-], function (_buildBindingSpec, _buildDerivedPatch, _resolveVisualizationBindingConfig, _resolveLegendQueryRoot, _installLegendTextObserver) {
+], function (_buildBindingSpec, _buildDerivedPatch, _config, _resolveLegendQueryRoot, _installLegendTextObserver) {
   "use strict";
 
   function isCleanupMode(_input) {
@@ -80,7 +80,7 @@ define([
       target: { widgetId: widgetId, targetKind: "vis", ownerWidgetId: null, opSeq: opSeq, reason: plan.reason },
       signal: _ctx.abortController.signal,
       previousManagedFilterItemIds: _ctx.runtime.managedFilterItemIds || [],
-      timeoutProfile: _resolveVisualizationBindingConfig.applyTimeoutProfile
+      timeoutProfile: _config.applyTimeoutProfile
     };
     if (_input && _input.payload && _input.payload.deferRenderWait === true) {
       applyOptions.renderWait = { waitForStart: false, waitForComplete: false };
