@@ -120,6 +120,15 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Start dragging, press **Esc**. Expected: the drag cancels cleanly, no ghost image, widget stays.
 - [ ] Console: `window.top.getKDB().utils.readCurrentTab` exists while open; after close/reopen it still works (not patched twice).
 
+#### F2 dragDrop + pageSurface
+- [ ] Drag a **visualization** from the toolbox/metrics tree onto the **first** tab, a **lazily loaded** tab (never opened in this session) and the **last** tab. Expected: the drop creates the widget at the pointer position on each; the page highlights (`kdb_drag-over`) while hovering.
+- [ ] Same with a **comment** (text) from the toolbox. Expected: text widget created on each of the three tabs.
+- [ ] Start a drag and press **Esc** (or release outside a tab). Expected: the avatar is gone, the page no longer shows the layout grid (`KDB_absoluteLayoutGrid`), nothing is highlighted. Console: `getEventListeners(document).dragover` has no KDB entry left.
+- [ ] Switch tabs several times, then DevTools console `$$('[kdb_dropbox="true"]')`. Expected: every opened dashboard tab has exactly one bound dropbox and the helper tab has none; Elements -> Event Listeners on a bound page shows 4 drag listeners (`dragenter`, `dragover`, `dragleave`, `drop`) that stay the same objects after a tab switch (no remove + re-add).
+- [ ] Drop onto the helper tab and on a tab bar area outside a page. Expected: no widget; the warning toast for the helper tab appears like on baseline.
+- [ ] Destroy + re-mount (close/reopen the KDB3 widget). Expected: `document.getElementById("KDB_dragAvatarTemplates")` is `null` after destroy (no stale avatar templates), drag and drop works again after re-mount, and listener counts on `document` do not grow.
+- [ ] Page size and background (kdbControl settings: dashboard width, height, background colour): change each once before and after the canvas is ready (right after load). Expected: the page size and colour follow, same as baseline; undo/redo of dashboard settings re-applies them.
+
 ### WS-G kdbControl (control primitives)
 - [ ] In a widget settings panel / header editor: colour inputs (typing a hex value, picking from the palette), palette closes on outside-click, toggle switches (Ein/Aus) and radios work as on baseline.
 - [ ] Close/reopen the dashboard, then `getEventListeners(document).mousedown.length` is the same as after a first boot (no extra listener).
