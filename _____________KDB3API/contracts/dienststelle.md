@@ -862,8 +862,8 @@ dashboard/filters/dienststelle/
   index.js                                            registerDienststelle
   selectors.js                                        readDienststelleState, readActiveDienststelleContext, readDienststelleSnapshot
   state.js                                            ACTIONS, createInitialState, reduceDienststelle, copyValueEntries
-  tabMutation.js                                      isTabMutationAction, disposedResult, routeTabMutationAction
-  tabMutationScopes.js                                guardRun, isStale, cancelled, readSnapshot, deleteSnapshot, failed, pushUnique, ...
+  tabMutation.js                                      isTabMutationAction, disposedResult, routeTabMutationAction (apply operations and restore walk; envelopes from _core/tabMutation.js)
+  tabMutationScopes.js                                tabMutationBase, isStale, prepareTabMutation, resolveScopeIdForSlot, per-filter host writes (guard, prepare envelope and results from _core/tabMutation.js)
   effects/
     alignedDisplays.js                                extractUseValues, extractDisplayValues, collectAlignedHostDisplays, uniqueAlignedUseDisplayValues
     dispatchRoute.js                                  routeDienststelleDispatch (the filterDock handoff is mapped by a profile over _core/dockHandoff.js mapDockHandoff)
