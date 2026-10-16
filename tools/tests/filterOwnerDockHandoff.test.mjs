@@ -97,6 +97,16 @@ const RAW = {
   special_conditionFallback: { filterType: "specialSingleSelect", condition: "Personengruppe", filterLabel: "L", scopeId: 0 },
   special_byLabel: { filterType: "specialSingleSelect", filterLabel: "Dienststellenleitung", filterConfig: { a: 1 }, timestamp: 3, observedAt: 5 },
   special_unresolved: { filterType: "specialSingleSelect", filterId: "other", filterLabel: "Other" },
+  special_keyScope_filterScopeOnly: { filterType: "specialSingleSelect", filterLabel: "Dienststellenleitung", filterScope: "pageContext" },
+  special_keyScope_scopeTypeOnly: { filterType: "specialSingleSelect", filterLabel: "Dienststellenleitung", scopeType: "pageContext" },
+  special_keyScope_both: { filterType: "specialSingleSelect", filterLabel: "Personengruppe", filterScope: "pageContext", scopeType: "global" },
+  special_keyScope_conditionOnly: { filterType: "specialSingleSelect", capabilities: { condition: "Personengruppe" }, filterScope: "pageContext" },
+  keys_pageScopeLabel: { filterType: "singleSelect", filterScope: "pageContext", filterLabel: "Geschlecht" },
+  keys_scopeTypeLabel: { filterType: "sicht", scopeType: "pageContext", filterLabel: "Sicht" },
+  time_observedAtNull: { filterType: "dienststelle", observedAt: null, timestamp: 5 },
+  time_observedAtEmpty: { filterType: "dienststelle", observedAt: "", timestamp: 5 },
+  time_observedAtString: { filterType: "sicht", observedAt: "7" },
+  time_timestampString: { filterType: "singleSelect", timestamp: "7", observedAt: 3 },
   full_singleSelect: {
     filterType: "singleSelect", filterId: "F", filterKey: "K", filterLabel: "Geschlecht", filterScope: "pageContext", scopeType: "pageContext",
     scopeId: "tab1", scope: "tab1", scopeResolution: "pageContext", tabId: "tab1", filterInstanceId: "I", itemNameHint: "Geschlecht", itemIdHint: "[g]",
@@ -199,6 +209,17 @@ test("filterDock handoff: every owner maps the raw matrix as recorded on the pre
   }
 });
 
+test("filterDock handoff: filterConfig is shared by reference for singleSelect and sicht, copied for dienststelle and specialSingleSelect", async () => {
+  const owners = loadOwners();
+  const shared = { singleSelect: true, sicht: true, dienststelle: false, specialSingleSelect: false };
+  for (const [ownerName, isShared] of Object.entries(shared)) {
+    const raw = FORCED_BY_OWNER[ownerName] ? FORCED_BY_OWNER[ownerName]({ filterConfig: { a: 1 } }) : { filterType: "singleSelect", filterConfig: { a: 1 } };
+    const mapped = await owners[ownerName](raw);
+    assert.deepEqual(mapped.filterConfig, { a: 1 }, ownerName);
+    assert.equal(mapped.filterConfig === raw.filterConfig, isShared, ownerName);
+  }
+});
+
 test("filterDock handoff: the matrix reaches every accept/reject branch of the four mappers", async () => {
   const actual = await mapAll();
   const nullCount = (owner) => Object.values(actual[owner]).filter((v) => v === null).length;
@@ -217,4 +238,8 @@ test("filterDock handoff: the matrix reaches every accept/reject branch of the f
   assert.equal(actual.sicht.typeOnly_sicht.scopeId, "global");
   assert.equal(actual.dienststelle.time_observedAtZero.timestamp, 0);
   assert.equal(actual.singleSelect.time_timestampZero.timestamp, 7);
+  assert.equal(actual.specialSingleSelect.special_keyScope_filterScopeOnly.filterKey, "global__Dienststellenleitung");
+  assert.equal(actual.specialSingleSelect.special_keyScope_scopeTypeOnly.filterKey, "pageContext__Dienststellenleitung");
+  assert.equal(actual.specialSingleSelect.special_keyScope_both.filterKey, "global__Personengruppe");
+  assert.equal(actual.singleSelect.keys_pageScopeLabel.filterKey, "pageContext__Geschlecht");
 });
