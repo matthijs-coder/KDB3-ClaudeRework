@@ -96,6 +96,7 @@ define(["./propertyDefinitions.js"], function (_definitions) {
 
   return {
     loadProperties: loadProperties,
+    readPropertyValue: readPropertyValue,
     readToggleProperty: readToggleProperty
   };
 });
