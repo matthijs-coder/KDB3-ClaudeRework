@@ -8,7 +8,17 @@ define([
   "../waitForPageContextHost.js",
   "./dispatchDienststelleRestore.js",
   "./dispatchSpecialSingleSelectRestore.js"
-], function (_constants, _errorCodes, _filterTargets, _filterGeneration, _dispatchFilterClearPhases, _buildAllowedClearTabIdxs, _waitForPageContextHost, _dispatchDienststelleRestore, _dispatchSpecialSingleSelectRestore) {
+], function (
+  _constants,
+  _errorCodes,
+  _filterTargets,
+  _filterGeneration,
+  _dispatchFilterClearPhases,
+  _buildAllowedClearTabIdxs,
+  _waitForPageContextHost,
+  _dispatchDienststelleRestore,
+  _dispatchSpecialSingleSelectRestore
+) {
   "use strict";
 
   // §6 steps 15-22 / §6.3 filter dispatch table. Runs only when filt is present.
