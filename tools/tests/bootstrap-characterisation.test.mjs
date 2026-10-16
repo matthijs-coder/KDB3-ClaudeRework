@@ -137,32 +137,44 @@ test('replay handlers: the first bind already sees every contribution (mount-tim
   assert.equal(h.log[firstBind], 'replay.bind:' + REPLAY_KEYS_IN_ORDER.join(','));
 });
 
-test('render() twice, sequentially: the second call re-runs register and mount', async () => {
+test('render() twice, sequentially: the second call returns the first promise and runs nothing again', async () => {
   const h = createHarness({ props: { loadingImage: true } });
   const kdb = h.createKdb();
   const first = kdb.renderKDB({});
   assert.equal(await first, true);
-  const second = kdb.renderKDB({});
-  // DELTA (render gate commit): second === first, nothing runs again.
-  assert.notEqual(second, first);
+  const logged = h.log.length;
+  const second = kdb.renderKDB({ parent: { id: 'other' } });
+  assert.equal(second, first);
   assert.equal(await second, true);
-  assert.equal(countOf(h.log, 'register:header'), 2);
-  assert.equal(countOf(h.log, 'register:services'), 2);
-  assert.equal(countOf(h.log, 'mount:header:{}'), 2);
-  assert.equal(countOf(h.log, 'mount:filterDock:{}'), 2);
-  assert.equal(countOf(h.log, 'loading.start:kdb-root-loading-animation-mount'), 2);
+  assert.equal(h.log.length, logged);
+  assert.equal(countOf(h.log, 'register:header'), 1);
+  assert.equal(countOf(h.log, 'register:services'), 1);
+  assert.equal(countOf(h.log, 'mount:header:{}'), 1);
+  assert.equal(countOf(h.log, 'mount:filterDock:{}'), 1);
+  assert.equal(countOf(h.log, 'loading.start:kdb-root-loading-animation-mount'), 1);
 });
 
-test('render() twice, concurrently: both runs execute in full', async () => {
+test('render() twice, concurrently: one run', async () => {
   const h = createHarness();
   const kdb = h.createKdb();
   const first = kdb.renderKDB({});
   const second = kdb.renderKDB({});
-  // DELTA (render gate commit): second === first.
-  assert.notEqual(second, first);
+  assert.equal(second, first);
   assert.deepEqual(await Promise.all([first, second]), [true, true]);
-  assert.equal(countOf(h.log, 'register:header'), 2);
-  assert.equal(countOf(h.log, 'mount:header:{}'), 2);
+  assert.equal(countOf(h.log, 'register:header'), 1);
+  assert.equal(countOf(h.log, 'mount:header:{}'), 1);
+});
+
+test('render() from getAPI() twice returns the same promise; a failed first render stays failed', async () => {
+  const h = createHarness({ failMount: 'tabs' });
+  const kdb = h.createKdb();
+  const api = kdb.getAPI();
+  const first = api.render({});
+  assert.equal(api.render({}), first);
+  assert.equal(await first, false);
+  assert.equal(kdb.renderKDB({}), first);
+  assert.equal(countOf(h.log, 'register:header'), 1);
+  assert.equal(h.alerts.length, 1);
 });
 
 test('render() after destroy: warns and returns false without registering anything', async () => {
@@ -210,19 +222,32 @@ test('destroy while render waits for the cubes dialog: no mounts, no loading fin
   assert.equal(await rendering, false);
   assert.deepEqual(h.log, []);
   assert.equal(kdb.state.rootLifecycle.lifecycle, 'disposed');
-  assert.equal(h.consoleCalls.warn.some((entry) => entry[0] === '[core.startModules] called after destroy'), true);
+  assert.deepEqual(h.consoleCalls.warn.map((entry) => entry[0]), ['[core.renderKDB] destroyed during render, stopped after cubes dialog']);
 });
 
-test('destroy right after render() started (before setupCore resumes)', async () => {
+test('destroy right after render() started: the cubes dialog is not presented, nothing mounts or finishes', async () => {
   const h = createHarness({ props: { loadingImage: true } });
   const kdb = h.createKdb();
   const rendering = kdb.renderKDB({});
   kdb.destroy();
   assert.equal(await rendering, false);
   assert.equal(h.log.some((line) => line.startsWith('mount:')), false);
+  assert.equal(h.log.includes('loading.start:kdb-root-loading-animation-mount'), false);
   assert.equal(h.log.includes('loading.finish:kdb-root-loading-animation-mount'), false);
-  // DELTA (render gate commit): the cubes dialog is no longer presented on a destroyed instance.
-  assert.equal(h.log.includes('homeDialog.presentCubesUnavailable'), true);
+  assert.equal(h.log.includes('homeDialog.presentCubesUnavailable'), false);
+  assert.equal(kdb.state.rootLifecycle.lifecycle, 'disposed');
+  assert.deepEqual(h.consoleCalls.warn.map((entry) => entry[0]), ['[core.renderKDB] destroyed during render, stopped after setupCore']);
+});
+
+test('destroy during a failing mount sequence does not overwrite "disposed" with "error"', async () => {
+  const gate = deferred();
+  const h = createHarness({ failMount: 'header', cubesGate: gate });
+  const kdb = h.createKdb();
+  const rendering = kdb.renderKDB({});
+  await flush();
+  kdb.destroy();
+  gate.resolve();
+  assert.equal(await rendering, false);
   assert.equal(kdb.state.rootLifecycle.lifecycle, 'disposed');
 });
 

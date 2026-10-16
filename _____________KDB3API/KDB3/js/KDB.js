@@ -16,6 +16,12 @@ define([
     _KDB.cognosAPI = null;
   }
 
+  // destroy() already lifted the boot overlay and tore the modules down: nothing is mounted or finished.
+  function abandonDisposedRender(_step) {
+    console.warn("[core.renderKDB] destroyed during render, stopped after " + _step);
+    return false;
+  }
+
   class KDB {
     constructor(_options) {
       this.state = { rootLifecycle: _rootLifecycle.createInitialRootLifecycle() };
@@ -25,6 +31,7 @@ define([
       this.utils = {}; this.cognosAPI = {}; this.data = {};
       this._isDisposed = false;
       this._teardownComplete = false;
+      this._renderPromise = null;
       this.version = "2026.10.16 HH03.30";
     }
 
@@ -71,25 +78,42 @@ define([
       }
     }
 
-    async renderKDB(_renderOptions) {
+    // One render per instance: a second call (for example render() from the console, or a host re-render)
+    // returns the first call's promise and registers or mounts nothing again. A new open creates a new instance.
+    renderKDB(_renderOptions) {
+      if (this._isDisposed) {
+        console.warn("[core.renderKDB] called after destroy");
+        return Promise.resolve(false);
+      }
+      if (!this._renderPromise) {
+        this._renderPromise = this._runRender(_renderOptions);
+      }
+      return this._renderPromise;
+    }
+
+    async _runRender(_renderOptions) {
       // The loading handle lives outside the try so the failure path can lift the boot overlay
       // through the same finishLoading chain as the success path.
       let rootLoadingHandle = null;
       try {
-        if (this._isDisposed) { console.warn("[core.renderKDB] called after destroy"); return false; }
         setRootLifecycle(this, "initializing");
         await this.setupCore();
+        if (this._isDisposed) { return abandonDisposedRender("setupCore"); }
         if (this.properties.KDBReadyToggle !== true) {
           console.warn("[core.renderKDB] KDBReadyToggle is not true; halt before modules");
           return false;
         }
         rootLoadingHandle = await this.startDashboardInitialization();
+        if (this._isDisposed) { return abandonDisposedRender("startDashboardInitialization"); }
         await _renderSupport.awaitCubesUnavailableHomeDialog(this);
+        if (this._isDisposed) { return abandonDisposedRender("cubes dialog"); }
         await this.startModules(_renderOptions);
+        if (this._isDisposed) { return abandonDisposedRender("startModules"); }
         _renderSupport.scheduleChromeCapabilityFlush(this);
         return await this.finishDashboardInitialization(rootLoadingHandle);
       } catch (error) {
         console.error("[core.renderKDB] failed", error);
+        if (this._isDisposed) { return false; }
         setRootLifecycle(this, "error", error);
         _renderSupport.reportRenderFailure(this, rootLoadingHandle, error);
         return false;
