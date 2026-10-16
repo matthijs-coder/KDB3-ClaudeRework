@@ -3,9 +3,9 @@ define([
   "./bindTabRenameEditSession.js",
   "./syncTabsDomFromState.js",
   "./syncTabsKdbControlReadView.js",
-  "../history/pushTabsRenameHistoryStep.js",
+  "../history.js",
   "../slots.js"
-], function (_actionTypes, _bindTabRenameEditSession, _syncTabsDomFromState, _syncTabsKdbControlReadView, _pushTabsRenameHistoryStep, _slots) {
+], function (_actionTypes, _bindTabRenameEditSession, _syncTabsDomFromState, _syncTabsKdbControlReadView, _history, _slots) {
   "use strict";
 
   async function applyTabsRenameEffects(_ctx, _action) {
@@ -53,7 +53,7 @@ define([
       const confirmedName = await _ctx.adapter.setTabName({ pageId: titleId }, payload.name);
       const resolvedName = confirmedName || payload.name;
       _ctx.dispatch({ type: _actionTypes.RENAME, payload: Object.assign({}, payload, { pageId: titleId, phase: "confirmed", confirmedName: resolvedName, errorCode: null, errorMessage: null }) });
-      _pushTabsRenameHistoryStep(_ctx._KDB, payload, previousName, resolvedName);
+      _history.pushRenameHistoryStep(_ctx._KDB, payload, previousName, resolvedName);
       if (payload.isHistoryReplay !== true) {
         _bindTabRenameEditSession.cleanupTabRenameEditSession(_ctx._KDB);
       }

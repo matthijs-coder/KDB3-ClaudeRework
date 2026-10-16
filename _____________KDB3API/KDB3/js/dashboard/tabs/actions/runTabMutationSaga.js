@@ -2,16 +2,14 @@
 define([
   "../config/actionTypes.js",
   "../config/mutationCodes.js",
-  "./guardTabMutation.js",
   "../state/buildMutationResult.js",
   "./runTabMutationOwnerPhases.js",
   "../effects/dispatchOwnerTabMutation.js",
   "../effects/applyTabMutationToCognos.js",
-  "../history/pushTabsMoveHistoryStep.js",
-  "../history/pushTabsDeleteHistoryStep.js",
-  "../history/pushTabsDuplicateHistoryStep.js",
-  "../effects/formatTabMutationCaption.js"
-], function (_actionTypes, _codes, _guard, _buildResult, _ownerPhases, _dispatchOwner, _applyToCognos, _pushTabsMoveHistoryStep, _pushTabsDeleteHistoryStep, _pushTabsDuplicateHistoryStep, _formatTabMutationCaption) {
+  "../history.js",
+  "../effects/formatTabMutationCaption.js",
+  "../../../core/utils/kit/data.js"
+], function (_actionTypes, _codes, _buildResult, _ownerPhases, _dispatchOwner, _applyToCognos, _history, _formatTabMutationCaption, _data) {
   "use strict";
 
   async function runTabMutationSaga(_ctx, _action, _runId, _options) {
@@ -41,7 +39,7 @@ define([
       if (plan.operation === "delete" && payload.widgetRebuild !== true && payload.isHistoryReplay !== true) {
         runContext.deleteRollbackByTabId = prepare.byOwner.widgetBase.rollbackByTabId;
       }
-      if (plan.operation === "move" && payload.isHistoryReplay !== true && isPlainObject(payload.serializedByTabId) !== true) {
+      if (plan.operation === "move" && payload.isHistoryReplay !== true && _data.isPlainObject(payload.serializedByTabId) !== true) {
         runContext.moveRollbackByTabId = prepare.byOwner.widgetBase.rollbackByTabId;
       }
       captureDeleteHistorySlices(plan, payload, prepare, runContext);
@@ -62,13 +60,11 @@ define([
       var cognos = await _applyToCognos(_ctx, plan, runContext);
       phases.cognosSync = { status: cognos.status === "degraded" ? "degraded" : "ok", diagnostics: cognos.diagnostics || [] };
       phases.hostResync = await _ownerPhases.resyncOwners(_ctx, _ownerPhases.RESYNC_OWNERS, "resyncTabMutationHost", plan, runContext);
-      _guard.release(_ctx, null);
+      _options.releaseRun();
       _ownerPhases.emitFinalTabsChanged(_ctx, plan);
       phases.finalize = _ownerPhases.ok();
       var result = _buildResult(plan.operationId, phases);
-      _pushTabsMoveHistoryStep(_ctx._KDB, plan, payload, result, runContext);
-      _pushTabsDeleteHistoryStep(_ctx._KDB, plan, payload, result, runContext);
-      _pushTabsDuplicateHistoryStep(_ctx._KDB, plan, payload, result, runContext);
+      _history.pushTabMutationHistoryStep(_ctx._KDB, plan, payload, result, runContext);
       _ownerPhases.clearTabMutationSnapshots(_ctx, plan.operationId);
       return result;
     } finally {
@@ -76,22 +72,14 @@ define([
     }
   }
 
-  function isPlainObject(value) {
-    return !!value && typeof value === "object" && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype;
-  }
-
   function captureDeleteHistorySlices(plan, payload, prepare, runContext) {
-    try {
-      if (plan.operation !== "delete" || payload.isHistoryReplay === true) { return; }
-      var byOwner = prepare.byOwner || {};
-      runContext.deleteHistorySlices = {
-        singleSelect: byOwner.singleSelect && byOwner.singleSelect.historySlice,
-        dienststelle: byOwner.dienststelle && byOwner.dienststelle.historySlice,
-        nativeMultiSelect: byOwner.nativeMultiSelect && byOwner.nativeMultiSelect.historySlice
-      };
-    } catch (err) {
-      console.error("[tabs.captureDeleteHistorySlices] failed", err);
-    }
+    if (plan.operation !== "delete" || payload.isHistoryReplay === true) { return; }
+    var byOwner = prepare.byOwner || {};
+    runContext.deleteHistorySlices = {
+      singleSelect: byOwner.singleSelect && byOwner.singleSelect.historySlice,
+      dienststelle: byOwner.dienststelle && byOwner.dienststelle.historySlice,
+      nativeMultiSelect: byOwner.nativeMultiSelect && byOwner.nativeMultiSelect.historySlice
+    };
   }
 
   return runTabMutationSaga;

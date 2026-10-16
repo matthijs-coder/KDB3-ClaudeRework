@@ -1,7 +1,7 @@
 define([
   "../config/defaults.js",
   "../config/selectors.js",
-  "./tabEditIconActions.js"
+  "../editIconActions.js"
 ], function (_defaults, _selectors, _iconActions) {
   "use strict";
 
