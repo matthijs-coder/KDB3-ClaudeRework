@@ -5,14 +5,16 @@
  * `step.old`, redo applies `step.new`; only a strict `true` counts as success. Handlers receive a copy of the
  * stored step, so they cannot change history by mutating it.
  */
-define(["../../utils/kit/data.js", "./events/eventNames.js"], function (_data, _eventNames) {
+define(["../../utils/kit/data.js", "./config.js", "./events/eventNames.js"], function (_data, _config, _eventNames) {
   "use strict";
 
-  // German user-facing text; moves to config.labels.de in Phase 2.
-  const REPLAY_FAILED_MESSAGES = {
-    undo: "Rückgängig machen ist fehlgeschlagen; die Änderung wurde nicht zurückgenommen.",
-    redo: "Wiederholen ist fehlgeschlagen; die Änderung wurde nicht erneut angewendet.",
-  };
+  const REPLAY_FAILED_LABEL_KEYS = { undo: "replayFailedUndo", redo: "replayFailedRedo" };
+
+  function readReplayFailedMessage(_KDB, direction) {
+    const key = REPLAY_FAILED_LABEL_KEYS[direction];
+    const labels = _KDB && _KDB.config && _KDB.config.labels && _KDB.config.labels.de ? _KDB.config.labels.de.history : null;
+    return labels && typeof labels[key] === "string" ? labels[key] : _config.historyLabels[key];
+  }
 
   function readHistoryRuntime(_KDB) {
     return _KDB && _KDB.runtime ? _KDB.runtime.history : null;
@@ -101,7 +103,7 @@ define(["../../utils/kit/data.js", "./events/eventNames.js"], function (_data, _
       return;
     }
     try {
-      messageService.notify({ severity: "error", message: REPLAY_FAILED_MESSAGES[direction] });
+      messageService.notify({ severity: "error", message: readReplayFailedMessage(_KDB, direction) });
     } catch (error) {
       console.warn("[historyService.runReplay] failure message failed", error);
     }

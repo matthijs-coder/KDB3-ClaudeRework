@@ -87,22 +87,11 @@ define([
     return publicApi;
   }
 
-  function notifyAuthoringIfMounted(_KDB) {
-    var runtimeAuthoring = _KDB.runtime && _KDB.runtime.authoring;
-    var pending = runtimeAuthoring && runtimeAuthoring.pendingDashboardFacetStamp;
-    if (typeof pending === "function") {
-      pending();
-    }
-  }
-
   function registerCognosHost(_KDB) {
     _KDB.services = _KDB.services || {};
     if (!_KDB.services.cognosHost) {
       _KDB.services.cognosHost = createCognosHostService(_KDB);
     }
-    // Authoring boots before this factory in KDB.js setupCoreFactories.
-    // After-create handshake: stamp + subscribe if authoring already mounted.
-    notifyAuthoringIfMounted(_KDB);
     return _KDB.services.cognosHost;
   }
 

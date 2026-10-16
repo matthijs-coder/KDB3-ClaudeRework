@@ -3,16 +3,18 @@
 // function parameters of the module wrapper, so they never leak into globalThis.
 import path from 'node:path';
 import vm from 'node:vm';
-import { readSource } from './amd-graph.mjs';
+import { JS_ROOT, readSource } from './amd-graph.mjs';
 
 const SPECIAL = new Set(['require', 'exports', 'module']);
 
-export function loadAmd(absPath, { stubs = {}, modules = {} } = {}) {
+export function loadAmd(absPath, { stubs = {}, modules = {}, overrides = {} } = {}) {
+  const overrideByPath = new Map(Object.entries(overrides).map(([rel, value]) => [path.resolve(JS_ROOT, rel), value]));
   const cache = new Map();
   const loading = new Set();
   const globalNames = Object.keys(stubs);
 
   function evaluate(abs) {
+    if (overrideByPath.has(abs)) return overrideByPath.get(abs);
     if (cache.has(abs)) return cache.get(abs).exports;
     if (loading.has(abs)) throw new Error(`loadAmd: circular dependency at ${abs}`);
     loading.add(abs);

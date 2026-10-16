@@ -384,7 +384,7 @@ Step failure mapping:
 | Code | Meaning |
 |---|---|
 | `WIDGET_BINDING_APPLY_DISPOSED` | Public async method was called after `destroy()`. |
-| `WIDGET_BINDING_APPLY_INVALID_INPUT` | Missing `_KDB`, target, signal, widget id, or required option shape. |
+| `WIDGET_BINDING_APPLY_INVALID_INPUT` | Missing `_KDB`, target, signal, widget id, or required option shape; a signal without `addEventListener`/`removeEventListener` is rejected before any Cognos call. |
 | `WIDGET_BINDING_APPLY_INVALID_PLAN` | Plan is missing, not successful, or lacks required datasource/visualization/slot/filter shape. |
 | `WIDGET_BINDING_APPLY_COGNOS_SURFACE_MISSING` | Required `_KDB.cognosAPI.widgets.*` wrapper is unavailable. |
 | `WIDGET_BINDING_APPLY_GET_VIS_TYPE_FAILED` | Current visType read failed. |
