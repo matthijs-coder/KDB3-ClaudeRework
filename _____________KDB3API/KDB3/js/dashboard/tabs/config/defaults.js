@@ -1,8 +1,8 @@
-define([], function () {
+define(["../../../core/utils/tabSlots.js"], function (_tabSlots) {
   "use strict";
 
   return {
-    MAX_USER_TABS: 5,
+    MAX_USER_TABS: _tabSlots.MAX_USER_TABS,
     HELPER_TAB_INDEX: 5,
     MIN_VISIBLE_USER_TABS: 1,
     VISIBLE_CLASS: "KDB_visible",

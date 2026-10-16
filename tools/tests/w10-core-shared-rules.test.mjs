@@ -117,3 +117,24 @@ test("core/events/tabs.js holds the recorded values and the tabs paths re-export
   const events = loadAmd(path.join(JS_ROOT, "dashboard/tabs/events/eventNames.js"), { overrides: { "core/events/tabs.js": vocabulary } });
   assert.strictEqual(events, vocabulary.EVENTS);
 });
+
+test("core/utils/tabSlots.js answers like the recorded tabs rules; tabs and writeback delegate to it", () => {
+  const expected = JSON.parse(fs.readFileSync(GOLDEN, "utf8"));
+  const core = at("core/utils/tabSlots.js");
+  assert.equal(core.MAX_USER_TABS, expected.tabLimits.MAX_USER_TABS);
+  const answers = [];
+  TAB_SHAPES.forEach((shape, shapeIndex) => STATES.forEach((state, stateIndex) => answers.push([shapeIndex, stateIndex, core.isDashboardTab(shape, state)])));
+  assert.deepStrictEqual(answers, expected.isDashboardTab);
+  const world = tabsWorld();
+  const matches = [];
+  SCOPE_IDS.forEach((scopeId, scopeIndex) => LIVE_TARGETS.forEach((targets, targetIndex) => {
+    matches.push([scopeIndex, targetIndex, json(core.matchTabScope(world.state.tabs, scopeId, targets))]);
+  }));
+  assert.deepStrictEqual(matches, expected.scopeMatch.filter((entry) => typeof entry[0] === "number"));
+  assert.deepStrictEqual(json(core.matchTabScope(undefined, "tab0", { 0: { scopeId: "tab0" } })), expected.scopeMatch.find((entry) => entry[0] === "no state")[2]);
+  const shared = { overrides: { "core/utils/tabSlots.js": core } };
+  assert.strictEqual(loadAmd(path.join(JS_ROOT, "dashboard/tabs/slots.js"), shared).isDashboardTab, core.isDashboardTab);
+  assert.strictEqual(loadAmd(path.join(JS_ROOT, "dashboard/tabs/slots.js"), shared).listDashboardSlots, core.listDashboardSlots);
+  assert.strictEqual(loadAmd(path.join(JS_ROOT, "core/services/writeback/get/collectors/collectorSupport.js"), shared).isDashboardTab, core.isDashboardTab);
+  assert.strictEqual(loadAmd(path.join(JS_ROOT, "dashboard/tabs/config/defaults.js"), shared).MAX_USER_TABS, core.MAX_USER_TABS);
+});
