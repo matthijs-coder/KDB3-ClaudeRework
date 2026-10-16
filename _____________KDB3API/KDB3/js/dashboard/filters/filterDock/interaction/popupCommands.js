@@ -53,7 +53,7 @@ define(["../state.js", "../identity.js", "../selectors.js", "./dockDom.js"], fun
     if (!originalFooter) {
       return false;
     }
-    buttonEl = originalFooter.querySelector('[data-tid="' + String(payload.buttonTid) + '"]');
+    buttonEl = originalFooter.querySelector('[data-tid="' + CSS.escape(String(payload.buttonTid)) + '"]');
     if (!buttonEl || typeof buttonEl.click !== "function") {
       return false;
     }

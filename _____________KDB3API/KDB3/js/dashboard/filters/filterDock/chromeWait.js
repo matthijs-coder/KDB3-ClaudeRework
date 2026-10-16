@@ -90,7 +90,7 @@ define([
       observer.observe(document, { childList: true, subtree: true });
       timeoutId = setTimeout(function () {
         rejectPending(function (entry) {
-          return _errors.codedError("FILTER_DOCK_CHROME_WAIT_TIMEOUT", "Timeout waiting for " + entry.selector);
+          return _errors.codedError(_config.ERROR_CHROME_WAIT_TIMEOUT, "Timeout waiting for " + entry.selector);
         });
       }, _config.CHROME_WAIT_TIMEOUT_MS);
       if (signal) {

@@ -65,7 +65,7 @@ define(["../identity.js", "../ownerRoutes.js", "../selectors.js"], function (_id
     if (!bucket || !selectors.filterDataIdAttr) {
       return null;
     }
-    hostEl = bucket.querySelector("[" + selectors.filterDataIdAttr + "=\"" + hostDataId + "\"]");
+    hostEl = bucket.querySelector("[" + selectors.filterDataIdAttr + "=\"" + CSS.escape(hostDataId) + "\"]");
     if (!hostEl || !selectors.filterItemSelector) {
       return null;
     }

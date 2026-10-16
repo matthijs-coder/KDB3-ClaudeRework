@@ -470,3 +470,113 @@ test("internal-only diagnostic actions are gone from the action table", () => {
   const afterRemoved = filterDockState.reduceFilterDockState(initial, { type: "filterDock/mutationsObserved", payload: { mutationDelta: 5 } });
   assert.deepStrictEqual(afterRemoved, initial);
 });
+
+// ---- behaviour changes ----
+const cssStub = { escape: (value) => String(value).replace(/([^\w-])/g, "\\$1") };
+
+test("scoped popup mount escapes the host data id in the attribute selector", () => {
+  const dockDom = load("interaction/dockDom.js", { stubs: { CSS: cssStub } });
+  const queries = [];
+  const mount = { name: "mount" };
+  const wrapper = { querySelector: () => mount };
+  const bucket = { querySelector: (selector) => { queries.push(selector); return { closest: () => wrapper }; } };
+  const dockRoot = { querySelector: () => bucket };
+  const selectors = {
+    popupMountSelector: ".mount", globalDockSelector: "#g", pageContextDockSelector: "#p", filterDataIdAttr: "data-id", filterItemSelector: ".item"
+  };
+  const result = dockDom.resolveScopedPopupMount({
+    filterEl: null, dockRoot, selectors, runtime: { domRefs: {} }, scopeType: "pageContext", hostDataId: 'Dienst "A"\\B'
+  });
+  assert.equal(result, mount);
+  assert.deepEqual(queries, ['[data-id="Dienst\\ \\"A\\"\\\\B"]']);
+});
+
+test("click on an original popup button escapes the button tid", () => {
+  const popupCommands = load("interaction/popupCommands.js", { stubs: { CSS: cssStub } });
+  const clicks = [];
+  const queried = [];
+  const selectors = { filterLabelSelector: "[data-id]", filterDataIdAttr: "data-id", globalDockSelector: "#g", nativeFooterSelector: ".footer" };
+  const footer = { querySelector: (selector) => { queried.push(selector); return { click: () => clicks.push(selector) }; } };
+  const filterEl = {
+    closest: () => null,
+    querySelector: (selector) => (selector === ".footer" ? footer : { getAttribute: () => "Region" })
+  };
+  const _KDB = { elements: { selectors: { filterDock: selectors } }, runtime: { filterDock: { domRefs: { activeFilterEl: filterEl } } } };
+  const ok = popupCommands.runPopupCommand(_KDB, {
+    type: "filterDock/clickOriginalButtonRequested", payload: { filterKey: "pageContext__Region", buttonTid: 'ok"Click' }
+  });
+  assert.equal(ok, true);
+  assert.deepEqual(queried, ['[data-tid="ok\\"Click"]']);
+  assert.equal(popupCommands.runPopupCommand(_KDB, { type: "filterDock/clickOriginalButtonRequested", payload: { filterKey: "global__Other", buttonTid: "x" } }), false);
+});
+
+function createMountHarness(selectors) {
+  const timers = [];
+  const doc = { querySelector: () => null };
+  class FakeObserver { observe() {} disconnect() {} }
+  const register = load("index.js", {
+    stubs: {
+      document: doc, MutationObserver: FakeObserver, Date: FixedDate,
+      setTimeout: (fn, ms) => { timers.push({ fn, ms, cleared: false }); return timers.length - 1; },
+      clearTimeout: (id) => { if (timers[id]) timers[id].cleared = true; }
+    }
+  });
+  const warnings = [];
+  const errors = [];
+  const _KDB = { elements: { selectors: { filterDock: selectors } }, state: {}, runtime: {}, api: {} };
+  const originalError = console.error;
+  const originalWarn = console.warn;
+  return {
+    _KDB, timers, errors, warnings, register,
+    withConsole(fn) {
+      console.error = (...args) => errors.push(args[0]);
+      console.warn = (...args) => warnings.push(args[0]);
+      return Promise.resolve(fn()).finally(() => { console.error = originalError; console.warn = originalWarn; });
+    }
+  };
+}
+
+const flush = () => new Promise((resolve) => setImmediate(resolve));
+const DOCK_SELECTORS = { rootSelector: "#root", globalDockSelector: "#global", pageContextDockSelector: "#other" };
+
+test("mount: a chrome wait timeout puts the dock into the error state", async () => {
+  const h = createMountHarness(Object.assign({}, DOCK_SELECTORS));
+  await h.withConsole(async () => {
+    const api = h.register(h._KDB);
+    assert.equal(api.mount(), true);
+    assert.equal(api.mount(), true);
+    assert.equal(h.timers.length, 1);
+    h.timers[0].fn();
+    await flush();
+    const state = api.getState();
+    assert.equal(state.lifecycle, "error");
+    assert.equal(state.errorCode, "FILTER_DOCK_CHROME_WAIT_TIMEOUT");
+    assert.match(state.errorMessage, /^Timeout waiting for #(root|global|other)$/);
+    assert.deepEqual(h.errors, ["[filterDock.mount] filter dock wait failed"]);
+  });
+});
+
+test("mount: other wait failures use FILTER_DOCK_MOUNT_FAILED, an abort by destroy leaves no error", async () => {
+  const broken = createMountHarness({ rootSelector: "#root" });
+  await broken.withConsole(async () => {
+    const api = broken.register(broken._KDB);
+    api.mount();
+    await flush();
+    assert.equal(api.getState().errorCode, "FILTER_DOCK_MOUNT_FAILED");
+  });
+
+  const aborted = createMountHarness(Object.assign({}, DOCK_SELECTORS));
+  await aborted.withConsole(async () => {
+    const api = aborted.register(aborted._KDB);
+    api.mount();
+    api.destroy();
+    await flush();
+    const state = aborted._KDB.state.filters.filterDock;
+    assert.equal(state.lifecycle, "disposed");
+    assert.equal(state.errorCode, null);
+    assert.deepEqual(aborted.errors, []);
+    assert.equal(api.getState(), undefined);
+    assert.equal(aborted.timers[0].cleared, true);
+    assert.deepEqual(Object.keys(aborted._KDB.runtime.filterDock.abortControllers), []);
+  });
+});

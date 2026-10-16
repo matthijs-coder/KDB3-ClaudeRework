@@ -66,15 +66,30 @@ define([
       filtersState.filterDock = _state.reduceFilterDockState(filtersState.filterDock, action);
     }
 
-    function handleBoundaryError(methodName, error) {
-      console.error("[filterDock." + methodName + "] failed", error);
+    function recordError(errorCode, error) {
       dispatchInternal({
         type: _state.ACTIONS.ERROR,
-        payload: {
-          errorCode: "FILTER_DOCK_" + methodName.toUpperCase() + "_FAILED",
-          errorMessage: error && error.message ? error.message : String(error)
-        }
+        payload: { errorCode: errorCode, errorMessage: error && error.message ? error.message : String(error) }
       });
+    }
+
+    function handleBoundaryError(methodName, error) {
+      console.error("[filterDock." + methodName + "] failed", error);
+      recordError("FILTER_DOCK_" + methodName.toUpperCase() + "_FAILED", error);
+      return false;
+    }
+
+    function handleMountFailure(error) {
+      if (error && error.code === "ABORTED") {
+        return false;
+      }
+      console.error("[filterDock.mount] filter dock wait failed", error);
+      if (!guard.isDisposed()) {
+        recordError(
+          error && error.code === _config.ERROR_CHROME_WAIT_TIMEOUT ? _config.ERROR_CHROME_WAIT_TIMEOUT : _config.ERROR_MOUNT_FAILED,
+          error
+        );
+      }
       return false;
     }
 
@@ -114,12 +129,7 @@ define([
           .then(function () {
             return guard.isDisposed() || scope.signal.aborted ? false : finishMount();
           })
-          .catch(function (error) {
-            if (!error || error.code !== "ABORTED") {
-              console.error("[filterDock.mount] filter dock wait failed", error);
-            }
-            return false;
-          })
+          .catch(handleMountFailure)
           .finally(function () {
             runtime.pendingPromises.mount = null;
             delete runtime.abortControllers.mount;
