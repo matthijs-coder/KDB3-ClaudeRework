@@ -20,7 +20,7 @@ Target after CP-1 and execution-spec approval:
 
 ```txt
 KDB3/js/dashboard/filters/specialSingleSelect/
-KDB3/css/filters/specialSingleSelect.css
+KDB3/css/filters/filters.css
 ```
 
 This tranche is a direct-port baseline plus user-approved behavior redesign. It preserves the core `singleSelect` interaction model by delegation and replaces the legacy special-right add/remove/reconcile flow with tableData-driven, idempotent class sync plus narrowly scoped Cognos value actions.
@@ -444,12 +444,12 @@ Deprecated (do not use after Optie C migration):
 CSS path:
 
 ```txt
-KDB3/css/filters/specialSingleSelect.css
+KDB3/css/filters/filters.css
 ```
 
 CSS registration:
 
-- Add `./v1/ext/KDB3/css/filters/specialSingleSelect.css` to `core/css/config/cssHrefList.js` after CP-1, unless CP-1 approves a different path.
+- Add `./v1/ext/KDB3/css/filters/filters.css` to `core/css/config/cssHrefList.js` after CP-1, unless CP-1 approves a different path.
 
 No live DOM nodes are stored in `_KDB.state`. Runtime refs belong under `_KDB.runtime.specialSingleSelect.domRefs` and are cleared on destroy.
 
@@ -512,7 +512,7 @@ Open CP-1 item: decide whether this tranche modifies `KDB.js`, `filterDock`, and
 
 | Dimension | Draft decision / recommendation |
 |---|---|
-| Final target path | `KDB3/js/dashboard/filters/specialSingleSelect/`; CSS at `KDB3/css/filters/specialSingleSelect.css`. |
+| Final target path | `KDB3/js/dashboard/filters/specialSingleSelect/`; CSS at `KDB3/css/filters/filters.css`. |
 | Included legacy behavior | Rights-driven special handling for Personengruppe and Dienststellenleitung; `Alle` permission; Sicht compatibility; automatic default/clear when owner-safe. |
 | Replaced legacy behavior | No legacy `removeSpecialFilters` / `addConditionalFilters` cross-scope remove-add-reconcile flow unless explicitly approved later. |
 | Standalone API vs subsystem | Standalone `_KDB.api.specialSingleSelect` dispatch API, with delegation to `_KDB.api.singleSelect` for generic behavior. |
