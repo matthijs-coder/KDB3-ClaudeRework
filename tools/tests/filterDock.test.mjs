@@ -580,3 +580,12 @@ test("mount: other wait failures use FILTER_DOCK_MOUNT_FAILED, an abort by destr
     assert.deepEqual(Object.keys(aborted._KDB.runtime.filterDock.abortControllers), []);
   });
 });
+
+test("dockHasCommittedDisplay is true when the dock root is or contains a committed display element", () => {
+  const ownerResync = load("observation/ownerResync.js");
+  const make = (closestHit, queryHit) => ({ closest: () => closestHit, querySelector: () => queryHit });
+  assert.equal(ownerResync.dockHasCommittedDisplay(make(null, null)), false);
+  assert.equal(ownerResync.dockHasCommittedDisplay(make({}, null)), true);
+  assert.equal(ownerResync.dockHasCommittedDisplay(make(null, {})), true);
+  assert.equal(ownerResync.dockHasCommittedDisplay(null), false);
+});

@@ -46,7 +46,7 @@ define([
     return target;
   }
 
-  function createFilterDockController(_KDB, runtime) {
+  function createDockController(_KDB, runtime) {
     var guard = _errors.createDisposedGuard("filterDock");
     var ctx = { _KDB: _KDB, runtime: runtime, dispatch: dispatchInternal, isDisposed: guard.isDisposed };
 
@@ -197,7 +197,7 @@ define([
       _config.DOCK_SELECTOR_DEFAULTS
     );
 
-    _KDB.api.filterDock = createFilterDockController(_KDB, runtime);
+    _KDB.api.filterDock = createDockController(_KDB, runtime);
     return _KDB.api.filterDock;
   }
 

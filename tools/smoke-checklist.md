@@ -218,3 +218,20 @@ Paste the following into the PR or chat. Short is fine, but all five points:
 5. **Parameter set**: name of the set and the JSON of the set (Set A/B or a new one); for share-URL problems, the URL (remove tokens). Add the build id (branch / commit SHA) and browser version.
 
 Optional but useful: Network HAR export (for 404/403/timeouts), and a heap snapshot file for leak failures (4.3).
+
+---
+
+## WS-K filterDock
+
+Run section 1 first. "Baseline" = the same step on `main` before the merge.
+
+- [ ] After boot: `window.top.getKDB().api.filterDock.getState()` returns `lifecycle: "ready"`, `filtersReady: true`, `errorCode: null`. `window.top.getKDB().runtime.filterDock.diagnostics` shows `mutationBatches` and `evaluations` counters that grow while you hover or click in the dock (`state.observedChildren` and `state.pendingSignals.mutationCount` stay at their initial values by design).
+- [ ] Hover over every filter header in the dock for 10 s with no popup open. Expected: no console errors; Performance scripting time not above baseline.
+- [ ] singleSelect popup: open, pick an option, "Alle", OK; re-open the **same** filter right away. Expected: custom popup and the selected-option highlight appear every time.
+- [ ] Sicht and special single select (Personengruppe): open, select, OK; open, Cancel. Expected: the popup renders the custom options each time.
+- [ ] Dienststelle with Sicht BW and with DEZPV: open the popup, wait 1 s, close it. Expected: hierarchy labels as baseline (BW: no popup-label resync; DEZPV: labels resynced); committed display text under the filter as baseline.
+- [ ] Native multi-select (Jahr): open, tick 2 values, OK. Expected: values commit; click outside the dock while Jahr is the last-clicked filter produces no console error.
+- [ ] Load Set A and the share URL (1.12). Expected: restore finishes in normal time (writeback waits for `filtersReady`; no stall of about 68 s).
+- [ ] Filters with a double quote or backslash in the Dienststelle/filter name (if the data has any): open the popup. Expected: no `SyntaxError` in the console, the popup renders.
+- [ ] Reload the dashboard with the Cognos filter dock disabled or hidden (or block it in the page): after about 30 s the console shows `[filterDock.mount] filter dock wait failed` once, `getKDB().api.filterDock.getState().errorCode` is `FILTER_DOCK_CHROME_WAIT_TIMEOUT`, and the dashboard stays usable.
+- [ ] Close the dashboard and re-open it 3 times: no console errors; `getEventListeners(document).click.length` returns to baseline (the outside-click listener is removed on destroy).
