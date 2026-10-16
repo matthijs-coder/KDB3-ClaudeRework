@@ -67,10 +67,13 @@ function buildKdb(extra) {
   const _KDB = {
     state: {
       tabs: { activeTabId: "tab-1" },
-      widgets: { vis: { byId: { w1: { derived: { code: "KZ-1", metricsTable: "tbl_metrics", lastAppliedVisType: "line" } } } } }
+      widgets: {
+        vis: { byId: { w1: { derived: { code: "KZ-1", metricsTable: "tbl_metrics", lastAppliedVisType: "line" } } } },
+        settings: { lifecycle: "ready", byWidget: (extra && extra.settingsByWidget) || { w1: { dimension: "Region", visType: "bar" } } }
+      }
     },
     runtime: { widgetVis: Object.assign(widgetVis, extra && extra.runtime) },
-    api: Object.assign({ widgetSettings: { getState: () => ({ byWidget: { w1: { dimension: "Region", visType: "bar" } } }) } }, extra && extra.api),
+    api: Object.assign({}, extra && extra.api),
     config: { options: {} }
   };
   return _KDB;
@@ -113,7 +116,7 @@ test("header spec: shape, vis type override, Date rule (Jan/Feb -> year-2, other
 
 test("header spec: dimension none/default -> null, vis type falls back to settings, kennzahl falls back to ''", () => {
   const chrome = loadChrome();
-  const _KDB = buildKdb({ api: { widgetSettings: { getState: () => ({ byWidget: { w1: { dimension: "None", visType: "Pie" } } }) } } });
+  const _KDB = buildKdb({ settingsByWidget: { w1: { dimension: "None", visType: "Pie" } } });
   _KDB.state.widgets.vis.byId.w1.derived = {};
   const spec = chrome.assembleHeader({ _KDB, widgetId: "w1" });
   assert.equal(spec.selectedDimension, null);

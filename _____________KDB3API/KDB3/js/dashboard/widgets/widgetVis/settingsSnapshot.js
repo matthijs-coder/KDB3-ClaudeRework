@@ -1,8 +1,9 @@
 define([
   "./config.js",
   "./visTypes.js",
-  "../../../core/config/dropdownDefaults.js"
-], function (_config, _visTypes, _dropdownDefaults) {
+  "../../../core/config/dropdownDefaults.js",
+  "../widgetSettings/selectors.js"
+], function (_config, _visTypes, _dropdownDefaults, _settingsSelectors) {
   "use strict";
 
   var VIS_CONTROL_DEFAULTS = {
@@ -30,15 +31,8 @@ define([
     return _target;
   }
 
-  function readFromWidgetSettingsPublicApi(_KDB, _widgetId) {
-    var settingsApi = _KDB && _KDB.api ? _KDB.api.widgetSettings : null;
-    var settingsState;
-    var record;
-    if (!settingsApi || typeof settingsApi.getState !== "function") {
-      return null;
-    }
-    settingsState = settingsApi.getState();
-    record = settingsState && settingsState.byWidget ? settingsState.byWidget[_widgetId] : null;
+  function readFromWidgetSettings(_KDB, _widgetId) {
+    var record = _settingsSelectors.readWidgetSettings(_KDB, _widgetId);
     if (!record) {
       return null;
     }
@@ -59,9 +53,9 @@ define([
         topNChoice: snapshot.topNChoice !== undefined ? snapshot.topNChoice : null
       });
     }
-    var fromSettingsApi = readFromWidgetSettingsPublicApi(_KDB, _widgetId);
-    if (fromSettingsApi) {
-      return fromSettingsApi;
+    var fromSettings = readFromWidgetSettings(_KDB, _widgetId);
+    if (fromSettings) {
+      return fromSettings;
     }
     return {
       dimension: null,

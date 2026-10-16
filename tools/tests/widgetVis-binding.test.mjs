@@ -759,7 +759,7 @@ async function computeWaveFixtures() {
   });
   const wave = loadWaveWithFakes(fakes);
   const stubSettings = (_KDB) => {
-    _KDB.api.widgetSettings = { getState: () => ({ byWidget: { a: settingsById.a, b: settingsById.b } }) };
+    _KDB.state.widgets.settings = { lifecycle: "ready", byWidget: { a: settingsById.a, b: settingsById.b } };
   };
 
   let _KDB = makeKdb({ activeTabId: "t1" });
