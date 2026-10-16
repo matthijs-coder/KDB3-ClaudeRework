@@ -1,10 +1,10 @@
 define([
-  "../../config/parameterSetCodes.js",
+  "../../config.js",
   "./parameterSetRuntime.js",
   "./filterRestoreSupport.js",
-  "../reconcileFilterInstances.js",
+  "../../inventory/reconcile.js",
   "./clearParameterSetInstances.js"
-], function (_codes, _runtime, _support, _reconcileFilterInstances, _clearParameterSetInstances) {
+], function (_config, _runtime, _support, _reconcileInventory, _clearParameterSetInstances) {
   "use strict";
 
   async function handleParameterSetClear(_KDB, _payload, _runtimeState) {
@@ -24,10 +24,10 @@ define([
             degraded: false,
             applied: [],
             skipped: [],
-            diagnostics: [{ code: writebackGate.code || _codes.INVENTORY_STALE, message: writebackGate.message }]
+            diagnostics: [{ code: writebackGate.code || _config.parameterSetCodes.INVENTORY_STALE, message: writebackGate.message }]
           };
         } else if (!filtersFacet || typeof filtersFacet.writeFilter !== "function") {
-          diagnostics.push({ code: _codes.RESTORE_FAILED, message: "replaceFilterContext unavailable; singleSelect clear skipped" });
+          diagnostics.push({ code: _config.parameterSetCodes.RESTORE_FAILED, message: "replaceFilterContext unavailable; singleSelect clear skipped" });
           result = settle(payload.status, diagnostics, null);
         } else {
           var clearOutcome = await _clearParameterSetInstances(
@@ -37,7 +37,7 @@ define([
             result = clearOutcome.cancelledResult;
           } else if (clearOutcome && clearOutcome.ok === false) {
             diagnostics.push({
-              code: _codes.RESTORE_FAILED,
+              code: _config.parameterSetCodes.RESTORE_FAILED,
               message: "singleSelect clear failed: " + String(
                 clearOutcome.error && clearOutcome.error.message ? clearOutcome.error.message : clearOutcome.error
               )
@@ -52,7 +52,7 @@ define([
               if (writebackGate.shouldBypassReconcile === true) {
                 result = settle(payload.status, diagnostics, null);
               } else {
-                var reconcileResult = await _reconcileFilterInstances(
+                var reconcileResult = await _reconcileInventory.reconcileFilterInstances(
                   _KDB,
                   _runtimeState,
                   { reason: "parameterRestore", runId: payload.runId }
@@ -74,7 +74,7 @@ define([
         applied: [],
         skipped: [],
         diagnostics: [{
-          code: _codes.RESTORE_FAILED,
+          code: _config.parameterSetCodes.RESTORE_FAILED,
           message: "singleSelect clear failed: " + String(error && error.message ? error.message : error)
         }]
       }, { reportAlreadyReleased: false }));

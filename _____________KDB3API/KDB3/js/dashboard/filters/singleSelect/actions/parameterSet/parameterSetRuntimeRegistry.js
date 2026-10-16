@@ -1,4 +1,4 @@
-define(["../../config/parameterSetCodes.js"], function (_codes) {
+define(["../../config.js"], function (_config) {
   "use strict";
 
   var RUN_FINISH_OUTCOMES = Object.freeze({
@@ -60,7 +60,7 @@ define(["../../config/parameterSetCodes.js"], function (_codes) {
         var diagnostics = [];
         if (options.reportAlreadyReleased !== false) {
           diagnostics.push({
-            code: _codes.RUN_FINISH_ALREADY_RELEASED,
+            code: _config.parameterSetCodes.RUN_FINISH_ALREADY_RELEASED,
             runId: _runId,
             message: "parameterSet run registry already released for runId " + key
           });
@@ -70,7 +70,7 @@ define(["../../config/parameterSetCodes.js"], function (_codes) {
       delete registry[key];
       if (Object.prototype.hasOwnProperty.call(registry, key)) {
         return buildRunReleaseAck(false, _runId, false, false, [{
-          code: _codes.RESYNC_FAILED,
+          code: _config.parameterSetCodes.RESYNC_FAILED,
           runId: _runId,
           message: "parameterSet run registry could not be removed for runId " + key
         }]);
@@ -78,7 +78,7 @@ define(["../../config/parameterSetCodes.js"], function (_codes) {
       return buildRunReleaseAck(true, _runId, true, false, []);
     } catch (error) {
       return buildRunReleaseAck(false, _runId, false, false, [{
-        code: _codes.RESYNC_FAILED,
+        code: _config.parameterSetCodes.RESYNC_FAILED,
         runId: _runId,
         message: "parameterSet run registry cleanup failed for runId " + String(_runId) +
           ": " + String(error && error.message ? error.message : error)

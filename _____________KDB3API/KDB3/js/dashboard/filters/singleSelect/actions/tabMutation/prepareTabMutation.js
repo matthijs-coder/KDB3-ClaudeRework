@@ -1,11 +1,10 @@
 define([
   "./guardTabMutation.js",
   "./buildTabMutationTransfers.js",
-  "../../effects/resolveFilterRef.js",
-  "../../effects/readFiltersFacet.js",
-  "../../effects/hostFilterWrite.js",
-  "../../config/errorCodes.js"
-], function (_support, _buildTransfers, _resolveFilterRef, _readFiltersFacet, _hostWrite, _codes) {
+  "../../hostFilterIo.js",
+  "../../runtime.js",
+  "../../config.js"
+], function (_support, _buildTransfers, _hostFilterIo, _singleSelectRuntime, _config) {
   "use strict";
 
   function failure(_operationId, _diagnostics) {
@@ -27,13 +26,13 @@ define([
       var planWork = _buildTransfers(payload.plan);
       if (!payload.plan || ["delete", "move", "duplicate", "restoreDeleted"].indexOf(payload.plan.operation) === -1) {
         return failure(payload.operationId, [{
-          code: _codes.TAB_MUTATION_PREPARE_FAILED,
+          code: _config.errorCodes.TAB_MUTATION_PREPARE_FAILED,
           message: "unsupported or missing tab mutation plan"
         }]);
       }
       if (planWork.affectedSlots.length === 0) {
         return failure(payload.operationId, [{
-          code: _codes.TAB_MUTATION_PREPARE_FAILED,
+          code: _config.errorCodes.TAB_MUTATION_PREPARE_FAILED,
           message: "tab mutation plan contains no semantic transfer or clear work"
         }]);
       }
@@ -43,7 +42,7 @@ define([
         var resolved = _support.resolveScope(instances, payload.tabIdxToScopeId || {}, _slot);
         if (resolved.status !== "ok") {
           diagnostics.push({
-            code: _codes.SCOPE_TARGET_UNVERIFIED,
+            code: _config.errorCodes.SCOPE_TARGET_UNVERIFIED,
             message: "tab mutation scope target is not verified",
             tabId: _slot.tabId
           });
@@ -52,7 +51,7 @@ define([
         }
       });
       if (diagnostics.length > 0) { return failure(payload.operationId, diagnostics); }
-      var filtersFacet = _readFiltersFacet(_KDB, _runtime);
+      var filtersFacet = _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
       var snapshot = {
         operationId: payload.operationId,
         runId: payload.runId,
@@ -62,12 +61,12 @@ define([
       for (var s = 0; s < scopeIds.length; s += 1) {
         var records = _support.instancesInScope(instances, scopeIds[s]);
         for (var i = 0; i < records.length; i += 1) {
-          var filterRef = _resolveFilterRef.resolveFilterRef(
+          var filterRef = _hostFilterIo.resolveFilterRef(
             _KDB, _runtime, { filterInstanceId: records[i].filterInstanceId }
           );
-          if (!filterRef || !_hostWrite.isWriteReady(filtersFacet)) {
+          if (!filterRef || !_hostFilterIo.isWriteReady(filtersFacet)) {
             diagnostics.push({
-              code: _codes.TAB_MUTATION_PREPARE_FAILED,
+              code: _config.errorCodes.TAB_MUTATION_PREPARE_FAILED,
               filterInstanceId: records[i].filterInstanceId,
               message: "runtime host filter reference missing during snapshot"
             });
@@ -75,7 +74,7 @@ define([
           }
           snapshot.byId[records[i].filterInstanceId] = _support.cloneSnapshotRecord(
             records[i],
-            _hostWrite.readValues(filtersFacet, filterRef)
+            _hostFilterIo.readValues(filtersFacet, filterRef)
           );
         }
       }
@@ -93,7 +92,7 @@ define([
         operationId: payload.operationId
       }, error);
       return failure(payload.operationId, [{
-        code: _codes.TAB_MUTATION_PREPARE_FAILED,
+        code: _config.errorCodes.TAB_MUTATION_PREPARE_FAILED,
         message: String(error && error.message ? error.message : error)
       }]);
     }

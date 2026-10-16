@@ -2,12 +2,12 @@ define([
   "../../state/selectors.js",
   "../../../../../core/utils/normalizeCognosScopeId.js",
   "../../../../tabs/state/selectors.js",
-  "../../effects/readFiltersFacet.js"
-], function (_selectors, _normalizeCognosScopeId, _tabsSelectors, _readFiltersFacet) {
+  "../../runtime.js"
+], function (_selectors, _normalizeCognosScopeId, _tabsSelectors, _singleSelectRuntime) {
   "use strict";
 
   function readFiltersFacet(_KDB, _runtime) {
-    return _readFiltersFacet(_KDB, _runtime);
+    return _singleSelectRuntime.readFiltersFacet(_KDB, _runtime);
   }
 
   function isKnownUnsupportedKey(_key) {

@@ -1,8 +1,8 @@
 define([
   "../state/createFilterInstanceState.js",
   "./resolveMountedFilterIdentity.js",
-  "../config/errorCodes.js"
-], function (_createState, _collisionSupport, _codes) {
+  "../config.js"
+], function (_createState, _collisionSupport, _config) {
   "use strict";
 
   function fallbackKey(_descriptor) {
@@ -26,7 +26,7 @@ define([
   function blockUnprovenLabelFallback(_descriptor, _diagnostics) {
     if (_descriptor.identityQuality !== "labelFallback") { return false; }
     _diagnostics.push({
-      code: _codes.HOST_VALUE_READ_FAILED,
+      code: _config.errorCodes.HOST_VALUE_READ_FAILED,
       filterInstanceId: _descriptor.filterInstanceId,
       scopeId: _descriptor.scopeId,
       message: "label-fallback identity adoption blocked: a host item could not be read this pass, so uniqueness is unproven"
@@ -46,7 +46,7 @@ define([
         quarantine.ids[id] = true;
         quarantine.fallbackKeys[_key] = true;
         _diagnostics.push({
-          code: _codes.HOST_VALUE_READ_FAILED,
+          code: _config.errorCodes.HOST_VALUE_READ_FAILED,
           filterInstanceId: id,
           scopeId: _record.scopeId,
           message: "mounted label-fallback identity quarantined: inventory is incomplete and uniqueness is unproven"
@@ -76,7 +76,7 @@ define([
     var resolvedDescriptor = Object.assign({}, descriptor, { filterInstanceId: mounted.id });
     if (resolvedDescriptor.identityQuality === "labelFallback") {
       _diagnostics.push({
-        code: _codes.IDENTITY_LABEL_FALLBACK,
+        code: _config.errorCodes.IDENTITY_LABEL_FALLBACK,
         filterInstanceId: mounted.id,
         scopeId: resolvedDescriptor.scopeId,
         message: "unique label fallback identity accepted"

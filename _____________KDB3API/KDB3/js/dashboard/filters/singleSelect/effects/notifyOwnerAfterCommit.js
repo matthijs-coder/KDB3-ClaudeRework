@@ -1,4 +1,4 @@
-define(["../config/errorCodes.js"], function (_codes) {
+define(["../config.js"], function (_config) {
   "use strict";
 
   function resolveOwnerApi(_KDB, _filterType) {
@@ -51,7 +51,7 @@ define(["../config/errorCodes.js"], function (_codes) {
         return {
           ok: false,
           applicable: true,
-          code: _codes.OWNER_SELECTION_INVALID,
+          code: _config.errorCodes.OWNER_SELECTION_INVALID,
           message: "owner dispatch API unavailable for " + filterType
         };
       }
@@ -63,7 +63,7 @@ define(["../config/errorCodes.js"], function (_codes) {
         return {
           ok: false,
           applicable: true,
-          code: _codes.OWNER_SELECTION_INVALID,
+          code: _config.errorCodes.OWNER_SELECTION_INVALID,
           message: "owner rejected singleSelect commit notification for " + filterType
         };
       }
@@ -73,7 +73,7 @@ define(["../config/errorCodes.js"], function (_codes) {
       return {
         ok: false,
         applicable: true,
-        code: _codes.OWNER_SELECTION_INVALID,
+        code: _config.errorCodes.OWNER_SELECTION_INVALID,
         message: "owner dispatch failed: " + String(error && error.message ? error.message : error)
       };
     }
