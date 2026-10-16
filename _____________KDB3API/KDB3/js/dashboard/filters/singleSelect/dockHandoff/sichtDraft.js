@@ -1,5 +1,11 @@
-define(["../config.js"], function (_config) {
+define([
+  "../config.js",
+  "../commit/ownerNotify.js"
+], function (_config, _ownerNotify) {
   "use strict";
+
+  var DRAFT_CHANGED = "sicht/singleSelectDraftChanged";
+  var DRAFT_REVERTED = "sicht/singleSelectDraftReverted";
 
   function readSichtOwnerApi(_KDB) {
     return _KDB && _KDB.api && _KDB.api.sicht &&
@@ -28,10 +34,6 @@ define(["../config.js"], function (_config) {
     };
   }
 
-  function isNegativeAck(_ack) {
-    return _ack === false || (_ack && _ack.ok === false) || (_ack && _ack.acknowledged === false);
-  }
-
   async function dispatchSichtDraftEvent(_KDB, _type, _handoffContext, _selection) {
     try {
       var api = readSichtOwnerApi(_KDB);
@@ -46,7 +48,7 @@ define(["../config.js"], function (_config) {
         type: _type,
         payload: buildDraftPayload(_handoffContext, _selection)
       });
-      if (isNegativeAck(ack)) {
+      if (_ownerNotify.isNegativeAck(ack)) {
         return {
           ok: false,
           code: _config.errorCodes.SICHT_DRAFT_DISPATCH_FAILED,
@@ -55,7 +57,7 @@ define(["../config.js"], function (_config) {
       }
       return { ok: true };
     } catch (error) {
-      console.error("[singleSelect.sichtDraftEvents] failed", { type: _type }, error);
+      console.error("[singleSelect.sichtDraft] failed", { type: _type }, error);
       return {
         ok: false,
         code: _config.errorCodes.SICHT_DRAFT_DISPATCH_FAILED,
@@ -70,7 +72,7 @@ define(["../config.js"], function (_config) {
       return { ok: true, applicable: false };
     }
     if (_handoffContext.interactionType === "cancel" || _handoffContext.interactionType === "close") {
-      return dispatchSichtDraftEvent(_KDB, "sicht/singleSelectDraftReverted", _handoffContext, {
+      return dispatchSichtDraftEvent(_KDB, DRAFT_REVERTED, _handoffContext, {
         displayValue: _filterState && _filterState.backupSelection
           ? _filterState.backupSelection.displayValue : null,
         useValue: _filterState && _filterState.backupSelection
@@ -79,7 +81,7 @@ define(["../config.js"], function (_config) {
       });
     }
     if (_filterState && _filterState.pendingSelection && _handoffContext.interactionType !== "confirm") {
-      return dispatchSichtDraftEvent(_KDB, "sicht/singleSelectDraftChanged", _handoffContext, {
+      return dispatchSichtDraftEvent(_KDB, DRAFT_CHANGED, _handoffContext, {
         displayValue: _filterState.pendingSelection.displayValue,
         useValue: null,
         displaySource: "draft"
