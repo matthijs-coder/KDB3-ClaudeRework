@@ -1,0 +1,1251 @@
+{
+  "sources": {
+    "defaultNormal": {
+      "bySource": {
+        "personal_kdb": {
+          "sourceKey": "personal_kdb",
+          "title": "Personal",
+          "rowCount": 8,
+          "nodes": [
+            {
+              "id": "group:personal_kdb:A",
+              "parent": "#",
+              "text": "Alpha",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "group:personal_kdb:A>B",
+              "parent": "group:personal_kdb:A",
+              "text": "Beta",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "group:personal_kdb:C",
+              "parent": "#",
+              "text": "C",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "group:personal_kdb:A&B",
+              "parent": "#",
+              "text": "A&B",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "group:personal_kdb:A&B><x>",
+              "parent": "group:personal_kdb:A&B",
+              "text": "<x>",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "X1_node",
+              "parent": "group:personal_kdb:A>B",
+              "text": "Kurz eins",
+              "a_attr": {
+                "id": "X1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "X1",
+                "display": "Kurz eins",
+                "langtext": "X1: Lang eins",
+                "title": "X1: Lang eins",
+                "data-url": "http://u/1",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "X1_node",
+              "parent": "group:personal_kdb:A>B",
+              "text": "Duplicate",
+              "a_attr": {
+                "id": "X1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "X1",
+                "display": "Duplicate",
+                "langtext": "X1: Duplicate",
+                "title": "X1: Duplicate",
+                "data-url": "http://u/dup",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "  X9 _node",
+              "parent": "group:personal_kdb:A",
+              "text": "Spaces",
+              "a_attr": {
+                "id": "  X9 ",
+                "class": "hasTooltip item itemOriginal",
+                "code": "  X9 ",
+                "display": "Spaces",
+                "langtext": "  X9 : Spaces",
+                "title": "  X9 : Spaces",
+                "data-url": "",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "No code kurz_node",
+              "parent": "#",
+              "text": "No code kurz",
+              "a_attr": {
+                "id": "No code kurz",
+                "class": "hasTooltip item itemOriginal",
+                "code": "No code kurz",
+                "display": "No code kurz",
+                "langtext": "No code kurz: No code kurz",
+                "title": "No code kurz: No code kurz",
+                "data-url": "",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "Only: langtext_node",
+              "parent": "group:personal_kdb:C",
+              "text": "langtext",
+              "a_attr": {
+                "id": "Only: langtext",
+                "class": "hasTooltip item itemOriginal",
+                "code": "Only: langtext",
+                "display": "langtext",
+                "langtext": "Only: langtext",
+                "title": "Only: langtext",
+                "data-url": "",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "kennzahl_5_node",
+              "parent": "#",
+              "text": "kennzahl_5",
+              "a_attr": {
+                "id": "kennzahl_5",
+                "class": "hasTooltip item itemOriginal",
+                "code": "kennzahl_5",
+                "display": "kennzahl_5",
+                "langtext": "kennzahl_5: kennzahl_5",
+                "title": "kennzahl_5: kennzahl_5",
+                "data-url": "",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "AMP_node",
+              "parent": "group:personal_kdb:A&B><x>",
+              "text": "A&B <x>",
+              "a_attr": {
+                "id": "AMP",
+                "class": "hasTooltip item itemOriginal",
+                "code": "AMP",
+                "display": "A&B <x>",
+                "langtext": "AMP: A&B <x>",
+                "title": "AMP: A&B <x>",
+                "data-url": "",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            }
+          ],
+          "hasRenderableData": true,
+          "treeConfig": {},
+          "dataShape": [
+            "Kennzahlen - Name",
+            "KURZTEXT",
+            "LANGTEXT",
+            "PFAD",
+            "Gruppe1",
+            "Gruppe2",
+            "FREIGABE",
+            "URL"
+          ]
+        }
+      },
+      "sourceOrder": [
+        "personal_kdb"
+      ],
+      "hasRenderableData": true
+    },
+    "defaultSuper": {
+      "bySource": {
+        "personal_kdb": {
+          "sourceKey": "personal_kdb",
+          "title": "Personal",
+          "rowCount": 8,
+          "nodes": [
+            {
+              "id": "group:personal_kdb:A",
+              "parent": "#",
+              "text": "Alpha",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "group:personal_kdb:A>B",
+              "parent": "group:personal_kdb:A",
+              "text": "Beta",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "group:personal_kdb:C",
+              "parent": "#",
+              "text": "C",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "group:personal_kdb:A&B",
+              "parent": "#",
+              "text": "A&B",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "group:personal_kdb:A&B><x>",
+              "parent": "group:personal_kdb:A&B",
+              "text": "<x>",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "X1_node",
+              "parent": "group:personal_kdb:A>B",
+              "text": "Kurz eins",
+              "a_attr": {
+                "id": "X1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "X1",
+                "display": "Kurz eins",
+                "langtext": "X1: Lang eins",
+                "title": "X1: Lang eins",
+                "data-url": "http://u/1",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "X1_node",
+              "parent": "group:personal_kdb:A>B",
+              "text": "Duplicate",
+              "a_attr": {
+                "id": "X1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "X1",
+                "display": "Duplicate",
+                "langtext": "X1: Duplicate",
+                "title": "X1: Duplicate",
+                "data-url": "http://u/dup",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "  X9 _node",
+              "parent": "group:personal_kdb:A",
+              "text": "Spaces",
+              "a_attr": {
+                "id": "  X9 ",
+                "class": "hasTooltip item itemOriginal",
+                "code": "  X9 ",
+                "display": "Spaces",
+                "langtext": "  X9 : Spaces",
+                "title": "  X9 : Spaces",
+                "data-url": "",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "No code kurz_node",
+              "parent": "#",
+              "text": "No code kurz",
+              "a_attr": {
+                "id": "No code kurz",
+                "class": "hasTooltip item itemOriginal",
+                "code": "No code kurz",
+                "display": "No code kurz",
+                "langtext": "No code kurz: No code kurz",
+                "title": "No code kurz: No code kurz",
+                "data-url": "",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "Only: langtext_node",
+              "parent": "group:personal_kdb:C",
+              "text": "langtext",
+              "a_attr": {
+                "id": "Only: langtext",
+                "class": "hasTooltip item itemOriginal",
+                "code": "Only: langtext",
+                "display": "langtext",
+                "langtext": "Only: langtext",
+                "title": "Only: langtext",
+                "data-url": "",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "kennzahl_5_node",
+              "parent": "#",
+              "text": "kennzahl_5",
+              "a_attr": {
+                "id": "kennzahl_5",
+                "class": "hasTooltip item itemOriginal",
+                "code": "kennzahl_5",
+                "display": "kennzahl_5",
+                "langtext": "kennzahl_5: kennzahl_5",
+                "title": "kennzahl_5: kennzahl_5",
+                "data-url": "",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "BETA1_node",
+              "parent": "group:personal_kdb:A>B",
+              "text": "Beta metric",
+              "a_attr": {
+                "id": "BETA1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "BETA1",
+                "display": "Beta metric",
+                "langtext": "BETA1: Beta metric (Beta)",
+                "title": "BETA1: Beta metric (Beta)",
+                "data-url": "",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "AMP_node",
+              "parent": "group:personal_kdb:A&B><x>",
+              "text": "A&B <x>",
+              "a_attr": {
+                "id": "AMP",
+                "class": "hasTooltip item itemOriginal",
+                "code": "AMP",
+                "display": "A&B <x>",
+                "langtext": "AMP: A&B <x>",
+                "title": "AMP: A&B <x>",
+                "data-url": "",
+                "metricsTable": "personal_kdb",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            }
+          ],
+          "hasRenderableData": true,
+          "treeConfig": {},
+          "dataShape": [
+            "Kennzahlen - Name",
+            "KURZTEXT",
+            "LANGTEXT",
+            "PFAD",
+            "Gruppe1",
+            "Gruppe2",
+            "FREIGABE",
+            "URL"
+          ]
+        }
+      },
+      "sourceOrder": [
+        "personal_kdb"
+      ],
+      "hasRenderableData": true
+    },
+    "configured": {
+      "bySource": {
+        "tblA": {
+          "sourceKey": "tblA",
+          "title": "tblA",
+          "rowCount": 3,
+          "nodes": [
+            {
+              "id": "group:tblA:G",
+              "parent": "#",
+              "text": "G",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "group:tblA:H",
+              "parent": "#",
+              "text": "H",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "M1_node",
+              "parent": "group:tblA:G",
+              "text": "Hardcoded one",
+              "a_attr": {
+                "id": "M1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "M1",
+                "display": "Hardcoded one",
+                "langtext": "M1: Hardcoded one",
+                "title": "M1: Hardcoded one",
+                "data-url": "",
+                "metricsTable": "tblA",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "X1_node",
+              "parent": "group:tblA:H",
+              "text": "Other source X1",
+              "a_attr": {
+                "id": "X1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "X1",
+                "display": "Other source X1",
+                "langtext": "X1: Other source X1",
+                "title": "X1: Other source X1",
+                "data-url": "",
+                "metricsTable": "tblA",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            }
+          ],
+          "hasRenderableData": true,
+          "treeConfig": {
+            "pathColumnNamesArr": [
+              "Gruppe1"
+            ]
+          },
+          "dataShape": [
+            "MyCode",
+            "MyText",
+            "Hard",
+            "Rel",
+            "LANGTEXT",
+            "Gruppe1"
+          ]
+        },
+        "tblB": {
+          "sourceKey": "tblB",
+          "title": "tblB",
+          "rowCount": 3,
+          "nodes": [
+            {
+              "id": "group:tblB:G",
+              "parent": "#",
+              "text": "G",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "group:tblB:H",
+              "parent": "#",
+              "text": "H",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "M1_node",
+              "parent": "group:tblB:G",
+              "text": "Mapped one",
+              "a_attr": {
+                "id": "M1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "M1",
+                "display": "Mapped one",
+                "langtext": "M1: Mapped one",
+                "title": "M1: Mapped one",
+                "data-url": "",
+                "metricsTable": "tblB",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "X1_node",
+              "parent": "group:tblB:H",
+              "text": "Other source X1",
+              "a_attr": {
+                "id": "X1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "X1",
+                "display": "Other source X1",
+                "langtext": "X1: Other source X1",
+                "title": "X1: Other source X1",
+                "data-url": "",
+                "metricsTable": "tblB",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            }
+          ],
+          "hasRenderableData": true,
+          "treeConfig": {},
+          "dataShape": [
+            "MyCode",
+            "MyText",
+            "Hard",
+            "Rel",
+            "LANGTEXT",
+            "Gruppe1"
+          ]
+        }
+      },
+      "sourceOrder": [
+        "tblA",
+        "tblB"
+      ],
+      "hasRenderableData": true
+    },
+    "configuredSuper": {
+      "bySource": {
+        "tblA": {
+          "sourceKey": "tblA",
+          "title": "tblA",
+          "rowCount": 3,
+          "nodes": [
+            {
+              "id": "group:tblA:G",
+              "parent": "#",
+              "text": "G",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "group:tblA:H",
+              "parent": "#",
+              "text": "H",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "M1_node",
+              "parent": "group:tblA:G",
+              "text": "Hardcoded one",
+              "a_attr": {
+                "id": "M1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "M1",
+                "display": "Hardcoded one",
+                "langtext": "M1: Hardcoded one",
+                "title": "M1: Hardcoded one",
+                "data-url": "",
+                "metricsTable": "tblA",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "M2_node",
+              "parent": "group:tblA:G",
+              "text": "Mapped two",
+              "a_attr": {
+                "id": "M2",
+                "class": "hasTooltip item itemOriginal",
+                "code": "M2",
+                "display": "Mapped two",
+                "langtext": "M2: Mapped two (Beta)",
+                "title": "M2: Mapped two (Beta)",
+                "data-url": "",
+                "metricsTable": "tblA",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "X1_node",
+              "parent": "group:tblA:H",
+              "text": "Other source X1",
+              "a_attr": {
+                "id": "X1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "X1",
+                "display": "Other source X1",
+                "langtext": "X1: Other source X1",
+                "title": "X1: Other source X1",
+                "data-url": "",
+                "metricsTable": "tblA",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            }
+          ],
+          "hasRenderableData": true,
+          "treeConfig": {
+            "pathColumnNamesArr": [
+              "Gruppe1"
+            ]
+          },
+          "dataShape": [
+            "MyCode",
+            "MyText",
+            "Hard",
+            "Rel",
+            "LANGTEXT",
+            "Gruppe1"
+          ]
+        },
+        "tblB": {
+          "sourceKey": "tblB",
+          "title": "tblB",
+          "rowCount": 3,
+          "nodes": [
+            {
+              "id": "group:tblB:G",
+              "parent": "#",
+              "text": "G",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "group:tblB:H",
+              "parent": "#",
+              "text": "H",
+              "li_attr": {
+                "data-parent": "1"
+              }
+            },
+            {
+              "id": "M1_node",
+              "parent": "group:tblB:G",
+              "text": "Mapped one",
+              "a_attr": {
+                "id": "M1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "M1",
+                "display": "Mapped one",
+                "langtext": "M1: Mapped one",
+                "title": "M1: Mapped one",
+                "data-url": "",
+                "metricsTable": "tblB",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "M2_node",
+              "parent": "group:tblB:G",
+              "text": "Mapped two",
+              "a_attr": {
+                "id": "M2",
+                "class": "hasTooltip item itemOriginal",
+                "code": "M2",
+                "display": "Mapped two",
+                "langtext": "M2: Mapped two (Beta)",
+                "title": "M2: Mapped two (Beta)",
+                "data-url": "",
+                "metricsTable": "tblB",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            },
+            {
+              "id": "X1_node",
+              "parent": "group:tblB:H",
+              "text": "Other source X1",
+              "a_attr": {
+                "id": "X1",
+                "class": "hasTooltip item itemOriginal",
+                "code": "X1",
+                "display": "Other source X1",
+                "langtext": "X1: Other source X1",
+                "title": "X1: Other source X1",
+                "data-url": "",
+                "metricsTable": "tblB",
+                "draggType": "visualization",
+                "draggedElementType": "visualization"
+              }
+            }
+          ],
+          "hasRenderableData": true,
+          "treeConfig": {},
+          "dataShape": [
+            "MyCode",
+            "MyText",
+            "Hard",
+            "Rel",
+            "LANGTEXT",
+            "Gruppe1"
+          ]
+        }
+      },
+      "sourceOrder": [
+        "tblA",
+        "tblB"
+      ],
+      "hasRenderableData": true
+    },
+    "noRows": {
+      "bySource": {
+        "personal_kdb": {
+          "sourceKey": "personal_kdb",
+          "title": "personal_kdb",
+          "rowCount": 0,
+          "nodes": [],
+          "hasRenderableData": false,
+          "treeConfig": {},
+          "dataShape": []
+        }
+      },
+      "sourceOrder": [],
+      "hasRenderableData": false
+    },
+    "invalidInput": {
+      "bySource": {},
+      "sourceOrder": [],
+      "hasRenderableData": false
+    }
+  },
+  "resolved": {
+    "defaultSuper": [
+      {
+        "resolved": false,
+        "code": "",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": true,
+        "code": "X1",
+        "display": "Kurz eins",
+        "langtext": "X1: Lang eins",
+        "title": "X1: Lang eins",
+        "metricsTable": "personal_kdb",
+        "url": "http://u/1",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": true,
+        "code": "X1",
+        "display": "Kurz eins",
+        "langtext": "X1: Lang eins",
+        "title": "X1: Lang eins",
+        "metricsTable": "personal_kdb",
+        "url": "http://u/1",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": false,
+        "code": "X9",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "X9",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "missing",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": true,
+        "code": "BETA1",
+        "display": "Beta metric",
+        "langtext": "BETA1: Beta metric (Beta)",
+        "title": "BETA1: Beta metric (Beta)",
+        "metricsTable": "personal_kdb",
+        "url": "",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": false,
+        "code": "M1",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "M2",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": true,
+        "code": "AMP",
+        "display": "A&B <x>",
+        "langtext": "AMP: A&B <x>",
+        "title": "AMP: A&B <x>",
+        "metricsTable": "personal_kdb",
+        "url": "",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": false,
+        "code": "kennzahl_3",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": true,
+        "code": "kennzahl_5",
+        "display": "kennzahl_5",
+        "langtext": "kennzahl_5: kennzahl_5",
+        "title": "kennzahl_5: kennzahl_5",
+        "metricsTable": "personal_kdb",
+        "url": "",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": true,
+        "code": "No code kurz",
+        "display": "No code kurz",
+        "langtext": "No code kurz: No code kurz",
+        "title": "No code kurz: No code kurz",
+        "metricsTable": "personal_kdb",
+        "url": "",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": true,
+        "code": "Only: langtext",
+        "display": "langtext",
+        "langtext": "Only: langtext",
+        "title": "Only: langtext",
+        "metricsTable": "personal_kdb",
+        "url": "",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": false,
+        "code": "",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      }
+    ],
+    "configuredSuper": [
+      {
+        "resolved": false,
+        "code": "",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": true,
+        "code": "X1",
+        "display": "Other source X1",
+        "langtext": "X1: Other source X1",
+        "title": "X1: Other source X1",
+        "metricsTable": "tblA",
+        "url": "",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": true,
+        "code": "X1",
+        "display": "Other source X1",
+        "langtext": "X1: Other source X1",
+        "title": "X1: Other source X1",
+        "metricsTable": "tblA",
+        "url": "",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": false,
+        "code": "X9",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "X9",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "missing",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "BETA1",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": true,
+        "code": "M1",
+        "display": "Hardcoded one",
+        "langtext": "M1: Hardcoded one",
+        "title": "M1: Hardcoded one",
+        "metricsTable": "tblA",
+        "url": "",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": true,
+        "code": "M2",
+        "display": "Mapped two",
+        "langtext": "M2: Mapped two (Beta)",
+        "title": "M2: Mapped two (Beta)",
+        "metricsTable": "tblA",
+        "url": "",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": false,
+        "code": "AMP",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "kennzahl_3",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "kennzahl_5",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "No code kurz",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "Only: langtext",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      }
+    ],
+    "loading": [
+      {
+        "resolved": false,
+        "code": "",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "X1",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "X1",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "X9",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "X9",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "missing",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "BETA1",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "M1",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "M2",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "AMP",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "kennzahl_3",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "kennzahl_5",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "No code kurz",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "Only: langtext",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      }
+    ],
+    "noState": [
+      {
+        "resolved": false,
+        "code": "X1",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "X1",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      }
+    ]
+  }
+}
