@@ -1,39 +1,27 @@
 define([
   "../config/restoreConstants.js",
   "../../schema/errorCodes.js",
-  "./restoreRunState.js",
-  "./restoreRunGuards.js",
-  "./restoreRunBranches.js",
+  "../state/ensureWritebackRuntime.js",
+  "../state/buildRestoreResult.js",
+  "./runGuards.js",
+  "./runNormalRestore.js",
+  "./runNewDashboardReset.js",
   "./executeRestoreRunCleanup.js",
   "./notifyRestoreOutcome.js",
-  "../../bridge/parameterSetSelectConstants.js"
+  "../../bridge/hostParameterSetSelect.js"
 ], function (
   _constants,
   _errorCodes,
-  _restoreRunState,
-  _restoreRunGuards,
-  _restoreRunBranches,
+  _ensureWritebackRuntime,
+  _buildRestoreResult,
+  _runGuards,
+  _runNormalRestore,
+  _runNewDashboardReset,
   _executeRestoreRunCleanup,
   _notifyRestoreOutcome,
-  _parameterSetSelectConstants
+  _hostParameterSetSelect
 ) {
   "use strict";
-
-  function captureParameterSetSelectId() {
-    var select;
-    var value;
-    try {
-      select = document.getElementById(_parameterSetSelectConstants.SELECT_ID);
-      if (!select) return null;
-      value = select.value;
-      if (value === _parameterSetSelectConstants.NEW_DASHBOARD_VALUE) return null;
-      if (_parameterSetSelectConstants.PLACEHOLDER_VALUES.indexOf(value) !== -1) return null;
-      return value;
-    } catch (error) {
-      console.error("[writebackSet.captureParameterSetSelectId] failed", error);
-      return null;
-    }
-  }
 
   // Common §6 steps 3-6, branch execution and guaranteed finish/cleanup for one
   // restore run. Coordinates named steps only; owner effects live in the
@@ -47,27 +35,27 @@ define([
     let capturedId = null;
 
     try {
-      runtime = _restoreRunState.ensureWritebackRuntime(_KDB);
-      capturedId = captureParameterSetSelectId();
+      runtime = _ensureWritebackRuntime(_KDB);
+      capturedId = _hostParameterSetSelect.readSelectedId();
       runtime.parameterSetRestoreActive = true;
       runtime.parameterSetRestoreActiveCount += 1;
       runtime.pendingRunId = run.runId;
 
-      loadingStarted = _restoreRunGuards.startLoadingGuarded(_KDB, run) === true;
+      loadingStarted = _runGuards.startLoadingGuarded(_KDB, run) === true;
 
       // Step 6: history begin before any owner dispatch (history delta §3).
       // Without a successful begin, no owner dispatch may run at all.
-      historyBegun = _restoreRunGuards.historyBeginGuarded(_KDB, run);
+      historyBegun = _runGuards.historyBeginGuarded(_KDB, run);
       if (!historyBegun) {
         throw _constants.ABORT;
       }
 
       if (run.statusKind === "newDashboard") {
-        outcome = await _restoreRunBranches.runNewDashboardReset(_KDB, run);
-        baseline = _restoreRunState.captureBaseline(run, "newDashboardReset");
+        outcome = await _runNewDashboardReset(_KDB, run);
+        baseline = _buildRestoreResult.captureBaseline(run, "newDashboardReset");
       } else {
-        outcome = await _restoreRunBranches.runNormalRestore(_KDB, run, v3);
-        baseline = _restoreRunState.captureBaseline(run, "postRestore");
+        outcome = await _runNormalRestore(_KDB, run, v3);
+        baseline = _buildRestoreResult.captureBaseline(run, "postRestore");
       }
     } catch (signal) {
       if (signal === _constants.CANCELLED) {
@@ -87,7 +75,7 @@ define([
     }
 
     _notifyRestoreOutcome(_KDB, run, outcome);
-    var result = _restoreRunState.buildRestoreResult(run, outcome, baseline);
+    var result = _buildRestoreResult.buildRestoreResult(run, outcome, baseline);
     if (result && result.ok === true && runtime) {
       runtime.lastConfirmedParameterSetId = capturedId;
     }

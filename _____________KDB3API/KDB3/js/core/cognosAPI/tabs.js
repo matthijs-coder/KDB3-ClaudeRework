@@ -1,47 +1,34 @@
 define([], function () {
   "use strict";
 
-  function __controller(_KDB) {
-    try {
-      return {
-        getTabsContainers: function () {
-          return __getDashboardAPI().getSpec().layout.items;
-        },
-
-        getTabsContent: function () {
-          return __getDashboardAPI()
-            .getSpec()
-            .layout.items.map(function (element) {
-              return element.items;
-            });
-        },
-
-        getTabName: function (_tabId) {
-          return __getDashboardAPI()
-            .getCanvas()
-            .getContent(_tabId)
-            .getContainer()
-            .getPropertyValue("title");
-        },
-
-        setTabName: function (_tabId, _newName) {
-          __getDashboardAPI()
-            .getCanvas()
-            .getContent(_tabId)
-            .getContainer()
-            .setPropertyValue("title", _newName);
-          return __getDashboardAPI()
-            .getCanvas()
-            .getContent(_tabId)
-            .getContainer()
-            .getPropertyValue("title");
-        },
-      };
-    } catch (error) {
-      console.error("[KDB][__controller] failed", error);
-      throw error;
-    }
+  function tabContainer(_tabId) {
+    return __getDashboardAPI().getCanvas().getContent(_tabId).getContainer();
   }
 
-  return __controller;
+  function createTabsApi() {
+    return {
+      getTabsContainers: function () {
+        return __getDashboardAPI().getSpec().layout.items;
+      },
+
+      getTabsContent: function () {
+        return __getDashboardAPI()
+          .getSpec()
+          .layout.items.map(function (element) {
+            return element.items;
+          });
+      },
+
+      getTabName: function (_tabId) {
+        return tabContainer(_tabId).getPropertyValue("title");
+      },
+
+      setTabName: function (_tabId, _newName) {
+        tabContainer(_tabId).setPropertyValue("title", _newName);
+        return tabContainer(_tabId).getPropertyValue("title");
+      }
+    };
+  }
+
+  return createTabsApi;
 });

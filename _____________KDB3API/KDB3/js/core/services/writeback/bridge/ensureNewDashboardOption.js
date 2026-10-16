@@ -1,42 +1,54 @@
-define(["./parameterSetSelectConstants.js"], function (_constants) {
+define([
+  "../../../utils/kit/async.js",
+  "./hostParameterSetSelect.js",
+  "./parameterSetSelectConstants.js"
+], function (_kitAsync, _hostParameterSetSelect, _constants) {
   "use strict";
 
   var SLOT_ID = "kdb-control-save-load-slot";
+  var SLOT_POLL_MS = 500;
   var LOG = "[writebackBridge.ensureNewDashboardOption]";
 
-  function readSelect() {
-    return typeof document !== "undefined" ? document.getElementById(_constants.SELECT_ID) : null;
+  function readSlot() {
+    return typeof document !== "undefined" ? document.getElementById(SLOT_ID) : null;
   }
+
+  function disconnectObservers(_state) {
+    if (_state.selectObserver) _state.selectObserver.disconnect();
+    if (_state.slotObserver) _state.slotObserver.disconnect();
+    _state.selectObserver = null;
+    _state.slotObserver = null;
+  }
+
   function cleanupState(_state) {
     var select, node;
     try {
       if (_state.changeHandler) document.removeEventListener("change", _state.changeHandler, true);
-      if (_state.selectObserver) _state.selectObserver.disconnect();
-      if (_state.waitObserver) _state.waitObserver.disconnect();
-      _state.selectObserver = null;
-      _state.waitObserver = null;
-      select = readSelect();
+      disconnectObservers(_state);
+      select = _hostParameterSetSelect.readSelectNode();
       if (select && select.value === _constants.NEW_DASHBOARD_VALUE) select.value = "-";
       node = select && select.querySelector("option[value='" + _constants.NEW_DASHBOARD_VALUE + "']");
       if (node && node.parentNode) node.parentNode.removeChild(node);
     } catch (error) { console.error(LOG + " failed", error); }
   }
+
+  function findSentinelOption(_select) {
+    var index;
+    for (index = 0; _select.options && index < _select.options.length; index += 1) {
+      if (_select.options[index].value === _constants.NEW_DASHBOARD_VALUE) return _select.options[index];
+    }
+    return null;
+  }
+
   function prependSentinel(_state, _select) {
-    var previousValue, existing, option, runtime, index;
+    var previousValue, existing, option, runtime;
+    runtime = _state.KDB && _state.KDB.runtime && _state.KDB.runtime.writeback;
+    if (runtime && runtime.urlShareBootOverlayActive === true) return;
+    previousValue = _select.value;
+    existing = findSentinelOption(_select);
+    if (existing && _select.firstChild === existing) return;
+    _state.inserting = true;
     try {
-      if (!_select) return;
-      runtime = _state.KDB && _state.KDB.runtime && _state.KDB.runtime.writeback;
-      if (runtime && runtime.urlShareBootOverlayActive === true) return;
-      previousValue = _select.value;
-      existing = null;
-      for (index = 0; _select.options && index < _select.options.length; index += 1) {
-        if (_select.options[index].value === _constants.NEW_DASHBOARD_VALUE) {
-          existing = _select.options[index];
-          break;
-        }
-      }
-      if (existing && _select.firstChild === existing) return;
-      _state.inserting = true;
       option = existing;
       if (!option) {
         option = document.createElement("option");
@@ -45,47 +57,78 @@ define(["./parameterSetSelectConstants.js"], function (_constants) {
       }
       _select.insertBefore(option, _select.firstChild);
       if (previousValue !== _constants.NEW_DASHBOARD_VALUE) _select.value = previousValue;
-    } catch (error) { console.error(LOG + " failed", error); throw error; } finally { _state.inserting = false; }
+    } finally {
+      _state.inserting = false;
+    }
   }
+
   function bindSelectObserver(_state, _select) {
-    try {
-      if (_state.selectObserver) _state.selectObserver.disconnect();
-      if (_state.waitObserver) { _state.waitObserver.disconnect(); _state.waitObserver = null; }
-      _state.selectObserver = new MutationObserver(onSelectMutation.bind(null, _state));
-      _state.selectObserver.observe(_select, { childList: true, subtree: false });
-      prependSentinel(_state, _select);
-    } catch (error) { console.error(LOG + " failed", error); throw error; }
+    disconnectObservers(_state);
+    _state.selectObserver = new MutationObserver(onSelectMutation.bind(null, _state));
+    _state.selectObserver.observe(_select, { childList: true, subtree: false });
+    prependSentinel(_state, _select);
   }
-  function bindWaitObserver(_state) {
-    var root;
-    try {
-      if (_state.waitObserver) _state.waitObserver.disconnect();
-      root = typeof document !== "undefined" ? (document.getElementById(SLOT_ID) || document.body) : null;
-      if (!root) return;
-      _state.waitObserver = new MutationObserver(onWaitMutation.bind(null, _state));
-      _state.waitObserver.observe(root, { childList: true, subtree: true });
-    } catch (error) { console.error(LOG + " failed", error); throw error; }
+
+  // The select lives inside the KDB-owned slot; observing only the slot (never the whole page) keeps
+  // the cost of the subtree observer bounded.
+  function bindSlotObserver(_state, _slot) {
+    var select;
+    disconnectObservers(_state);
+    select = _hostParameterSetSelect.readSelectNode();
+    if (select) {
+      bindSelectObserver(_state, select);
+      return;
+    }
+    _state.slotObserver = new MutationObserver(onSlotMutation.bind(null, _state));
+    _state.slotObserver.observe(_slot, { childList: true, subtree: true });
   }
+
+  async function awaitSlotThenBind(_state) {
+    var slot, outcome;
+    try {
+      slot = readSlot();
+      if (!slot) {
+        if (_state.slotPolling) return;
+        _state.slotPolling = true;
+        outcome = await _kitAsync.pollUntil({
+          check: readSlot,
+          intervalMs: SLOT_POLL_MS,
+          timeoutMs: Infinity,
+          signal: _state.signal
+        });
+        _state.slotPolling = false;
+        if (!outcome.ok || _state.signal.aborted) return;
+        slot = outcome.value;
+      }
+      bindSlotObserver(_state, slot);
+    } catch (error) {
+      _state.slotPolling = false;
+      console.error(LOG + " failed", error);
+    }
+  }
+
   function onSelectMutation(_state) {
     var select;
     try {
       if (_state.inserting) return;
-      select = readSelect();
+      select = _hostParameterSetSelect.readSelectNode();
       if (!select) {
-        if (_state.selectObserver) { _state.selectObserver.disconnect(); _state.selectObserver = null; }
-        bindWaitObserver(_state);
+        disconnectObservers(_state);
+        awaitSlotThenBind(_state);
         return;
       }
       prependSentinel(_state, select);
     } catch (error) { console.error(LOG + " failed", error); }
   }
-  function onWaitMutation(_state) {
+
+  function onSlotMutation(_state) {
     var select;
     try {
-      select = readSelect();
+      select = _hostParameterSetSelect.readSelectNode();
       if (select) bindSelectObserver(_state, select);
     } catch (error) { console.error(LOG + " failed", error); }
   }
+
   function leaveSentinelSelected(_select) {
     var index, optionValue, candidates;
     candidates = ["-", ""];
@@ -103,12 +146,14 @@ define(["./parameterSetSelectConstants.js"], function (_constants) {
       }
     }
   }
+
   function releaseSentinelSelection(_select, _result) {
     try {
       if (!_select || (_result && _result.outcome === "cancelled")) return;
       leaveSentinelSelected(_select);
     } catch (error) { console.error(LOG + " failed", error); }
   }
+
   function onChange(_state, _event) {
     var select;
     try {
@@ -122,28 +167,26 @@ define(["./parameterSetSelectConstants.js"], function (_constants) {
       );
     } catch (error) { console.error(LOG + " failed", error); }
   }
+
+  // Idempotent: puts the "new dashboard" sentinel option first in the host select and keeps it there.
   function ensureNewDashboardOption(_KDB, _bridgeSet) {
     var runtime, controller, state, select;
-    try {
-      runtime = _KDB && _KDB.runtime && _KDB.runtime.writeback;
-      if (!runtime) return;
-      if (!runtime.abortControllers || typeof runtime.abortControllers !== "object") {
-        runtime.abortControllers = {};
-      }
-      if (runtime.abortControllers.newDashboardOption) return;
-      controller = new AbortController();
-      runtime.abortControllers.newDashboardOption = controller;
-      state = {
-        KDB: _KDB, bridgeSet: _bridgeSet, inserting: false,
-        selectObserver: null, waitObserver: null, changeHandler: null
-      };
-      state.changeHandler = onChange.bind(null, state);
-      controller.signal.addEventListener("abort", cleanupState.bind(null, state));
-      document.addEventListener("change", state.changeHandler, true);
-      select = readSelect();
-      if (select) bindSelectObserver(state, select);
-      else bindWaitObserver(state);
-    } catch (error) { console.error(LOG + " failed", error); throw error; }
+    runtime = _KDB && _KDB.runtime && _KDB.runtime.writeback;
+    if (!runtime || !runtime.abortControllers) return;
+    if (runtime.abortControllers.newDashboardOption) return;
+    controller = new AbortController();
+    runtime.abortControllers.newDashboardOption = controller;
+    state = {
+      KDB: _KDB, bridgeSet: _bridgeSet, signal: controller.signal, inserting: false, slotPolling: false,
+      selectObserver: null, slotObserver: null, changeHandler: null
+    };
+    state.changeHandler = onChange.bind(null, state);
+    controller.signal.addEventListener("abort", cleanupState.bind(null, state));
+    document.addEventListener("change", state.changeHandler, true);
+    select = _hostParameterSetSelect.readSelectNode();
+    if (select) bindSelectObserver(state, select);
+    else awaitSlotThenBind(state);
   }
+
   return ensureNewDashboardOption;
 });

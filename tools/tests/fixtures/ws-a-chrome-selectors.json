@@ -1,0 +1,733 @@
+{
+ "selectors": {
+  "root": {
+   "kdbWidget": ".KDB3Widget",
+   "dashboardClassHost": "#main",
+   "pageViewContent": ".pageViewContent",
+   "dashboardFrame": ".dashboardFrame",
+   "contentViewPane": ".pane.paneContent.contentViewPane",
+   "footerMountRoot": ".ba-common-tabList__container",
+   "loadingIndicatorSelector": ".loadingIndicatorContainer"
+  },
+  "toolbar": {
+   "actionBarLeadingSelector": "[id=\"com.ibm.bi.dashboard.toolbars.actionBar\"] .leading"
+  },
+  "dashboardPdf": {
+   "loadingMountSelector": ".ba-common-container.ba-common-tabList__innerContainer"
+  },
+  "footer": {
+   "pageClassNames": "page pagegenericPage"
+  },
+  "tab": {
+   "selectedTab": ".dashboardFrame .pageTabContent.selected > :first-child",
+   "selectedTabButton": ".ba-common-tabList__list .ba-common-tabList__item.is-selected"
+  },
+  "tabs": {
+   "primaryTabButtonSelector": ".ba-common-tabList__tooltip",
+   "tabWrapperSelector": ".ba-common-tabList__tooltip",
+   "fallbackTabButtonSelector": ".ba-common-tooltip",
+   "tabButtonItemSelector": ".ba-common-tabList__item[role=\"tab\"][data-index]",
+   "tabListSelector": ".ba-common-tabList",
+   "tabLabelTidSelector": "[data-tid='ba-common-truncated-text__text-node']",
+   "tabLabelTruncatedTextSelector": ".ba-common-truncatedText__text",
+   "tabLabelTextSelector": ".ba-common-tabList__labelText",
+   "tabLabelSelector": ".ba-common-tabList__label",
+   "tabEditIconHostSelector": ".ba-common-tabList__tooltip",
+   "tabEditIconInsertAfterSelector": ".ba-common-tabList__item[role=\"tab\"][data-index]",
+   "tabEditPseudoTabItemClass": "ba-common-tabList__item is-label",
+   "tabEditPseudoTabRole": "tab",
+   "tabEditLabelContainerClass": "ba-common-tabList__label__container",
+   "tabEditSvgIconClass": "ba-common-svgIcon is-clickable",
+   "tabEditSubTitleClass": "subTitle",
+   "tabEditInputClass": "svgIcon",
+   "tabIndexAttribute": "data-index",
+   "tabIdAttribute": "data-tab-id",
+   "pageIdAttribute": "data-page-id",
+   "activeSelectedAttribute": "aria-selected",
+   "activeSelectedValue": "true",
+   "selectedClassGeneric": "selected",
+   "activeClassGeneric": "active",
+   "selectedClassBem": "ba-common-tabList__tab--selected",
+   "tabContentSelector": ".ba-common-page, .ba-common-pageView, [data-cv-page-id]",
+   "tabLabelSelectors": [
+    "[data-tid='ba-common-truncated-text__text-node']",
+    ".ba-common-truncatedText__text",
+    ".ba-common-tabList__labelText",
+    ".ba-common-tabList__label"
+   ],
+   "activeClassNames": [
+    "selected",
+    "active",
+    "ba-common-tabList__tab--selected"
+   ]
+  },
+  "dragDrop": {
+   "canvasDropboxSelector": ".page.pagegenericPage",
+   "pageTemplateSelector": ".page.pagetemplateIndicator",
+   "pageGenericSelector": ".pagegenericPage",
+   "pageContainerSelector": ".pagecontainer"
+  },
+  "page": {
+   "exactPageRootSelector": ".pagegenericPage",
+   "pageIdentityAttrs": [
+    "data-cv-page-id",
+    "data-page-id",
+    "data-cv-page-identity",
+    "data-page-identity",
+    "id"
+   ],
+   "tabIdentityAttrs": [
+    "data-tab-id",
+    "data-tab-identity",
+    "data-cv-tab-id",
+    "data-cv-tab-identity",
+    "id"
+   ]
+  },
+  "filterDock": {
+   "rootSelector": "#filterDockContainer",
+   "globalDockSelector": "#filterDock__global",
+   "pageContextDockSelector": "#filterDock__other",
+   "filterItemSelector": ".filterItemWrapper",
+   "filterItemWrapperClass": "filterItemWrapper",
+   "popupMountSelector": ".wa-filterDock-filterItemMount",
+   "popupMountFallbackSelector": ".wa-filterDock-filterItemMount",
+   "optionSelector": ".ba-common-listItem-wrapper",
+   "listItemWrapperSelector": ".ba-common-listItem-wrapper",
+   "optionWrapperSelector": ".ba-common-listItem-wrapper",
+   "filterLabelSelector": "[data-id]",
+   "filterDataIdAttr": "data-id",
+   "optionLabelSelector": ".ba-common-truncatedText__text",
+   "optionLabelTid": "ba-common-truncated-text__text-node",
+   "optionLabelTidSelector": "[data-tid='ba-common-truncated-text__text-node']",
+   "nativeFooterSelector": "[data-tid=\"ba-common-dialog__footer\"]:not(.KDB_singleSelectFooter)",
+   "outClickCatcherSelector": "#filterOutClickCatcher",
+   "okButtonSelector": "[data-tid=\"okClickable\"]",
+   "cancelButtonSelector": "[data-tid=\"cancelClickable\"]",
+   "clearButtonSelector": "[data-tid=\"clearAllClickable\"]",
+   "closeButtonSelector": "[data-tid=\"mui-filterHeader-closeClickable\"]",
+   "roleOptionSelector": "[role=\"option\"]",
+   "checkboxSelector": "input.bx--checkbox",
+   "checkboxInputSelector": "input.bx--checkbox",
+   "sichtCheckboxSelector": "input[type=\"checkbox\"]",
+   "selectedOptionClass": "is-selected",
+   "filterDockFilterNameSelector": ".wa-filterDock-filterName",
+   "filterNameSelector": ".wa-filterDock-filterName",
+   "filterItemBottomSelector": ".wa-filterDock-filterItem-bottom",
+   "committedDisplayParentSelector": ".wa-filterDock-filterItem-bottom",
+   "filterItemTextSelector": ".wa-filterDock-filterItemText",
+   "committedDisplaySelector": ".wa-filterDock-filterItem-bottom .wa-filterDock-filterItemText",
+   "committedDisplayMatchSelector": ".wa-filterDock-filterItem-bottom, .wa-filterDock-filterItemText",
+   "alleOptionMountSelector": ".ba-common-root .ba-common-flexLayout",
+   "footerOkButtonSelector": "[data-tid=\"okClickable\"]",
+   "footerCancelButtonSelector": "[data-tid=\"cancelClickable\"]",
+   "disabledButtonClass": "bx--btn--disabled",
+   "footerTid": "ba-common-dialog__footer",
+   "footerCloneClassName": "ba-common-dialog__footer is-transactional",
+   "okButtonTid": "okClickable",
+   "cancelButtonTid": "cancelClickable",
+   "optionLabelSelectors": [
+    "[data-tid='ba-common-truncated-text__text-node']",
+    ".ba-common-truncatedText__text"
+   ]
+  },
+  "widget": {
+   "widgetClass": ".widget",
+   "textWidgetClass": ".textWidget",
+   "liveWidgetClass": ".liveWidget",
+   "textWidgetClassName": "textWidget",
+   "liveWidgetClassName": "liveWidget",
+   "contentWrapperSelector": ".widgetContentWrapper",
+   "contentWrapperHeaderSelector": ".widgetContentWrapper .widgetHeader",
+   "widgetHeaderSelector": ".widgetHeader",
+   "widgetIconsSelector": ".widgetIcons",
+   "widgetIconsClassName": "widgetIcons",
+   "staticContentSelector": ".staticContent",
+   "textFillSelector": ".textFillNoScroll",
+   "editableSelector": ".note-editable",
+   "dataWidgetIconClass": "dataWidgetIcon",
+   "dataWidgetIconSelector": ".dataWidgetIcon",
+   "liveWidgetAnnotationsClass": "liveWidgetAnnotations",
+   "svgIconClass": "svgIcon",
+   "textIconClass": "textIcon",
+   "textFittedClass": "textFitted",
+   "bemContentSelector": ".widget-content, .ba-common-widget__content",
+   "bemHeaderSelector": ".widget-header, .ba-common-widget__header",
+   "bemTitleSelector": "a, .ba-common-widget__header-title",
+   "vizTitleSelector": ".widgetHeader .widgetTitle",
+   "vizTitleSpanSelector": ".widgetHeader .widgetTitle .note-editable p span",
+   "widgetTitleClass": "widgetTitle",
+   "titleShownClass": "titleShown",
+   "textAreaClass": "textArea",
+   "responsiveFontSizeClass": "responsiveFontSize",
+   "badgeContainerClass": "badgeContainer",
+   "tooltipNodeSelector": "[data-node=content] .text, [data-node=content] .value"
+  },
+  "focusMode": {
+   "resizeEdgeTopRightSelector": "div.resizeEdge.topRight > *",
+   "expandModeContainerSelector": ".expandModeContainer",
+   "expandedWidgetSelectorPrefix": ".expandModeContainer [id=\"",
+   "collapseSvgFocusModeSelector": "[role=\"button\"].collapseSvg.focusMode",
+   "collapseSvgSelector": ".collapseSvg",
+   "canvasIconsSelector": ".widgetIcons > .dataWidgetIcon"
+  },
+  "legend": {
+   "titleSelector": ".Legend .lgd-title, .legend .lgd-title",
+   "captionSelector": ".Legend .legendCaption, .legend .legendCaption",
+   "captionLegacySelector": ".Legend [data-visual-item=\"widget.legend.labels\"], .legend [data-visual-item=\"widget.legend.labels\"]",
+   "observeRootSelector": ".Legend, .legend",
+   "captionClass": "legendCaption",
+   "captionDataItem": "widget.legend.labels"
+  }
+ },
+ "selectorMeta": {
+  "root.kdbWidget": {
+   "required": false,
+   "selector": ".KDB3Widget"
+  },
+  "root.dashboardClassHost": {
+   "required": true,
+   "selector": "#main"
+  },
+  "root.pageViewContent": {
+   "required": true,
+   "selector": ".pageViewContent"
+  },
+  "root.dashboardFrame": {
+   "required": true,
+   "selector": ".dashboardFrame"
+  },
+  "root.contentViewPane": {
+   "required": true,
+   "selector": ".pane.paneContent.contentViewPane"
+  },
+  "root.footerMountRoot": {
+   "required": true,
+   "selector": ".ba-common-tabList__container"
+  },
+  "root.loadingIndicatorSelector": {
+   "required": false,
+   "selector": ".loadingIndicatorContainer"
+  },
+  "toolbar.actionBarLeadingSelector": {
+   "required": true,
+   "selector": "[id=\"com.ibm.bi.dashboard.toolbars.actionBar\"] .leading"
+  },
+  "dashboardPdf.loadingMountSelector": {
+   "required": false,
+   "selector": ".ba-common-container.ba-common-tabList__innerContainer"
+  },
+  "footer.pageClassNames": {
+   "required": false,
+   "selector": "page pagegenericPage"
+  },
+  "tab.selectedTab": {
+   "required": false,
+   "selector": ".dashboardFrame .pageTabContent.selected > :first-child"
+  },
+  "tab.selectedTabButton": {
+   "required": false,
+   "selector": ".ba-common-tabList__list .ba-common-tabList__item.is-selected"
+  },
+  "tabs.primaryTabButtonSelector": {
+   "required": true,
+   "selector": ".ba-common-tabList__tooltip"
+  },
+  "tabs.tabWrapperSelector": {
+   "required": true,
+   "selector": ".ba-common-tabList__tooltip"
+  },
+  "tabs.fallbackTabButtonSelector": {
+   "required": false,
+   "selector": ".ba-common-tooltip"
+  },
+  "tabs.tabButtonItemSelector": {
+   "required": true,
+   "selector": ".ba-common-tabList__item[role=\"tab\"][data-index]"
+  },
+  "tabs.tabListSelector": {
+   "required": true,
+   "selector": ".ba-common-tabList"
+  },
+  "tabs.tabLabelTidSelector": {
+   "required": false,
+   "selector": "[data-tid='ba-common-truncated-text__text-node']"
+  },
+  "tabs.tabLabelTruncatedTextSelector": {
+   "required": false,
+   "selector": ".ba-common-truncatedText__text"
+  },
+  "tabs.tabLabelTextSelector": {
+   "required": false,
+   "selector": ".ba-common-tabList__labelText"
+  },
+  "tabs.tabLabelSelector": {
+   "required": false,
+   "selector": ".ba-common-tabList__label"
+  },
+  "tabs.tabEditIconHostSelector": {
+   "required": false,
+   "selector": ".ba-common-tabList__tooltip"
+  },
+  "tabs.tabEditIconInsertAfterSelector": {
+   "required": false,
+   "selector": ".ba-common-tabList__item[role=\"tab\"][data-index]"
+  },
+  "tabs.tabEditPseudoTabItemClass": {
+   "required": false,
+   "selector": "ba-common-tabList__item is-label"
+  },
+  "tabs.tabEditPseudoTabRole": {
+   "required": false,
+   "selector": "tab"
+  },
+  "tabs.tabEditLabelContainerClass": {
+   "required": false,
+   "selector": "ba-common-tabList__label__container"
+  },
+  "tabs.tabEditSvgIconClass": {
+   "required": false,
+   "selector": "ba-common-svgIcon is-clickable"
+  },
+  "tabs.tabEditSubTitleClass": {
+   "required": false,
+   "selector": "subTitle"
+  },
+  "tabs.tabEditInputClass": {
+   "required": false,
+   "selector": "svgIcon"
+  },
+  "tabs.tabIndexAttribute": {
+   "required": false,
+   "selector": "data-index"
+  },
+  "tabs.tabIdAttribute": {
+   "required": false,
+   "selector": "data-tab-id"
+  },
+  "tabs.pageIdAttribute": {
+   "required": false,
+   "selector": "data-page-id"
+  },
+  "tabs.activeSelectedAttribute": {
+   "required": false,
+   "selector": "aria-selected"
+  },
+  "tabs.activeSelectedValue": {
+   "required": false,
+   "selector": "true"
+  },
+  "tabs.selectedClassGeneric": {
+   "required": false,
+   "selector": "selected"
+  },
+  "tabs.activeClassGeneric": {
+   "required": false,
+   "selector": "active"
+  },
+  "tabs.selectedClassBem": {
+   "required": false,
+   "selector": "ba-common-tabList__tab--selected"
+  },
+  "tabs.tabContentSelector": {
+   "required": false,
+   "selector": ".ba-common-page, .ba-common-pageView, [data-cv-page-id]"
+  },
+  "tabs.tabLabelSelectors": {
+   "required": false,
+   "selector": [
+    "[data-tid='ba-common-truncated-text__text-node']",
+    ".ba-common-truncatedText__text",
+    ".ba-common-tabList__labelText",
+    ".ba-common-tabList__label"
+   ]
+  },
+  "tabs.activeClassNames": {
+   "required": false,
+   "selector": [
+    "selected",
+    "active",
+    "ba-common-tabList__tab--selected"
+   ]
+  },
+  "dragDrop.canvasDropboxSelector": {
+   "required": false,
+   "selector": ".page.pagegenericPage"
+  },
+  "dragDrop.pageTemplateSelector": {
+   "required": false,
+   "selector": ".page.pagetemplateIndicator"
+  },
+  "dragDrop.pageGenericSelector": {
+   "required": false,
+   "selector": ".pagegenericPage"
+  },
+  "dragDrop.pageContainerSelector": {
+   "required": false,
+   "selector": ".pagecontainer"
+  },
+  "page.exactPageRootSelector": {
+   "required": false,
+   "selector": ".pagegenericPage"
+  },
+  "page.pageIdentityAttrs": {
+   "required": false,
+   "selector": [
+    "data-cv-page-id",
+    "data-page-id",
+    "data-cv-page-identity",
+    "data-page-identity",
+    "id"
+   ]
+  },
+  "page.tabIdentityAttrs": {
+   "required": false,
+   "selector": [
+    "data-tab-id",
+    "data-tab-identity",
+    "data-cv-tab-id",
+    "data-cv-tab-identity",
+    "id"
+   ]
+  },
+  "filterDock.rootSelector": {
+   "required": true,
+   "selector": "#filterDockContainer"
+  },
+  "filterDock.globalDockSelector": {
+   "required": true,
+   "selector": "#filterDock__global"
+  },
+  "filterDock.pageContextDockSelector": {
+   "required": true,
+   "selector": "#filterDock__other"
+  },
+  "filterDock.filterItemSelector": {
+   "required": false,
+   "selector": ".filterItemWrapper"
+  },
+  "filterDock.filterItemWrapperClass": {
+   "required": false,
+   "selector": "filterItemWrapper"
+  },
+  "filterDock.popupMountSelector": {
+   "required": false,
+   "selector": ".wa-filterDock-filterItemMount"
+  },
+  "filterDock.popupMountFallbackSelector": {
+   "required": false,
+   "selector": ".wa-filterDock-filterItemMount"
+  },
+  "filterDock.optionSelector": {
+   "required": false,
+   "selector": ".ba-common-listItem-wrapper"
+  },
+  "filterDock.listItemWrapperSelector": {
+   "required": false,
+   "selector": ".ba-common-listItem-wrapper"
+  },
+  "filterDock.optionWrapperSelector": {
+   "required": false,
+   "selector": ".ba-common-listItem-wrapper"
+  },
+  "filterDock.filterLabelSelector": {
+   "required": false,
+   "selector": "[data-id]"
+  },
+  "filterDock.filterDataIdAttr": {
+   "required": false,
+   "selector": "data-id"
+  },
+  "filterDock.optionLabelSelector": {
+   "required": false,
+   "selector": ".ba-common-truncatedText__text"
+  },
+  "filterDock.optionLabelTid": {
+   "required": false,
+   "selector": "ba-common-truncated-text__text-node"
+  },
+  "filterDock.optionLabelTidSelector": {
+   "required": false,
+   "selector": "[data-tid='ba-common-truncated-text__text-node']"
+  },
+  "filterDock.nativeFooterSelector": {
+   "required": false,
+   "selector": "[data-tid=\"ba-common-dialog__footer\"]:not(.KDB_singleSelectFooter)"
+  },
+  "filterDock.outClickCatcherSelector": {
+   "required": false,
+   "selector": "#filterOutClickCatcher"
+  },
+  "filterDock.okButtonSelector": {
+   "required": false,
+   "selector": "[data-tid=\"okClickable\"]"
+  },
+  "filterDock.cancelButtonSelector": {
+   "required": false,
+   "selector": "[data-tid=\"cancelClickable\"]"
+  },
+  "filterDock.clearButtonSelector": {
+   "required": false,
+   "selector": "[data-tid=\"clearAllClickable\"]"
+  },
+  "filterDock.closeButtonSelector": {
+   "required": false,
+   "selector": "[data-tid=\"mui-filterHeader-closeClickable\"]"
+  },
+  "filterDock.roleOptionSelector": {
+   "required": false,
+   "selector": "[role=\"option\"]"
+  },
+  "filterDock.checkboxSelector": {
+   "required": false,
+   "selector": "input.bx--checkbox"
+  },
+  "filterDock.checkboxInputSelector": {
+   "required": false,
+   "selector": "input.bx--checkbox"
+  },
+  "filterDock.sichtCheckboxSelector": {
+   "required": false,
+   "selector": "input[type=\"checkbox\"]"
+  },
+  "filterDock.selectedOptionClass": {
+   "required": false,
+   "selector": "is-selected"
+  },
+  "filterDock.filterDockFilterNameSelector": {
+   "required": false,
+   "selector": ".wa-filterDock-filterName"
+  },
+  "filterDock.filterNameSelector": {
+   "required": false,
+   "selector": ".wa-filterDock-filterName"
+  },
+  "filterDock.filterItemBottomSelector": {
+   "required": false,
+   "selector": ".wa-filterDock-filterItem-bottom"
+  },
+  "filterDock.committedDisplayParentSelector": {
+   "required": false,
+   "selector": ".wa-filterDock-filterItem-bottom"
+  },
+  "filterDock.filterItemTextSelector": {
+   "required": false,
+   "selector": ".wa-filterDock-filterItemText"
+  },
+  "filterDock.committedDisplaySelector": {
+   "required": false,
+   "selector": ".wa-filterDock-filterItem-bottom .wa-filterDock-filterItemText"
+  },
+  "filterDock.committedDisplayMatchSelector": {
+   "required": false,
+   "selector": ".wa-filterDock-filterItem-bottom, .wa-filterDock-filterItemText"
+  },
+  "filterDock.alleOptionMountSelector": {
+   "required": false,
+   "selector": ".ba-common-root .ba-common-flexLayout"
+  },
+  "filterDock.footerOkButtonSelector": {
+   "required": false,
+   "selector": "[data-tid=\"okClickable\"]"
+  },
+  "filterDock.footerCancelButtonSelector": {
+   "required": false,
+   "selector": "[data-tid=\"cancelClickable\"]"
+  },
+  "filterDock.disabledButtonClass": {
+   "required": false,
+   "selector": "bx--btn--disabled"
+  },
+  "filterDock.footerTid": {
+   "required": false,
+   "selector": "ba-common-dialog__footer"
+  },
+  "filterDock.footerCloneClassName": {
+   "required": false,
+   "selector": "ba-common-dialog__footer is-transactional"
+  },
+  "filterDock.okButtonTid": {
+   "required": false,
+   "selector": "okClickable"
+  },
+  "filterDock.cancelButtonTid": {
+   "required": false,
+   "selector": "cancelClickable"
+  },
+  "filterDock.optionLabelSelectors": {
+   "required": false,
+   "selector": [
+    "[data-tid='ba-common-truncated-text__text-node']",
+    ".ba-common-truncatedText__text"
+   ]
+  },
+  "widget.widgetClass": {
+   "required": false,
+   "selector": ".widget"
+  },
+  "widget.textWidgetClass": {
+   "required": false,
+   "selector": ".textWidget"
+  },
+  "widget.liveWidgetClass": {
+   "required": false,
+   "selector": ".liveWidget"
+  },
+  "widget.textWidgetClassName": {
+   "required": false,
+   "selector": "textWidget"
+  },
+  "widget.liveWidgetClassName": {
+   "required": false,
+   "selector": "liveWidget"
+  },
+  "widget.contentWrapperSelector": {
+   "required": false,
+   "selector": ".widgetContentWrapper"
+  },
+  "widget.contentWrapperHeaderSelector": {
+   "required": false,
+   "selector": ".widgetContentWrapper .widgetHeader"
+  },
+  "widget.widgetHeaderSelector": {
+   "required": false,
+   "selector": ".widgetHeader"
+  },
+  "widget.widgetIconsSelector": {
+   "required": false,
+   "selector": ".widgetIcons"
+  },
+  "widget.widgetIconsClassName": {
+   "required": false,
+   "selector": "widgetIcons"
+  },
+  "widget.staticContentSelector": {
+   "required": false,
+   "selector": ".staticContent"
+  },
+  "widget.textFillSelector": {
+   "required": false,
+   "selector": ".textFillNoScroll"
+  },
+  "widget.editableSelector": {
+   "required": false,
+   "selector": ".note-editable"
+  },
+  "widget.dataWidgetIconClass": {
+   "required": false,
+   "selector": "dataWidgetIcon"
+  },
+  "widget.dataWidgetIconSelector": {
+   "required": false,
+   "selector": ".dataWidgetIcon"
+  },
+  "widget.liveWidgetAnnotationsClass": {
+   "required": false,
+   "selector": "liveWidgetAnnotations"
+  },
+  "widget.svgIconClass": {
+   "required": false,
+   "selector": "svgIcon"
+  },
+  "widget.textIconClass": {
+   "required": false,
+   "selector": "textIcon"
+  },
+  "widget.textFittedClass": {
+   "required": false,
+   "selector": "textFitted"
+  },
+  "widget.bemContentSelector": {
+   "required": false,
+   "selector": ".widget-content, .ba-common-widget__content"
+  },
+  "widget.bemHeaderSelector": {
+   "required": false,
+   "selector": ".widget-header, .ba-common-widget__header"
+  },
+  "widget.bemTitleSelector": {
+   "required": false,
+   "selector": "a, .ba-common-widget__header-title"
+  },
+  "widget.vizTitleSelector": {
+   "required": false,
+   "selector": ".widgetHeader .widgetTitle"
+  },
+  "widget.vizTitleSpanSelector": {
+   "required": false,
+   "selector": ".widgetHeader .widgetTitle .note-editable p span"
+  },
+  "widget.widgetTitleClass": {
+   "required": false,
+   "selector": "widgetTitle"
+  },
+  "widget.titleShownClass": {
+   "required": false,
+   "selector": "titleShown"
+  },
+  "widget.textAreaClass": {
+   "required": false,
+   "selector": "textArea"
+  },
+  "widget.responsiveFontSizeClass": {
+   "required": false,
+   "selector": "responsiveFontSize"
+  },
+  "widget.badgeContainerClass": {
+   "required": false,
+   "selector": "badgeContainer"
+  },
+  "widget.tooltipNodeSelector": {
+   "required": false,
+   "selector": "[data-node=content] .text, [data-node=content] .value"
+  },
+  "focusMode.resizeEdgeTopRightSelector": {
+   "required": false,
+   "selector": "div.resizeEdge.topRight > *"
+  },
+  "focusMode.expandModeContainerSelector": {
+   "required": false,
+   "selector": ".expandModeContainer"
+  },
+  "focusMode.expandedWidgetSelectorPrefix": {
+   "required": false,
+   "selector": ".expandModeContainer [id=\""
+  },
+  "focusMode.collapseSvgFocusModeSelector": {
+   "required": false,
+   "selector": "[role=\"button\"].collapseSvg.focusMode"
+  },
+  "focusMode.collapseSvgSelector": {
+   "required": false,
+   "selector": ".collapseSvg"
+  },
+  "focusMode.canvasIconsSelector": {
+   "required": false,
+   "selector": ".widgetIcons > .dataWidgetIcon"
+  },
+  "legend.titleSelector": {
+   "required": false,
+   "selector": ".Legend .lgd-title, .legend .lgd-title"
+  },
+  "legend.captionSelector": {
+   "required": false,
+   "selector": ".Legend .legendCaption, .legend .legendCaption"
+  },
+  "legend.captionLegacySelector": {
+   "required": false,
+   "selector": ".Legend [data-visual-item=\"widget.legend.labels\"], .legend [data-visual-item=\"widget.legend.labels\"]"
+  },
+  "legend.observeRootSelector": {
+   "required": false,
+   "selector": ".Legend, .legend"
+  },
+  "legend.captionClass": {
+   "required": false,
+   "selector": "legendCaption"
+  },
+  "legend.captionDataItem": {
+   "required": false,
+   "selector": "widget.legend.labels"
+  }
+ }
+}

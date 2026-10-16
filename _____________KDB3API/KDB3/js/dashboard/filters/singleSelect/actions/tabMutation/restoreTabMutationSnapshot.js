@@ -1,10 +1,10 @@
 define([
   "./guardTabMutation.js",
   "./resolveTabMutationSnapshotTarget.js",
-  "../../effects/writeAndVerifyInstanceSelection.js",
-  "../reconcileFilterInstances.js",
-  "../../config/errorCodes.js"
-], function (_support, _resolveSnapshotTarget, _writeSelection, _reconcile, _codes) {
+  "../../hostFilterIo.js",
+  "../../inventory/reconcile.js",
+  "../../config.js"
+], function (_support, _resolveSnapshotTarget, _hostFilterIo, _reconcileInventory, _config) {
   "use strict";
 
   function restoreStateFields(_record, _snapshotRecord) {
@@ -41,13 +41,13 @@ define([
         if (target.status !== "ok") {
           unrecoverable.push(ids[i]);
           diagnostics.push({
-            code: _codes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
+            code: _config.errorCodes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
             filterInstanceId: ids[i],
             message: "snapshot rollback target " + target.status
           });
           continue;
         }
-        var written = await _writeSelection(
+        var written = await _hostFilterIo.writeInstanceSelection(
           _KDB, _runtime, target.instance.filterInstanceId, snapshot.byId[ids[i]].hostValues
         );
         if (_support.isStaleRun(_runtime, payload)) {
@@ -59,18 +59,18 @@ define([
         } else {
           unrecoverable.push(target.instance.filterInstanceId);
           diagnostics.push({
-            code: _codes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
+            code: _config.errorCodes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
             filterInstanceId: target.instance.filterInstanceId,
             message: "snapshot host pair could not be restored: " + written.errorCode
           });
         }
       }
-      var reconciled = await _reconcile(
+      var reconciled = await _reconcileInventory.reconcileFilterInstances(
         _KDB, _runtime, { reason: "tabMutation", runId: payload.runId }
       );
       if (!reconciled.ok) {
         diagnostics.push({
-          code: _codes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
+          code: _config.errorCodes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
           message: "post-rollback inventory reconcile failed"
         });
       }
@@ -96,7 +96,7 @@ define([
         restored: restored,
         unrecoverable: unrecoverable,
         diagnostics: diagnostics.concat([{
-          code: _codes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
+          code: _config.errorCodes.TAB_MUTATION_ROLLBACK_INCOMPLETE,
           message: String(error && error.message ? error.message : error)
         }])
       };

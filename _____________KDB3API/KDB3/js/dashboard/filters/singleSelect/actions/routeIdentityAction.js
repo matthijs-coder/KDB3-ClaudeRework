@@ -1,11 +1,11 @@
 define([
   "./parameterSet/routeParameterSetIdentityAction.js",
-  "./reconcileFilterInstances.js",
+  "../inventory/reconcile.js",
   "./applyOwnerSelection.js",
   "./applySpecialSelectionPolicy.js"
 ], function (
   _routeParameterSetIdentityAction,
-  _reconcileFilterInstances,
+  _reconcileInventory,
   _applyOwnerSelection,
   _applySpecialSelectionPolicy
 ) {
@@ -19,7 +19,7 @@ define([
         return routed;
       }
       if (action.type === "singleSelect/reconcileFilterInstances") {
-        return _reconcileFilterInstances(_KDB, _runtime, action.payload);
+        return _reconcileInventory.reconcileFilterInstances(_KDB, _runtime, action.payload);
       }
       if (action.type === "singleSelect/applyOwnerSelection") {
         return _applyOwnerSelection(_KDB, _runtime, action.payload);

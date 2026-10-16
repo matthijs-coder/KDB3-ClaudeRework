@@ -2,8 +2,7 @@ define([
   "../../../../config/mapping/kidIndex.js",
   "./remapV2KidTokens.js",
   "./mapV2CanvasSettings.js",
-  "./mapV2HeaderFooter.js",
-  "./mapV2Tabs.js",
+  "./mapV2Chrome.js",
   "./mapV2Filters.js",
   "./mapV2Widgets.js",
   "../../schema/errorCodes.js",
@@ -12,8 +11,7 @@ define([
   _parameterMapping,
   _remapV2KidTokens,
   _mapV2CanvasSettings,
-  _mapV2HeaderFooter,
-  _mapV2Tabs,
+  _mapV2Chrome,
   _mapV2Filters,
   _mapV2Widgets,
   _errorCodes,
@@ -77,10 +75,10 @@ define([
       const chrome = _mapV2CanvasSettings(payload);
       assignSection(v3, "canv", chrome.canv);
       assignSection(v3, "sett", chrome.sett);
-      const headerFooter = _mapV2HeaderFooter(payload, _diagnostics);
+      const headerFooter = _mapV2Chrome.mapV2HeaderFooter(payload);
       assignSection(v3, "head", headerFooter.head);
       assignSection(v3, "foot", headerFooter.foot);
-      assignSection(v3, "tabs", _mapV2Tabs(payload.tabs));
+      assignSection(v3, "tabs", _mapV2Chrome.mapV2Tabs(payload.tabs));
       assignSection(v3, "filt", _mapV2Filters(_KDB, payload, _diagnostics));
       assignSection(v3, "wgts", _mapV2Widgets(payload, _diagnostics));
       return v3;

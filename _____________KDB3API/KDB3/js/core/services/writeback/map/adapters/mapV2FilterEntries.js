@@ -39,71 +39,66 @@ define([
   }
 
   function mapFilterEntry(_state, _identityName, _valuesArray, _tabIdx, _filterPropObj, _diagnostics) {
-    try {
-      const classification = _classifyV2FilterItem(_filterPropObj, _identityName, _valuesArray);
-      if (classification.kind === "unsupported") {
-        _diagnostics.push(_errorCodes.makeDiagnostic(
-          _errorCodes.codes.WRITEBACK_FILTER_KIND_UNSUPPORTED,
-          "map",
-          "v2 filter kind is not supported in v3 map",
-          { name: _identityName }
-        ));
+    const classification = _classifyV2FilterItem(_filterPropObj, _identityName, _valuesArray);
+    if (classification.kind === "unsupported") {
+      _diagnostics.push(_errorCodes.makeDiagnostic(
+        _errorCodes.codes.WRITEBACK_FILTER_KIND_UNSUPPORTED,
+        "map",
+        "v2 filter kind is not supported in v3 map",
+        { name: _identityName }
+      ));
+      return;
+    }
+    if (classification.kind === "sicht") {
+      const values = _extractV2FilterValues.extractDValues(_valuesArray);
+      if (values.length > 0) {
+        _state.sicht = values[0];
+      }
+      return;
+    }
+    if (classification.kind === "dstl") {
+      const labels = _extractV2FilterValues.remapBwLabels(
+        _extractV2FilterValues.extractDValues(_valuesArray),
+        _diagnostics
+      );
+      if (labels.length === 0) {
         return;
       }
-      if (classification.kind === "sicht") {
-        const values = _extractV2FilterValues.extractDValues(_valuesArray);
-        if (values.length > 0) {
-          _state.sicht = values[0];
+      const key = resolveDstlKey(_identityName, _state.sicht);
+      const dstl = ensureDstl(_state, key);
+      if (_tabIdx === null) {
+        pushUnique(dstl.glob, labels);
+      } else {
+        const tabKey = String(_tabIdx);
+        if (!dstl.byTab[tabKey]) {
+          dstl.byTab[tabKey] = [];
         }
+        pushUnique(dstl.byTab[tabKey], labels);
+      }
+      return;
+    }
+    if (classification.kind === "sels") {
+      const vals = _extractV2FilterValues.extractDValues(_valuesArray);
+      if (vals.length === 0) {
         return;
       }
-      if (classification.kind === "dstl") {
-        const labels = _extractV2FilterValues.remapBwLabels(
-          _extractV2FilterValues.extractDValues(_valuesArray),
-          _diagnostics
-        );
-        if (labels.length === 0) {
-          return;
-        }
-        const key = resolveDstlKey(_identityName, _state.sicht);
-        const dstl = ensureDstl(_state, key);
-        if (_tabIdx === null) {
-          pushUnique(dstl.glob, labels);
-        } else {
-          const tabKey = String(_tabIdx);
-          if (!dstl.byTab[tabKey]) {
-            dstl.byTab[tabKey] = [];
-          }
-          pushUnique(dstl.byTab[tabKey], labels);
-        }
+      const entry = { key: classification.key, vals: vals };
+      if (_tabIdx !== null) {
+        entry.tab = _tabIdx;
+      }
+      _state.sels.push(entry);
+      return;
+    }
+    if (classification.kind === "pcfs") {
+      const vals = _extractV2FilterValues.extractPcfsVals(_valuesArray);
+      if (vals.length === 0) {
         return;
       }
-      if (classification.kind === "sels") {
-        const vals = _extractV2FilterValues.extractDValues(_valuesArray);
-        if (vals.length === 0) {
-          return;
-        }
-        const entry = { key: classification.key, vals: vals };
-        if (_tabIdx !== null) {
-          entry.tab = _tabIdx;
-        }
-        _state.sels.push(entry);
-        return;
+      const entry = { nm: classification.nm, vals: vals };
+      if (_tabIdx !== null) {
+        entry.tab = _tabIdx;
       }
-      if (classification.kind === "pcfs") {
-        const vals = _extractV2FilterValues.extractPcfsVals(_valuesArray);
-        if (vals.length === 0) {
-          return;
-        }
-        const entry = { nm: classification.nm, vals: vals };
-        if (_tabIdx !== null) {
-          entry.tab = _tabIdx;
-        }
-        _state.pcfs.push(entry);
-      }
-    } catch (error) {
-      console.error("[writebackMap.mapFilterEntry]", error);
-      throw error;
+      _state.pcfs.push(entry);
     }
   }
 

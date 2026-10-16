@@ -1,18 +1,16 @@
 define([
-  "./config/actions.js",
+  "./config.js",
   "./state/createSingleSelectReducer.js",
   "./state/selectors.js",
-  "./effects/guardInteractionFreshness.js",
+  "./runtime.js",
   "./actions/dispatchSingleSelectAction.js",
-  "./effects/ensureSingleSelectRuntime.js",
   "./singleSelectControllerGuards.js"
 ], function (
-  _actions,
+  _config,
   _createSingleSelectReducer,
   _selectors,
-  _guardInteractionFreshness,
+  _singleSelectRuntime,
   _dispatchAction,
-  _ensureRuntime,
   _guards
 ) {
   "use strict";
@@ -33,23 +31,23 @@ define([
       return false;
     }
     try {
-      _ensureRuntime(_controller._KDB);
+      _singleSelectRuntime.ensureSingleSelectRuntime(_controller._KDB);
       _controller.options = Object.assign({}, _controller.options, _options || {});
       _controller._KDB.state.filters.singleSelect.instancesById = _controller._KDB.state.filters.singleSelect.instancesById || {};
       _controller._KDB.state.filters.singleSelect.inventory = _controller._KDB.state.filters.singleSelect.inventory || {
         generation: 0, freshness: "stale", reconciledAt: null, errorCode: null
       };
       delete _controller._KDB.state.filters.singleSelect.byScope;
-      _guards.dispatchInternal(_controller, { type: _actions.MOUNT_SUCCEEDED, payload: { mountedAt: Date.now() } });
-      _dispatchAction(_controller._KDB, _ensureRuntime(_controller._KDB), {
-        type: _actions.RECONCILE_FILTER_INSTANCES,
+      _guards.dispatchInternal(_controller, { type: _config.actions.MOUNT_SUCCEEDED, payload: { mountedAt: Date.now() } });
+      _dispatchAction(_controller._KDB, _singleSelectRuntime.ensureSingleSelectRuntime(_controller._KDB), {
+        type: _config.actions.RECONCILE_FILTER_INSTANCES,
         payload: { reason: "mount" }
       }, _controller.options, _guards.dispatchInternal.bind(null, _controller));
       return true;
     } catch (error) {
       console.error("[singleSelect.mount] failed", error);
       _guards.dispatchInternal(_controller, {
-        type: _actions.ERROR,
+        type: _config.actions.ERROR,
         payload: { errorCode: "SINGLE_SELECT_MOUNT_FAILED", errorMessage: String(error.message || error) }
       });
       return false;
@@ -62,12 +60,12 @@ define([
     }
     _controller.isDisposed = true;
     try {
-      _guardInteractionFreshness.resetSingleSelectRuntime(_ensureRuntime(_controller._KDB));
+      _singleSelectRuntime.resetSingleSelectRuntime(_singleSelectRuntime.ensureSingleSelectRuntime(_controller._KDB));
       if (_controller._KDB.runtime && _controller._KDB.runtime.singleSelect) {
         _controller._KDB.runtime.singleSelect.historyReplayHandlerContribution = null;
       }
       if (_controller._KDB.state && _controller._KDB.state.filters) {
-        _guards.dispatchInternal(_controller, { type: _actions.DESTROY, payload: {} });
+        _guards.dispatchInternal(_controller, { type: _config.actions.DESTROY, payload: {} });
       }
     } catch (error) {
       console.error("[singleSelect.destroy] failed", error);
@@ -85,7 +83,7 @@ define([
     try {
       return _dispatchAction(
         _controller._KDB,
-        _ensureRuntime(_controller._KDB),
+        _singleSelectRuntime.ensureSingleSelectRuntime(_controller._KDB),
         _action,
         _controller.options,
         _guards.dispatchInternal.bind(null, _controller)
@@ -93,7 +91,7 @@ define([
     } catch (error) {
       console.error("[singleSelect.dispatch] failed", error);
       _guards.dispatchInternal(_controller, {
-        type: _actions.ERROR,
+        type: _config.actions.ERROR,
         payload: { errorCode: "SINGLE_SELECT_DISPATCH_FAILED", errorMessage: String(error.message || error) }
       });
       return undefined;

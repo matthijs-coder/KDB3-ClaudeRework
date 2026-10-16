@@ -1,32 +1,25 @@
 define([
   "../state/ensureWritebackRuntime.js",
-  "../../schema/errorCodes.js"
-], function (_ensureWritebackRuntime, _errorCodes) {
+  "../../schema/errorCodes.js",
+  "../../../../utils/kit/async.js"
+], function (_ensureWritebackRuntime, _errorCodes, _async) {
   "use strict";
 
-  var TICK_MS = 50;
+  var POLL_INTERVAL_MS = 50;
+  var READY_TIMEOUT_MS = 180000;
 
   function readRootLifecycle(_KDB) {
     var root = _KDB && _KDB.state ? _KDB.state.rootLifecycle : null;
     return root && typeof root.lifecycle === "string" ? root.lifecycle : null;
   }
 
-  function abortReadyTick(_timeoutId, _resolve) {
-    clearTimeout(_timeoutId);
-    _resolve();
-  }
-
-  function startReadyTick(_runtime, _signal, _resolve) {
-    var timeoutId = setTimeout(_resolve, TICK_MS);
-    _runtime.timers.readyWait = timeoutId;
-    if (_signal && typeof _signal.addEventListener === "function") {
-      _signal.addEventListener("abort", abortReadyTick.bind(null, timeoutId, _resolve), { once: true });
-    }
-  }
-
-  function waitReadyTick(_runtime, _signal) {
-    if (_signal && _signal.aborted) return Promise.resolve();
-    return new Promise(startReadyTick.bind(null, _runtime, _signal));
+  function readReadyState(_KDB, _run) {
+    var lifecycle;
+    if (_run.cancelRequested) return "cancelled";
+    lifecycle = readRootLifecycle(_KDB);
+    if (lifecycle === "ready") return "ready";
+    if (lifecycle === "error" || lifecycle === "disposed") return "cancelled";
+    return null;
   }
 
   function cancelReadyWait(_run) {
@@ -38,38 +31,33 @@ define([
     return { proceed: false };
   }
 
+  function timeoutReadyWait(_run, _lifecycle) {
+    _run.addDiagnostic(
+      _errorCodes.codes.WRITEBACK_TIMEOUT,
+      "status",
+      "default restore gave up waiting for root lifecycle ready",
+      { timeoutMs: READY_TIMEOUT_MS, lifecycle: _lifecycle }
+    );
+    return { proceed: false };
+  }
+
   async function waitForRootLifecycleReady(_KDB, _run) {
-    var runtime;
-    var controller;
-    var lifecycle;
+    var runtime = _ensureWritebackRuntime(_KDB);
+    var controller = new AbortController();
+    var outcome;
+    runtime.abortControllers.readyWait = controller;
     try {
-      runtime = _ensureWritebackRuntime(_KDB);
-      controller = new AbortController();
-      runtime.abortControllers.readyWait = controller;
-      while (true) {
-        if (_run.cancelRequested || controller.signal.aborted) {
-          return cancelReadyWait(_run);
-        }
-        lifecycle = readRootLifecycle(_KDB);
-        if (lifecycle === "ready") return { proceed: true };
-        if (lifecycle === "error" || lifecycle === "disposed") {
-          return cancelReadyWait(_run);
-        }
-        await waitReadyTick(runtime, controller.signal);
-        if (controller.signal.aborted) return cancelReadyWait(_run);
-      }
-    } catch (error) {
-      if (error && (error.name === "AbortError" || error.code === "ABORT_ERR")) {
-        return cancelReadyWait(_run);
-      }
-      console.error("[writebackSet.waitForRootLifecycleReady] failed", error);
-      throw error;
+      outcome = await _async.pollUntil({
+        check: readReadyState.bind(null, _KDB, _run),
+        intervalMs: POLL_INTERVAL_MS,
+        timeoutMs: READY_TIMEOUT_MS,
+        signal: controller.signal
+      });
+      if (outcome.ok && outcome.value === "ready") return { proceed: true };
+      if (outcome.reason === "timeout") return timeoutReadyWait(_run, readRootLifecycle(_KDB));
+      return cancelReadyWait(_run);
     } finally {
-      if (runtime && runtime.timers && runtime.timers.readyWait != null) {
-        clearTimeout(runtime.timers.readyWait);
-        delete runtime.timers.readyWait;
-      }
-      if (runtime && runtime.abortControllers) {
+      if (runtime.abortControllers.readyWait === controller) {
         delete runtime.abortControllers.readyWait;
       }
     }
