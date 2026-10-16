@@ -173,9 +173,24 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] TopN widget flows (see 2.3/2.4) unchanged.
 
 ### WS-O Core foundation (authoring, config, events, homeDialog, utils)
-- [ ] Authoring mode toggle (developer mode / hide widgets toggle `KDBHideWidgetsToggle` in the Cognos widget properties): turning it on/off shows/hides the KDB widgets as baseline.
-- [ ] Cubes-unavailable dialog: simulate a failing data source (block the table query in DevTools Network via "Block request URL") and reload. Expected: same dialog and text as baseline.
-- [ ] Full Core smoke (section 1) passes.
+- [ ] **Authoring mode** (Cognos Edit ↔ View, the pencil/"Bearbeiten" button):
+  - Each switch flips `getKDB().state.authoring.isAuthoring`, and `#kdb-control-root` gains or loses the class `kdb-control--authoring`. The tab bar behaves as on baseline.
+  - Toggle 3×, then close/reopen and toggle again. Expected: one flip per toggle, no console errors.
+  - After boot, `getKDB().runtime.authoring.dashboardFacet` is non-null and `getKDB().runtime.authoring.pendingDashboardFacetStamp` is `null`.
+- [ ] **Hide-widgets property** (`KDBHideWidgetsToggle` in the widget properties; a properties feature, kept here as a regression check): on/off shows/hides the KDB widgets as on baseline.
+- [ ] **Cubes-unavailable dialog:** block the table query (DevTools "Block request URL") and reload. Expected:
+  - The same title and text as baseline, and only the buttons "Dashboard schließen" / "Dashboard minimalisieren".
+  - Each button navigates as on baseline (close goes to the BI home perspective, minimize opens the home app view).
+- [ ] **Config spot check (console):** `Object.keys(getKDB().config.tables).length === 24`; `Object.keys(getKDB().config.visualizations.kennzahlDefaults).length === 113`; `getKDB().config.links.wienKiUrl` is set; `Object.keys(getKDB().utils)` lists exactly `convertUnitToPx, getTableConfigObject, readCurrentTab, waitFor, waitForElObserver, readableTextColorForHex`.
+- [ ] **Kennzahl defaults:** a Line widget with a percent Kennzahl (e.g. `P_L_Q_01`) and one with `P_ABS_K_KF_02` (Jahr 2025 excluded). Expected: the same format, aggregation caption and year filter as baseline. The Line/List month and year sort order is unchanged.
+- [ ] **Links:** the WienKi button opens WienKi; the kdbControl handbook icon opens the handbook; a drillthrough opens the PKZ Analysetool URL (same as baseline).
+- [ ] **Waits** (`waitFor` callers):
+  - Load Set A from the Parameterset dropdown and through the share URL.
+  - Switch Sicht BW↔DEZPV, then confirm Dienststelle.
+  - Expected: no new fallback toasts or warnings compared with baseline, and no `WAITFOR_TIMEOUT` in the console.
+- [ ] **Readable text colour:** the kdbControl colour palette and the widget-settings colour dropdown show black/white text on light/dark swatches as on baseline.
+- [ ] **Replay keys (collector):** undo/redo once each for header text, a tab rename, a single-select filter change, a widget move and a widget-settings option. Expected: as on baseline.
+- [ ] **Full Core smoke (section 1) passes.**
 
 ### WS-P Docs, CSS, vendor, spec (non-JS)
 - [ ] Boot and look: header, footer, tabs, filter dock, toolbar, popups, settings panel, launchpad look the same as baseline (screenshot compare at 100% zoom).
