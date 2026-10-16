@@ -77,21 +77,25 @@ define([
     }
   }
 
-  function settleContext(_ctx) {
+  function settleContext(_session, _ctx) {
+    var index = _session.contexts.indexOf(_ctx);
     _ctx.settled = true;
     if (_ctx.timerId != null) {
       clearTimeout(_ctx.timerId);
       _ctx.timerId = null;
     }
+    if (index !== -1) {
+      _session.contexts.splice(index, 1);
+    }
   }
 
-  function onDeferredFulfilled(_ctx) {
+  function onDeferredFulfilled(_session, _ctx) {
     var record;
     var built;
     if (_ctx.settled) {
       return;
     }
-    settleContext(_ctx);
+    settleContext(_session, _ctx);
     try {
       if (isHandleClosed(_ctx)) {
         return;
@@ -112,11 +116,11 @@ define([
     }
   }
 
-  function onDeferredRejected(_ctx, _error) {
+  function onDeferredRejected(_session, _ctx, _error) {
     if (_ctx.settled) {
       return;
     }
-    settleContext(_ctx);
+    settleContext(_session, _ctx);
     try {
       console.error("[drillthrough.finishDeferredDrillthroughOpen]", _error);
       writeBody(_ctx, "loadFailedBody");
@@ -125,11 +129,11 @@ define([
     }
   }
 
-  function onDeferredTimeout(_ctx) {
+  function onDeferredTimeout(_session, _ctx) {
     if (_ctx.settled) {
       return;
     }
-    settleContext(_ctx);
+    settleContext(_session, _ctx);
     try {
       console.error("[drillthrough.finishDeferredDrillthroughOpen] hierarchy load timed out", { timeoutMs: _config.DEFERRED_OPEN_TIMEOUT_MS });
       writeBody(_ctx, "loadFailedBody");
@@ -138,10 +142,11 @@ define([
     }
   }
 
-  function finishDeferredDrillthroughOpen(_ctx) {
+  function finishDeferredDrillthroughOpen(_session, _ctx) {
     _ctx.settled = false;
-    _ctx.timerId = setTimeout(onDeferredTimeout.bind(null, _ctx), _config.DEFERRED_OPEN_TIMEOUT_MS);
-    _ctx.pending.then(onDeferredFulfilled.bind(null, _ctx), onDeferredRejected.bind(null, _ctx));
+    _ctx.timerId = setTimeout(onDeferredTimeout.bind(null, _session, _ctx), _config.DEFERRED_OPEN_TIMEOUT_MS);
+    _session.contexts.push(_ctx);
+    _ctx.pending.then(onDeferredFulfilled.bind(null, _session, _ctx), onDeferredRejected.bind(null, _session, _ctx));
   }
 
   function openResult(_built, _ok, _code, _message, _stage) {
@@ -203,7 +208,7 @@ define([
     return String(_spec && _spec.sicht || "").toUpperCase().trim() === "DEZPV" ? keys.DEZPV : keys.BW;
   }
 
-  function openPendingOrFail(_spec, _deps, _built, _slot) {
+  function openPendingOrFail(_session, _spec, _deps, _built, _slot) {
     var tableKey;
     var pending;
     var handle;
@@ -227,7 +232,7 @@ define([
       closeIfOpen(handle);
       return internalResult(err);
     }
-    finishDeferredDrillthroughOpen({
+    finishDeferredDrillthroughOpen(_session, {
       handle: handle,
       spec: _spec,
       deps: _deps,
@@ -238,9 +243,21 @@ define([
     return pendingResult(_spec);
   }
 
-  function openDrillthrough(_spec, _deps) {
+  function disposedResult() {
+    return createBuildResult({
+      ok: false,
+      errorCode: "DRILLTHROUGH_DISPOSED",
+      errorMessage: "drillthrough service is disposed.",
+      diagnostics: { operation: "openDrillthrough", failedStage: null, warnings: [] }
+    });
+  }
+
+  function openDrillthrough(_session, _spec, _deps) {
     var built;
     var slot = { handle: null };
+    if (_session.disposed) {
+      return disposedResult();
+    }
     try {
       built = buildDrillthroughUrl(_spec, _deps);
       if (built && built.ok === true) {
@@ -249,7 +266,7 @@ define([
         }
         return openResult(built, true, null, null, null);
       }
-      return openPendingOrFail(_spec, _deps, built, slot);
+      return openPendingOrFail(_session, _spec, _deps, built, slot);
     } catch (err) {
       console.error("[drillthrough.openDrillthrough]", err);
       closeIfOpen(slot.handle);
@@ -257,5 +274,24 @@ define([
     }
   }
 
-  return openDrillthrough;
+  // Wait windows whose hierarchy load is still pending are closed on destroy; their timers are cancelled
+  // and a late fulfilment no longer navigates.
+  function destroySession(_session) {
+    var contexts = _session.contexts.slice();
+    _session.disposed = true;
+    contexts.forEach(function (ctx) {
+      settleContext(_session, ctx);
+      closeIfOpen(ctx.handle);
+    });
+  }
+
+  function createOpener() {
+    var session = { disposed: false, contexts: [] };
+    return {
+      openDrillthrough: function (_spec, _deps) { return openDrillthrough(session, _spec, _deps); },
+      destroy: function () { destroySession(session); }
+    };
+  }
+
+  return createOpener;
 });

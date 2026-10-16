@@ -128,3 +128,45 @@ test("timeout: a late fulfilment after the timeout does not navigate", () => wit
   await tick();
   assert.deepStrictEqual(win.calls.replace, []);
 }));
+
+test("destroy: closes pending wait windows, cancels the timer and ignores a late fulfilment", () => withFakeTimers(async (timers) => {
+  const win = fakeWindow();
+  let release;
+  const pending = new Promise((resolve) => { release = resolve; });
+  let ready = false;
+  const { service } = setup({ windowOpen: () => win.handle, readRows: () => (ready ? BW_ROWS : []), readPendingLoad: () => pending });
+  service.openDrillthrough(SPEC);
+  assert.equal(timers.size, 1);
+  service.destroy();
+  assert.equal(timers.size, 0);
+  assert.equal(win.handle.closed, true);
+  ready = true;
+  release();
+  await pending;
+  await tick();
+  assert.deepStrictEqual(win.calls.replace, []);
+}));
+
+test("destroy: is idempotent, later opens return DRILLTHROUGH_DISPOSED without window.open, build stays available", () => {
+  const opened = [];
+  const { service } = setup({ windowOpen: (...args) => (opened.push(args), fakeWindow().handle) });
+  service.destroy();
+  service.destroy();
+  const result = service.openDrillthrough(SPEC);
+  assert.equal(result.ok, false);
+  assert.equal(result.errorCode, "DRILLTHROUGH_DISPOSED");
+  assert.deepStrictEqual(opened, []);
+  assert.equal(service.buildDrillthroughUrl(SPEC).ok, true);
+});
+
+test("destroy: a settled open is unaffected and keeps its window", () => withFakeTimers(async () => {
+  const win = fakeWindow();
+  let ready = false;
+  const { service } = setup({ windowOpen: () => win.handle, readRows: () => (ready ? BW_ROWS : []), readPendingLoad: () => Promise.resolve() });
+  service.openDrillthrough(SPEC);
+  ready = true;
+  await tick();
+  service.destroy();
+  assert.equal(win.handle.closed, false);
+  assert.equal(win.calls.replace.length, 1);
+}));
