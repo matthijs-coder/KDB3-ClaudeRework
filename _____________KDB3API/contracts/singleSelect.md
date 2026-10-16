@@ -374,7 +374,7 @@ Accepted commit order in `dashboard/filters/singleSelect/commit/commitSelection.
 2. If popup mount exists: `syncPopupOptionSelection` — visual `.KDB_selectedOption` class sync only.
 3. `filtersFacet.writeFilter({ ref, values })` with tableData-resolved `{ d, u }` or `[]` for Alle.
 4. Strict `verifyCommitFilterValue` via `readFilterValues` — commit fails and rolls back if Cognos mirror does not match pending label.
-5. Apply confirmed state **by lookup** of the live instance (M4), owner notification (`sicht` / `specialSingleSelect`), generic `filter_singleSelect` history (except `filterType: "sicht"`).
+5. Apply confirmed state **by lookup** of the live instance (M4), owner notification (`sicht` / `specialSingleSelect`), generic `filter_singleSelect` history (except `filterType: "sicht"`), then (not for `sicht`, not for a page filter without `tabId`) `filters:confirmed` (`core/events/filters.js`) which widgetVis turns into the TopN wave without awaiting it. History replay emits the same event after a successful apply (page replay needs a `scopeId`), with the replayed `columnId`.
 6. Close popup on success only; reset commit UI and `inFlight` in `finally` on the live object.
 
 Removed from baseline: the legacy `syncNativePopupToPending.js` (legacy only) (commit-only native Cognos option clicks).

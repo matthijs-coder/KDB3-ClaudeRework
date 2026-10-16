@@ -83,6 +83,7 @@ The container `_KDB.state.tableData` is owned by the service. The exact nesting 
 ```js
 _KDB.services.tableData = {
   loadTable: loadTable,
+  loadTables: loadTables,
   readRows: readRows,
   readPendingLoad: readPendingLoad,
   waitForRows: waitForRows,
@@ -136,12 +137,13 @@ Method contracts:
 | Method | Signature | Triggers load? | Returns |
 |---|---|---|---|
 | `loadTable(input)` | `(TableInputItem[]) => Promise<ShapedRows \| ShapedRows[]>` | yes | loads tables not yet ready; returns shaped result(s) using the single-vs-multi unwrapping rule. |
+| `loadTables(input)` | `(TableInputItem[]) => Promise<ShapedRows[]>` | yes | same loads as `loadTable`; always resolves an array with one entry per input (no single-input unwrapping). `loadTable` stays for existing callers. |
 | `readRows(input)` | `(TableInputItem[]) => ShapedRows \| ShapedRows[] \| undefined` | no | cached shaped rows/result(s) or `undefined`. Never throws. |
 | `readPendingLoad(input)` | `(TableInputItem[]) => Promise \| null \| undefined` | no | One resolved item: the in-flight load promise, or `null` when none. Any other input: `null`. Disposed or thrown: `undefined`. Does not start or abort a load. Not the shaped-row unwrap. See `drillthrough-hierarchy-wait-open-contractdelta.md` §5. |
-| `waitForRows(input)` | `(TableInputItem[]) => Promise<ShapedRows \| ShapedRows[]>` | yes, if not `ready` | resolves with shaped result(s) on `ready`; rejects on `error`. Deduplicates via `pendingLoads`. |
+| `waitForRows(input, options?)` | `(TableInputItem[], { signal? }) => Promise<ShapedRows \| ShapedRows[]>` | yes, if not `ready` | resolves with shaped result(s) on `ready`; rejects on `error`. Deduplicates via `pendingLoads`. `options.signal`: an aborted signal rejects with an `AbortError`-named error (before anything starts when already aborted); aborting ends only this wait, never the shared load. Used by metricsTree's mount. |
 | `reloadTable(input)` | `(TableInputItem[]) => Promise<ShapedRows \| ShapedRows[]>` | always | aborts existing load for each key, forces fresh load, returns shaped result(s). |
 | `ensureFreshRows(input)` | `(TableInputItem[]) => Promise<ShapedRows \| ShapedRows[]>` | only if `freshness !== "fresh"` or `lifecycle !== "ready"` | cached or freshly reloaded shaped result(s). |
-| `readTableState(input?)` | `(TableInputItem[] \| undefined) => object \| object[] \| undefined` | no | per-table state snapshot(s), or the full tableData subtree when called without input. |
+| `readTableState(input?)` | `(TableInputItem[] \| undefined) => object \| object[] \| undefined` | no | per-table state view(s), or a map of views of every table when called without input. A view is a shallow frozen copy (`pick` copied, `rows`/`sourceRows` shared by reference and read-only by convention); it never follows later state changes and cannot change the state. |
 | `registerConfiguredLoads(tablesConfig)` | `(object) => Promise<string[]>` | yes | registers configured core tables and returns loaded keys. |
 | `abortTable(input)` | `(TableInputItem[]) => Promise<void>` | no | aborts in-flight load(s) for each resolved key. Silent: no toast, no `tableData:loadFailed`. Lifecycle stays `loading` unless a later load commits. Disposed → `Promise.reject("tableDataService disposed")`. |
 | `destroy()` | `() => void` | no | aborts all in-flight loads; transitions each per-table `lifecycle` to `disposed`. |
@@ -157,7 +159,7 @@ Method contracts:
 - Deliberate read methods exposed on `_KDB.services.tableData`:
   - `readRows(input)` — pure cache read for one or more table input items; returns shaped rows or `undefined`. Does not trigger a load.
   - `readPendingLoad(input)` — one-item read of the in-flight load promise, or `null`. Does not trigger a load.
-  - `readTableState(input?)` — per-table or full snapshot of `_KDB.state.tableData`.
+  - `readTableState(input?)` — per-table or full read-only view of `_KDB.state.tableData` (frozen copies, not the live entries).
 
 Services do not publish a separate selector registry for their own state subtree per `module-public-api.mdc`.
 
@@ -213,15 +215,16 @@ As built (production tree `core/services/tableData/`, exports per file). `__orch
 ```txt
 core/services/tableData/
   __orchestratorTableData.js                          shim over index.js (path kept for KDB.js)
-  config.js                                           READ_BUDGET_MS, POLL_INTERVAL_MS, DEFAULT_PICK, LOAD_FAILED_TOAST, UNKNOWN_TABLE_LABEL, LOAD_FAILED_CODE, LOAD_FAILED_MESSAGE, ...
+  config.js                                           READ_BUDGET_MS, POLL_INTERVAL_MS, DEFAULT_PICK, tableDataLabels (German toast text, registered on `config.labels.de.tableData`), LOAD_FAILED_CODE, LOAD_FAILED_MESSAGE, ...
   index.js                                            registerTableData
   loadLifecycle.js                                    startTableLoad, abortTableLoad, abortAllLoads
   queryRead.js                                        readParkedTableQueryResult
   resolveTableWidgetId.js                             resolveTableWidgetId
   shapeTableRows.js                                   shapeTableRows
   tableInputs.js                                      normalizeTableInputs, resolveTableKey, mapInputs, mapInputsAsync
-  tableOperations.js                                  loadTable, reloadTable, ensureFreshRows, waitForRows, readRows, readTableState, readPendingLoad, ...
-  tableState.js                                       readString, readRowCount, initialTableState, markTableLoading, markTableLoaded, markTableFailed, markTableDisposed
+  tableOperations.js                                  loadTable, loadTables, reloadTable, ensureFreshRows, waitForRows, readRows, readTableState, readPendingLoad, ...
+  waitSignal.js                                       createAbortError, isAborted, raceAbort (waitForRows signal)
+  tableState.js                                       viewTableState, viewAllTableStates, readString, readRowCount, initialTableState, markTableLoading, markTableLoaded, markTableFailed, markTableDisposed
   events/
     eventNames.js                                     LOAD_FINISHED, LOAD_FAILED
 ```
@@ -256,5 +259,6 @@ Original Q1–Q5 are resolved in **User decisions (Phase 1.4)** at the top of th
 | 2026-09-10 | HideData park write = keepexclude | PO console | `addFilter` + `conditionsInfo`/`keepexclude` sticks (leftovers stay empty). Read-shape `conditions` must not be sent to `addFilter`. |
 | 2026-09-10 | 3A `localFilterRecipes.js` | PO vastenburg + dual grok 4.6 | Authored `parkFilter: "hideDataContainsB"`; `tables.js` resolves to `{ itemId, body }` before stamp. No `_KDB.config.localFilterRecipes`. Wrap unchanged. Delta: `tableData-local-filter-recipes-contractdelta.md`. |
 | 2026-10-14 | `readPendingLoad` | PO vastenburg | Sync read of an in-flight load promise. Does not start a load. Delta: `drillthrough-hierarchy-wait-open-contractdelta.md` §5. Code reviewed. |
+| 2026-10-16 | W9b API hardening | refactor Phase 2 | Additive `loadTables`, `waitForRows(input, { signal })`; `readTableState` returns frozen copies (no live state); German toast text moved to `config.labels.de.tableData`. Not changed: a table without a live widget still commits as an empty `ready` table (pinned by `ws-b3-table-data`). |
 
 > When implementation diverges from the contract, stop, present the deviation, update this contract, and resume per the synchronisation clause in `feature-structure.mdc`.

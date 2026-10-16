@@ -80,6 +80,11 @@ define([
     }
   }
 
+  function readLabel(_KDB, key) {
+    const labels = _KDB.config && _KDB.config.labels && _KDB.config.labels.de ? _KDB.config.labels.de.tableData : null;
+    return labels && typeof labels[key] === "string" ? labels[key] : _config.tableDataLabels[key];
+  }
+
   // Toast, not modal: several tables can fail at once. One toast per table while the same error message persists.
   function notifyLoadFailed(_KDB, entry, tableKey) {
     const messageService = _KDB.services.message;
@@ -94,7 +99,7 @@ define([
       }
       messageService.notify({
         severity: "error",
-        message: _config.LOAD_FAILED_TOAST + (entry.title || entry.tableName || entry.tableHandle || _config.UNKNOWN_TABLE_LABEL),
+        message: readLabel(_KDB, "loadFailedToast") + (entry.title || entry.tableName || entry.tableHandle || readLabel(_KDB, "unknownTable")),
       });
       if (tableKey) {
         failures[tableKey] = fingerprint;

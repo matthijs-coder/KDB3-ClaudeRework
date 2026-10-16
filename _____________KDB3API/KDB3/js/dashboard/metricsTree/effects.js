@@ -34,9 +34,10 @@ define([
       if (signal.aborted) { return false; }
       api.dispatch({ type: "metricsTree/loadStarted" });
       startLoading(_KDB);
-      const sourceInput = await readSourceInput(_KDB);
+      const sourceInput = await readSourceInput(_KDB, signal);
       if (signal.aborted) { return false; }
-      sourceInput.isSuperUserAllowed = await readSuperUserAllowed(_KDB);
+      sourceInput.isSuperUserAllowed = await readSuperUserAllowed(_KDB, signal);
+      if (signal.aborted) { return false; }
       const sourceResult = _catalog.buildMetricsTreeSources(_KDB, sourceInput);
       if (signal.aborted) { return false; }
       api.dispatch({
@@ -62,7 +63,7 @@ define([
     }
   }
 
-  async function readSourceInput(_KDB) {
+  async function readSourceInput(_KDB, signal) {
     const tableKey = _config.METRICS_TABLE_KEY;
     const getTableConfigObject = _KDB.utils && _KDB.utils.getTableConfigObject;
     if (typeof getTableConfigObject !== "function") {
@@ -80,7 +81,7 @@ define([
     if (!tableData || typeof tableData.waitForRows !== "function" || typeof tableData.readRows !== "function") {
       throw new Error("metricsTree requires _KDB.services.tableData waitForRows/readRows.");
     }
-    const waitedRows = await tableData.waitForRows(input);
+    const waitedRows = await tableData.waitForRows(input, { signal: signal });
     const rows = tableData.readRows(input);
     return {
       sourceKey: tableConfig.key,
@@ -90,7 +91,7 @@ define([
     };
   }
 
-  async function readSuperUserAllowed(_KDB) {
+  async function readSuperUserAllowed(_KDB, signal) {
     const tableData = _KDB.services ? _KDB.services.tableData : null;
     if (!tableData || typeof tableData.waitForRows !== "function") {
       return false;
@@ -98,7 +99,7 @@ define([
 
     const input = [{ tableName: _config.SUPERUSER_TABLE_NAME, isCoreTable: true }];
     try {
-      const waitedRows = await tableData.waitForRows(input);
+      const waitedRows = await tableData.waitForRows(input, { signal: signal });
       const rows = typeof tableData.readRows === "function" ? tableData.readRows(input) : null;
       const superUserRows = Array.isArray(rows) ? rows : waitedRows;
       return Array.isArray(superUserRows) && superUserRows.length > 0

@@ -2,7 +2,9 @@ define([
   "./loadLifecycle.js",
   "./shapeTableRows.js",
   "./tableInputs.js",
-], function (_loadLifecycle, _shapeTableRows, _tableInputs) {
+  "./tableState.js",
+  "./waitSignal.js",
+], function (_loadLifecycle, _shapeTableRows, _tableInputs, _tableState, _waitSignal) {
   "use strict";
 
   const resolveTableKey = _tableInputs.resolveTableKey;
@@ -37,6 +39,13 @@ define([
     });
   }
 
+  // Always an array, one entry per input (loadTable unwraps a single input).
+  function loadTables(_KDB, inputs) {
+    return Promise.all(inputs.map(function (input) {
+      return loadOne(_KDB, input, false);
+    }));
+  }
+
   function ensureFreshRows(_KDB, inputs) {
     return mapInputsAsync(inputs, function (input) {
       return loadOne(_KDB, input, true);
@@ -60,8 +69,13 @@ define([
   }
 
   // Core tables wait for the configured-load registry so a read never races the boot loads.
-  function waitForRows(_KDB, inputs) {
-    return mapInputsAsync(inputs, function (input) {
+  // options.signal ends the wait with an AbortError; the shared load is not aborted.
+  function waitForRows(_KDB, inputs, options) {
+    const signal = (options && options.signal) || null;
+    if (_waitSignal.isAborted(signal)) {
+      return Promise.reject(_waitSignal.createAbortError());
+    }
+    const waiting = mapInputsAsync(inputs, function (input) {
       const registryReady = _KDB.runtime.tableData.loadRegistryReady;
       if (input.isCoreTable === true && registryReady && typeof registryReady.then === "function") {
         return registryReady.then(function () {
@@ -70,6 +84,7 @@ define([
       }
       return readOrLoadRows(_KDB, input);
     });
+    return signal ? _waitSignal.raceAbort(waiting, signal) : waiting;
   }
 
   function readRows(_KDB, inputs) {
@@ -81,7 +96,7 @@ define([
 
   function readTableState(_KDB, inputs) {
     return mapInputs(inputs, function (input) {
-      return readTableEntry(_KDB, input);
+      return _tableState.viewTableState(readTableEntry(_KDB, input));
     });
   }
 
@@ -111,7 +126,7 @@ define([
   // Boot loads are fire-and-forget: a failed load is already marked and reported by the load itself.
   function startConfiguredLoad(_KDB, input) {
     const normalized = _tableInputs.normalizeTableInputs([input]);
-    loadTable(_KDB, normalized).catch(function (error) {
+    loadTables(_KDB, normalized).catch(function (error) {
       console.warn("[tableDataService.registerConfiguredLoads] configured load failed", error);
     });
   }
@@ -132,6 +147,7 @@ define([
 
   return {
     loadTable: loadTable,
+    loadTables: loadTables,
     reloadTable: reloadTable,
     ensureFreshRows: ensureFreshRows,
     waitForRows: waitForRows,

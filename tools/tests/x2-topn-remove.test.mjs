@@ -160,7 +160,7 @@ function createEnv({ applyMs = 20, cleanupMs = 20, launchpadMs = 0 } = {}) {
 
   const visProps = () => Promise.resolve({ diagnostics: {} });
   const registerBase = loadAmd(WIDGET_BASE);
-  const registerTopN = loadAmd(WIDGET_TOPN, { modules: { "../widgetVis/effects/applyVisualizationProperties.js": visProps } });
+  const registerTopN = loadAmd(WIDGET_TOPN, { modules: { "../widgetVis/visualization.js": { applyVisualizationProperties: visProps } } });
   registerBase(_KDB, { autoRouteAll: false });
   loadAmd(resolve(JS_DIR, "core/services/widgetBinding/index.js"))(_KDB);
   registerTopN(_KDB, {});
