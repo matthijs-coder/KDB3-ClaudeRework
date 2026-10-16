@@ -1,5 +1,5 @@
 // Golden tests for dashboard/filters/filterDock (pure logic). Run: node --test tools/tests/filterDock.test.mjs
-// Fixture: tools/tests/fixtures/filterDock.golden.json, generated from the pre-refactor code.
+// Fixture: tools/tests/fixtures/filterDock.golden.json, generated from the pre-refactor code (commit "golden tests").
 // Regenerate (only after an intentional behaviour change): UPDATE_GOLDEN=1 node tools/tests/filterDock.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -35,48 +35,42 @@ process.on("exit", () => {
   }
 });
 
-// ---- module adapters (the only part that differs between the old and the restructured layout) ----
-const mutationSummaryOld = load("observation/normalizeMutationSignals.js", { stubs: { Date: FixedDate } });
-const mergeOld = load("observation/mergeObservedDockPayload.js");
-const ownedOld = load("observation/isKdbOwnedMutationTarget.js");
-const sessionMatchOld = load("observation/popupReadyFilterMatch.js");
-const sessionResetOld = load("observation/resetPopupReadySession.js");
-const shouldDispatchOld = load("observation/shouldDispatchPopupReadyTransition.js");
-const decideOld = load("observation/decidePostReadyResync.js");
-const reducerOld = load("state/createFilterDockReducer.js", { stubs: { Date: FixedDate } })();
-const capsOld = load("compat/resolveFilterCapabilities.js");
-const cloneOld = load("effects/cloneFilterIdentityValues.js");
-const typeOld = load("effects/resolveFilterType.js");
-const routesOld = load("config/ownerRoutes.js");
-const ownerPayloadOld = load("effects/resolveOwnerRoute.js");
-const popupHandoffOld = load("observation/buildPopupReadyHandoff.js", { stubs: { Date: FixedDate } });
-const handoffOld = load("effects/buildFilterDockHandoff.js");
+// ---- module adapters ----
+const stubs = { Date: FixedDate };
+const mutationSummary = load("observation/mutationSummary.js", { stubs });
+const popupReadySession = load("observation/popupReadySession.js");
+const filterDockState = load("state.js", { stubs });
+const identity = load("identity.js");
+const ownerRoutes = load("ownerRoutes.js");
+const ownerRouter = load("ownerRouter.js");
+const popupReadyHandoff = load("observation/popupReadyHandoff.js", { stubs });
+const clickInteraction = load("interaction/clickInteraction.js");
 
 const api = {
-  summarizeMutations: (records) => mutationSummaryOld(records),
+  summarizeMutations: (records) => mutationSummary.summarizeMutations(records),
   mergeSummaries(summaries, scheduledAt) {
-    const runtime = { pendingEvaluationMerge: mergeOld.buildPendingEvaluationMerge(summaries[0], scheduledAt) };
-    summaries.slice(1).forEach((summary) => mergeOld.mergePendingEvaluationMerge(runtime, summary));
-    return runtime.pendingEvaluationMerge;
+    const pending = mutationSummary.createPendingSummary(summaries[0], scheduledAt);
+    summaries.slice(1).forEach((summary) => mutationSummary.mergePendingSummary(pending, summary));
+    return pending;
   },
-  isOwnedTarget: (node) => ownedOld(node),
+  isOwnedTarget: (node) => mutationSummary.isKdbOwnedMutationTarget(node),
   session: {
-    shouldDispatch: (runtime, popup, lastClicked) => shouldDispatchOld.shouldDispatchPopupReadyTransition(runtime, popup, lastClicked),
+    shouldDispatch: (runtime, popup, lastClicked) => popupReadySession.shouldDispatchPopupReadyTransition(runtime, popup, lastClicked),
     decide: (runtime, popup, lastClicked, summary, gap) =>
-      decideOld(sessionResetOld.ensurePopupReadyState(runtime), popup, lastClicked, summary, gap),
-    resetOnClick: (runtime, interaction) => sessionResetOld.resetSessionOnSingleSelectClick(runtime, interaction),
-    resetState: (runtime) => sessionResetOld.resetPopupReadyState(runtime),
-    isPopupReady: (popup) => sessionMatchOld.isPopupReady(popup)
+      popupReadySession.decidePostReadyResync(popupReadySession.ensurePopupReadyState(runtime), popup, lastClicked, summary, () => gap),
+    resetOnClick: (runtime, interaction) => popupReadySession.resetSessionOnSingleSelectClick(runtime, interaction),
+    resetState: (runtime) => popupReadySession.resetPopupReadyState(runtime),
+    isPopupReady: (popup) => popupReadySession.isPopupReady(popup)
   },
-  reduce: (state, action) => reducerOld(state, action),
-  readCapabilities: (config) => capsOld(config),
-  toHandoffCapabilities: (caps) => cloneOld.cloneCapabilities(caps),
-  resolveFilterType: (caps) => typeOld.resolveFilterType(caps),
-  ownerRouteMap: routesOld.OWNER_ROUTE_MAP,
-  buildOwnerPayload: (handoff, filterType) => ownerPayloadOld.buildOwnerPayload(handoff, routesOld.OWNER_ROUTE_MAP[filterType]),
-  buildPopupReadyHandoff: (lastClicked, lastInteraction, popup) => popupHandoffOld(lastClicked, lastInteraction, popup),
-  buildHandoff: (input) => handoffOld.buildHandoff(input),
-  buildClickResolution: (handoff, filterEl, observedAt) => handoffOld.buildClickResolution(handoff, filterEl, observedAt)
+  reduce: (state, action) => filterDockState.reduceFilterDockState(state, action),
+  readCapabilities: (config) => identity.readFilterCapabilities(config),
+  toHandoffCapabilities: (caps) => identity.toHandoffCapabilities(caps),
+  resolveFilterType: (caps) => identity.resolveFilterType(caps),
+  ownerRouteMap: ownerRoutes.OWNER_ROUTE_MAP,
+  buildOwnerPayload: (handoff, filterType) => ownerRouter.buildOwnerPayload(handoff, ownerRoutes.OWNER_ROUTE_MAP[filterType]),
+  buildPopupReadyHandoff: (lastClicked, lastInteraction, popup) => popupReadyHandoff.buildPopupReadyHandoff(lastClicked, lastInteraction, popup),
+  buildHandoff: (input) => clickInteraction.buildHandoff(input),
+  buildClickResolution: (handoff, filterEl, observedAt) => clickInteraction.buildClickResolution(handoff, filterEl, observedAt)
 };
 
 // ---- fixtures ----
