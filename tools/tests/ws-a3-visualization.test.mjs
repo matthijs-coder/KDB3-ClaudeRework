@@ -8,7 +8,7 @@ import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 import { create, jsonSafe, runCase, checkSnapshot } from "./ws-a3-helpers.mjs";
 
-const FLATTEN = path.join(JS_ROOT, "core/services/cognosHost/facets/visualization/flatten/flattenSelectionCategories.js");
+const FLATTEN = path.join(JS_ROOT, "core/services/cognosHost/facets/visualization/selections.js");
 
 function buildHost(mode, log, onEffect) {
   if (mode === "none") return {};
@@ -171,7 +171,7 @@ test("getSelections: canvas feature first, widgets content second, last-DTO fall
 });
 
 test("flattenSelectionCategories on recorded host shapes", () => {
-  const flatten = loadAmd(FLATTEN);
+  const flatten = loadAmd(FLATTEN).flattenSelectionCategories;
   assert.deepEqual(flatten(null), []);
   assert.deepEqual(flatten(undefined), []);
   assert.deepEqual(flatten([]), []);

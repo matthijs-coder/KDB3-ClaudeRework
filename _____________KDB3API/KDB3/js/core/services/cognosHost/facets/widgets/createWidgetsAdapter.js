@@ -36,11 +36,7 @@ define([
   // Live content is resolved per call and never returned. A missing content is ITEM_NOT_FOUND;
   // colour/font owners swallow that as they swallowed a boolean false.
   function setWidgetProperty(_ctx, _widgetId, _key, _value, _options) {
-    var early = _hostOps.guardWrite(_ctx, _options, _hostAccess.isValidWidgetId(_widgetId) && isValidKey(_key), CODES);
-    if (early) {
-      return Promise.resolve(early);
-    }
-    return _hostOps.runWrite(_ctx, _options, {
+    return _hostOps.writeOp(_ctx, _options, _hostAccess.isValidWidgetId(_widgetId) && isValidKey(_key), {
       codes: CODES,
       theme: "widgets",
       method: "getContent",
@@ -58,11 +54,7 @@ define([
 
   function setWidgetLayout(_ctx, _widgetId, _layout, _options) {
     var layout = _layout || {};
-    var early = _hostOps.guardWrite(_ctx, _options, _hostAccess.isValidWidgetId(_widgetId), CODES);
-    if (early) {
-      return Promise.resolve(early);
-    }
-    return _hostOps.runWrite(_ctx, _options, {
+    return _hostOps.writeOp(_ctx, _options, _hostAccess.isValidWidgetId(_widgetId), {
       codes: CODES,
       theme: "widgets",
       method: "setLayoutPosition",
@@ -80,11 +72,7 @@ define([
   }
 
   function renderWidget(_ctx, _widgetId, _options) {
-    var early = _hostOps.guardWrite(_ctx, _options, _hostAccess.isValidWidgetId(_widgetId), CODES);
-    if (early) {
-      return Promise.resolve(early);
-    }
-    return _hostOps.runWrite(_ctx, _options, {
+    return _hostOps.writeOp(_ctx, _options, _hostAccess.isValidWidgetId(_widgetId), {
       codes: CODES,
       theme: "widgets",
       method: "renderWidget",
@@ -99,11 +87,7 @@ define([
   // Chrome-labelled: layer 1 clicks a catalogue selector. A selector break or a missing click
   // target is HOST_CAPABILITY_MISSING, never a silent no-op.
   function runFocusMode(_ctx, _widgetId, _method, _label) {
-    var early = _hostOps.guardRead(_ctx, _hostAccess.isValidWidgetId(_widgetId), CODES);
-    if (early) {
-      return early;
-    }
-    return _hostOps.runSync(_ctx, {
+    return _hostOps.readOp(_ctx, _hostAccess.isValidWidgetId(_widgetId), {
       codes: CODES,
       theme: "widgets",
       method: _method,
