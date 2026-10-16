@@ -1,4 +1,6 @@
-﻿# Module Contract: `kennzahlenTree`
+﻿# Module Contract: `kennzahlenTree` (archived, superseded by `metricsTree`)
+
+> Archived during the final docs pass. The Kennzahlen tree shipped as `dashboard/metricsTree/` (`_KDB.api.metricsTree`, `_KDB.state.metricsTree`); the `kennzahlenTree` module and the file tree below never existed in production. Living pointer: `contracts/metricsTree.md`.
 
 > CP-1 draft for a DIRECT PORT from REDESIGN2 legacy into the production tree.
 > No production code may be generated until this contract is approved.

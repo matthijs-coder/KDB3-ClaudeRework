@@ -17,7 +17,7 @@ Reference contracts for the KDB3 modules and services. One living contract per m
 - [`historyControls.md`](historyControls.md): Undo/redo toolbar controls.
 - [`historyService.md`](historyService.md): Undo/redo history service.
 - [`kdbControl.md`](kdbControl.md): KDB control panel.
-- [`kennzahlenTree.md`](kennzahlenTree.md): Kennzahlen (metrics) tree.
+- [`metricsTree.md`](metricsTree.md): Kennzahlen (metrics) tree (as built; the original `kennzahlenTree` draft is in `_archive/`).
 - [`launchpad.md`](launchpad.md): Launchpad module.
 - [`loadingService.md`](loadingService.md): Loading overlay service.
 - [`messageService.md`](messageService.md): Shared user-messaging service (toasts).
