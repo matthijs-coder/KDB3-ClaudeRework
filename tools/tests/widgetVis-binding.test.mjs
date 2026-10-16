@@ -372,7 +372,7 @@ async function computeGateFixtures() {
   };
   const fakes = { pin: async () => ({ jahrFilterValue: { d: "2024", u: "2024" }, monatFilterValue: { d: "Dez", u: "Dez" } }) };
   const gateApi = loadTopNGate(clock, fakes);
-  const _KDB = buildKdb({ api: { widgetTopN: topNApi } });
+  const _KDB = buildKdb({ api: { widgetTopN: topNApi }, state: { widgets: { topN: topNState } } });
   const waitersGate = loadGates(clock);
   const { context } = makeContext(_KDB);
   topNApi.dispatch = async (action) => {
