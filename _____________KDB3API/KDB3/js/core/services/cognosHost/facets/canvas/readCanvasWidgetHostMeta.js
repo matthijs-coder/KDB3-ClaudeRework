@@ -1,11 +1,11 @@
 define([
-  "../widgets/resolveWidgetsHostApi.js",
+  "../../hostAccess.js",
   "./resolveVisualizationHostApi.js"
-], function (_resolveWidgetsHostApi, _resolveVisualizationHostApi) {
+], function (_hostAccess, _resolveVisualizationHostApi) {
   "use strict";
 
   function readWidgetType(_KDB, _widgetId) {
-    var widgetsApi = _resolveWidgetsHostApi(_KDB);
+    var widgetsApi = _hostAccess.resolveHostApi(_KDB, "widgets");
     if (!widgetsApi || typeof widgetsApi.getType !== "function") {
       return null;
     }

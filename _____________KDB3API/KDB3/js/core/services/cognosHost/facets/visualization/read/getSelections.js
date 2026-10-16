@@ -1,11 +1,11 @@
 define([
-  "../../widgets/resolveWidgetsHostApi.js",
+  "../../../hostAccess.js",
   "../flatten/flattenSelectionCategories.js",
   "../buildVisualizationOutcome.js",
   "../config/visualizationErrorCodes.js",
   "../readLastSelectionDto.js"
 ], function (
-  _resolveWidgetsHostApi,
+  _hostAccess,
   _flattenSelectionCategories,
   _buildVisualizationOutcome,
   _visualizationErrorCodes,
@@ -39,7 +39,7 @@ define([
     if (canvasContent && typeof canvasContent.getSelections === "function") {
       return canvasContent;
     }
-    widgetsApi = _resolveWidgetsHostApi(_KDB);
+    widgetsApi = _hostAccess.resolveHostApi(_KDB, "widgets");
     if (widgetsApi && typeof widgetsApi.getContent === "function") {
       widgetsContent = widgetsApi.getContent(_widgetId);
     }

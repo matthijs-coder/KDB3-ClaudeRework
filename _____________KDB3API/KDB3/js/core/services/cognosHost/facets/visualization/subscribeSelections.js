@@ -1,10 +1,10 @@
 define([
-  "../widgets/resolveWidgetsHostApi.js",
+  "../../hostAccess.js",
   "./onHostSelectionEvent.js",
   "./detachHostSubscription.js",
   "./replaceSelectionSubscription.js"
 ], function (
-  _resolveWidgetsHostApi,
+  _hostAccess,
   _onHostSelectionEvent,
   _detachHostSubscription,
   _replaceSelectionSubscription
@@ -73,7 +73,7 @@ define([
       return noopUnsubscribe;
     }
     try {
-      widgetsApi = _resolveWidgetsHostApi(_ctx._KDB);
+      widgetsApi = _hostAccess.resolveHostApi(_ctx._KDB, "widgets");
       if (!widgetsApi || typeof widgetsApi.getContent !== "function") {
         return noopUnsubscribe;
       }

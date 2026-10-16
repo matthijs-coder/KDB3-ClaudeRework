@@ -10,7 +10,7 @@ const ORCHESTRATOR = path.join(JS_ROOT, "core/services/cognosHost/__orchestrator
 
 const FACET_KEYS = {
   filters: ["clearFilter", "findFilterItem", "listFilterItems", "listPageContextScopes", "readFilterValues", "waitForPageContextReady", "writeFilter"],
-  widgets: ["enterFocusMode", "exitFocusMode", "getWidgetType", "hasContent", "renderWidget", "setWidgetLayout", "setWidgetProperty"],
+  widgets: ["enterFocusMode", "exitFocusMode", "hasContent", "renderWidget", "setWidgetLayout", "setWidgetProperty"],
   canvas: ["listCanvasWidgets", "setCanvasPageSize", "whenCanvasReady", "whenRenderComplete", "whenRenderStart", "whenWidgetReady"],
   visualization: [
     "addDataItemsToSlot", "addOrReplaceLocalFilter", "clearAllLocalFilters", "clearAllSlots", "getSelections", "getVisTitle", "getVisType",
