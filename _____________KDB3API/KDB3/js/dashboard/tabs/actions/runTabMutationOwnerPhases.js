@@ -143,5 +143,5 @@ define([
     rollbackOwners: rollbackOwners,
     emitFinalTabsChanged: emitFinalTabsChanged,
     clearTabMutationSnapshots: clearTabMutationSnapshots
-  }, _tabMutationOwners);
+  }, _config.mutationOwners);
 });
