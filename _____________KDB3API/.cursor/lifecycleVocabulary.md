@@ -33,4 +33,6 @@ Some fields describe presence, not lifecycle. Writeback, restore and history ste
 | `subtitleStatus` | `active`, `removed` | header |
 | `placement` | `onCanvas`, `inLaunchpad`, `removed` | widgetBase (state and history steps) |
 
+The header also accepts the legacy `status` value `visible` on read (reducer, selectors and history snapshot) and normalises it to `active`. Old saved sets may contain it, so keep accepting it; never write it.
+
 Filter owners keep their own per-instance status values (for example singleSelect `removed`, dienststelle `inactive`); the owner module documents them next to its initial state. Do not store these values in a `lifecycle` field.
