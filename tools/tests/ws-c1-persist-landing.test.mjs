@@ -10,18 +10,12 @@ const WB = path.join(JS_ROOT, "core/services/writeback");
 const kit = (name) => loadAmd(path.join(JS_ROOT, "core/utils/kit", name));
 const kitRuntime = kit("runtime.js");
 
-// Stand-in for set/state/ensureWritebackRuntime.js with the contract: flags present, all 7 buckets objects.
-function ensureWritebackRuntime(_KDB) {
-  return kitRuntime.ensureRuntime(_KDB, "writeback", { persistRestoreGeneration: 0, parameterSetRestoreActive: false, getPersistLoadingHandle: null });
-}
-
 const silent = { log() {}, info() {}, warn() {}, error() {}, debug() {} };
 
 function loadLanding() {
   const document = { getElementById: () => null, querySelector: () => null };
   return loadAmd(path.join(WB, "get/persist/persistLanding.js"), {
     stubs: { console: silent, document },
-    modules: { "../../set/state/ensureWritebackRuntime.js": ensureWritebackRuntime },
   });
 }
 
@@ -109,7 +103,6 @@ test("persist overlay finishes after a bucket reset because the handle lives out
   const document = { querySelector: () => ({ tag: "mount" }) };
   const overlay = loadAmd(path.join(WB, "get/persist/persistLoadingOverlay.js"), {
     stubs: { console: silent, document },
-    modules: { "../../set/state/ensureWritebackRuntime.js": ensureWritebackRuntime },
   });
   const _KDB = fakeKdb();
   const finished = [];
@@ -124,4 +117,11 @@ test("persist overlay finishes after a bucket reset because the handle lives out
   assert.deepEqual(finished, ["writeback-get-persist-loading"]);
   overlay.finish(_KDB);
   assert.equal(finished.length, 1, "finish is idempotent");
+});
+
+test("the real accessor seeds the get-owned fields", () => {
+  const ensure = loadAmd(path.join(WB, "set/state/ensureWritebackRuntime.js"));
+  const runtime = ensure({});
+  assert.equal(runtime.persistRestoreGeneration, 0);
+  assert.equal(runtime.getPersistLoadingHandle, null);
 });
