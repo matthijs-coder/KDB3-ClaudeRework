@@ -1,6 +1,5 @@
 // Golden tests for singleSelect restore/ (parameterSet run bookkeeping, clear, restore, resync) and tabMutation/.
 // Run: node --test tools/tests/singleSelect.restore.golden.test.mjs
-// SS_GOLDEN_LAYOUT=old runs the same expectations against the pre-move file layout (actions/parameterSet, actions/tabMutation).
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
@@ -8,7 +7,6 @@ import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
 const SS = path.join(JS_ROOT, "dashboard/filters/singleSelect");
-const LAYOUT = process.env.SS_GOLDEN_LAYOUT === "old" ? "old" : "new";
 const logged = [];
 const quietConsole = {
   log() {}, info() {}, debug() {},
@@ -46,48 +44,6 @@ function load(rel) {
 }
 
 function adapter() {
-  if (LAYOUT === "old") {
-    const P = "actions/parameterSet/";
-    const T = "actions/tabMutation/";
-    const rt = load(P + "parameterSetRuntime.js");
-    const registry = load(P + "parameterSetRuntimeRegistry.js");
-    const guards = load(P + "parameterSetWritebackGenerationGuards.js");
-    const finished = load(P + "handleParameterSetRunFinished.js");
-    const clear = load(P + "handleParameterSetClear.js");
-    const restore = load(P + "handleParameterSetRestore.js");
-    const resync = load(P + "handleParameterSetResync.js");
-    const tabGuard = load(T + "guardTabMutation.js");
-    const snapTarget = load(T + "resolveTabMutationSnapshotTarget.js");
-    return {
-      runs: {
-        guardRun: rt.guardRun, isStale: rt.isStale, cancelledResult: rt.cancelledResult,
-        validateInventoryGeneration: rt.validateInventoryGeneration,
-        normalizeResult: load(P + "parameterSetResyncApply.js").normalizeResult,
-        mergeTerminalCleanup: rt.mergeTerminalCleanup,
-        settleParameterSetRun: rt.settleParameterSetRun, isRunFinishOutcome: rt.isRunFinishOutcome,
-        buildRunReleaseAck: registry.buildRunReleaseAck,
-        ensureRunRegistry: registry.ensureRunRegistry,
-        registerAppliedPageContext: rt.registerAppliedPageContext,
-        readAppliedPageContext: rt.readAppliedPageContext
-      },
-      guards: { ensureWritebackPinnedGeneration: guards.ensureWritebackPinnedGeneration, validateMutationGuard: guards.validateMutationGuard },
-      handleRunFinished: (KDB, rtime, payload) => finished(KDB, payload),
-      handleClear: (KDB, rtime, payload) => clear(KDB, payload, rtime),
-      handleRestore: (KDB, rtime, payload) => restore(KDB, payload, rtime),
-      handleResync: (KDB, rtime, payload) => resync(KDB, payload, rtime),
-      resolveRestorePair: load("effects/resolveRestoreSelectionPair.js"),
-      transfers: load(T + "buildTabMutationTransfers.js"),
-      tabGuard: {
-        guardRun: tabGuard.guardRun, isStaleRun: tabGuard.isStaleRun, resolveScope: tabGuard.resolveScope,
-        instancesInScope: tabGuard.instancesInScope, matchTarget: tabGuard.matchTarget,
-        cloneSnapshotRecord: tabGuard.cloneSnapshotRecord, matchSnapshotTarget: snapTarget
-      },
-      prepare: load(T + "prepareTabMutation.js"),
-      apply: load(T + "applyTabMutation.js"),
-      restoreSnapshot: load(T + "restoreTabMutationSnapshot.js"),
-      resyncHost: load(T + "resyncTabMutationHost.js")
-    };
-  }
   const runs = load("restore/runs.js");
   const guard = load("tabMutation/guard.js");
   return {
@@ -538,10 +494,6 @@ test("prepareTabMutation prunes snapshots of superseded runs", async () => {
   f.rtime.tabMutationRunId = 4;
   const result = await A.prepare(f.KDB, f.rtime, f.payload());
   assert.equal(result.ok, true);
-  if (LAYOUT === "old") {
-    assert.deepEqual(Object.keys(f.rtime.tabMutationSnapshots).sort(), ["old3", "old4", "op5"]);
-    return;
-  }
   assert.deepEqual(Object.keys(f.rtime.tabMutationSnapshots), ["op5"]);
   const stale = await A.prepare(f.KDB, f.rtime, f.payload({ runId: 4, operationId: "late" }));
   assert.equal(stale.errorCode, "TABS_MUTATION_CANCELLED");
@@ -673,7 +625,25 @@ test("restoreTabMutationSnapshot: unrecoverable targets, stale run and thrown er
   assert.equal(thrown.diagnostics.slice(-1)[0].code, "TABS_MUTATION_ROLLBACK_INCOMPLETE");
   assert.equal(thrown.diagnostics.slice(-1)[0].message, "reconcile boom");
   assert.deepEqual(thrown.restored, ["a", "a2", "b", "b2"]);
-  assert.deepEqual(Object.keys(h.rtime.tabMutationSnapshots), LAYOUT === "old" ? ["op5"] : []);
+  assert.deepEqual(Object.keys(h.rtime.tabMutationSnapshots), []);
+});
+
+test("restoreTabMutationSnapshot releases the snapshot when the run turns stale after the guard", async () => {
+  const f = tabFixture();
+  assert.equal((await A.prepare(f.KDB, f.rtime, f.payload())).ok, true);
+  f.rtime.tabMutationSnapshots.op6 = { runId: 6, operationId: "op6", byId: {} };
+  const originalWrite = f.facet.writeFilter;
+  f.facet.writeFilter = async (req) => {
+    const out = await originalWrite(req);
+    f.rtime.tabMutationRunId = 6;
+    f.rtime.tabMutationOperationId = "op6";
+    return out;
+  };
+  const result = await A.restoreSnapshot(f.KDB, f.rtime, f.payload());
+  assert.equal(result.ok, false);
+  assert.equal(result.errorCode, "TABS_MUTATION_CANCELLED");
+  assert.deepEqual(Object.keys(f.rtime.tabMutationSnapshots), ["op6"]);
+  assert.equal(f.rtime.tabMutationSnapshots.op6.runId, 6);
 });
 
 test("resyncTabMutationHost re-pushes captured selections after reconcile", async () => {
@@ -856,6 +826,20 @@ test("handleParameterSetClear: writes Alle, honours allowed tabs, reports cancel
   assert.deepEqual(superseded.facet.byRef["global|g1"], [{ d: "Mann", u: "1" }]);
 });
 
+test("handleParameterSetClear: superseded before the first host write reports the cancellation without writing", async () => {
+  const f = paramFixture();
+  f.KDB.state.filters.singleSelect.inventory.freshness = "stale";
+  const errorsBefore = logged.filter((entry) => entry[0] === "error").length;
+  const result = await A.handleClear(f.KDB, f.rtime, { runId: 1 });
+  assert.equal(result.ok, false);
+  assert.deepEqual(codes(result), ["WRITEBACK_SINGLESELECT_INVENTORY_STALE"]);
+  assert.match(result.diagnostics[0].message, /not fresh during parameterSet mutation/);
+  assert.deepEqual(f.facet.writes, []);
+  assert.deepEqual(f.facet.byRef["global|g1"], [{ d: "Mann", u: "1" }]);
+  assert.equal(f.KDB.state.filters.singleSelect.lastInteraction.x, 1);
+  assert.equal(logged.filter((entry) => entry[0] === "error").length, errorsBefore);
+});
+
 test("handleParameterSetResync re-applies registered restore assignments", async () => {
   const f = paramFixture();
   await A.handleRestore(f.KDB, f.rtime, f.base({ phase: "global", filters: [{ key: "Geschlecht", vals: ["2"] }] }));
@@ -881,4 +865,111 @@ test("handleParameterSetResync re-applies registered restore assignments", async
   const stale = await A.handleResync(h.KDB, h.rtime, h.base({ inventoryGeneration: 2 }));
   assert.equal(stale.ok, false);
   assert.deepEqual(codes(stale), ["WRITEBACK_SINGLESELECT_INVENTORY_STALE"]);
+});
+
+// ---------------------------------------------------------------- handler call contract
+// Asserts what a caller (today the two router files, after C-final the singleSelect index.js tables) must do:
+// hand every handler (KDB, runtime, payload) in that order. Repoint `wire()` at the new entry point at C-final.
+
+function spyHandlers() {
+  const calls = [];
+  const spy = (name) => (...args) => {
+    calls.push({ name, args });
+    return Promise.resolve({ handled: name });
+  };
+  return { calls, spy };
+}
+
+function wire() {
+  const rec = spyHandlers();
+  const stubs = {
+    console: quietConsole
+  };
+  const modules = {
+    "../../restore/clear.js": { handleParameterSetClear: rec.spy("clear") },
+    "../../restore/restore.js": { handleParameterSetRestore: rec.spy("restore") },
+    "../../restore/resync.js": { handleParameterSetResync: rec.spy("resync") },
+    "../../restore/runs.js": { handleParameterSetRunFinished: rec.spy("runFinished") },
+    "../../tabMutation/prepare.js": { prepareTabMutation: rec.spy("prepare") },
+    "../../tabMutation/apply.js": { applyTabMutation: rec.spy("apply") },
+    "../../tabMutation/restore.js": { restoreTabMutationSnapshot: rec.spy("restoreSnapshot") },
+    "../../tabMutation/resync.js": { resyncTabMutationHost: rec.spy("resyncHost") }
+  };
+  const parameterSetRoute = loadAmd(path.join(SS, "actions/parameterSet/routeParameterSetIdentityAction.js"), { stubs, modules });
+  const tabRoute = loadAmd(path.join(SS, "actions/tabMutation/routeTabMutationAction.js"), { stubs, modules });
+  const config = load("config.js");
+  return {
+    calls: rec.calls,
+    config: config,
+    parameterSet: (KDB, rtime, action) => parameterSetRoute(KDB, rtime, action),
+    tab: {
+      prepare: (KDB, rtime, payload) => tabRoute.handlePrepare(KDB, rtime, payload),
+      apply: (KDB, rtime, payload) => tabRoute.handleApply(KDB, rtime, payload),
+      restoreSnapshot: (KDB, rtime, payload) => tabRoute.handleRestore(KDB, rtime, payload),
+      resyncHost: (KDB, rtime, payload) => tabRoute.handleResync(KDB, rtime, payload)
+    }
+  };
+}
+
+test("parameterSet actions reach their handler as (KDB, runtime, payload); unknown types return null", async () => {
+  const w = wire();
+  const KDB = { id: "kdb" };
+  const rtime = { id: "runtime" };
+  const types = [
+    [w.config.actions.PARAMETER_SET_CLEAR_REQUESTED, "clear"],
+    [w.config.actions.PARAMETER_SET_RESTORE_REQUESTED, "restore"],
+    [w.config.actions.PARAMETER_SET_RESYNC_REQUESTED, "resync"],
+    [w.config.actions.PARAMETER_SET_RUN_FINISHED, "runFinished"]
+  ];
+  assert.deepEqual(types.map((t) => t[0]), [
+    "singleSelect/parameterSetClearRequested",
+    "singleSelect/parameterSetRestoreRequested",
+    "singleSelect/parameterSetResyncRequested",
+    "singleSelect/parameterSetRunFinished"
+  ]);
+  for (const [type, name] of types) {
+    const payload = { runId: 7, marker: name };
+    const result = await w.parameterSet(KDB, rtime, { type: type, payload: payload });
+    assert.deepEqual(result, { handled: name });
+    const call = w.calls[w.calls.length - 1];
+    assert.equal(call.name, name);
+    assert.equal(call.args.length, 3);
+    assert.equal(call.args[0], KDB);
+    assert.equal(call.args[1], rtime);
+    assert.equal(call.args[2], payload);
+  }
+  const before = w.calls.length;
+  assert.equal(w.parameterSet(KDB, rtime, { type: "singleSelect/somethingElse", payload: {} }), null);
+  assert.equal(w.parameterSet(KDB, rtime, { type: w.config.actions.APPLY_OWNER_SELECTION, payload: {} }), null);
+  assert.equal(w.parameterSet(KDB, rtime, null), null);
+  assert.equal(w.parameterSet(KDB, rtime, {}), null);
+  assert.equal(w.calls.length, before);
+});
+
+test("tab mutation actions reach their handler as (KDB, runtime, payload)", async () => {
+  const w = wire();
+  const KDB = { id: "kdb" };
+  const rtime = { id: "runtime" };
+  const expected = [
+    ["prepare", "prepare"],
+    ["apply", "apply"],
+    ["restoreSnapshot", "restoreSnapshot"],
+    ["resyncHost", "resyncHost"]
+  ];
+  assert.equal(w.config.actions.PREPARE_TAB_MUTATION, "singleSelect/prepareTabMutation");
+  assert.equal(w.config.actions.APPLY_TAB_MUTATION, "singleSelect/applyTabMutation");
+  assert.equal(w.config.actions.RESTORE_TAB_MUTATION_SNAPSHOT, "singleSelect/restoreTabMutationSnapshot");
+  assert.equal(w.config.actions.RESYNC_TAB_MUTATION_HOST, "singleSelect/resyncTabMutationHost");
+  for (const [key, name] of expected) {
+    const payload = { runId: 3, operationId: "op", marker: name };
+    const result = await w.tab[key](KDB, rtime, payload);
+    assert.deepEqual(result, { handled: name });
+    const call = w.calls[w.calls.length - 1];
+    assert.equal(call.name, name);
+    assert.equal(call.args.length, 3);
+    assert.equal(call.args[0], KDB);
+    assert.equal(call.args[1], rtime);
+    assert.equal(call.args[2], payload);
+  }
+  assert.equal(w.calls.length, 4);
 });

@@ -55,21 +55,21 @@ define([
     return key === "sicht" || key === "dienststelle" || key === "dienststelle_bw" || key === "dienststelle_dezpv";
   }
 
-  function resolveScopeIdForTab(_KDB, _tabTargets, _tab, _key) {
+  function resolveScopeIdForTab(_KDB, _tabTargets, _tab) {
     var targets = _tabTargets || {};
     var target = targets[String(_tab)] || null;
     if (!target || !target.scopeId) {
-      return { ok: false, code: "WRITEBACK_TABS_TARGET_MISSING", message: "missing tab target for tab " + String(_tab) };
+      return { ok: false, code: _config.parameterSetCodes.TARGET_MISSING, message: "missing tab target for tab " + String(_tab) };
     }
     var scopeId = String(target.scopeId).trim();
     if (scopeId === "") {
-      return { ok: false, code: "WRITEBACK_TABS_TARGET_MISSING", message: "missing scopeId for tab " + String(_tab) };
+      return { ok: false, code: _config.parameterSetCodes.TARGET_MISSING, message: "missing scopeId for tab " + String(_tab) };
     }
     var match = _tabsSelectors.readTabScopeMatch(_KDB, scopeId, targets);
     if (!match || match.status !== "ok" || match.evidence !== "liveScope") {
       return {
         ok: false,
-        code: "WRITEBACK_TABS_TARGET_MISSING",
+        code: _config.parameterSetCodes.TARGET_MISSING,
         message: "page-context tab target lacks verified liveScope evidence for scopeId"
       };
     }
@@ -77,7 +77,7 @@ define([
     if (!isFinite(matchedTabIdx) || matchedTabIdx !== Number(_tab)) {
       return {
         ok: false,
-        code: "WRITEBACK_TABS_TARGET_MISSING",
+        code: _config.parameterSetCodes.TARGET_MISSING,
         message: "liveScope tabIdx mismatch for tab " + String(_tab)
       };
     }
@@ -141,7 +141,7 @@ define([
   async function restorePageContext(_KDB, _runtime, _payload, _entry, _result, _inst) {
     var key = _entry && _entry.key != null ? String(_entry.key) : "";
     var tab = _entry ? _entry.tab : undefined;
-    var scopeResolved = resolveScopeIdForTab(_KDB, _payload.tabIdxToScopeId, _entry.tab, _entry.key);
+    var scopeResolved = resolveScopeIdForTab(_KDB, _payload.tabIdxToScopeId, _entry.tab);
     if (!scopeResolved.ok) {
       return skip(_result, _entry.tab, _entry.key, _config.parameterSetCodes.TARGET_MISSING, scopeResolved.message, true);
     }
