@@ -405,7 +405,7 @@ test("a late resolve for an owner that was removed binds nothing and claims no h
   });
 });
 
-test("remove while the helper discovery is in flight: the claim after the aborted resolve", async () => {
+test("remove while the helper discovery is in flight: an aborted resolve writes no claim", async () => {
   await withEnv({ launchpadMs: 100 }, async (env) => {
     const running = env.resolve("o1", 1);
     await sleep(30);
@@ -414,8 +414,11 @@ test("remove while the helper discovery is in flight: the claim after the aborte
     await env.settle();
     assert.equal(result.status, "aborted");
     assert.deepEqual(env.terminals, []);
-    assert.equal(env.ownerState("o1").helperWidgetId, "h1", "claim written after the abort");
-    assert.equal(env.helperAttrs("h1")[0], "o1");
+    assert.equal(env.ownerState("o1"), undefined);
+    assert.equal(env.ownerRuntime("o1"), undefined);
+    assert.deepEqual(env.helperAttrs("h1"), [null, null]);
+    const other = await env.resolve("o2", 1);
+    assert.equal(other.status, "success");
   });
 });
 
