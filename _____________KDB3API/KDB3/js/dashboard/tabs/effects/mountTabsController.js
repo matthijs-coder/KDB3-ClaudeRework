@@ -1,4 +1,4 @@
-define(["../config/actionTypes.js", "./applyTabsEffects.js", "./syncTabsDomFromState.js", "./observeActiveTab.js", "../actions/dispatchTabsTraverse.js", "../actions/commitTabsState.js"], function (_actionTypes, _applyTabsEffects, _syncTabsDomFromState, _observeActiveTab, _dispatchTabsTraverse, _commitTabsState) {
+define(["../config/actionTypes.js", "./applyTabsEffects.js", "./syncTabsDomFromState.js", "./observeActiveTab.js", "../traverse/dispatchTraverse.js", "../actions/commitTabsState.js"], function (_actionTypes, _applyTabsEffects, _syncTabsDomFromState, _observeActiveTab, _dispatchTabsTraverse, _commitTabsState) {
   "use strict";
 
   function mountTabsController(instance, _options) {
@@ -54,7 +54,7 @@ define(["../config/actionTypes.js", "./applyTabsEffects.js", "./syncTabsDomFromS
       await _applyTabsEffects(ctx, { type: _actionTypes.SYNC_FROM_DOM, payload: { source: "hydrate" } });
       if (isDisposed(instance)) { return false; }
       _observeActiveTab(ctx);
-      await _dispatchTabsTraverse(instance, _dispatchTabsTraverse.normalizeTraversePayload({ source: "mount" }));
+      await _dispatchTabsTraverse(instance, { source: "mount" });
       if (isDisposed(instance)) { return false; }
       _syncTabsDomFromState(instance._KDB, instance._KDB.state.tabs);
       return true;

@@ -1,4 +1,4 @@
-define(["../config/actionTypes.js", "../effects/applyTabsEffects.js", "./routeParameterSetAction.js", "./routeTabMutationAction.js", "./commitTabsState.js", "./dispatchTabsTraverse.js", "./dispatchTabsRename.js", "../slots.js"], function (_actionTypes, _applyTabsEffects, _routeParameterSetAction, _routeTabMutationAction, _commitTabsState, _dispatchTabsTraverse, _dispatchTabsRename, _slots) {
+define(["../config/actionTypes.js", "../effects/applyTabsEffects.js", "./routeParameterSetAction.js", "./routeTabMutationAction.js", "./commitTabsState.js", "../traverse/dispatchTraverse.js", "./dispatchTabsRename.js", "../slots.js"], function (_actionTypes, _applyTabsEffects, _routeParameterSetAction, _routeTabMutationAction, _commitTabsState, _dispatchTabsTraverse, _dispatchTabsRename, _slots) {
   "use strict";
 
   function dispatchTabsAction(instance, _action) {

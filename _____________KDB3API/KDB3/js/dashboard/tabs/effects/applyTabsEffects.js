@@ -1,4 +1,11 @@
-define(["../config/actionTypes.js", "./syncTabsDomFromState.js", "./traverseTabs.js", "./syncTabsKdbControlReadView.js", "./applyTabsRenameEffects.js", "./syncTabsStateFromDom.js", "./hydrateTabsDom.js"], function (_actionTypes, _syncTabsDomFromState, _traverseTabs, _syncTabsKdbControlReadView, _applyTabsRenameEffects, _syncTabsStateFromDom, _hydrateTabsDom) {
+define([
+  "../config/actionTypes.js",
+  "./syncTabsDomFromState.js",
+  "./syncTabsKdbControlReadView.js",
+  "./applyTabsRenameEffects.js",
+  "./syncTabsStateFromDom.js",
+  "./hydrateTabsDom.js"
+], function (_actionTypes, _syncTabsDomFromState, _syncTabsKdbControlReadView, _applyTabsRenameEffects, _syncTabsStateFromDom, _hydrateTabsDom) {
   "use strict";
 
   async function __controller(_ctx, _action) {
@@ -6,7 +13,6 @@ define(["../config/actionTypes.js", "./syncTabsDomFromState.js", "./traverseTabs
       const action = _action || {};
       if (action.type === _actionTypes.SYNC_FROM_DOM) { return _syncTabsStateFromDom(_ctx); }
       if (action.type === _actionTypes.HYDRATE_DOM) { return _hydrateTabsDom(_ctx); }
-      if (action.type === _actionTypes.TRAVERSE) { return _traverseTabs(_ctx, action.payload || {}); }
       if (action.type === _actionTypes.RENAME || action.type === _actionTypes.SELECT_EDIT_TARGET || action.type === _actionTypes.CANCEL_EDIT_SESSION) {
         return _applyTabsRenameEffects(_ctx, action);
       }
