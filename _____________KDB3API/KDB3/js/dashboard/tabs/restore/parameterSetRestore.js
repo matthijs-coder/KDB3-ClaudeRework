@@ -1,14 +1,13 @@
 define([
   "../config/actionTypes.js",
   "../config.js",
-  "../actions/guardParameterSetRun.js",
+  "./guard.js",
   "../slots.js",
-  "../effects/syncTabsDomFromState.js",
-  "../effects/syncTabsKdbControlReadView.js",
+  "../view.js",
   "./filterScopeTargets.js",
   "./parameterSetActivation.js",
   "./parameterSetLanding.js"
-], function (_actionTypes, _config, _guard, _slots, _syncTabsDomFromState, _syncTabsKdbControlReadView, _filterScopeTargets, _activation, _landing) {
+], function (_actionTypes, _config, _guard, _slots, _view, _filterScopeTargets, _activation, _landing) {
   "use strict";
 
   const _codes = _config.parameterSetCodes;
@@ -158,8 +157,8 @@ define([
       }
     });
     if (!_ctx.isDisposed()) {
-      _syncTabsDomFromState(_ctx._KDB, _ctx.getRawState());
-      _syncTabsKdbControlReadView(_ctx._KDB);
+      _view.syncDomFromState(_ctx._KDB, _ctx.getRawState());
+      _view.syncKdbControlView(_ctx._KDB);
     }
     return diagnostics;
   }

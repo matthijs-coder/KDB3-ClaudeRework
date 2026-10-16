@@ -1,8 +1,8 @@
 define([
   "../config.js",
   "../slots.js",
-  "../state/buildTabTargets.js"
-], function (_config, _slots, _buildTabTargets) {
+  "../selectors.js"
+], function (_config, _slots, _selectors) {
   "use strict";
 
   const _codes = _config.filterScopeCodes;
@@ -35,7 +35,7 @@ define([
 
   // Also used by parameterSet restore/reset for their tabTargets result.
   function readResolvedFilterScopeTargets(_ctx, source) {
-    const tabTargets = _buildTabTargets(_ctx.getRawState(), listTabScopeIds(_ctx));
+    const tabTargets = _selectors.buildTabTargets(_ctx.getRawState(), listTabScopeIds(_ctx));
     return { ok: true, tabTargets: tabTargets, diagnostics: readMissingScopeDiagnostics(tabTargets, source) };
   }
 

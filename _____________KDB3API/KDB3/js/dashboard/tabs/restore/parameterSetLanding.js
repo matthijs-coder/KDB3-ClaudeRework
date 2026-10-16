@@ -1,10 +1,10 @@
 define([
   "../config/actionTypes.js",
   "../config.js",
-  "../actions/guardParameterSetRun.js",
+  "./guard.js",
   "../slots.js",
   "../events/eventNames.js",
-  "../effects/ensureSlotReadyForMutation.js"
+  "../tabMutation/owners.js"
 ], function (_actionTypes, _config, _guard, _slots, _eventNames, _ensureSlotReady) {
   "use strict";
 

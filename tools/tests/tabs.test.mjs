@@ -35,17 +35,17 @@ test("every tabs module factory runs without throwing", () => {
 });
 
 test("edit icons are disabled only while a tab mutation runs", () => {
-  const icons = load("editIconActions.js");
+  const confirm = load("editUi/confirm.js");
   const idle = { _KDB: { runtime: { tabs: { pendingPromises: { traverse: Promise.resolve() } } } } };
   const busy = { _KDB: { runtime: { tabs: { pendingPromises: { tabMutation: Promise.resolve() } } } } };
-  assert.equal(icons.isIconEnabled(idle), true);
-  assert.equal(icons.isIconEnabled({}), true);
-  assert.equal(icons.isIconEnabled(busy), false);
+  assert.equal(confirm.isTabMutationInFlight(idle._KDB), false);
+  assert.equal(confirm.isTabMutationInFlight(undefined), false);
+  assert.equal(confirm.isTabMutationInFlight(busy._KDB), true);
 });
 
 test("a disabled edit icon click only cancels the event and drops focus", () => {
   const logged = [];
-  const icons = load("editIconActions.js", { console: Object.assign({}, silent, { log: (...args) => logged.push(args) }) });
+  const icons = load("editUi/icons.js", { console: Object.assign({}, silent, { log: (...args) => logged.push(args) }) });
   const handlers = [];
   const target = () => ({ addEventListener: (type, handler) => handlers.push([type, handler]) });
   icons.bindIconClick({ key: "delete" }, {}, false, target(), target(), 1, "tab1");
@@ -98,7 +98,7 @@ test("destroy restores the original _KDB.utils.readCurrentTab, re-orchestration 
 
 test("hydrate: destroy aborts the button wait at once and reports it to the chrome checks", async () => {
   const doc = { querySelectorAll: () => [], querySelector: () => null };
-  const hydrate = load("effects/hydrateTabsDom.js", { document: doc });
+  const hydrate = load("effects.js", { document: doc });
   const endWaits = [];
   const dispatched = [];
   let disposed = false;
@@ -110,7 +110,7 @@ test("hydrate: destroy aborts the button wait at once and reports it to the chro
   };
   const ctx = { _KDB, dispatch: (action) => dispatched.push(action.payload.phase), isDisposed: () => disposed };
   const startedAt = Date.now();
-  const pending = hydrate(ctx);
+  const pending = hydrate.applyTabsEffects(ctx, { type: "tabs/hydrateDom" });
   disposed = true;
   _KDB.runtime.tabs.abortControllers.hydrate.abort();
   assert.equal(await pending, false);
@@ -124,7 +124,7 @@ test("page loading cover: finishWhenReady ends once the inner page exists, finis
   let ready = false;
   const wrapper = { id: "p1", matches: () => false, querySelector: () => (ready ? { id: "inner" } : null) };
   const doc = { getElementById: (id) => (id === "p1" ? wrapper : null) };
-  const loading = load("effects/applyTabPageLoading.js", { document: doc });
+  const loading = load("pageLoading.js", { document: doc });
   const calls = [];
   const _KDB = {
     services: { loading: { startLoading: (opts) => { calls.push("start:" + opts.mountEl.id); return "handle"; }, finishLoading: () => calls.push("finish") } },

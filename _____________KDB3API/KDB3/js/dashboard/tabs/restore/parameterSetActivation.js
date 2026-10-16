@@ -1,11 +1,11 @@
 define([
   "../config/actionTypes.js",
   "../config.js",
-  "../actions/guardParameterSetRun.js",
+  "./guard.js",
   "../slots.js",
-  "../effects/hasTabInnerFrame.js",
+  "../chrome.js",
   "../../../core/utils/kit/async.js"
-], function (_actionTypes, _config, _guard, _slots, _hasTabInnerFrame, _async) {
+], function (_actionTypes, _config, _guard, _slots, _chrome, _async) {
   "use strict";
 
   const _codes = _config.parameterSetCodes;
@@ -48,7 +48,7 @@ define([
       return failed(tabIdx, "tabIdx " + tabIdx + " does not map to a dashboard tab slot", null);
     }
     const canSkip = function () {
-      return payload.forceShow !== true && _hasTabInnerFrame(_KDB, slot.tabId, slot.pageId);
+      return payload.forceShow !== true && _chrome.hasTabInnerFrame(_KDB, slot.tabId, slot.pageId);
     };
     if (canSkip()) {
       return finishActivateOk(_ctx, payload, slot, { skippedActivation: true });
@@ -116,12 +116,12 @@ define([
 
   // A newer poll for the same tab aborts the previous one.
   async function waitForTabInnerFrame(_KDB, tabId, pageId) {
-    if (_hasTabInnerFrame(_KDB, tabId, pageId)) { return true; }
+    if (_chrome.hasTabInnerFrame(_KDB, tabId, pageId)) { return true; }
     const controllers = ensureAbortControllers(_KDB);
     const key = "tabInnerFramePoll:" + String(tabId || "");
     const controller = replaceController(controllers, key);
     const outcome = await _async.pollUntil({
-      check: function () { return _hasTabInnerFrame(_KDB, tabId, pageId); },
+      check: function () { return _chrome.hasTabInnerFrame(_KDB, tabId, pageId); },
       timeoutMs: INNER_FRAME_CAP_MS,
       intervalMs: INNER_FRAME_POLL_MS,
       signal: controller.signal
