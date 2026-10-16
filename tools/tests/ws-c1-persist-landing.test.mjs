@@ -12,8 +12,7 @@ const kitRuntime = kit("runtime.js");
 
 const silent = { log() {}, info() {}, warn() {}, error() {}, debug() {} };
 
-function loadLanding() {
-  const document = { getElementById: () => null, querySelector: () => null };
+function loadLanding(document = { getElementById: () => null, querySelector: () => null }) {
   return loadAmd(path.join(WB, "get/persist/persistLanding.js"), {
     stubs: { console: silent, document },
   });
@@ -124,4 +123,39 @@ test("the real accessor seeds the get-owned fields", () => {
   const runtime = ensure({});
   assert.equal(runtime.persistRestoreGeneration, 0);
   assert.equal(runtime.getPersistLoadingHandle, null);
+});
+
+test("early exits leave no settled controller behind", async () => {
+  const landing = loadLanding();
+  const alreadyThere = fakeKdb();
+  alreadyThere.api.tabs.getState().activeIndex = 0;
+  await landing.applyWritebackGetPersistLanding(alreadyThere);
+  assert.equal(alreadyThere.runtime.writeback.abortControllers.persistLanding, undefined);
+
+  const cancelled = fakeKdb();
+  const pending = landing.applyWritebackGetPersistLanding(cancelled);
+  await settle();
+  assert.ok(cancelled.runtime.writeback.abortControllers.persistLanding);
+  const controller = cancelled.runtime.writeback.abortControllers.persistLanding;
+  controller.abort();
+  await pending;
+  assert.equal(cancelled.runtime.writeback.abortControllers.persistLanding, undefined);
+});
+
+test("once the restore watch runs the controller stays until the next cancel", async () => {
+  const pageEl = { id: "page0" };
+  const landing = loadLanding({ getElementById: () => pageEl, querySelector: () => null });
+  const _KDB = fakeKdb();
+  _KDB.elements.kdbWidget = { parentNode: pageEl };
+  await landing.applyWritebackGetPersistLanding(_KDB);
+  const runtime = _KDB.runtime.writeback;
+  try {
+    assert.equal(typeof runtime.subscriptions.persistRestoreTab, "function");
+    assert.ok(runtime.abortControllers.persistLanding);
+    assert.ok(runtime.timers.persistRestoreTab);
+  } finally {
+    landing.cancelWritebackGetPersistLanding(_KDB);
+  }
+  assert.equal(runtime.abortControllers.persistLanding, undefined);
+  assert.equal(runtime.timers.persistRestoreTab, undefined);
 });

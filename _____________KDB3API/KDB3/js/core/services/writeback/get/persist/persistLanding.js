@@ -22,11 +22,14 @@ define([
   const WATCH_STUCK_CAP_MS = 30000;
 
   async function applyWritebackGetPersistLanding(_KDB) {
+    let runtime = null;
+    let controller = null;
+    let isWatchStarted = false;
     try {
       cancelWritebackGetPersistLanding(_KDB);
-      const runtime = _ensureWritebackRuntime(_KDB);
+      runtime = _ensureWritebackRuntime(_KDB);
       const generation = runtime.persistRestoreGeneration;
-      const controller = new AbortController();
+      controller = new AbortController();
       runtime.abortControllers.persistLanding = controller;
       const isCurrent = function () {
         return runtime.persistRestoreGeneration === generation && !controller.signal.aborted;
@@ -52,8 +55,14 @@ define([
         );
       }
       startRestoreWatch(_KDB, capturedIndex, generation);
+      isWatchStarted = true;
     } catch (error) {
       console.error("[writebackGet.persistLanding] failed", error);
+    } finally {
+      // The watch keeps the controller until the next cancel; every other exit must not leave a settled one behind.
+      if (!isWatchStarted && runtime && runtime.abortControllers.persistLanding === controller) {
+        delete runtime.abortControllers.persistLanding;
+      }
     }
   }
 
