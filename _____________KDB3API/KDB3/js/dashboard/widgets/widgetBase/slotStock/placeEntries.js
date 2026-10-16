@@ -1,5 +1,4 @@
 define([
-  "./guard.js",
   "../runtime.js",
   "../effects.js",
   "../launchpadRoute.js",
@@ -10,7 +9,7 @@ define([
   "../../../tabs/effects/hasTabInnerFrame.js",
   "../../../tabs/actions/guardParameterSetRun.js"
 ], function (
-  _guard, _runtimeModule, _effects, _launchpadRoute, _launchpadTransfer, _canvas, _widgetVisActionTypes, _widgetTextActionTypes, _hasTabInnerFrame, _guardParameterSetRun
+  _runtimeModule, _effects, _launchpadRoute, _launchpadTransfer, _canvas, _widgetVisActionTypes, _widgetTextActionTypes, _hasTabInnerFrame, _guardParameterSetRun
 ) {
   "use strict";
 
@@ -100,10 +99,11 @@ define([
     });
   }
 
+  // A tab mutation guard carries its own isCurrent(); the parameterSet guard compares with the widgetBase run id.
   function isSuperseded(_runtime, _guardSpec) {
     if (!_guardSpec || typeof _guardSpec.runId !== "number") { return false; }
-    var key = _guardSpec.kind === "tabMutationRunId" ? "tabMutationRunId" : "parameterSetRunId";
-    return _runtime[key] !== _guardSpec.runId;
+    if (_guardSpec.kind === "tabMutationRunId") { return _guardSpec.isCurrent() !== true; }
+    return _runtime.parameterSetRunId !== _guardSpec.runId;
   }
 
   function supersededResult(_guardSpec, _runtime) {
@@ -328,7 +328,7 @@ define([
     }
     await parkTabCanvas(_context, _tabId, deps);
     for (var index = 0; index < rows.length; index += 1) {
-      if (_guard.isStale(_context._KDB, deps.runId)) { return supersededSlot(); }
+      if (deps.isStale()) { return supersededSlot(); }
       var row = rows[index] || {};
       var placeResult = await placeSerializedWidgetEntry(_context, row.entry, _tabId, Object.assign({}, deps.placeOptions, { entryIndex: index }));
       if (placeResult && placeResult.superseded) { return supersededSlot(); }

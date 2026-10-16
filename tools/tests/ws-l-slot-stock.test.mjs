@@ -1,7 +1,7 @@
 // Golden tests for the widgetBase slot-stock handlers (WS-L W1): prepare, apply and rollback results plus the
-// snapshot they leave in runtime.widgetBase.tabMutationSnapshots, and the parameter-set reset/restore results,
-// on a stubbed _KDB without a DOM.
-// The hashes were recorded from the pre-refactor handlers on main.
+// snapshot ledger they leave (runtime.tabs.slotStock since P2-W6a, runtime.widgetBase.tabMutationSnapshots before),
+// and the parameter-set reset/restore results, on a stubbed _KDB without a DOM.
+// The hashes were recorded from the pre-refactor handlers on main and are unchanged by the slot-stock relocation.
 // Run: node --test tools/tests/ws-l-slot-stock.test.mjs   (WS_L_RECORD=1 prints the hashes instead of asserting)
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -19,9 +19,10 @@ const documentStub = {
 const consoleStub = { error() {}, warn() {}, info() {}, log() {} };
 const load = (rel) => loadAmd(path.join(BASE, rel), { stubs: { document: documentStub, console: consoleStub } });
 
-const prepare = load("slotStock/prepare.js").handlePrepareTabMutation;
-const apply = load("slotStock/apply.js").handleApplyTabMutation;
-const rollback = load("slotStock/rollback.js").handleRestoreTabMutationSnapshot;
+const tabMutationOwner = load("slotStock/tabMutationOwner.js");
+const prepare = tabMutationOwner.handlePrepareTabMutation;
+const apply = tabMutationOwner.handleApplyTabMutation;
+const rollback = tabMutationOwner.handleRestoreTabMutationSnapshot;
 const parameterSetReset = load("restore.js").handleParameterSetReset;
 const parameterSetRestore = load("restore.js").handleParameterSetRestore;
 const selectors = load("state/selectors.js");
@@ -41,7 +42,7 @@ function makeContext(options) {
   const _KDB = {
     state: { widgets: { base: { byId } } },
     runtime: {
-      widgetBase: { routedTabIds: opts.routed || { A: true, B: true, C: true, D: true }, tabMutationSnapshots: {}, tabMutationRunId: 0 },
+      widgetBase: { routedTabIds: opts.routed || { A: true, B: true, C: true, D: true } },
       tabs: {}
     },
     api: {
@@ -84,10 +85,21 @@ function makeContext(options) {
   return { context, log };
 }
 
+function readLedger(ctx) {
+  return ctx.context._KDB.runtime.tabs.slotStock || { snapshots: {}, runId: 0 };
+}
+
+function seedLedger(ctx, snapshot, runId) {
+  const tabs = ctx.context._KDB.runtime.tabs;
+  tabs.slotStock = tabs.slotStock || { snapshots: {}, runId: 0 };
+  if (snapshot) { tabs.slotStock.snapshots.op = JSON.parse(JSON.stringify(snapshot)); }
+  if (runId) { tabs.slotStock.runId = runId; }
+}
+
 async function run(handler, ctx, payload) {
   const result = await handler(ctx.context, { payload });
-  const rt = ctx.context._KDB.runtime.widgetBase;
-  return JSON.parse(JSON.stringify({ result, snapshots: rt.tabMutationSnapshots, runId: rt.tabMutationRunId, log: ctx.log }));
+  const ledger = readLedger(ctx);
+  return JSON.parse(JSON.stringify({ result, snapshots: ledger.snapshots, runId: ledger.runId, log: ctx.log }));
 }
 
 const twoTabFrames = () => [
@@ -268,15 +280,13 @@ async function runPrepare(spec) {
 
 async function runApply(spec) {
   const ctx = makeContext({ frames: twoTabFrames(), dispatchResult: spec.dispatchResult });
-  const rt = ctx.context._KDB.runtime.widgetBase;
-  if (spec.snapshot) { rt.tabMutationSnapshots.op = JSON.parse(JSON.stringify(spec.snapshot)); }
-  if (spec.runIdBefore) { rt.tabMutationRunId = spec.runIdBefore; }
+  seedLedger(ctx, spec.snapshot, spec.runIdBefore);
   return run(apply, ctx, spec.payload);
 }
 
 async function runRollback(spec) {
   const ctx = makeContext({ frames: twoTabFrames(), dispatchResult: spec.dispatchResult });
-  if (spec.snapshot) { ctx.context._KDB.runtime.widgetBase.tabMutationSnapshots.op = JSON.parse(JSON.stringify(spec.snapshot)); }
+  seedLedger(ctx, spec.snapshot, 0);
   return run(rollback, ctx, { runId: 1, operationId: "op" });
 }
 
