@@ -1,4 +1,5 @@
 /* filters.css */
+/* hides the Cognos 'Gesamt' option of the Jahr filter; depends on Cognos list DOM; product rule */
 #filterDockContainer .filterItemWrapper:has([data-id="Jahr"]) .ba-common-listItem-wrapper:has([aria-label="Gesamt"])  {display: none !important; }
 
 /* singleSelect.css */
