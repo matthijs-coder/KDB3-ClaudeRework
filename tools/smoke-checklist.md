@@ -286,7 +286,7 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] **Authoring mode** (Cognos Edit ↔ View, the pencil/"Bearbeiten" button):
   - Each switch flips `getKDB().state.authoring.isAuthoring`, and `#kdb-control-root` gains or loses the class `kdb-control--authoring`. The tab bar behaves as on baseline.
   - Toggle 3×, then close/reopen and toggle again. Expected: one flip per toggle, no console errors.
-  - After boot, `getKDB().runtime.authoring.dashboardFacet` is non-null and `getKDB().runtime.authoring.pendingDashboardFacetStamp` is `null`.
+  - After boot, `getKDB().runtime.authoring.dashboardFacet` is non-null and `getKDB().runtime.authoring.pendingDashboardFacetStamp` is `undefined` (the handshake is gone, authoring registers after the services).
 - [ ] **Hide-widgets property** (`KDBHideWidgetsToggle` in the widget properties; a properties feature, kept here as a regression check): on/off shows/hides the KDB widgets as on baseline.
 - [ ] **Cubes-unavailable dialog:** block the table query (DevTools "Block request URL") and reload. Expected:
   - The same title and text as baseline, and only the buttons "Dashboard schließen" / "Dashboard minimalisieren".

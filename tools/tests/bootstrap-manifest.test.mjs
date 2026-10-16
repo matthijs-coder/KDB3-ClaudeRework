@@ -14,10 +14,10 @@ test('manifest: names are unique, every entry registers, features keep the Phase
   assert.deepEqual(featureNames, FEATURES.map((feature) => feature[0]));
 });
 
-test('manifest: core steps register before the features', () => {
+test('manifest: core steps register before the features, services before authoring', () => {
   const names = manifest.entries.map((entry) => entry.name);
   assert.deepEqual(names.slice(0, 10), [
-    'bootstrapLabels', 'cognosHostSelectors', 'properties', 'config', 'css', 'cognosAPI', 'authoring', 'services', 'homeDialog', 'utils',
+    'bootstrapLabels', 'cognosHostSelectors', 'properties', 'config', 'css', 'cognosAPI', 'services', 'authoring', 'homeDialog', 'utils',
   ]);
 });
 

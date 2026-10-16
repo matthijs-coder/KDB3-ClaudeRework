@@ -14,7 +14,8 @@ const REGISTER_FEATURES = [
 
 const EXPECTED_REGISTER = [
   'register:cognosHostSelectors', 'register:properties', 'register:config', 'register:css', 'register:cognosAPI',
-  'register:authoring', 'register:services', 'register:homeDialog', 'register:utils',
+  // DELTA (authoring commit): authoring registers after services (it was before them).
+  'register:services', 'register:authoring', 'register:homeDialog', 'register:utils',
   ...REGISTER_FEATURES.map((name) => 'register:' + name),
 ];
 
@@ -50,9 +51,10 @@ const EXPECTED_BOOT_FLOW = [
 const EXPECTED_DESTROY = [
   'destroy:nativeMultiSelect', 'destroy:specialSingleSelect', 'destroy:sicht', 'destroy:dienststelle', 'destroy:singleSelect',
   'destroy:filterDock', 'destroy:metricsTree', 'destroy:pdfExportControls', 'destroy:wienKiControls', 'destroy:shareControls',
-  'destroy:pageSurface', 'destroy:kdbControl', 'destroy:tabs', 'destroy:historyControls', 'destroy:dragDrop',
+  // DELTA (authoring commit): authoring is destroyed before kdbControl and tabs (it was after launchpad).
+  'destroy:pageSurface', 'destroy:authoring', 'destroy:kdbControl', 'destroy:tabs', 'destroy:historyControls', 'destroy:dragDrop',
   'destroy:widgetTopN', 'destroy:widgetDataTable', 'destroy:widgetVis', 'destroy:widgetText', 'destroy:widgetSettings',
-  'destroy:widgetBase', 'destroy:launchpad', 'destroy:authoring', 'destroy:footer', 'destroy:header',
+  'destroy:widgetBase', 'destroy:launchpad', 'destroy:footer', 'destroy:header',
   'destroy:properties.controller',
   'service.destroy:writebackBridge', 'service.destroy:writebackSet', 'service.destroy:writebackGet',
   'service.destroy:writebackMap', 'service.destroy:dashboardPdf', 'service.destroy:widgetBindingApply',

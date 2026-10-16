@@ -113,7 +113,7 @@ test('authoringMode constants and selector keep their shape', () => {
     AUTHORING_ENTERED: 'authoring:entered',
     AUTHORING_EXITED: 'authoring:exited',
   });
-  const readIsAuthoring = load('core/authoring/state/selectors.js');
+  const readIsAuthoring = load('core/authoring/selectors.js');
   assert.equal(readIsAuthoring({ state: { authoring: { isAuthoring: true } } }), true);
   assert.equal(readIsAuthoring({ state: { authoring: { isAuthoring: 1 } } }), false);
   assert.equal(readIsAuthoring(null), false);
@@ -204,22 +204,13 @@ test('authoring: handshake with cognosHost present subscribes immediately', () =
   assert.equal(host.uiCallbacks.length, 1);
 });
 
-test('authoring: handshake without cognosHost leaves a one-shot pendingDashboardFacetStamp', () => {
+test('authoring: without a cognosHost service the facet stays null, nothing subscribes and no stamp hook is left', () => {
   const { kdb, host, orchestrator } = setupAuthoring({ withHost: false });
   orchestrator(kdb);
   assert.equal(kdb.runtime.authoring.dashboardFacet, null);
-  const stamp = kdb.runtime.authoring.pendingDashboardFacetStamp;
-  assert.equal(typeof stamp, 'function');
+  assert.equal('pendingDashboardFacetStamp' in kdb.runtime.authoring, false);
   assert.equal(host.uiCallbacks.length, 0);
-  kdb.services.cognosHost = {
-    dashboard: { subscribeUiState(cb) { host.uiCallbacks.push(cb); return () => { host.unsubscribed += 1; }; } },
-  };
-  stamp();
-  assert.equal(kdb.runtime.authoring.pendingDashboardFacetStamp, null);
-  assert.equal(kdb.runtime.authoring.dashboardFacet, kdb.services.cognosHost.dashboard);
-  assert.equal(host.uiCallbacks.length, 1);
-  stamp();
-  assert.equal(host.uiCallbacks.length, 1, 'second stamp must not subscribe again');
+  assert.equal(kdb.api.authoring.getState().isAuthoring, false);
 });
 
 test('authoring: a host facet without subscribeUiState is stamped but never subscribed', () => {

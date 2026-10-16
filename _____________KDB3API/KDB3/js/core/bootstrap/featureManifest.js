@@ -87,8 +87,8 @@ define([
     { name: "config", register: _orchestratorConfig },
     { name: "css", register: _orchestratorCss },
     { name: "cognosAPI", register: _orchestratorCognosAPI },
-    { name: "authoring", register: _orchestratorAuthoring, api: "authoring" },
     { name: "services", register: _orchestratorServices },
+    { name: "authoring", register: _orchestratorAuthoring, api: "authoring" },
     { name: "homeDialog", register: _orchestratorHomeDialog },
     { name: "utils", register: _orchestratorUtils },
     { name: "header", register: _orchestratorHeader, api: "header", mount: { options: {} },
@@ -132,9 +132,9 @@ define([
   // and tabs are torn down before the widgets and the launchpad, as before the manifest existed.
   var destroyOrder = [
     "nativeMultiSelect", "specialSingleSelect", "sicht", "dienststelle", "singleSelect", "filterDock", "metricsTree",
-    "pdfExportControls", "wienKiControls", "shareControls", "pageSurface", "kdbControl", "tabs", "historyControls",
-    "dragDrop", "widgetTopN", "widgetDataTable", "widgetVis", "widgetText", "widgetSettings", "widgetBase", "launchpad",
-    "authoring", "footer", "header", "properties"
+    "pdfExportControls", "wienKiControls", "shareControls", "pageSurface", "authoring", "kdbControl", "tabs",
+    "historyControls", "dragDrop", "widgetTopN", "widgetDataTable", "widgetVis", "widgetText", "widgetSettings", "widgetBase",
+    "launchpad", "footer", "header", "properties"
   ];
 
   // _KDB.services keys in teardown order; cognosHost goes last because consumers may still see a live (but already
