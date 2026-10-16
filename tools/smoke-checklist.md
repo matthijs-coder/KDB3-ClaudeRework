@@ -11,11 +11,11 @@ Legend: **[CORE]** = part of the quick Core smoke (section 1, about 10 min, run 
 
 - [ ] Deploy the build under test to the Cognos extension path (`v1/ext/KDB3/...`). Hard-reload the browser (Ctrl+Shift+R) so no old AMD files are cached. Expected: DevTools Network shows `KDB3/js/KDB.js` loading with status 200.
 - [ ] Open the **reference dashboard** (the dashboard with the KDB3 widget and the usual 5 tabs: 4-5 "dashboard" tabs plus the helper tab). Use the same dashboard, same user and same rights for baseline and test. A second run as a user **without** the superuser right is needed only for WS-K.
-- [ ] Open DevTools (F12). Console: tick **Preserve log**; set the level filter to *All levels*. If the dashboard runs in an iframe, pick the right JS context in the console drop-down (top-left of the console). Handy filters: `KDB`, `[sicht-jahr]`, `error`.
+- [ ] Open DevTools (F12). Console: tick **Preserve log**; set the level filter to *All levels*. If the dashboard runs in an iframe, pick the right JS context in the console drop-down (top-left of the console). Handy filters: `KDB`, `TEMP`, `[sicht-jahr]`, `error`.
 - [ ] Check the console handle: type `window.top.getKDB()`. Expected: the `_KDB` object (it is installed on `window.top` at boot). If `undefined`: wrong console context or boot failed - note it as a failure.
 - [ ] Baseline parameter sets (Cognos "Parameterset" dropdown):
   - **Set A (v3)**: a set you saved with the current build (create it in step 1.10 if none exists).
-  - **Set B (old v2)**: load a v2-format payload. Samples: `oude parameterset.txt` in the repo root (full old payload; paste it into the parameter-set content as the product owner normally does) and the per-property JS files in `_____________KDB3API/__savedProperties/` (`filterPropId.js`, `linePropId.js`, `piePropId.js`, `stackedBarPropId.js`, `stackedColumnPropId.js`, `listPropId.js`, `textWidgetPropId.js`, `headerWidgetPropId.js`, `loadingTablesPropId.js`, ...) which are the widget property values behind `spec.json`.
+  - **Set B (old v2)**: load a v2-format payload. The only v2 payload sample in the repo is `oude parameterset.txt` (repo root); paste it into the parameter-set content as you normally do. Note: the files in `_____________KDB3API/__savedProperties/` (`filterPropId.js`, `linePropId.js`, `loadingTablesPropId.js`, ...) are **not** parameter sets; they are the widget property values behind `spec.json` (what the Cognos widget's property fields contain). Use them only to check that the widget properties are unchanged (for example `loadingTablesPropId` lists 16 table names).
   - A **share URL** with `?parameterId=<id of Set A>` (see 1.12).
 - [ ] Record the **baseline numbers** right after a fresh boot (before touching anything). Write them down next to the build id:
   ```js
@@ -37,9 +37,9 @@ Legend: **[CORE]** = part of the quick Core smoke (section 1, about 10 min, run 
 - [ ] **1.2 [CORE] Console clean**: filter `error` and `Uncaught`. Expected: no red errors, no `RequireJS` / `Script error` / 404 in the Network tab for `KDB3/`. Warnings that also appear on baseline are fine - compare the count with the baseline.
 - [ ] **1.3 [CORE] Header / Footer**: header (title and subtitle) and footer (created-by user and update date) are visible and filled.
 - [ ] **1.4 [CORE] Tabs**: the tab bar shows the usual tabs; click each tab. Expected: each shows its widgets, the right tab is highlighted, no flicker loop.
-- [ ] **1.5 [CORE] Launchpad**: open the launchpad on a tab. Expected: the pads (visualization, text, data tables / Tabellen, TopN, other resources) show the same entries as baseline.
+- [ ] **1.5 [CORE] Launchpad**: open the launchpad on a tab. Expected: each pad shows the same entries as baseline.
 - [ ] **1.6 [CORE] Filter dock**: the filter dock (Sicht, Jahr, Dienststelle, ...) is present and a click on a filter opens its popup; closing the popup works.
-- [ ] **1.7 [CORE] Tables load**: with the console open, boot logs show all core tables loaded (about 21; same count as baseline) and the Dienststelle / Sicht popups list options (not empty).
+- [ ] **1.7 [CORE] Tables load**: the code does not log table loads, so read the state: `Object.entries(getKDB().state.tableData).map(([k,v])=>[k,v.lifecycle,v.rowCount])` (define `const getKDB = window.top.getKDB;` first) and wrap in `console.table(...)`. Expected: the same number of tables as baseline, all `lifecycle` = `ready`, and the same `rowCount` per table as baseline. The Dienststelle / Sicht popups list options (not empty).
 - [ ] **1.8 [CORE] Widget add/remove**: drag one visualization (for example a `Line` chart) from the launchpad onto the canvas; set a Kennzahl via the metrics tree (drag a leaf onto it). Expected: the chart renders with data. Delete the widget (settings icon "Löschen"). Expected: it disappears, no console error.
 - [ ] **1.9 [CORE] Undo / redo**: after 1.8 click Undo, then Redo (toolbar buttons). Expected: the widget disappears/returns, the buttons enable/disable like on baseline. Undo twice quickly (double-click): no error.
 
@@ -56,11 +56,11 @@ Legend: **[CORE]** = part of the quick Core smoke (section 1, about 10 min, run 
 
 ## 2) Phase 0 specific checks (debug sweep, orphan removal, tooling)
 
-- [ ] **2.1 No Sicht/Jahr debug output**: filter the console by `[sicht-jahr]` and by `TEMP`, then switch Sicht (BW <-> DEZPV), change Jahr, change Dienststelle, add/rebind a vis widget. Expected: **zero** lines containing `[sicht-jahr] TEMP`.
-- [ ] **2.2 No traverse log noise**: click through all tabs (tab traversal at startup/restore). Expected: no unguarded `console.log` lines from tabs traversal that were not present as intended logs before; count is lower or equal to baseline.
+- [ ] **2.1 No Sicht/Jahr debug output**: filter the console by `TEMP` and by `[sicht-jahr]`, then switch Sicht (BW <-> DEZPV), change Jahr, change Dienststelle, add/rebind a vis widget, set and clear a TopN. Expected: **zero** console lines containing `TEMP` (any prefix, for example `[widgetTopN.helperPlan]`, `[widgetTopN.helperApply]`, `[widgetTopN.helperRead]`, `[widgetTopN.helperSpec]`, `[widgetTopN.extractTopNResult]`, `[widgetVis.NewestStichtag]`) and **zero** lines containing `[sicht-jahr]`. On the pre-Phase-0 baseline these are non-zero, so do not use the old build as "same as baseline" for this item.
+- [ ] **2.2 No traverse log noise**: click through all tabs and reload/restore a set (tab traversal). Expected: count of `console.log` lines during tab traversal is <= baseline (expected: 0 traverse logs).
 - [ ] **2.3 TopN helper widget not outlined**: set a TopN (for example "Top-5") on a vis widget that supports it. Find the TopN helper widget (the helper stays **on the canvas**, this is expected for now - it is not moved to a helper tab and not restored). Expected: it has **no red 3px outline** any more.
 - [ ] **2.4 TopN behaves exactly as before**: with TopN set, the owner chart shows the top N entries; change N, set "Ohne" (clear TopN), change the grouping dimension. Expected: identical to baseline. The helper widget still stays on the canvas, in the same place as before, and is still not restorable. Undo/redo TopN steps: same result as baseline.
-- [ ] **2.5 Nothing else changed**: compare against the baseline for header/footer/tabs/filters/save/load (section 1 run fully, not only a subset). Expected: no visual difference, same console warnings count.
+- [ ] **2.5 Nothing else changed**: compare against the baseline for header/footer/tabs/filters/save/load (run section 1 fully, not only the CORE subset). Expected: no visual difference, same console warnings count.
 - [ ] **2.6 No missing modules after orphan removal**: Network tab, filter `KDB3`. Expected: no 404, no `requirejs` "Script error" (removed orphans were never loaded, so a 404 means a real broken reference).
 - [ ] **2.7 Drag and resize still work**: drag a widget by its handle and resize it. Expected: as baseline (relevant if `core/libraries/jquery-ui.min.js` is removed later).
 - [ ] **2.8 Tooling (agent side, no Cognos)**: `node tools/check-all.mjs` exits 0 on the merged branch (only if the tools PR is merged).
@@ -73,7 +73,7 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 
 ### WS-A Cognos adapter layers (`cognosAPI`, `cognosHost`)
 - [ ] Single-select filter write: set a single-select filter (for example Geschlecht) to one value, then clear it ("Alle"). Expected: dependent tables/charts update both times; no console error.
-- [ ] Tables load on boot (about 21, same count as baseline); chart widgets bind and render.
+- [ ] Tables load on boot (same table count and `rowCount`s as baseline, see 1.7); chart widgets bind and render.
 - [ ] Widget duplicate (Cognos "Duplicate" on a KDB vis widget) and tab switch. Expected: copies render, tab switch works.
 - [ ] PDF export (1.13) works.
 - [ ] Listener count: `getEventListeners(document)` before and after adding and removing 5 widgets - same totals as before (no growth). Console: `window.top.getKDB().runtime.cognosHost` still exists.
@@ -84,7 +84,7 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Rapid toggling: switch chart type / dimension 5 times in quick succession. Expected: ends with the last choice, no stale render, no error.
 - [ ] TopN: set TopN, then "Ohne" (clear-only path). Expected: same as baseline (see 2.3/2.4).
 - [ ] Forced timeout: while a widget renders, switch to another tab. Expected: no hang; same message (if any) as baseline.
-- [ ] All tables load on boot (`tableData:loadFinished` count and row counts equal baseline); Dienststelle/Sicht popups and the metrics tree are populated.
+- [ ] All tables load on boot (same table count as baseline; `getKDB().state.tableData` shows all `lifecycle` = `ready` and the same `rowCount` per table, see 1.7); Dienststelle/Sicht popups and the metrics tree are populated.
 
 ### WS-C Writeback + properties
 - [ ] Save/load round-trip for **every vis type** (Line, Pie, StackedBar, StackedColumn, List, Prognose) and every Zeitebene (grain, e.g. Jahr / Stichtag / Stichtag pro Jahr). Expected: after save + reload the widgets are identical.
@@ -96,7 +96,7 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 
 ### WS-D Feature services (message, loading, history, PDF, drillthrough)
 - [ ] Toasts/dialogs: trigger an info message (restore with fallback), a share dialog and a confirm dialog ("discard unsaved changes"). Expected: placement unchanged; scroll/resize keeps them in place; closing leaves no dark backdrop.
-- [ ] Spinners: dashboard load, tab switch, widget render, PDF export, parameter-set save. Expected: each shows and ends; `window.top.getKDB().state.loading` shows `activeCount` 0 when idle.
+- [ ] Spinners: dashboard load, tab switch, widget render, PDF export, parameter-set save. Expected: each shows and ends; when idle `Object.values(getKDB().state.loading).map(e=>e.activeCount)` returns all zeros.
 - [ ] Undo/redo after header edit, widget move, tab rename, filter change; double-click undo quickly. Expected: stack steps correctly; after loading a parameter set the undo stack is empty (`window.top.getKDB().services.history.getSnapshot().stack.length === 0`).
 - [ ] PDF export with 1 tab, with 5+ tabs, with a widget in focus mode (Vollbild), with legend charts (swatch colours/shapes in the PDF), and cancel/abort mid-export. Expected: output equals baseline; class `kdb-pdf-capturing` removed afterwards; the original tab is selected again.
 - [ ] Drillthrough: click a header icon and a datapoint on a line/pie/table widget for 3-4 org/year combinations (BW and DEZPV). Expected: the target URL (Network tab or `window.open` target) equals baseline.
@@ -151,7 +151,7 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 
 ### WS-L widgetBase + widgetSettings
 - [ ] Open the settings panel of a vis widget and of a text widget; change **every** dropdown kind: Diagrammtyp, Dimensionen, TopN (including "Ohne" coupling), showValues, iterator, Zeitebene, Zoom, grouping, colour, Schriftgröße, Umstylen. Expected: each applies; undo and redo each.
-- [ ] Place 20 widgets, delete them, undo the deletes. Expected: `getEventListeners(document).pointerdown.length` returns to the baseline value; `Object.keys(window.top.getKDB().runtime.widgetSettings.domRefs)` is empty after deleting all widgets.
+- [ ] Place 20 widgets, delete them, undo the deletes. Expected: `getEventListeners(document).pointerdown.length` returns to the baseline value; `Object.keys(window.top.getKDB().runtime.widgetSettings.domRefs)` is empty only after **all** widgets are deleted (while some remain, it lists those).
 - [ ] Tab duplicate / delete / move with mixed widgets (vis, text, TopN, table). Expected: widgets and settings follow; forced shortage (more widgets than slots) shows the same toast and rolls back as baseline.
 - [ ] TopN without a grouping dimension: the message "Um die Top-N Funktion zu verwenden, muss zuerst eine Gruppierungsdimension gewählt werden." appears.
 
