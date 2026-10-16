@@ -13,9 +13,6 @@ define([], function () {
   // Canonical top-level field order (§4, §2.4 field ordering).
   const TOP_LEVEL_FIELD_ORDER = Object.freeze(["v", "pkg", "canv", "sett", "head", "foot", "filt", "tabs", "wgts"]);
 
-  // Optional-field sentinels that normalize to omission (§4 canonical sentinel rules).
-  const OMISSION_SENTINELS = Object.freeze([null, undefined, "", "none"]);
-
   // §4.1.1 sett key catalog. Unknown sett keys are invalid.
   // ownerStatePath / defaultSource are contract references into kdbControl state;
   // the owner restore delta resolves them at restore time.
@@ -51,7 +48,6 @@ define([], function () {
 
   // §4.2 / §4.7 header/footer sentinel maps (owner status string -> compact 0/1/omit).
   const HEADER_STATUS_TO_ON = Object.freeze({ active: 1, removed: 0, idle: null }); // null => omit
-  const SUBTITLE_STATUS_TO_SUBON = Object.freeze({ visible: 1, hidden: 0 });
   const FOOTER_STATUS_TO_ON = Object.freeze({ active: 1, removed: 0, idle: null }); // null => omit
 
   const HEAD_KEYS = Object.freeze(["on", "title", "sub", "subOn", "icon"]);
@@ -124,10 +120,8 @@ define([], function () {
   return Object.freeze({
     SCHEMA_VERSION: SCHEMA_VERSION,
     TOP_LEVEL_FIELD_ORDER: TOP_LEVEL_FIELD_ORDER,
-    OMISSION_SENTINELS: OMISSION_SENTINELS,
     SETT_KEY_CATALOG: SETT_KEY_CATALOG,
     HEADER_STATUS_TO_ON: HEADER_STATUS_TO_ON,
-    SUBTITLE_STATUS_TO_SUBON: SUBTITLE_STATUS_TO_SUBON,
     FOOTER_STATUS_TO_ON: FOOTER_STATUS_TO_ON,
     HEAD_KEYS: HEAD_KEYS,
     FOOT_KEYS: FOOT_KEYS,

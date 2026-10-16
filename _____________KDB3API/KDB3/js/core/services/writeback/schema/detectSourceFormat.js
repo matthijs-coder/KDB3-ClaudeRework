@@ -1,6 +1,7 @@
 define([
   "./v3Defaults.js",
-], function (_v3Defaults) {
+  "../../../utils/kit/data.js",
+], function (_v3Defaults, _kitData) {
   "use strict";
 
   // detectSourceFormat per contracts/writeback.md §2.4 / §3:
@@ -38,11 +39,11 @@ define([
 
     // KDB2 legacy writeback JSON shape markers (§7 mapping matrix source fields).
     const hasV2Markers =
-      isPlainObject(candidate.configuration)
-      || isPlainObject(candidate.globalFiltersObj)
-      || isPlainObject(candidate.widgets)
-      || isPlainObject(candidate.topHeader)
-      || isPlainObject(candidate.bottomFooter)
+      _kitData.isObjectLike(candidate.configuration)
+      || _kitData.isObjectLike(candidate.globalFiltersObj)
+      || _kitData.isObjectLike(candidate.widgets)
+      || _kitData.isObjectLike(candidate.topHeader)
+      || _kitData.isObjectLike(candidate.bottomFooter)
       || Array.isArray(candidate.tabs);
     if (hasV2Markers) {
       return "v2";
@@ -51,10 +52,6 @@ define([
     // v0/v1 formats are provisional until real DWH samples exist (§7).
     // Without markers there is no reliable v0/v1 signature; classify unknown.
     return "unknown";
-  }
-
-  function isPlainObject(value) {
-    return value !== null && typeof value === "object" && !Array.isArray(value);
   }
 
   return detectSourceFormat;
