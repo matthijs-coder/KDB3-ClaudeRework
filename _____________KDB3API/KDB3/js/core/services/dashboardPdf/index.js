@@ -116,9 +116,14 @@ define([
     _KDB.elements = _KDB.elements || {};
     _KDB.elements.selectors = _KDB.elements.selectors || {};
     var selectors = _KDB.elements.selectors.dashboardPdf || (_KDB.elements.selectors.dashboardPdf = {});
+    var labels;
     Object.keys(_config.domSelectors).forEach(function (key) {
       if (selectors[key] === undefined) selectors[key] = _config.domSelectors[key];
     });
+    _KDB.config = _KDB.config || {};
+    labels = _KDB.config.labels = _KDB.config.labels || {};
+    labels.de = labels.de || {};
+    labels.de.dashboardPdf = Object.assign({}, _config.pdfLabels, labels.de.dashboardPdf || {});
     var rt = ensureDashboardPdfRuntime(_KDB);
     var hostService = _KDB.services.cognosHost;
     rt.dashboardFacet = hostService && hostService.dashboard ? hostService.dashboard : null;

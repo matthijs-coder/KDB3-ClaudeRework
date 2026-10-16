@@ -23,17 +23,17 @@ define([
     return text || fallback;
   }
 
-  function addTitlePage(doc, manifest) {
+  function addTitlePage(doc, manifest, labels) {
     var pageWidth = doc.internal.pageSize.getWidth();
     var titleY = doc.internal.pageSize.getHeight() / 2;
     doc.setFont("helvetica", "bold");
     doc.setFontSize(24);
-    doc.text(readPageText(manifest.title, _config.TITLE_FALLBACK), pageWidth / 2, titleY, { align: "center" });
+    doc.text(readPageText(manifest.title, labels.titleFallback), pageWidth / 2, titleY, { align: "center" });
     doc.setFontSize(14);
-    doc.text(readPageText(manifest.subtitle, _config.SUBTITLE_FALLBACK), pageWidth / 2, titleY + SUBTITLE_OFFSET_PT, { align: "center" });
+    doc.text(readPageText(manifest.subtitle, labels.subtitleFallback), pageWidth / 2, titleY + SUBTITLE_OFFSET_PT, { align: "center" });
   }
 
-  function addScreenshotPage(doc, imageDataUrl, title, tabName, tabNumber) {
+  function addScreenshotPage(doc, imageDataUrl, title, tabName, tabNumber, labels) {
     var pageWidth = doc.internal.pageSize.getWidth();
     var pageHeight = doc.internal.pageSize.getHeight();
     var props = doc.getImageProperties(imageDataUrl);
@@ -50,12 +50,17 @@ define([
     doc.setFont("helvetica", "normal");
     doc.setFontSize(FOOTER_FONT_SIZE_PT);
     doc.text(
-      String(title || "").trim() || _config.TITLE_FALLBACK,
+      String(title || "").trim() || labels.titleFallback,
       pageWidth - FOOTER_MARGIN_RIGHT_PT,
       pageHeight - FOOTER_MARGIN_BOTTOM_PT - FOOTER_LINE_GAP_PT,
       { align: "right" }
     );
-    doc.text("Seite " + String(tabNumber) + ": " + String(tabName || "-"), pageWidth - FOOTER_MARGIN_RIGHT_PT, pageHeight - FOOTER_MARGIN_BOTTOM_PT, { align: "right" });
+    doc.text(
+      labels.pageFooterPrefix + String(tabNumber) + ": " + String(tabName || "-"),
+      pageWidth - FOOTER_MARGIN_RIGHT_PT,
+      pageHeight - FOOTER_MARGIN_BOTTOM_PT,
+      { align: "right" }
+    );
   }
 
   // ---- export run --------------------------------------------------------------------------------------------------
@@ -91,12 +96,12 @@ define([
   // run.manifest is set before the checks: restoreAfterExport needs the active tab index even when they fail.
   function readManifest(_KDB, run, fileName) {
     var headerState = readHeaderState(_KDB);
-    var manifest = _tabNavigation.readVisibleTabsManifest(_KDB);
+    var manifest = _tabNavigation.readVisibleTabsManifest(_KDB, run.labels);
     run.manifest = manifest;
     if (manifest.errorCode) throw _errors.codedError(manifest.errorCode, manifest.errorMessage);
     if (!manifest.tabs.length) throw _errors.codedError(CODES.NO_VISIBLE_TABS, "No visible tabs for export.");
     manifest.fileName = fileName;
-    manifest.title = headerState && headerState.titleText ? headerState.titleText : _config.TITLE_FALLBACK;
+    manifest.title = headerState && headerState.titleText ? headerState.titleText : run.labels.titleFallback;
     manifest.subtitle = headerState && headerState.subtitleText ? headerState.subtitleText : "";
   }
 
@@ -114,7 +119,7 @@ define([
       if (isAborted(run.signal)) return false;
       reportProgress(run, { stage: "capture", message: "Capturing tab " + String(index + 1) + "/" + String(tabs.length), tab: tabs[index] });
       var image = await _captureTabPage.captureTabPage(_KDB, tabs[index], vendors.html2canvas, run, { n: index + 1, m: tabs.length });
-      addScreenshotPage(doc, image, run.manifest.title, tabs[index].name, index + 1);
+      addScreenshotPage(doc, image, run.manifest.title, tabs[index].name, index + 1, run.labels);
     }
     return true;
   }
@@ -132,13 +137,13 @@ define([
     var fileName = _buildRows.readDashboardFileName(_KDB.runtime.dashboardPdf.dashboardFacet);
     readManifest(_KDB, run, fileName);
     await exitFocusMode(_KDB, run);
-    var attachmentRows = await _buildRows.buildAttachmentRows(_KDB, run.manifest, run.warnings);
+    var attachmentRows = await _buildRows.buildAttachmentRows(_KDB, run.manifest, run.warnings, run.labels);
     var doc = new vendors.jsPdfCtor({ orientation: "landscape", unit: "pt", format: "a4" });
     reportProgress(run, { stage: "title", message: "Rendering title page" });
-    addTitlePage(doc, run.manifest);
+    addTitlePage(doc, run.manifest, run.labels);
     if (!(await addTabPages(_KDB, vendors, run, doc)) || isAborted(run.signal)) return createAbortedResult(run);
     reportProgress(run, { stage: "attachment", message: "Rendering attachment pages" });
-    _renderRows.renderAttachmentPages(doc, attachmentRows);
+    _renderRows.renderAttachmentPages(doc, attachmentRows, run.labels.attachmentTitle);
     reportProgress(run, { stage: "save", message: "Saving PDF" });
     if (isAborted(run.signal)) return createAbortedResult(run);
     saveDocument(doc, fileName);
@@ -183,6 +188,7 @@ define([
       signal: options.signal,
       onProgress: options.onProgress,
       timeoutMs: timeoutMs,
+      labels: _config.readLabels(_KDB),
       startedAt: Date.now(),
       warnings: [],
       manifest: { activeIndex: null, tabs: [] },

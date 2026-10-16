@@ -6,12 +6,15 @@ define([
 ], function ($, _jstree, _runtimeKit, _config) {
   "use strict";
 
+  const READY_WAITER_PREFIX = "treeReady:";
+
   function renderMetricsTrees(_KDB) {
     const runtime = _KDB.runtime.metricsTree;
     const root = resolveRoot(_KDB);
     const state = _KDB.state.metricsTree;
     const readyPromises = [];
 
+    _runtimeKit.ensureRuntimeBuckets(runtime);
     cleanupMetricsTrees(_KDB);
     runtime.domRefs.root = root;
     if (!root || !state || !state.hasRenderableData || !Array.isArray(state.sourceOrder)) {
@@ -28,7 +31,7 @@ define([
       const refs = buildTreeDom(root, sourceEntry);
       registerDomRefs(runtime.domRefs, sourceKey, refs);
       initJsTree(refs.treeEl, sourceEntry.nodes);
-      readyPromises.push(waitForTreeReady(refs.treeEl));
+      readyPromises.push(waitForTreeReady(runtime, sourceKey, refs.treeEl));
     }
 
     if (readyPromises.length === 0) {
@@ -110,10 +113,27 @@ define([
     return !query || text.indexOf(query) > -1 || langtext.indexOf(query) > -1;
   }
 
-  function waitForTreeReady(treeEl) {
-    const deferred = $.Deferred();
-    $(treeEl).one("ready.jstree.kdbReady", deferred.resolve);
-    return deferred.promise();
+  // The wait also ends when the trees are cleaned up (destroy or re-render) before jstree reports ready:
+  // the ready handler is removed then and would otherwise never fire.
+  function waitForTreeReady(runtime, sourceKey, treeEl) {
+    const waiterKey = READY_WAITER_PREFIX + sourceKey;
+    return new Promise(function (resolve) {
+      runtime.subscriptions[waiterKey] = resolve;
+      $(treeEl).one("ready.jstree.kdbReady", function () {
+        delete runtime.subscriptions[waiterKey];
+        resolve();
+      });
+    });
+  }
+
+  function releaseReadyWaiters(runtime) {
+    const subscriptions = runtime.subscriptions || {};
+    Object.keys(subscriptions).forEach(function (key) {
+      if (key.indexOf(READY_WAITER_PREFIX) !== 0) { return; }
+      const release = subscriptions[key];
+      delete subscriptions[key];
+      release();
+    });
   }
 
   function registerDomRefs(domRefs, sourceKey, refs) {
@@ -136,6 +156,7 @@ define([
     const treeRefs = domRefs.treesBySource || {};
     const root = domRefs.root || resolveRoot(_KDB);
 
+    releaseReadyWaiters(_KDB.runtime.metricsTree);
     Object.keys(treeRefs).forEach(function (sourceKey) {
       destroyTree(treeRefs[sourceKey]);
     });
@@ -179,7 +200,13 @@ define([
 
   function bindSourceSearch(runtime, sourceKey, $tree, $input, $icon) {
     const timerKey = "search:" + sourceKey;
-    const run = function () { runSearch($tree, $input); };
+    const run = function () {
+      try {
+        runSearch($tree, $input);
+      } catch (error) {
+        console.error("[metricsTree.search] failed", { sourceKey: sourceKey }, error);
+      }
+    };
 
     $input.off(".kdbMetricsTreeSearch");
     $icon.off(".kdbMetricsTreeSearch");

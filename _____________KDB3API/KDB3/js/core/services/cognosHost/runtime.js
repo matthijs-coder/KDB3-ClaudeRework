@@ -23,6 +23,8 @@ define([], function () {
     runtime.adapters.selectionUnsubscribeByWidgetId = runtime.adapters.selectionUnsubscribeByWidgetId || {};
     // Last subscribe DTO per widgetId when host getSelections is missing/null/empty.
     runtime.adapters.lastSelectionDtoByWidgetId = runtime.adapters.lastSelectionDtoByWidgetId || {};
+    // Tab container layout read by canvas.listCanvasWidgets; null until first read (see that facet).
+    runtime.adapters.layoutItems = runtime.adapters.layoutItems || null;
     // Per-key host-write chain. Destroy drops the bookkeeping; an in-flight host call still lands
     // and is normalised to aborted-after-effect by the write itself.
     runtime.pendingPromises = runtime.pendingPromises || {};
@@ -75,7 +77,7 @@ define([], function () {
       waitSequence: runtime.waitSequence,
       subscriptions: [],
       abortControllers: {},
-      adapters: { filterItemsByKey: {}, selectionUnsubscribeByWidgetId: {}, lastSelectionDtoByWidgetId: {} },
+      adapters: { filterItemsByKey: {}, selectionUnsubscribeByWidgetId: {}, lastSelectionDtoByWidgetId: {}, layoutItems: null },
       pendingPromises: { filterWritesByKey: {} }
     };
     return _KDB.runtime.cognosHostService;

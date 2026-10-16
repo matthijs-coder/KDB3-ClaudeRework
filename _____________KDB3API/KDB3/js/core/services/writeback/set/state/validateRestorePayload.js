@@ -42,7 +42,7 @@ define([
       throw _constants.ABORT;
     }
 
-    const runtimePkg = resolveRuntimePackageKey();
+    const runtimePkg = _kidIndex.resolveRuntimePackageKey(null);
     if (runtimePkg == null || String(runtimePkg).trim() === "") {
       run.addDiagnostic(_errorCodes.codes.WRITEBACK_MAPPING_CONFIG_MISSING, "validate",
         "runtime package key could not be resolved from parameter mapping");
@@ -58,15 +58,6 @@ define([
 
     run.recordPhase("validate", null, true, hasTolerantUnsupported);
     return normalized;
-  }
-
-  function resolveRuntimePackageKey() {
-    try {
-      return _kidIndex.resolveRuntimePackageKey(null);
-    } catch (error) {
-      console.error("[writebackSet.resolveRuntimePackageKey] failed", error);
-      return null;
-    }
   }
 
   function withRunId(diagnostic, runId) {

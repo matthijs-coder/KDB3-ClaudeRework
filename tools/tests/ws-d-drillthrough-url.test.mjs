@@ -300,7 +300,7 @@ test("service: labels merged under existing, service shape, no console.log on op
   const service = register(KDB);
   assert.equal(KDB.config.labels.de.drillthrough.waitWindowTitle, "Eigener Titel");
   assert.match(KDB.config.labels.de.drillthrough.loadFailedBody, /konnten nicht geladen werden/);
-  assert.deepStrictEqual(Object.keys(service).sort(), ["buildDrillthroughUrl", "openDrillthrough"]);
+  assert.deepStrictEqual(Object.keys(service).sort(), ["buildDrillthroughUrl", "destroy", "openDrillthrough"]);
   service.openDrillthrough(OPEN_SPEC);
   service.openDrillthrough(icon({ hostEnv: "dev", links: null }));
   assert.deepStrictEqual(logged, []);

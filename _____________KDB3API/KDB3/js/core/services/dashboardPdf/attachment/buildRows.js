@@ -106,7 +106,7 @@ define([
    * @returns {Promise<Array<{kind: "data"|"section"|"spacer", label?: string, value?: string}>>}
    * @throws {Error} coded FILTER_PREPARATION_FAILED / SCOPE_TARGET_RESOLVE_FAILED
    */
-  async function buildAttachmentRows(_KDB, manifest, warnings) {
+  async function buildAttachmentRows(_KDB, manifest, warnings, labels) {
     var config = (_KDB.properties && _KDB.properties.pdfAttachmentPageObj) || {};
     var dashboardFacet = _KDB.runtime.dashboardPdf.dashboardFacet;
     var dashboardVersion = readDashboardMetadata(dashboardFacet, "getDashboardVersion", warnings);
@@ -116,31 +116,31 @@ define([
       sichtState: readOwnerState(_KDB.api && _KDB.api.sicht),
       dienststelleState: readOwnerState(_KDB.api && _KDB.api.dienststelle),
       specialState: readOwnerState(_KDB.api && _KDB.api.specialSingleSelect)
-    }, singleSelectState, warnings);
+    }, singleSelectState, warnings, labels);
     pushMetadataWarnings(config, warnings);
     if (!dashboardVersion) {
       addWarning(warnings, "DASHBOARD_PDF_DASHBOARD_VERSION_MISSING", "Dashboard version is unavailable.");
     }
     return [
-      { kind: "data", label: "Dashboard-Name", value: _text.toDisplayText(manifest.fileName) },
+      { kind: "data", label: labels.dashboardName, value: _text.toDisplayText(manifest.fileName) },
       { kind: "spacer" },
-      { kind: "section", label: "Filter:" },
-      { kind: "data", label: "Globale Filter: ", value: filterRows.globalText }
+      { kind: "section", label: labels.filterSection },
+      { kind: "data", label: labels.globalFilters, value: filterRows.globalText }
     ].concat(filterRows.tabRows.map(function (row) {
       return { kind: "data", label: row.label, value: row.value || "" };
     })).concat([
       { kind: "spacer" },
-      { kind: "section", label: "Daten-Quellen-Beladung " + _text.toDisplayText(config.dataSourceLoading) },
-      { kind: "data", label: "Quelle: ", value: _text.toDisplayText(config.dataSource) },
-      { kind: "data", label: "Datenaktualität: ", value: _text.toDisplayText(config.dataFreshness) },
-      { kind: "data", label: "Aktualisierungszyklus: ", value: _text.toDisplayText(config.updateCycle) },
+      { kind: "section", label: labels.dataSourceLoading + _text.toDisplayText(config.dataSourceLoading) },
+      { kind: "data", label: labels.source, value: _text.toDisplayText(config.dataSource) },
+      { kind: "data", label: labels.dataFreshness, value: _text.toDisplayText(config.dataFreshness) },
+      { kind: "data", label: labels.updateCycle, value: _text.toDisplayText(config.updateCycle) },
       { kind: "spacer" },
-      { kind: "section", label: "Erweiterende Informationen", value: _text.toDisplayText(config.additionalInfo) },
-      { kind: "data", label: "Verwendetes System: ", value: "Cognos Analytics " + _text.toDisplayText(dashboardVersion) },
-      { kind: "data", label: "Umgebung", value: resolveAttachmentEnvironment(config, environmentSource, warnings) },
-      { kind: "data", label: "Erstellungsdatum: ", value: formatDate(new Date()) },
-      { kind: "data", label: "Kennzahlen: ", value: "siehe Dataspot: " + _text.toDisplayText(config.dataspotLink) },
-      { kind: "data", label: "Data Steward", value: _text.toDisplayText(config.dataSteward) }
+      { kind: "section", label: labels.additionalInfo, value: _text.toDisplayText(config.additionalInfo) },
+      { kind: "data", label: labels.system, value: labels.systemPrefix + _text.toDisplayText(dashboardVersion) },
+      { kind: "data", label: labels.environment, value: resolveAttachmentEnvironment(config, environmentSource, warnings) },
+      { kind: "data", label: labels.createdOn, value: formatDate(new Date()) },
+      { kind: "data", label: labels.metrics, value: labels.metricsPrefix + _text.toDisplayText(config.dataspotLink) },
+      { kind: "data", label: labels.dataSteward, value: _text.toDisplayText(config.dataSteward) }
     ]);
   }
 

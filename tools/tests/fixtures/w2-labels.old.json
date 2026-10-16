@@ -1,0 +1,46 @@
+{
+  "chrome": {
+    "file": "core/cognosHost/chromeChecks.js",
+    "labels": {
+      "flushTitle": "Dashboard",
+      "flushMessage": "Teile der Dashboard-Oberfläche konnten nicht geladen werden. Bitte das Dashboard schließen und erneut öffnen. Details stehen in der Browser-Konsole."
+    }
+  },
+  "dashboardPdf": {
+    "files": {
+      "core/services/dashboardPdf/config.js": {
+        "titleFallback": "konfigurierbares Personaldashboard",
+        "subtitleFallback": "PER130 konfigurierbares Personaldashboard"
+      },
+      "core/services/dashboardPdf/tabNavigation.js": {
+        "unnamedTab": "Unbenannter Tab"
+      },
+      "core/services/dashboardPdf/attachment/renderRows.js": {
+        "attachmentTitle": "Anhang"
+      },
+      "core/services/dashboardPdf/attachment/filterRows.js": {
+        "tabFilterSuffix": " -Tab Filter: "
+      },
+      "core/services/dashboardPdf/attachment/buildRows.js": {
+        "dashboardName": "Dashboard-Name",
+        "filterSection": "Filter:",
+        "globalFilters": "Globale Filter: ",
+        "dataSourceLoading": "Daten-Quellen-Beladung ",
+        "source": "Quelle: ",
+        "dataFreshness": "Datenaktualität: ",
+        "updateCycle": "Aktualisierungszyklus: ",
+        "additionalInfo": "Erweiterende Informationen",
+        "system": "Verwendetes System: ",
+        "systemPrefix": "Cognos Analytics ",
+        "environment": "Umgebung",
+        "createdOn": "Erstellungsdatum: ",
+        "metrics": "Kennzahlen: ",
+        "metricsPrefix": "siehe Dataspot: ",
+        "dataSteward": "Data Steward"
+      },
+      "core/services/dashboardPdf/exportRun.js": {
+        "pageFooterPrefix": "Seite "
+      }
+    }
+  }
+}

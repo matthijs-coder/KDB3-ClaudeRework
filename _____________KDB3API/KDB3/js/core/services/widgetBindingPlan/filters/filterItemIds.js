@@ -1,38 +1,8 @@
-define([], function () {
+define(["../../../utils/rewriteUniqueNameSourceToken.js"], function (_sourceTokens) {
   "use strict";
 
   function stripTm1Suffix(_token) {
     return String(_token).replace(/_TM1$/i, "");
-  }
-
-  function normalizeTargetToken(_targetToken) {
-    var token = typeof _targetToken === "string" ? _targetToken.trim() : "";
-    if (!token) {
-      return "";
-    }
-    return /_TM1$/i.test(token) ? token : token + "_TM1";
-  }
-
-  /**
-   * Replaces the leading `[source]` token of a unique name with the target datasource token.
-   * Values that do not start with a bracket token, or whose token differs from a given source token, pass through.
-   */
-  function rewriteUniqueNameSourceToken(_value, _sourceToken, _targetToken) {
-    var uniqueName = typeof _value === "string" ? _value : "";
-    var targetToken = normalizeTargetToken(_targetToken);
-    var firstTokenMatch = uniqueName.match(/^\[([^\]]+)\]/);
-
-    if (!uniqueName || !targetToken || !firstTokenMatch) {
-      return _value;
-    }
-    if (_sourceToken && typeof _sourceToken === "string") {
-      var sourceNorm = stripTm1Suffix(_sourceToken);
-      var currentNorm = stripTm1Suffix(firstTokenMatch[1]);
-      if (sourceNorm && currentNorm.toLowerCase() !== sourceNorm.toLowerCase()) {
-        return _value;
-      }
-    }
-    return "[" + targetToken + "]" + uniqueName.slice(firstTokenMatch[0].length);
   }
 
   function resolveTargetSourceToken(_dataConfig) {
@@ -69,7 +39,7 @@ define([], function () {
     if (!_matched || !_matched.entry || !_matched.entry.itemId) {
       return null;
     }
-    return rewriteUniqueNameSourceToken(String(_matched.entry.itemId), _matched.sourceKey, resolveTargetSourceToken(_dataConfig));
+    return _sourceTokens.rewriteUniqueNameSourceToken(String(_matched.entry.itemId), resolveTargetSourceToken(_dataConfig), _matched.sourceKey);
   }
 
   function resolveFilterItemId(_key, _parameterMappingObj) {

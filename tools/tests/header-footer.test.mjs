@@ -65,7 +65,7 @@ function createFakeDocument() {
   };
 }
 
-function bootModules() {
+function bootModules(config) {
   const fakeDocument = createFakeDocument();
   const stubs = { document: fakeDocument, window: {} };
   const createEventBus = loadAmd(path.join(JS_ROOT, "core/events/createEventBus.js"), { stubs });
@@ -78,6 +78,7 @@ function bootModules() {
     services: {},
     utils: {},
     events: createEventBus(),
+    config: config || {},
     elements: { selectors: { root: { pageViewContent: ".pageViewContent", footerMountRoot: ".ba-common-tabList__container" } } }
   };
   registerHeader(KDB);
@@ -88,6 +89,32 @@ function bootModules() {
 }
 
 const headerSource = { source: "api" };
+
+// The URLs the header hard-coded before it read config.links.
+const OLD_HEADER_LINKS = {
+  userManual: "https://www.intern.magwien.gv.at/web/md-pr/konfigurierbares-personaldashboard",
+  dataspot: "https://dxmeta.wien.gv.at/dataspot/web/dxmeta/datasets/0d1344b9-6253-4ca3-ac24-f506db843e58"
+};
+
+function readHeaderLinkHrefs(fakeDocument, KDB) {
+  KDB.api.header.dispatch({ type: "header/show", payload: headerSource });
+  const headerRoot = fakeDocument.mounts[".pageViewContent"].children[0];
+  const hrefOf = (id) => headerRoot.find((node) => node.attributes && node.attributes.id === id).parentNode.attributes.href;
+  return { userManual: hrefOf("KDB_userManual"), dataspot: hrefOf("KDB_dataSpotIcon") };
+}
+
+test("header manual and dataspot links come from config.links and equal the former hard-coded URLs", () => {
+  const settings = loadAmd(path.join(JS_ROOT, "core/config/dashboardSettings.js"));
+  const { KDB, fakeDocument } = bootModules({ links: settings.links });
+  assert.deepEqual(readHeaderLinkHrefs(fakeDocument, KDB), OLD_HEADER_LINKS);
+});
+
+test("header links follow an overridden config.links and stay empty without one", () => {
+  const custom = bootModules({ links: { userManualUrl: "https://m.example/", dataSpotUrl: "https://d.example/" } });
+  assert.deepEqual(readHeaderLinkHrefs(custom.fakeDocument, custom.KDB), { userManual: "https://m.example/", dataspot: "https://d.example/" });
+  const none = bootModules();
+  assert.deepEqual(readHeaderLinkHrefs(none.fakeDocument, none.KDB), { userManual: "", dataspot: "" });
+});
 
 function findFooterTitle(fakeDocument) {
   const footerRoot = fakeDocument.mounts[".ba-common-tabList__container"].children[0];
