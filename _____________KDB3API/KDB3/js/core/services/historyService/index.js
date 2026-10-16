@@ -196,6 +196,9 @@ define([
         console.warn("[historyService.registerReplayHandler] rejected: a string key and a handler with apply() are required", key);
         return noopUnregister;
       }
+      if (replayHandlers[key] && replayHandlers[key] !== handler) {
+        console.warn("[historyService.registerReplayHandler] replacing the handler already registered for", key);
+      }
       replayHandlers[key] = handler;
       return function unregisterReplayHandler() {
         if (replayHandlers[key] === handler) {

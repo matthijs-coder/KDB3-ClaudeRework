@@ -323,6 +323,21 @@ test("registerReplayHandler: adds per key, latest registration wins, unregister 
   assert.deepStrictEqual(log, ["b", "a1", "a2"]);
 });
 
+test("registerReplayHandler: overwriting a different handler warns once; the same handler again is silent", () => {
+  const { service, con } = setup();
+  const a = { apply: () => true };
+  const b = { apply: () => true };
+  const overwriteWarnings = () => con.calls.warn.filter((w) => w[0] === "[historyService.registerReplayHandler] replacing the handler already registered for");
+  service.registerReplayHandler("k", a);
+  service.registerReplayHandler("k", a);
+  assert.equal(overwriteWarnings().length, 0);
+  service.registerReplayHandler("k", b);
+  assert.equal(overwriteWarnings().length, 1);
+  assert.equal(overwriteWarnings()[0][1], "k");
+  service.registerReplayHandler("other", a);
+  assert.equal(overwriteWarnings().length, 1);
+});
+
 test("registerReplayHandler: unregister removes the handler; undo then reports a missing handler", async () => {
   const { service, con } = setup();
   const unregister = service.registerReplayHandler("a", { apply: () => true });
