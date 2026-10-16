@@ -49,6 +49,7 @@ function createClock() {
 function buildKdb(extra) {
   const _KDB = Object.assign({ config: { options: {} }, api: {}, properties: {}, state: {}, runtime: {} }, extra || {});
   load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/services/widgetBinding/index.js")(_KDB);
   return _KDB;
 }
 
