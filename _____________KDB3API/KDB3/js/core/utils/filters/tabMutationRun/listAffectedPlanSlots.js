@@ -6,10 +6,12 @@ define([], function () {
   // options.dedupeByTabIdx    one entry per numeric tabIdx, first occurrence wins, tabId normalised to null
   // options.includeClonePair  duplicate: clonePair.from and clonePair.to come first
   // options.includeSourceSlot duplicate: sourceSlot (default true)
+  // Without dedupeByTabIdx the plan must be an object and slotMoves is read by index; with it a missing plan reads as
+  // empty and slotMoves goes through forEach (holes are skipped, a non-array throws), as the owner copies did.
   function listAffectedPlanSlots(_plan, _options) {
     var options = _options || {};
-    var plan = _plan || {};
     var dedupe = options.dedupeByTabIdx === true;
+    var plan = dedupe ? _plan || {} : _plan;
     var slots = [];
     var seen = {};
     var push = function (_tabIdx, _tabId, _present) {
@@ -22,11 +24,15 @@ define([], function () {
       slots.push({ tabIdx: _tabIdx, tabId: _tabId || null });
     };
     var pushSlot = function (_slot) { if (_slot) { push(_slot.tabIdx, _slot.tabId, true); } };
-    var slotMoves = plan.slotMoves || [];
-    for (var i = 0; i < slotMoves.length; i++) {
-      var move = slotMoves[i];
-      push(move.fromTabIdx, move.fromTabId, move.fromTabIdx != null);
-      push(move.toTabIdx, move.toTabId, move.toTabIdx != null);
+    var pushMove = function (_move) {
+      push(_move.fromTabIdx, _move.fromTabId, _move.fromTabIdx != null);
+      push(_move.toTabIdx, _move.toTabId, _move.toTabIdx != null);
+    };
+    if (dedupe) {
+      (plan.slotMoves || []).forEach(pushMove);
+    } else {
+      var slotMoves = plan.slotMoves || [];
+      for (var i = 0; i < slotMoves.length; i++) { pushMove(slotMoves[i]); }
     }
     pushSlot(plan.deletedSlot);
     pushSlot(plan.hideSlot);
