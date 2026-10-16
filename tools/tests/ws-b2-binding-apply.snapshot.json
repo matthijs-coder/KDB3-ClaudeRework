@@ -1581,8 +1581,8 @@
    "timerScopeId": "applyBinding:h1:3"
   },
   "helperCleanupPlainSignal": {
-   "status": "error",
-   "mirrorPatch": null,
+   "status": "success",
+   "mirrorPatch": {},
    "diagnostics": {
     "service": "widgetBindingApply",
     "operation": "applyBinding",
@@ -1600,12 +1600,14 @@
      "setDatasourceAfterClear",
      "applySlots",
      "applyLocalFilters",
-     "renderWidget"
+     "renderWidget",
+     "waitRenderComplete",
+     "buildSuccessResult"
     ],
-    "failedStep": "buildSuccessResult",
+    "failedStep": null,
     "skippedSteps": ["removeManagedFilters","applyTopBottom"],
-    "errorCode": "WIDGET_BINDING_APPLY_UNEXPECTED_ERROR",
-    "errorMessage": "_signal.addEventListener is not a function",
+    "errorCode": null,
+    "errorMessage": null,
     "emptyMode": null,
     "emptyReason": null,
     "timedOut": false,
@@ -1628,8 +1630,8 @@
    "timerScopeId": "applyBinding:h1:3"
   },
   "helperPreApplyPlainSignal": {
-   "status": "error",
-   "mirrorPatch": null,
+   "status": "success",
+   "mirrorPatch": {"visualizationType":"TopN","dimension":"Geschlecht","datasourceId":"ds1","datasourceName":"Personal_KDB","topN":"top-5"},
    "diagnostics": {
     "service": "widgetBindingApply",
     "operation": "applyBinding",
@@ -1648,12 +1650,14 @@
      "applySlots",
      "applyLocalFilters",
      "applyTopBottom",
-     "renderWidget"
+     "renderWidget",
+     "waitRenderComplete",
+     "buildSuccessResult"
     ],
-    "failedStep": "buildSuccessResult",
+    "failedStep": null,
     "skippedSteps": ["removeManagedFilters"],
-    "errorCode": "WIDGET_BINDING_APPLY_UNEXPECTED_ERROR",
-    "errorMessage": "_signal.addEventListener is not a function",
+    "errorCode": null,
+    "errorMessage": null,
     "emptyMode": null,
     "emptyReason": null,
     "timedOut": false,

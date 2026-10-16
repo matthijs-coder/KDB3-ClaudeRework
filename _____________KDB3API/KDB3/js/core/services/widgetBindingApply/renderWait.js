@@ -46,7 +46,8 @@ define([
         finish(resolve, { timedOut: false, aborted: true, value: null });
         return;
       }
-      if (_signal) {
+      // Callers may pass a plain { aborted } object (widgetTopN); it is only polled through the aborted checks.
+      if (_signal && typeof _signal.addEventListener === "function") {
         _signal.addEventListener("abort", onAbort, { once: true });
         listening = true;
       }
