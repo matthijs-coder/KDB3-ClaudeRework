@@ -1,4 +1,4 @@
-define(["../config/actions.js", "./initialState.js"], function (_actions, _initialState) {
+define(["../config.js", "./initialState.js"], function (_config, _initialState) {
   "use strict";
 
   function createSingleSelectReducer() {
@@ -10,21 +10,21 @@ define(["../config/actions.js", "./initialState.js"], function (_actions, _initi
     var action = _action || {};
     var payload = action.payload || {};
 
-    if (action.type === _actions.MOUNT_SUCCEEDED) {
+    if (action.type === _config.actions.MOUNT_SUCCEEDED) {
       return Object.assign({}, state, {
         lifecycle: "ready",
         errorCode: null,
         errorMessage: null
       });
     }
-    if (action.type === _actions.ERROR) {
+    if (action.type === _config.actions.ERROR) {
       return Object.assign({}, state, {
         lifecycle: "error",
         errorCode: payload.errorCode || "SINGLE_SELECT_ERROR",
         errorMessage: payload.errorMessage || null
       });
     }
-    if (action.type === _actions.DESTROY) {
+    if (action.type === _config.actions.DESTROY) {
       return Object.assign({}, state, {
         lifecycle: "disposed",
         lastInteraction: null,

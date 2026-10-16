@@ -1,9 +1,9 @@
 define([
-  "../../effects/commitSelectionState.js",
-  "../../config/parameterSetCodes.js"
+  "../../state/selection.js",
+  "../../config.js"
 ], function (
-  _commitSelectionState,
-  _codes
+  _selectionState,
+  _config
 ) {
   "use strict";
 
@@ -22,7 +22,7 @@ define([
   }
 
   function commitEmptyRestore(_canonicalInstance, _root) {
-    _commitSelectionState.applyConfirmedState(_canonicalInstance, _root, {
+    _selectionState.applyConfirmedState(_canonicalInstance, _root, {
       displayValue: "Alle", useValue: "", displaySource: "policy"
     });
     return { committed: true, degraded: false, diagnostic: null };
@@ -37,7 +37,7 @@ define([
       ? String(resolved.selection.d)
       : null;
     if (resolved.degraded === false && resolvedD != null && observedDisplay !== resolvedD) {
-      _commitSelectionState.applyConfirmedState(_canonicalInstance, _root, {
+      _selectionState.applyConfirmedState(_canonicalInstance, _root, {
         displayValue: resolvedD,
         useValue: String(observed[0].u),
         displaySource: "table"
@@ -47,7 +47,7 @@ define([
     var transportOnly = resolved.degraded === true &&
       (observedDisplay === null || observedDisplay === useValue);
     var displayUnavailable = observedDisplay === null;
-    _commitSelectionState.applyConfirmedState(_canonicalInstance, _root, {
+    _selectionState.applyConfirmedState(_canonicalInstance, _root, {
       displayValue: transportOnly ? null : observedDisplay,
       useValue: String(observed[0].u),
       displaySource: transportOnly || displayUnavailable ? "unavailable" : "cognos"
@@ -56,7 +56,7 @@ define([
       committed: true,
       degraded: transportOnly || displayUnavailable,
       diagnostic: transportOnly ? resolved.diagnostic : (displayUnavailable ? {
-        code: _codes.DISPLAY_DEGRADED,
+        code: _config.parameterSetCodes.DISPLAY_DEGRADED,
         filterInstanceId: _args.filterInstanceId,
         message: "host reread confirmed use value without an independent display value"
       } : null)

@@ -1,4 +1,4 @@
-define(["./selectionState.js"], function (_selectionState) {
+define(["./selection.js"], function (_selectionState) {
   "use strict";
 
   function readSelectionFromValues(_valuesArr) {

@@ -1,15 +1,15 @@
 define([
-  "../../config/parameterSetCodes.js",
+  "../../config.js",
   "./parameterSetRuntime.js",
-  "../reconcileFilterInstances.js",
+  "../../inventory/reconcile.js",
   "./parameterSetResyncApply.js",
-  "../../effects/handleFilterDockCommittedDisplayObserved.js"
+  "../../view.js"
 ], function (
-  _codes,
+  _config,
   _runtime,
-  _reconcileFilterInstances,
+  _reconcileInventory,
   _resyncApply,
-  _handleCommittedDisplay
+  _view
 ) {
   "use strict";
 
@@ -30,7 +30,7 @@ define([
             degraded: false,
             applied: [],
             skipped: [],
-            diagnostics: [{ code: writebackGate.code || _codes.INVENTORY_STALE, message: writebackGate.message }]
+            diagnostics: [{ code: writebackGate.code || _config.parameterSetCodes.INVENTORY_STALE, message: writebackGate.message }]
           });
         } else {
           var applyOutcome = await _resyncApply.resyncApplied(
@@ -40,14 +40,14 @@ define([
             result = _resyncApply.normalizeResult(applyOutcome.cancelledResult);
           } else if (applyOutcome && applyOutcome.ok === false) {
             diagnostics.push({
-              code: _codes.RESYNC_FAILED,
+              code: _config.parameterSetCodes.RESYNC_FAILED,
               message: "singleSelect resync apply failed: " + String(
                 applyOutcome.error && applyOutcome.error.message ? applyOutcome.error.message : applyOutcome.error
               )
             });
             result = _resyncApply.settleResult(diagnostics, null, progress);
           } else {
-            var reconcileResult = await _reconcileFilterInstances(
+            var reconcileResult = await _reconcileInventory.reconcileFilterInstances(
               _KDB,
               _runtimeState,
               { reason: "parameterRestore", runId: payload.runId }
@@ -63,7 +63,7 @@ define([
         return _runtime.mergeTerminalCleanup(_KDB, payload, result, { reportAlreadyReleased: false });
       }
       if (result && result.ok !== false) {
-        _handleCommittedDisplay(_KDB);
+        _view.handleCommittedDisplay(_KDB);
       }
       return result || _resyncApply.settleResult(diagnostics, null, progress);
     } catch (error) {
@@ -81,7 +81,7 @@ define([
           applied: [],
           skipped: [],
           diagnostics: [{
-            code: _codes.RESYNC_FAILED,
+            code: _config.parameterSetCodes.RESYNC_FAILED,
             message: "singleSelect resync failed: " + String(error && error.message ? error.message : error)
           }]
         }, { reportAlreadyReleased: false }

@@ -1,10 +1,10 @@
 define([
-  "../../config/parameterSetCodes.js",
+  "../../config.js",
   "./parameterSetRuntime.js",
   "./restoreEntryHandlers.js",
-  "../reconcileFilterInstances.js",
+  "../../inventory/reconcile.js",
   "./recordRestoreOutcome.js"
-], function (_codes, _runtime, _entryHandlers, _reconcileFilterInstances, _results) {
+], function (_config, _runtime, _entryHandlers, _reconcileInventory, _results) {
   "use strict";
 
   async function runParameterSetRestore(_KDB, _payload, _runtimeState) {
@@ -23,7 +23,7 @@ define([
       if (!writebackGate.ok) {
         return _results.hardSkipResult(
           result,
-          writebackGate.code || _codes.INVENTORY_STALE,
+          writebackGate.code || _config.parameterSetCodes.INVENTORY_STALE,
           writebackGate.message
         );
       }
@@ -32,12 +32,12 @@ define([
       )) {
         return _results.hardSkipResult(
           result,
-          payload.source === "writebackSet" ? _codes.INVENTORY_STALE : _codes.CANCELLED,
+          payload.source === "writebackSet" ? _config.parameterSetCodes.INVENTORY_STALE : _config.parameterSetCodes.CANCELLED,
           "stale inventoryGeneration for restore run"
         );
       }
       if (phase !== "global" && phase !== "pageContext") {
-        return _results.hardSkipResult(result, _codes.INVALID_PHASE, "invalid phase \"" + String(phase) + "\"");
+        return _results.hardSkipResult(result, _config.parameterSetCodes.INVALID_PHASE, "invalid phase \"" + String(phase) + "\"");
       }
       if (!_runtime.readAppliedPageContext(_KDB, payload.runId)) {
         _runtime.resetAppliedPageContext(_KDB, payload.runId);
@@ -53,18 +53,18 @@ define([
             result
           );
           if (stale === true) {
-            return _results.cancelledMidRun(result, payload.runId, _codes.CANCELLED);
+            return _results.cancelledMidRun(result, payload.runId, _config.parameterSetCodes.CANCELLED);
           }
         } catch (error) {
           _results.skip(result, filters[idx] ? filters[idx].tab : undefined,
             filters[idx] && filters[idx].key != null ? String(filters[idx].key) : "",
-            _codes.RESTORE_FAILED, "restore apply failed: " + String(error && error.message ? error.message : error), true);
+            _config.parameterSetCodes.RESTORE_FAILED, "restore apply failed: " + String(error && error.message ? error.message : error), true);
         }
       }
       if (writebackGate.shouldBypassReconcile === true) {
         return result;
       }
-      var reconcileResult = await _reconcileFilterInstances(
+      var reconcileResult = await _reconcileInventory.reconcileFilterInstances(
         _KDB,
         _runtimeState,
         { reason: "parameterRestore", runId: payload.runId }
@@ -77,7 +77,7 @@ define([
         applied: [],
         skipped: [],
         diagnostics: [{
-          code: _codes.RESTORE_FAILED,
+          code: _config.parameterSetCodes.RESTORE_FAILED,
           message: "singleSelect runParameterSetRestore failed: " +
             String(error && error.message ? error.message : error)
         }]
@@ -117,7 +117,7 @@ define([
         applied: [],
         skipped: [],
         diagnostics: [{
-          code: _codes.RESTORE_FAILED,
+          code: _config.parameterSetCodes.RESTORE_FAILED,
           message: String(error && error.message ? error.message : error)
         }]
       }, { reportAlreadyReleased: false });

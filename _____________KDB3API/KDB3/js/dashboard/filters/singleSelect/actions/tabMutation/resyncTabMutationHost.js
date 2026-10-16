@@ -2,10 +2,10 @@ define([
   "./guardTabMutation.js",
   "./buildTabMutationTransfers.js",
   "./applyTabMutationWrites.js",
-  "../reconcileFilterInstances.js",
-  "../../effects/writeAndVerifyInstanceSelection.js",
-  "../../config/errorCodes.js"
-], function (_support, _buildTransfers, _writes, _reconcile, _writeSelection, _codes) {
+  "../../inventory/reconcile.js",
+  "../../hostFilterIo.js",
+  "../../config.js"
+], function (_support, _buildTransfers, _writes, _reconcileInventory, _hostFilterIo, _config) {
   "use strict";
 
   function selectionToHostValues(_selection) {
@@ -30,7 +30,7 @@ define([
     for (var s = 0; s < _slots.length; s += 1) {
       var resolved = _support.resolveScope(_instances, _targets, _slots[s]);
       if (resolved.status !== "ok") {
-        _diagnostics.push(_writes.diagnostic(_codes.SCOPE_TARGET_UNVERIFIED,
+        _diagnostics.push(_writes.diagnostic(_config.errorCodes.SCOPE_TARGET_UNVERIFIED,
           "resync scope unverified for tabIdx " + _slots[s].tabIdx));
         continue;
       }
@@ -54,12 +54,12 @@ define([
       var entry = _captured[i];
       var match = _support.matchTarget(root.instancesById || {}, entry.scopeId, entry.identity);
       if (match.status !== "ok") {
-        _diagnostics.push(_writes.diagnostic(_codes.TAB_MUTATION_APPLY_FAILED,
+        _diagnostics.push(_writes.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED,
           "resync target instance " + match.status, entry.identity));
         continue;
       }
       var targetId = match.instance.filterInstanceId;
-      var written = await _writeSelection(_KDB, _runtime, targetId,
+      var written = await _hostFilterIo.writeInstanceSelection(_KDB, _runtime, targetId,
         selectionToHostValues(entry.currentSelection));
       if (!written.ok) {
         _diagnostics.push(_writes.diagnostic(written.errorCode,
@@ -88,10 +88,10 @@ define([
         // filter APIs are stale; reconcile refreshes them before the committed
         // selections (captured above, because reconcile adopts host values into
         // currentSelection) are re-pushed and overlaid back into state.
-        var reconciled = await _reconcile(_KDB, _runtime,
+        var reconciled = await _reconcileInventory.reconcileFilterInstances(_KDB, _runtime,
           { reason: "tabMutation", runId: payload.runId });
         if (!reconciled.ok || _runtime.tabMutationRunId !== payload.runId) {
-          diagnostics.push(_writes.diagnostic(_codes.TAB_MUTATION_APPLY_FAILED,
+          diagnostics.push(_writes.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED,
             "resync reconcile failed or was superseded"));
           return { ok: false, operationId: payload.operationId, diagnostics: diagnostics };
         }
@@ -107,7 +107,7 @@ define([
       return { ok: true, operationId: payload.operationId, diagnostics: diagnostics };
     } catch (error) {
       console.error("[singleSelect.resyncTabMutationHost] failed", { operationId: payload.operationId }, error);
-      diagnostics.push(_writes.diagnostic(_codes.TAB_MUTATION_APPLY_FAILED,
+      diagnostics.push(_writes.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED,
         String(error && error.message ? error.message : error)));
       return { ok: false, operationId: payload.operationId, diagnostics: diagnostics };
     }

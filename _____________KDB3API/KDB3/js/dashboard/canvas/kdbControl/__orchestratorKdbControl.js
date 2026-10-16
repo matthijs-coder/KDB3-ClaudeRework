@@ -1,8 +1,2 @@
-define(["./createKdbControlController"], function (_createKdbControlController) {
-  "use strict";
-  // kdbControl root lifecycle subset: idle, mounted, ready, error, disposed (see lifecycleVocabulary.md).
-  function __orchestratorKdbControl(_KDB) {
-    _KDB.api.kdbControl = _createKdbControlController(_KDB);
-  }
-  return __orchestratorKdbControl;
-});
+// shim: path kept for the KDB.js import; remove in Phase 2
+define(["./index.js"], function (_registerKdbControl) { return _registerKdbControl; });

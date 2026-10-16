@@ -1,12 +1,14 @@
 define([
   "./confirmDiscardUnsavedChanges.js",
   "./normalizeBridgeSetInput.js",
+  "./bridgeResult.js",
   "../schema/errorCodes.js",
   "./waitForBridgeSetSettlement.js",
   "../set/config/restoreConstants.js"
 ], function (
   _confirmDiscardUnsavedChanges,
   _normalizeBridgeSetInput,
+  _bridgeResult,
   _errorCodes,
   _waitForBridgeSetSettlement,
   _restoreConstants
@@ -14,31 +16,16 @@ define([
   "use strict";
 
   function notifyAfterRestore(_KDB, result, rawStatus, restoreStartedAt) {
-    var statusKind;
+    var statusKind = _restoreConstants.STATUS_TABLE[rawStatus];
     var meta;
-    try {
-      statusKind = _restoreConstants.STATUS_TABLE[rawStatus];
-      if (!statusKind) return;
-      meta = { statusKind: statusKind };
-      if (typeof restoreStartedAt === "number") meta.restoreStartedAt = restoreStartedAt;
-      _waitForBridgeSetSettlement.notifyBridgeSetSettled(_KDB, result, meta);
-    } catch (error) {
-      console.error("[writebackBridge.notifyAfterRestore] failed", error);
-    }
-  }
-
-  function toBridgeDiagnostic(error) {
-    if (error && error.diagnostic) {
-      return error.diagnostic;
-    }
-    return _errorCodes.makeDiagnostic(
-      _errorCodes.codes.WRITEBACK_INVALID_V3_PAYLOAD, "bridge",
-      String(error && error.message ? error.message : error), {}, 0
-    );
+    if (!statusKind) return;
+    meta = { statusKind: statusKind };
+    if (typeof restoreStartedAt === "number") meta.restoreStartedAt = restoreStartedAt;
+    _waitForBridgeSetSettlement.notifyBridgeSetSettled(_KDB, result, meta);
   }
 
   async function runBridgeSetRestore(_KDB, _raw, _status) {
-    const status = _status === undefined || _status === null ? "notDefaultParamSet" : String(_status);
+    const status = _bridgeResult.normalizeStatus(_status);
     var restoreStartedAt;
     var didEnterRestore = false;
     var result;
@@ -47,7 +34,7 @@ define([
     statusKind = _restoreConstants.STATUS_TABLE[status];
     proceed = await _confirmDiscardUnsavedChanges(_KDB, statusKind);
     if (proceed !== true) {
-      return { ok: false, status: status, runId: 0, outcome: "cancelled", diagnostics: [], phases: [] };
+      return _bridgeResult.cancelledResult(status);
     }
     try {
       if (status === "newDashboard") {
@@ -84,14 +71,7 @@ define([
       );
     } catch (error) {
       console.error("[writebackBridge.runBridgeSetRestore] failed", error);
-      result = {
-        ok: false,
-        status: status,
-        runId: 0,
-        outcome: "failed",
-        diagnostics: [toBridgeDiagnostic(error)],
-        phases: [],
-      };
+      result = _bridgeResult.failureResult(status, [_bridgeResult.toBridgeDiagnostic(error)]);
       if (didEnterRestore) notifyAfterRestore(_KDB, result, status, restoreStartedAt);
       return result;
     }

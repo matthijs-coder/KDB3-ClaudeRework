@@ -1,5 +1,5 @@
 define([
-  "../state/selectionState.js",
+  "../state/selection.js",
   "../state/selectors.js"
 ], function (_selectionState, _selectors) {
   "use strict";

@@ -1,9 +1,8 @@
 define([
-  "./readFilterDefinition.js",
-  "../config/resolveFilterOptionsTableKey.js",
-  "./parseFilterOptionTableRows.js",
-  "../config/errorCodes.js"
-], function (_readDefinition, _resolveTableKey, _parseRows, _codes) {
+  "../inventory/definitions.js",
+  "../commit/tableValues.js",
+  "../config.js"
+], function (_definitions, _tableValues, _config) {
   "use strict";
 
   function readMapPair(_definition, _useValue) {
@@ -30,7 +29,7 @@ define([
 
   async function readTablePair(_KDB, _instance, _useValue) {
     var tableData = _KDB && _KDB.services ? _KDB.services.tableData : null;
-    var tableKey = _resolveTableKey(_instance.filterLabel);
+    var tableKey = _tableValues.resolveFilterOptionsTableKey(_instance.filterLabel);
     var tableConfig = _KDB && _KDB.config && _KDB.config.tables
       ? _KDB.config.tables[tableKey] : null;
     if (!tableData || !tableConfig || typeof tableData.readRows !== "function") { return null; }
@@ -46,7 +45,7 @@ define([
         return null;
       }
     }
-    return _parseRows.findMatchingUseValue(rows, _useValue, _instance.filterLabel);
+    return _tableValues.findMatchingUseValue(rows, _useValue, _instance.filterLabel);
   }
 
   async function __controller(_KDB, _instance, _useValue) {
@@ -55,7 +54,7 @@ define([
       if (!useValue) {
         return { selection: { d: "Alle", u: "" }, degraded: false, diagnostic: null };
       }
-      var definitionResult = _readDefinition(
+      var definitionResult = _definitions.readFilterDefinition(
         _KDB, null, _instance.scopeType, _instance.itemName, _instance.itemId
       );
       var mapPair = readMapPair(definitionResult.definition, useValue);
@@ -74,7 +73,7 @@ define([
         selection: { d: useValue, u: useValue },
         degraded: true,
         diagnostic: {
-          code: _codes.RESTORE_DISPLAY_DEGRADED,
+          code: _config.errorCodes.RESTORE_DISPLAY_DEGRADED,
           filterInstanceId: _instance.filterInstanceId,
           message: "real display unavailable; transport-only d=u used before mandatory reread"
         }

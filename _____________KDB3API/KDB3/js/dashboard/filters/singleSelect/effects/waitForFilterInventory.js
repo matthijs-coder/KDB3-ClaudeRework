@@ -1,4 +1,4 @@
-define(["../config/errorCodes.js"], function (_codes) {
+define(["../config.js"], function (_config) {
   "use strict";
 
   var DEFAULT_TIMEOUT_MS = 3000;
@@ -12,7 +12,7 @@ define(["../config/errorCodes.js"], function (_codes) {
   function makeTimeoutError(_lastError) {
     var error = new Error("singleSelect filter inventory readiness timed out" +
       (_lastError ? ": " + String(_lastError.message || _lastError) : ""));
-    error.code = _codes.RECONCILE_TIMEOUT;
+    error.code = _config.errorCodes.RECONCILE_TIMEOUT;
     return error;
   }
 
@@ -67,7 +67,7 @@ define(["../config/errorCodes.js"], function (_codes) {
       }
       throw makeTimeoutError(lastError);
     } catch (error) {
-      if (error && error.code === _codes.RECONCILE_TIMEOUT) { throw error; }
+      if (error && error.code === _config.errorCodes.RECONCILE_TIMEOUT) { throw error; }
       if (_signal && _signal.aborted) { throw error; }
       console.error("[singleSelect.waitForFilterInventory] failed", error);
       throw error;

@@ -1,8 +1,8 @@
 define([
-  "../config/errorCodes.js",
+  "../config.js",
   "./awaitOwnerInventoryAck.js",
   "./inventoryOwnerDispatch.js"
-], function (_codes, _support, _dispatch) {
+], function (_config, _support, _dispatch) {
   "use strict";
 
   async function notifyOwnerOnce(_KDB, _runtime, _ownerName, _payload, _signal) {
@@ -11,7 +11,7 @@ define([
     }
     return {
       owner: _ownerName,
-      result: await _dispatch.dispatchOwner(_KDB, _codes, _support, _ownerName, _payload, _signal)
+      result: await _dispatch.dispatchOwner(_KDB, _config.errorCodes, _support, _ownerName, _payload, _signal)
     };
   }
 
@@ -29,7 +29,7 @@ define([
         return {
           notified: false,
           diagnostics: [_support.buildOwnerDiagnostic(
-            _codes.RECONCILE_FAILED,
+            _config.errorCodes.RECONCILE_FAILED,
             "singleSelect",
             details.inventoryGeneration,
             "inventory owner notify skipped because generation is invalid"
@@ -85,7 +85,7 @@ define([
       return {
         notified: false,
         diagnostics: [_support.buildOwnerDiagnostic(
-          _codes.INVENTORY_OWNER_DISPATCH_FAILED,
+          _config.errorCodes.INVENTORY_OWNER_DISPATCH_FAILED,
           "singleSelect",
           _details && _details.inventoryGeneration,
           "inventory owner notify failed: " +
