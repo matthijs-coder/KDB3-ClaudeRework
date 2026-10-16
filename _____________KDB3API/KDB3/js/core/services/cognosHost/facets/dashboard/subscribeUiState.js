@@ -39,12 +39,17 @@ define([
     }
   }
 
-  function releaseSubscription(_subscription) {
+  function releaseSubscription(_ctx, _subscription) {
     if (_subscription.released) {
       return;
     }
     _subscription.released = true;
     _subscription.callback = null;
+    // Not while disposing: destroy iterates runtime.subscriptions and calls every unsubscribe,
+    // splicing the array underneath that loop would skip entries.
+    if (!_ctx.isDisposed()) {
+      _runtime.pruneSubscription(_ctx._KDB, _subscription.unsubscribe);
+    }
     try {
       _hostAccess.detachHostSubscription(_subscription.handle);
     } catch (detachError) {
@@ -53,7 +58,7 @@ define([
   }
 
   function subscribeUiState(_ctx, _callback) {
-    var subscription = { callback: _callback, released: false, handle: undefined };
+    var subscription = { callback: _callback, released: false, handle: undefined, unsubscribe: null };
     var dashboardApi;
     var unsubscribe;
     if (typeof _callback !== "function" || _hostAccess.isFacetStale(_ctx)) {
@@ -71,7 +76,8 @@ define([
       subscription.handle = dashboardApi.onDashboardUiStateChange(function onHostUiState(uiState) {
         emitSnapshot(_ctx, subscription, uiState);
       });
-      unsubscribe = releaseSubscription.bind(null, subscription);
+      unsubscribe = releaseSubscription.bind(null, _ctx, subscription);
+      subscription.unsubscribe = unsubscribe;
       _runtime.addSubscription(_ctx._KDB, unsubscribe);
       return unsubscribe;
     } catch (error) {
