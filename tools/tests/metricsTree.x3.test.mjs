@@ -54,13 +54,37 @@ test("absent tree property builds the default-path-column tree with an empty tre
   assert.equal(entry.hasRenderableData, true);
 });
 
-test("kennzahlenTreePropObj with the saved shape is not read today: treeConfig stays empty", () => {
-  const entry = build({ kennzahlenTreePropObj: readSavedTreeProperty() });
-  assert.deepStrictEqual(groupTexts(entry), DEFAULT_GROUPS);
-  assert.deepStrictEqual(entry.treeConfig, {});
+test("unusable tree property values fall back to the default path columns", () => {
+  [null, "-", "text", 7, [], {}, { Other: { pathColumnNamesArr: ["Gruppe2"] } }, { Personal_KDB: {} },
+    { Personal_KDB: { pathColumnNamesArr: [] } }, { Personal_KDB: { pathColumnNamesArr: "Gruppe2" } }].forEach(function (value) {
+    const entry = build({ kennzahlenTreePropObj: value });
+    assert.deepStrictEqual(groupTexts(entry), DEFAULT_GROUPS, JSON.stringify(value));
+  });
 });
 
-test("custom pathColumnNamesArr under kennzahlenTreePropObj is ignored today", () => {
+test("kennzahlenTreePropObj with the saved shape is the treeConfig of the source (matched by table name)", () => {
+  const saved = readSavedTreeProperty();
+  const entry = build({ kennzahlenTreePropObj: saved });
+  assert.deepStrictEqual(entry.treeConfig, saved.Personal_KDB);
+  assert.deepStrictEqual(groupTexts(entry), DEFAULT_GROUPS);
+});
+
+test("entry under the source key wins over the entry under the table name", () => {
+  const entry = build({ kennzahlenTreePropObj: {
+    personal_kdb: { pathColumnNamesArr: ["Gruppe1"] },
+    Personal_KDB: { pathColumnNamesArr: ["Gruppe2"] }
+  } });
+  assert.deepStrictEqual(groupTexts(entry), ["A"]);
+});
+
+test("custom pathColumnNamesArr under kennzahlenTreePropObj is honoured", () => {
   const entry = build({ kennzahlenTreePropObj: { Personal_KDB: { pathColumnNamesArr: ["Gruppe2"] } } });
+  assert.deepStrictEqual(groupTexts(entry), ["B", "D"]);
+  assert.deepStrictEqual(entry.nodes.filter((n) => !n.li_attr).map((n) => n.parent), ["group:personal_kdb:B", "group:personal_kdb:D"]);
+});
+
+test("the old name metricsTreePropObj is no longer read", () => {
+  const entry = build({ metricsTreePropObj: { Personal_KDB: { pathColumnNamesArr: ["Gruppe2"] } } });
+  assert.deepStrictEqual(entry.treeConfig, {});
   assert.deepStrictEqual(groupTexts(entry), DEFAULT_GROUPS);
 });

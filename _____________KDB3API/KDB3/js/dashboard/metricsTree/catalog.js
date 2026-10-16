@@ -55,7 +55,7 @@ define(["./config.js"], function (_config) {
   }
 
   function readTreeConfig(_KDB, sourceKey, sourceName) {
-    const treeProperties = readObjectPath(_KDB, ["properties", "metricsTreePropObj"]);
+    const treeProperties = readObjectPath(_KDB, ["properties", "kennzahlenTreePropObj"]);
     if (!treeProperties) { return {}; }
     return treeProperties[sourceKey] || treeProperties[sourceName] || {};
   }
