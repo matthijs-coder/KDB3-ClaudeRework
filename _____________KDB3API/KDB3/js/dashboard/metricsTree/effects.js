@@ -37,6 +37,7 @@ define([
       const sourceInput = await readSourceInput(_KDB, signal);
       if (signal.aborted) { return false; }
       sourceInput.isSuperUserAllowed = await readSuperUserAllowed(_KDB, signal);
+      if (signal.aborted) { return false; }
       const sourceResult = _catalog.buildMetricsTreeSources(_KDB, sourceInput);
       if (signal.aborted) { return false; }
       api.dispatch({

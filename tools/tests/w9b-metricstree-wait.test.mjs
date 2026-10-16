@@ -10,14 +10,16 @@ const MT = path.join(JS_ROOT, "dashboard/metricsTree");
 const ROWS = [{ k: { d: "a", u: "a" } }];
 
 function setup(waitForRows) {
-  const log = { waits: [], finished: 0, errors: [], rendered: 0 };
+  const log = { waits: [], finished: 0, errors: [], rendered: 0, built: 0 };
+  const realCatalog = loadAmd(path.join(MT, "catalog.js"));
+  const catalog = Object.assign({}, realCatalog, { buildMetricsTreeSources: (...args) => { log.built += 1; return realCatalog.buildMetricsTreeSources(...args); } });
   const view = {
     renderMetricsTrees: () => { log.rendered += 1; return Promise.resolve(true); },
     cleanupMetricsTrees() {},
     bindMetricsTreeSearch() {}
   };
   const register = loadAmd(path.join(MT, "index.js"), {
-    modules: { "./view.js": view, "./dragSource.js": { bindMetricsTreeDragSources() {} } },
+    modules: { "./view.js": view, "./dragSource.js": { bindMetricsTreeDragSources() {} }, "./catalog.js": catalog },
     stubs: { document: { querySelector: () => null }, console: { log() {}, warn() {}, error: (...a) => log.errors.push(a) } }
   });
   const kdb = {
@@ -75,6 +77,7 @@ test("destroy while the superuser table loads ends the mount without rendering",
   assert.equal(log.waits.length, 2);
   api.destroy();
   assert.equal(await Promise.race([pending, new Promise((resolve) => setTimeout(() => resolve("timeout"), 500))]), false);
+  assert.equal(log.built, 0, "no tree build after the abort swallowed in the superuser wait");
   assert.equal(log.rendered, 0);
   assert.deepEqual(log.errors, []);
 });
