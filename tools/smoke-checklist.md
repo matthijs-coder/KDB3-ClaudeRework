@@ -104,13 +104,24 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Drillthrough: click a header icon and a datapoint on a line/pie/table widget for 3-4 org/year combinations (BW and DEZPV). Expected: the target URL (Network tab or `window.open` target) equals baseline.
 
 ### WS-E Toolbar controls (wienKi, pdf, history, share)
-- [ ] Button order and icons in the toolbar are unchanged: Undo, Redo, Teilen, PDF, Wien-KI (as on baseline). Test with the dark and the light Cognos theme (icon inversion).
+- [ ] Button order and icons in the toolbar are unchanged from baseline. DOM order, left to right: Share (Teilen), WienKI, PDF, History (Undo/Redo). Confirm the visual order once in Cognos. Test with the dark and the light Cognos theme (icon inversion).
 - [ ] PDF busy state: while exporting, the PDF button is disabled/busy; afterwards enabled.
 - [ ] Share dialog opens, "Nur Lesen" toggle works, read-only link hides the KDB chrome.
 - [ ] Undo/redo enabled state follows the history (disabled at start, enabled after a change).
 - [ ] Wien-KI: click opens the info dialog ("Wien-KI öffnen", copy-prompt) and the assist popup window.
 - [ ] Performance tab (record 10 s, switch tabs, hover): exactly **one** `MutationObserver` on the body for the toolbar (see section 4).
 - [ ] Close/reopen the dashboard: exactly one toolbar (no duplicate buttons).
+
+#### WS-E (toolbarControls module)
+- [ ] Declared order in `toolbarControls/config.js` (Share, WienKI, PDF, History) matches the DOM: inspect the action bar `.leading` element and confirm the four roots appear in exactly this order, identical to baseline.
+- [ ] Reload the dashboard 3 times: icons, labels, tooltips and spacing are identical to baseline (same CSS classes and `data-kdb-*` attributes).
+- [ ] DevTools console: `getKDB().runtime.toolbarControls.observers` has exactly one entry (`toolbar`) while all four buttons are mounted; no `runtime.historyControls`, `runtime.pdfExportControls`, `runtime.shareControls` or `runtime.wienKiControls` objects exist any more.
+- [ ] Toolbar re-render: switch tabs, open and close a dialog, toggle authoring mode. The four buttons stay in order, never duplicate, and Undo/Redo still react to clicks afterwards (baseline bug: the Undo/Redo click handler stayed dead after Cognos rebuilt the toolbar).
+- [ ] Switch the Cognos theme between light and dark (reload): PDF icon is black on light and white on dark; Teilen icon is inverted on dark.
+- [ ] PDF export error: with the PDF service failing (for example block the capture), the button recovers (label "PDF", not busy) and the console shows a single `[pdfExportControls.export]` entry.
+- [ ] Wien-KI: popup opens at the right edge of the screen; the console shows no `[wienKiControls.openWienKiPopup]` warnings in the normal case.
+- [ ] Share via URL: open a share link with `readOnly=1`; the dashboard has the class `kdb-share-read-only` (KDB chrome hidden); a link without the token removes it.
+- [ ] Close the dashboard: all four toolbar buttons disappear, `runtime.toolbarControls` has no observer, timer or pending wait left (DevTools: no `MutationObserver` for the toolbar remains).
 
 ### WS-F Tabs + dragDrop + pageSurface
 - [ ] Tabs: add, rename, delete, duplicate, move (reorder) - each with undo and redo. Expected: widgets and filters of the tab follow, same as baseline.
@@ -180,6 +191,35 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Footer: created-by user and update date show; after a parameter-set restore the footer is as saved.
 - [ ] Text widget: add, edit text, font size (Schriftgröße), colour, background colour (Hintergrundfarbe), alignment (Zentriert), border presets (Rahmen); delete it. Expected: no leftover `<style>` tags (check Elements: search `kdb` in `<head>`), no `contenteditable` left after leaving edit mode or after close/reopen.
 - [ ] TopN widget flows (see 2.3/2.4) unchanged.
+
+#### N2 widgetText
+- [ ] Add a text widget from the launchpad: the default text ("Text hier eingeben") shows. Click the title icon to edit: the text is selected, typing works. Click outside (blur) commits; the new text stays. Start an edit again, type, press Esc: the original text returns and `contenteditable` is gone.
+- [ ] Undo and redo the text edit (history controls): the text switches between old and new; no extra history entry is created by undo/redo.
+- [ ] Font size (Schriftgröße): choose a fixed size (for example 24px), then "Automatisch". Expected: fixed size applies at once, automatic refits to the widget. After an edit with automatic size the text refits (a window resize event fires; this is expected).
+- [ ] Restyle options (Rahmen alle/unterer/oberer, Zentriert, combinations, Reinigen): the header class on the widget changes as in the baseline; "Reinigen" removes all.
+- [ ] Background colour (Hintergrundfarbe): pick a dark and a light colour on the text widget. Expected: the text colour follows (white on dark, black on light), also for the extreme values (white and black). In Elements the `<style id="KDB_widgetTextColor_...">` contains `color: #FFFFFF !important;` or `#000000`.
+- [ ] Delete the text widget. Expected: no `<style id="KDB_widgetTextFontSize_...">` or `<style id="KDB_widgetTextColor_...">` left in `<head>` (search `KDB_widgetText`).
+- [ ] Destroy during an open edit: start an edit (cursor in the text), then close/reopen the dashboard (or reload the KDB extension). Expected: no element with `contenteditable="true"` or `data-kdb-text-edit-active` remains on the text widget and its original text is shown.
+- [ ] Parameter-set restore with two text widgets (different texts, one with fixed font size): save, reset/switch to another parameter set, restore. Expected: both texts and font sizes are restored; no history entry is created by the restore.
+- [ ] Save and reload the dashboard: text content of each text widget is as saved (writeback reads `widgetText` state).
+
+#### N3 header + footer
+- [ ] Header on/off from the toolbox: header appears at the top of the page and disappears again; turning it off also hides the footer.
+- [ ] Header title and subtitle edit: confirm with Enter, with blur (click elsewhere on the canvas) and with click outside; Esc / cancel keeps the old text. The subtitle row appears when text is committed and disappears when the text is empty.
+- [ ] Footer toggle: works while the header is on; is blocked (switch stays off) while the header is off.
+- [ ] Footer shows the new title right after a header title commit (footer on, edit the header title, confirm). Also after undo/redo of the title.
+- [ ] Footer page indicator follows the active tab (switch tabs 1 -> 2 -> 3); update date and created-by user show.
+- [ ] Undo/redo for each: header toggle, subtitle toggle, title edit, subtitle edit, footer toggle. Redo/undo of the header toggle with the footer on hides/shows the footer consistently.
+- [ ] Save, reload and parameter-set restore: header on/title/subtitle/icon and footer on are restored; a saved dashboard without header comes back with header and footer off.
+- [ ] DOM check (Elements): no `kdb-dashboard-header-draft*` inputs inside `#KDB_topHeader` and no zoom-hint toast after switching the header on. A header icon dispatched with an unsafe key (`getKDB().api.header.dispatch({type:"header/setIcon",payload:{source:"api",iconKey:"../x"}})`) falls back to `Stadt-wien`.
+- [ ] Destroy and re-boot: no header or footer wrapper left from the old instance; no growth of `document` `pointerdown` listeners after repeated header edits (section 4.1).
+
+#### N4 launchpad
+- [ ] Load a dashboard with 3 tabs plus the helper tab. Console: `_KDB.api.launchpad.getState()` shows `lifecycle: "ready"`, one entry per dashboard tab in `tabs` (same order as the canvas tabs), the helper tab only in `helperTabIds`, and 5 pads (`visualization`, `text`, `dataTables`, `topN`, `otherResources`) each with one slot per tab. Elements: `#KDB_HideSpot > #KDB_widgetLaunchpad` has the 5 pad divs with one `.KDB_launchpadSlot` per tab.
+- [ ] Drag a visualization, a text widget and a TopN widget from the launchpad pads onto the canvas of different tabs. Expected: each lands where dropped, TopN resolves its helper (helper widget is read through `launchpad/readSlotWidgets`), no console errors.
+- [ ] Duplicate a widget and delete a widget. Expected: same result as baseline; the launchpad keeps parking the widgets (check `_KDB.api.launchpad.dispatch({type:'launchpad/readSlotWidgets',payload:{padKey:'visualization'}})` resolves `ok: true`).
+- [ ] Save, reload the dashboard. Expected: same tabs and widgets, launchpad `getState()` as before, no widgets left outside their slots.
+- [ ] Close/destroy the KDB widget (remove it from the dashboard or re-render). Expected: `#KDB_HideSpot` is removed from `document.body`, no leftover `#KDB_widgetLaunchpad`, no console errors.
 
 ### WS-O Core foundation (authoring, config, events, homeDialog, utils)
 - [ ] **Authoring mode** (Cognos Edit ↔ View, the pencil/"Bearbeiten" button):
