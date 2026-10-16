@@ -1,8 +1,8 @@
 define([
   "../../schema/errorCodes.js",
   "../../../../../dashboard/widgets/widgetSettings/config/dropdownDefaults.js",
-  "./assignOptionalFlag01.js",
-], function (_errorCodes, _dropdownDefaults, _assignOptionalFlag01) {
+  "./collectorSupport.js",
+], function (_errorCodes, _dropdownDefaults, _support) {
   "use strict";
 
   // Builds a single v3 `wgts` object per contracts/writeback.md §4.5.1.
@@ -91,13 +91,13 @@ define([
     common.type = settings.visType != null ? settings.visType : VIS_TYPE_DEFAULT;
     assignOptionalString(common, "dim", settings.dimension, DIMENSION_DEFAULT);
     assignOptionalString(common, "topn", settings.topNChoice, TOP_N_DEFAULT);
-    _assignOptionalFlag01(common, "vals", settings.showValues);
+    _support.assignOptionalFlag01(common, "vals", settings.showValues);
     if (GRAINS[settings.grouping] && isAllowedGrain(resolveGetBucket(common.type), settings.grouping)) {
       common.grp = settings.grouping;
     }
-    _assignOptionalFlag01(common, "iter", settings.iterator);
-    _assignOptionalFlag01(common, "wzbar", settings.zoom);
-    _assignOptionalFlag01(common, "vcap", settings.valueCaption);
+    _support.assignOptionalFlag01(common, "iter", settings.iterator);
+    _support.assignOptionalFlag01(common, "wzbar", settings.zoom);
+    _support.assignOptionalFlag01(common, "vcap", settings.valueCaption);
     assignOptionalColour(common, "bgcol", frame.colour);
     assignOptionalColour(common, "ctcol", settings.colour);
     return common;

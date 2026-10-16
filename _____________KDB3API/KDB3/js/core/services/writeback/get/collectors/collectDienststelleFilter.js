@@ -45,8 +45,8 @@ define([
       if (Object.keys(byTabResult.byTab).length > 0) dstl.byTab = byTabResult.byTab;
       return dstl;
     } catch (error) {
-      // Fail-visible (remediation B3, reviewbevinding 3): een echte crash in de
-      // dienststelle-collector breekt de save af i.p.v. stil te ontbreken.
+      // Fail-visible (remediation B3, review finding 3): a real crash in the
+      // dienststelle collector aborts the save instead of silently missing.
       _diagnostics.push(_errorCodes.makeDiagnostic(
         _errorCodes.codes.WRITEBACK_COLLECTOR_FAILED,
         "get",
