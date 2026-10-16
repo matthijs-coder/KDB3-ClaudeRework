@@ -1,4 +1,4 @@
-define(["../config/defaults.js"], function (_defaults) {
+define(["../config/defaults.js", "../slots.js"], function (_defaults, _slots) {
   "use strict";
 
   function cloneByIndex(_byIndex) {
@@ -16,27 +16,7 @@ define(["../config/defaults.js"], function (_defaults) {
   }
 
   function buildVisibleOrder(_byIndex, _order) {
-    return (_order || []).filter(function (index) { const tab = _byIndex[String(index)]; return isDashboardTab(tab) && tab.visible === true; });
-  }
-
-  function isDashboardTab(_tab) {
-    if (!_tab) { return false; }
-    if (_tab.role) { return _tab.role === "dashboard"; }
-    return _tab.isHelper !== true && _tab.index < _defaults.MAX_USER_TABS;
-  }
-
-  function isRenamableUserTab(_tab) { return isVisibleUserTab(_tab) && !!_tab.tabId; }
-  function isVisibleUserTab(_tab) { return !!_tab && _tab.visible === true && isDashboardTab(_tab); }
-
-  function findTabById(_byIndex, _tabId) {
-    const keys = Object.keys(_byIndex || {});
-    let index = 0;
-    while (index < keys.length) {
-      const tab = _byIndex[keys[index]];
-      if (tab && tab.tabId === _tabId) { return tab; }
-      index += 1;
-    }
-    return null;
+    return (_order || []).filter(function (index) { const tab = _byIndex[String(index)]; return _slots.isDashboardTab(tab) && tab.visible === true; });
   }
 
   function phaseToLifecycle(_phase) {
@@ -67,10 +47,10 @@ define(["../config/defaults.js"], function (_defaults) {
     cloneTab: cloneTab,
     cloneHelperTab: cloneHelperTab,
     buildVisibleOrder: buildVisibleOrder,
-    isDashboardTab: isDashboardTab,
-    isRenamableUserTab: isRenamableUserTab,
-    isVisibleUserTab: isVisibleUserTab,
-    findTabById: findTabById,
+    isDashboardTab: _slots.isDashboardTab,
+    isRenamableUserTab: _slots.isRenamableUserTab,
+    isVisibleUserTab: _slots.isVisibleUserTab,
+    findTabById: _slots.findTabById,
     phaseToLifecycle: phaseToLifecycle,
     normalizeLineIndex: normalizeLineIndex,
     valueOrNull: valueOrNull,

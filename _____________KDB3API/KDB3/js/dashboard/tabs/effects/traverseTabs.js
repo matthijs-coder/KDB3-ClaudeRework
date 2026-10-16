@@ -1,4 +1,4 @@
-define(["../config/actionTypes.js", "../config/defaults.js", "./syncTabsDomFromState.js", "./readTabButtonWrappers.js", "./resolveTraverseTabIndexes.js", "./clickTraverseTabSequence.js", "./buildTraverseDispatchPayload.js", "./applyTabPageLoading.js", "./formatTabMutationCaption.js"], function (_actionTypes, _defaults, _syncTabsDomFromState, _readTabButtonWrappers, _resolveTraverseTabIndexes, _clickTraverseTabSequence, _buildTraverseDispatchPayload, _applyTabPageLoading, _formatTabMutationCaption) {
+define(["../config/actionTypes.js", "../config/defaults.js", "./syncTabsDomFromState.js", "../chrome.js", "./resolveTraverseTabIndexes.js", "./clickTraverseTabSequence.js", "./buildTraverseDispatchPayload.js", "./applyTabPageLoading.js", "./formatTabMutationCaption.js"], function (_actionTypes, _defaults, _syncTabsDomFromState, _chrome, _resolveTraverseTabIndexes, _clickTraverseTabSequence, _buildTraverseDispatchPayload, _applyTabPageLoading, _formatTabMutationCaption) {
   "use strict";
 
   async function __controller(_ctx, _payload) {
@@ -66,10 +66,10 @@ define(["../config/actionTypes.js", "../config/defaults.js", "./syncTabsDomFromS
     try {
       const start = Date.now();
       const limit = typeof timeoutMs === "number" && timeoutMs > 0 ? timeoutMs : _defaults.HYDRATE_TIMEOUT_MS;
-      let buttons = _readTabButtonWrappers(_ctx._KDB);
+      let buttons = _chrome.readTabButtons(_ctx._KDB);
       while (!isDisposed(_ctx) && buttons.length === 0 && Date.now() - start < limit) {
         await delay(_ctx, _defaults.POLL_INTERVAL_MS);
-        buttons = _readTabButtonWrappers(_ctx._KDB);
+        buttons = _chrome.readTabButtons(_ctx._KDB);
       }
       return buttons;
     } catch (err) {

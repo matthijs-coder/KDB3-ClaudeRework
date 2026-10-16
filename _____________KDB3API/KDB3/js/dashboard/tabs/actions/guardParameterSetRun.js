@@ -1,4 +1,4 @@
-define(["../config/parameterSetCodes.js", "../config/defaults.js"], function (_codes, _defaults) {
+define(["../config/parameterSetCodes.js", "../slots.js"], function (_codes, _slots) {
   "use strict";
 
   // Shared runId/readiness guard for all tabs parameterSet* handlers per
@@ -53,14 +53,8 @@ define(["../config/parameterSetCodes.js", "../config/defaults.js"], function (_c
     const order = Array.isArray(state.order) ? state.order : [];
     return order.some(function (index) {
       const tab = state.byIndex[String(index)];
-      return isDashboardTab(tab) && !!tab.tabId;
+      return _slots.isDashboardTab(tab) && !!tab.tabId;
     });
-  }
-
-  function isDashboardTab(tab) {
-    if (!tab) { return false; }
-    if (tab.role) { return tab.role === "dashboard"; }
-    return tab.isHelper !== true && tab.index < _defaults.MAX_USER_TABS;
   }
 
   function ensureRuntime(_KDB) {

@@ -2,9 +2,9 @@ define([
   "../config/actionTypes.js",
   "../config/parameterSetCodes.js",
   "./guardParameterSetRun.js",
-  "../state/listDashboardSlots.js",
+  "../slots.js",
   "../events/eventNames.js",
-], function (_actionTypes, _codes, _guard, _listDashboardSlots, _eventNames) {
+], function (_actionTypes, _codes, _guard, _slots, _eventNames) {
   "use strict";
 
   // tabs/postParameterSetRestoreTraverseRequested per
@@ -71,7 +71,7 @@ define([
     const physicalIndex = typeof state.activeIndex === "number" ? state.activeIndex : null;
     const tab = physicalIndex !== null && state.byIndex ? state.byIndex[String(physicalIndex)] : null;
     if (!events || typeof events.emit !== "function" || !tab) { return; }
-    const slots = _listDashboardSlots(state);
+    const slots = _slots.listDashboardSlots(state);
     const tabIdx = slots.findIndex(function (slot) { return slot.index === physicalIndex; });
     events.emit(_eventNames.CHANGED, {
       tabIndex: physicalIndex,
@@ -84,13 +84,13 @@ define([
   }
 
   function findFirstVisiblePhysicalIndex(state) {
-    const firstVisible = _listDashboardSlots(state || {}).find(function (tab) { return tab.visible === true; });
+    const firstVisible = _slots.listDashboardSlots(state || {}).find(function (tab) { return tab.visible === true; });
     return firstVisible ? firstVisible.index : null;
   }
 
   function mapToTabIdxs(state, traversedPhysicalIndexes) {
     const tabIdxByPhysicalIndex = {};
-    _listDashboardSlots(state).forEach(function (tab, tabIdx) {
+    _slots.listDashboardSlots(state).forEach(function (tab, tabIdx) {
       tabIdxByPhysicalIndex[String(tab.index)] = tabIdx;
     });
     return (Array.isArray(traversedPhysicalIndexes) ? traversedPhysicalIndexes : [])

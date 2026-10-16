@@ -2,13 +2,13 @@ define([
   "../config/actionTypes.js",
   "../config/mutationCodes.js",
   "../config/tabMutationOwners.js",
-  "../state/listDashboardSlots.js",
+  "../slots.js",
   "../state/buildMutationResult.js",
   "../effects/ensureSlotReadyForMutation.js",
   "../effects/dispatchOwnerTabMutation.js",
   "../effects/clearTabMutationSnapshots.js",
   "../events/eventNames.js"
-], function (_actionTypes, _codes, _tabMutationOwners, _listDashboardSlots, _buildResult, _ensureSlotReady, _dispatchOwner, _clearTabMutationSnapshots, _eventNames) {
+], function (_actionTypes, _codes, _tabMutationOwners, _slots, _buildResult, _ensureSlotReady, _dispatchOwner, _clearTabMutationSnapshots, _eventNames) {
   "use strict";
 
   function ok() { return { status: "ok", diagnostics: [] }; }
@@ -22,7 +22,7 @@ define([
 
   function mapTabIdxByTabId(state) {
     var map = {};
-    _listDashboardSlots(state).forEach(function (slot, tabIdx) { if (slot.tabId) { map[slot.tabId] = tabIdx; } });
+    _slots.listDashboardSlots(state).forEach(function (slot, tabIdx) { if (slot.tabId) { map[slot.tabId] = tabIdx; } });
     return map;
   }
 

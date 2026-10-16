@@ -1,4 +1,4 @@
-define(["./createTabsController.js", "./state/createInitialTabsState.js", "./state/reduceTabsAction.js", "./state/selectors.js", "./adapters/createCognosTabsAdapter.js", "./effects/applyTabsEffects.js", "./config/selectors.js", "./history/createTabsHistoryReplayHandler.js", "./readSelectedTabIndexFromChrome.js"], function (_createTabsController, _createInitialTabsState, _reduceTabsAction, _stateSelectors, _createCognosTabsAdapter, _applyTabsEffects, _domSelectors, _createHandler, _readSelectedTabIndexFromChrome) {
+define(["./createTabsController.js", "./state/createInitialTabsState.js", "./state/reduceTabsAction.js", "./state/selectors.js", "./adapters/createCognosTabsAdapter.js", "./effects/applyTabsEffects.js", "./config/selectors.js", "./history/createTabsHistoryReplayHandler.js", "./chrome.js"], function (_createTabsController, _createInitialTabsState, _reduceTabsAction, _stateSelectors, _createCognosTabsAdapter, _applyTabsEffects, _domSelectors, _createHandler, _chrome) {
   "use strict";
 
   // Lifecycle terms for tabs: idle, initializing, loading, ready, error, disposed.
@@ -90,7 +90,7 @@ define(["./createTabsController.js", "./state/createInitialTabsState.js", "./sta
         runtime.readCurrentTabUnbound = utils.readCurrentTab;
       }
       const helper = runtime.readCurrentTabUnbound;
-      const chromeReaders = { readSelectedTabIndex: _readSelectedTabIndexFromChrome };
+      const chromeReaders = { readSelectedTabIndex: _chrome.readSelectedTabIndexFromChrome };
       utils.readCurrentTab = function boundReadCurrentTab(_root) {
         return helper({
           tabsFacet: runtime.tabsFacet,

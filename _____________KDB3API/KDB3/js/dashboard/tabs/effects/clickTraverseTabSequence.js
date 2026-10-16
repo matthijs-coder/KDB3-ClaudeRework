@@ -1,4 +1,4 @@
-define(["../config/defaults.js", "./clickTabChromeButton.js", "./resolveTraverseTabIndexes.js", "./awaitTabWidgetsRendered.js"], function (_defaults, _clickTabChromeButton, _resolveTraverseTabIndexes, _awaitTabWidgetsRendered) {
+define(["../config/defaults.js", "../chrome.js", "./resolveTraverseTabIndexes.js", "./awaitTabWidgetsRendered.js"], function (_defaults, _chrome, _resolveTraverseTabIndexes, _awaitTabWidgetsRendered) {
   "use strict";
 
   async function clickTargetTabs(_ctx, buttons, state, targetIndexes, traversedIndexes, canvasLoadedByIndex, options, _delay) {
@@ -12,7 +12,7 @@ define(["../config/defaults.js", "./clickTabChromeButton.js", "./resolveTraverse
           index += 1;
           continue;
         }
-        _clickTabChromeButton(buttons[tabIndex]);
+        _chrome.clickTabChromeButton(buttons[tabIndex]);
         traversedIndexes.push(tabIndex);
         canvasLoadedByIndex[String(tabIndex)] = true;
         if (tab && tab.visible !== true) { visitedHidden = true; }
@@ -33,7 +33,7 @@ define(["../config/defaults.js", "./clickTabChromeButton.js", "./resolveTraverse
 
   function restoreActiveButton(buttons, activeIndex, state, options) {
     try {
-      _clickTabChromeButton(buttons[activeIndex]);
+      _chrome.clickTabChromeButton(buttons[activeIndex]);
     } catch (err) {
       console.error("[tabs.restoreActiveButton] restore failed", err);
       throw err;

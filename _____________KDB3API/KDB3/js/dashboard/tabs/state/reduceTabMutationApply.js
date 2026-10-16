@@ -1,8 +1,8 @@
 define([
   "../config/mutationCodes.js",
-  "../config/defaults.js",
-  "./tabMutationPostconditions.js"
-], function (_codes, _defaults, _passesPostcondition) {
+  "./tabMutationPostconditions.js",
+  "../slots.js"
+], function (_codes, _passesPostcondition, _slots) {
   "use strict";
 
   // Return contract: unlike the other tabs reducer branches this returns
@@ -94,16 +94,8 @@ define([
   function buildVisibleOrder(byIndex, order, state) {
     return (order || []).filter(function (index) {
       var tab = byIndex[String(index)];
-      return isDashboardTab(tab, state) && tab.visible === true;
+      return _slots.isDashboardTab(tab, state) && tab.visible === true;
     });
-  }
-
-  function isDashboardTab(tab, state) {
-    if (!tab) { return false; }
-    if (tab.role) { return tab.role === "dashboard"; }
-    var max = state.limits && typeof state.limits.maxUserTabs === "number"
-      ? state.limits.maxUserTabs : _defaults.MAX_USER_TABS;
-    return tab.isHelper !== true && tab.index < max;
   }
 
   function clearEditSessionFields(editUi) {

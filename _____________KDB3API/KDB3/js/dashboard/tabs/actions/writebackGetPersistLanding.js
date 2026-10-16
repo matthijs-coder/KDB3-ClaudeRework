@@ -1,9 +1,9 @@
 define([
   "../config/actionTypes.js",
   "./guardParameterSetRun.js",
-  "../state/listDashboardSlots.js",
+  "../slots.js",
   "../events/eventNames.js",
-], function (_actionTypes, _guard, _listDashboardSlots, _eventNames) {
+], function (_actionTypes, _guard, _slots, _eventNames) {
   "use strict";
 
   // tabs/writebackGetPersistLandingRequested: persist-land one dashboard tab
@@ -66,7 +66,7 @@ define([
       const physicalIndex = typeof state.activeIndex === "number" ? state.activeIndex : null;
       const tab = physicalIndex !== null && state.byIndex ? state.byIndex[String(physicalIndex)] : null;
       if (!events || typeof events.emit !== "function" || !tab) { return; }
-      const slots = _listDashboardSlots(state);
+      const slots = _slots.listDashboardSlots(state);
       const tabIdx = slots.findIndex(function (slot) { return slot.index === physicalIndex; });
       events.emit(_eventNames.CHANGED, {
         tabIndex: physicalIndex,

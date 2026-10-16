@@ -1,9 +1,9 @@
 define([
   "../config/parameterSetCodes.js",
   "./guardParameterSetRun.js",
-  "../state/listDashboardSlots.js",
+  "../slots.js",
   "../effects/ensureSlotReadyForMutation.js",
-], function (_codes, _guard, _listDashboardSlots, _ensureSlotReady) {
+], function (_codes, _guard, _slots, _ensureSlotReady) {
   "use strict";
 
   // tabs/parameterSetAbortLandingRequested per
@@ -43,7 +43,7 @@ define([
     if (originalIndex === null) {
       return { landingIndex: null, didActivate: false };
     }
-    const slots = _listDashboardSlots(_ctx.getRawState());
+    const slots = _slots.listDashboardSlots(_ctx.getRawState());
     let originalSlot = null;
     let firstVisible = null;
     for (let i = 0; i < slots.length; i += 1) {

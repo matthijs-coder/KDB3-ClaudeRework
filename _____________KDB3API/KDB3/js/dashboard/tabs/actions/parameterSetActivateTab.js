@@ -2,11 +2,11 @@ define([
   "../config/actionTypes.js",
   "../config/parameterSetCodes.js",
   "./guardParameterSetRun.js",
-  "../state/listDashboardSlots.js",
+  "../slots.js",
   "../effects/hasTabInnerFrame.js",
   "../effects/waitForTabInnerFrame.js",
   "../effects/waitForTabLiveWidgetsReady.js",
-], function (_actionTypes, _codes, _guard, _listDashboardSlots, _hasTabInnerFrame, _waitForTabInnerFrame, _waitForTabLiveWidgetsReady) {
+], function (_actionTypes, _codes, _guard, _slots, _hasTabInnerFrame, _waitForTabInnerFrame, _waitForTabLiveWidgetsReady) {
   "use strict";
 
   // tabs/parameterSetActivateTabRequested per
@@ -36,7 +36,7 @@ define([
     const guardResult = _guard.guardParameterSetRun(_ctx._KDB, payload, { requireHydratedTabs: true });
     if (guardResult) { return withActivateShape(guardResult, tabIdx); }
 
-    const slots = _listDashboardSlots(_ctx.getRawState());
+    const slots = _slots.listDashboardSlots(_ctx.getRawState());
     const slot = typeof tabIdx === "number" ? slots[tabIdx] : null;
     if (!slot) {
       return {

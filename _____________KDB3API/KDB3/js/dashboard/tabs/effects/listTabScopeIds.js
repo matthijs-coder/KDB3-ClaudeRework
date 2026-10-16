@@ -1,4 +1,4 @@
-define(["../state/listDashboardSlots.js"], function (_listDashboardSlots) {
+define(["../slots.js"], function (_slots) {
   "use strict";
 
   // Live scopeId derivation for the tabs parameterSet restore/reset results
@@ -16,7 +16,7 @@ define(["../state/listDashboardSlots.js"], function (_listDashboardSlots) {
       console.warn("[tabs.listTabScopeIds] layout read failed; scopeId omitted", err);
       return scopeIdsByTabIdx;
     }
-    _listDashboardSlots(_ctx.getRawState()).forEach(function (tab, tabIdx) {
+    _slots.listDashboardSlots(_ctx.getRawState()).forEach(function (tab, tabIdx) {
       const layoutItem = layoutItems[tab.index];
       const scopeId = layoutItem && layoutItem.id ? String(layoutItem.id) : null;
       if (scopeId) { scopeIdsByTabIdx[String(tabIdx)] = scopeId; }

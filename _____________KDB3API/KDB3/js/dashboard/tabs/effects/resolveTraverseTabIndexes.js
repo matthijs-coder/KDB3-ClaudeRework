@@ -1,4 +1,4 @@
-define(["../config/defaults.js"], function (_defaults) {
+define(["../slots.js"], function (_slots) {
   "use strict";
 
   function collectTargetIndexes(state, options) {
@@ -21,7 +21,7 @@ define(["../config/defaults.js"], function (_defaults) {
 
   function shouldTraverseTab(tab, tabIndex, options) {
     if (!tab) { return false; }
-    if (!isDashboardTab(tab)) {
+    if (!_slots.isDashboardTab(tab)) {
       return options.includeHelperTabs === true;
     }
     if (options.scope === "singleTab") {
@@ -34,12 +34,6 @@ define(["../config/defaults.js"], function (_defaults) {
       return tab.visible === true || options.includeHiddenDashboardTabs === true;
     }
     return false;
-  }
-
-  function isDashboardTab(tab) {
-    if (!tab) { return false; }
-    if (tab.role) { return tab.role === "dashboard"; }
-    return tab.isHelper !== true && tab.index < _defaults.MAX_USER_TABS;
   }
 
   collectTargetIndexes.shouldTraverseTab = shouldTraverseTab;

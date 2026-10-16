@@ -1,4 +1,4 @@
-define(["./listDashboardSlots.js"], function (_listDashboardSlots) {
+define(["../slots.js"], function (_slots) {
   "use strict";
 
   // Pure builder for the writeback tabTargets lookup per
@@ -10,7 +10,7 @@ define(["./listDashboardSlots.js"], function (_listDashboardSlots) {
   function buildTabTargets(_state, _scopeIdsByTabIdx) {
     const scopeIds = _scopeIdsByTabIdx || {};
     const targets = {};
-    _listDashboardSlots(_state).forEach(function (tab, tabIdx) {
+    _slots.listDashboardSlots(_state).forEach(function (tab, tabIdx) {
       const target = {
         tabId: tab.tabId || null,
         pageId: tab.pageId || null,

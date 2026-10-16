@@ -1,10 +1,10 @@
 define([
   "../config/actionTypes.js",
   "./guardParameterSetRun.js",
-  "../state/listDashboardSlots.js",
+  "../slots.js",
   "../effects/applyParameterSetTabsToCognos.js",
   "./readResolvedFilterScopeTargets.js",
-], function (_actionTypes, _guard, _listDashboardSlots, _applyToCognos, _readResolvedFilterScopeTargets) {
+], function (_actionTypes, _guard, _slots, _applyToCognos, _readResolvedFilterScopeTargets) {
   "use strict";
 
   // tabs/parameterSetResetRequested per
@@ -24,7 +24,7 @@ define([
 
     const runtime = _ctx._KDB.runtime && _ctx._KDB.runtime.tabs;
     const baselineNamesByIndex = runtime && runtime.baselineNamesByIndex || {};
-    const slots = _listDashboardSlots(_ctx.getRawState());
+    const slots = _slots.listDashboardSlots(_ctx.getRawState());
     const entries = slots.map(function (tab, tabIdx) {
       return {
         physicalIndex: tab.index,

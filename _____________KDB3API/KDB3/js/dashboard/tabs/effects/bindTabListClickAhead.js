@@ -1,8 +1,8 @@
 define([
-  "../config/selectors.js",
   "../events/eventNames.js",
-  "../state/listDashboardSlots.js"
-], function (_selectors, _eventNames, _listDashboardSlots) {
+  "../chrome.js",
+  "../slots.js"
+], function (_eventNames, _chrome, _slots) {
   "use strict";
 
   function __controller(_ctx) {
@@ -25,7 +25,7 @@ define([
     if (typeof document === "undefined" || !document.querySelector) {
       return false;
     }
-    var tabListEl = resolveTabListElement();
+    var tabListEl = _chrome.resolveTabListElement();
     if (!tabListEl || typeof tabListEl.addEventListener !== "function") {
       return false;
     }
@@ -56,7 +56,7 @@ define([
       if (isTabsWorkInFlight(_ctx._KDB)) {
         return;
       }
-      var tabIndex = readClickedTabIndex(_event);
+      var tabIndex = _chrome.readClickedTabIndex(_event);
       if (tabIndex == null) {
         return;
       }
@@ -83,7 +83,7 @@ define([
       }
       events.emit(_eventNames.ACTIVATION_STARTED, {
         tabIndex: _tabIndex,
-        tabIdx: resolveDashboardOrderIndex(_state, _tabIndex),
+        tabIdx: _slots.resolveDashboardOrderIndex(_state, _tabIndex),
         tabId: _tab.tabId || null,
         pageId: _pageId,
         firstActivation: _tab.hasBeenActivated !== true,
@@ -92,43 +92,6 @@ define([
     } catch (err) {
       console.error("[tabs.bindTabListClickAhead] emit failed", err);
     }
-  }
-
-  function readClickedTabIndex(_event) {
-    var target = _event && _event.target;
-    if (!target || typeof target.closest !== "function") {
-      return null;
-    }
-    var item = target.closest(_selectors.tabButtonItemSelector);
-    if (!item || typeof item.getAttribute !== "function") {
-      return null;
-    }
-    var rawIndex = item.getAttribute(_selectors.tabIndexAttribute);
-    var parsedIndex = rawIndex == null ? NaN : Number(rawIndex);
-    return parsedIndex >= _selectors.tabIndexBase && parsedIndex === Math.floor(parsedIndex)
-      ? parsedIndex
-      : null;
-  }
-
-  function resolveDashboardOrderIndex(_state, _tabIndex) {
-    var slots = _listDashboardSlots(_state);
-    var position = 0;
-    while (position < slots.length) {
-      if (slots[position].index === _tabIndex) {
-        return position;
-      }
-      position += 1;
-    }
-    return null;
-  }
-
-  function resolveTabListElement() {
-    var item = document.querySelector(_selectors.tabButtonItemSelector);
-    if (!item) {
-      return null;
-    }
-    var tabListEl = typeof item.closest === "function" ? item.closest(_selectors.tabListSelector) : null;
-    return tabListEl || (item.parentElement && item.parentElement.parentElement) || item.parentElement;
   }
 
   function isTabsWorkInFlight(_KDB) {

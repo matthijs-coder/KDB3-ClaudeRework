@@ -1,4 +1,4 @@
-define([], function () {
+define(["../slots.js"], function (_slots) {
   "use strict";
 
   async function apply(_KDB, _targetValue, _step, _ctx) {
@@ -23,7 +23,7 @@ define([], function () {
         return false;
       }
       tab = readTabByIndex(_KDB, tabIndex);
-      if (!isRenamableUserTab(tab)) {
+      if (!_slots.isRenamableUserTab(tab)) {
         return false;
       }
       if (targetValue.tabId && tab.tabId !== targetValue.tabId) {
@@ -61,18 +61,6 @@ define([], function () {
     var tabs = _KDBArg && _KDBArg.state && _KDBArg.state.tabs;
     var byIndex = tabs && tabs.byIndex ? tabs.byIndex : {};
     return byIndex[String(_tabIndex)] || null;
-  }
-
-  function isDashboardTab(_tab) {
-    return !!_tab && _tab.role === "dashboard";
-  }
-
-  function isVisibleUserTab(_tab) {
-    return !!_tab && _tab.visible === true && isDashboardTab(_tab);
-  }
-
-  function isRenamableUserTab(_tab) {
-    return isVisibleUserTab(_tab) && !!_tab.tabId;
   }
 
   function isLiveNameOpposite(_step, _targetValue, _liveName) {

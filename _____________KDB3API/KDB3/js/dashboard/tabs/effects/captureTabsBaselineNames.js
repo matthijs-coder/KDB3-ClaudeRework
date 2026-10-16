@@ -1,4 +1,4 @@
-define(["../state/listDashboardSlots.js"], function (_listDashboardSlots) {
+define(["../slots.js"], function (_slots) {
   "use strict";
 
   // First-wins baseline capture for parameterSet reset defaults per
@@ -10,7 +10,7 @@ define(["../state/listDashboardSlots.js"], function (_listDashboardSlots) {
   function captureTabsBaselineNames(_KDB) {
     const runtime = _KDB.runtime && _KDB.runtime.tabs;
     if (!runtime || runtime.baselineNamesByIndex) { return; }
-    const slots = _listDashboardSlots(_KDB.state && _KDB.state.tabs);
+    const slots = _slots.listDashboardSlots(_KDB.state && _KDB.state.tabs);
     const hasHydratedIdentity = slots.some(function (tab) { return !!tab.tabId; });
     if (!hasHydratedIdentity) { return; }
     const baselineNamesByIndex = {};

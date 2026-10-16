@@ -1,4 +1,4 @@
-define(["../config/defaults.js", "./buildTabTargets.js"], function (_defaults, _buildTabTargets) {
+define(["./buildTabTargets.js", "../slots.js"], function (_buildTabTargets, _slots) {
   "use strict";
 
   function cloneState(state) {
@@ -18,13 +18,13 @@ define(["../config/defaults.js", "./buildTabTargets.js"], function (_defaults, _
   }
 
   function readVisibleTabs(state) {
-    return readOrderedTabs(state).filter(function (tab) { return tab.visible === true && isDashboardTab(tab); });
+    return readOrderedTabs(state).filter(function (tab) { return tab.visible === true && _slots.isDashboardTab(tab); });
   }
 
   function readTabsForKdbControl(state) {
     const editUi = state.editUi || {};
     const visibleEditTabIndexes = readOrderedTabs(state)
-      .filter(function (tab) { return isRenamableUserTab(tab); })
+      .filter(function (tab) { return _slots.isRenamableUserTab(tab); })
       .map(function (tab) { return tab.index; });
     return {
       visibleTabs: readVisibleTabs(state),
@@ -42,17 +42,6 @@ define(["../config/defaults.js", "./buildTabTargets.js"], function (_defaults, _
       },
       actions: buildActions(state)
     };
-  }
-
-  function findTabById(byIndex, tabId) {
-    const keys = Object.keys(byIndex || {});
-    let index = 0;
-    while (index < keys.length) {
-      const tab = byIndex[keys[index]];
-      if (tab && tab.tabId === tabId) { return tab; }
-      index += 1;
-    }
-    return null;
   }
 
   function cloneTab(tab) {
@@ -73,29 +62,20 @@ define(["../config/defaults.js", "./buildTabTargets.js"], function (_defaults, _
   }
 
   function canAddVisibleTab(state) {
-    return readOrderedTabs(state).some(function (tab) { return isDashboardTab(tab) && tab.visible !== true; });
+    return readOrderedTabs(state).some(function (tab) { return _slots.isDashboardTab(tab) && tab.visible !== true; });
   }
 
   function resolveRenameTarget(state, payload) {
     const byIndex = state && state.byIndex ? state.byIndex : {};
     const editUi = state && state.editUi ? state.editUi : {};
     const source = payload || {};
-    if (typeof editUi.sessionTabIndex === "number" && isRenamableUserTab(byIndex[String(editUi.sessionTabIndex)])) {
+    if (typeof editUi.sessionTabIndex === "number" && _slots.isRenamableUserTab(byIndex[String(editUi.sessionTabIndex)])) {
       return byIndex[String(editUi.sessionTabIndex)];
     }
     const explicitIndex = Object.prototype.hasOwnProperty.call(source, "physicalTabIndex") ? source.physicalTabIndex : Object.prototype.hasOwnProperty.call(source, "tabIndex") ? source.tabIndex : null;
-    if (typeof explicitIndex === "number" && isRenamableUserTab(byIndex[String(explicitIndex)])) { return byIndex[String(explicitIndex)]; }
-    if (source.tabId && isRenamableUserTab(findTabById(byIndex, source.tabId))) { return findTabById(byIndex, source.tabId); }
-    return isRenamableUserTab(byIndex[String(state && state.activeIndex)]) ? byIndex[String(state.activeIndex)] : null;
-  }
-
-  function isVisibleUserTab(tab) { return !!tab && tab.visible === true && isDashboardTab(tab); }
-  function isRenamableUserTab(tab) { return isVisibleUserTab(tab) && !!tab.tabId; }
-
-  function isDashboardTab(tab) {
-    if (!tab) { return false; }
-    if (tab.role) { return tab.role === "dashboard"; }
-    return tab.isHelper !== true && tab.index < _defaults.MAX_USER_TABS;
+    if (typeof explicitIndex === "number" && _slots.isRenamableUserTab(byIndex[String(explicitIndex)])) { return byIndex[String(explicitIndex)]; }
+    if (source.tabId && _slots.isRenamableUserTab(_slots.findTabById(byIndex, source.tabId))) { return _slots.findTabById(byIndex, source.tabId); }
+    return _slots.isRenamableUserTab(byIndex[String(state && state.activeIndex)]) ? byIndex[String(state.activeIndex)] : null;
   }
 
   function readOrderedTabs(state) {
@@ -118,7 +98,7 @@ define(["../config/defaults.js", "./buildTabTargets.js"], function (_defaults, _
     cloneState: cloneState,
     readVisibleTabs: readVisibleTabs,
     readTabsForKdbControl: readTabsForKdbControl,
-    findTabById: findTabById,
+    findTabById: _slots.findTabById,
     cloneTab: cloneTab
   };
 });

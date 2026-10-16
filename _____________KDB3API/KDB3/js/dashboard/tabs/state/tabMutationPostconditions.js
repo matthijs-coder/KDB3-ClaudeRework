@@ -1,4 +1,4 @@
-define(["../config/defaults.js"], function (_defaults) {
+define(["../slots.js"], function (_slots) {
   "use strict";
 
   function passesPostcondition(byIndex, state, plan) {
@@ -8,7 +8,7 @@ define(["../config/defaults.js"], function (_defaults) {
     var seenHidden = false;
     for (var i = 0; i < order.length; i += 1) {
       var tab = byIndex[String(order[i])];
-      if (!isDashboardTab(tab, state)) { continue; }
+      if (!_slots.isDashboardTab(tab, state)) { continue; }
       if (tab.visible === true) {
         if (seenHidden) { return false; }
         visibleCount += 1;
@@ -23,7 +23,7 @@ define(["../config/defaults.js"], function (_defaults) {
       for (var j = 0; j < order.length; j += 1) {
         var beforeTab = before[String(order[j])];
         var afterTab = byIndex[String(order[j])];
-        if (!isDashboardTab(beforeTab, state)) { continue; }
+        if (!_slots.isDashboardTab(beforeTab, state)) { continue; }
         if (beforeTab.visible === true) { beforeVisible += 1; }
         if ((beforeTab.visible === true) !== (afterTab && afterTab.visible === true)) { return false; }
       }
@@ -34,7 +34,7 @@ define(["../config/defaults.js"], function (_defaults) {
       var beforeVisibleDup = 0;
       for (var k = 0; k < order.length; k += 1) {
         var beforeTabDup = beforeDup[String(order[k])];
-        if (!isDashboardTab(beforeTabDup, state)) { continue; }
+        if (!_slots.isDashboardTab(beforeTabDup, state)) { continue; }
         if (beforeTabDup.visible === true) { beforeVisibleDup += 1; }
       }
       if (visibleCount !== beforeVisibleDup + 1) { return false; }
@@ -43,14 +43,6 @@ define(["../config/defaults.js"], function (_defaults) {
       if (!revealTab || revealTab.visible !== true) { return false; }
     }
     return true;
-  }
-
-  function isDashboardTab(tab, state) {
-    if (!tab) { return false; }
-    if (tab.role) { return tab.role === "dashboard"; }
-    var max = state.limits && typeof state.limits.maxUserTabs === "number"
-      ? state.limits.maxUserTabs : _defaults.MAX_USER_TABS;
-    return tab.isHelper !== true && tab.index < max;
   }
 
   return passesPostcondition;

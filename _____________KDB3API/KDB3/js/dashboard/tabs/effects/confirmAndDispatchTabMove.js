@@ -2,8 +2,8 @@ define([
   "../config/defaults.js",
   "../config/mutationCodes.js",
   "../state/buildTabMutationPlan.js",
-  "../state/listDashboardSlots.js"
-], function (_defaults, _codes, _buildTabMutationPlan, _listDashboardSlots) {
+  "../slots.js"
+], function (_defaults, _codes, _buildTabMutationPlan, _slots) {
   "use strict";
 
   async function confirmAndDispatchTabMove(_KDB, _request) {
@@ -50,7 +50,7 @@ define([
   }
 
   function buildPositionChoices(_KDB, _tabIndex) {
-    var slots = _listDashboardSlots(_KDB.state && _KDB.state.tabs);
+    var slots = _slots.listDashboardSlots(_KDB.state && _KDB.state.tabs);
     var visibleCount = _buildTabMutationPlan.countVisible(slots);
     var choices = [];
     for (var i = 0; i < visibleCount; i += 1) {

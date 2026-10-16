@@ -3,8 +3,9 @@ define([
   "./bindTabRenameEditSession.js",
   "./syncTabsDomFromState.js",
   "./syncTabsKdbControlReadView.js",
-  "../history/pushTabsRenameHistoryStep.js"
-], function (_actionTypes, _bindTabRenameEditSession, _syncTabsDomFromState, _syncTabsKdbControlReadView, _pushTabsRenameHistoryStep) {
+  "../history/pushTabsRenameHistoryStep.js",
+  "../slots.js"
+], function (_actionTypes, _bindTabRenameEditSession, _syncTabsDomFromState, _syncTabsKdbControlReadView, _pushTabsRenameHistoryStep, _slots) {
   "use strict";
 
   async function applyTabsRenameEffects(_ctx, _action) {
@@ -24,7 +25,7 @@ define([
     _syncTabsKdbControlReadView(_ctx._KDB);
     const state = _ctx.getRawState();
     const tab = state.byIndex && state.byIndex[String(tabIndex)];
-    if (tabIndex != null && isRenamableUserTab(tab)) {
+    if (tabIndex != null && _slots.isRenamableUserTab(tab)) {
       const started = _bindTabRenameEditSession.startTabRenameEditSession(_ctx);
       if (!started) {
         _ctx.dispatch({ type: _actionTypes.CANCEL_EDIT_SESSION, payload: { source: "tabEditUi" } });
@@ -72,9 +73,6 @@ define([
 
   function toErrorMessage(err) { return err && err.message ? err.message : String(err || "Unknown tabs error."); }
   function normalizeLineIndex(value) { return typeof value === "number" && value >= 0 && value <= 4 && value === Math.floor(value) ? value : null; }
-  function isRenamableUserTab(tab) { return isVisibleUserTab(tab) && !!tab.tabId; }
-  function isVisibleUserTab(tab) { return !!tab && tab.visible === true && isDashboardTab(tab); }
-  function isDashboardTab(tab) { return !!tab && tab.role === "dashboard"; }
 
   return applyTabsRenameEffects;
 });

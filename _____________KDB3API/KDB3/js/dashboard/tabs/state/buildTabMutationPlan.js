@@ -1,7 +1,7 @@
 define([
   "../config/mutationCodes.js",
-  "./listDashboardSlots.js"
-], function (_codes, _listDashboardSlots) {
+  "../slots.js"
+], function (_codes, _slots) {
   "use strict";
 
   var OP_COUNTER = 0;
@@ -9,13 +9,13 @@ define([
   function buildTabMutationPlan(_state, _request) {
     var state = _state || {};
     var request = _request || {};
-    var slots = _listDashboardSlots(state);
+    var slots = _slots.listDashboardSlots(state);
     var resolved = resolveDeleteSlot(slots, request);
     var contiguousError = readContiguousPrefixError(slots, state);
     if (contiguousError) { return fail(_codes.POSTCONDITION_FAILED, contiguousError); }
     if (!resolved) { return fail(_codes.APPLY_FAILED, "Delete target tab was not found."); }
     if (resolved.slot.isHelper === true || resolved.slot.visible !== true) { return fail(_codes.APPLY_FAILED, "Delete target is not a visible dashboard tab."); }
-    if (countVisible(slots) <= readMinVisible(state)) { return fail(_codes.MIN_VISIBLE, "The last visible dashboard tab cannot be deleted."); }
+    if (_slots.countVisible(slots) <= readMinVisible(state)) { return fail(_codes.MIN_VISIBLE, "The last visible dashboard tab cannot be deleted."); }
     var slotMoves = buildSlotMoves(slots, resolved.tabIdx);
     var hideSlot = buildHideSlot(slots, state, request);
     var namesByIndexAfter = buildNamesByIndexAfter(slots, resolved.tabIdx, hideSlot);
@@ -46,7 +46,7 @@ define([
 
   function buildSlotMoves(slots, deletedTabIdx) {
     var moves = [];
-    var lastVisibleTabIdx = countVisible(slots) - 1;
+    var lastVisibleTabIdx = _slots.countVisible(slots) - 1;
     for (var tabIdx = deletedTabIdx + 1; tabIdx <= lastVisibleTabIdx; tabIdx += 1) {
       moves.push(Object.freeze({
         fromIndex: slots[tabIdx].index, fromTabId: slots[tabIdx].tabId,
@@ -59,7 +59,7 @@ define([
   }
 
   function buildHideSlot(slots, _state, request) {
-    var tabIdx = countVisible(slots) - 1;
+    var tabIdx = _slots.countVisible(slots) - 1;
     var tab = slots[tabIdx] || {};
     var index = tab.index;
     // Never tab.name — after slotMoves that slot already holds the shifted-away deleted name.
@@ -72,7 +72,7 @@ define([
     // Landing must stay inside the visible prefix: compare against the last
     // VISIBLE position, not the last physical slot — with pre-existing hidden
     // slots the old check landed on a slot that is hidden after commit (B1).
-    var lastVisibleTabIdx = countVisible(slots) - 1;
+    var lastVisibleTabIdx = _slots.countVisible(slots) - 1;
     var landingTabIdx = activeTabIdx === deletedTabIdx ? (deletedTabIdx < lastVisibleTabIdx ? deletedTabIdx : deletedTabIdx - 1) : (activeTabIdx > deletedTabIdx ? activeTabIdx - 1 : activeTabIdx);
     var landing = slots[Math.max(0, landingTabIdx)] || slots[0] || {};
     return Object.freeze({ tabIdx: landingTabIdx, index: landing.index, tabId: landing.tabId || null });
@@ -80,7 +80,7 @@ define([
 
   function buildNamesByIndexAfter(slots, deletedTabIdx, hideSlot) {
     var names = {};
-    var lastVisibleTabIdx = countVisible(slots) - 1;
+    var lastVisibleTabIdx = _slots.countVisible(slots) - 1;
     for (var i = deletedTabIdx; i < lastVisibleTabIdx; i += 1) {
       names[String(slots[i].index)] = slots[i + 1].name;
     }
@@ -107,7 +107,6 @@ define([
   }
 
   function readMinVisible(state) { return state.limits && typeof state.limits.minVisibleUserTabs === "number" ? state.limits.minVisibleUserTabs : 1; }
-  function countVisible(slots) { return slots.filter(function (slot) { return slot.visible === true; }).length; }
   function findActiveTabIdx(slots) { var idx = slots.findIndex(function (slot) { return slot.isActive === true; }); return idx >= 0 ? idx : 0; }
   function readBaselineName(request, index) {
     var runtimeMap = request.baselineNamesByIndex || {};
@@ -117,7 +116,7 @@ define([
   function createOperationId() { OP_COUNTER += 1; return "tabmut-" + Date.now() + "-" + OP_COUNTER; }
   function fail(code, message) { return { ok: false, errorCode: code, diagnostics: [{ code: code, message: message }] }; }
 
-  buildTabMutationPlan.countVisible = countVisible;
+  buildTabMutationPlan.countVisible = _slots.countVisible;
   buildTabMutationPlan.readContiguousPrefixError = readContiguousPrefixError;
   return buildTabMutationPlan;
 });

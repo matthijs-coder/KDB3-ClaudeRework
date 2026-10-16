@@ -1,8 +1,8 @@
 define([
   "../config/filterScopeCodes.js",
-  "../state/listDashboardSlots.js",
+  "../slots.js",
   "./readResolvedFilterScopeTargets.js",
-], function (_codes, _listDashboardSlots, _readResolvedFilterScopeTargets) {
+], function (_codes, _slots, _readResolvedFilterScopeTargets) {
   "use strict";
 
   function resolveFilterScopeTargets(_ctx, _payload) {
@@ -10,7 +10,7 @@ define([
     let source = "unknown";
     try {
       source = payload.source != null ? String(payload.source) : "unknown";
-      const slots = _listDashboardSlots(_ctx.getRawState());
+      const slots = _slots.listDashboardSlots(_ctx.getRawState());
       let hydratedSlotCount = 0;
       let tabIdx = 0;
       while (tabIdx < slots.length) {

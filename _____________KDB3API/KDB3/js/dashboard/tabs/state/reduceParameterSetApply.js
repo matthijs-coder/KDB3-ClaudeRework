@@ -1,4 +1,4 @@
-define(["../config/defaults.js"], function (_defaults) {
+define(["../slots.js"], function (_slots) {
   "use strict";
 
   // Pure reducer branch for the internal tabs/parameterSetApply action
@@ -50,7 +50,7 @@ define(["../config/defaults.js"], function (_defaults) {
   function remapActiveIndex(state, byIndex, visibleOrder) {
     const currentActive = typeof state.activeIndex === "number" ? state.activeIndex : null;
     const currentTab = currentActive == null ? null : byIndex[String(currentActive)];
-    const keepCurrent = !!currentTab && currentTab.visible === true && isDashboardTab(currentTab);
+    const keepCurrent = !!currentTab && currentTab.visible === true && _slots.isDashboardTab(currentTab);
     const activeIndex = keepCurrent ? currentActive : (visibleOrder.length > 0 ? visibleOrder[0] : null);
     const activeTab = activeIndex == null ? null : byIndex[String(activeIndex)];
     return { activeIndex: activeIndex, activeTabId: activeTab && activeTab.tabId || null };
@@ -63,19 +63,13 @@ define(["../config/defaults.js"], function (_defaults) {
   function buildVisibleOrder(byIndex, order) {
     return order.filter(function (index) {
       const tab = byIndex[String(index)];
-      return isDashboardTab(tab) && tab.visible === true;
+      return _slots.isDashboardTab(tab) && tab.visible === true;
     });
   }
 
   function hasRenamableTab(byIndex, index) {
     const tab = byIndex[String(index)];
-    return !!tab && tab.visible === true && isDashboardTab(tab) && !!tab.tabId;
-  }
-
-  function isDashboardTab(tab) {
-    if (!tab) { return false; }
-    if (tab.role) { return tab.role === "dashboard"; }
-    return tab.isHelper !== true && tab.index < _defaults.MAX_USER_TABS;
+    return !!tab && tab.visible === true && _slots.isDashboardTab(tab) && !!tab.tabId;
   }
 
   function clearEditSessionFields(editUi) {

@@ -1,8 +1,8 @@
 define([
   "../config/mutationCodes.js",
   "./buildTabMutationPlan.js",
-  "./listDashboardSlots.js"
-], function (_codes, _deletePlanHelpers, _listDashboardSlots) {
+  "../slots.js"
+], function (_codes, _deletePlanHelpers, _slots) {
   "use strict";
 
   var OP_COUNTER = 0;
@@ -12,7 +12,7 @@ define([
   function buildTabMovePlan(_state, _request) {
     var state = _state || {};
     var request = _request || {};
-    var slots = _listDashboardSlots(state);
+    var slots = _slots.listDashboardSlots(state);
     var contiguousError = readContiguousPrefixError(slots, state);
     if (contiguousError) { return fail(_codes.POSTCONDITION_FAILED, contiguousError); }
     var source = resolveSourceSlot(slots, request);

@@ -2,10 +2,10 @@ define([
   "../config/actionTypes.js",
   "../config/parameterSetCodes.js",
   "./guardParameterSetRun.js",
-  "../state/listDashboardSlots.js",
+  "../slots.js",
   "../effects/applyParameterSetTabsToCognos.js",
   "./readResolvedFilterScopeTargets.js",
-], function (_actionTypes, _codes, _guard, _listDashboardSlots, _applyToCognos, _readResolvedFilterScopeTargets) {
+], function (_actionTypes, _codes, _guard, _slots, _applyToCognos, _readResolvedFilterScopeTargets) {
   "use strict";
 
   // tabs/parameterSetRestoreRequested per
@@ -19,7 +19,7 @@ define([
     if (guardResult) { return withTargets(guardResult, null); }
 
     const savedTabs = Array.isArray(payload.tabs) ? payload.tabs : null;
-    const slots = _listDashboardSlots(_ctx.getRawState());
+    const slots = _slots.listDashboardSlots(_ctx.getRawState());
     const invalidEntry = savedTabs === null || savedTabs.some(function (entry) {
       return !entry || typeof entry.name !== "string" || entry.name === "";
     });

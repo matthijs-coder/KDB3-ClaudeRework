@@ -1,4 +1,12 @@
-define(["../config/actionTypes.js", "../config/selectors.js", "../events/eventNames.js", "../state/listDashboardSlots.js", "./applyTabPageLoading.js", "./bindTabListClickAhead.js"], function (_actionTypes, _selectors, _eventNames, _listDashboardSlots, _applyTabPageLoading, _bindTabListClickAhead) {
+define([
+  "../config/actionTypes.js",
+  "../config/selectors.js",
+  "../events/eventNames.js",
+  "../chrome.js",
+  "../slots.js",
+  "./applyTabPageLoading.js",
+  "./bindTabListClickAhead.js"
+], function (_actionTypes, _selectors, _eventNames, _chrome, _slots, _applyTabPageLoading, _bindTabListClickAhead) {
   "use strict";
 
   // Traverse clicks tabs in a ~150ms cadence; coalesce observer bursts so one
@@ -15,7 +23,7 @@ define(["../config/actionTypes.js", "../config/selectors.js", "../events/eventNa
         return true;
       }
       if (typeof MutationObserver === "undefined") { return false; }
-      const tabListEl = resolveTabListElement();
+      const tabListEl = _chrome.resolveTabListElement();
       if (!tabListEl) { return false; }
       const observer = new MutationObserver(scheduleObservedCommit.bind(null, _ctx));
       observer.observe(tabListEl, { attributes: true, attributeFilter: [_selectors.activeSelectedAttribute], subtree: true });
@@ -47,7 +55,7 @@ define(["../config/actionTypes.js", "../config/selectors.js", "../events/eventNa
   function commitObservedActivation(_ctx) {
     try {
       if (_ctx.isDisposed()) { return; }
-      const tabIndex = readSelectedTabIndex();
+      const tabIndex = _chrome.readAriaSelectedTabIndex();
       const state = _ctx.getRawState();
       if (tabIndex == null || !state || tabIndex === state.activeIndex) { return; }
       const observedTab = state.byIndex && state.byIndex[String(tabIndex)];
@@ -71,50 +79,12 @@ define(["../config/actionTypes.js", "../config/selectors.js", "../events/eventNa
     const tab = state.byIndex && state.byIndex[String(tabIndex)] || {};
     events.emit(_eventNames.CHANGED, {
       tabIndex: tabIndex,
-      tabIdx: resolveDashboardOrderIndex(state, tabIndex),
+      tabIdx: _slots.resolveDashboardOrderIndex(state, tabIndex),
       tabId: tab.tabId || null,
       pageId: tab.pageId || null,
       firstActivation: firstActivation,
       source: source
     });
-  }
-
-  function resolveDashboardOrderIndex(state, tabIndex) {
-    const slots = _listDashboardSlots(state);
-    let position = 0;
-    while (position < slots.length) {
-      if (slots[position].index === tabIndex) { return position; }
-      position += 1;
-    }
-    return null;
-  }
-
-  function readSelectedTabIndex() {
-    if (typeof document === "undefined" || !document.querySelectorAll) { return null; }
-    const items = document.querySelectorAll(_selectors.tabButtonItemSelector);
-    let index = 0;
-    while (index < items.length) {
-      const item = items[index];
-      if (item.getAttribute(_selectors.activeSelectedAttribute) === _selectors.activeSelectedValue) {
-        return readTabItemIndex(item);
-      }
-      index += 1;
-    }
-    return null;
-  }
-
-  function readTabItemIndex(item) {
-    const rawIndex = item.getAttribute(_selectors.tabIndexAttribute);
-    const parsedIndex = rawIndex == null ? NaN : Number(rawIndex);
-    return parsedIndex >= _selectors.tabIndexBase && parsedIndex === Math.floor(parsedIndex) ? parsedIndex : null;
-  }
-
-  function resolveTabListElement() {
-    if (typeof document === "undefined" || !document.querySelector) { return null; }
-    const item = document.querySelector(_selectors.tabButtonItemSelector);
-    if (!item) { return null; }
-    const tabListEl = typeof item.closest === "function" ? item.closest(_selectors.tabListSelector) : null;
-    return tabListEl || (item.parentElement && item.parentElement.parentElement) || item.parentElement;
   }
 
   // Best-effort diagnostic attribution only; consumers must not branch on it.

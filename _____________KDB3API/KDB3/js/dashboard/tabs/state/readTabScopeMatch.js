@@ -1,4 +1,4 @@
-define(["./listDashboardSlots.js", "../../../core/utils/normalizeCognosScopeId.js"], function (_listDashboardSlots, _normalizeCognosScopeId) {
+define(["../slots.js", "../../../core/utils/normalizeCognosScopeId.js"], function (_slots, _normalizeCognosScopeId) {
   "use strict";
 
   function readTabScopeMatch(_state, _scopeId, _liveTabTargets) {
@@ -30,7 +30,7 @@ define(["./listDashboardSlots.js", "../../../core/utils/normalizeCognosScopeId.j
 
   function indexCandidatesByTabIdx(state) {
     const indexed = {};
-    _listDashboardSlots(state || {}).forEach(function (tab, tabIdx) {
+    _slots.listDashboardSlots(state || {}).forEach(function (tab, tabIdx) {
       indexed[String(tabIdx)] = cloneCandidate(tab, tabIdx);
     });
     return indexed;
