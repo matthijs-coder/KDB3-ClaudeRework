@@ -13,7 +13,13 @@ define([
     };
   }
 
+  // widgetBase destroy ends an in-flight run: resetting the ledger makes its placement guards report "superseded".
+  function resetOnDestroy(_KDB) {
+    _engine.ledger.reset(_KDB);
+  }
+
   return {
+    resetOnDestroy: resetOnDestroy,
     handlePrepareTabMutation: bind(_engine.handlePrepareTabMutation),
     handleApplyTabMutation: bind(_engine.handleApplyTabMutation),
     handleRestoreTabMutationSnapshot: bind(_engine.handleRestoreTabMutationSnapshot)

@@ -99,3 +99,18 @@ test("the parameterSet guard still compares with runtime.widgetBase.parameterSet
   const current = await placeEntries.placeSerializedWidgetEntry(world.context, row.entry, "t1", { guard: { kind: "parameterSetRunId", runId: 4 } });
   assert.equal(current.superseded, undefined);
 });
+
+test("destroying widgetBase alone supersedes an in-flight tab mutation run (as when it reset runtime.widgetBase.tabMutationRunId)", async () => {
+  const register = load("dashboard/widgets/widgetBase/index.js");
+  const world = makeWorld(5);
+  const _KDB = world._KDB;
+  _KDB.services = {};
+  _KDB.events = { subscribe: () => () => {}, emit() {} };
+  const controller = register(_KDB, {});
+  assert.equal(ledger.isCurrent(_KDB, 5), true);
+  const pending = rebuild(world, 5, [row]);
+  controller.destroy();
+  assert.equal(ledger.isCurrent(_KDB, 5), false);
+  assert.deepEqual(await pending, { ok: false, superseded: true, structural: true, created: [], degradedEntries: [] });
+  assert.deepEqual(_KDB.runtime.tabs.slotStock, { snapshots: {}, runId: 0 });
+});

@@ -209,6 +209,7 @@ define([
       runtime.byId = {};
       runtime.routedTabIds = {};
       runtime.pendingRouteByTabId = {};
+      _tabMutationOwner.resetOnDestroy(_KDB);
       runtime.historyReplayHandlerContribution = null;
     } catch (err) {
       console.error("[widgetBase.destroyWidgetBaseModule] destroy boundary failed", err);
