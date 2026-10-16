@@ -1,5 +1,6 @@
 // Golden tests for the widgetBase slot-stock handlers (WS-L W1): prepare, apply and rollback results plus the
-// snapshot they leave in runtime.widgetBase.tabMutationSnapshots, on a stubbed _KDB without a DOM.
+// snapshot they leave in runtime.widgetBase.tabMutationSnapshots, and the parameter-set reset/restore results,
+// on a stubbed _KDB without a DOM.
 // The hashes were recorded from the pre-refactor handlers on main.
 // Run: node --test tools/tests/ws-l-slot-stock.test.mjs   (WS_L_RECORD=1 prints the hashes instead of asserting)
 import { test } from "node:test";
@@ -21,6 +22,8 @@ const load = (rel) => loadAmd(path.join(BASE, rel), { stubs: { document: documen
 const prepare = load("actions/handlePrepareTabMutation.js");
 const apply = load("actions/handleApplyTabMutation.js");
 const rollback = load("actions/handleRestoreTabMutationSnapshot.js");
+const parameterSetReset = load("actions/handleParameterSetReset.js");
+const parameterSetRestore = load("actions/handleParameterSetRestore.js");
 const selectors = load("state/selectors.js");
 const actionTypes = load("config/actionTypes.js");
 
@@ -69,8 +72,15 @@ function makeContext(options) {
       return opts.dispatchResult || { ok: true };
     },
     dispatchInternal: (action) => { log.push(["internal", action.type, action.payload && action.payload.widgetId]); },
-    isLaunchpadReady: () => true
+    ensureOpSeq: () => 1,
+    isStaleOpSeq: () => false,
+    isLaunchpadReady: () => opts.launchpadReady !== false
   };
+  if (opts.subOwnerResult) {
+    ["widgetVis", "widgetText", "widgetSettings"].forEach((owner) => {
+      _KDB.api[owner].dispatch = async (action) => { log.push([owner, action.type, action.payload.widgetIds]); return opts.subOwnerResult[owner] || { ok: true }; };
+    });
+  }
   return { context, log };
 }
 
@@ -218,6 +228,39 @@ const ROLLBACK_CASES = {
   "missing": { snapshot: null }
 };
 
+const PARAMETER_SET_CASES = {
+  "reset non-numeric runId": { handler: "reset", payload: { runId: "1" } },
+  "reset stale runId": { handler: "reset", runIdBefore: 5, payload: { runId: 4 } },
+  "reset no canvas widgets": { handler: "reset", frames: () => [], payload: { runId: 1 } },
+  "reset launchpad not ready": { handler: "reset", launchpadReady: false, payload: { runId: 1 } },
+  "reset sub-owner fails": {
+    handler: "reset", subOwnerResult: { widgetVis: { ok: false, diagnostics: [{ code: "X" }] } }, payload: { runId: 1, source: "s", status: "st" }
+  },
+  "reset parks": {
+    handler: "reset", subOwnerResult: {}, frames: () => [frame("v1", "A", "vis"), frame("w1", "A", "weird")], payload: { runId: 1, skipHistory: true }
+  },
+  "restore non-numeric runId": { handler: "restore", payload: { runId: null } },
+  "restore stale runId": { handler: "restore", runIdBefore: 3, payload: { runId: 2 } },
+  "restore entries": {
+    handler: "restore",
+    payload: {
+      runId: 1,
+      tabTargets: { 0: { tabId: "A" } },
+      widgets: [{ kind: "img", tab: 0 }, { kind: "vis", tab: 7 }, { kind: "vis", tab: 0, code: "M1", x: 1, y: 2, w: 3, h: 4 }, { kind: "txt", tab: 0 }]
+    }
+  }
+};
+
+async function runParameterSet(spec) {
+  const ctx = makeContext({
+    frames: (spec.frames || twoTabFrames)(), launchpadReady: spec.launchpadReady, subOwnerResult: spec.subOwnerResult
+  });
+  if (spec.runIdBefore) { ctx.context._KDB.runtime.widgetBase.parameterSetRunId = spec.runIdBefore; }
+  const handler = spec.handler === "reset" ? parameterSetReset : parameterSetRestore;
+  const result = await handler(ctx.context, { payload: spec.payload });
+  return JSON.parse(JSON.stringify({ result, runId: ctx.context._KDB.runtime.widgetBase.parameterSetRunId, log: ctx.log }));
+}
+
 async function runPrepare(spec) {
   const ctx = makeContext({ frames: spec.frames(), routed: spec.routed, launchpad: spec.launchpad, throwingSelectors: spec.throwingSelectors });
   return run(prepare, ctx, spec.payload);
@@ -279,10 +322,20 @@ const GOLDEN = {
   "rollback: content rebuild": "54ab0248f0606dba",
   "rollback: content rebuild fails": "ee12a8a2bde88887",
   "rollback: frame restore": "e727762a1966d91f",
-  "rollback: missing": "b4d5a2f689b4e6ba"
+  "rollback: missing": "b4d5a2f689b4e6ba",
+  "parameterSet: reset non-numeric runId": "dc249e0b0e5be747",
+  "parameterSet: reset stale runId": "ecf23cb58755fc34",
+  "parameterSet: reset no canvas widgets": "409f2bef73363beb",
+  "parameterSet: reset launchpad not ready": "9c0654ae3d3999da",
+  "parameterSet: reset sub-owner fails": "0f8e44b5c8c97de4",
+  "parameterSet: reset parks": "eadc325dbfc659c9",
+  "parameterSet: restore non-numeric runId": "e6e3da1fb4387080",
+  "parameterSet: restore stale runId": "710952fefd780471",
+  "parameterSet: restore entries": "1faf24e113fb31b6"
 };
 
-const groups = [["prepare", PREPARE_CASES, runPrepare], ["apply", APPLY_CASES, runApply], ["rollback", ROLLBACK_CASES, runRollback]];
+const groups = [["prepare", PREPARE_CASES, runPrepare], ["apply", APPLY_CASES, runApply], ["rollback", ROLLBACK_CASES, runRollback],
+  ["parameterSet", PARAMETER_SET_CASES, runParameterSet]];
 
 if (process.env.WS_L_RECORD === "1") {
   const recorded = {};
