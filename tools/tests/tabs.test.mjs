@@ -191,17 +191,17 @@ test("tab mutation plans + reducer: delete, duplicate, move and restoreDeleted k
   assert.deepEqual(namesOf(afterDelete.state), ["A", "C", "Tab 3(hidden)", "D(hidden)"]);
   assert.equal(afterDelete.state.activeIndex, 1);
 
-  const dup = plans.buildDuplicatePlan(start, { tabId: "t0" });
+  const dup = plans.buildDuplicatePlan(start, { tabId: "t0", operationSeq: 8 });
   const afterDup = reduce(start, { plan: dup.plan });
   assert.deepEqual(namesOf(afterDup.state), ["A", "A", "B", "C"]);
 
-  const move = plans.buildMovePlan(start, { tabId: "t0", targetPosition: 2 });
+  const move = plans.buildMovePlan(start, { tabId: "t0", targetPosition: 2, operationSeq: 9 });
   const afterMove = reduce(start, { plan: move.plan });
   assert.deepEqual(namesOf(afterMove.state), ["B", "C", "A", "D(hidden)"]);
-  assert.equal(plans.buildMovePlan(start, { tabId: "t0", targetPosition: 0 }).errorCode, "TABS_MOVE_SAME_POSITION");
+  assert.equal(plans.buildMovePlan(start, { tabId: "t0", targetPosition: 0, operationSeq: 9 }).errorCode, "TABS_MOVE_SAME_POSITION");
 
   const restore = plans.buildRestoreDeletedPlan(afterDelete.state, {
-    insertTabIdx: 1, tabId: "t1", name: "B", hideSlot: { tabId: "t2" }, filters: {}
+    insertTabIdx: 1, tabId: "t1", name: "B", hideSlot: { tabId: "t2" }, filters: {}, operationSeq: 10
   });
   assert.equal(restore.ok, true);
   const afterRestore = reduce(afterDelete.state, { plan: restore.plan });
@@ -213,6 +213,8 @@ test("tab mutation plans: guards", () => {
   const plans = load("tabMutation/plans.js");
   const single = makeTabsState(["A", "B"], 1, 0);
   assert.equal(plans.buildDeletePlan(single, { tabId: "t0" }).errorCode, "TABS_MIN_VISIBLE");
+  const unnumbered = makeTabsState(["A", "B", "C"], 2, 0);
+  assert.throws(() => plans.buildDuplicatePlan(unnumbered, { tabId: "t0" }), { code: "TABS_MUTATION_RUN_ID_MISSING" });
   const full = makeTabsState(["A", "B"], 2, 0);
   assert.equal(plans.buildDuplicatePlan(full, { tabId: "t0" }).errorCode, "TABS_MAX_VISIBLE");
   assert.equal(plans.buildDeletePlan(full, { tabId: "missing" }).ok, false);
@@ -258,4 +260,236 @@ test("controller: rename commits pending, asks Cognos, confirms and records the 
   assert.equal(await controller.dispatch({ type: "tabs/rename", payload: { tabIndex: 0, tabId: "t0", name: "X" } }), false);
   assert.equal(_KDB.state.tabs.byIndex["0"].name, "A");
   assert.equal(_KDB.state.tabs.byIndex["0"].errorCode, "TABS_RENAME_FAILED");
+});
+
+const sleepMs = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+function withActivation(state) {
+  Object.values(state.byIndex).forEach((tab) => { tab.hasBeenActivated = true; });
+  return state;
+}
+
+function makeMutationHarness({ activated = true, failingOwner = null, syncViewThrows = false } = {}) {
+  const doc = { querySelector: () => ({ id: "frame" }), querySelectorAll: () => [], getElementById: () => null };
+  const actions = load("tabMutation/actions.js", { document: doc });
+  const types = load("config/actionTypes.js");
+  const log = { dispatched: [], owners: [], loading: [] };
+  const state = makeTabsState(["A", "B", "C", "D"], 3, 1);
+  if (activated) { withActivation(state); }
+  const runtime = { pendingPromises: {}, abortControllers: {}, baselineNamesByIndex: { 2: "Tab 3" } };
+  const ownerApi = (name) => ({
+    dispatch: async (action) => {
+      log.owners.push(action.type);
+      if (name === failingOwner && /prepareTabMutation$/.test(action.type)) { return { ok: false, diagnostics: [{ code: "PREPARE_FAILED" }] }; }
+      return { ok: true, rollbackByTabId: {}, historySlice: {} };
+    }
+  });
+  const _KDB = {
+    runtime: { tabs: runtime },
+    state: { tabs: state },
+    services: { loading: { startLoading: () => log.loading.push("start"), finishLoading: () => log.loading.push("finish") } },
+    api: {
+      widgetBase: { dispatch: async (action) => { log.owners.push(action.type); return { ok: true }; } },
+      singleSelect: ownerApi("singleSelect"),
+      dienststelle: ownerApi("dienststelle"),
+      nativeMultiSelect: ownerApi("nativeMultiSelect"),
+      kdbControl: { syncView: () => { if (syncViewThrows) { throw new Error("syncView exploded"); } } }
+    }
+  };
+  const ctx = {
+    _KDB,
+    adapter: { setTabName: async () => "ok" },
+    isDisposed: () => false,
+    getRawState: () => _KDB.state.tabs,
+    dispatch: (action) => {
+      log.dispatched.push(action);
+      if (action.type === types.RESOLVE_FILTER_SCOPE_TARGETS) { return Promise.resolve({ ok: true, tabTargets: {} }); }
+      if (action.type === types.TRAVERSE) { return Promise.resolve(true); }
+      return true;
+    }
+  };
+  return { actions, types, log, ctx, _KDB, runtime };
+}
+
+test("tab mutation saga: a failure before the commit rolls the owners back, returns to the original tab and releases everything", async () => {
+  const h = makeMutationHarness({ activated: false, failingOwner: "dienststelle" });
+  const result = await h.actions.routeTabMutationAction(h.ctx, { type: h.types.DELETE, payload: { tabId: "t2" } });
+  assert.equal(result.ok, false);
+  assert.equal(result.outcome, "aborted");
+  assert.equal(result.phases.prepare.status, "failed");
+  assert.deepEqual(h.log.owners.filter((type) => /restoreTabMutationSnapshot$/.test(type)), ["widgetBase/restoreTabMutationSnapshot", "singleSelect/restoreTabMutationSnapshot"]);
+  assert.equal(h.log.dispatched.some((action) => action.type === h.types.TAB_MUTATION_APPLY), false);
+  const traversals = h.log.dispatched.filter((action) => action.type === h.types.TRAVERSE).map((action) => action.payload.tabIndex);
+  assert.equal(traversals[traversals.length - 1], 1);
+  assert.equal(h.runtime.pendingPromises.tabMutation, undefined);
+  assert.deepEqual(h.log.loading, ["start", "finish"]);
+});
+
+test("tab mutation saga: a successful run commits, releases the lock and finishes the loading frame", async () => {
+  const h = makeMutationHarness();
+  const result = await h.actions.routeTabMutationAction(h.ctx, { type: h.types.DELETE, payload: { tabId: "t2" } });
+  assert.equal(result.ok, true);
+  assert.equal(h.log.dispatched.some((action) => action.type === h.types.TAB_MUTATION_APPLY), true);
+  assert.equal(h.runtime.pendingPromises.tabMutation, undefined);
+  assert.deepEqual(h.log.loading, ["start", "finish"]);
+});
+
+test("tab mutation saga: a throwing kdbControl view neither degrades the result nor skips the landing traverse", async () => {
+  const h = makeMutationHarness({ syncViewThrows: true });
+  const result = await h.actions.routeTabMutationAction(h.ctx, { type: h.types.DELETE, payload: { tabId: "t2" } });
+  assert.equal(result.ok, true);
+  assert.equal(result.phases.cognosSync.status, "ok");
+  const landing = h.log.dispatched.filter((action) => action.type === h.types.TRAVERSE && action.payload.source === "tabsMutation");
+  assert.equal(landing.length, 1);
+});
+
+test("controller: destroy mid-mutation commits nothing afterwards and releases the lock", async () => {
+  const orchestrate = load("__orchestratorTabs.js", { document: { querySelector: () => null, querySelectorAll: () => [], getElementById: () => null } });
+  const widgetCalls = [];
+  let releaseWidget = null;
+  let released = false;
+  const _KDB = { utils: {}, config: {}, services: {}, state: {}, api: {} };
+  _KDB.api.widgetBase = {
+    dispatch: (action) => {
+      widgetCalls.push(action.type);
+      if (released) { return Promise.resolve({ ok: true }); }
+      return new Promise((resolve) => { releaseWidget = () => { released = true; resolve({ ok: true }); }; });
+    }
+  };
+  _KDB.state.tabs = withActivation(makeTabsState(["A", "B", "C", "D"], 3, 1));
+  const controller = orchestrate(_KDB, {});
+  _KDB.state.tabs = Object.assign(withActivation(makeTabsState(["A", "B", "C", "D"], 3, 1)), { lifecycle: "ready", hydration: {}, traversal: {} });
+  const pending = controller.dispatch({ type: "tabs/delete", payload: { tabId: "t2" } });
+  await sleepMs(20);
+  assert.equal(typeof _KDB.runtime.tabs.pendingPromises.tabMutation.then, "function");
+  controller.destroy();
+  assert.equal(_KDB.runtime.tabs.pendingPromises.tabMutation, undefined);
+  releaseWidget();
+  const result = await pending;
+  assert.equal(result.ok, false);
+  assert.equal(_KDB.state.tabs.lifecycle, "disposed");
+  assert.equal(widgetCalls.every((type) => type === "widgetBase/ensureTabWidgetsRouted"), true);
+  assert.equal(_KDB.state.tabs.byIndex["2"].name, "C");
+});
+
+function makeTraverseHarness({ loading, widgets } = {}) {
+  const clicks = [];
+  const items = [0, 1].map((index) => ({ getAttribute: () => String(index), click: () => clicks.push(index) }));
+  const wrappers = items.map((item) => ({ querySelector: () => item }));
+  const doc = { querySelectorAll: () => wrappers, getElementById: (id) => ({ id, matches: () => false, querySelector: () => null }) };
+  const traverse = load("traverse/traverse.js", { document: doc });
+  const types = load("config/actionTypes.js");
+  const dispatched = [];
+  const calls = [];
+  const state = withActivation(makeTabsState(["A", "B"], 2, 0));
+  const runtime = { pendingPromises: {}, abortControllers: {}, domRefs: {}, timers: {} };
+  let disposed = false;
+  const _KDB = {
+    runtime: { tabs: runtime },
+    state: { tabs: state },
+    services: {
+      loading: loading || { startLoading: () => calls.push("start"), finishLoading: () => calls.push("finish") }
+    },
+    api: widgets ? { widgetBase: widgets } : {}
+  };
+  const ctx = {
+    _KDB,
+    adapter: {},
+    getRawState: () => state,
+    isDisposed: () => disposed,
+    dispatch: (action) => { dispatched.push(action.payload); return true; }
+  };
+  const instance = { _KDB, ctx, guard: { isDisposed: () => disposed } };
+  return { traverse, types, dispatched, calls, clicks, runtime, instance, dispose: () => { disposed = true; } };
+}
+
+const SINGLE_TAB = { scope: "singleTab", tabIndex: 1, restoreActiveTab: true, restoreTabIndex: 0 };
+
+test("traverse: a cover that fails to start or finish never fails the traversal", async () => {
+  const boom = () => { throw new Error("cover exploded"); };
+  const h = makeTraverseHarness({ loading: { startLoading: boom, finishLoading: boom } });
+  assert.equal(await h.traverse.dispatchTabsTraverse(h.instance, Object.assign({ timeoutMs: 2000 }, SINGLE_TAB)), true);
+  assert.equal(h.dispatched[h.dispatched.length - 1].phase, "confirmed");
+  assert.deepEqual(h.clicks, [1, 0]);
+  assert.equal(h.runtime.pendingPromises.traverse, undefined);
+});
+
+test("traverse: a timeout commits TABS_TRAVERSE_TIMEOUT, finishes the cover once and a late continuation stays silent", async () => {
+  let releaseWidgets = null;
+  const widgets = { dispatch: () => new Promise((resolve) => { releaseWidgets = () => resolve({ ok: true }); }) };
+  const h = makeTraverseHarness({ widgets });
+  const outcome = await h.traverse.dispatchTabsTraverse(h.instance, Object.assign({ timeoutMs: 400, waitFor: "widgetsRendered" }, SINGLE_TAB));
+  assert.equal(outcome, false);
+  const last = h.dispatched[h.dispatched.length - 1];
+  assert.equal(last.phase, "failed");
+  assert.equal(last.errorCode, "TABS_TRAVERSE_TIMEOUT");
+  assert.deepEqual(h.calls, ["finish", "start", "finish"]);
+  assert.equal(h.runtime.pendingPromises.traverse, undefined);
+  assert.equal(h.runtime.abortControllers.traverse, undefined);
+
+  const dispatchedBefore = h.dispatched.length;
+  releaseWidgets();
+  await sleepMs(50);
+  assert.deepEqual(h.clicks, [1]);
+  assert.deepEqual(h.calls, ["finish", "start", "finish"]);
+  assert.equal(h.dispatched.length, dispatchedBefore);
+});
+
+test("traverse: destroy mid-traversal stops clicking, confirms nothing and still finishes the cover", async () => {
+  let releaseWidgets = null;
+  const widgets = { dispatch: () => new Promise((resolve) => { releaseWidgets = () => resolve({ ok: true }); }) };
+  const h = makeTraverseHarness({ widgets });
+  const pending = h.traverse.dispatchTabsTraverse(h.instance, Object.assign({ timeoutMs: 5000, waitFor: "widgetsRendered" }, SINGLE_TAB));
+  await sleepMs(250);
+  h.dispose();
+  h.runtime.abortControllers.traverse.abort();
+  releaseWidgets();
+  await pending.catch(() => {});
+  await sleepMs(20);
+  assert.equal(h.dispatched.some((payload) => payload.phase === "confirmed"), false);
+  assert.deepEqual(h.clicks, [1]);
+  assert.deepEqual(h.calls, ["finish", "start", "finish"]);
+  assert.equal(h.runtime.pendingPromises.traverse, undefined);
+  assert.equal(await h.traverse.dispatchTabsTraverse(h.instance, SINGLE_TAB), false);
+});
+
+test("rename: a throwing kdbControl view neither fails the rename nor the Cognos round trip", async () => {
+  const orchestrate = load("__orchestratorTabs.js");
+  const renamed = [];
+  const facet = { setTabName: (tab, name) => { renamed.push([tab.pageId, name]); return { ok: true, data: name }; } };
+  const _KDB = {
+    utils: {}, config: {}, state: {},
+    services: { cognosHost: { tabs: facet } },
+    api: { kdbControl: { syncView: () => { throw new Error("syncView exploded"); } } }
+  };
+  _KDB.state.tabs = makeTabsState(["A", "B"], 2, 0);
+  const controller = orchestrate(_KDB, {});
+  _KDB.state.tabs = Object.assign(makeTabsState(["A", "B"], 2, 0), { lifecycle: "ready", hydration: {}, traversal: {} });
+  assert.equal(await controller.dispatch({ type: "tabs/rename", payload: { tabIndex: 1, tabId: "t1", name: "Neu" } }), true);
+  assert.equal(_KDB.state.tabs.byIndex["1"].name, "Neu");
+  assert.equal(_KDB.state.tabs.byIndex["1"].errorCode == null, true);
+  assert.deepEqual(renamed, [["p1", "Neu"]]);
+});
+
+test("effects: a failing effect commits TABS_EFFECT_FAILED and the next DOM sync clears the error lifecycle", async () => {
+  const effects = load("effects.js");
+  const reducer = load("reducer.js");
+  const types = load("config/actionTypes.js");
+  const committed = [];
+  const ctx = {
+    _KDB: {},
+    getRawState: () => { throw new Error("state unreadable"); },
+    dispatch: (action) => committed.push(action)
+  };
+  assert.equal(await effects.applyTabsEffects(ctx, { type: types.RENAME, payload: { tabIndex: 0, name: "X" } }), false);
+  assert.equal(committed.length, 1);
+  assert.equal(committed[0].type, types.ERROR);
+  assert.equal(committed[0].payload.errorCode, "TABS_EFFECT_FAILED");
+
+  const ready = Object.assign(makeTabsState(["A", "B"], 2, 0), { lifecycle: "ready", hydration: {}, traversal: {}, pendingOperation: null });
+  const errored = reducer.reduceTabsAction(ready, committed[0]);
+  assert.equal(errored.lifecycle, "error");
+  const synced = reducer.reduceTabsAction(errored, { type: types.SYNC_FROM_DOM, payload: { byIndex: ready.byIndex, order: ready.order, activeIndex: 0 } });
+  assert.equal(synced.lifecycle, "ready");
+  assert.equal(synced.errorCode, null);
 });

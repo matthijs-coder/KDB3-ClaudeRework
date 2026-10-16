@@ -46,11 +46,17 @@ define(["./config/defaults.js", "./chrome.js", "./slots.js"], function (_default
     });
   }
 
+  // Cosmetic refresh of another module's view: a failing syncView must never fail the tab operation that triggered it.
   function syncKdbControlView(_KDB) {
     const api = _KDB && _KDB.api && _KDB.api.kdbControl;
     if (!api || typeof api.syncView !== "function") { return false; }
-    api.syncView();
-    return true;
+    try {
+      api.syncView();
+      return true;
+    } catch (err) {
+      console.warn("[tabs.syncKdbControlView] kdbControl view sync failed", err);
+      return false;
+    }
   }
 
   return { syncDomFromState: syncDomFromState, syncKdbControlView: syncKdbControlView };

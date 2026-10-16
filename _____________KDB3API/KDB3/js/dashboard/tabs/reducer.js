@@ -87,7 +87,7 @@ define([
     const order = Array.isArray(_payload.order) ? _payload.order.slice() : [];
     const visibleOrder = Array.isArray(_payload.visibleOrder) ? _payload.visibleOrder.slice() : _state.buildVisibleOrder(byIndex, order);
     const next = _state.copyObject(_current, {
-      lifecycle: _current.lifecycle,
+      lifecycle: _current.lifecycle === "error" ? "ready" : _current.lifecycle,
       byIndex: byIndex,
       order: order,
       visibleOrder: visibleOrder,

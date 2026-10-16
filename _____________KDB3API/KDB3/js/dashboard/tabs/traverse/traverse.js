@@ -15,6 +15,7 @@ define([
   // (read by other modules to detect an in-flight traversal).
   function dispatchTabsTraverse(instance, rawPayload) {
     const options = _traverseOptions.normalizeTraverseOptions(rawPayload);
+    if (instance.guard.isDisposed()) { return Promise.resolve(false); }
     if (options.includeHelperTabs) {
       return recordTraverseFailure(instance, "TABS_HELPER_TRAVERSE_UNSUPPORTED", "Helper tab traversal is not supported.");
     }
@@ -65,7 +66,6 @@ define([
       });
     } catch (err) {
       console.error("[tabs.traverse] traversal failed", err);
-      _applyTabPageLoading.finish(_ctx._KDB);
       const message = err && err.message ? err.message : String(err);
       _ctx.dispatch({ type: _actionTypes.TRAVERSE, payload: _traverseOptions.buildFailedPayload("TABS_TRAVERSE_FAILED", message, options) });
       return false;
@@ -97,10 +97,10 @@ define([
       const visit = { traversedIndexes: [], canvasLoadedByIndex: {}, visitedHidden: false };
       await clickTargetTabs(_ctx, buttons, state, options, visit, signal);
       const restoreIndex = typeof options.restoreTabIndex === "number" ? options.restoreTabIndex : activeIndex;
+      if (isStopped(_ctx, signal)) { return false; }
       if (options.restoreActiveTab) {
         _chrome.clickTabChromeButton(buttons[restoreIndex]);
       }
-      if (isStopped(_ctx, signal)) { return false; }
       if (visit.visitedHidden) {
         _view.syncDomFromState(_ctx._KDB, _ctx.getRawState());
       }
@@ -109,7 +109,9 @@ define([
       _ctx.dispatch({ type: _actionTypes.TRAVERSE, payload: confirmed });
       return true;
     } finally {
-      _applyTabPageLoading.finish(_ctx._KDB);
+      // A timed-out traversal already finished the cover and a newer traversal may own it now; only a destroyed
+      // instance (nobody else finishes the cover) or a traversal that was never aborted finishes it here.
+      if (!signal.aborted || isDisposed(_ctx)) { _applyTabPageLoading.finish(_ctx._KDB); }
     }
   }
 
@@ -198,8 +200,12 @@ define([
     });
   }
 
+  function isDisposed(_ctx) {
+    return typeof _ctx.isDisposed === "function" && _ctx.isDisposed();
+  }
+
   function isStopped(_ctx, signal) {
-    return signal.aborted === true || (typeof _ctx.isDisposed === "function" && _ctx.isDisposed());
+    return signal.aborted === true || isDisposed(_ctx);
   }
 
   return { dispatchTabsTraverse: dispatchTabsTraverse, traverseTabs: traverseTabs };

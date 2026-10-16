@@ -10,24 +10,34 @@ define(["../../core/utils/kit/async.js"], function (_async) {
 
   // Loading cover on the active tab page. With finishWhenReady the cover ends by itself once the inner page
   // exists, or after INNER_CAP_MS.
+  // start and finish are cosmetic and never throw: a failing cover must not fail the operation it decorates.
   function start(_KDB, _options) {
-    finish(_KDB);
-    const options = _options || {};
-    const loading = _KDB.services && _KDB.services.loading;
-    if (!loading || typeof loading.startLoading !== "function") { return null; }
-    if (options.finishWhenReady === true && hasInnerPage(_KDB, options)) { return null; }
-    const wrapper = resolvePageWrapper(_KDB, options);
-    const mountEl = findInnerPage(wrapper, _KDB) || wrapper;
-    if (!mountEl) { return null; }
-    const handle = loading.startLoading({ mountEl: mountEl, mountKey: MOUNT_KEY, messageKey: "tab" });
-    if (options.finishWhenReady === true) { armInnerPageFinish(_KDB, options); }
-    return handle;
+    try {
+      finish(_KDB);
+      const options = _options || {};
+      const loading = _KDB.services && _KDB.services.loading;
+      if (!loading || typeof loading.startLoading !== "function") { return null; }
+      if (options.finishWhenReady === true && hasInnerPage(_KDB, options)) { return null; }
+      const wrapper = resolvePageWrapper(_KDB, options);
+      const mountEl = findInnerPage(wrapper, _KDB) || wrapper;
+      if (!mountEl) { return null; }
+      const handle = loading.startLoading({ mountEl: mountEl, mountKey: MOUNT_KEY, messageKey: "tab" });
+      if (options.finishWhenReady === true) { armInnerPageFinish(_KDB, options); }
+      return handle;
+    } catch (err) {
+      console.warn("[tabs.pageLoading.start] loading cover failed", err);
+      return null;
+    }
   }
 
   function finish(_KDB) {
-    abortInnerPagePoll(_KDB);
-    const loading = _KDB.services && _KDB.services.loading;
-    if (loading && typeof loading.finishLoading === "function") { loading.finishLoading({ mountKey: MOUNT_KEY }); }
+    try {
+      abortInnerPagePoll(_KDB);
+      const loading = _KDB.services && _KDB.services.loading;
+      if (loading && typeof loading.finishLoading === "function") { loading.finishLoading({ mountKey: MOUNT_KEY }); }
+    } catch (err) {
+      console.warn("[tabs.pageLoading.finish] loading cover failed", err);
+    }
   }
 
   // A throwing page check counts as "not ready yet"; an aborted poll (finish or a newer start) does nothing.

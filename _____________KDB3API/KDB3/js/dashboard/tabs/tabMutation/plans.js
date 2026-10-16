@@ -2,8 +2,9 @@ define([
   "../config/mutationCodes.js",
   "../config/defaults.js",
   "../slots.js",
-  "../../../core/utils/kit/data.js"
-], function (_codes, _defaults, _slots, _data) {
+  "../../../core/utils/kit/data.js",
+  "../../../core/utils/kit/errors.js"
+], function (_codes, _defaults, _slots, _data, _errors) {
   "use strict";
 
   // Pure plan builders for delete / duplicate / move / restoreDeleted. Positions: tabIdx is the position in the
@@ -320,7 +321,11 @@ define([
   }
 
   function createOperationId(request) {
-    return "tabmut-" + Date.now() + "-" + (request.operationSeq || 0);
+    const seq = request.operationSeq;
+    if (typeof seq !== "number" || !(seq > 0)) {
+      throw _errors.codedError("TABS_MUTATION_RUN_ID_MISSING", "A tab mutation plan needs the mutation run id (request.operationSeq).");
+    }
+    return "tabmut-" + Date.now() + "-" + seq;
   }
 
   function succeed(plan) {
