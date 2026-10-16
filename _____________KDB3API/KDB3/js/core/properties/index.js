@@ -34,7 +34,7 @@ define([
         return;
       }
       try {
-        _developerMode.subscribePropertyChanges(_KDB);
+        _developerMode.subscribePropertyChanges(_KDB, applyDeveloperMode);
       } catch (error) {
         console.error("[properties.subscribePropertyChanges] failed", error);
       }

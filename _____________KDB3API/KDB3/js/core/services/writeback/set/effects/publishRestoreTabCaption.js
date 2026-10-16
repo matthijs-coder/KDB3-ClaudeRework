@@ -3,7 +3,7 @@ define([
 ], function (_selectors) {
   "use strict";
 
-  function __controller(_KDB, _run, _request) {
+  function publishRestoreTabCaption(_KDB, _run, _request) {
     try {
       const loading = _KDB && _KDB.services ? _KDB.services.loading : null;
       let caption;
@@ -129,5 +129,5 @@ define([
     return -1;
   }
 
-  return __controller;
+  return publishRestoreTabCaption;
 });

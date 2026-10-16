@@ -94,7 +94,7 @@ define([
     }
   }
 
-  function subscribeHideWidgetsToggle(_KDB, _definition) {
+  function subscribeHideWidgetsToggle(_KDB, _definition, _apply) {
     var subscriptions = _kitRuntime.ensureRuntime(_KDB, "properties").subscriptions;
     var content = resolveContent(_KDB);
     var handler;
@@ -105,15 +105,18 @@ define([
       console.error("[properties.subscribePropertyChanges] content adapter on/off unavailable");
       return;
     }
-    handler = applyDeveloperMode.bind(null, _KDB, { source: "cognos" });
+    handler = function () {
+      return _apply({ source: "cognos" });
+    };
     content.on(_definition.eventName, handler);
     subscriptions[_definition.runtimeKey] = content.off.bind(content, _definition.eventName, handler);
   }
 
-  function subscribePropertyChanges(_KDB) {
+  // `_apply` is the controller's guarded entry, so a Cognos toggle after destroy is ignored.
+  function subscribePropertyChanges(_KDB, _apply) {
     _definitions.SUBSCRIPTIONS.forEach(function (definition) {
       if (definition.propertyId === TOGGLE_ID) {
-        subscribeHideWidgetsToggle(_KDB, definition);
+        subscribeHideWidgetsToggle(_KDB, definition, _apply);
         return;
       }
       console.warn("[properties.subscribePropertyChanges] unknown subscription " + definition.propertyId);

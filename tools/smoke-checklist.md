@@ -105,6 +105,8 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Discard-confirm cancel reverts the select and restores nothing.
 - [ ] Developer mode on/off follows `KDB_developerMode`; after destroy and re-boot there is at most one `[data-kdb-hidedata-hint]` badge.
 - [ ] One save + one load cycle: no duplicate console lines for the same failure compared with baseline.
+- [ ] Share link with a valid id restores that set (it overrides the default); an invalid id shows the info message once; a read-only share link (no save/load slot) works and shows no console errors.
+- [ ] v2 (Set B) load produces the same dashboard as baseline.
 
 ### WS-D Feature services (message, loading, history, PDF, drillthrough)
 - [ ] Toasts/dialogs: trigger an info message (restore with fallback), a share dialog and a confirm dialog ("discard unsaved changes"). Expected: placement unchanged; scroll/resize keeps them in place; closing leaves no dark backdrop.

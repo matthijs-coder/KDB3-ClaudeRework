@@ -14,7 +14,9 @@ define(["../../../../utils/kit/runtime.js"], function (_kitRuntime) {
     pendingRestoreInfo: null,
     urlShareRestoreWaiter: null,
     urlShareStartupPromise: null,
-    urlShareBootOverlayActive: false
+    urlShareBootOverlayActive: false,
+    persistRestoreGeneration: 0,
+    getPersistLoadingHandle: null
   });
 
   // Flags are written by other modules (and by widgetBase through `+= 1`); a wrong type is repaired on read

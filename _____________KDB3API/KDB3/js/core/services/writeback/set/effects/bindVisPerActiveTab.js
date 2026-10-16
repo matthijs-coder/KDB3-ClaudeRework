@@ -5,7 +5,7 @@ define([
 ], function (_errorCodes, _constants, _publishRestoreTabCaption) {
   "use strict";
 
-  async function __controller(_KDB, _run, _widgetCorrelation) {
+  async function bindVisPerActiveTab(_KDB, _run, _widgetCorrelation) {
     const allowDegraded = _run.options.allowDegradedWidgetBinding === true;
     const groups = groupVisByTab(_widgetCorrelation);
     if (groups.length === 0) {
@@ -79,5 +79,5 @@ define([
     return Number(a) - Number(b);
   }
 
-  return __controller;
+  return bindVisPerActiveTab;
 });
