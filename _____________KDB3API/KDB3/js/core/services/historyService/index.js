@@ -9,13 +9,22 @@ define([
   "../../utils/kit/data.js",
   "../../utils/kit/errors.js",
   "../../utils/kit/runtime.js",
+  "./config.js",
   "./state.js",
   "./replay.js",
-], function (_data, _errors, _runtime, _state, _replay) {
+], function (_data, _errors, _runtime, _config, _state, _replay) {
   "use strict";
+
+  function registerHistoryLabels(_KDB) {
+    _KDB.config = _KDB.config || {};
+    _KDB.config.labels = _KDB.config.labels || {};
+    _KDB.config.labels.de = _KDB.config.labels.de || {};
+    _KDB.config.labels.de.history = Object.assign({}, _config.historyLabels, _KDB.config.labels.de.history || {});
+  }
 
   function registerHistoryService(_KDB, _options) {
     const options = _options || {};
+    registerHistoryLabels(_KDB);
     _KDB.services = _KDB.services || {};
     _KDB.state = _KDB.state || {};
     _KDB.runtime = _KDB.runtime || {};
