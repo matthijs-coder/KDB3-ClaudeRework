@@ -1,6 +1,6 @@
 // Routing table test for singleSelect/index.js: which handler each action type reaches, with which arguments.
 // Run: node --test tools/tests/singleSelect.index.routing.test.mjs
-// When a handler module moves (e.g. C-final importing restore/* and tabMutation/* directly), edit only ROUTES and MODULES.
+// When a handler module moves, edit only ROUTES and MODULES.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import path from "node:path";
@@ -11,20 +11,20 @@ const SS = path.join(JS_ROOT, "dashboard/filters/singleSelect");
 const PREFIX = "singleSelect/";
 
 // Each row: action type, the handler id it must reach, and how that handler receives the payload.
-// "action" = the handler gets the whole { type, payload } action (parameterSet router);
-// "payload" = the handler gets the payload as third argument.
+// "action" = the handler gets the whole { type, payload } action;
+// "payload" = the handler gets the payload as third argument (every current route).
 const ROUTES = [
-  { type: "parameterSetClearRequested", handler: "parameterSetRouter", payloadAs: "action", disposed: true },
-  { type: "parameterSetRestoreRequested", handler: "parameterSetRouter", payloadAs: "action", disposed: true },
-  { type: "parameterSetResyncRequested", handler: "parameterSetRouter", payloadAs: "action", disposed: true },
-  { type: "parameterSetRunFinished", handler: "parameterSetRouter", payloadAs: "action", disposed: true },
+  { type: "parameterSetClearRequested", handler: "parameterSet.clear", payloadAs: "payload", disposed: true },
+  { type: "parameterSetRestoreRequested", handler: "parameterSet.restore", payloadAs: "payload", disposed: true },
+  { type: "parameterSetResyncRequested", handler: "parameterSet.resync", payloadAs: "payload", disposed: true },
+  { type: "parameterSetRunFinished", handler: "parameterSet.runFinished", payloadAs: "payload", disposed: true },
   { type: "reconcileFilterInstances", handler: "reconcile", payloadAs: "payload", disposed: true },
   { type: "applyOwnerSelection", handler: "ownerSelection", payloadAs: "payload", disposed: true },
   { type: "applySpecialSelectionPolicy", handler: "specialPolicy", payloadAs: "payload", disposed: true },
-  { type: "prepareTabMutation", handler: "tabMutation.handlePrepare", payloadAs: "payload", disposed: true },
-  { type: "applyTabMutation", handler: "tabMutation.handleApply", payloadAs: "payload", disposed: true },
-  { type: "restoreTabMutationSnapshot", handler: "tabMutation.handleRestore", payloadAs: "payload", disposed: true },
-  { type: "resyncTabMutationHost", handler: "tabMutation.handleResync", payloadAs: "payload", disposed: false }
+  { type: "prepareTabMutation", handler: "tabMutation.prepare", payloadAs: "payload", disposed: true },
+  { type: "applyTabMutation", handler: "tabMutation.apply", payloadAs: "payload", disposed: true },
+  { type: "restoreTabMutationSnapshot", handler: "tabMutation.restoreSnapshot", payloadAs: "payload", disposed: true },
+  { type: "resyncTabMutationHost", handler: "tabMutation.resyncHost", payloadAs: "payload", disposed: false }
 ];
 
 const calls = [];
@@ -36,13 +36,14 @@ function spy(id, wrap) {
 }
 
 const MODULES = {
-  "./actions/parameterSet/routeParameterSetIdentityAction.js": spy("parameterSetRouter"),
-  "./actions/tabMutation/routeTabMutationAction.js": {
-    handlePrepare: spy("tabMutation.handlePrepare"),
-    handleApply: spy("tabMutation.handleApply"),
-    handleRestore: spy("tabMutation.handleRestore"),
-    handleResync: spy("tabMutation.handleResync")
-  },
+  "./restore/clear.js": { handleParameterSetClear: spy("parameterSet.clear") },
+  "./restore/restore.js": { handleParameterSetRestore: spy("parameterSet.restore") },
+  "./restore/resync.js": { handleParameterSetResync: spy("parameterSet.resync") },
+  "./restore/runs.js": { handleParameterSetRunFinished: spy("parameterSet.runFinished") },
+  "./tabMutation/prepare.js": { prepareTabMutation: spy("tabMutation.prepare") },
+  "./tabMutation/apply.js": { applyTabMutation: spy("tabMutation.apply") },
+  "./tabMutation/restore.js": { restoreTabMutationSnapshot: spy("tabMutation.restoreSnapshot") },
+  "./tabMutation/resync.js": { resyncTabMutationHost: spy("tabMutation.resyncHost") },
   "./inventory/reconcile.js": { reconcileFilterInstances: spy("reconcile") },
   "./commit/ownerSelection.js": { applyOwnerSelection: spy("ownerSelection") },
   "./commit/specialPolicy.js": { applySpecialSelectionPolicy: spy("specialPolicy") }

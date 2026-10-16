@@ -9,8 +9,14 @@ define([
   "./inventory/reconcile.js",
   "./state/reducer.js",
   "./state/selectors.js",
-  "./actions/parameterSet/routeParameterSetIdentityAction.js",
-  "./actions/tabMutation/routeTabMutationAction.js",
+  "./restore/clear.js",
+  "./restore/restore.js",
+  "./restore/resync.js",
+  "./restore/runs.js",
+  "./tabMutation/prepare.js",
+  "./tabMutation/apply.js",
+  "./tabMutation/restore.js",
+  "./tabMutation/resync.js",
   "../../../core/utils/kit/errors.js"
 ], function (
   _config,
@@ -23,8 +29,14 @@ define([
   _reconcileInventory,
   _reducer,
   _selectors,
-  _routeParameterSetAction,
-  _routeTabMutationAction,
+  _clear,
+  _restore,
+  _resync,
+  _runs,
+  _prepareTabMutation,
+  _applyTabMutation,
+  _restoreTabMutation,
+  _resyncTabMutation,
   _kitErrors
 ) {
   "use strict";
@@ -33,31 +45,19 @@ define([
 
   var actions = _config.actions;
 
-  function viaParameterSetRouter(_type) {
-    return function (_KDB, _runtime, _payload) {
-      return _routeParameterSetAction(_KDB, _runtime, { type: _type, payload: _payload });
-    };
-  }
-
-  function viaTabMutationRouter(_method) {
-    return function (_KDB, _runtime, _payload) {
-      return _routeTabMutationAction[_method](_KDB, _runtime, _payload);
-    };
-  }
-
   // Handlers that return the caller's result: (_KDB, _runtime, _payload) -> result
   var ASYNC_HANDLERS = {};
-  ASYNC_HANDLERS[actions.PARAMETER_SET_CLEAR_REQUESTED] = viaParameterSetRouter(actions.PARAMETER_SET_CLEAR_REQUESTED);
-  ASYNC_HANDLERS[actions.PARAMETER_SET_RESTORE_REQUESTED] = viaParameterSetRouter(actions.PARAMETER_SET_RESTORE_REQUESTED);
-  ASYNC_HANDLERS[actions.PARAMETER_SET_RESYNC_REQUESTED] = viaParameterSetRouter(actions.PARAMETER_SET_RESYNC_REQUESTED);
-  ASYNC_HANDLERS[actions.PARAMETER_SET_RUN_FINISHED] = viaParameterSetRouter(actions.PARAMETER_SET_RUN_FINISHED);
+  ASYNC_HANDLERS[actions.PARAMETER_SET_CLEAR_REQUESTED] = _clear.handleParameterSetClear;
+  ASYNC_HANDLERS[actions.PARAMETER_SET_RESTORE_REQUESTED] = _restore.handleParameterSetRestore;
+  ASYNC_HANDLERS[actions.PARAMETER_SET_RESYNC_REQUESTED] = _resync.handleParameterSetResync;
+  ASYNC_HANDLERS[actions.PARAMETER_SET_RUN_FINISHED] = _runs.handleParameterSetRunFinished;
   ASYNC_HANDLERS[actions.RECONCILE_FILTER_INSTANCES] = _reconcileInventory.reconcileFilterInstances;
   ASYNC_HANDLERS[actions.APPLY_OWNER_SELECTION] = _ownerSelection.applyOwnerSelection;
   ASYNC_HANDLERS[actions.APPLY_SPECIAL_SELECTION_POLICY] = _specialPolicy.applySpecialSelectionPolicy;
-  ASYNC_HANDLERS[actions.PREPARE_TAB_MUTATION] = viaTabMutationRouter("handlePrepare");
-  ASYNC_HANDLERS[actions.APPLY_TAB_MUTATION] = viaTabMutationRouter("handleApply");
-  ASYNC_HANDLERS[actions.RESTORE_TAB_MUTATION_SNAPSHOT] = viaTabMutationRouter("handleRestore");
-  ASYNC_HANDLERS[actions.RESYNC_TAB_MUTATION_HOST] = viaTabMutationRouter("handleResync");
+  ASYNC_HANDLERS[actions.PREPARE_TAB_MUTATION] = _prepareTabMutation.prepareTabMutation;
+  ASYNC_HANDLERS[actions.APPLY_TAB_MUTATION] = _applyTabMutation.applyTabMutation;
+  ASYNC_HANDLERS[actions.RESTORE_TAB_MUTATION_SNAPSHOT] = _restoreTabMutation.restoreTabMutationSnapshot;
+  ASYNC_HANDLERS[actions.RESYNC_TAB_MUTATION_HOST] = _resyncTabMutation.resyncTabMutationHost;
 
   // Handlers that change state; dispatch then returns the state snapshot.
   var STATE_HANDLERS = {};

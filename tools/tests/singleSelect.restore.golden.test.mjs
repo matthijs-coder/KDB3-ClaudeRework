@@ -868,8 +868,8 @@ test("handleParameterSetResync re-applies registered restore assignments", async
 });
 
 // ---------------------------------------------------------------- handler call contract
-// Asserts what a caller (today the two router files, after C-final the singleSelect index.js tables) must do:
-// hand every handler (KDB, runtime, payload) in that order. Repoint `wire()` at the new entry point at C-final.
+// Asserts what the singleSelect index.js async table must do: hand every restore/tabMutation handler
+// (KDB, runtime, payload) in that order. `wire()` boots index.js with the eight handlers replaced by spies.
 
 function spyHandlers() {
   const calls = [];
@@ -882,39 +882,41 @@ function spyHandlers() {
 
 function wire() {
   const rec = spyHandlers();
-  const stubs = {
-    console: quietConsole
-  };
   const modules = {
-    "../../restore/clear.js": { handleParameterSetClear: rec.spy("clear") },
-    "../../restore/restore.js": { handleParameterSetRestore: rec.spy("restore") },
-    "../../restore/resync.js": { handleParameterSetResync: rec.spy("resync") },
-    "../../restore/runs.js": { handleParameterSetRunFinished: rec.spy("runFinished") },
-    "../../tabMutation/prepare.js": { prepareTabMutation: rec.spy("prepare") },
-    "../../tabMutation/apply.js": { applyTabMutation: rec.spy("apply") },
-    "../../tabMutation/restore.js": { restoreTabMutationSnapshot: rec.spy("restoreSnapshot") },
-    "../../tabMutation/resync.js": { resyncTabMutationHost: rec.spy("resyncHost") }
+    "./restore/clear.js": { handleParameterSetClear: rec.spy("clear") },
+    "./restore/restore.js": { handleParameterSetRestore: rec.spy("restore") },
+    "./restore/resync.js": { handleParameterSetResync: rec.spy("resync") },
+    "./restore/runs.js": { handleParameterSetRunFinished: rec.spy("runFinished") },
+    "./tabMutation/prepare.js": { prepareTabMutation: rec.spy("prepare") },
+    "./tabMutation/apply.js": { applyTabMutation: rec.spy("apply") },
+    "./tabMutation/restore.js": { restoreTabMutationSnapshot: rec.spy("restoreSnapshot") },
+    "./tabMutation/resync.js": { resyncTabMutationHost: rec.spy("resyncHost") }
   };
-  const parameterSetRoute = loadAmd(path.join(SS, "actions/parameterSet/routeParameterSetIdentityAction.js"), { stubs, modules });
-  const tabRoute = loadAmd(path.join(SS, "actions/tabMutation/routeTabMutationAction.js"), { stubs, modules });
+  const register = loadAmd(path.join(SS, "index.js"), { stubs: { console: quietConsole }, modules });
+  const KDB = { state: {}, api: {}, elements: {}, services: {} };
+  const controller = register(KDB, {});
   const config = load("config.js");
+  const dispatch = (type, payload) => controller.dispatch({ type: type, payload: payload });
   return {
     calls: rec.calls,
     config: config,
-    parameterSet: (KDB, rtime, action) => parameterSetRoute(KDB, rtime, action),
+    KDB: KDB,
+    rtime: KDB.runtime.singleSelect,
+    controller: controller,
+    parameterSet: dispatch,
     tab: {
-      prepare: (KDB, rtime, payload) => tabRoute.handlePrepare(KDB, rtime, payload),
-      apply: (KDB, rtime, payload) => tabRoute.handleApply(KDB, rtime, payload),
-      restoreSnapshot: (KDB, rtime, payload) => tabRoute.handleRestore(KDB, rtime, payload),
-      resyncHost: (KDB, rtime, payload) => tabRoute.handleResync(KDB, rtime, payload)
+      prepare: (payload) => dispatch(config.actions.PREPARE_TAB_MUTATION, payload),
+      apply: (payload) => dispatch(config.actions.APPLY_TAB_MUTATION, payload),
+      restoreSnapshot: (payload) => dispatch(config.actions.RESTORE_TAB_MUTATION_SNAPSHOT, payload),
+      resyncHost: (payload) => dispatch(config.actions.RESYNC_TAB_MUTATION_HOST, payload)
     }
   };
 }
 
-test("parameterSet actions reach their handler as (KDB, runtime, payload); unknown types return null", async () => {
+test("parameterSet actions reach their handler as (KDB, runtime, payload); unknown types reach no handler", async () => {
   const w = wire();
-  const KDB = { id: "kdb" };
-  const rtime = { id: "runtime" };
+  const KDB = w.KDB;
+  const rtime = w.rtime;
   const types = [
     [w.config.actions.PARAMETER_SET_CLEAR_REQUESTED, "clear"],
     [w.config.actions.PARAMETER_SET_RESTORE_REQUESTED, "restore"],
@@ -929,7 +931,7 @@ test("parameterSet actions reach their handler as (KDB, runtime, payload); unkno
   ]);
   for (const [type, name] of types) {
     const payload = { runId: 7, marker: name };
-    const result = await w.parameterSet(KDB, rtime, { type: type, payload: payload });
+    const result = await w.parameterSet(type, payload);
     assert.deepEqual(result, { handled: name });
     const call = w.calls[w.calls.length - 1];
     assert.equal(call.name, name);
@@ -939,17 +941,18 @@ test("parameterSet actions reach their handler as (KDB, runtime, payload); unkno
     assert.equal(call.args[2], payload);
   }
   const before = w.calls.length;
-  assert.equal(w.parameterSet(KDB, rtime, { type: "singleSelect/somethingElse", payload: {} }), null);
-  assert.equal(w.parameterSet(KDB, rtime, { type: w.config.actions.APPLY_OWNER_SELECTION, payload: {} }), null);
-  assert.equal(w.parameterSet(KDB, rtime, null), null);
-  assert.equal(w.parameterSet(KDB, rtime, {}), null);
+  // index.js answers an unknown type with the state snapshot (it was `null` from the removed router).
+  const state = w.controller.getState();
+  assert.deepEqual(w.parameterSet("singleSelect/somethingElse", {}), state);
+  assert.deepEqual(w.controller.dispatch(null), state);
+  assert.deepEqual(w.controller.dispatch({}), state);
   assert.equal(w.calls.length, before);
 });
 
 test("tab mutation actions reach their handler as (KDB, runtime, payload)", async () => {
   const w = wire();
-  const KDB = { id: "kdb" };
-  const rtime = { id: "runtime" };
+  const KDB = w.KDB;
+  const rtime = w.rtime;
   const expected = [
     ["prepare", "prepare"],
     ["apply", "apply"],
@@ -962,7 +965,7 @@ test("tab mutation actions reach their handler as (KDB, runtime, payload)", asyn
   assert.equal(w.config.actions.RESYNC_TAB_MUTATION_HOST, "singleSelect/resyncTabMutationHost");
   for (const [key, name] of expected) {
     const payload = { runId: 3, operationId: "op", marker: name };
-    const result = await w.tab[key](KDB, rtime, payload);
+    const result = await w.tab[key](payload);
     assert.deepEqual(result, { handled: name });
     const call = w.calls[w.calls.length - 1];
     assert.equal(call.name, name);
