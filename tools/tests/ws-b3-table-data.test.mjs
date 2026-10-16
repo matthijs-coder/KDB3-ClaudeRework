@@ -16,15 +16,15 @@ const SNAPSHOT_FILE = path.join(HERE, "ws-b3-table-data.snapshot.json");
 const FILES = {
   orchestrator: "__orchestratorTableData.js",
   eventNames: "events/eventNames.js",
-  shapeTableRows: "operations/shapeTableRows.js",
-  normalizeTableInputs: "input/normalizeTableInputs.js",
+  shapeTableRows: "shapeTableRows.js",
+  normalizeTableInputs: "tableInputs.js",
 };
 
 const loadService = (file, stubs) => loadAmd(path.join(SERVICE_DIR, file), { stubs });
 const settle = () => new Promise((resolve) => setImmediate(resolve));
 
 const DISPOSED_MESSAGE = "tableDataService disposed";
-const ITEM_MESSAGE = "tableDataService input item must include tableName, tableid, or widgetId.";
+const ITEM_MESSAGE = "tableDataService input item must include tableName or widgetId.";
 const ARRAY_MESSAGE = "tableDataService input must be an array.";
 
 function columnar(rows) {

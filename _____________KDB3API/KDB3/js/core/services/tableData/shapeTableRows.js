@@ -1,17 +1,69 @@
-define(["./pickTableCell.js"], function (_pickTableCell) {
+define(["./config.js"], function (_config) {
   "use strict";
 
   function shapeTableRows(rows, shape, pick) {
-    try {
-      if (rows == null) {
-        return rows;
-      }
-      const source = normalizeSourceRows(rows);
-      return shape === "column" ? shapeColumnRows(source, pick) : shapeRowRows(source, pick);
-    } catch (error) {
-      console.error("[tableDataService.shapeTableRows] failed", error);
-      throw error;
+    if (rows == null) {
+      return rows;
     }
+    const source = normalizeSourceRows(rows);
+    return shape === "column" ? shapeColumnRows(source, pick) : shapeRowRows(source, pick);
+  }
+
+  function isObjectCell(cell) {
+    return cell && typeof cell === "object" && !Array.isArray(cell);
+  }
+
+  function hasCellKey(cell, key) {
+    return isObjectCell(cell) && Object.prototype.hasOwnProperty.call(cell, key);
+  }
+
+  function writeResolvedValue(output, outputKey, cell, keys) {
+    if (isObjectCell(cell)) {
+      for (let index = 0; index < keys.length; index += 1) {
+        if (hasCellKey(cell, keys[index])) {
+          output[outputKey] = cell[keys[index]];
+          return;
+        }
+      }
+    }
+    if (!isObjectCell(cell) && cell != null) {
+      output[outputKey] = cell;
+    }
+  }
+
+  function appendPickedValue(output, cell, outputKey, sourceKey) {
+    const key = sourceKey || outputKey;
+    if (key === "display") {
+      writeResolvedValue(output, outputKey, cell, ["d", "label", "caption", "u", "value", "v"]);
+    } else if (key === "use") {
+      writeResolvedValue(output, outputKey, cell, ["u", "value", "v", "d", "label", "caption"]);
+    } else if (hasCellKey(cell, key)) {
+      output[outputKey] = cell[key];
+    } else if (!isObjectCell(cell) && cell != null) {
+      output[outputKey] = cell;
+    }
+  }
+
+  function appendPickedItem(output, cell, item) {
+    if (typeof item === "string") {
+      appendPickedValue(output, cell, item, item);
+      return;
+    }
+    if (!item || typeof item !== "object" || Array.isArray(item)) {
+      return;
+    }
+    Object.keys(item).forEach(function (key) {
+      appendPickedValue(output, cell, key, item[key]);
+    });
+  }
+
+  function pickTableCell(cell, pick) {
+    const picked = Array.isArray(pick) && pick.length ? pick : _config.DEFAULT_PICK;
+    const output = {};
+    picked.forEach(function (item) {
+      appendPickedItem(output, cell, item);
+    });
+    return output;
   }
 
   function normalizeSourceRows(rows) {
@@ -75,7 +127,7 @@ define(["./pickTableCell.js"], function (_pickTableCell) {
       const column = source.columns[columnName] || [];
       columns[columnName] = new Array(source.rowCount);
       for (let rowIndex = 0; rowIndex < source.rowCount; rowIndex += 1) {
-        columns[columnName][rowIndex] = _pickTableCell(column[rowIndex], pick);
+        columns[columnName][rowIndex] = pickTableCell(column[rowIndex], pick);
       }
     }
     return { columnNames: source.columnNames.slice(), rowCount: source.rowCount, columns: columns };
@@ -86,7 +138,7 @@ define(["./pickTableCell.js"], function (_pickTableCell) {
     for (let columnIndex = 0; columnIndex < columnNames.length; columnIndex += 1) {
       const columnName = columnNames[columnIndex];
       const column = columns[columnName];
-      row[columnName] = _pickTableCell(column ? column[rowIndex] : undefined, pick);
+      row[columnName] = pickTableCell(column ? column[rowIndex] : undefined, pick);
     }
     return row;
   }

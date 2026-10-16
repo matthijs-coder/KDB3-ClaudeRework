@@ -596,31 +596,31 @@
       "message": "tableDataService input must be an array."
     },
     "loadTableEmptyItem": {
-      "message": "tableDataService input item must include tableName, tableid, or widgetId."
+      "message": "tableDataService input item must include tableName or widgetId."
     },
     "waitForRowsNotArray": {
       "message": "tableDataService input must be an array."
     },
     "waitForRowsEmptyItem": {
-      "message": "tableDataService input item must include tableName, tableid, or widgetId."
+      "message": "tableDataService input item must include tableName or widgetId."
     },
     "reloadTableNotArray": {
       "message": "tableDataService input must be an array."
     },
     "reloadTableEmptyItem": {
-      "message": "tableDataService input item must include tableName, tableid, or widgetId."
+      "message": "tableDataService input item must include tableName or widgetId."
     },
     "ensureFreshRowsNotArray": {
       "message": "tableDataService input must be an array."
     },
     "ensureFreshRowsEmptyItem": {
-      "message": "tableDataService input item must include tableName, tableid, or widgetId."
+      "message": "tableDataService input item must include tableName or widgetId."
     },
     "abortTableNotArray": {
       "message": "tableDataService input must be an array."
     },
     "abortTableEmptyItem": {
-      "message": "tableDataService input item must include tableName, tableid, or widgetId."
+      "message": "tableDataService input item must include tableName or widgetId."
     }
   },
   "normalizeInputs": {
@@ -712,11 +712,11 @@
     "errors": {
       "notArray": "tableDataService input must be an array.",
       "nullInput": "tableDataService input must be an array.",
-      "emptyItem": "tableDataService input item must include tableName, tableid, or widgetId.",
-      "blankName": "tableDataService input item must include tableName, tableid, or widgetId.",
-      "blankWidget": "tableDataService input item must include tableName, tableid, or widgetId.",
-      "primitive": "tableDataService input item must include tableName, tableid, or widgetId.",
-      "nested": "tableDataService input item must include tableName, tableid, or widgetId."
+      "emptyItem": "tableDataService input item must include tableName or widgetId.",
+      "blankName": "tableDataService input item must include tableName or widgetId.",
+      "blankWidget": "tableDataService input item must include tableName or widgetId.",
+      "primitive": "tableDataService input item must include tableName or widgetId.",
+      "nested": "tableDataService input item must include tableName or widgetId."
     }
   },
   "park": {
