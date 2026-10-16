@@ -1,7 +1,7 @@
 define([
   "./createDrillthroughService.js",
-  "./config/drillthroughLabels.js"
-], function (_createDrillthroughService, _drillthroughLabels) {
+  "./config.js"
+], function (_createDrillthroughService, _config) {
   "use strict";
 
   function __orchestrator(_KDB, _options) {
@@ -19,7 +19,7 @@ define([
       existing = _KDB.config.labels.de.drillthrough && typeof _KDB.config.labels.de.drillthrough === "object"
         ? _KDB.config.labels.de.drillthrough
         : {};
-      _KDB.config.labels.de.drillthrough = Object.assign({}, _drillthroughLabels, existing);
+      _KDB.config.labels.de.drillthrough = Object.assign({}, _config.drillthroughLabels, existing);
       tableData = _KDB.services.tableData;
       readRows = tableData && typeof tableData.readRows === "function"
         ? tableData.readRows.bind(tableData)
