@@ -1,8 +1,9 @@
 /*
  * historyService registration and public service object.
  * Lifecycle: ready, error, disposed. State lives in `_KDB.state.history`; `_KDB.runtime.history` holds the
- * standard buckets plus `adapters.bindReplayHandlers`, `writebackRestore` and `replay` (both read by other
+ * standard buckets plus `adapters`, `writebackRestore` and `replay` (both read by other
  * modules, so begin/finish replace the writebackRestore object and keep its field names).
+ * Replay handlers: owners (or the bootstrap on their behalf) call `registerReplayHandler(key, handler)`.
  */
 define([
   "../../utils/kit/data.js",
@@ -20,15 +21,6 @@ define([
     _KDB.runtime = _KDB.runtime || {};
     _KDB.state.history = _state.normalizeHistoryState(_KDB.state.history);
     _KDB.runtime.history = normalizeHistoryRuntime(_KDB.runtime.history);
-    if (options.bindReplayHandlersOnly === true) {
-      const bind = _KDB.runtime.history.adapters && _KDB.runtime.history.adapters.bindReplayHandlers;
-      if (typeof bind === "function") {
-        bind(options.replayHandlers || {});
-      } else {
-        console.warn("[historyService.register] bindReplayHandlersOnly requested but adapter or service is absent");
-      }
-      return _KDB.services.history || null;
-    }
     if (!_KDB.services.history) {
       _KDB.services.history = createHistoryService(_KDB, options);
     }
@@ -68,16 +60,8 @@ define([
   function createHistoryService(_KDB, options) {
     const guard = _errors.createDisposedGuard("historyService");
     const initial = options.replayHandlers;
-    let replayHandlers = initial && typeof initial === "object" ? Object.assign({}, initial) : {};
+    const replayHandlers = initial && typeof initial === "object" ? Object.assign({}, initial) : {};
 
-    // Replay handlers are replaced wholesale: the orchestrator re-collects all of them on every bind.
-    _KDB.runtime.history.adapters.bindReplayHandlers = function (handlers) {
-      if (guard.isDisposed()) {
-        return false;
-      }
-      replayHandlers = Object.assign({}, handlers && typeof handlers === "object" ? handlers : {});
-      return true;
-    };
 
     function dispatch(action) {
       _KDB.state.history = _state.reduceHistory(_KDB.state.history, action);
@@ -201,6 +185,28 @@ define([
       _KDB.runtime.history.writebackRestore = flag;
     }
 
+    function noopUnregister() {}
+
+    // The latest registration for a key wins; the returned function removes it only while it is still current.
+    function registerReplayHandler(key, handler) {
+      if (guard.blocked("registerReplayHandler")) {
+        return noopUnregister;
+      }
+      if (typeof key !== "string" || !key || !handler || typeof handler.apply !== "function") {
+        console.warn("[historyService.registerReplayHandler] rejected: a string key and a handler with apply() are required", key);
+        return noopUnregister;
+      }
+      if (replayHandlers[key] && replayHandlers[key] !== handler) {
+        console.warn("[historyService.registerReplayHandler] replacing the handler already registered for", key);
+      }
+      replayHandlers[key] = handler;
+      return function unregisterReplayHandler() {
+        if (replayHandlers[key] === handler) {
+          delete replayHandlers[key];
+        }
+      };
+    }
+
     function canUndo() {
       if (guard.isDisposed()) {
         return false;
@@ -270,6 +276,7 @@ define([
       }
       try {
         guard.dispose();
+        Object.keys(replayHandlers).forEach(function (key) { delete replayHandlers[key]; });
         dispatch({ type: "history/destroy" });
         disposeRuntime(_KDB.runtime.history);
       } catch (error) {
@@ -287,6 +294,7 @@ define([
       beginWritebackRestore: beginWritebackRestore,
       finishWritebackRestore: finishWritebackRestore,
       isWritebackRestoreActive: isWritebackRestoreActive,
+      registerReplayHandler: registerReplayHandler,
       destroy: destroy,
     };
   }

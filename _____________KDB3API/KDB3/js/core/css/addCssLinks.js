@@ -1,4 +1,4 @@
-define([], function () {
+define(["./cssLinkRegistry.js"], function (_registry) {
   function addCssLinks(_KDB, _cssHrefList) {
     if (!Array.isArray(_cssHrefList)) {
       return;
@@ -10,7 +10,7 @@ define([], function () {
     const cssLinks = ensureCssLinkBucket(_KDB);
     let index;
     for (index = 0; index < _cssHrefList.length; index += 1) {
-      addStylesheetLink(cssLinks, _cssHrefList[index]);
+      addStylesheetLink(_KDB, cssLinks, _cssHrefList[index]);
     }
   }
 
@@ -19,26 +19,31 @@ define([], function () {
     return _KDB.runtime.core.domRefs.cssLinks;
   }
 
-  function addStylesheetLink(_cssLinks, _href) {
-    if (!_href || hasStylesheetLink(_href)) {
+  // A link another instance already created is shared (this instance becomes a co-owner); a foreign
+  // link is left alone.
+  function addStylesheetLink(_KDB, _cssLinks, _href) {
+    if (!_href) {
       return;
     }
-    const linkEl = document.createElement("link");
-    linkEl.rel = "stylesheet";
-    linkEl.href = _href;
-    document.head.appendChild(linkEl);
-    _cssLinks.push(linkEl);
+    const existing = findStylesheetLink(_href);
+    if (existing) {
+      if (_registry.joinOwnedLink(_KDB, existing)) {
+        _cssLinks.push(existing);
+      }
+      return;
+    }
+    _cssLinks.push(_registry.createOwnedLink(_KDB, _href));
   }
 
-  function hasStylesheetLink(_href) {
+  function findStylesheetLink(_href) {
     const stylesheetLinks = document.head.querySelectorAll('link[rel="stylesheet"]');
     let index;
     for (index = 0; index < stylesheetLinks.length; index += 1) {
       if (stylesheetLinks[index].getAttribute("href") === _href) {
-        return true;
+        return stylesheetLinks[index];
       }
     }
-    return false;
+    return null;
   }
 
   return addCssLinks;
