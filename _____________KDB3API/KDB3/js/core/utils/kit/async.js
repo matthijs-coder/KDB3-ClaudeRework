@@ -5,9 +5,12 @@
  *                     `signal` is one AbortSignal or an array of them (null entries ignored).
  *                     Never rejects. Adds at most one abort listener per signal and removes it
  *                     on both paths, so a long poll loop does not accumulate listeners.
+ *                     Delays above 2^31-1 ms (~24.8 days, incl. Infinity) are capped to that value.
  * pollUntil(options)  Promise<PollOutcome>. Calls check() until predicate(value) is true.
- *   options.check(info)     required; may be async; info = { attempt, elapsedMs }.
+ *   options.check(info)     required; may be async; info = { attempt, elapsedMs, signal }.
  *                           A throw counts as "not ready yet" and is kept as lastError.
+ *                           A check() that never settles is not interrupted by the timeout or abort:
+ *                           pass info.signal into the awaited host call, or keep check() synchronous.
  *   options.timeoutMs       required, > 0. Infinity is allowed but must be passed explicitly.
  *   options.intervalMs      delay between attempts, default 100.
  *   options.backoff         interval multiplier per attempt (>= 1), default 1 (fixed interval).
@@ -98,7 +101,7 @@ define([], function () {
       }
       attempts += 1;
       try {
-        value = await opts.check({ attempt: attempts, elapsedMs: Date.now() - startedAt });
+        value = await opts.check({ attempt: attempts, elapsedMs: Date.now() - startedAt, signal: opts.signal });
         if (predicate(value)) {
           return { ok: true, value: value, attempts: attempts, elapsedMs: Date.now() - startedAt };
         }

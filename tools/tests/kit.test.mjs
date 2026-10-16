@@ -142,9 +142,10 @@ test("pollUntil: succeeds after transient failures, keeps no listeners", async (
   const controller = new AbortController();
   let calls = 0;
   const outcome = await kitAsync.pollUntil({
-    check: async ({ attempt }) => {
+    check: async ({ attempt, signal }) => {
       calls += 1;
       assert.equal(attempt, calls);
+      assert.equal(signal, controller.signal);
       if (calls === 1) throw new Error("not yet");
       return calls >= 3 ? { rows: calls } : null;
     },
@@ -234,6 +235,7 @@ test("disposeRuntimeBuckets: releases every bucket and cancels rAF vs timeout co
   const target = new EventTarget();
   const handler = () => calls.push("event");
   target.addEventListener("click", handler, true);
+  target.addEventListener("x", handler, false);
   const controller = new AbortController();
   const rt = runtime.ensureRuntimeBuckets({
     listeners: {
@@ -244,7 +246,13 @@ test("disposeRuntimeBuckets: releases every bucket and cancels rAF vs timeout co
     subscriptions: { unsubscribe: () => calls.push("sub-named-unsubscribe"), other: { unsubscribe: () => calls.push("sub-obj") } },
     abortControllers: { run: controller },
     observers: [{ disconnect: () => calls.push("observer") }],
-    timers: { plain: 11, frame: { kind: "raf", id: 22 }, timeout: { kind: "timeout", id: 33 }, ladder: [44, 45], byMount: { m1: 55 } },
+    timers: {
+      plain: 11,
+      frame: { kind: "raf", id: 22 },
+      timeout: { kind: "timeout", id: 33 },
+      ladder: [44, 45],
+      watchdogsByMountKey: { m1: 55, m2: { kind: "raf", id: 56 } }
+    },
     domRefs: { root: {} },
     pendingPromises: { mount: Promise.resolve() },
     keep: "owner field"
@@ -260,14 +268,47 @@ test("disposeRuntimeBuckets: releases every bucket and cancels rAF vs timeout co
   assert.equal(controller.signal.aborted, true);
   assert.deepEqual(calls.sort(), ["listener-fn", "observer", "sub-named-unsubscribe", "sub-obj"]);
   target.dispatchEvent(new Event("click"));
-  assert.ok(!calls.includes("event"), "capture listener removed");
+  target.dispatchEvent(new Event("x"));
+  assert.ok(!calls.includes("event"), "capture record and array record both removed");
   assert.deepEqual(cleared.sort((a, b) => a - b), [11, 33, 44, 45, 55]);
-  assert.deepEqual(cancelled, [22]);
+  assert.deepEqual(cancelled.sort((a, b) => a - b), [22, 56]);
   assert.deepEqual(rt.observers, []);
   for (const name of runtime.RUNTIME_BUCKETS.filter((n) => n !== "observers")) {
     assert.deepEqual(rt[name], {}, name);
   }
   assert.equal(rt.keep, "owner field");
+});
+
+test("disposeRuntimeBuckets: unrecognised shapes are skipped, nested functions never called", () => {
+  const calls = [];
+  const target = new EventTarget();
+  const handler = (arg) => calls.push(["handler", arg]);
+  target.addEventListener("y", handler);
+  const rt = {
+    listeners: {
+      noTarget: { element: null, type: "click", handler },
+      viaListenerKey: { target, type: "y", listener: handler },
+      group: { inner: () => calls.push("nested-listener-fn") },
+      deep: [[() => calls.push("array-in-array-fn")]]
+    },
+    subscriptions: {
+      lifecycle: { mount: () => calls.push("mount"), destroy: () => calls.push("destroy") },
+      group: { inner: () => calls.push("nested-sub-fn") }
+    },
+    timers: {
+      retry: { handle: 7, attempts: 3, startedAt: 12 },
+      nested: { m1: 66 },
+      callbacksByKey: { k: () => calls.push("id-map-fn") },
+      deepLadder: [[77]]
+    }
+  };
+  const cleared = [];
+  const errs = withGlobals({ clearTimeout: (id) => { cleared.push(id); realClearTimeout(id); } }, () => runtime.disposeRuntimeBuckets(rt));
+  assert.deepEqual(errs, []);
+  assert.deepEqual(calls, [], "no handler, nested or lifecycle function was invoked");
+  assert.deepEqual(cleared, [], "record fields, non-id maps and arrays-in-arrays are not timers");
+  target.dispatchEvent(new Event("y"));
+  assert.deepEqual(calls, [], "record using the listener key was removed");
 });
 
 test("disposeRuntimeBuckets: a throwing entry does not stop the others", () => {
@@ -281,6 +322,29 @@ test("disposeRuntimeBuckets: a throwing entry does not stop the others", () => {
   assert.equal(errs[0].message, "boom");
   assert.equal(released, 2);
   assert.deepEqual(runtime.disposeRuntimeBuckets(null), []);
+});
+
+test("disposeRuntimeBuckets: a failing bucket reset is returned, not thrown", () => {
+  const rt = { subscriptions: {} };
+  Object.defineProperty(rt, "timers", { get: () => ({}), set: () => { throw new Error("locked"); }, enumerable: true });
+  const errs = runtime.disposeRuntimeBuckets(rt);
+  assert.equal(errs.length, 1);
+  assert.equal(errs[0].message, "locked");
+  assert.deepEqual(rt.subscriptions, {});
+});
+
+test("addListener: stores the canonical record, replaces the previous one, is released by dispose", () => {
+  const calls = [];
+  const target = new EventTarget();
+  const listeners = {};
+  const first = runtime.addListener(listeners, "click", target, "click", () => calls.push("first"), { capture: true });
+  assert.deepEqual(Object.keys(first).sort(), ["handler", "options", "target", "type"]);
+  runtime.addListener(listeners, "click", target, "click", () => calls.push("second"), { capture: true });
+  target.dispatchEvent(new Event("click"));
+  assert.deepEqual(calls, ["second"]);
+  runtime.disposeRuntimeBuckets({ listeners });
+  target.dispatchEvent(new Event("click"));
+  assert.deepEqual(calls, ["second"]);
 });
 
 test("scheduleFrame / scheduleTimeout / clearTimer track tagged ids", () => {

@@ -2,7 +2,8 @@
  * kit/data.js: plain-data helpers.
  *
  * cloneJson(value)      Deep copy through a JSON round-trip (see semantics below).
- * isPlainObject(value)  True for {} literals, JSON objects and Object.create(null).
+ * isPlainObject(value)  True for {} literals, JSON objects and Object.create(null). False for objects from
+ *                       another realm (iframe/window), whose Object.prototype differs.
  * isObjectLike(value)   True for any non-null, non-array object (Dates, class instances, host objects).
  * toArray(value)        New array from an array or array-like (NodeList, HTMLCollection, arguments); else [].
  *

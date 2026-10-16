@@ -7,8 +7,11 @@
  * ensureRuntime(_KDB, name, defaults?)    Get-or-create _KDB.runtime[name]; copies each `defaults` key that is
  *                                          still undefined, then fills missing buckets with {}. Returns it.
  * ensureRuntimeBuckets(rt)                Fill missing buckets on any runtime object (e.g. a per-widget runtime).
- * disposeRuntimeBuckets(rt)               Release every entry, then reset each bucket ([] stays [], else {}).
- *                                          Returns the errors thrown by individual entries (never throws).
+ * disposeRuntimeBuckets(rt)               Release recognised entries, then reset each bucket ([] stays [], else {}).
+ *                                          Never throws: errors from entries and from the reset are returned.
+ * addListener(listeners, key, target, type, handler, options?)
+ *                                          Release listeners[key], addEventListener, store and return the canonical
+ *                                          record { target, type, handler, options }.
  * scheduleTimeout(timers, key, fn, ms)    Cancel timers[key], then setTimeout; stores { kind: "timeout", id }.
  * scheduleFrame(timers, key, fn)          Same with requestAnimationFrame ({ kind: "raf", id }); falls back to
  *                                          a 0 ms timeout when rAF is unavailable. Both drop timers[key] when fired.
@@ -19,22 +22,30 @@
  * readTabsBusy(_KDB, keys?)               True if any of runtime.tabs.pendingPromises[keys] is set.
  *                                          Default keys: TABS_BUSY_KEYS = ["traverse", "startup", "tabMutation"].
  *
- * What disposeRuntimeBuckets releases (arrays and nested plain-object maps are walked, max depth 4):
+ * What disposeRuntimeBuckets releases. It visits each bucket's direct values; a direct value that is an
+ * array contributes its elements. Nothing deeper is visited, except id maps in `timers` (below). Any entry
+ * whose shape is not listed is skipped untouched: functions nested inside objects are never called.
  *   abortControllers  entry.abort()
- *   subscriptions     entry() if a function, else entry.unsubscribe()
- *   listeners         entry() if a function, else { target|element, type, handler, options|capture }
- *                     is removed with removeEventListener
+ *   subscriptions     entry() if a function, else entry.unsubscribe() if present
+ *   listeners         entry() if a function. Any object with a handler/listener/type key is a listener record:
+ *                     { target|element, type, handler|listener, options|capture } is removed with
+ *                     removeEventListener when target and handler are usable, otherwise skipped.
  *   observers         entry.disconnect()
- *   timers            cancelTimer(entry). A bare number is treated as a setTimeout id: store rAF ids as
- *                     { kind: "raf", id } (or use scheduleFrame) before adopting this helper.
+ *   timers            numbers and { kind, id } entries (cancelTimer). A direct value whose key follows the
+ *                     `<thing>By<Key>` convention (e.g. watchdogsByMountKey) is an id map: its values are
+ *                     cancelled too. Other objects ({ handle, attempts, ... } records) are skipped.
+ *                     A bare number is a setTimeout id: store rAF ids as { kind: "raf", id } (or use
+ *                     scheduleFrame) before adopting this helper.
  *   domRefs, pendingPromises   only reset (nodes are not removed, promises cannot be cancelled).
+ * Owner extras stay with the owner: re-create nested default maps, remove DOM nodes, reset owner fields,
+ * and log the returned errors where the old cleanup logged.
  */
 define([], function () {
   "use strict";
 
   var RUNTIME_BUCKETS = ["domRefs", "listeners", "subscriptions", "abortControllers", "observers", "timers", "pendingPromises"];
   var TABS_BUSY_KEYS = ["traverse", "startup", "tabMutation"];
-  var MAX_WALK_DEPTH = 4;
+  var ID_MAP_KEY = /By[A-Z0-9_$][\w$]*$/;
 
   /**
    * @param {object} rt
@@ -66,10 +77,7 @@ define([], function () {
     return ensureRuntimeBuckets(rt);
   }
 
-  function isWalkable(value) {
-    if (Array.isArray(value)) {
-      return true;
-    }
+  function isPlainMap(value) {
     var proto = value !== null && typeof value === "object" ? Object.getPrototypeOf(value) : undefined;
     return proto === Object.prototype || proto === null;
   }
@@ -78,17 +86,10 @@ define([], function () {
     return !!entry && typeof entry === "object" && typeof entry.kind === "string" && "id" in entry;
   }
 
-  /**
-   * @param {number|{kind: string, id: *}|Array} entry
-   * @returns {boolean} true if the entry was recognised as a timer
-   */
-  function cancelTimer(entry) {
+  function cancelSingleTimer(entry) {
     if (typeof entry === "number") {
       clearTimeout(entry);
       return true;
-    }
-    if (Array.isArray(entry)) {
-      return entry.map(cancelTimer).indexOf(true) >= 0;
     }
     if (!isTimerEntry(entry)) {
       return false;
@@ -103,31 +104,46 @@ define([], function () {
     return true;
   }
 
+  /**
+   * @param {number|{kind: string, id: *}|Array} entry  an array is cancelled element by element (one level)
+   * @returns {boolean} true if at least one timer was recognised
+   */
+  function cancelTimer(entry) {
+    if (Array.isArray(entry)) {
+      return entry.map(cancelSingleTimer).indexOf(true) >= 0;
+    }
+    return cancelSingleTimer(entry);
+  }
+
   function releaseVia(method, allowFunction) {
     return function (entry) {
       if (allowFunction && typeof entry === "function") {
         entry();
-        return true;
-      }
-      if (entry && typeof entry[method] === "function") {
+      } else if (entry && typeof entry[method] === "function") {
         entry[method]();
-        return true;
       }
-      return false;
     };
+  }
+
+  function isListenerRecord(entry) {
+    return !!entry && typeof entry === "object" && ("handler" in entry || "listener" in entry || "type" in entry);
   }
 
   function releaseListener(entry) {
     if (typeof entry === "function") {
       entry();
-      return true;
+      return;
     }
-    var target = entry && (entry.target || entry.element);
-    if (!target || typeof target.removeEventListener !== "function" || typeof entry.handler !== "function") {
-      return false;
+    if (!isListenerRecord(entry)) {
+      return;
     }
-    target.removeEventListener(entry.type, entry.handler, entry.options !== undefined ? entry.options : { capture: entry.capture === true });
-    return true;
+    var target = entry.target || entry.element;
+    var handler = entry.handler || entry.listener;
+    if (!target || typeof target.removeEventListener !== "function" || typeof handler !== "function") {
+      return;
+    }
+    var options = entry.options !== undefined ? entry.options : entry.capture === true;
+    target.removeEventListener(entry.type, handler, typeof options === "boolean" ? { capture: options } : options);
   }
 
   var RELEASERS = {
@@ -135,32 +151,35 @@ define([], function () {
     subscriptions: releaseVia("unsubscribe", true),
     listeners: releaseListener,
     observers: releaseVia("disconnect", false),
-    timers: cancelTimer
+    timers: cancelSingleTimer
   };
 
   // Teardown boundary: one failing entry must not keep the remaining entries alive.
-  function drain(entry, release, errors, depth) {
-    if (entry === null || entry === undefined) {
-      return;
-    }
+  function releaseEntry(entry, release, errors) {
     try {
-      if (release(entry)) {
-        return;
-      }
+      release(entry);
     } catch (error) {
       errors.push(error);
-      return;
     }
-    if (depth < MAX_WALK_DEPTH && isWalkable(entry)) {
-      Object.keys(entry).forEach(function (key) {
-        drain(entry[key], release, errors, depth + 1);
-      });
-    }
+  }
+
+  function drainBucket(name, bucket, errors) {
+    var release = RELEASERS[name];
+    Object.keys(bucket).forEach(function (key) {
+      var entry = bucket[key];
+      if (Array.isArray(entry)) {
+        entry.forEach(function (element) { releaseEntry(element, release, errors); });
+      } else if (name === "timers" && ID_MAP_KEY.test(key) && isPlainMap(entry) && !isTimerEntry(entry)) {
+        Object.keys(entry).forEach(function (mapKey) { releaseEntry(entry[mapKey], release, errors); });
+      } else {
+        releaseEntry(entry, release, errors);
+      }
+    });
   }
 
   /**
    * @param {object} rt  a runtime object holding the standard buckets
-   * @returns {Error[]} errors thrown while releasing entries (empty when clean)
+   * @returns {Error[]} errors thrown while releasing entries or resetting buckets (empty when clean)
    */
   function disposeRuntimeBuckets(rt) {
     var errors = [];
@@ -169,16 +188,34 @@ define([], function () {
     }
     Object.keys(RELEASERS).forEach(function (name) {
       var bucket = rt[name];
-      if (isWalkable(bucket)) {
-        Object.keys(bucket).forEach(function (key) {
-          drain(bucket[key], RELEASERS[name], errors, 1);
-        });
+      if (Array.isArray(bucket) || isPlainMap(bucket)) {
+        drainBucket(name, bucket, errors);
       }
     });
     RUNTIME_BUCKETS.forEach(function (name) {
-      rt[name] = Array.isArray(rt[name]) ? [] : {};
+      try {
+        rt[name] = Array.isArray(rt[name]) ? [] : {};
+      } catch (error) {
+        errors.push(error);
+      }
     });
     return errors;
+  }
+
+  /**
+   * @param {object} listeners  a runtime `listeners` bucket (plain map)
+   * @param {string} key
+   * @param {EventTarget} target
+   * @param {string} type
+   * @param {Function} handler
+   * @param {boolean|object} [options]
+   * @returns {{target: EventTarget, type: string, handler: Function, options: *}}
+   */
+  function addListener(listeners, key, target, type, handler, options) {
+    releaseListener(listeners[key]);
+    target.addEventListener(type, handler, options);
+    listeners[key] = { target: target, type: type, handler: handler, options: options };
+    return listeners[key];
   }
 
   function schedule(timers, key, kind, callback, delayMs) {
@@ -250,6 +287,7 @@ define([], function () {
     ensureRuntime: ensureRuntime,
     ensureRuntimeBuckets: ensureRuntimeBuckets,
     disposeRuntimeBuckets: disposeRuntimeBuckets,
+    addListener: addListener,
     scheduleTimeout: scheduleTimeout,
     scheduleFrame: scheduleFrame,
     clearTimer: clearTimer,
