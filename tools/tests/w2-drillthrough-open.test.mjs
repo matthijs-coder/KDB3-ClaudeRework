@@ -1,0 +1,72 @@
+// W2 drillthrough: opener isolation, deferred-open timeout and destroy. The URL goldens stay in ws-d-drillthrough-url.test.mjs.
+// Run: node --test tools/tests/w2-drillthrough-open.test.mjs
+import { test } from "node:test";
+import assert from "node:assert/strict";
+import path from "node:path";
+import { loadAmd } from "../lib/amd-loader.mjs";
+import { JS_ROOT } from "../lib/amd-graph.mjs";
+
+const ENTRY = path.join(JS_ROOT, "core/services/drillthrough/__orchestratorDrillthrough.js");
+const LINKS = { pkzAnalysetool: { prod: "https://prod.example/pkz?run=1" } };
+const BW_ROWS = [
+  { level00: { text: "Magistrat", id: "mag" }, level01: { text: "Geschäftsgruppe Finanzen", id: "GGF#" }, level02: { text: "MA 05", id: "MA05#1" } }
+];
+const SPEC = {
+  source: "icon", widgetId: "w1", kennzahlCode: "KZ_100", sicht: "BW", visType: "bar", selectedDimension: "Geschlecht",
+  yearContext: { defaultYear: 2022 },
+  orgSelection: { selectedValues: [{ idValue: "MA05#1", displayValue: "MA 05", level: 2 }] }
+};
+
+function fakeWindow() {
+  const calls = { replace: [], closed: 0 };
+  const handle = {
+    closed: false,
+    opener: "parent-window",
+    close() { handle.closed = true; calls.closed += 1; },
+    location: { replace: (url) => calls.replace.push(url) },
+    document: { title: "", body: { firstChild: { textContent: "" }, textContent: "" }, open() {}, write() {}, close() {} }
+  };
+  return { handle, calls };
+}
+
+function quietConsole() {
+  const errors = [];
+  return { errors, log() {}, warn() {}, info() {}, debug() {}, error: (...args) => errors.push(args) };
+}
+
+function setup({ windowOpen, readRows = () => BW_ROWS, readPendingLoad = () => null, timeoutMs } = {}) {
+  const con = quietConsole();
+  const register = loadAmd(ENTRY, { stubs: { window: { location: { href: "https://cognos.example/x" }, open: (...a) => windowOpen(...a) }, console: con } });
+  const KDB = { services: { tableData: { readRows, readPendingLoad, readTableState: () => ({ lifecycle: "ready" }) } }, config: { links: LINKS } };
+  const service = register(KDB);
+  return { service, con, KDB, timeoutMs };
+}
+
+const tick = () => new Promise((resolve) => setImmediate(resolve));
+
+test("opener: the opened window loses its opener, the URL and target stay the same", () => {
+  const win = fakeWindow();
+  const opened = [];
+  const { service } = setup({ windowOpen: (...args) => (opened.push(args), win.handle) });
+  const built = service.buildDrillthroughUrl(SPEC);
+  const result = service.openDrillthrough(SPEC);
+  assert.equal(result.ok, true);
+  assert.deepStrictEqual(opened, [[built.url, "_blank"]]);
+  assert.equal(win.handle.opener, null);
+});
+
+test("opener: the deferred wait window loses its opener as well", () => {
+  const win = fakeWindow();
+  const { service } = setup({ windowOpen: () => win.handle, readRows: () => [], readPendingLoad: () => new Promise(() => {}) });
+  const result = service.openDrillthrough(SPEC);
+  assert.equal(result.ok, true);
+  assert.equal(win.handle.opener, null);
+});
+
+test("opener: a window.open result that rejects the opener write does not fail the open", () => {
+  const handle = { get opener() { return null; }, set opener(_v) { throw new Error("cross-origin"); } };
+  const { service, con } = setup({ windowOpen: () => handle });
+  const result = service.openDrillthrough(SPEC);
+  assert.equal(result.ok, true);
+  assert.ok(con.errors.some((args) => String(args[0]).includes("detaching the opener")));
+});

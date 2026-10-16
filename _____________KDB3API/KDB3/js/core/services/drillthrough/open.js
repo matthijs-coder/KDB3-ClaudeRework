@@ -13,8 +13,22 @@ define([
     return typeof value === "string" ? value : "";
   }
 
+  // The "noopener" window feature makes window.open return null, which would read as a blocked popup and
+  // leave no handle for the wait window. Dropping the opener reference right after opening isolates the same way.
+  function detachOpener(_handle) {
+    try {
+      if (_handle) {
+        _handle.opener = null;
+      }
+    } catch (err) {
+      console.error("[drillthrough.openBlankWindow] detaching the opener failed", err);
+    }
+  }
+
   function openBlankWindow(_url) {
-    return window.open(_url, "_blank");
+    var handle = window.open(_url, "_blank");
+    detachOpener(handle);
+    return handle;
   }
 
   function closeIfOpen(_handle) {
