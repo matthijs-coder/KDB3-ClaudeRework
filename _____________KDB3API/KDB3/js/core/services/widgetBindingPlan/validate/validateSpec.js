@@ -5,7 +5,7 @@ define([
 
   function __controller(_spec) {
     if (!_spec || typeof _spec !== "object") {
-      return { ok: false, code: "WIDGET_BINDING_PLAN_MISSING_SPEC", message: "Binding plan spec is required.", legacy: "missingDataConfig" };
+      return { ok: false, code: "WIDGET_BINDING_PLAN_MISSING_SPEC", message: "Binding plan spec is required." };
     }
     if (!_planReasons.PLAN_TARGET_KINDS[_spec.targetKind]) {
       return { ok: false, code: "WIDGET_BINDING_PLAN_INVALID_TARGET", message: "targetKind is missing or unsupported." };
@@ -13,7 +13,7 @@ define([
     var dataConfig = _spec.dataConfig;
     var config = _spec.config;
     if (!dataConfig || typeof dataConfig !== "object") {
-      return { ok: false, code: "WIDGET_BINDING_PLAN_MISSING_SPEC", message: "dataConfig is required.", legacy: "missingDataConfig" };
+      return { ok: false, code: "WIDGET_BINDING_PLAN_MISSING_SPEC", message: "dataConfig is required." };
     }
     if (!dataConfig.datasourceId) {
       return { ok: false, code: "WIDGET_BINDING_PLAN_MISSING_DATASOURCE", message: "dataConfig.datasourceId is required." };

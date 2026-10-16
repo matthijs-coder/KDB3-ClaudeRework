@@ -54,15 +54,15 @@ define([
     var isPieVis = !!PIE[visTypeKey];
 
     if (catalogDimensionMissing(dim, dimKey, dimAffects, slotName)) {
-      return { ok: false, errorCode: "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_ITEM", legacyError: "missingSelectedDimensionItemId" };
+      return { ok: false, errorCode: "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_ITEM" };
     }
     if (dim) {
       if (!dimAffects) {
-        return { ok: false, errorCode: "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_AFFECTS", legacyError: "missingDimensionSelectionAffects" };
+        return { ok: false, errorCode: "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_AFFECTS" };
       }
       if (dimAffects === slotName || (dimAffects === "series" && slotName === "series")) {
         if (!dim.entry.itemId) {
-          return { ok: false, errorCode: "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_ITEM", legacyError: "missingSelectedDimensionItemId" };
+          return { ok: false, errorCode: "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_ITEM" };
         }
         selectedDimensionId = String(dim.entry.itemId);
         columnIds = _applySlotComposition.prependUniqueId(selectedDimensionId, columnIds);

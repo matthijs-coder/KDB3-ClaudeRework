@@ -3,7 +3,7 @@ define([
 ], function (_createPlanFailure) {
   "use strict";
 
-  function buildFailureContext(_spec, _diagnostics, _stage, _code, _message, _legacy, _extra) {
+  function buildFailureContext(_spec, _diagnostics, _stage, _code, _message, _extra) {
     return Object.assign({
       reason: _spec && _spec.reason,
       targetKind: (_spec && _spec.targetKind) || "vis",
@@ -14,14 +14,13 @@ define([
       failedStage: _stage,
       errorCode: _code,
       errorMessage: _message,
-      legacyError: _legacy || null,
       datasource: null,
       visualization: null,
     }, _extra || {});
   }
 
-  function createPlanFailure(_spec, _diagnostics, _stage, _code, _message, _legacy, _extra) {
-    return _createPlanFailure(buildFailureContext(_spec, _diagnostics, _stage, _code, _message, _legacy, _extra));
+  function createPlanFailure(_spec, _diagnostics, _stage, _code, _message, _extra) {
+    return _createPlanFailure(buildFailureContext(_spec, _diagnostics, _stage, _code, _message, _extra));
   }
 
   return {

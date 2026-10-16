@@ -79,7 +79,7 @@ define([
       return { ok: true };
     }
     if (!entry.itemId) {
-      return { ok: false, errorCode: "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_ITEM", legacyError: "missingSelectedDimensionItemId" };
+      return { ok: false, errorCode: "WIDGET_BINDING_PLAN_SLOT_MISSING_DIM_ITEM" };
     }
     var itemId = String(entry.itemId);
     var includeRule = resolveFilterRule(entry.include, itemId);
@@ -105,7 +105,7 @@ define([
     var map = {};
     var step = addWidgetFilters(_spec, map);
     if (!step.ok) {
-      return { ok: false, errorCode: step.errorCode, legacyError: step.legacyError, key: step.key };
+      return { ok: false, errorCode: step.errorCode, key: step.key };
     }
     step = addKennzahlDefaults(_spec, map);
     if (!step.ok) {

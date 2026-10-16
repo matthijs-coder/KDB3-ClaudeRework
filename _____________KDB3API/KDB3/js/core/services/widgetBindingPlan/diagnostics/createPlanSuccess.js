@@ -34,7 +34,6 @@ define([
       status: "success",
       errorCode: null,
       errorMessage: null,
-      legacyError: null,
       reason: context.reason == null ? null : String(context.reason),
       targetKind: context.targetKind || "vis",
       widgetId: context.widgetId == null ? null : String(context.widgetId),

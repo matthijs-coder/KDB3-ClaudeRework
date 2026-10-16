@@ -22,7 +22,6 @@ define([], function () {
       ownerWidgetId: spec.ownerWidgetId == null ? null : String(spec.ownerWidgetId),
       opSeq: typeof spec.opSeq === "number" ? spec.opSeq : null,
       emptyIntent: emptyIntentShape(spec.emptyIntent),
-      legacyError: null,
       failedStage: null,
       warnings: [],
       counts: {

@@ -21,14 +21,12 @@ define([
     var context = _context && typeof _context === "object" ? _context : {};
     var diagnostics = _cloneSerializable(context.diagnostics || {});
     diagnostics.failedStage = context.failedStage || diagnostics.failedStage || null;
-    diagnostics.legacyError = context.legacyError || diagnostics.legacyError || null;
 
     return {
       ok: false,
       status: "error",
       errorCode: context.errorCode || "WIDGET_BINDING_PLAN_INTERNAL",
       errorMessage: context.errorMessage || "Binding plan failed.",
-      legacyError: context.legacyError || null,
       reason: context.reason == null ? null : String(context.reason),
       targetKind: context.targetKind || "vis",
       widgetId: context.widgetId == null ? null : String(context.widgetId),

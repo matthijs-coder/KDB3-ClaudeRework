@@ -62,7 +62,6 @@ define([], function () {
       return {
         ok: false,
         errorCode: "WIDGET_BINDING_PLAN_TOPN_UNKNOWN",
-        legacyError: "unknownTopNValue",
       };
     }
     if (_spec && _spec.targetKind === "topNHelper") {
@@ -74,14 +73,12 @@ define([], function () {
       return {
         ok: false,
         errorCode: "WIDGET_BINDING_PLAN_TOPN_HELPER_MISSING",
-        legacyError: "missingTopNHelperResult",
       };
     }
     if (helperResult.ok === false) {
       return {
         ok: false,
         errorCode: "WIDGET_BINDING_PLAN_TOPN_HELPER_FAILED",
-        legacyError: helperResult.error || "topNHelperFailed",
       };
     }
 
@@ -91,7 +88,6 @@ define([], function () {
       return {
         ok: false,
         errorCode: "WIDGET_BINDING_PLAN_TOPN_HELPER_MISSING",
-        legacyError: "missingTopNHelperResult",
       };
     }
 
