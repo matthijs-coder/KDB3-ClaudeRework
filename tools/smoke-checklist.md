@@ -192,6 +192,13 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] DOM check (Elements): no `kdb-dashboard-header-draft*` inputs inside `#KDB_topHeader` and no zoom-hint toast after switching the header on. A header icon dispatched with an unsafe key (`getKDB().api.header.dispatch({type:"header/setIcon",payload:{source:"api",iconKey:"../x"}})`) falls back to `Stadt-wien`.
 - [ ] Destroy and re-boot: no header or footer wrapper left from the old instance; no growth of `document` `pointerdown` listeners after repeated header edits (section 4.1).
 
+#### N4 launchpad
+- [ ] Load a dashboard with 3 tabs plus the helper tab. Console: `_KDB.api.launchpad.getState()` shows `lifecycle: "ready"`, one entry per dashboard tab in `tabs` (same order as the canvas tabs), the helper tab only in `helperTabIds`, and 5 pads (`visualization`, `text`, `dataTables`, `topN`, `otherResources`) each with one slot per tab. Elements: `#KDB_HideSpot > #KDB_widgetLaunchpad` has the 5 pad divs with one `.KDB_launchpadSlot` per tab.
+- [ ] Drag a visualization, a text widget and a TopN widget from the launchpad pads onto the canvas of different tabs. Expected: each lands where dropped, TopN resolves its helper (helper widget is read through `launchpad/readSlotWidgets`), no console errors.
+- [ ] Duplicate a widget and delete a widget. Expected: same result as baseline; the launchpad keeps parking the widgets (check `_KDB.api.launchpad.dispatch({type:'launchpad/readSlotWidgets',payload:{padKey:'visualization'}})` resolves `ok: true`).
+- [ ] Save, reload the dashboard. Expected: same tabs and widgets, launchpad `getState()` as before, no widgets left outside their slots.
+- [ ] Close/destroy the KDB widget (remove it from the dashboard or re-render). Expected: `#KDB_HideSpot` is removed from `document.body`, no leftover `#KDB_widgetLaunchpad`, no console errors.
+
 ### WS-O Core foundation (authoring, config, events, homeDialog, utils)
 - [ ] **Authoring mode** (Cognos Edit ↔ View, the pencil/"Bearbeiten" button):
   - Each switch flips `getKDB().state.authoring.isAuthoring`, and `#kdb-control-root` gains or loses the class `kdb-control--authoring`. The tab bar behaves as on baseline.
