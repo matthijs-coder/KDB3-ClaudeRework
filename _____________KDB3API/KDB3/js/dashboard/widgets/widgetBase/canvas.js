@@ -258,6 +258,11 @@ define([
     }
   }
 
+  // Text widgets and TopN helpers never own a helper claim; an unknown frame is cleaned up, which is a no-op.
+  function ownsTopNClaim(_frame) {
+    return !_frame || (_frame.kind === "vis" && _frame.role !== "topNHelper");
+  }
+
   function handleRemove(_context, _action) {
     const payload = (_action && _action.payload) || {};
     const widgetId = _action.widgetId;
@@ -268,7 +273,11 @@ define([
     _effects.dispatchWidgetSettingsCleanup(_context._KDB, { widgetId: widgetId });
     detachShell(_context._KDB, widgetId);
     cleanupWidgetRuntime(_context._KDB, widgetId);
+    const frame = _context.selectors.readFrame(_context._KDB, widgetId);
     _context.dispatchInternal({ type: _context.actionTypes.REMOVE_SUCCEEDED, widgetId: widgetId });
+    if (ownsTopNClaim(frame)) {
+      _effects.dispatchWidgetTopNCleanup(_context._KDB, { widgetId: widgetId, reason: payload.reason === "destroy" ? "destroy" : "remove" });
+    }
     if (payload.reason === "user" && payload.isHistoryReplay !== true) {
       _historyKit.pushHistoryStep(_context._KDB, {
         key: "widget_removed",

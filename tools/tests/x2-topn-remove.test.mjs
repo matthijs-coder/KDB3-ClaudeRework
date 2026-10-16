@@ -205,7 +205,7 @@ async function withEnv(options, body) {
 
 const topNMessages = (messages) => messages.filter((m) => m.text.indexOf("[widgetTopN") === 0 || m.text.indexOf("[widgetBase") === 0);
 
-test("remove of a settled TopN owner: the claim in state, runtime and helper mirror, and a second owner's claim", async () => {
+test("remove of a settled TopN owner releases the claim, prunes its records and frees the helper", async () => {
   await withEnv({}, async (env, messages) => {
     const first = await env.resolve("o1", 1);
     assert.equal(first.status, "success");
@@ -216,24 +216,26 @@ test("remove of a settled TopN owner: the claim in state, runtime and helper mir
     const removed = await env.remove("o1");
     assert.equal(removed.ok, true);
     assert.equal(removed.placement, "removed");
+    await waitUntil(() => env.ownerState("o1") === undefined);
     await env.settle();
 
     assert.equal(env._KDB.state.widgets.base.byId.o1.placement, "removed");
-    assert.equal(env.ownerState("o1").helperWidgetId, "h1", "claim still in state");
-    assert.ok(env.ownerState("o1").claimToken);
-    assert.equal(env.ownerRuntime("o1").helperWidgetId, "h1", "claim still in runtime");
-    assert.deepEqual(env.helperAttrs("h1")[0], "o1", "mirror still on the helper shell");
+    assert.equal(env.ownerState("o1"), undefined, "state record pruned");
+    assert.equal(env.ownerRuntime("o1"), undefined, "runtime record pruned");
+    assert.deepEqual(env.helperAttrs("h1"), [null, null], "mirror cleared");
     assert.equal(env.helperInSlot("h1"), true);
+    assert.deepEqual(env.visDispatches.map((a) => a.type), ["widgetVis/disposeWidgetRuntime"]);
 
     const second = await env.resolve("o2", 1);
-    assert.equal(second.status, "noHelperAvailable");
-    assert.equal(second.errorCode, "WIDGET_TOPN_NO_HELPER_AVAILABLE");
+    assert.equal(second.status, "success", "the next owner gets the helper");
+    assert.equal(env.ownerState("o2").helperWidgetId, "h1");
+    await env.settle();
     assert.deepEqual(topNMessages(messages), []);
   });
 });
 
-test("remove while the TopN bind is running: the resolve and the claim afterwards", async () => {
-  await withEnv({ applyMs: 200 }, async (env) => {
+test("remove while the TopN bind is running: the resolve ends stale, the helper goes back to its slot, the claim is released", async () => {
+  await withEnv({ applyMs: 200 }, async (env, messages) => {
     const running = env.resolve("o1", 1);
     await sleep(80);
     assert.equal(env.ownerRuntime("o1").helperWidgetId, "h1");
@@ -243,27 +245,36 @@ test("remove while the TopN bind is running: the resolve and the claim afterward
     const result = await running;
     await env.settle();
 
-    assert.equal(result.status, "success", "resolve ran to its end for the removed owner");
-    assert.equal(env.terminals.length, 1);
-    assert.equal(env.helperInSlot("h1"), true);
-    assert.equal(env.ownerRuntime("o1").helperPlacement, null);
-    assert.equal(env.ownerRuntime("o1").helperWidgetId, "h1", "claim still in runtime");
-    assert.equal(env.ownerState("o1").helperWidgetId, "h1", "claim still in state");
-    assert.equal(env.helperAttrs("h1")[0], "o1");
+    assert.equal(result.stale, true);
+    assert.equal(result.status, "aborted");
+    assert.deepEqual(env.terminals, [], "no terminal for a removed owner");
+    assert.equal(env.helperInSlot("h1"), true, "helper restored through the placement lease");
+    assert.equal(env.ownerRuntime("o1"), undefined);
+    assert.equal(env.ownerState("o1"), undefined);
+    assert.deepEqual(env.helperAttrs("h1"), [null, null]);
+    const second = await env.resolve("o2", 1);
+    assert.equal(second.status, "success");
+    assert.deepEqual(topNMessages(messages).map((m) => m.text), ["[widgetBase.dispatchWidgetTopNCleanup] cleanup failed"],
+      "the clear that cannot be planned is logged once");
   });
 });
 
-test("remove before the first bind has finished: the claim afterwards", async () => {
-  await withEnv({ applyMs: 300 }, async (env) => {
+test("remove before the first bind has finished releases the claim although the helper clear cannot be planned", async () => {
+  await withEnv({ applyMs: 300 }, async (env, messages) => {
     const running = env.resolve("o1", 1);
     await sleep(30);
     assert.equal(env.ownerRuntime("o1").helperWidgetId, "h1");
     assert.equal(env.ownerRuntime("o1").lastHelperDataConfig, null);
-    await env.remove("o1");
+    const removed = await env.remove("o1");
+    assert.equal(removed.ok, true, "remove itself is not affected by the cleanup outcome");
     await running;
     await env.settle();
-    assert.equal(env.ownerState("o1").helperWidgetId, "h1");
-    assert.equal(env.helperAttrs("h1")[0], "o1");
+    assert.equal(env.ownerState("o1"), undefined);
+    assert.deepEqual(env.helperAttrs("h1"), [null, null]);
+    assert.equal(env.helperInSlot("h1"), true);
+    const second = await env.resolve("o2", 1);
+    assert.equal(second.status, "success");
+    assert.ok(messages.every((m) => m.text.indexOf("WIDGET_TOPN_NO_HELPER_AVAILABLE") === -1));
   });
 });
 
