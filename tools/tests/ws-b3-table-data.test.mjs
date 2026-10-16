@@ -581,7 +581,13 @@ test("service: destroy disposes state, aborts loads, rejects afterwards", async 
     assert.equal(KDB.state.tableData[key].lifecycle, "disposed", key);
     assert.equal(KDB.state.tableData[key].freshness, "stale", key);
   }
+  for (const key of ["T1", "T2"]) {
+    assert.equal(KDB.state.tableData[key].rows, null, `${key} rows released on dispose`);
+    assert.equal(KDB.state.tableData[key].sourceRows, null, `${key} sourceRows released on dispose`);
+  }
   const runtime = KDB.runtime.tableData;
+  assert.equal(runtime.canvasWidgetsForLookup, null, "canvas lookup cache reset on destroy");
+  assert.equal(runtime.canvasWidgetsForLookupPromise, null);
   assert.deepEqual(runtime.pendingLoads, {});
   assert.deepEqual(runtime.abortControllers, {});
   assert.deepEqual(runtime.notifiedLoadFailures, {});
@@ -605,4 +611,15 @@ test("snapshot: scenario traces match the recorded snapshot", () => {
   const expected = JSON.parse(fs.readFileSync(SNAPSHOT_FILE, "utf8"));
   assert.deepEqual(Object.keys(recorded).sort(), Object.keys(expected).sort());
   for (const key of Object.keys(expected)) assert.deepEqual(recorded[key], expected[key], key);
+});
+
+test("tableState: markTableDisposed gives an unknown table an identity", () => {
+  const state = loadService("tableState.js");
+  const KDB = { state: { tableData: {} } };
+  const entry = state.markTableDisposed(KDB, { tableKey: "Ghost" });
+  assert.equal(entry.lifecycle, "disposed");
+  assert.equal(entry.tableHandle, "Ghost");
+  assert.equal(entry.tableName, "Ghost");
+  assert.equal(entry.rows, null);
+  assert.equal(KDB.state.tableData.Ghost, entry);
 });
