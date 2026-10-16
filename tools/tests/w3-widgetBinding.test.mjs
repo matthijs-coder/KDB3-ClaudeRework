@@ -179,7 +179,9 @@ function realSpec(overrides = {}) {
   };
 }
 
-const withoutTiming = (value) => JSON.parse(JSON.stringify(value, (key, item) => (/Ms$/.test(key) ? undefined : item)));
+// Only measured wall-clock readings vary between runs (renderWaitMs is the measured wait); configured timeouts (timeoutMs, ...) stay compared.
+const WALL_CLOCK_KEYS = new Set(["elapsedMs", "remainingBudgetMs", "renderWaitMs"]);
+const withoutTiming = (value) => JSON.parse(JSON.stringify(value, (key, item) => (WALL_CLOCK_KEYS.has(key) ? undefined : item)));
 
 function realKdb() {
   const calls = [];
