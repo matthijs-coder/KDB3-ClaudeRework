@@ -14,12 +14,13 @@ define([
   "./editUi/renameActions.js",
   "./restore/parameterSetRestore.js",
   "./tabMutation/actions.js",
+  "./tabMutation/slotStock/ledger.js",
   "./traverse/traverse.js",
   "../../core/utils/kit/runtime.js",
   "../../core/utils/kit/errors.js"
 ], function (
   _actionTypes, _config, _state, _reducer, _selectors, _effects, _view, _observe, _chrome, _history, _slots,
-  _session, _renameActions, _parameterSet, _tabMutation, _traverse, _rt, _errors
+  _session, _renameActions, _parameterSet, _tabMutation, _slotStockLedger, _traverse, _rt, _errors
 ) {
   "use strict";
 
@@ -113,6 +114,7 @@ define([
       runtime.adapters = {};
       runtime.lastTabMutationError = null;
       runtime.historyReplayHandlerContribution = null;
+      _slotStockLedger.reset(_KDB);
       restoreReadCurrentTab(_KDB, runtime);
       _reducer.commitTabsState(_KDB, { type: _actionTypes.DESTROY, payload: { source: "destroy" } });
     } catch (err) {

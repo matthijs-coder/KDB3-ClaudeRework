@@ -5,8 +5,9 @@ define([
   "../slots.js",
   "../events/eventNames.js",
   "../restore/guard.js",
+  "./slotStock/ledger.js",
   "../../../core/utils/filters/tabMutationRun/tabMutationSnapshots.js"
-], function (_actionTypes, _codes, _config, _slots, _eventNames, _guard, _snapshots) {
+], function (_actionTypes, _codes, _config, _slots, _eventNames, _guard, _ledger, _snapshots) {
   "use strict";
 
   // The owner side of a tab mutation run: dispatching one phase to the filter and widget owners, slot readiness
@@ -228,6 +229,7 @@ define([
   function clearSnapshots(_ctx, _operationId) {
     const runtime = _ctx && _ctx._KDB && _ctx._KDB.runtime;
     if (!runtime || _operationId == null || _operationId === "") { return; }
+    _ledger.deleteSnapshot(_ctx._KDB, _operationId);
     _config.mutationOwners.SNAPSHOT_OWNER_KEYS.forEach(function (ownerKey) {
       if (!runtime[ownerKey]) { return; }
       try {

@@ -2,15 +2,11 @@ define(["../../../core/utils/kit/runtime.js"], function (_runtimeKit) {
   "use strict";
 
   function ensureWidgetBaseRuntime(_KDB) {
-    const runtime = _runtimeKit.ensureRuntime(_KDB, "widgetBase", {
+    _runtimeKit.ensureRuntime(_KDB, "widgetBase", {
       routedTabIds: {},
       pendingRouteByTabId: {},
-      tabMutationSnapshots: {},
       byId: {}
     });
-    if (typeof runtime.tabMutationRunId !== "number") {
-      runtime.tabMutationRunId = 0;
-    }
   }
 
   function ensureWidgetBaseWidgetRuntime(_KDB, widgetId) {
