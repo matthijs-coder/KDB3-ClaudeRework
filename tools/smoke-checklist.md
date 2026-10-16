@@ -191,6 +191,8 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] PDF export on a dashboard with 3 or more tabs (uses the traverse). Expected: every tab is visited, export completes, the original tab is active afterwards. Cancel an export mid-way: no console error.
 - [ ] Console: `const k = window.top.getKDB(); const orig = k.utils.readCurrentTab;` close the KDB3 widget, then `k.utils.readCurrentTab === orig` (the saved original is back); reopen: `readCurrentTab` is a different (tabs-aware) function again and `k.utils.readCurrentTab()` still returns the current tab.
 - [ ] Destroy + re-mount twice. Expected: tab editing, mutations and undo/redo work after each re-mount; no `[tabs.*] called after destroy` warnings while idle.
+- [ ] Traverse timeout leaves no stuck cover. Console: `await window.top.getKDB().api.tabs.dispatch({ type: "tabs/traverse", payload: { scope: "allDashboard", timeoutMs: 50 } })`. Expected: it resolves `false`, a `TABS_TRAVERSE_TIMEOUT` is recorded in the tabs state, the loading cover is gone and the original tab is active again after a moment.
+- [ ] Rename while the kdbControl view throws still succeeds. Console: `const k = window.top.getKDB(); const orig = k.api.kdbControl.syncView; k.api.kdbControl.syncView = () => { throw new Error("x"); };`, rename a tab, then `k.api.kdbControl.syncView = orig`. Expected: the new name is shown and stays, only a `[tabs.syncKdbControlView]` warning appears (no rename failure alert).
 
 ### WS-G kdbControl (control primitives)
 - [ ] In a widget settings panel / header editor: colour inputs (typing a hex value, picking from the palette), palette closes on outside-click, toggle switches (Ein/Aus) and radios work as on baseline.

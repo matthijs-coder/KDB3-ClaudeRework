@@ -275,7 +275,8 @@ function makeMutationHarness({ activated = true, failingOwner = null, syncViewTh
   const types = load("config/actionTypes.js");
   const log = { dispatched: [], owners: [], loading: [] };
   const state = makeTabsState(["A", "B", "C", "D"], 3, 1);
-  if (activated) { withActivation(state); }
+  withActivation(state);
+  if (!activated) { state.byIndex["2"].hasBeenActivated = false; }
   const runtime = { pendingPromises: {}, abortControllers: {}, baselineNamesByIndex: { 2: "Tab 3" } };
   const ownerApi = (name) => ({
     dispatch: async (action) => {
@@ -320,6 +321,7 @@ test("tab mutation saga: a failure before the commit rolls the owners back, retu
   assert.deepEqual(h.log.owners.filter((type) => /restoreTabMutationSnapshot$/.test(type)), ["widgetBase/restoreTabMutationSnapshot", "singleSelect/restoreTabMutationSnapshot"]);
   assert.equal(h.log.dispatched.some((action) => action.type === h.types.TAB_MUTATION_APPLY), false);
   const traversals = h.log.dispatched.filter((action) => action.type === h.types.TRAVERSE).map((action) => action.payload.tabIndex);
+  assert.equal(traversals.length > 1, true);
   assert.equal(traversals[traversals.length - 1], 1);
   assert.equal(h.runtime.pendingPromises.tabMutation, undefined);
   assert.deepEqual(h.log.loading, ["start", "finish"]);
@@ -450,7 +452,10 @@ test("traverse: destroy mid-traversal stops clicking, confirms nothing and still
   assert.deepEqual(h.clicks, [1]);
   assert.deepEqual(h.calls, ["finish", "start", "finish"]);
   assert.equal(h.runtime.pendingPromises.traverse, undefined);
+  const dispatchedBefore = h.dispatched.length;
   assert.equal(await h.traverse.dispatchTabsTraverse(h.instance, SINGLE_TAB), false);
+  assert.equal(h.dispatched.length, dispatchedBefore);
+  assert.deepEqual(h.clicks, [1]);
 });
 
 test("rename: a throwing kdbControl view neither fails the rename nor the Cognos round trip", async () => {
