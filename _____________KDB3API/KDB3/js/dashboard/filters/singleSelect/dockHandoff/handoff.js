@@ -1,7 +1,8 @@
 define([
   "../config.js",
-  "./routeInteraction.js"
-], function (_config, _routeInteraction) {
+  "./routeInteraction.js",
+  "../../_core/dockHandoff.js"
+], function (_config, _routeInteraction, _dockHandoff) {
   "use strict";
 
   var codes = _config.errorCodes;
@@ -22,65 +23,51 @@ define([
     };
   }
 
-  function deriveClickedFlags(_interactionType) {
-    return {
-      clickedOk: _interactionType === "confirm",
-      clickedCancel: _interactionType === "cancel",
-      clickedClear: _interactionType === "clear",
-      clickedClose: _interactionType === "close"
-    };
-  }
+  var HANDOFF_PROFILE = {
+    labelDefault: "",
+    scopeMode: "filterScopeFirst",
+    keyScope: "filterScope",
+    timestamp: "timestampFirst",
+    fields: [
+      ["filterId", "orNull"],
+      ["filterLabel", "derived"],
+      ["filterKey", "derived"],
+      ["filterScope", "derived"],
+      ["scopeType", "derived"],
+      ["filterType", "filterType"],
+      ["filterInstanceId", "orNull"],
+      ["scopeId", "scopeIdPair"],
+      ["scope", "scopePair"],
+      ["scopeResolution", "orNull"],
+      ["tabId", "orNull"],
+      ["itemNameHint", "orNull"],
+      ["itemIdHint", "orNull"],
+      ["semanticInstanceKeyHint", "orNull"],
+      ["semanticSpecialFilterId", "orNull"],
+      ["authorizedByOwner", "orNull"],
+      ["ownerSelectionContext", function (_raw) { return cloneOwnerSelectionContext(_raw.ownerSelectionContext); }],
+      ["operationId", function (_raw) { return _raw.operationId != null ? String(_raw.operationId) : null; }],
+      ["source", "orNull"],
+      ["skipHistory", "isTrue"],
+      ["filterConfig", "refOrEmpty"],
+      ["clickTarget", "alwaysNull"],
+      ["clickedOk", "derived"],
+      ["clickedCancel", "derived"],
+      ["clickedClear", "derived"],
+      ["clickedClose", "derived"],
+      ["hasAlleOption", function (_raw, _derived) { return _derived.caps.hasAlleOption === true; }],
+      ["condition", function (_raw, _derived) { return _derived.caps.condition != null ? _derived.caps.condition : null; }],
+      ["interactionType", "derived"],
+      ["isAlleOption", "isTrue"],
+      ["optionLabel", "optionLabel"],
+      ["popup", "copyOrNull"],
+      ["capabilities", "derived"],
+      ["timestamp", "derived"]
+    ]
+  };
 
   function mapFilterDockHandoff(_handoff) {
-    if (!_handoff || typeof _handoff !== "object") {
-      return null;
-    }
-
-    var filterScope = _handoff.filterScope || _handoff.scopeType || "global";
-    var filterLabel = _handoff.filterLabel || "";
-    var filterKey = _handoff.filterKey || _handoff.filterId || filterScope + "__" + filterLabel;
-    var capabilities = _handoff.capabilities ? _handoff.capabilities : {};
-    var interactionType = _handoff.interactionType || "unknown";
-    var clickedFlags = deriveClickedFlags(interactionType);
-
-    return {
-      filterId: _handoff.filterId || null,
-      filterLabel: filterLabel,
-      filterKey: filterKey,
-      filterScope: filterScope,
-      scopeType: _handoff.scopeType || filterScope,
-      filterType: _handoff.filterType || "unknown",
-      filterInstanceId: _handoff.filterInstanceId || null,
-      scopeId: _handoff.scopeId || _handoff.scope || null,
-      scope: _handoff.scope || _handoff.scopeId || null,
-      scopeResolution: _handoff.scopeResolution || null,
-      tabId: _handoff.tabId || null,
-      itemNameHint: _handoff.itemNameHint || null,
-      itemIdHint: _handoff.itemIdHint || null,
-      semanticInstanceKeyHint: _handoff.semanticInstanceKeyHint || null,
-      semanticSpecialFilterId: _handoff.semanticSpecialFilterId || null,
-      authorizedByOwner: _handoff.authorizedByOwner || null,
-      ownerSelectionContext: cloneOwnerSelectionContext(_handoff.ownerSelectionContext),
-      operationId: _handoff.operationId != null
-        ? String(_handoff.operationId)
-        : null,
-      source: _handoff.source || null,
-      skipHistory: _handoff.skipHistory === true,
-      filterConfig: _handoff.filterConfig || {},
-      clickTarget: null,
-      clickedOk: clickedFlags.clickedOk,
-      clickedCancel: clickedFlags.clickedCancel,
-      clickedClear: clickedFlags.clickedClear,
-      clickedClose: clickedFlags.clickedClose,
-      hasAlleOption: capabilities.hasAlleOption === true,
-      condition: capabilities.condition != null ? capabilities.condition : null,
-      interactionType: interactionType,
-      isAlleOption: _handoff.isAlleOption === true,
-      optionLabel: _handoff.optionLabel || _handoff.selectedOptionLabel || null,
-      popup: _handoff.popup ? Object.assign({}, _handoff.popup) : null,
-      capabilities: Object.assign({}, capabilities),
-      timestamp: _handoff.timestamp || _handoff.observedAt || Date.now()
-    };
+    return _dockHandoff.mapDockHandoff(_handoff, HANDOFF_PROFILE);
   }
 
   function isAcceptedFilterType(_filterType) {

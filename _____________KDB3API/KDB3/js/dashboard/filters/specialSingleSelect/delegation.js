@@ -2,8 +2,9 @@ define([
   "./config.js",
   "./state.js",
   "./selectors.js",
-  "../singleSelect/config.js"
-], function (_config, _state, _selectors, _singleSelectConfig) {
+  "../singleSelect/config.js",
+  "../_core/dockHandoff.js"
+], function (_config, _state, _selectors, _singleSelectConfig, _dockHandoff) {
   "use strict";
 
   var actions = _state.actions;
@@ -11,58 +12,52 @@ define([
   var SINGLE_SELECT_STATE_CHANGED = _singleSelectConfig.actions.FILTER_DOCK_STATE_CHANGED;
   var SINGLE_SELECT_POPUP_READY = _singleSelectConfig.actions.FILTER_DOCK_POPUP_READY;
 
-  function readCapabilities(_handoff) {
-    return _handoff && _handoff.capabilities ? _handoff.capabilities : {};
-  }
+  var HANDOFF_PROFILE = {
+    labelDefault: "",
+    scopeMode: "filterScopeFirst",
+    keyScope: "scopeType",
+    timestamp: "observedAtOnly",
+    fields: [
+      ["filterLabel", "derived"],
+      ["filterKey", "derived"],
+      ["filterScope", "derived"],
+      ["filterType", "filterType"],
+      ["scopeType", "derived"],
+      ["tabId", "orNull"],
+      ["scopeId", "scopeIdNullable"],
+      ["filterConfig", "copyOrEmpty"],
+      ["condition", function (_raw, _derived) {
+        return _derived.caps.condition != null ? _derived.caps.condition : _raw.condition || null;
+      }],
+      ["semanticSpecialFilterId", "alwaysNull"],
+      ["itemNameHint", "orNull"],
+      ["itemIdHint", "orNull"],
+      ["semanticInstanceKeyHint", "orNull"],
+      ["interactionType", "derived"],
+      ["isAlleOption", "isTrue"],
+      ["optionLabel", "optionLabel"],
+      ["popup", "copyOrNull"],
+      ["capabilities", "derived"],
+      ["timestamp", "derived"],
+      ["runtimeFilterId", "orNull", "filterId"]
+    ],
+    finish: function (_mapped) {
+      var canonicalFilterId = _config.resolveSpecialFilterId(_config.DEFINITIONS_BY_ID, {
+        filterId: _mapped.runtimeFilterId,
+        condition: _mapped.condition,
+        filterLabel: _mapped.filterLabel
+      });
+      if (!canonicalFilterId) {
+        return null;
+      }
+      _mapped.filterId = canonicalFilterId;
+      _mapped.semanticSpecialFilterId = canonicalFilterId;
+      return _mapped;
+    }
+  };
 
   function mapFilterDockHandoff(_handoff) {
-    var filterLabel;
-    var capabilities;
-    var runtimeFilterId;
-    var filterKey;
-    var canonicalFilterId;
-    var mapped;
-
-    if (!_handoff || typeof _handoff !== "object") {
-      return null;
-    }
-    filterLabel = _handoff.filterLabel || "";
-    capabilities = readCapabilities(_handoff);
-    runtimeFilterId = _handoff.filterId || null;
-    filterKey = _handoff.filterKey || runtimeFilterId || ((_handoff.scopeType || "global") + "__" + filterLabel);
-    mapped = {
-      filterLabel: filterLabel,
-      filterKey: filterKey,
-      filterScope: _handoff.filterScope || _handoff.scopeType || "global",
-      filterType: _handoff.filterType || "unknown",
-      scopeType: _handoff.scopeType || _handoff.filterScope || "global",
-      tabId: _handoff.tabId || null,
-      scopeId: _handoff.scopeId != null ? _handoff.scopeId : _handoff.scope || null,
-      filterConfig: Object.assign({}, _handoff.filterConfig || {}),
-      condition: capabilities.condition != null ? capabilities.condition : _handoff.condition || null,
-      semanticSpecialFilterId: null,
-      itemNameHint: _handoff.itemNameHint || null,
-      itemIdHint: _handoff.itemIdHint || null,
-      semanticInstanceKeyHint: _handoff.semanticInstanceKeyHint || null,
-      interactionType: _handoff.interactionType || "unknown",
-      isAlleOption: _handoff.isAlleOption === true,
-      optionLabel: _handoff.optionLabel || _handoff.selectedOptionLabel || null,
-      popup: _handoff.popup ? Object.assign({}, _handoff.popup) : null,
-      capabilities: Object.assign({}, capabilities),
-      timestamp: _handoff.observedAt || Date.now(),
-      runtimeFilterId: runtimeFilterId
-    };
-    canonicalFilterId = _config.resolveSpecialFilterId(_config.DEFINITIONS_BY_ID, {
-      filterId: runtimeFilterId,
-      condition: mapped.condition,
-      filterLabel: mapped.filterLabel
-    });
-    if (!canonicalFilterId) {
-      return null;
-    }
-    mapped.filterId = canonicalFilterId;
-    mapped.semanticSpecialFilterId = canonicalFilterId;
-    return mapped;
+    return _dockHandoff.mapDockHandoff(_handoff, HANDOFF_PROFILE);
   }
 
   function buildDelegatedPayload(_mappedHandoff, _alleAllowed) {

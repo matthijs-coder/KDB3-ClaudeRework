@@ -5,6 +5,7 @@ define([
   "../view/syncView.js",
   "../view/dockNames.js",
   "../../../../core/utils/kit/runtime.js",
+  "../../_core/dockHandoff.js",
   "./sichtSync.js",
   "./historyReplay.js",
   "./reconcile/runReconcile.js"
@@ -15,59 +16,45 @@ define([
   _syncView,
   _dockNames,
   _kitRuntime,
+  _dockHandoff,
   _sichtSync,
   _historyReplay,
   _runReconcile
 ) {
   "use strict";
 
-  function readCapabilities(_handoff) {
-    return _handoff && _handoff.capabilities ? _handoff.capabilities : {};
-  }
-
-  function deriveClickedFlags(_interactionType) {
-    return {
-      clickedOk: _interactionType === "confirm",
-      clickedCancel: _interactionType === "cancel",
-      clickedClear: _interactionType === "clear",
-      clickedClose: _interactionType === "close"
-    };
-  }
+  var HANDOFF_PROFILE = {
+    filterType: "dienststelle",
+    labelDefault: "Dienststelle",
+    scopeMode: "filterScopeFirst",
+    keyScope: "filterScope",
+    timestamp: "observedAtNullable",
+    fields: [
+      ["filterId", "orNull"],
+      ["filterLabel", "derived"],
+      ["filterKey", "derived"],
+      ["filterScope", "derived"],
+      ["scopeType", "derived"],
+      ["filterType", "filterType"],
+      ["scopeId", "scopeIdPair"],
+      ["scope", "scopePair"],
+      ["filterConfig", "copyOrEmpty"],
+      ["interactionType", "derived"],
+      ["isAlleOption", "isTrue"],
+      ["optionLabel", "optionLabel"],
+      ["popup", "copyOrNull"],
+      ["capabilities", "derived"],
+      ["clickedOk", "derived"],
+      ["clickedCancel", "derived"],
+      ["clickedClear", "derived"],
+      ["clickedClose", "derived"],
+      ["resyncSource", "orNull"],
+      ["timestamp", "derived"]
+    ]
+  };
 
   function mapFilterDockHandoff(_handoff) {
-    if (!_handoff || typeof _handoff !== "object" || _handoff.filterType !== "dienststelle") {
-      return null;
-    }
-
-    var filterScope = _handoff.filterScope || _handoff.scopeType || "global";
-    var filterLabel = _handoff.filterLabel || "Dienststelle";
-    var filterKey = _handoff.filterKey || _handoff.filterId || filterScope + "__" + filterLabel;
-    var capabilities = readCapabilities(_handoff);
-    var interactionType = _handoff.interactionType || "unknown";
-    var clickedFlags = deriveClickedFlags(interactionType);
-
-    return {
-      filterId: _handoff.filterId || null,
-      filterLabel: filterLabel,
-      filterKey: filterKey,
-      filterScope: filterScope,
-      scopeType: _handoff.scopeType || filterScope,
-      filterType: "dienststelle",
-      scopeId: _handoff.scopeId || _handoff.scope || null,
-      scope: _handoff.scope || _handoff.scopeId || null,
-      filterConfig: _handoff.filterConfig ? Object.assign({}, _handoff.filterConfig) : {},
-      interactionType: interactionType,
-      isAlleOption: _handoff.isAlleOption === true,
-      optionLabel: _handoff.optionLabel || _handoff.selectedOptionLabel || null,
-      popup: _handoff.popup ? Object.assign({}, _handoff.popup) : null,
-      capabilities: Object.assign({}, capabilities),
-      clickedOk: clickedFlags.clickedOk,
-      clickedCancel: clickedFlags.clickedCancel,
-      clickedClear: clickedFlags.clickedClear,
-      clickedClose: clickedFlags.clickedClose,
-      resyncSource: _handoff.resyncSource || null,
-      timestamp: _handoff.observedAt != null ? _handoff.observedAt : Date.now()
-    };
+    return _dockHandoff.mapDockHandoff(_handoff, HANDOFF_PROFILE);
   }
 
   function readDienststelleRuntime(_KDB) {
