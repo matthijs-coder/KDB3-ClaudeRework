@@ -44,6 +44,7 @@ define([
   }
 
   function runHeaderEffects(_KDB, _prevChrome, _action) {
+    // Boundary: a DOM/effects failure is logged so the caller still pushes the history step for the committed state.
     try {
       if (_KDB.state.header.status !== "active") _view.removeHeaderChrome(_KDB);
       else _view.ensureHeaderChrome(_KDB);

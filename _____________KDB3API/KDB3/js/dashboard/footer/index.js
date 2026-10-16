@@ -84,12 +84,8 @@ define([
     // Header changes reach the footer only through this event: hide with the header, resync the title on commits.
     function onHeaderConfirmed(_payload) {
       if (guard.isDisposed() || !_payload || _KDB.state.footer.status !== "active") return;
-      try {
-        if (_payload.status === "active") _view.syncFooterView(_KDB);
-        else dispatch({ type: "footer/hide", payload: { source: "bootstrap" } });
-      } catch (err) {
-        console.error("[footer.headerConfirmed]", err);
-      }
+      if (_payload.status === "active") _view.syncFooterView(_KDB);
+      else dispatch({ type: "footer/hide", payload: { source: "bootstrap" } });
     }
 
     function onTabsChanged() {
@@ -107,6 +103,10 @@ define([
     }
 
     function mount(_options) {
+      if (guard.blocked("mount")) return;
+      if (!_KDB.services || !_KDB.services.history) {
+        console.warn("[footer.mount] _KDB.services.history is not available; footer history commits are skipped.");
+      }
       try {
         if (_mountTarget.ensureFooterMountTarget(_KDB, _options)) _mountTarget.abortFooterMountTargetWait(_KDB);
         else if (_KDB.state.footer.status === "active") {

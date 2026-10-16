@@ -20,6 +20,7 @@ define(["./view.js", "./loadFooterData.js"], function (_view, _loadFooterData) {
   }
 
   function runFooterEffects(_KDB, _action, _prevState) {
+    // Boundary: a DOM/effects failure is logged so the caller still pushes the history step for the committed state.
     try {
       if (_KDB.state.footer.status !== "active") _view.removeFooterChrome(_KDB);
       else _view.ensureFooterChrome(_KDB);

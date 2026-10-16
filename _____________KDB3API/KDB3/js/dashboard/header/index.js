@@ -87,6 +87,10 @@ define([
     var rt = _rt.ensureRuntime(_KDB, "header");
 
     function mount(_options) {
+      if (guard.blocked("mount")) return;
+      if (!_KDB.services || !_KDB.services.history) {
+        console.warn("[header.mount] _KDB.services.history is not available; header history commits are skipped.");
+      }
       try {
         rt.domRefs.mountTargetEl = resolveMountTarget(_KDB, _options);
         rt.historyReplayHandlerContribution = _history.createHeaderReplayHandler();

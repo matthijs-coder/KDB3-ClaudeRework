@@ -194,3 +194,58 @@ test("header restore maps a v3 head onto owner actions", async () => {
   const stale = await KDB.api.header.dispatch({ type: "header/parameterSetRestoreRequested", payload: { runId: 0 } });
   assert.equal(stale.ok, false);
 });
+
+test("restore reports a degraded result when the catalog icon key is unsafe", async () => {
+  const { KDB } = bootModules();
+  KDB.properties = { headerWidgetPropObj: { icons: { Bad: "../x.png", Good: "Mein Logo.png" } } };
+  const bad = await KDB.api.header.dispatch({
+    type: "header/parameterSetRestoreRequested",
+    payload: { runId: 1, skipHistory: true, header: { on: 1, icon: "Bad" } }
+  });
+  assert.equal(bad.ok, true);
+  assert.equal(bad.degraded, true);
+  assert.equal(bad.diagnostics[0].code, "WRITEBACK_HEADER_FIELD_UNSUPPORTED");
+  assert.equal(KDB.state.header.iconKey, "Stadt-wien");
+
+  const good = await KDB.api.header.dispatch({
+    type: "header/parameterSetRestoreRequested",
+    payload: { runId: 2, skipHistory: true, header: { on: 1, icon: "Good" } }
+  });
+  assert.equal(good.degraded, false);
+  assert.equal(good.diagnostics.length, 0);
+  assert.equal(KDB.state.header.iconKey, "Mein Logo");
+});
+
+test("mount after destroy is blocked in header and footer", () => {
+  const { KDB, fakeDocument } = bootModules();
+  KDB.api.header.dispatch({ type: "header/show", payload: headerSource });
+  KDB.api.footer.destroy();
+  KDB.api.header.destroy();
+  const warn = console.warn;
+  const warnings = [];
+  console.warn = (message) => warnings.push(String(message));
+  try {
+    KDB.api.header.mount({});
+    KDB.api.footer.mount({});
+  } finally {
+    console.warn = warn;
+  }
+  assert.equal(KDB.runtime.header.historyReplayHandlerContribution, null);
+  assert.equal(KDB.runtime.footer.historyReplayHandlerContribution, null);
+  assert.equal(fakeDocument.mounts[".pageViewContent"].children.length, 0);
+  assert.ok(warnings.some((w) => w.includes("[header.mount] called after destroy")));
+  assert.ok(warnings.some((w) => w.includes("[footer.mount] called after destroy")));
+});
+
+test("mount warns once when the history service is missing", () => {
+  const warn = console.warn;
+  const warnings = [];
+  console.warn = (message) => warnings.push(String(message));
+  try {
+    bootModules();
+  } finally {
+    console.warn = warn;
+  }
+  assert.equal(warnings.filter((w) => w.includes("[header.mount] _KDB.services.history")).length, 1);
+  assert.equal(warnings.filter((w) => w.includes("[footer.mount] _KDB.services.history")).length, 1);
+});

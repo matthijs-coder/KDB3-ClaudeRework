@@ -52,10 +52,10 @@ define(["./config.js", "./iconKeys.js"], function (_config, _iconKeys) {
     try {
       if (head && head.on === 1) {
         var resolved = _iconKeys.resolveHeaderIconKey(head.icon, _iconKeys.readHeaderIconCatalog(_KDB));
-        if (resolved.known === false) {
+        if (resolved.known === false || !_iconKeys.isSafeIconKey(resolved.iconKey)) {
           diagnostics.push({
             code: codes.restoreIconUnsupported,
-            message: "unknown head.icon stem; falling back to " + _config.DEFAULT_ICON_KEY
+            message: "unknown or unsafe head.icon stem; falling back to " + _config.DEFAULT_ICON_KEY
           });
           isDegraded = true;
         }
