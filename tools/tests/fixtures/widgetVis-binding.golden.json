@@ -1,0 +1,4032 @@
+{
+  "specs": {
+    "contentCreate": "8d8d57afa5560440",
+    "contentCreateNoSettings": "9959ceddc41006f1",
+    "dimension": "f7df9fa74b2a44e2",
+    "visType": "6e074bf11e269ff8",
+    "visTypePrognose": "f7030e53748f9d3f",
+    "topN": "82511ed68e0d11fe",
+    "startup": "ea3d4dc7eb89283d",
+    "cleanupReset": "f8d1fa423afca6a6",
+    "cleanupForceEmpty": "69efcf8e13ad19d6",
+    "topNHelperResult": "96480311f16f9f21",
+    "hierarchy": "92088bb6dae03b20",
+    "hierarchyNoDownstream": "76e121af5eb69062",
+    "noDimension": "02d8f3c733d64e6b",
+    "noMetricTable": "5d65a3f51afb0745",
+    "invalidGrouping": "0a3963dd1714d4aa",
+    "grouping_stichtag": "cb6328f98a54870e",
+    "grouping_jahr": "8ffb19a91aab2afb",
+    "grouping_jahrStichtag": "e49f322fd8ea9cfe",
+    "grouping_stichtagProJahrH": "e76645870c13a6e4",
+    "grouping_stichtagProJahrV": "a8298decb7162719"
+  },
+  "specDetails": {
+    "noDimension": {
+      "reason": "dimension",
+      "keys": [
+        "reason",
+        "targetKind",
+        "widgetId",
+        "ownerWidgetId",
+        "opSeq",
+        "dataConfig",
+        "hierarchySnapshot",
+        "helperTableResult",
+        "emptyIntent",
+        "resetIntent",
+        "config"
+      ],
+      "dataConfigKeys": [
+        "kennzahlCode",
+        "kennzahlDisplay",
+        "kennzahlenTable",
+        "datasourceName",
+        "datasourceId",
+        "visualizationType",
+        "cognosVisualizationTypeId",
+        "visPropBucketKey",
+        "visTypeConfig",
+        "dataTableConfig",
+        "kennzahlDefaults",
+        "dimension",
+        "topN",
+        "hierarchyTarget"
+      ],
+      "configKeys": [
+        "filterPropObj",
+        "parameterMappingObj",
+        "topNOptions",
+        "emptyDataFilter"
+      ],
+      "dimension": null,
+      "topN": null,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      },
+      "helperTableResult": null,
+      "hierarchySnapshot": null,
+      "filterPropObj": {},
+      "hierarchyTarget": null,
+      "ownerWidgetId": null
+    },
+    "cleanupForceEmpty": {
+      "reason": "cleanup",
+      "keys": [
+        "reason",
+        "targetKind",
+        "widgetId",
+        "ownerWidgetId",
+        "opSeq",
+        "dataConfig",
+        "hierarchySnapshot",
+        "helperTableResult",
+        "emptyIntent",
+        "resetIntent",
+        "config"
+      ],
+      "dataConfigKeys": [
+        "kennzahlCode",
+        "kennzahlDisplay",
+        "kennzahlenTable",
+        "datasourceName",
+        "datasourceId",
+        "visualizationType",
+        "cognosVisualizationTypeId",
+        "visPropBucketKey",
+        "visTypeConfig",
+        "dataTableConfig",
+        "kennzahlDefaults",
+        "dimension",
+        "topN",
+        "hierarchyTarget"
+      ],
+      "configKeys": [
+        "filterPropObj",
+        "parameterMappingObj",
+        "topNOptions",
+        "emptyDataFilter"
+      ],
+      "dimension": "Altersgruppe",
+      "topN": null,
+      "emptyIntent": {
+        "enabled": true,
+        "reason": "noDimension",
+        "itemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[KDB Kennzahlen].[KDB Kennzahlen]",
+        "value": "1"
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      },
+      "helperTableResult": null,
+      "hierarchySnapshot": null,
+      "filterPropObj": {},
+      "hierarchyTarget": null,
+      "ownerWidgetId": null
+    },
+    "hierarchy": {
+      "reason": "dienststelle",
+      "keys": [
+        "reason",
+        "targetKind",
+        "widgetId",
+        "ownerWidgetId",
+        "opSeq",
+        "dataConfig",
+        "hierarchySnapshot",
+        "helperTableResult",
+        "emptyIntent",
+        "resetIntent",
+        "config"
+      ],
+      "dataConfigKeys": [
+        "kennzahlCode",
+        "kennzahlDisplay",
+        "kennzahlenTable",
+        "datasourceName",
+        "datasourceId",
+        "visualizationType",
+        "cognosVisualizationTypeId",
+        "visPropBucketKey",
+        "visTypeConfig",
+        "dataTableConfig",
+        "kennzahlDefaults",
+        "dimension",
+        "topN",
+        "hierarchyTarget"
+      ],
+      "configKeys": [
+        "filterPropObj",
+        "parameterMappingObj",
+        "topNOptions",
+        "emptyDataFilter"
+      ],
+      "dimension": "Altersgruppe",
+      "topN": null,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      },
+      "helperTableResult": null,
+      "hierarchySnapshot": {
+        "activeDownstreamName": "Dienststelle_Ebene",
+        "hierarchyItemId": 42,
+        "resolution": {
+          "hasConfirmedSelection": true,
+          "downstreamValues": [
+            "A"
+          ],
+          "dominantValues": [],
+          "displayValues": [
+            "A"
+          ]
+        }
+      },
+      "filterPropObj": {
+        "Dienststelle_Ebene": {
+          "itemId": "42"
+        }
+      },
+      "hierarchyTarget": null,
+      "ownerWidgetId": null
+    },
+    "hierarchyNoDownstream": {
+      "reason": "dienststelle",
+      "keys": [
+        "reason",
+        "targetKind",
+        "widgetId",
+        "ownerWidgetId",
+        "opSeq",
+        "dataConfig",
+        "hierarchySnapshot",
+        "helperTableResult",
+        "emptyIntent",
+        "resetIntent",
+        "config"
+      ],
+      "dataConfigKeys": [
+        "kennzahlCode",
+        "kennzahlDisplay",
+        "kennzahlenTable",
+        "datasourceName",
+        "datasourceId",
+        "visualizationType",
+        "cognosVisualizationTypeId",
+        "visPropBucketKey",
+        "visTypeConfig",
+        "dataTableConfig",
+        "kennzahlDefaults",
+        "dimension",
+        "topN",
+        "hierarchyTarget"
+      ],
+      "configKeys": [
+        "filterPropObj",
+        "parameterMappingObj",
+        "topNOptions",
+        "emptyDataFilter"
+      ],
+      "dimension": "Altersgruppe",
+      "topN": null,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      },
+      "helperTableResult": null,
+      "hierarchySnapshot": {
+        "resolution": {}
+      },
+      "filterPropObj": {},
+      "hierarchyTarget": null,
+      "ownerWidgetId": null
+    },
+    "topNHelperResult": {
+      "reason": "topN",
+      "keys": [
+        "reason",
+        "targetKind",
+        "widgetId",
+        "ownerWidgetId",
+        "opSeq",
+        "dataConfig",
+        "hierarchySnapshot",
+        "helperTableResult",
+        "emptyIntent",
+        "resetIntent",
+        "config"
+      ],
+      "dataConfigKeys": [
+        "kennzahlCode",
+        "kennzahlDisplay",
+        "kennzahlenTable",
+        "datasourceName",
+        "datasourceId",
+        "visualizationType",
+        "cognosVisualizationTypeId",
+        "visPropBucketKey",
+        "visTypeConfig",
+        "dataTableConfig",
+        "kennzahlDefaults",
+        "dimension",
+        "topN",
+        "hierarchyTarget"
+      ],
+      "configKeys": [
+        "filterPropObj",
+        "parameterMappingObj",
+        "topNOptions",
+        "emptyDataFilter"
+      ],
+      "dimension": "Altersgruppe",
+      "topN": "5",
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      },
+      "helperTableResult": {
+        "ok": true,
+        "applied": true,
+        "topNResultValues": [
+          "a",
+          "b"
+        ],
+        "topNExcludeItemId": "e1",
+        "error": null
+      },
+      "hierarchySnapshot": null,
+      "filterPropObj": {},
+      "hierarchyTarget": null,
+      "ownerWidgetId": null
+    },
+    "grouping_jahr": {
+      "reason": "grouping",
+      "keys": [
+        "reason",
+        "targetKind",
+        "widgetId",
+        "ownerWidgetId",
+        "opSeq",
+        "dataConfig",
+        "hierarchySnapshot",
+        "helperTableResult",
+        "emptyIntent",
+        "resetIntent",
+        "config"
+      ],
+      "dataConfigKeys": [
+        "kennzahlCode",
+        "kennzahlDisplay",
+        "kennzahlenTable",
+        "datasourceName",
+        "datasourceId",
+        "visualizationType",
+        "cognosVisualizationTypeId",
+        "visPropBucketKey",
+        "visTypeConfig",
+        "dataTableConfig",
+        "kennzahlDefaults",
+        "dimension",
+        "topN",
+        "hierarchyTarget",
+        "grouping"
+      ],
+      "configKeys": [
+        "filterPropObj",
+        "parameterMappingObj",
+        "topNOptions",
+        "emptyDataFilter"
+      ],
+      "dimension": "Altersgruppe",
+      "topN": null,
+      "grouping": "jahr",
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      },
+      "helperTableResult": null,
+      "hierarchySnapshot": null,
+      "filterPropObj": {},
+      "hierarchyTarget": null,
+      "ownerWidgetId": null
+    },
+    "invalidGrouping": {
+      "reason": "grouping",
+      "keys": [
+        "reason",
+        "targetKind",
+        "widgetId",
+        "ownerWidgetId",
+        "opSeq",
+        "dataConfig",
+        "hierarchySnapshot",
+        "helperTableResult",
+        "emptyIntent",
+        "resetIntent",
+        "config"
+      ],
+      "dataConfigKeys": [
+        "kennzahlCode",
+        "kennzahlDisplay",
+        "kennzahlenTable",
+        "datasourceName",
+        "datasourceId",
+        "visualizationType",
+        "cognosVisualizationTypeId",
+        "visPropBucketKey",
+        "visTypeConfig",
+        "dataTableConfig",
+        "kennzahlDefaults",
+        "dimension",
+        "topN",
+        "hierarchyTarget"
+      ],
+      "configKeys": [
+        "filterPropObj",
+        "parameterMappingObj",
+        "topNOptions",
+        "emptyDataFilter"
+      ],
+      "dimension": "Altersgruppe",
+      "topN": null,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      },
+      "helperTableResult": null,
+      "hierarchySnapshot": null,
+      "filterPropObj": {},
+      "hierarchyTarget": null,
+      "ownerWidgetId": null
+    },
+    "noMetricTable": {
+      "reason": "dimension",
+      "keys": [
+        "reason",
+        "targetKind",
+        "widgetId",
+        "ownerWidgetId",
+        "opSeq",
+        "dataConfig",
+        "hierarchySnapshot",
+        "helperTableResult",
+        "emptyIntent",
+        "resetIntent",
+        "config"
+      ],
+      "dataConfigKeys": [
+        "kennzahlCode",
+        "kennzahlDisplay",
+        "kennzahlenTable",
+        "datasourceName",
+        "datasourceId",
+        "visualizationType",
+        "cognosVisualizationTypeId",
+        "visPropBucketKey",
+        "visTypeConfig",
+        "dataTableConfig",
+        "kennzahlDefaults",
+        "dimension",
+        "topN",
+        "hierarchyTarget"
+      ],
+      "configKeys": [
+        "filterPropObj",
+        "parameterMappingObj",
+        "topNOptions",
+        "emptyDataFilter"
+      ],
+      "dimension": "Altersgruppe",
+      "topN": null,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "resetIntent": {
+        "enabled": false,
+        "scope": null,
+        "clearAllSlots": false,
+        "clearAllLocalFilters": false,
+        "reason": null
+      },
+      "helperTableResult": null,
+      "hierarchySnapshot": null,
+      "filterPropObj": {},
+      "hierarchyTarget": null,
+      "ownerWidgetId": null
+    }
+  },
+  "waiters": {
+    "dienststelleBeforeTimeout": [
+      "pending",
+      "pending"
+    ],
+    "dienststelleTimeout": [
+      "rejected",
+      {
+        "timedOut": true,
+        "kind": "dienststelle"
+      },
+      "rejected",
+      {
+        "timedOut": true,
+        "kind": "dienststelle"
+      }
+    ],
+    "dienststelleResolveUnconfirmed": {
+      "resolvedWidgetIds": []
+    },
+    "dienststelleResolveConfirmed": [
+      {
+        "resolvedWidgetIds": [
+          "w1",
+          "w2"
+        ]
+      },
+      "resolved",
+      {
+        "activeDownstreamName": "X",
+        "hierarchyItemId": null,
+        "resolution": {
+          "hasConfirmedSelection": true,
+          "downstreamValues": [
+            "A"
+          ],
+          "dominantValues": [],
+          "displayValues": [
+            "A"
+          ],
+          "dominantScopeKey": null
+        },
+        "byFilter": null
+      },
+      "resolved"
+    ],
+    "isConfirmedHierarchy": [
+      false,
+      false,
+      true
+    ],
+    "cancelForWidgetDienststelle": {
+      "dienststelleCancelled": 1,
+      "topNCancelled": false
+    },
+    "cancelForWidgetDienststelleStates": [
+      "rejected",
+      {
+        "cancelled": true,
+        "kind": "dienststelle"
+      },
+      "pending"
+    ],
+    "rejectAllDienststelle": [
+      "rejected",
+      {
+        "destroyed": true
+      }
+    ],
+    "topNResolveWrongOpSeq": false,
+    "topNResolveUnknownWidget": false,
+    "topNCancelWrongOpSeq": false,
+    "topNResolve": true,
+    "topNResolved": [
+      "resolved",
+      {
+        "ok": true,
+        "applied": true
+      }
+    ],
+    "topNResolveAgain": false,
+    "topNCancel": true,
+    "topNCancelled": [
+      "rejected",
+      {
+        "cancelled": true
+      }
+    ],
+    "cancelForWidgetTopN": {
+      "dienststelleCancelled": 0,
+      "topNCancelled": true
+    },
+    "cancelForWidgetTopNStates": [
+      "rejected",
+      {
+        "cancelled": true
+      },
+      "pending"
+    ],
+    "rejectAllTopN": [
+      "rejected",
+      {
+        "destroyed": true,
+        "kind": "topN"
+      }
+    ],
+    "topNReplaceLateTimeout": [
+      "rejected",
+      {
+        "timedOut": true,
+        "kind": "topN"
+      },
+      "pending"
+    ],
+    "topNReplaceResolveNew": true,
+    "topNReplaceResolved": [
+      "resolved",
+      {
+        "ok": true,
+        "fresh": true
+      }
+    ],
+    "topNTimeoutAfterResolve": [
+      "resolved",
+      0
+    ],
+    "topNTimeout": [
+      "rejected",
+      {
+        "timedOut": true,
+        "kind": "topN"
+      }
+    ],
+    "cancelForWidgetNothing": {
+      "dienststelleCancelled": 0,
+      "topNCancelled": false
+    },
+    "cancelForWidgetNoRuntime": {
+      "dienststelleCancelled": 0,
+      "topNCancelled": false
+    },
+    "isDefaultTopNChoice": [
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false
+    ]
+  },
+  "gate": {
+    "noDimension": {
+      "blocked": false,
+      "helperTableResult": null
+    },
+    "noDimensionCleanupCalls": 0,
+    "noDimensionWithRecord": {
+      "blocked": false,
+      "helperTableResult": null
+    },
+    "noDimensionCleanupAction": [
+      {
+        "type": "widgetTopN/cleanup",
+        "widgetId": "w1",
+        "payload": {
+          "ownerVisId": "w1",
+          "reason": "cleanup",
+          "clearHelperBinding": true,
+          "releaseClaim": false
+        }
+      }
+    ],
+    "defaultChoice": {
+      "blocked": false,
+      "helperTableResult": null
+    },
+    "defaultChoiceDispatches": 0,
+    "topNApiMissing": {
+      "blocked": true,
+      "result": {
+        "ok": true,
+        "widgetId": "w1",
+        "opSeq": 4,
+        "status": "deferred",
+        "errorCode": null,
+        "errorMessage": "Binding blocked until TopN helper result is available.",
+        "diagnostics": {
+          "blockedReason": "awaiting_topN",
+          "topNUnavailable": true
+        },
+        "skipped": true
+      }
+    },
+    "topNApiMissingUser": {
+      "blocked": true,
+      "result": {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 4,
+        "status": "deferred",
+        "errorCode": "WIDGET_VIS_TOPN_UNAVAILABLE",
+        "errorMessage": "Binding blocked until TopN helper result is available.",
+        "diagnostics": {
+          "blockedReason": "awaiting_topN",
+          "topNUnavailable": true
+        }
+      }
+    },
+    "helperListMissing": {
+      "blocked": false,
+      "helperTableResult": {
+        "ok": true,
+        "applied": true,
+        "topNResultValues": [
+          "a"
+        ],
+        "topNExcludeItemId": null,
+        "error": null
+      }
+    },
+    "resolved": {
+      "blocked": false,
+      "helperTableResult": {
+        "ok": true,
+        "applied": true,
+        "topNResultValues": [
+          "a"
+        ],
+        "topNExcludeItemId": null,
+        "error": null
+      }
+    },
+    "resolveAction": "c3656a7d915f7ff4",
+    "resolveActionShape": {
+      "type": "widgetTopN/resolveRequested",
+      "widgetId": "w1",
+      "opSeq": 4,
+      "payloadKeys": [
+        "ownerVisId",
+        "topNChoice",
+        "jahrFilterValue",
+        "monatFilterValue",
+        "settingsSnapshot",
+        "dataConfig",
+        "hierarchySnapshot",
+        "config",
+        "source",
+        "isHistoryReplay"
+      ],
+      "jahr": {
+        "d": "2023",
+        "u": "2023"
+      },
+      "monat": {
+        "d": "Dez",
+        "u": "Dez"
+      },
+      "source": "user",
+      "isHistoryReplay": false,
+      "dimension": "Altersgruppe",
+      "topN": "10",
+      "configKeys": [
+        "filterPropObj",
+        "parameterMappingObj",
+        "topNOptions",
+        "emptyDataFilter",
+        "topNHelperConfig"
+      ],
+      "helperConfig": {
+        "visualizationType": "TopN",
+        "cognosVisualizationTypeId": "List",
+        "visPropBucketKey": "List",
+        "topNHelperConfigSource": "core/config/visualizations/topNHelper.js"
+      },
+      "hierarchy": {
+        "activeDownstreamName": "Dienststelle_Ebene",
+        "hierarchyItemId": 42,
+        "resolution": {
+          "hasConfirmedSelection": true,
+          "downstreamValues": [
+            "A"
+          ],
+          "dominantValues": [],
+          "displayValues": [
+            "A"
+          ]
+        }
+      },
+      "settingsSnapshot": {
+        "dimension": "Altersgruppe",
+        "visType": "Line",
+        "topNChoice": "10"
+      }
+    },
+    "resolveActionDataConfig": "5931de2b3dd8679e",
+    "resolveActionConfig": "2814ebec88cc2162",
+    "dispatchRejectsCoded": {
+      "prerequisiteFailed": true,
+      "kind": "topN",
+      "errorCode": "TOPN_X",
+      "errorMessage": "helper failed"
+    },
+    "dispatchRejectsPlain": {
+      "prerequisiteFailed": true,
+      "kind": "topN",
+      "errorCode": "WIDGET_VIS_BINDING_PREREQUISITE_FAILED",
+      "errorMessage": "plain failure"
+    },
+    "timeout": [
+      "rejected",
+      {
+        "timedOut": true,
+        "kind": "topN"
+      }
+    ],
+    "mapTopNPayloadToHelper": [
+      {
+        "ok": false,
+        "applied": false,
+        "topNResultValues": [],
+        "topNExcludeItemId": null,
+        "error": null
+      },
+      {
+        "ok": true,
+        "applied": true,
+        "topNResultValues": [
+          "x"
+        ],
+        "topNExcludeItemId": "e",
+        "error": null
+      },
+      {
+        "ok": false,
+        "applied": false,
+        "topNResultValues": [],
+        "topNExcludeItemId": null,
+        "error": "m"
+      },
+      {
+        "ok": false,
+        "applied": false,
+        "topNResultValues": [],
+        "topNExcludeItemId": null,
+        "error": "C"
+      }
+    ],
+    "handleTopNResolved": [
+      {
+        "ok": false,
+        "widgetId": "w1",
+        "skipped": false,
+        "stale": false,
+        "status": null,
+        "ready": false,
+        "errorCode": "WIDGET_VIS_WIDGET_ID_CONFLICT"
+      },
+      {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 99,
+        "skipped": false,
+        "stale": true,
+        "status": null,
+        "ready": false
+      },
+      {
+        "ok": true,
+        "widgetId": "w1",
+        "opSeq": 3,
+        "skipped": false,
+        "stale": false,
+        "status": null,
+        "ready": false
+      },
+      {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 3,
+        "skipped": true,
+        "stale": false,
+        "status": null,
+        "ready": false,
+        "errorCode": "WIDGET_VIS_TOPN_NO_WAITER"
+      },
+      {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 3,
+        "skipped": true,
+        "stale": false,
+        "status": null,
+        "ready": false,
+        "errorCode": "WIDGET_VIS_TOPN_NO_WAITER"
+      }
+    ],
+    "handleTopNResolvedWait": [
+      "resolved",
+      {
+        "ok": true,
+        "applied": true,
+        "topNResultValues": [
+          "q"
+        ],
+        "topNExcludeItemId": null,
+        "error": null
+      }
+    ]
+  },
+  "period": {
+    "readConfirmedJahrYear": [
+      null,
+      null,
+      2024,
+      2025,
+      2019,
+      null,
+      null,
+      2020,
+      2018,
+      null,
+      null,
+      null,
+      null,
+      2022,
+      2100
+    ]
+  },
+  "pin": {
+    "resolveTopNJahrFilterValue": {
+      "ok": [
+        "ok",
+        {
+          "jahrFilterValue": {
+            "d": "2024",
+            "u": "2024"
+          },
+          "monatFilterValue": {
+            "d": "DEZ",
+            "u": "DEZ"
+          }
+        }
+      ],
+      "okFlatRow": [
+        "ok",
+        {
+          "jahrFilterValue": {
+            "d": "2022",
+            "u": "2022"
+          },
+          "monatFilterValue": {
+            "d": "JAN",
+            "u": "JAN"
+          }
+        }
+      ],
+      "okDisplayFields": [
+        "ok",
+        {
+          "jahrFilterValue": {
+            "d": "2021",
+            "u": "2021"
+          },
+          "monatFilterValue": {
+            "d": "JAN",
+            "u": "JAN"
+          }
+        }
+      ],
+      "longYear": [
+        "err",
+        {
+          "errorCode": "WIDGET_TOPN_STICHTAG_UNAVAILABLE",
+          "errorMessage": "NewestStichtag Jahr column is not a four-digit year."
+        }
+      ],
+      "textYear": [
+        "err",
+        {
+          "errorCode": "WIDGET_TOPN_STICHTAG_UNAVAILABLE",
+          "errorMessage": "NewestStichtag Jahr column is not a four-digit year."
+        }
+      ],
+      "yearOutOfRange": [
+        "err",
+        {
+          "errorCode": "WIDGET_TOPN_STICHTAG_UNAVAILABLE",
+          "errorMessage": "NewestStichtag Jahr column is not a four-digit year."
+        }
+      ],
+      "unknownMonth": [
+        "err",
+        {
+          "errorCode": "WIDGET_TOPN_STICHTAG_UNAVAILABLE",
+          "errorMessage": "NewestStichtag Monat column is not a known month caption."
+        }
+      ],
+      "oneColumn": [
+        "err",
+        {
+          "errorCode": "WIDGET_TOPN_STICHTAG_UNAVAILABLE",
+          "errorMessage": "NewestStichtag row does not have Jahr and Monat columns."
+        }
+      ],
+      "noRows": [
+        "err",
+        {
+          "errorCode": "WIDGET_TOPN_STICHTAG_UNAVAILABLE",
+          "errorMessage": "NewestStichtag leftover widget is missing or returned no rows."
+        }
+      ],
+      "empty": [
+        "err",
+        {
+          "errorCode": "WIDGET_TOPN_STICHTAG_UNAVAILABLE",
+          "errorMessage": "NewestStichtag leftover widget is missing or returned no rows."
+        }
+      ]
+    },
+    "reloadFailures": {
+      "noTableData": [
+        "err",
+        {
+          "errorCode": "WIDGET_TOPN_STICHTAG_UNAVAILABLE",
+          "errorMessage": "tableData.reloadTable is unavailable."
+        }
+      ],
+      "noLeftover": [
+        "err",
+        {
+          "errorCode": "WIDGET_TOPN_STICHTAG_UNAVAILABLE",
+          "errorMessage": "NewestStichtag leftover widgetId is unavailable."
+        }
+      ],
+      "noFacet": [
+        "err",
+        {
+          "errorCode": "WIDGET_TOPN_STICHTAG_UNAVAILABLE",
+          "errorMessage": "widgetsFacet.renderWidget is unavailable."
+        }
+      ],
+      "renderFails": [
+        "err",
+        {
+          "errorCode": "WIDGET_TOPN_STICHTAG_UNAVAILABLE",
+          "errorMessage": "widgetsFacet.renderWidget is unavailable."
+        }
+      ],
+      "reloadThrows": [
+        "err",
+        {
+          "errorCode": "WIDGET_TOPN_STICHTAG_UNAVAILABLE",
+          "errorMessage": "reload boom"
+        }
+      ]
+    },
+    "applyMismatch": {
+      "selectedUnknownReadsYear": [
+        [
+          "ok",
+          {
+            "jahrFilterValue": {
+              "d": "2024",
+              "u": "2024"
+            },
+            "monatFilterValue": {
+              "d": "DEZ",
+              "u": "DEZ"
+            }
+          }
+        ],
+        [
+          [
+            "Personal_KDB"
+          ]
+        ],
+        {
+          "jahrFilterValue": {
+            "d": "2024",
+            "u": "2024"
+          },
+          "monatFilterValue": {
+            "d": "DEZ",
+            "u": "DEZ"
+          }
+        }
+      ],
+      "selectedNullKeepsPin": [
+        [
+          "ok",
+          {
+            "jahrFilterValue": {
+              "d": "2024",
+              "u": "2024"
+            },
+            "monatFilterValue": {
+              "d": "DEZ",
+              "u": "DEZ"
+            }
+          }
+        ],
+        [
+          [
+            "Personal_KDB"
+          ]
+        ],
+        {
+          "jahrFilterValue": {
+            "d": "2024",
+            "u": "2024"
+          },
+          "monatFilterValue": {
+            "d": "DEZ",
+            "u": "DEZ"
+          }
+        }
+      ],
+      "selectedMismatch": [
+        [
+          "ok",
+          {
+            "jahrFilterValue": {
+              "d": "2022",
+              "u": "2022"
+            },
+            "monatFilterValue": {
+              "d": "DEZ",
+              "u": "DEZ"
+            }
+          }
+        ],
+        [
+          [
+            "Personal_KDB"
+          ]
+        ],
+        {
+          "jahrFilterValue": {
+            "d": "2022",
+            "u": "2022"
+          },
+          "monatFilterValue": {
+            "d": "DEZ",
+            "u": "DEZ"
+          }
+        }
+      ],
+      "knownGlobal": [
+        [
+          "ok",
+          {
+            "jahrFilterValue": {
+              "d": "2025",
+              "u": "2025"
+            },
+            "monatFilterValue": {
+              "d": "DEZ",
+              "u": "DEZ"
+            }
+          }
+        ],
+        [
+          [
+            "Personal_KDB",
+            "tabA"
+          ]
+        ],
+        {
+          "jahrFilterValue": {
+            "d": "2025",
+            "u": "2025"
+          },
+          "monatFilterValue": {
+            "d": "DEZ",
+            "u": "DEZ"
+          }
+        }
+      ],
+      "knownPage": [
+        [
+          "ok",
+          {
+            "jahrFilterValue": {
+              "d": "2020",
+              "u": "2020"
+            },
+            "monatFilterValue": {
+              "d": "DEZ",
+              "u": "DEZ"
+            }
+          }
+        ],
+        [],
+        {
+          "jahrFilterValue": {
+            "d": "2020",
+            "u": "2020"
+          },
+          "monatFilterValue": {
+            "d": "DEZ",
+            "u": "DEZ"
+          }
+        }
+      ],
+      "knownPageNoYear": [
+        [
+          "ok",
+          {
+            "jahrFilterValue": {
+              "d": "2019",
+              "u": "2019"
+            },
+            "monatFilterValue": {
+              "d": "DEZ",
+              "u": "DEZ"
+            }
+          }
+        ],
+        [
+          [
+            "Personal_KDB",
+            "global"
+          ]
+        ],
+        {
+          "jahrFilterValue": {
+            "d": "2019",
+            "u": "2019"
+          },
+          "monatFilterValue": {
+            "d": "DEZ",
+            "u": "DEZ"
+          }
+        }
+      ],
+      "knownGlobalPageYear": [
+        [
+          "ok",
+          {
+            "jahrFilterValue": {
+              "d": "2017",
+              "u": "2017"
+            },
+            "monatFilterValue": {
+              "d": "DEZ",
+              "u": "DEZ"
+            }
+          }
+        ],
+        [
+          [
+            "Personal_KDB",
+            "tabA"
+          ]
+        ],
+        {
+          "jahrFilterValue": {
+            "d": "2017",
+            "u": "2017"
+          },
+          "monatFilterValue": {
+            "d": "DEZ",
+            "u": "DEZ"
+          }
+        }
+      ],
+      "knownGlobalNoPageYear": [
+        [
+          "ok",
+          {
+            "jahrFilterValue": {
+              "d": "2016",
+              "u": "2016"
+            },
+            "monatFilterValue": {
+              "d": "DEZ",
+              "u": "DEZ"
+            }
+          }
+        ],
+        [
+          [
+            "Personal_KDB",
+            "tabA"
+          ]
+        ],
+        {
+          "jahrFilterValue": {
+            "d": "2016",
+            "u": "2016"
+          },
+          "monatFilterValue": {
+            "d": "DEZ",
+            "u": "DEZ"
+          }
+        }
+      ],
+      "knownGlobalNoYears": [
+        [
+          "ok",
+          {
+            "jahrFilterValue": {
+              "d": "2024",
+              "u": "2024"
+            },
+            "monatFilterValue": {
+              "d": "DEZ",
+              "u": "DEZ"
+            }
+          }
+        ],
+        [
+          [
+            "Personal_KDB",
+            "tabA"
+          ]
+        ],
+        {
+          "jahrFilterValue": {
+            "d": "2024",
+            "u": "2024"
+          },
+          "monatFilterValue": {
+            "d": "DEZ",
+            "u": "DEZ"
+          }
+        }
+      ]
+    },
+    "applyMismatchSharedRead": [
+      2,
+      true
+    ]
+  },
+  "waveList": {
+    "pageContext_t1_t1": {
+      "widgetIds": [
+        "a"
+      ],
+      "hiddenTabIds": []
+    },
+    "pageContext_t2_t1": {
+      "widgetIds": [
+        "b"
+      ],
+      "hiddenTabIds": []
+    },
+    "global_t1": {
+      "widgetIds": [
+        "a"
+      ],
+      "hiddenTabIds": [
+        "t2"
+      ]
+    },
+    "pageContext_t1_null": {
+      "widgetIds": [
+        "a"
+      ],
+      "hiddenTabIds": []
+    },
+    "pageContext_t2_null": {
+      "widgetIds": [
+        "b"
+      ],
+      "hiddenTabIds": []
+    },
+    "global_null": {
+      "widgetIds": [
+        "a",
+        "b"
+      ],
+      "hiddenTabIds": []
+    },
+    "noBase": {
+      "widgetIds": [],
+      "hiddenTabIds": []
+    }
+  },
+  "wave": {
+    "skipFilterType": {
+      "ok": true,
+      "skipped": true
+    },
+    "skipFilterTypeSicht": {
+      "ok": true,
+      "skipped": true
+    },
+    "subscriptionCount": [
+      1,
+      "tabs:changed"
+    ],
+    "deferredOtherTab": {
+      "ok": true,
+      "deferred": true
+    },
+    "pendingAfterDefer": {
+      "t2": {
+        "scopeType": "pageContext",
+        "tabId": "t2",
+        "isJahr": true,
+        "filterType": "jahr",
+        "selectedYearKnown": true,
+        "selectedYear": 2024
+      }
+    },
+    "activeTabRun": {
+      "ok": true
+    },
+    "activeTabCalls": [
+      {
+        "reason": "topN",
+        "widgetId": "a",
+        "payload": {
+          "source": "topNFilterWave",
+          "isHistoryReplay": false
+        },
+        "hasPin": true,
+        "metric": {
+          "code": "K",
+          "display": "K",
+          "metricsTable": "Personal_KDB"
+        },
+        "settings": {
+          "dimension": "Altersgruppe",
+          "visType": "line",
+          "topNChoice": "10"
+        }
+      }
+    ],
+    "activeTabTopN": [
+      {
+        "type": "widgetTopN/cleanup",
+        "widgetId": "a",
+        "payload": {
+          "ownerVisId": "a",
+          "reason": "topNWaveRelease",
+          "clearHelperBinding": false,
+          "releaseClaim": true
+        }
+      }
+    ],
+    "pinCalls": [
+      {
+        "table": null,
+        "request": {
+          "scopeType": "pageContext",
+          "tabId": "t1",
+          "isJahr": true,
+          "filterType": "jahr"
+        }
+      }
+    ],
+    "globalRun": {
+      "ok": true
+    },
+    "globalCalls": [
+      "a"
+    ],
+    "globalPending": {
+      "t2": {
+        "scopeType": "pageContext",
+        "tabId": "t2",
+        "isJahr": true,
+        "filterType": "jahr",
+        "selectedYearKnown": false,
+        "selectedYear": null
+      }
+    },
+    "noWidgets": null,
+    "tabShownReplay": [
+      [
+        "b"
+      ],
+      {},
+      [
+        "topNWaveRelease"
+      ]
+    ],
+    "subscriptionsKept": [
+      "topNFilterWave"
+    ]
+  },
+  "pipeline": {
+    "plain": {
+      "result": {
+        "ok": true,
+        "widgetId": "w1",
+        "opSeq": 2,
+        "status": "success",
+        "reportToSettings": {
+          "control": "dimension",
+          "diagnostics": {
+            "visualizationProperties": {
+              "blockers": [],
+              "phase": "preBinding"
+            }
+          }
+        },
+        "diagnostics": {
+          "visualizationProperties": {
+            "blockers": [],
+            "phase": "preBinding"
+          }
+        },
+        "postRenderPropertyDiagnostics": {
+          "blockers": [],
+          "phase": "postRender"
+        },
+        "postRenderDiagnostics": {
+          "cleaned": true,
+          "visualizationProperties": {
+            "blockers": [],
+            "phase": "postRender"
+          }
+        },
+        "derived": {
+          "datasourceId": null,
+          "datasourceName": "Personal_KDB",
+          "lastAppliedVisType": "Line",
+          "titleText": "Title",
+          "emptyStatus": null,
+          "emptyReason": null
+        }
+      },
+      "log": [
+        [
+          "hierarchyRead",
+          {
+            "pageScopeId": "active"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "preBinding",
+            "reason": "dimension"
+          }
+        ],
+        [
+          "title",
+          {
+            "widgetId": "w1",
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "spec": "d5c71376046c488f",
+            "reason": "dimension",
+            "helperTableResult": null
+          }
+        ],
+        [
+          "legendInstall",
+          {
+            "widgetId": "w1",
+            "opSeq": 2,
+            "dimension": "Altersgruppe",
+            "visType": "Line"
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "w1",
+              "targetKind": "vis",
+              "ownerWidgetId": null,
+              "opSeq": 2,
+              "reason": "dimension"
+            },
+            "previous": [],
+            "profile": "vis",
+            "aborted": false
+          }
+        ],
+        [
+          "legendSweep",
+          {
+            "widgetId": "w1",
+            "opSeq": 2,
+            "reason": "dimension",
+            "dimension": "Altersgruppe",
+            "visType": "Line"
+          }
+        ],
+        [
+          "prognose",
+          {
+            "widgetId": "w1",
+            "reason": "dimension"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "postRender",
+            "force": true,
+            "reason": "dimension"
+          }
+        ],
+        [
+          "postRenderCleanup",
+          {
+            "widgetId": "w1",
+            "opSeq": 2
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [
+          "m1"
+        ],
+        "lastPlan": true,
+        "hasApplyController": true
+      }
+    },
+    "plainDeferRenderWait": {
+      "result": {
+        "ok": true,
+        "widgetId": "w1",
+        "opSeq": 2,
+        "status": "success",
+        "reportToSettings": {
+          "control": "dimension",
+          "diagnostics": {
+            "visualizationProperties": {
+              "blockers": [],
+              "phase": "preBinding"
+            }
+          }
+        },
+        "diagnostics": {
+          "visualizationProperties": {
+            "blockers": [],
+            "phase": "preBinding"
+          }
+        },
+        "postRenderPropertyDiagnostics": {
+          "blockers": [],
+          "phase": "postRender"
+        },
+        "postRenderDiagnostics": {
+          "cleaned": true,
+          "visualizationProperties": {
+            "blockers": [],
+            "phase": "postRender"
+          }
+        },
+        "derived": {
+          "datasourceId": null,
+          "datasourceName": "Personal_KDB",
+          "lastAppliedVisType": "Line",
+          "titleText": "Title",
+          "emptyStatus": null,
+          "emptyReason": null
+        }
+      },
+      "log": [
+        [
+          "hierarchyRead",
+          {
+            "pageScopeId": "active"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "preBinding",
+            "reason": "dimension"
+          }
+        ],
+        [
+          "title",
+          {
+            "widgetId": "w1",
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "spec": "d5c71376046c488f",
+            "reason": "dimension",
+            "helperTableResult": null
+          }
+        ],
+        [
+          "legendInstall",
+          {
+            "widgetId": "w1",
+            "opSeq": 2,
+            "dimension": "Altersgruppe",
+            "visType": "Line"
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "w1",
+              "targetKind": "vis",
+              "ownerWidgetId": null,
+              "opSeq": 2,
+              "reason": "dimension"
+            },
+            "previous": [],
+            "profile": "vis",
+            "renderWait": {
+              "waitForStart": false,
+              "waitForComplete": false
+            },
+            "aborted": false
+          }
+        ],
+        [
+          "legendSweep",
+          {
+            "widgetId": "w1",
+            "opSeq": 2,
+            "reason": "dimension",
+            "dimension": "Altersgruppe",
+            "visType": "Line"
+          }
+        ],
+        [
+          "prognose",
+          {
+            "widgetId": "w1",
+            "reason": "dimension"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "postRender",
+            "force": true,
+            "reason": "dimension"
+          }
+        ],
+        [
+          "postRenderCleanup",
+          {
+            "widgetId": "w1",
+            "opSeq": 2
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [
+          "m1"
+        ],
+        "lastPlan": true,
+        "hasApplyController": true
+      }
+    },
+    "startup": {
+      "result": {
+        "ok": true,
+        "widgetId": "w1",
+        "opSeq": 2,
+        "status": "success",
+        "reportToSettings": {
+          "control": "startupBatch",
+          "diagnostics": {
+            "visualizationProperties": {
+              "blockers": [],
+              "phase": "preBinding"
+            }
+          }
+        },
+        "diagnostics": {
+          "visualizationProperties": {
+            "blockers": [],
+            "phase": "preBinding"
+          }
+        },
+        "postRenderPropertyDiagnostics": {
+          "blockers": [],
+          "phase": "postRender"
+        },
+        "postRenderDiagnostics": {
+          "cleaned": true,
+          "visualizationProperties": {
+            "blockers": [],
+            "phase": "postRender"
+          }
+        },
+        "derived": {
+          "datasourceId": null,
+          "datasourceName": "Personal_KDB",
+          "lastAppliedVisType": "Line",
+          "titleText": "Title",
+          "emptyStatus": null,
+          "emptyReason": null
+        }
+      },
+      "log": [
+        [
+          "hierarchyRead",
+          {
+            "pageScopeId": "active"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "preBinding",
+            "reason": "startup"
+          }
+        ],
+        [
+          "title",
+          {
+            "widgetId": "w1",
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "spec": "56736ad5cda08c6b",
+            "reason": "startup",
+            "helperTableResult": null
+          }
+        ],
+        [
+          "legendInstall",
+          {
+            "widgetId": "w1",
+            "opSeq": 2,
+            "dimension": "Altersgruppe",
+            "visType": "Line"
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "w1",
+              "targetKind": "vis",
+              "ownerWidgetId": null,
+              "opSeq": 2,
+              "reason": "startup"
+            },
+            "previous": [],
+            "profile": "vis",
+            "aborted": false
+          }
+        ],
+        [
+          "legendSweep",
+          {
+            "widgetId": "w1",
+            "opSeq": 2,
+            "reason": "startup",
+            "dimension": "Altersgruppe",
+            "visType": "Line"
+          }
+        ],
+        [
+          "prognose",
+          {
+            "widgetId": "w1",
+            "reason": "startup"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "postRender",
+            "force": true,
+            "reason": "startup"
+          }
+        ],
+        [
+          "postRenderCleanup",
+          {
+            "widgetId": "w1",
+            "opSeq": 2
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [
+          "m1"
+        ],
+        "lastPlan": true,
+        "hasApplyController": true
+      }
+    },
+    "topN": {
+      "result": {
+        "ok": true,
+        "widgetId": "w1",
+        "opSeq": 4,
+        "status": "success",
+        "reportToSettings": {
+          "control": "dimension",
+          "diagnostics": {
+            "visualizationProperties": {
+              "blockers": [],
+              "phase": "preBinding"
+            }
+          }
+        },
+        "diagnostics": {
+          "visualizationProperties": {
+            "blockers": [],
+            "phase": "preBinding"
+          }
+        },
+        "postRenderPropertyDiagnostics": {
+          "blockers": [],
+          "phase": "postRender"
+        },
+        "postRenderDiagnostics": {
+          "cleaned": true,
+          "visualizationProperties": {
+            "blockers": [],
+            "phase": "postRender"
+          }
+        },
+        "derived": {
+          "datasourceId": null,
+          "datasourceName": "Personal_KDB",
+          "lastAppliedVisType": "Line",
+          "titleText": "Title",
+          "emptyStatus": null,
+          "emptyReason": null
+        }
+      },
+      "log": [
+        [
+          "hierarchyRead",
+          {
+            "pageScopeId": "active"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "preBinding",
+            "reason": "topN"
+          }
+        ],
+        [
+          "title",
+          {
+            "widgetId": "w1",
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "10"
+            }
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "spec": "22f9e4bc4bd03aa5",
+            "reason": "topN",
+            "helperTableResult": {
+              "ok": true,
+              "applied": true,
+              "topNResultValues": [
+                "v1"
+              ],
+              "topNExcludeItemId": null,
+              "error": null
+            }
+          }
+        ],
+        [
+          "legendInstall",
+          {
+            "widgetId": "w1",
+            "opSeq": 4,
+            "dimension": "Altersgruppe",
+            "visType": "Line"
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "w1",
+              "targetKind": "vis",
+              "ownerWidgetId": null,
+              "opSeq": 4,
+              "reason": "topN"
+            },
+            "previous": [],
+            "profile": "vis",
+            "aborted": false
+          }
+        ],
+        [
+          "legendSweep",
+          {
+            "widgetId": "w1",
+            "opSeq": 4,
+            "reason": "topN",
+            "dimension": "Altersgruppe",
+            "visType": "Line"
+          }
+        ],
+        [
+          "prognose",
+          {
+            "widgetId": "w1",
+            "reason": "topN"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "postRender",
+            "force": true,
+            "reason": "topN"
+          }
+        ],
+        [
+          "postRenderCleanup",
+          {
+            "widgetId": "w1",
+            "opSeq": 4
+          }
+        ]
+      ],
+      "topNActionTypes": [
+        "widgetTopN/resolveRequested"
+      ],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [
+          "m1"
+        ],
+        "lastPlan": true,
+        "hasApplyController": true
+      }
+    },
+    "cleanup": {
+      "result": {
+        "ok": true,
+        "widgetId": "w1",
+        "opSeq": 5,
+        "status": "success",
+        "reportToSettings": {
+          "control": "dimension",
+          "diagnostics": {}
+        },
+        "diagnostics": {},
+        "derived": {
+          "datasourceId": null,
+          "datasourceName": "Personal_KDB",
+          "lastAppliedVisType": "Line",
+          "titleText": "Kennzahl 1",
+          "emptyStatus": "intentional",
+          "emptyReason": "reset",
+          "topNResultValues": []
+        }
+      },
+      "log": [
+        [
+          "buildPlan",
+          {
+            "spec": "f9b79cf40d02d50c",
+            "reason": "cleanup",
+            "helperTableResult": null
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "w1",
+              "targetKind": "vis",
+              "ownerWidgetId": null,
+              "opSeq": 5,
+              "reason": "cleanup"
+            },
+            "previous": [],
+            "profile": "vis",
+            "aborted": false
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [
+          "m1"
+        ],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "cleanupNoSettings": {
+      "result": {
+        "ok": true,
+        "widgetId": "w1",
+        "opSeq": 6,
+        "status": "success",
+        "reportToSettings": {
+          "control": null,
+          "diagnostics": {}
+        },
+        "diagnostics": {},
+        "derived": {
+          "datasourceId": null,
+          "datasourceName": "Personal_KDB",
+          "lastAppliedVisType": "Line",
+          "titleText": "Kennzahl 1",
+          "emptyStatus": "intentional",
+          "emptyReason": "cleanup",
+          "topNResultValues": []
+        }
+      },
+      "log": [
+        [
+          "buildPlan",
+          {
+            "spec": "c7b44fe02effc17e",
+            "reason": "cleanup",
+            "helperTableResult": null
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "w1",
+              "targetKind": "vis",
+              "ownerWidgetId": null,
+              "opSeq": 6,
+              "reason": "cleanup"
+            },
+            "previous": [],
+            "profile": "vis",
+            "aborted": false
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [
+          "m1"
+        ],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "settingsIncomplete": {
+      "result": {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 1,
+        "status": "error",
+        "errorCode": "WIDGET_VIS_SETTINGS_SNAPSHOT_INCOMPLETE",
+        "errorMessage": "Binding prerequisites are incomplete.",
+        "diagnostics": {
+          "blockedReason": "settings_incomplete"
+        }
+      },
+      "log": [],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "settingsEmptyVisType": {
+      "result": {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 1,
+        "status": "error",
+        "errorCode": "WIDGET_VIS_SETTINGS_SNAPSHOT_INCOMPLETE",
+        "errorMessage": "Binding prerequisites are incomplete.",
+        "diagnostics": {
+          "blockedReason": "settings_incomplete"
+        }
+      },
+      "log": [],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "planFails": {
+      "result": {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 1,
+        "status": "error",
+        "errorCode": "WIDGET_VIS_BINDING_PLAN_FAILED",
+        "errorMessage": "plan boom",
+        "diagnostics": {
+          "d": 1,
+          "visualizationProperties": {
+            "blockers": [],
+            "phase": "preBinding"
+          }
+        },
+        "propertyDiagnostics": {
+          "blockers": [],
+          "phase": "preBinding"
+        }
+      },
+      "log": [
+        [
+          "hierarchyRead",
+          {
+            "pageScopeId": "active"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "preBinding",
+            "reason": "dimension"
+          }
+        ],
+        [
+          "title",
+          {
+            "widgetId": "w1",
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "spec": "28e52c39f0073d50",
+            "reason": "dimension",
+            "helperTableResult": null
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "applyThrows": {
+      "result": {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 1,
+        "status": "error",
+        "errorCode": "WIDGET_VIS_BINDING_APPLY_FAILED",
+        "errorMessage": "apply boom"
+      },
+      "log": [
+        [
+          "hierarchyRead",
+          {
+            "pageScopeId": "active"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "preBinding",
+            "reason": "dimension"
+          }
+        ],
+        [
+          "title",
+          {
+            "widgetId": "w1",
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "spec": "28e52c39f0073d50",
+            "reason": "dimension",
+            "helperTableResult": null
+          }
+        ],
+        [
+          "legendInstall",
+          {
+            "widgetId": "w1",
+            "opSeq": 1,
+            "dimension": "Altersgruppe",
+            "visType": "Line"
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "w1",
+              "targetKind": "vis",
+              "ownerWidgetId": null,
+              "opSeq": 1,
+              "reason": "dimension"
+            },
+            "previous": [],
+            "profile": "vis",
+            "aborted": false
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "applyAborts": {
+      "result": {
+        "ok": false,
+        "stale": true,
+        "widgetId": "w1",
+        "opSeq": 1,
+        "status": "aborted"
+      },
+      "log": [
+        [
+          "hierarchyRead",
+          {
+            "pageScopeId": "active"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "preBinding",
+            "reason": "dimension"
+          }
+        ],
+        [
+          "title",
+          {
+            "widgetId": "w1",
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "spec": "28e52c39f0073d50",
+            "reason": "dimension",
+            "helperTableResult": null
+          }
+        ],
+        [
+          "legendInstall",
+          {
+            "widgetId": "w1",
+            "opSeq": 1,
+            "dimension": "Altersgruppe",
+            "visType": "Line"
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "w1",
+              "targetKind": "vis",
+              "ownerWidgetId": null,
+              "opSeq": 1,
+              "reason": "dimension"
+            },
+            "previous": [],
+            "profile": "vis",
+            "aborted": false
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "applyStatusError": {
+      "result": {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 1,
+        "status": "error",
+        "errorCode": "X",
+        "errorMessage": "Y"
+      },
+      "log": [
+        [
+          "hierarchyRead",
+          {
+            "pageScopeId": "active"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "preBinding",
+            "reason": "dimension"
+          }
+        ],
+        [
+          "title",
+          {
+            "widgetId": "w1",
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "spec": "28e52c39f0073d50",
+            "reason": "dimension",
+            "helperTableResult": null
+          }
+        ],
+        [
+          "legendInstall",
+          {
+            "widgetId": "w1",
+            "opSeq": 1,
+            "dimension": "Altersgruppe",
+            "visType": "Line"
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "w1",
+              "targetKind": "vis",
+              "ownerWidgetId": null,
+              "opSeq": 1,
+              "reason": "dimension"
+            },
+            "previous": [],
+            "profile": "vis",
+            "aborted": false
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "cleanupApplyStatusError": {
+      "result": {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 1,
+        "status": "error",
+        "errorCode": "X",
+        "errorMessage": "Y"
+      },
+      "log": [
+        [
+          "buildPlan",
+          {
+            "spec": "09297ac29813d3da",
+            "reason": "cleanup",
+            "helperTableResult": null
+          }
+        ],
+        [
+          "applyBinding",
+          {
+            "target": {
+              "widgetId": "w1",
+              "targetKind": "vis",
+              "ownerWidgetId": null,
+              "opSeq": 1,
+              "reason": "cleanup"
+            },
+            "previous": [],
+            "profile": "vis",
+            "aborted": false
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "noApplyService": {
+      "result": {
+        "ok": true,
+        "widgetId": "w1",
+        "opSeq": 1,
+        "status": "skipped",
+        "skipped": true,
+        "diagnostics": {
+          "propertyDiagnostics": {
+            "blockers": [],
+            "phase": "preBinding"
+          }
+        }
+      },
+      "log": [
+        [
+          "hierarchyRead",
+          {
+            "pageScopeId": "active"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "preBinding",
+            "reason": "dimension"
+          }
+        ],
+        [
+          "title",
+          {
+            "widgetId": "w1",
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        [
+          "buildPlan",
+          {
+            "spec": "28e52c39f0073d50",
+            "reason": "dimension",
+            "helperTableResult": null
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "noApplyServiceCleanup": {
+      "result": {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 1,
+        "status": "error",
+        "errorCode": "WIDGET_VIS_EMPTY_APPLY_FAILED",
+        "errorMessage": "widgetBindingApply.applyBinding is not registered."
+      },
+      "log": [
+        [
+          "buildPlan",
+          {
+            "spec": "09297ac29813d3da",
+            "reason": "cleanup",
+            "helperTableResult": null
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "noPlanService": {
+      "result": {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 1,
+        "errorCode": "WIDGET_VIS_BINDING_PLAN_FAILED",
+        "errorMessage": "widgetBindingPlan.buildPlan is not registered."
+      },
+      "log": [],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "staleAfterProps": {
+      "result": {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 7,
+        "stale": true,
+        "status": "aborted"
+      },
+      "log": [
+        [
+          "hierarchyRead",
+          {
+            "pageScopeId": "active"
+          }
+        ],
+        [
+          "visProperties",
+          {
+            "widgetId": "w1",
+            "visualizationType": "Line",
+            "phase": "preBinding",
+            "reason": "dimension"
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "dienststelleTimeout": {
+      "result": {
+        "ok": false,
+        "widgetId": "w1",
+        "opSeq": 1,
+        "status": "timeout",
+        "errorCode": "WIDGET_VIS_BINDING_PREREQUISITE_TIMEOUT",
+        "errorMessage": "Binding blocked until confirmed Dienststelle hierarchy is available.",
+        "diagnostics": {
+          "blockedReason": "awaiting_dienststelle"
+        }
+      },
+      "log": [
+        [
+          "hierarchyRead",
+          {
+            "pageScopeId": "active"
+          }
+        ]
+      ],
+      "topNActionTypes": [],
+      "dispatched": 0,
+      "runtime": {
+        "managed": [],
+        "lastPlan": false,
+        "hasApplyController": true
+      }
+    },
+    "propertyBlocked": {
+      "ok": false,
+      "widgetId": "w1",
+      "opSeq": 1,
+      "status": "error",
+      "errorCode": "WIDGET_VIS_VISUALIZATION_PROPERTY_BLOCKED",
+      "errorMessage": "Visualization property apply blocked: b1, b2",
+      "diagnostics": {
+        "blockers": [
+          "b1",
+          "b2"
+        ]
+      },
+      "propertyDiagnostics": {
+        "blockers": [
+          "b1",
+          "b2"
+        ]
+      }
+    },
+    "propertyAborted": {
+      "ok": false,
+      "widgetId": "w1",
+      "opSeq": 1,
+      "stale": true,
+      "status": "aborted"
+    }
+  },
+  "handlers": {
+    "applySetting": {
+      "dimension": {
+        "result": {
+          "ok": true,
+          "skipped": false,
+          "stale": false,
+          "status": "success",
+          "ready": false
+        },
+        "pipelineInputs": [
+          {
+            "widgetId": "w1",
+            "opSeq": 2,
+            "reason": "dimension",
+            "control": "dimension",
+            "payload": {
+              "settingsSnapshot": {
+                "dimension": "Altersgruppe",
+                "visType": "Line",
+                "topNChoice": "none"
+              },
+              "nextValue": "Geschlecht",
+              "source": "user",
+              "control": "dimension"
+            },
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Geschlecht",
+              "visType": "Line",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        "dispatched": [
+          {
+            "type": "widgetVis/markPending",
+            "widgetId": "w1",
+            "payload": {
+              "kind": "dimension",
+              "opSeq": 2
+            }
+          },
+          {
+            "type": "widgetVis/applySucceeded",
+            "widgetId": "w1",
+            "payload": {
+              "derived": {
+                "code": "K"
+              }
+            }
+          }
+        ],
+        "loadingStarts": [
+          {
+            "widgetId": "w1",
+            "widgetType": "live",
+            "isHistoryReplay": false,
+            "source": "user",
+            "widgetEl": "el"
+          }
+        ]
+      },
+      "visTypeByKind": {
+        "result": {
+          "ok": true,
+          "skipped": false,
+          "stale": false,
+          "status": "success",
+          "ready": false
+        },
+        "pipelineInputs": [
+          {
+            "widgetId": "w1",
+            "opSeq": 3,
+            "reason": "visType",
+            "control": "visType",
+            "payload": {
+              "kind": "visualization",
+              "settingsSnapshot": {
+                "dimension": "Altersgruppe",
+                "visType": "Line",
+                "topNChoice": "none"
+              },
+              "optionValue": "Pie",
+              "nextValue": "Pie",
+              "control": "visType"
+            },
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Pie",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        "dispatched": [
+          {
+            "type": "widgetVis/markPending",
+            "widgetId": "w1",
+            "payload": {
+              "kind": "visType",
+              "opSeq": 3
+            }
+          },
+          {
+            "type": "widgetVis/applySucceeded",
+            "widgetId": "w1",
+            "payload": {
+              "derived": {
+                "code": "K"
+              }
+            }
+          }
+        ],
+        "loadingStarts": [
+          {
+            "widgetId": "w1",
+            "widgetType": "live",
+            "isHistoryReplay": false,
+            "widgetEl": "el"
+          }
+        ]
+      },
+      "topN": {
+        "result": {
+          "ok": true,
+          "skipped": false,
+          "stale": false,
+          "status": "success",
+          "ready": false
+        },
+        "pipelineInputs": [
+          {
+            "widgetId": "w1",
+            "opSeq": 4,
+            "reason": "topN",
+            "control": "topNChoice",
+            "payload": {
+              "settingsSnapshot": {
+                "dimension": "Altersgruppe",
+                "visType": "Line",
+                "topNChoice": "none"
+              },
+              "nextValue": "10",
+              "widgetEl": {
+                "nodeType": 1,
+                "id": "given"
+              },
+              "control": "topNChoice"
+            },
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "10"
+            }
+          }
+        ],
+        "dispatched": [
+          {
+            "type": "widgetVis/markPending",
+            "widgetId": "w1",
+            "payload": {
+              "kind": "topN",
+              "opSeq": 4
+            }
+          },
+          {
+            "type": "widgetVis/applySucceeded",
+            "widgetId": "w1",
+            "payload": {
+              "derived": {
+                "code": "K"
+              }
+            }
+          }
+        ],
+        "loadingStarts": [
+          {
+            "widgetId": "w1",
+            "widgetType": "live",
+            "isHistoryReplay": false,
+            "widgetEl": "given"
+          }
+        ]
+      },
+      "grouping": {
+        "result": {
+          "ok": true,
+          "skipped": false,
+          "stale": false,
+          "status": "success",
+          "ready": false
+        },
+        "pipelineInputs": [
+          {
+            "widgetId": "w1",
+            "opSeq": 5,
+            "reason": "grouping",
+            "control": "grouping",
+            "payload": {
+              "control": "grouping",
+              "settingsSnapshot": {
+                "dimension": "Altersgruppe",
+                "visType": "Line",
+                "topNChoice": "none",
+                "grouping": "jahr"
+              },
+              "nextValue": "stichtagProJahrV"
+            },
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none",
+              "grouping": "stichtagProJahrV"
+            }
+          }
+        ],
+        "dispatched": [
+          {
+            "type": "widgetVis/markPending",
+            "widgetId": "w1",
+            "payload": {
+              "kind": "grouping",
+              "opSeq": 5
+            }
+          },
+          {
+            "type": "widgetVis/applySucceeded",
+            "widgetId": "w1",
+            "payload": {
+              "derived": {
+                "code": "K"
+              }
+            }
+          }
+        ],
+        "loadingStarts": [
+          {
+            "widgetId": "w1",
+            "widgetType": "live",
+            "isHistoryReplay": false,
+            "widgetEl": "el"
+          }
+        ]
+      },
+      "groupingInherit": {
+        "result": {
+          "ok": true,
+          "skipped": false,
+          "stale": false,
+          "status": "success",
+          "ready": false
+        },
+        "pipelineInputs": [
+          {
+            "widgetId": "w1",
+            "opSeq": 6,
+            "reason": "grouping",
+            "control": "grouping",
+            "payload": {
+              "control": "grouping",
+              "settingsSnapshot": {
+                "dimension": "Altersgruppe",
+                "visType": "Line",
+                "topNChoice": "none",
+                "grouping": "jahr"
+              },
+              "nextValue": "inherit"
+            },
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        "dispatched": [
+          {
+            "type": "widgetVis/markPending",
+            "widgetId": "w1",
+            "payload": {
+              "kind": "grouping",
+              "opSeq": 6
+            }
+          },
+          {
+            "type": "widgetVis/applySucceeded",
+            "widgetId": "w1",
+            "payload": {
+              "derived": {
+                "code": "K"
+              }
+            }
+          }
+        ],
+        "loadingStarts": [
+          {
+            "widgetId": "w1",
+            "widgetType": "live",
+            "isHistoryReplay": false,
+            "widgetEl": "el"
+          }
+        ]
+      },
+      "groupingInvalid": {
+        "result": {
+          "ok": true,
+          "skipped": false,
+          "stale": false,
+          "status": "success",
+          "ready": false
+        },
+        "pipelineInputs": [
+          {
+            "widgetId": "w1",
+            "opSeq": 7,
+            "reason": "grouping",
+            "control": "grouping",
+            "payload": {
+              "control": "grouping",
+              "settingsSnapshot": {
+                "dimension": "Altersgruppe",
+                "visType": "Line",
+                "topNChoice": "none",
+                "grouping": "jahr"
+              },
+              "nextValue": "weird"
+            },
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none",
+              "grouping": "jahr"
+            }
+          }
+        ],
+        "dispatched": [
+          {
+            "type": "widgetVis/markPending",
+            "widgetId": "w1",
+            "payload": {
+              "kind": "grouping",
+              "opSeq": 7
+            }
+          },
+          {
+            "type": "widgetVis/applySucceeded",
+            "widgetId": "w1",
+            "payload": {
+              "derived": {
+                "code": "K"
+              }
+            }
+          }
+        ],
+        "loadingStarts": [
+          {
+            "widgetId": "w1",
+            "widgetType": "live",
+            "isHistoryReplay": false,
+            "widgetEl": "el"
+          }
+        ]
+      },
+      "groupingKept": {
+        "result": {
+          "ok": true,
+          "skipped": false,
+          "stale": false,
+          "status": "success",
+          "ready": false
+        },
+        "pipelineInputs": [
+          {
+            "widgetId": "w1",
+            "opSeq": 8,
+            "reason": "dimension",
+            "control": "dimension",
+            "payload": {
+              "control": "dimension",
+              "settingsSnapshot": {
+                "dimension": "Altersgruppe",
+                "visType": "Line",
+                "topNChoice": "none",
+                "grouping": "jahrStichtag",
+                "showValues": true
+              },
+              "nextValue": "Geschlecht"
+            },
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Geschlecht",
+              "visType": "Line",
+              "topNChoice": "none",
+              "showValues": true,
+              "grouping": "jahrStichtag"
+            }
+          }
+        ],
+        "dispatched": [
+          {
+            "type": "widgetVis/markPending",
+            "widgetId": "w1",
+            "payload": {
+              "kind": "dimension",
+              "opSeq": 8
+            }
+          },
+          {
+            "type": "widgetVis/applySucceeded",
+            "widgetId": "w1",
+            "payload": {
+              "derived": {
+                "code": "K"
+              }
+            }
+          }
+        ],
+        "loadingStarts": [
+          {
+            "widgetId": "w1",
+            "widgetType": "live",
+            "isHistoryReplay": false,
+            "widgetEl": "el"
+          }
+        ]
+      },
+      "noSnapshot": {
+        "result": {
+          "ok": false,
+          "widgetId": "w1",
+          "opSeq": 9,
+          "skipped": false,
+          "stale": false,
+          "status": "error",
+          "ready": false,
+          "errorCode": "WIDGET_VIS_SETTINGS_SNAPSHOT_MISSING",
+          "errorMessage": "Apply actions require a complete settingsSnapshot from widgetSettings.",
+          "diagnostics": null
+        },
+        "pipelineInputs": [],
+        "dispatched": [],
+        "loadingStarts": []
+      },
+      "incomplete": {
+        "result": {
+          "ok": false,
+          "widgetId": "w1",
+          "opSeq": 10,
+          "skipped": false,
+          "stale": false,
+          "status": "error",
+          "ready": false,
+          "errorCode": "WIDGET_VIS_SETTINGS_SNAPSHOT_INCOMPLETE",
+          "errorMessage": "settingsSnapshot must include dimension, visType and topNChoice.",
+          "diagnostics": {
+            "settingsSnapshot": {
+              "dimension": "x"
+            }
+          }
+        },
+        "pipelineInputs": [],
+        "dispatched": [],
+        "loadingStarts": []
+      },
+      "startupSource": {
+        "result": {
+          "ok": true,
+          "skipped": false,
+          "stale": false,
+          "status": "success",
+          "ready": false
+        },
+        "pipelineInputs": [
+          {
+            "widgetId": "w1",
+            "opSeq": 11,
+            "reason": "dimension",
+            "control": "dimension",
+            "payload": {
+              "source": "startup",
+              "control": "dimension",
+              "metric": {
+                "code": "P_A_MOA_01",
+                "display": "Kennzahl 1",
+                "metricsTable": "Personal_KDB"
+              }
+            },
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": null,
+              "visType": null,
+              "topNChoice": null
+            }
+          }
+        ],
+        "dispatched": [
+          {
+            "type": "widgetVis/markPending",
+            "widgetId": "w1",
+            "payload": {
+              "kind": "dimension",
+              "opSeq": 11
+            }
+          },
+          {
+            "type": "widgetVis/applySucceeded",
+            "widgetId": "w1",
+            "payload": {
+              "derived": {
+                "code": "K"
+              }
+            }
+          }
+        ],
+        "loadingStarts": [
+          {
+            "widgetId": "w1",
+            "widgetType": "live",
+            "isHistoryReplay": false,
+            "source": "startup",
+            "widgetEl": "el"
+          }
+        ]
+      },
+      "replayFallback": {
+        "result": {
+          "ok": true,
+          "skipped": false,
+          "stale": false,
+          "status": "success",
+          "ready": false
+        },
+        "pipelineInputs": [
+          {
+            "widgetId": "w1",
+            "opSeq": 12,
+            "reason": "visType",
+            "control": "visType",
+            "payload": {
+              "control": "visType",
+              "settingsSnapshot": {
+                "dimension": "Altersgruppe",
+                "visType": "Line",
+                "topNChoice": "none"
+              },
+              "nextValue": "Prognose",
+              "isHistoryReplay": true,
+              "source": "historyReplay"
+            },
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Prognose",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        "dispatched": [
+          {
+            "type": "widgetVis/markPending",
+            "widgetId": "w1",
+            "payload": {
+              "kind": "visType",
+              "opSeq": 12
+            }
+          },
+          {
+            "type": "widgetVis/applySucceeded",
+            "widgetId": "w1",
+            "payload": {
+              "derived": {
+                "code": "K"
+              }
+            }
+          }
+        ],
+        "loadingStarts": [
+          {
+            "widgetId": "w1",
+            "widgetType": "live",
+            "isHistoryReplay": true,
+            "source": "historyReplay",
+            "widgetEl": "el"
+          }
+        ]
+      }
+    },
+    "applySettingFailure": {
+      "result": {
+        "ok": false,
+        "skipped": false,
+        "stale": false,
+        "status": "error",
+        "ready": false,
+        "errorCode": "WIDGET_VIS_BINDING_APPLY_FAILED",
+        "errorMessage": "x"
+      },
+      "finishes": [
+        {
+          "mountKey": "kdb-widget-render-loading-w1"
+        }
+      ]
+    },
+    "applySettingStale": {
+      "result": {
+        "ok": false,
+        "skipped": false,
+        "stale": true,
+        "status": "aborted",
+        "ready": false
+      },
+      "finishes": []
+    },
+    "startup": {
+      "startup": {
+        "result": {
+          "ok": true,
+          "skipped": false,
+          "stale": false,
+          "status": "success",
+          "ready": false,
+          "reportToSettings": {
+            "controls": [
+              {
+                "kind": "k",
+                "control": "dimension",
+                "previousValue": "a",
+                "nextValue": "b"
+              }
+            ],
+            "diagnostics": null
+          }
+        },
+        "pipelineInputs": [
+          {
+            "widgetId": "w1",
+            "opSeq": 1,
+            "reason": "startup",
+            "control": "startupBatch",
+            "payload": {
+              "source": "startup",
+              "settingsSnapshot": {
+                "dimension": "Altersgruppe",
+                "visType": "Line",
+                "topNChoice": "none",
+                "grouping": "jahr",
+                "iterator": true,
+                "zoom": false,
+                "valueCaption": true,
+                "showValues": false
+              },
+              "changedControls": [
+                {
+                  "kind": "k",
+                  "control": "dimension",
+                  "previousValue": "a",
+                  "nextValue": "b",
+                  "extra": 1
+                }
+              ]
+            },
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none",
+              "showValues": false,
+              "grouping": "jahr",
+              "iterator": true,
+              "zoom": false,
+              "valueCaption": true
+            }
+          }
+        ],
+        "dispatched": [
+          {
+            "type": "widgetVis/markPending",
+            "widgetId": "w1",
+            "payload": {
+              "kind": "startup",
+              "opSeq": 1
+            }
+          },
+          {
+            "type": "widgetVis/applySucceeded",
+            "widgetId": "w1",
+            "payload": {
+              "derived": {
+                "code": "K"
+              }
+            }
+          }
+        ]
+      },
+      "replay": {
+        "result": {
+          "ok": true,
+          "skipped": false,
+          "stale": false,
+          "status": "success",
+          "ready": false,
+          "reportToSettings": {
+            "controls": [],
+            "diagnostics": null
+          }
+        },
+        "pipelineInputs": [
+          {
+            "widgetId": "w1",
+            "opSeq": 2,
+            "reason": "historyReplay",
+            "control": "startupBatch",
+            "payload": {
+              "source": "historyReplay",
+              "isHistoryReplay": true,
+              "settingsSnapshot": {
+                "dimension": "Altersgruppe",
+                "visType": "Line",
+                "topNChoice": "none"
+              },
+              "skipHistory": true
+            },
+            "metric": {
+              "code": "P_A_MOA_01",
+              "display": "Kennzahl 1",
+              "metricsTable": "Personal_KDB"
+            },
+            "settings": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none"
+            }
+          }
+        ],
+        "dispatched": [
+          {
+            "type": "widgetVis/markPending",
+            "widgetId": "w1",
+            "payload": {
+              "kind": "historyReplay",
+              "opSeq": 2
+            }
+          },
+          {
+            "type": "widgetVis/applySucceeded",
+            "widgetId": "w1",
+            "payload": {
+              "derived": {
+                "code": "K"
+              }
+            }
+          }
+        ]
+      },
+      "badSource": {
+        "result": {
+          "ok": false,
+          "widgetId": "w1",
+          "opSeq": 3,
+          "skipped": false,
+          "stale": false,
+          "status": "error",
+          "ready": false,
+          "errorCode": "WIDGET_VIS_STARTUP_SOURCE_INVALID",
+          "errorMessage": "applyStartupSettings requires source: \"startup\" or history replay source: \"historyReplay\"."
+        },
+        "pipelineInputs": [],
+        "dispatched": []
+      },
+      "replayWithoutFlag": {
+        "result": {
+          "ok": false,
+          "widgetId": "w1",
+          "opSeq": 3,
+          "skipped": false,
+          "stale": false,
+          "status": "error",
+          "ready": false,
+          "errorCode": "WIDGET_VIS_STARTUP_SOURCE_INVALID",
+          "errorMessage": "applyStartupSettings requires source: \"startup\" or history replay source: \"historyReplay\"."
+        },
+        "pipelineInputs": [],
+        "dispatched": []
+      },
+      "incomplete": {
+        "result": {
+          "ok": false,
+          "widgetId": "w1",
+          "opSeq": 4,
+          "skipped": false,
+          "stale": false,
+          "status": "error",
+          "ready": false,
+          "errorCode": "WIDGET_VIS_SETTINGS_SNAPSHOT_INCOMPLETE",
+          "errorMessage": "settingsSnapshot must include dimension, visType and topNChoice."
+        },
+        "pipelineInputs": [],
+        "dispatched": []
+      }
+    },
+    "startupNotReady": {
+      "ok": false,
+      "widgetId": "w1",
+      "opSeq": 1,
+      "skipped": false,
+      "stale": false,
+      "status": "error",
+      "ready": false,
+      "errorCode": "WIDGET_VIS_CONTENT_CONTEXT_MISSING",
+      "errorMessage": "Visual record lacks required metric/data identity for BindingPlanSpec."
+    },
+    "dienststelleSingle": {
+      "result": {
+        "ok": true,
+        "skipped": false,
+        "stale": false,
+        "status": "success",
+        "ready": false
+      },
+      "inputs": [
+        {
+          "widgetId": "w1",
+          "opSeq": 5,
+          "reason": "dienststelle",
+          "metric": {
+            "code": "P_A_MOA_01",
+            "display": "Kennzahl 1",
+            "metricsTable": "Personal_KDB"
+          },
+          "settings": {
+            "dimension": "Altersgruppe",
+            "visType": "Line",
+            "topNChoice": "none"
+          },
+          "hierarchySnapshot": {
+            "activeDownstreamName": "Dienststelle_Ebene",
+            "hierarchyItemId": "42",
+            "resolution": {
+              "hasConfirmedSelection": true,
+              "downstreamValues": [
+                "A"
+              ],
+              "dominantValues": [],
+              "displayValues": [
+                "A"
+              ],
+              "dominantScopeKey": null
+            },
+            "byFilter": null
+          },
+          "payload": {
+            "hierarchySnapshot": {
+              "activeDownstreamName": "Dienststelle_Ebene",
+              "hierarchyItemId": 42,
+              "resolution": {
+                "hasConfirmedSelection": true,
+                "downstreamValues": [
+                  "A"
+                ],
+                "dominantValues": [],
+                "displayValues": [
+                  "A"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "dispatched": [
+        {
+          "type": "widgetVis/markPending",
+          "widgetId": "w1",
+          "payload": {
+            "kind": "dienststelle",
+            "opSeq": 5
+          }
+        },
+        {
+          "type": "widgetVis/applySucceeded",
+          "widgetId": "w1",
+          "payload": {
+            "derived": {
+              "code": "K"
+            }
+          }
+        }
+      ]
+    },
+    "dienststelleMissingWidget": {
+      "ok": false,
+      "skipped": false,
+      "stale": false,
+      "status": null,
+      "ready": false,
+      "errorCode": "WIDGET_VIS_WIDGET_ID_MISSING",
+      "errorMessage": "dienststelleChanged requires widgetId for per-widget handling."
+    },
+    "dienststelleBroadcast": {
+      "result": {
+        "ok": true,
+        "skipped": false,
+        "stale": false,
+        "status": null,
+        "ready": false,
+        "diagnostics": {
+          "succeeded": 3,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      "widgets": [
+        "w1",
+        "w2",
+        "w3"
+      ],
+      "pendingWaiter": "resolved"
+    },
+    "dienststelleBroadcastEmpty": {
+      "ok": true,
+      "skipped": true,
+      "stale": false,
+      "status": null,
+      "ready": false,
+      "diagnostics": {
+        "succeeded": 0,
+        "failed": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "restore": {
+    "bindOk": {
+      "result": {
+        "ok": true,
+        "bound": [
+          "a",
+          "b"
+        ],
+        "skipped": [],
+        "diagnostics": []
+      },
+      "waits": [
+        {
+          "type": "widgetVis/waitUntilContentReady",
+          "widgetId": "a",
+          "payload": {
+            "timeoutMs": 3000
+          }
+        },
+        {
+          "type": "widgetVis/waitUntilContentReady",
+          "widgetId": "b",
+          "payload": {
+            "timeoutMs": 3000
+          }
+        }
+      ],
+      "pipeline": [
+        {
+          "widgetId": "a",
+          "reason": "historyReplay",
+          "payload": {
+            "source": "historyReplay",
+            "isHistoryReplay": true,
+            "settingsSnapshot": {
+              "dimension": "Altersgruppe",
+              "visType": "Line",
+              "topNChoice": "none",
+              "showValues": true,
+              "iterator": false,
+              "grouping": "jahr"
+            },
+            "changedControls": [],
+            "skipHistory": true,
+            "deferRenderWait": true
+          },
+          "settings": {
+            "dimension": "Altersgruppe",
+            "visType": "Line",
+            "topNChoice": "none",
+            "showValues": true,
+            "grouping": "jahr",
+            "iterator": false
+          }
+        },
+        {
+          "widgetId": "b",
+          "reason": "historyReplay",
+          "payload": {
+            "source": "historyReplay",
+            "isHistoryReplay": true,
+            "settingsSnapshot": {
+              "dimension": "Altersgruppe",
+              "visType": "Pie",
+              "topNChoice": "5"
+            },
+            "changedControls": [],
+            "skipHistory": true,
+            "deferRenderWait": true
+          },
+          "settings": {
+            "dimension": "Altersgruppe",
+            "visType": "Pie",
+            "topNChoice": "5"
+          }
+        }
+      ]
+    },
+    "bindNoRunId": {
+      "ok": false,
+      "bound": [],
+      "skipped": [],
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_WIDGET_RESTORE_FAILED",
+          "message": "widgetVis/parameterSetBindingRequested requires a numeric runId"
+        }
+      ]
+    },
+    "bindStaleRun": {
+      "ok": false,
+      "status": "cancelled",
+      "bound": [],
+      "skipped": [],
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_RESTORE_CANCELLED",
+          "message": "stale parameterSet runId 4 superseded by 5"
+        }
+      ]
+    },
+    "bindNoVis": {
+      "ok": false,
+      "bound": [],
+      "skipped": [],
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_WIDGET_RESTORE_FAILED",
+          "message": "widgetCorrelation is missing supported vis widgets"
+        }
+      ]
+    },
+    "bindReadyTimeout": {
+      "ok": false,
+      "bound": [
+        "b"
+      ],
+      "skipped": [
+        {
+          "widgetId": "a",
+          "code": "WRITEBACK_WIDGET_BINDING_DEGRADED"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_WIDGET_BINDING_DEGRADED",
+          "widgetId": "a",
+          "message": "content readiness gate failed or timed out"
+        }
+      ]
+    },
+    "bindNoCommitted": {
+      "ok": false,
+      "bound": [
+        "a"
+      ],
+      "skipped": [
+        {
+          "widgetId": "b",
+          "code": "WRITEBACK_WIDGET_RESTORE_FAILED"
+        }
+      ],
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_WIDGET_RESTORE_FAILED",
+          "widgetId": "b",
+          "message": "committed widget settings are missing"
+        }
+      ]
+    },
+    "bindSupersededWhileWaiting": {
+      "ok": false,
+      "status": "cancelled",
+      "bound": [],
+      "skipped": [],
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_RESTORE_CANCELLED",
+          "message": "stale parameterSet runId 9 superseded by 99"
+        }
+      ]
+    },
+    "cancelNoRunId": {
+      "ok": false,
+      "status": "error",
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_WIDGET_RESET_FAILED",
+          "message": "widgetVis/parameterSetCancelBindingsRequested requires a numeric runId"
+        }
+      ]
+    },
+    "cancelOk": {
+      "ok": true,
+      "status": "success",
+      "diagnostics": []
+    },
+    "cancelOkCleanup": [
+      {
+        "type": "widgetVis/cleanupContent",
+        "widgetId": "a",
+        "payload": {
+          "reason": "parameterSetReset",
+          "clearBinding": true,
+          "clearDrillthrough": true,
+          "clearDomDecorations": true,
+          "isHistoryReplay": false
+        }
+      },
+      {
+        "type": "widgetVis/cleanupContent",
+        "widgetId": "b",
+        "payload": {
+          "reason": "parameterSetReset",
+          "clearBinding": true,
+          "clearDrillthrough": true,
+          "clearDomDecorations": true,
+          "isHistoryReplay": false
+        }
+      }
+    ],
+    "cancelEffects": [
+      true,
+      "rejected",
+      {
+        "cancelled": true
+      }
+    ],
+    "cancelStale": {
+      "ok": false,
+      "status": "cancelled",
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_RESTORE_CANCELLED",
+          "message": "stale parameterSet runId 2 superseded by 3"
+        }
+      ]
+    },
+    "cancelCleanupFails": {
+      "ok": false,
+      "status": "error",
+      "diagnostics": [
+        {
+          "code": "WRITEBACK_WIDGET_RESET_FAILED",
+          "widgetId": "a",
+          "message": "binding cleanup failed: BOOM"
+        }
+      ]
+    }
+  }
+}

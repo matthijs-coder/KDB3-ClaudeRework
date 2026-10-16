@@ -282,6 +282,15 @@ WS-I details. In the console use `const getKDB = window.top.getKDB;`.
 - [ ] Maximize ("Vollbild") and restore ("Normale Größe") a widget; legend remains correct; toggling legend items works.
 - [ ] Remove a widget, then change Dienststelle. Expected: no console error, the removed widget does not reappear and no hidden re-render happens.
 - [ ] Data tables (widgetDataTable): behaviour as baseline (it is a no-op stub; nothing must visibly change).
+- [ ] Park a vis widget to the launchpad, change Dienststelle, take it back: it shows the new Dienststelle data (guards D2).
+- [ ] Park a vis widget, then undo: it returns with its settings and data. Then save: the widget is in the saved state, with no `WRITEBACK_WIDGET_RESTORE_FAILED` (guards D1).
+- [ ] Remove a vis widget, then save and reload: the widget stays gone, there is no console error, and `_KDB.runtime.widgetVis.byId` has no entry for it.
+- [ ] Line chart with Prognose and 3+ series: hover, resize and change dimension. Legend captions never show raw `a | b | c` text, not even for a frame (rAF legend).
+- [ ] Two vis widgets: maximize A via the icon, collapse it, then use Cognos-native expand on B and collapse. Each widget's focus panel and maximize state is correct, and `_KDB.runtime.widgetVis.observers.focusMode` is a single observer.
+- [ ] Datapoint drillthrough icon appears after selecting datapoints in a maximized widget, and again after restore and after park/take.
+- [ ] TopN widget plus a Jahr filter change: one `widgetTopN/resolveRequested` per qualifying widget, and the resulting `plan.slots` are identical to before the refactor.
+- [ ] Load a parameter set with 3+ vis widgets (one with TopN): all of them bind, with no `WIDGET_VIS_BINDING_PREREQUISITE_TIMEOUT` and no stale TopN data.
+- [ ] Settings reset (parameterSetReset) on a vis widget: the widget empties as before and no legend or focus observer survives in `_KDB.runtime.widgetVis.byId[id].observers`.
 
 ### WS-N Text + TopN widgets, header, footer, launchpad
 - [ ] Launchpad: pads and entries are the same and in the same order; the visible tabs in the launchpad match the canvas tabs (`dashboard` role tabs); the helper tab is not shown.
