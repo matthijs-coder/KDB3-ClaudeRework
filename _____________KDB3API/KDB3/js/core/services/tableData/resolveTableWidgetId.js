@@ -30,13 +30,18 @@ define([], function () {
     if (!canvasFacet || typeof canvasFacet.listCanvasWidgets !== "function") {
       return Promise.resolve([]);
     }
+    // Only the lookup that is still registered may fill the cache: destroy() clears it while a lookup can be in flight.
     const pending = Promise.resolve(canvasFacet.listCanvasWidgets({ waitUntilReady: true })).then(function (outcome) {
       const list = outcome && outcome.ok === true && Array.isArray(outcome.data) ? outcome.data : [];
-      runtime.canvasWidgetsForLookup = list;
-      runtime.canvasWidgetsForLookupPromise = null;
+      if (runtime.canvasWidgetsForLookupPromise === pending) {
+        runtime.canvasWidgetsForLookup = list;
+        runtime.canvasWidgetsForLookupPromise = null;
+      }
       return list;
     }, function (error) {
-      runtime.canvasWidgetsForLookupPromise = null;
+      if (runtime.canvasWidgetsForLookupPromise === pending) {
+        runtime.canvasWidgetsForLookupPromise = null;
+      }
       throw error;
     });
     runtime.canvasWidgetsForLookupPromise = pending;
