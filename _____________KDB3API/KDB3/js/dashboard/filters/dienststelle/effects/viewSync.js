@@ -1,7 +1,7 @@
 define([
-  "../view/syncDienststelleViewFromState.js",
-  "../view/syncDienststelleFilterDockNames.js"
-], function (_syncView, _syncFilterDockNames) {
+  "../view/syncView.js",
+  "../view/dockNames.js"
+], function (_syncView, _dockNames) {
   "use strict";
 
   var USER_CONFIRM_DEFER_FRAMES = 4;
@@ -42,10 +42,10 @@ define([
   }
 
   function runLifecycleViewSync(_KDB, _handoff, _context, _reconcileResult) {
-    _syncFilterDockNames(_KDB);
-    _syncView(_KDB, _handoff);
+    _dockNames.syncFilterDockNames(_KDB);
+    _syncView.syncViewFromState(_KDB, _handoff);
     if (needsPageContextCommittedSyncAfterGlobalConfirm(_context, _reconcileResult)) {
-      _syncView(_KDB, null);
+      _syncView.syncViewFromState(_KDB, null);
     }
   }
 
@@ -57,7 +57,7 @@ define([
       runtime.timers = runtime.timers || {};
       return runtime.timers;
     } catch (_error) {
-      console.warn("[dienststelle.scheduleDienststelleViewSync] timers bucket failed", _error);
+      console.warn("[dienststelle.viewSync] timers bucket failed", _error);
       return null;
     }
   }
@@ -70,7 +70,7 @@ define([
         cancelAnimationFrame(_handle);
       }
     } catch (_error) {
-      console.warn("[dienststelle.scheduleDienststelleViewSync] clear viewSync failed", _error);
+      console.warn("[dienststelle.viewSync] clear viewSync failed", _error);
     }
   }
 
@@ -85,7 +85,7 @@ define([
       if (!isLiveViewSync(_KDB, _frameId)) { return; }
       runDeferredLifecycleViewSync(_KDB, _handoff, _context, _reconcileResult, _framesLeft);
     } catch (_error) {
-      console.warn("[dienststelle.scheduleDienststelleViewSync] viewSync frame failed", _error);
+      console.warn("[dienststelle.viewSync] viewSync frame failed", _error);
     }
   }
 
@@ -129,7 +129,7 @@ define([
     return _context && _context.viewSyncHandoff ? _context.viewSyncHandoff : null;
   }
 
-  function scheduleDienststelleViewSync(_KDB, _context, _reconcileResult) {
+  function scheduleViewSync(_KDB, _context, _reconcileResult) {
     var handoff = resolveViewSyncHandoff(_context);
     if (shouldDeferViewSync(_context)) {
       runDeferredLifecycleViewSync(_KDB, handoff, _context, _reconcileResult, USER_CONFIRM_DEFER_FRAMES);
@@ -138,5 +138,7 @@ define([
     runLifecycleViewSync(_KDB, handoff, _context, _reconcileResult);
   }
 
-  return scheduleDienststelleViewSync;
+  return {
+    scheduleViewSync: scheduleViewSync
+  };
 });

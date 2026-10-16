@@ -1,16 +1,12 @@
-define(["./readCurrentHierarchySnapshot.js"], function (_readCurrentHierarchySnapshot) {
+define(["../hierarchySnapshot.js"], function (_hierarchySnapshot) {
   "use strict";
 
-  function cloneSerializable(_value) {
-    if (_value == null) {
-      return null;
-    }
-    try {
-      return JSON.parse(JSON.stringify(_value));
-    } catch (_error) {
-      return null;
-    }
-  }
+  var NOTIFY_CONTEXT_SOURCES = {
+    user: true,
+    startup: true,
+    sicht: true,
+    historyReplay: true
+  };
 
   function normalizePayloadSource(_contextSource) {
     var source = _contextSource != null ? String(_contextSource) : "";
@@ -65,7 +61,7 @@ define(["./readCurrentHierarchySnapshot.js"], function (_readCurrentHierarchySna
     return { selection: null, scopeType: "global", scopeId: "global" };
   }
 
-  function buildVisualizationWidgetDienststellePayload(_KDB, _context, _definition, _reconcileResult) {
+  function buildPayload(_KDB, _context, _definition, _reconcileResult) {
     var context = _context || {};
     var contextSource = context.source != null ? String(context.source) : "";
     var handoff = context.viewSyncHandoff || null;
@@ -75,6 +71,7 @@ define(["./readCurrentHierarchySnapshot.js"], function (_readCurrentHierarchySna
     var visibleLabel = _definition.visibleFilterLabel || "Dienststelle";
     var selection = effective.selection;
     var pageScopeId;
+    var hierarchySnapshot;
     if (
       !handoff ||
       handoff.filterScope === "global" ||
@@ -87,7 +84,7 @@ define(["./readCurrentHierarchySnapshot.js"], function (_readCurrentHierarchySna
     } else {
       pageScopeId = String(handoff.scopeId);
     }
-    var hierarchySnapshot = _readCurrentHierarchySnapshot.readCurrentHierarchySnapshot(_KDB, { pageScopeId: pageScopeId });
+    hierarchySnapshot = _hierarchySnapshot.readCurrentHierarchySnapshot(_KDB, { pageScopeId: pageScopeId });
     return {
       filterId: handoff && handoff.filterId ? String(handoff.filterId) : String(scopeId) + "__" + visibleLabel,
       filterLabel: handoff && handoff.filterLabel ? String(handoff.filterLabel) : visibleLabel,
@@ -109,8 +106,39 @@ define(["./readCurrentHierarchySnapshot.js"], function (_readCurrentHierarchySna
     };
   }
 
+  function dispatchOrLog(_KDB, _payload) {
+    var widgetVisApi = _KDB && _KDB.api ? _KDB.api.widgetVis : null;
+    if (widgetVisApi && typeof widgetVisApi.dispatch === "function") {
+      widgetVisApi.dispatch({
+        type: "widgetVis/dienststelleChanged",
+        payload: _payload
+      });
+      return;
+    }
+    console.info("[dienststelle.widgetVis.dispatch]", _payload);
+  }
+
+  function notifyWidgetChanged(_KDB, _context, _definition, _reconcileResult) {
+    var context = _context || {};
+    var contextSource = context.source != null ? String(context.source) : "";
+    var effective;
+    if (!_reconcileResult || !_definition || !NOTIFY_CONTEXT_SOURCES[contextSource]) {
+      return;
+    }
+    effective = readEffectiveSelection(_reconcileResult);
+    if (!effective.selection || !effective.selection.useValue) {
+      return;
+    }
+    try {
+      dispatchOrLog(_KDB, buildPayload(_KDB, context, _definition, _reconcileResult));
+    } catch (_error) {
+      console.warn("[dienststelle.widgetVis.dispatch] boundary failed", _error);
+    }
+  }
+
   return {
     readEffectiveSelection: readEffectiveSelection,
-    buildVisualizationWidgetDienststellePayload: buildVisualizationWidgetDienststellePayload
+    buildPayload: buildPayload,
+    notifyWidgetChanged: notifyWidgetChanged
   };
 });

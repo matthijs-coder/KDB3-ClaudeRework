@@ -1,10 +1,81 @@
-define(["./readDienststelleHostSelection.js"], function (_hostSelection) {
+define([
+  "../../view/labels.js",
+  "./filterRef.js"
+], function (_labels, _filterRef) {
   "use strict";
 
   var REQUIRED_STABLE_READS = 2;
   var POLL_INTERVAL_MS = 50;
   var TIMEOUT_MS = 2000;
   var waitForMissingLogged = false;
+
+  function normalizeHostValue(_raw) {
+    var display =
+      _raw && _raw.d != null
+        ? String(_raw.d)
+        : _raw && _raw.display != null
+          ? String(_raw.display)
+          : "";
+    var useValue =
+      _raw && _raw.u != null
+        ? String(_raw.u)
+        : _raw && _raw.use != null
+          ? String(_raw.use)
+          : "";
+    if (!display && !useValue) {
+      return null;
+    }
+    var sanitized = _labels.sanitizeVisibleLabel(display);
+    return {
+      displayValue: sanitized,
+      useValue: useValue,
+      source: "cognos",
+      hostDisplay: display
+    };
+  }
+
+  // Takes a flat ref and the cognosHost filters facet. Values are read live from
+  // the host, not from an inventory snapshot, so a write by another owner is
+  // visible to the next read.
+  function readFilterValues(_ref, _filtersFacet) {
+    var outcome;
+    var values;
+    var mapped;
+    var idx;
+    var item;
+    try {
+      if (!_ref || !_filtersFacet) {
+        return null;
+      }
+      outcome = _filtersFacet.readFilterValues(_ref);
+      if (!outcome || outcome.ok !== true) {
+        // The facet never throws; a failed or aborted read maps onto the same
+        // null the host-throw path produced before the migration.
+        if (outcome && outcome.outcome === "failed") {
+          console.warn("[dienststelle.readFilterValues] host read failed", outcome.errorCode);
+        }
+        return null;
+      }
+      values = outcome.data;
+      if (!Array.isArray(values) || !values.length) {
+        return null;
+      }
+      mapped = [];
+      for (idx = 0; idx < values.length; idx += 1) {
+        item = normalizeHostValue(values[idx]);
+        if (item) {
+          mapped.push(item);
+        }
+      }
+      if (!mapped.length) {
+        return null;
+      }
+      return mapped;
+    } catch (error) {
+      console.warn("[dienststelle.readFilterValues] failed", error);
+      return null;
+    }
+  }
 
   function collectUseValueSet(_values) {
     var seen = {};
@@ -68,18 +139,17 @@ define(["./readDienststelleHostSelection.js"], function (_hostSelection) {
   }
 
   function readScopeSelection(_KDB, _activeFilterKey, _scopeId, _filtersFacet) {
-    var filterRef;
-    filterRef =
+    var ref =
       _scopeId === "global"
-        ? _hostSelection.lookupFilterRef(_KDB, _activeFilterKey, "global", null)
-        : _hostSelection.lookupFilterRef(_KDB, _activeFilterKey, "pageContext", _scopeId);
-    if (!filterRef) {
+        ? _filterRef.lookupFilterRef(_KDB, _activeFilterKey, "global", null)
+        : _filterRef.lookupFilterRef(_KDB, _activeFilterKey, "pageContext", _scopeId);
+    if (!ref) {
       return null;
     }
-    return _hostSelection.readFilterValues(filterRef, _filtersFacet);
+    return readFilterValues(ref, _filtersFacet);
   }
 
-  function waitForStableDienststelleScopeValues(_KDB, _activeFilterKey, _scopeId, _filtersFacet, _expected) {
+  function waitForStableScopeValues(_KDB, _activeFilterKey, _scopeId, _filtersFacet, _expected) {
     var waitForFn = _KDB && _KDB.utils ? _KDB.utils.waitFor : null;
     var stableCount = 0;
     var lastObserved = null;
@@ -97,7 +167,7 @@ define(["./readDienststelleHostSelection.js"], function (_hostSelection) {
     if (typeof waitForFn !== "function") {
       if (!waitForMissingLogged) {
         waitForMissingLogged = true;
-        console.warn("[dienststelle.waitForStableDienststelleScopeValues] waitFor missing");
+        console.warn("[dienststelle.waitForStableScopeValues] waitFor missing");
       }
       pollStableCount();
       return Promise.resolve({
@@ -123,5 +193,8 @@ define(["./readDienststelleHostSelection.js"], function (_hostSelection) {
       });
   }
 
-  return waitForStableDienststelleScopeValues;
+  return {
+    readFilterValues: readFilterValues,
+    waitForStableScopeValues: waitForStableScopeValues
+  };
 });
