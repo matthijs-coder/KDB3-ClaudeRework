@@ -1,38 +1,12 @@
 define([
+  "./config.js",
   "./config/defaults.js",
   "./config/mutationCodes.js",
   "./slots.js"
-], function (_defaults, _codes, _slots) {
+], function (_config, _defaults, _codes, _slots) {
   "use strict";
 
-  // Per-operation dialog and failure texts. guardCode is the plan guard whose
-  // failure is shown as a plain notice instead of an error alert.
-  const MUTATION_UI = {
-    delete: {
-      actionType: "tabs/delete",
-      dialog: { method: "confirm", code: "TABS_DELETE_CONFIRM", title: _defaults.TAB_DELETE_CONFIRM_TITLE, message: _defaults.TAB_DELETE_CONFIRM_TEXT },
-      guardCode: _codes.MIN_VISIBLE,
-      guardText: _defaults.TAB_DELETE_MIN_VISIBLE_TEXT,
-      failedTitle: _defaults.TAB_DELETE_FAILED_TITLE,
-      failedVerb: "gelöscht"
-    },
-    duplicate: {
-      actionType: "tabs/duplicate",
-      dialog: { method: "confirm", code: "TABS_DUPLICATE_CONFIRM", title: _defaults.TAB_DUPLICATE_CONFIRM_TITLE, message: _defaults.TAB_DUPLICATE_CONFIRM_TEXT },
-      guardCode: _codes.MAX_VISIBLE,
-      guardText: _defaults.TAB_DUPLICATE_MAX_VISIBLE_TEXT,
-      failedTitle: _defaults.TAB_DUPLICATE_FAILED_TITLE,
-      failedVerb: "dupliziert"
-    },
-    move: {
-      actionType: "tabs/move",
-      dialog: { method: "choose", code: "TABS_MOVE_CHOOSE", title: _defaults.TAB_MOVE_CHOOSE_TITLE, message: _defaults.TAB_MOVE_CHOOSE_TEXT },
-      guardCode: _codes.SAME_POSITION,
-      guardText: _defaults.TAB_MOVE_CHOOSE_TEXT,
-      failedTitle: _defaults.TAB_MOVE_FAILED_TITLE,
-      failedVerb: "verschoben"
-    }
-  };
+  const MUTATION_UI = _config.mutationUi;
 
   function isTabMutationInFlight(_KDB) {
     return !!(_KDB && _KDB.runtime && _KDB.runtime.tabs && _KDB.runtime.tabs.pendingPromises && _KDB.runtime.tabs.pendingPromises.tabMutation);

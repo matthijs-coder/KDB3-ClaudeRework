@@ -1,4 +1,4 @@
-define(["./createTabsController.js", "./state/createInitialTabsState.js", "./state/reduceTabsAction.js", "./state/selectors.js", "./adapters/createCognosTabsAdapter.js", "./effects/applyTabsEffects.js", "./config/selectors.js", "./history.js", "./chrome.js"], function (_createTabsController, _createInitialTabsState, _reduceTabsAction, _stateSelectors, _createCognosTabsAdapter, _applyTabsEffects, _domSelectors, _history, _chrome) {
+define(["./createTabsController.js", "./state/createInitialTabsState.js", "./state/reduceTabsAction.js", "./state/selectors.js", "./adapters/createCognosTabsAdapter.js", "./effects/applyTabsEffects.js", "./config.js", "./history.js", "./chrome.js"], function (_createTabsController, _createInitialTabsState, _reduceTabsAction, _stateSelectors, _createCognosTabsAdapter, _applyTabsEffects, _config, _history, _chrome) {
   "use strict";
 
   // Lifecycle terms for tabs: idle, initializing, loading, ready, error, disposed.
@@ -33,7 +33,7 @@ define(["./createTabsController.js", "./state/createInitialTabsState.js", "./sta
 
   function registerDomSelectors(_KDB) {
     try {
-      _KDB.elements.selectors.tabs = Object.assign({}, _KDB.elements.selectors.tabs || {}, _domSelectors);
+      _KDB.elements.selectors.tabs = Object.assign({}, _KDB.elements.selectors.tabs || {}, _config.selectors);
     } catch (err) {
       console.error("[tabs.registerDomSelectors] selector registration failed", err);
       throw err;

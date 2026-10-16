@@ -1,14 +1,14 @@
 define([
-  "../config/tabMutationOwners.js",
+  "../config.js",
   "../../../core/utils/filters/tabMutationRun/tabMutationSnapshots.js"
-], function (_tabMutationOwners, _snapshots) {
+], function (_config, _snapshots) {
   "use strict";
 
   function clearTabMutationSnapshots(_KDB, _operationId) {
     try {
       var runtime = _KDB && _KDB.runtime;
       if (!runtime || _operationId == null || _operationId === "") { return; }
-      _tabMutationOwners.SNAPSHOT_OWNER_KEYS.forEach(function (ownerKey) {
+      _config.mutationOwners.SNAPSHOT_OWNER_KEYS.forEach(function (ownerKey) {
         clearOwnerSnapshot(runtime[ownerKey], _operationId, ownerKey);
       });
     } catch (err) {

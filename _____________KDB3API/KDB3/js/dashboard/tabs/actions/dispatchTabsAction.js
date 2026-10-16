@@ -1,13 +1,13 @@
-define(["../config/actionTypes.js", "../effects/applyTabsEffects.js", "./routeParameterSetAction.js", "../tabMutation/tabMutationActions.js", "./commitTabsState.js", "../traverse/dispatchTraverse.js", "./dispatchTabsRename.js", "../slots.js"], function (_actionTypes, _applyTabsEffects, _routeParameterSetAction, _tabMutationActions, _commitTabsState, _dispatchTabsTraverse, _dispatchTabsRename, _slots) {
+define(["../config/actionTypes.js", "../effects/applyTabsEffects.js", "../restore/parameterSetRestore.js", "../tabMutation/tabMutationActions.js", "./commitTabsState.js", "../traverse/dispatchTraverse.js", "./dispatchTabsRename.js", "../slots.js"], function (_actionTypes, _applyTabsEffects, _parameterSet, _tabMutationActions, _commitTabsState, _dispatchTabsTraverse, _dispatchTabsRename, _slots) {
   "use strict";
 
   function dispatchTabsAction(instance, _action) {
     try {
       const action = _action || {};
-      if (instance.isDisposed && _routeParameterSetAction.isParameterSetAction(action.type)) { warnDisposed(instance, "dispatch"); return _routeParameterSetAction.disposedResult(action.type, action.payload); }
+      if (instance.isDisposed && _parameterSet.isParameterSetAction(action.type)) { warnDisposed(instance, "dispatch"); return _parameterSet.disposedResult(action.type, action.payload); }
       if (instance.isDisposed && _tabMutationActions.isTabMutationAction(action.type)) { warnDisposed(instance, "dispatch"); return _tabMutationActions.disposedResult(); }
       if (instance.isDisposed && action.type !== _actionTypes.DESTROY) { warnDisposed(instance, "dispatch"); return action.type === _actionTypes.TRAVERSE ? Promise.resolve(false) : false; }
-      if (_routeParameterSetAction.isParameterSetAction(action.type)) { return _routeParameterSetAction(buildEffectContext(instance), action); }
+      if (_parameterSet.isParameterSetAction(action.type)) { return _parameterSet.routeParameterSetAction(buildEffectContext(instance), action); }
       if (_tabMutationActions.isTabMutationAction(action.type)) { return _tabMutationActions.routeTabMutationAction(buildEffectContext(instance), action); }
       if (action.type === _actionTypes.TRAVERSE && isTraverseEffectResult(action.payload)) { return _commitTabsState(instance, action); }
       if (action.type === _actionTypes.TRAVERSE) { return _dispatchTabsTraverse(instance, action.payload || {}); }

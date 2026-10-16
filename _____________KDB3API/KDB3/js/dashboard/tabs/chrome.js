@@ -1,5 +1,7 @@
-define(["./config/selectors.js"], function (_selectors) {
+define(["./config.js"], function (_config) {
   "use strict";
+
+  const _selectors = _config.selectors;
 
   function readTabItemIndex(item) {
     const rawIndex = item && item.getAttribute ? item.getAttribute(_selectors.tabIndexAttribute) : null;

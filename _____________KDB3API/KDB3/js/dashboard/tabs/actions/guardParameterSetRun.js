@@ -1,5 +1,7 @@
-define(["../config/parameterSetCodes.js", "../slots.js"], function (_codes, _slots) {
+define(["../config.js", "../slots.js"], function (_config, _slots) {
   "use strict";
+
+  const _codes = _config.parameterSetCodes;
 
   // Shared runId/readiness guard for all tabs parameterSet* handlers per
   // contracts/tabs-parameterSetRestore-contractdelta.md §4/§7. Mirrors the

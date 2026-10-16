@@ -1,13 +1,13 @@
 define([
   "../config/actionTypes.js",
   "../config/defaults.js",
-  "../config/selectors.js",
+  "../config.js",
   "../chrome.js",
   "../slots.js",
   "./bindTabRenameEditSession.js",
   "./syncTabsKdbControlReadView.js",
   "./captureTabsBaselineNames.js"
-], function (_actionTypes, _defaults, _selectors, _chrome, _slots, _bindTabRenameEditSession, _syncTabsKdbControlReadView, _captureTabsBaselineNames) {
+], function (_actionTypes, _defaults, _config, _chrome, _slots, _bindTabRenameEditSession, _syncTabsKdbControlReadView, _captureTabsBaselineNames) {
   "use strict";
 
   function syncTabsStateFromDom(_ctx) {
@@ -57,7 +57,7 @@ define([
 
   function normalizeList(value) { if (!value) { return []; } if (Array.isArray(value)) { return value; } if (typeof value.length === "number") { return toArray(value); } return [value]; }
   function fallbackTabName(node, index) { return normalizeTextValue(node && (node.textContent || node.label || node.title || node.name), "Tab " + (index + 1)); }
-  function extractId(source, button, index) { return normalizeIdValue(source && (source.tabId || source.pageId || source.id)) || button && (button.getAttribute && (button.getAttribute(_selectors.tabIdAttribute) || button.getAttribute(_selectors.pageIdAttribute) || button.id)) || null; }
+  function extractId(source, button, index) { return normalizeIdValue(source && (source.tabId || source.pageId || source.id)) || button && (button.getAttribute && (button.getAttribute(_config.selectors.tabIdAttribute) || button.getAttribute(_config.selectors.pageIdAttribute) || button.id)) || null; }
   function extractPageId(source, tabId) { const child = source && source.items && source.items[0]; return normalizeIdValue(source && source.pageId) || normalizeIdValue(child && (child.pageId || child.id)) || normalizeIdValue(source && source.id) || tabId || null; }
   function readButtonVisible(button, index, role) { if (role !== "dashboard") { return false; } return button && button.classList ? button.classList.contains(_defaults.VISIBLE_CLASS) || index < _defaults.MIN_VISIBLE_USER_TABS : index < _defaults.MIN_VISIBLE_USER_TABS; }
   function resolveFallbackActiveIndex(byIndex, order) { const visible = buildVisibleOrder(byIndex, order); return visible.length > 0 ? visible[0] : null; }

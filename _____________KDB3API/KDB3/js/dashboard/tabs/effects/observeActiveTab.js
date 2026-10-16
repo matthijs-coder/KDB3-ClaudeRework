@@ -1,12 +1,12 @@
 define([
   "../config/actionTypes.js",
-  "../config/selectors.js",
+  "../config.js",
   "../events/eventNames.js",
   "../chrome.js",
   "../slots.js",
   "./applyTabPageLoading.js",
   "./bindTabListClickAhead.js"
-], function (_actionTypes, _selectors, _eventNames, _chrome, _slots, _applyTabPageLoading, _bindTabListClickAhead) {
+], function (_actionTypes, _config, _eventNames, _chrome, _slots, _applyTabPageLoading, _bindTabListClickAhead) {
   "use strict";
 
   // Traverse clicks tabs in a ~150ms cadence; coalesce observer bursts so one
@@ -26,7 +26,7 @@ define([
       const tabListEl = _chrome.resolveTabListElement();
       if (!tabListEl) { return false; }
       const observer = new MutationObserver(scheduleObservedCommit.bind(null, _ctx));
-      observer.observe(tabListEl, { attributes: true, attributeFilter: [_selectors.activeSelectedAttribute], subtree: true });
+      observer.observe(tabListEl, { attributes: true, attributeFilter: [_config.selectors.activeSelectedAttribute], subtree: true });
       runtime.observers.activeTabObserver = observer;
       _bindTabListClickAhead(_ctx);
       return true;

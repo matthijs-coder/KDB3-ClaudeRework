@@ -1,14 +1,14 @@
 define([
   "../config/actionTypes.js",
   "../config/mutationCodes.js",
-  "../config/tabMutationOwners.js",
+  "../config.js",
   "../slots.js",
   "../state/buildMutationResult.js",
   "../effects/ensureSlotReadyForMutation.js",
   "../effects/dispatchOwnerTabMutation.js",
   "../effects/clearTabMutationSnapshots.js",
   "../events/eventNames.js"
-], function (_actionTypes, _codes, _tabMutationOwners, _slots, _buildResult, _ensureSlotReady, _dispatchOwner, _clearTabMutationSnapshots, _eventNames) {
+], function (_actionTypes, _codes, _config, _slots, _buildResult, _ensureSlotReady, _dispatchOwner, _clearTabMutationSnapshots, _eventNames) {
   "use strict";
 
   function ok() { return { status: "ok", diagnostics: [] }; }

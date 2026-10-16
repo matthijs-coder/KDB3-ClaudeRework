@@ -1,15 +1,11 @@
 define([
   "../config/defaults.js",
-  "../config/selectors.js",
+  "../config.js",
   "../editIconActions.js"
-], function (_defaults, _selectors, _iconActions) {
+], function (_defaults, _config, _iconActions) {
   "use strict";
 
-  const ICON_CONFIG = [
-    { key: "delete", wrapperClass: _defaults.EDIT_ICON_WRAPPER_CLOSE_CLASS, spanClass: _defaults.EDIT_ICON_SPAN_CLOSE_CLASS, extraClass: _defaults.EDIT_ICON_DELETE_CLASS, file: _defaults.EDIT_ICON_DELETE_FILE, title: _defaults.EDIT_ICON_DELETE_TITLE },
-    { key: "duplicate", wrapperClass: _defaults.EDIT_ICON_WRAPPER_DUPLICATE_CLASS, spanClass: _defaults.EDIT_ICON_SPAN_DUPLICATE_CLASS, extraClass: _defaults.EDIT_ICON_DUPLICATE_CLASS, file: _defaults.EDIT_ICON_DUPLICATE_FILE, title: _defaults.EDIT_ICON_DUPLICATE_TITLE },
-    { key: "move", wrapperClass: _defaults.EDIT_ICON_WRAPPER_MOVE_CLASS, spanClass: _defaults.EDIT_ICON_SPAN_MOVE_CLASS, extraClass: _defaults.EDIT_ICON_MOVE_CLASS, file: _defaults.EDIT_ICON_MOVE_FILE, title: _defaults.EDIT_ICON_MOVE_TITLE }
-  ];
+  const ICON_CONFIG = _config.editIcons;
 
   const WRAPPER_CLASSES = ICON_CONFIG.map(function (cfg) { return cfg.wrapperClass; });
 
@@ -17,7 +13,7 @@ define([
     if (!wrapperEl || !wrapperEl.querySelector) { return {}; }
     removeExistingIconWrappers(wrapperEl);
     const host = wrapperEl;
-    const insertAfter = host.querySelector(_selectors.tabEditIconInsertAfterSelector || _selectors.tabButtonItemSelector);
+    const insertAfter = host.querySelector(_config.selectors.tabEditIconInsertAfterSelector || _config.selectors.tabButtonItemSelector);
     const icons = {};
     let anchor = insertAfter;
     ICON_CONFIG.forEach(function (cfg) {
@@ -70,24 +66,24 @@ define([
     top.setAttribute("aria-disabled", enabled ? "false" : "true");
 
     const item = document.createElement("div");
-    item.className = _selectors.tabEditPseudoTabItemClass;
-    item.setAttribute("role", _selectors.tabEditPseudoTabRole);
+    item.className = _config.selectors.tabEditPseudoTabItemClass;
+    item.setAttribute("role", _config.selectors.tabEditPseudoTabRole);
     item.setAttribute("tabindex", "-1");
     item.setAttribute("aria-selected", "false");
 
     const container = document.createElement("div");
-    container.className = _selectors.tabEditLabelContainerClass;
+    container.className = _config.selectors.tabEditLabelContainerClass;
 
     const span = document.createElement("span");
     span.className = cfg.spanClass;
 
     const svgIcon = document.createElement("div");
-    svgIcon.className = _selectors.tabEditSvgIconClass;
+    svgIcon.className = _config.selectors.tabEditSvgIconClass;
     svgIcon.setAttribute("focusable", "false");
 
     const input = document.createElement("input");
     input.type = "image";
-    input.className = _selectors.tabEditInputClass + " " + _defaults.EDIT_ICON_CLASS + " " + cfg.extraClass;
+    input.className = _config.selectors.tabEditInputClass + " " + _defaults.EDIT_ICON_CLASS + " " + cfg.extraClass;
     input.src = _defaults.EDIT_ICON_IMAGES_BASE + String(cfg.file || "");
     input.title = String(cfg.title || "");
     input.setAttribute("aria-disabled", enabled ? "false" : "true");
@@ -97,7 +93,7 @@ define([
     container.appendChild(span);
 
     const subTitle = document.createElement("div");
-    subTitle.className = _selectors.tabEditSubTitleClass;
+    subTitle.className = _config.selectors.tabEditSubTitleClass;
     container.appendChild(subTitle);
 
     item.appendChild(container);
