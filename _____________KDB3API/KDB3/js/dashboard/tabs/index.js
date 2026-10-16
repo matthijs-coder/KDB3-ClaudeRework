@@ -15,12 +15,13 @@ define([
   "./restore/parameterSetRestore.js",
   "./tabMutation/actions.js",
   "./tabMutation/slotStock/ledger.js",
+  "./readCurrentTab.js",
   "./traverse/traverse.js",
   "../../core/utils/kit/runtime.js",
   "../../core/utils/kit/errors.js"
 ], function (
   _actionTypes, _config, _state, _reducer, _selectors, _effects, _view, _observe, _chrome, _history, _slots,
-  _session, _renameActions, _parameterSet, _tabMutation, _slotStockLedger, _traverse, _rt, _errors
+  _session, _renameActions, _parameterSet, _tabMutation, _slotStockLedger, _readCurrentTab, _traverse, _rt, _errors
 ) {
   "use strict";
 
@@ -48,33 +49,10 @@ define([
     const service = _KDB.services && _KDB.services.cognosHost ? _KDB.services.cognosHost : null;
     runtime.tabsFacet = service && service.tabs ? service.tabs : null;
     runtime.canvasFacet = service && service.canvas ? service.canvas : null;
-    bindReadCurrentTab(_KDB, runtime);
+    _readCurrentTab.bindUtilsCompat(_KDB, runtime, _readCurrentTab.createReader(runtime));
     runtime.adapters.cognos = _effects.createCognosTabsAdapter({ tabsFacet: runtime.tabsFacet });
     runtime.editSession = null;
     return runtime.adapters.cognos;
-  }
-
-  // Swaps in a tabs-aware _KDB.utils.readCurrentTab; destroy puts the saved original back.
-  function bindReadCurrentTab(_KDB, runtime) {
-    const utils = _KDB.utils;
-    if (!utils || typeof utils.readCurrentTab !== "function") { return; }
-    if (!runtime.readCurrentTabUnbound) { runtime.readCurrentTabUnbound = utils.readCurrentTab; }
-    const helper = runtime.readCurrentTabUnbound;
-    const chromeReaders = { readSelectedTabIndex: _chrome.readSelectedTabIndexFromChrome };
-    utils.readCurrentTab = function boundReadCurrentTab(_root) {
-      return helper({ tabsFacet: runtime.tabsFacet, chromeReaders: chromeReaders }, _root);
-    };
-    runtime.readCurrentTabBound = utils.readCurrentTab;
-  }
-
-  // Only when the tabs binding is still installed, so a later override by another owner survives.
-  function restoreReadCurrentTab(_KDB, runtime) {
-    const utils = _KDB.utils;
-    if (utils && runtime.readCurrentTabUnbound && utils.readCurrentTab === runtime.readCurrentTabBound) {
-      utils.readCurrentTab = runtime.readCurrentTabUnbound;
-    }
-    runtime.readCurrentTabUnbound = null;
-    runtime.readCurrentTabBound = null;
   }
 
   function createTabsController(_deps) {
@@ -93,11 +71,15 @@ define([
       getState: instance.getState,
       isDisposed: guard.isDisposed
     };
+    const readCurrentTab = _readCurrentTab.createReader(_KDB.runtime.tabs);
     return {
       mount: mountTabs.bind(null, instance),
       destroy: destroyTabs.bind(null, instance),
       dispatch: instance.dispatch,
-      getState: instance.getState
+      getState: instance.getState,
+      // Same answer as kit readTabsBusy(_KDB, ["tabMutation"]); false once destroyed (the buckets are reset).
+      isMutationRunning: function isMutationRunning() { return _rt.readTabsBusy(_KDB, ["tabMutation"]); },
+      readCurrentTab: function (_root) { return guard.isDisposed() ? _readCurrentTab.NO_TAB : readCurrentTab(_root); }
     };
   }
 
@@ -115,7 +97,7 @@ define([
       runtime.lastTabMutationError = null;
       runtime.historyReplayHandlerContribution = null;
       _slotStockLedger.reset(_KDB);
-      restoreReadCurrentTab(_KDB, runtime);
+      _readCurrentTab.restoreUtilsCompat(_KDB, runtime);
       _reducer.commitTabsState(_KDB, { type: _actionTypes.DESTROY, payload: { source: "destroy" } });
     } catch (err) {
       console.error("[tabs.destroy] destroy boundary failed", err);
