@@ -9,7 +9,8 @@ define([
   "./commit.js",
   "./options.js",
   "./restore.js",
-  "../../../core/services/tableData/events/eventNames.js",
+  "../_core/ownerController.js",
+  "../_core/tableDataWatcher.js",
   "../../../core/utils/kit/runtime.js",
   "../../../core/utils/kit/errors.js",
   "../../../core/utils/kit/data.js"
@@ -24,7 +25,8 @@ define([
   _commit,
   _options,
   _restore,
-  _tableDataEvents,
+  _ownerController,
+  _tableDataWatcher,
   _rt,
   _errors,
   _kitData
@@ -122,121 +124,75 @@ define([
     };
   }
 
+  var DISPOSED_RESULTS = {};
+  Object.keys(ACK_ACTIONS).forEach(function (_type) { DISPOSED_RESULTS[_type] = disposedAckResult; });
+  Object.keys(PARAMETER_SET_ACTIONS).forEach(function (_type) { DISPOSED_RESULTS[_type] = disposedResult; });
+
   function createSichtController(_KDB) {
     var guard = _errors.createDisposedGuard("sicht");
-    var reducer = _state.createSichtReducer();
+    var reduce = _ownerController.createStateWriter(_KDB, "sicht", _state.createSichtReducer());
     var ctx = {
       _KDB: _KDB,
       runtime: _rt.ensureRuntime(_KDB, "sicht"),
-      dispatchInternal: dispatchInternal
+      dispatchInternal: reduce
     };
 
-    function dispatchInternal(_action) {
-      var filtersState = _KDB.state && _KDB.state.filters;
-      if (filtersState) {
-        filtersState.sicht = reducer(filtersState.sicht, _action);
-      }
-    }
-
     function mount() {
-      if (guard.blocked("mount")) {
-        return false;
-      }
-      try {
-        ctx.runtime = _rt.ensureRuntime(_KDB, "sicht", createRuntimeDefaults());
-        dispatchInternal({
-          type: actions.MOUNT_SUCCEEDED,
-          payload: { mountedAt: Date.now() }
-        });
-        if (_KDB.services && _KDB.services.tableData) {
-          ROUTES[actions.SYNC_REQUESTED](ctx, { type: actions.SYNC_REQUESTED, payload: {} });
-        }
-        return true;
-      } catch (error) {
-        console.error("[sicht.mount] failed", error);
-        return false;
+      ctx.runtime = _rt.ensureRuntime(_KDB, "sicht", createRuntimeDefaults());
+      reduce({
+        type: actions.MOUNT_SUCCEEDED,
+        payload: { mountedAt: Date.now() }
+      });
+      if (_KDB.services && _KDB.services.tableData) {
+        ROUTES[actions.SYNC_REQUESTED](ctx, { type: actions.SYNC_REQUESTED, payload: {} });
       }
     }
 
-    function destroy() {
-      if (guard.isDisposed()) {
-        return;
+    function teardown() {
+      var errors = _rt.disposeRuntimeBuckets(ctx.runtime);
+      if (errors.length) {
+        console.warn("[sicht.destroy] runtime cleanup", errors);
       }
-      guard.dispose();
-      try {
-        var errors = _rt.disposeRuntimeBuckets(ctx.runtime);
-        if (errors.length) {
-          console.warn("[sicht.destroy] runtime cleanup", errors);
-        }
-        ctx.runtime.delegatedOperationIds = {};
-        if (_KDB.runtime && _KDB.runtime.sicht) {
-          _KDB.runtime.sicht.historyReplayHandlerContribution = null;
-        }
-        dispatchInternal({ type: actions.DESTROY, payload: {} });
-      } catch (error) {
-        console.error("[sicht.destroy] failed", error);
-      }
+      ctx.runtime.delegatedOperationIds = {};
     }
 
-    function dispatch(_action) {
-      var action = _action || {};
-      var isAck = ACK_ACTIONS[action.type] === true;
-      if (guard.blocked("dispatch")) {
-        if (PARAMETER_SET_ACTIONS[action.type] === true) {
-          return disposedResult();
-        }
-        return isAck ? disposedAckResult(action) : undefined;
+    function route(_action) {
+      if (ROUTES[_action.type]) {
+        var routed = ROUTES[_action.type](ctx, _action);
+        return ACK_ACTIONS[_action.type] === true ? routed : _selectors.readSichtState(_KDB);
       }
-      try {
-        if (ROUTES[action.type]) {
-          var routed = ROUTES[action.type](ctx, action);
-          return isAck ? routed : _selectors.readSichtState(_KDB);
+      return _selectors.readSichtState(_KDB);
+    }
+
+    function reportDispatchError(_error, _action) {
+      reduce({
+        type: actions.ERROR,
+        payload: {
+          errorCode: "SICHT_DISPATCH_FAILED",
+          errorMessage: String(_error.message || _error)
         }
-        return _selectors.readSichtState(_KDB);
-      } catch (error) {
-        console.error("[sicht.dispatch] failed", error);
-        dispatchInternal({
-          type: actions.ERROR,
-          payload: {
-            errorCode: "SICHT_DISPATCH_FAILED",
-            errorMessage: String(error.message || error)
-          }
-        });
-        return isAck ? {
-          ok: false,
-          code: "SICHT_DISPATCH_FAILED",
-          message: String(error.message || error)
-        } : undefined;
-      }
+      });
+      return ACK_ACTIONS[_action.type] === true ? {
+        ok: false,
+        code: "SICHT_DISPATCH_FAILED",
+        message: String(_error.message || _error)
+      } : undefined;
     }
 
     // Public surface: callers get a copy, the live state stays owned by the reducer.
-    function getState() {
-      return guard.isDisposed() ? undefined : _kitData.cloneJson(_selectors.readSichtState(_KDB));
-    }
-
-    return { mount: mount, destroy: destroy, dispatch: dispatch, getState: getState };
-  }
-
-  function subscribeTableDataChanges(_KDB, _controller) {
-    var events = _KDB && _KDB.events;
-    if (!events || typeof events.subscribe !== "function") {
-      return null;
-    }
-    return events.subscribe(_tableDataEvents.LOAD_FINISHED, function (_payload) {
-      try {
-        var tableName = _payload && _payload.tableName;
-        var rowCount = _payload && _payload.rowCount;
-        if (!_availability.isRelevantTableName(_KDB, tableName)) {
-          return;
-        }
-        _controller.dispatch({
-          type: actions.TABLE_DATA_CHANGED,
-          payload: { tableName: tableName, rowCount: rowCount }
-        });
-      } catch (error) {
-        console.error("[sicht.tableDataChanged] failed", error);
-      }
+    return _ownerController.createOwnerController({
+      _KDB: _KDB,
+      name: "sicht",
+      guard: guard,
+      reduce: reduce,
+      mount: mount,
+      teardown: teardown,
+      route: route,
+      readState: function () { return _kitData.cloneJson(_selectors.readSichtState(_KDB)); },
+      destroyAction: actions.DESTROY,
+      clearsReplayContribution: true,
+      disposedResults: DISPOSED_RESULTS,
+      onDispatchError: reportDispatchError
     });
   }
 
@@ -245,25 +201,22 @@ define([
   }
 
   function registerSicht(_KDB) {
-    _KDB.state = _KDB.state || {};
-    _KDB.state.filters = _KDB.state.filters || {};
-    _KDB.api = _KDB.api || {};
-    _KDB.elements = _KDB.elements || {};
-    _KDB.elements.selectors = _KDB.elements.selectors || {};
-    _KDB.elements.selectors.sicht = _config.SELECTORS;
-
-    if (!_KDB.state.filters.sicht) {
-      _KDB.state.filters.sicht = _state.createInitialState();
-    }
+    _ownerController.prepareOwnerNamespaces(_KDB, "sicht", {
+      createInitialState: _state.createInitialState,
+      domSelectors: _config.SELECTORS
+    });
 
     var rt = _rt.ensureRuntime(_KDB, "sicht", createRuntimeDefaults());
     rt.historyReplayHandlerContribution = _history.createSichtReplayHandler();
     var controller = createSichtController(_KDB);
     _KDB.api.sicht = controller;
-    if (typeof rt.subscriptions.tableDataLoadFinished === "function") {
-      rt.subscriptions.tableDataLoadFinished();
-    }
-    rt.subscriptions.tableDataLoadFinished = subscribeTableDataChanges(_KDB, controller);
+    _tableDataWatcher.watchTableData(_KDB, {
+      runtime: rt,
+      isRelevant: _availability.isRelevantTableName,
+      dispatch: controller.dispatch,
+      actionType: actions.TABLE_DATA_CHANGED,
+      failureLabel: "sicht.tableDataChanged"
+    });
     return controller;
   }
 

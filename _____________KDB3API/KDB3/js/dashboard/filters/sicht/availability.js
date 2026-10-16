@@ -1,7 +1,8 @@
 define([
   "./config.js",
-  "./state.js"
-], function (_config, _state) {
+  "./state.js",
+  "../_core/tableDataWatcher.js"
+], function (_config, _state, _tableDataWatcher) {
   "use strict";
 
   function evaluateAndStoreSichtOptions(_KDB, _dispatchInternal) {
@@ -142,26 +143,8 @@ define([
     return String(_cell).trim() || "";
   }
 
-  function normalizeMatchValue(_value) {
-    return String(_value == null ? "" : _value).trim().toLowerCase();
-  }
-
-  // The configured table names can change at runtime, so the name set is rebuilt per event.
-  function isRelevantTableName(_KDB, _tableName) {
-    var relevantNames = {};
-    if (!_tableName) {
-      return false;
-    }
-    _config.TABLE_KEYS.forEach(function (_tableKey) {
-      var tableConfig =
-        _KDB && _KDB.config && _KDB.config.tables ? _KDB.config.tables[_tableKey] : null;
-      relevantNames[normalizeMatchValue(_tableKey)] = true;
-      if (tableConfig && tableConfig.name) {
-        relevantNames[normalizeMatchValue(tableConfig.name)] = true;
-      }
-    });
-    return relevantNames[normalizeMatchValue(_tableName)] === true;
-  }
+  // The configured table names can change at runtime, so the matcher rebuilds its name set per event.
+  var isRelevantTableName = _tableDataWatcher.createTableNameMatcher(_config.TABLE_KEYS);
 
   return {
     isRelevantTableName: isRelevantTableName,
