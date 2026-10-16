@@ -393,18 +393,18 @@ It should **not** own:
 - table data state;
 - **canonical dashboard authoring mode** (`_KDB.state.authoring` / `_KDB.api.authoring` — **`authoring`** module per CP-1; `kdbControl` is a subscriber only).
 
-**Recommended public API (dispatch-style per `module-public-api.mdc`):**
+**Public API (dispatch-style per `module-public-api.mdc`):**
 
 ```js
 _KDB.api.kdbControl = {
   mount,
   destroy,
   dispatch,
-  getState,
-  registerControl,
-  registerCustomControl
+  getState
 };
 ```
+
+There is no `registerControl` / `registerCustomControl`: built-in controls are static (`contracts/kdbControl.md` F4).
 
 ### controlDefinitions
 
@@ -510,4 +510,4 @@ They mean:
 - `_KDB.state` remains central, but write access is restricted by ownership;
 - runtime objects stay out of `_KDB.state`.
 
-See also: `_____________KDB3API/architecture/projectStructureRules.md`, `_____________KDB3API/architecture/migrationContext.md`, `_____________KDB3API/architecture/eventSubscribe.md`, `_____________KDB3API/architecture/filesExplained.md`, `_____________KDB3API/.cursor/rules/`.
+See also: `_____________KDB3API/architecture/projectStructureRules.md`, `_____________KDB3API/architecture/_archive/migrationContext.md`, `_____________KDB3API/architecture/eventSubscribe.md`, `_____________KDB3API/architecture/filesExplained.md`, `_____________KDB3API/.cursor/rules/`.

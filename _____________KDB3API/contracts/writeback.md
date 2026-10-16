@@ -1,6 +1,6 @@
 # Module Contract: `writeback`
 
-> Contract for the KDB3 writeback services. This document replaces the legacy-shaped writeback storage direction from `contracts/overdracht/writeback.md` and promotes the compact v3 direction from `contracts/overdracht/writebackExtra.md` into the active writeback contract.
+> Contract for the KDB3 writeback services. This document replaces the legacy-shaped writeback storage direction from `contracts/_archive/overdracht/writeback.md` and promotes the compact v3 direction from `contracts/_archive/overdracht/writebackExtra.md` into the active writeback contract.
 > No production code may be generated until this contract is reviewed and approved.
 
 ---
@@ -27,7 +27,7 @@
 6. A shared `schema/` layer is the single source of truth for v3 defaults, validation, normalization and source-format detection.
 7. Restore uses existing KDB3 module dispatch/replay paths. Direct Cognos mutation is allowed only through existing owner APIs/effects.
 8. Dienststelle hierarchy validation belongs only to the parameter-set restore path, preserving the CP-3 decision in `dienststelle.md`.
-9. Mapping SSOT is package-bound JS under `KDB3/js/core/config/mapping/`: `parameterMap.js` (frozen flat `*_KID` map) and `kidIndex.js` (grouped index / required keys). Cognos property `parameterMappingId` is not loaded. `__savedProperties/parameterMappingId.js` is a static fixture, not runtime. See `contracts/mapping-config-ssot-contractdelta.md`.
+9. Mapping SSOT is package-bound JS under `KDB3/js/core/config/mapping/`: `parameterMap.js` (frozen flat `*_KID` map) and `kidIndex.js` (grouped index / required keys). Cognos property `parameterMappingId` is not loaded. `__savedProperties/parameterMappingId.js` is a static fixture, not runtime. See `contracts/_archive/mapping-config-ssot-contractdelta.md`.
 10. `WritebackTabel` CRUD is out of scope for the first implementation tranche.
 11. Production restore requires owner contract deltas for `tabs`, `header`, `footer`, `dienststelle`, widget reset, `widgetBase`, `widgetSettings`, `widgetVis`, `widgetText`. Kind `"tbl"` / helper `"topn"` do not enter scope (T2 item 2 close 2026-08-16, skip-by-design).
 12. P0 deltas in section 12 exist and are approved except items 8–9 (Draft); implementation proceeds under the approved set (sync 2026-08-10).
@@ -691,7 +691,7 @@ Visualization widget:
 { tab, x, y, w, h, kind: "vis", code, type, dim?, topn?, vals?, grp?, iter?, wzbar?, vcap?, bgcol?, ctcol? }
 ```
 
-vis `type: "list"` is a visType key on `kind: "vis"` (bucket `"List"`), same GET/SET path as bar/line. It is not kind `"tbl"`. vis `topn` is semantic TopN choice (`topNChoice`) and is distinct from helper kind `"topn"`. vis `vals` is explicit show-values (`0|1`); omit when inherit (`contracts/widgetVis-show-values-contractdelta.md`). `vals: 0` is a valid present value, not an omit sentinel. vis `grp` is explicit grouping grain (`stichtag` \| `jahr` \| `jahrStichtag` \| `stichtagProJahrH` \| `stichtagProJahrV`); omit when inherit; omit when the token is illegal for this `type`; a present token may equal that vis `defaultGrain` (`contracts/widgetVis-grouping-jahr-stichtag-contractdelta.md` §13). vis `iter` is explicit iterator (`0|1`); omit when inherit; present `0` is explicit false, including hide types (`contracts/widgetSettings-vis-toggle-panel-wp2-contractdelta.md`). vis `wzbar` is explicit Zoomleiste (`0|1`); omit when inherit; present `0` is explicit false, including hide types (same WP2 delta). vis `vcap` is explicit Werte beschriftung (`0|1`); omit when inherit; present `0` is explicit false, including hide types (`contracts/widgetSettings-value-caption-contractdelta.md`). Do not splice `iter` / `wzbar` / `vcap` into the `vals` or `grp` sentence.
+vis `type: "list"` is a visType key on `kind: "vis"` (bucket `"List"`), same GET/SET path as bar/line. It is not kind `"tbl"`. vis `topn` is semantic TopN choice (`topNChoice`) and is distinct from helper kind `"topn"`. vis `vals` is explicit show-values (`0|1`); omit when inherit (`contracts/_archive/widgetVis-show-values-contractdelta.md`). `vals: 0` is a valid present value, not an omit sentinel. vis `grp` is explicit grouping grain (`stichtag` \| `jahr` \| `jahrStichtag` \| `stichtagProJahrH` \| `stichtagProJahrV`); omit when inherit; omit when the token is illegal for this `type`; a present token may equal that vis `defaultGrain` (`contracts/_archive/widgetVis-grouping-jahr-stichtag-contractdelta.md` §13). vis `iter` is explicit iterator (`0|1`); omit when inherit; present `0` is explicit false, including hide types (`contracts/_archive/widgetSettings-vis-toggle-panel-wp2-contractdelta.md`). vis `wzbar` is explicit Zoomleiste (`0|1`); omit when inherit; present `0` is explicit false, including hide types (same WP2 delta). vis `vcap` is explicit Werte beschriftung (`0|1`); omit when inherit; present `0` is explicit false, including hide types (`contracts/_archive/widgetSettings-value-caption-contractdelta.md`). Do not splice `iter` / `wzbar` / `vcap` into the `vals` or `grp` sentence.
 
 Text widget:
 

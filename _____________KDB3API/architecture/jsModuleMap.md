@@ -2,7 +2,7 @@
 
 Levende inhoudsopgave van productie-JS. **Begin hier**, niet in `contracts/`.
 
-Bron: live `KDB3/js/KDB.js` (register 44–65, mount 67–95, destroy 131–176). Bijwerken wanneer een orchestrator in `KDB.js` landt. First-week-tabel gepromoveerd uit `readability-maintainability.md` §6.1–6.2 (niet herschreven).
+Bron: live `KDB3/js/KDB.js` (secties register, mount, destroy). Bijwerken wanneer een orchestrator in `KDB.js` landt. First-week-tabel gepromoveerd uit `architecture/_archive/readability-maintainability.md` §6.1–6.2 (niet herschreven).
 
 Zoekgewoonte: open van die module `config/actions.js` of `config/actionTypes.js`. Dat is de echte TOC.
 
@@ -66,7 +66,7 @@ Ook: `_KDB.services.tableData`, `_KDB.services.loading`, `_KDB.services.message`
 
 Native multi-select confirm (OK in de dock) mag state schrijven via `nativeMultiSelect/tabMutationScopeWrite` — **die naam liegt** (geen tab-mutatie; Cognos schreef de host al; wij snapshotten `byScope`).
 
-Meer tribal vocab: `readability-maintainability.md` §6.2.
+Meer tribal vocab: `architecture/_archive/readability-maintainability.md` §6.2.
 
 ---
 
@@ -147,6 +147,6 @@ Replay-handlers worden **tweemaal** gebonden (`KDB.js` na kdbControl-mount en na
 | `contracts/tabs.md` | Status Draft; phase-1 **defert** move/delete. Live tabs doen dat al. | `runTabMutationSaga.js` |
 | `contracts/widgetSettings.md` | Draft; noemt `commitDimension` / `commitVisType` / `commitColour`. | `intentDispatchMap.js` |
 | `contracts/nativeMultiSelect.md` §6 | Folderlijst is plat `actions/*.js`; live tree heeft `actions/tabMutation/` en `actions/parameterSet/`. | Live `nativeMultiSelect/` + `config/actions.js` |
-| `contracts/pageContextPlain.md` | Status **Superseded**. | `nativeMultiSelect` (v3-bucket `filt.pcfs`) |
+| `contracts/_archive/pageContextPlain.md` | Status **Superseded**. | `nativeMultiSelect` (v3-bucket `filt.pcfs`) |
 
 `eventSubscribe.md` is geen human map voor confirm / tab-move / settings — dat zijn dispatch-sagas, geen bus-events.

@@ -68,6 +68,4 @@ These stay in place because JS comments or living contracts cite them. Move them
 
 ## Other files kept in place
 
-- `_template.md`, `_executionSpecTemplate.md`: templates for the retired workflow, still referenced by `.cursor/rules/feature-structure.mdc`.
-- `anew.md`: Dutch description of the kdbControl panel structure; purpose unclear, not yet classified.
-- `futureTodo/`: open backlog and future-todo notes (hand-off prompts were archived).
+- `futureTodo/`: open backlog and future-todo notes. Closed or superseded notes, hand-off prompts and the retired `_template.md` / `_executionSpecTemplate.md` templates are in `_archive/`.

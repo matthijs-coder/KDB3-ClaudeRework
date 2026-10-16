@@ -315,7 +315,7 @@ Launchpad may create and place:
 
 Other modules must not read `_KDB.runtime.launchpad.domRefs`. A future `widgets` tranche may consume published launchpad selectors and state selectors to locate its destination, but widget DOM mutation remains owned by `widgets`.
 
-> **Pad-label streamlining (delta vs legacy — apply with approval).** Production launchpad channels align 1:1 with the widget content modules + one catch-all, all per-tab: `text`, `visualization`, `dataTables`, `topN`, and `otherResources`. Remap from legacy labels: legacy `shapes` → `dataTables`; legacy `dataTables` → `topN`; `text`/`visualization` unchanged. The legacy `shapes` catch-all role moves to `otherResources`. Authority for this mapping: `architecture/widgets-domain-blueprint.md` §3.
+> **Pad-label streamlining (delta vs legacy — apply with approval).** Production launchpad channels align 1:1 with the widget content modules + one catch-all, all per-tab: `text`, `visualization`, `dataTables`, `topN`, and `otherResources`. Remap from legacy labels: legacy `shapes` → `dataTables`; legacy `dataTables` → `topN`; `text`/`visualization` unchanged. The legacy `shapes` catch-all role moves to `otherResources`. Authority for this mapping: `architecture/_archive/widgets-domain-blueprint.md` §3.
 
 ## 11. Folder Layout
 

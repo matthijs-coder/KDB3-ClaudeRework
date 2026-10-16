@@ -1,0 +1,302 @@
+/* form-controls.css */
+.kdb-control_input-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  width: 100%;
+  max-width: 16rem;
+  align-items: center;
+  text-align: center;
+}
+.kdb-control_input-label {
+  font-size: 16px;
+  font-weight: 400;
+  color: #333;
+}
+.kdb-control_text-input {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 16rem;
+  padding: 6px 8px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.kdb-control_twoinput-row .kdb-control_text-input {
+  width: 100%;
+}
+.kdb-control_oneinput-row .kdb-control_text-input {
+  width: calc(50% - 10px);
+}
+.kdb-control_color-field {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  gap: 2px;
+}
+.kdb-control_color-input-wrap {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.kdb-control_color-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + var(--kdb-control-dropdown-offset-top));
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: max-content;
+  z-index: var(--kdb-control-dropdown-z-index);
+  box-sizing: border-box;
+  border: var(--kdb-control-dropdown-border);
+  border-radius: var(--kdb-control-dropdown-border-radius);
+  background: var(--kdb-control-dropdown-bg);
+  box-shadow: var(--kdb-control-dropdown-shadow);
+  max-height: var(--kdb-control-dropdown-max-height);
+  overflow-y: auto;
+}
+.kdb-control_color-field--open .kdb-control_color-dropdown {
+  display: block;
+}
+.kdb-control_color-palette {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+.kdb-control_color-swatch {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: var(--kdb-control-color-swatch-padding-y) var(--kdb-control-color-swatch-padding-x);
+  border: var(--kdb-control-color-swatch-hover-border-width) solid var(--kdb-control-color-swatch-border-idle);
+  border-radius: 0;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;
+  color: #111;
+  /* text-shadow: var(--kdb-control-color-swatch-text-shadow); */
+  box-sizing: border-box;
+}
+.kdb-control_color-swatch:hover {
+  border-color: var(--kdb-control-color-swatch-hover-border-color);
+  font-weight: var(--kdb-control-color-swatch-hover-font-weight);
+}
+.kdb-control_color-swatch--width-ghost {
+  visibility: hidden;
+  pointer-events: none;
+  user-select: none;
+  font-weight: var(--kdb-control-color-swatch-hover-font-weight);
+  cursor: default;
+  width: max-content;
+  max-width: 100%;
+  align-self: center;
+  min-height: 0;
+  height: 0;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  line-height: 0;
+  overflow: hidden;
+  border-top: none;
+  border-bottom: none;
+}
+
+/* toggle-button.css */
+.kdb-control_switch-row--icon .kdb-control_switch-label--glyph {
+  flex: 0 0 auto;
+  min-width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.kdb-control_switch-icon {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+  user-select: none;
+}
+.kdb-control_switch-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 16px;
+  font-weight: 400;
+  cursor: pointer;
+  width: 100%;
+  max-width: 20rem;
+  text-align: center;
+}
+.kdb-control_switch-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 400;
+}
+.kdb-control_switch-track {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.kdb-control_switch-track .kdb-control_switch-input {
+  position: absolute;
+  opacity: 0;
+  width: 44px;
+  height: 22px;
+  margin: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+.kdb-control_switch-track .KDB_ToggleButton_slider {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+  background: #ccc;
+  border-radius: 22px;
+  transition: background 0.2s ease;
+  pointer-events: none;
+}
+.kdb-control_switch-track .KDB_ToggleButton_slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 2px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s ease;
+}
+.kdb-control_switch-track .kdb-control_switch-input:checked + .KDB_ToggleButton_slider {
+  background-color: var(--kdb-control-steuerung-switch-on, #0056b3);
+}
+.kdb-control_switch-track .kdb-control_switch-input:checked + .KDB_ToggleButton_slider::before {
+  transform: translateX(22px);
+}
+.kdb-control_switch-track .kdb-control_switch-input:focus + .KDB_ToggleButton_slider {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+/* form-controls-radios.css */
+.kdb-control_radio-group {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: 100%;
+  max-width: 22rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.kdb-control_radio-group-label {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 6px;
+  color: #333;
+  text-align: center;
+}
+.kdb-control_radio-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  width: 100%;
+}
+.kdb-control_radio-form--row {
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px 14px;
+  align-items: center;
+}
+.kdb-control_radio-form--row .kdb-control__radio-label {
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.kdb-control__radio-label {
+  font-size: 16px;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+#kdb-control-root.kdb-control .kdb-control__radio,
+.kdb-control .kdb-control__radio {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  margin: 0;
+  vertical-align: middle;
+}
+
+/* action-buttons.css */
+.kdb-control_action-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 10px 10px;
+  width: 150px;
+  min-height: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 30px;
+  background-color: #0056b3;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: grab;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  justify-self: center;
+  text-align: center;
+  line-height: 1.1;
+}
+.kdb-control_action-button--draggable {
+  cursor: grab;
+}
+.kdb-control_action-button:active.kdb-control_action-button--draggable {
+  cursor: grabbing;
+}
+
+/* form-controls-focus.css */
+#kdb-control-root.kdb-control .kdb-control_text-input:focus,
+#kdb-control-root.kdb-control .kdb-control_text-input:focus-visible {
+  outline: 2px solid #000;
+  outline-offset: 0px;
+  border-color: #000;
+  box-shadow: none;
+}
+
+/* authoring.css */
+#kdb-control-root.kdb-control--authoring {
+  background-color: rgba(255, 165, 0, 0.15) !important;
+  border: 3px solid orange !important;
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.5) !important;
+}
+
+#kdb-control-root.kdb-control--authoring .resizeEdge.border {
+  display: inherit !important;
+}

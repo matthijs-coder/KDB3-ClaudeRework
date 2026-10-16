@@ -1,27 +1,19 @@
-define(["./createAuthoringController", "./host/syncAuthoringFromDashboardMode"], function (_createAuthoringController, _syncAuthoringFromDashboardMode) {
+define(["./createAuthoringController"], function (_createAuthoringController) {
   "use strict";
 
-  function readDashboardFacet(_KDB) {
-    var service = _KDB.services ? _KDB.services.cognosHost : null;
-    return service && service.dashboard ? service.dashboard : null;
-  }
-
-  function stampHostFacets(_KDB) {
+  function attachDashboardFacet(_KDB) {
+    var host = _KDB.services && _KDB.services.cognosHost;
     _KDB.runtime = _KDB.runtime || {};
     _KDB.runtime.authoring = _KDB.runtime.authoring || {};
-    _KDB.runtime.authoring.dashboardFacet = readDashboardFacet(_KDB);
-  }
-
-  function applyAuthoringDashboardFacet(_KDB) {
-    stampHostFacets(_KDB);
-    _syncAuthoringFromDashboardMode(_KDB);
+    _KDB.runtime.authoring.dashboardFacet = host && host.dashboard ? host.dashboard : null;
+    _createAuthoringController.syncFromDashboardMode(_KDB);
   }
 
   function __orchestratorAuthoring(_KDB) {
     _KDB.api.authoring = _createAuthoringController(_KDB);
     _KDB.api.authoring.mount();
     // Stamp after mount: mount resets runtime.authoring to {}.
-    applyAuthoringDashboardFacet(_KDB);
+    attachDashboardFacet(_KDB);
     if (_KDB.runtime.authoring.dashboardFacet) {
       return;
     }
@@ -34,7 +26,7 @@ define(["./createAuthoringController", "./host/syncAuthoringFromDashboardMode"],
       if (runtimeAuthoring && runtimeAuthoring.pendingDashboardFacetStamp === pendingDashboardFacetStamp) {
         runtimeAuthoring.pendingDashboardFacetStamp = null;
       }
-      applyAuthoringDashboardFacet(_KDB);
+      attachDashboardFacet(_KDB);
     };
   }
   return __orchestratorAuthoring;

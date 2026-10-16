@@ -7,7 +7,7 @@
 
 **Status:** `Approved (PO vastenburg), 2026-07-11 — implemented same day`
 **Parent contract:** `contracts/widgetBase.md`
-**Depends on:** `contracts/tabs-activationEvent-contractdelta.md` (`tabs:changed`)
+**Depends on:** `contracts/_archive/tabs-activationEvent-contractdelta.md` (`tabs:changed`)
 **Consumed by:** `writebackSet` restore orchestration (`contracts/writeback.md` §6.4/§6.6)
 **Type:** `feature module contract delta`
 **Authoring AI:** Fable 5, 2026-07-11
