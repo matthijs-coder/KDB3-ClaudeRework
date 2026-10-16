@@ -253,7 +253,7 @@ test("service: public surface and boot", async () => {
   const env = makeEnv();
   assert.deepEqual(
     Object.keys(env.service).sort(),
-    ["abortTable", "destroy", "ensureFreshRows", "loadTable", "readPendingLoad", "readRows", "readTableState", "registerConfiguredLoads", "reloadTable", "waitForRows"],
+    ["abortTable", "destroy", "ensureFreshRows", "loadTable", "loadTables", "readPendingLoad", "readRows", "readTableState", "registerConfiguredLoads", "reloadTable", "waitForRows"],
   );
   assert.equal(env.KDB.services.tableData, env.service);
   assert.deepEqual(Object.keys(env.KDB.runtime.tableData).filter((key) => key.endsWith("Facet")).sort(), ["canvasFacet", "dataQueryFacet", "visualizationFacet", "widgetsFacet"]);
@@ -336,8 +336,9 @@ test("service: reads, ensureFresh, reload, widgetId handles, multi-input", async
   assert.equal(t2.hasData, false);
   assert.equal(t2.widgetId, null);
   const whole = service.readTableState();
-  assert.equal(whole, env.KDB.state.tableData);
-  assert.equal(service.readTableState(null), whole);
+  assert.deepEqual(Object.keys(whole), Object.keys(env.KDB.state.tableData));
+  assert.notEqual(whole, env.KDB.state.tableData);
+  assert.deepEqual(JSON.parse(JSON.stringify(service.readTableState(null))), JSON.parse(JSON.stringify(whole)));
   trace.keys = Object.keys(whole).sort();
   trace.state = snapshotState(env.KDB);
   trace.events = env.events;
@@ -575,7 +576,7 @@ test("service: invalid input rejects (async) or returns undefined (reads) with o
   }
   assert.equal(env.service.readRows(), undefined);
   assert.equal(env.service.readPendingLoad(), undefined);
-  assert.equal(env.service.readTableState(), env.KDB.state.tableData);
+  assert.deepEqual(Object.keys(env.service.readTableState()), Object.keys(env.KDB.state.tableData));
   return snapshotPart("invalidInput", trace);
 });
 

@@ -9,7 +9,7 @@ define([
   "./ownerNotify.js",
   "./tableValues.js",
   "../../../../core/utils/kit/errors.js",
-  "../../../widgets/widgetVis/actions/runTopNFilterConfirmWave.js"
+  "../../../../core/events/filters.js"
 ], function (
   _config,
   _history,
@@ -21,7 +21,7 @@ define([
   _ownerNotify,
   _tableValues,
   _kitErrors,
-  _runTopNFilterConfirmWave
+  _filterEvents
 ) {
   "use strict";
 
@@ -90,11 +90,7 @@ define([
     }
   }
 
-  function logTopNWave(_err) {
-    console.error("[singleSelect.finalizeConfirmedCommit] topN wave failed", _err);
-  }
-
-  function startTopNWave(_KDB, _handoff) {
+  function emitFilterConfirmed(_KDB, _handoff) {
     var handoff = _handoff || {};
     if (handoff.filterType === "sicht") {
       return;
@@ -102,16 +98,11 @@ define([
     if (handoff.filterScope !== "global" && !handoff.tabId) {
       return;
     }
-    try {
-      Promise.resolve(_runTopNFilterConfirmWave(_KDB, {
-        scopeType: handoff.filterScope === "global" ? "global" : "pageContext",
-        tabId: handoff.tabId || null,
-        isJahr: false,
-        filterType: handoff.filterType
-      })).then(null, logTopNWave);
-    } catch (err) {
-      logTopNWave(err);
-    }
+    _filterEvents.emitConfirmed(_KDB, {
+      filterType: handoff.filterType,
+      scopeType: handoff.filterScope === "global" ? "global" : "pageContext",
+      tabId: handoff.tabId || null
+    });
   }
 
   async function finalizeConfirmedCommit(_KDB, _handoff, _filterState, _previous, _next) {
@@ -131,7 +122,7 @@ define([
       _next
     );
     _history.pushCommittedSelectionStep(_KDB, _handoff, _previous, _next);
-    startTopNWave(_KDB, _handoff);
+    emitFilterConfirmed(_KDB, _handoff);
     return true;
   }
 

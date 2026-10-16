@@ -572,6 +572,7 @@ Known-owner communication uses direct dispatch:
 - `widgetVis -> widgetTopN`: `widgetTopN/resolveRequested`.
 - `widgetTopN -> widgetVis`: `widgetVis/topNResolved`.
 - `widgetTopN -> launchpad`: `launchpad/readSlotWidgets` for read-only same-tab `topN` helper id discovery.
+- `widgetTopN -> widgetVis` (function import): `widgetVis/visualization.js` `applyVisualizationProperties` for the helper chart (a command with live runtime and signal arguments; transitional, see `contracts/widgetVis.md` §17).
 - `widgetTopN -> widgetBase`: frame/tab reads when needed through public state/API evidence only; no helper role/owner claim action is required.
 
 No `events/` folder; communication is direct dispatch only.

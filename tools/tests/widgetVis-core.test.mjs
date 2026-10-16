@@ -31,7 +31,7 @@ function loadCore() {
     visTypes: load(W + "visTypes.js"),
     bindingConfig: load(W + "bindingConfig.js"),
     years: load(W + "years.js"),
-    readConfirmedJahrYear: load(W + "effects/readConfirmedJahrYear.js")
+    readConfirmedJahrYear: load(W + "topN/periodPin.js").readConfirmedJahrYear
   };
 }
 

@@ -3,10 +3,8 @@ define([
   "./state.js",
   "./inventory.js",
   "../../../core/utils/kit/history.js",
-  "../../widgets/widgetVis/actions/runTopNFilterConfirmWave.js",
-  "../../../core/config/visualizations/topNHelper.js",
-  "../../widgets/widgetVis/effects/readConfirmedJahrYear.js"
-], function (_config, _state, _inventory, _historyKit, _runTopNFilterConfirmWave, _topNHelper, _readConfirmedJahrYear) {
+  "../../../core/events/filters.js"
+], function (_config, _state, _inventory, _historyKit, _filterEvents) {
   "use strict";
 
   var actions = _config.actions;
@@ -221,28 +219,24 @@ define([
     return _historyKit.pushHistoryStep(_KDB, buildCommittedStep(_oldSnapshot, _newSnapshot, Date.now()));
   }
 
-  // ---------- TopN wave ----------
+  // ---------- filters:confirmed ----------
 
-  function logTopNWave(_err) {
-    console.error("[nativeMultiSelect.startTopNWave] topN wave failed", _err);
+  // Subscribers get their own copy: the commit keeps using the same array for the history step.
+  function copyConfirmedValues(_values) {
+    return Array.isArray(_values) ? _values.map(function (_value) {
+      return _value && typeof _value === "object" ? Object.assign({}, _value) : _value;
+    }) : [];
   }
 
-  function startTopNWave(_KDB, _scopeKey, _columnId, _tabId, _values) {
-    var table = _topNHelper.resolveTableEntry();
-    var isJahr = !!(table && _columnId === table.jahrColumnId);
-    try {
-      Promise.resolve(_runTopNFilterConfirmWave(_KDB, {
-        scopeType: _scopeKey === "global" ? "global" : "pageContext",
-        tabId: _tabId,
-        scopeId: _scopeKey === "global" ? null : _scopeKey,
-        isJahr: isJahr,
-        selectedYearKnown: isJahr,
-        selectedYear: isJahr ? _readConfirmedJahrYear(_values) : null,
-        filterType: "nativeMultiSelect"
-      })).then(null, logTopNWave);
-    } catch (err) {
-      logTopNWave(err);
-    }
+  function emitFilterConfirmed(_KDB, _scopeKey, _columnId, _tabId, _values) {
+    _filterEvents.emitConfirmed(_KDB, {
+      filterType: "nativeMultiSelect",
+      scopeType: _scopeKey === "global" ? "global" : "pageContext",
+      tabId: _tabId,
+      scopeId: _scopeKey === "global" ? null : _scopeKey,
+      columnId: _columnId,
+      confirmedValues: copyConfirmedValues(_values)
+    });
   }
 
   // ---------- dock confirm ----------
@@ -278,7 +272,8 @@ define([
       });
       skipsHistory = payload.skipHistory === true || payload.isHistoryReplay === true;
       if (!skipsHistory) {
-        startTopNWave(_ctx._KDB, scopeKey, payload.itemIdHint || (payload.filterConfig && payload.filterConfig.itemId) || "",
+        // Emitted before the history push, where the former direct wave call ran (the wave's synchronous part must stay ahead of it).
+        emitFilterConfirmed(_ctx._KDB, scopeKey, payload.itemIdHint || (payload.filterConfig && payload.filterConfig.itemId) || "",
           scopeKey === "global" ? null : payload.tabId, prepared.newValues);
       }
       if (prepared.newValues.length === 0 || skipsHistory) {
@@ -299,7 +294,7 @@ define([
     mapConfirmedValues: mapConfirmedValues,
     prepareConfirmWrite: prepareConfirmWrite,
     buildCommittedStep: buildCommittedStep,
-    startTopNWave: startTopNWave,
+    emitFilterConfirmed: emitFilterConfirmed,
     findByName: findByName
   };
 });

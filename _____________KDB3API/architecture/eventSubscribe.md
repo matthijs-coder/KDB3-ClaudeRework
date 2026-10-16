@@ -258,6 +258,33 @@ Catalog entry for `_____________KDB3API/contracts/_archive/tabs-activationEvent-
 
 ---
 
+## Module: filters
+
+Shared event family `core/events/filters.js` (constant `CONFIRMED`, helper `emitConfirmed(_KDB, payload)`). Introduced by refactor Phase 2 W9b; replaces the direct calls of `widgetVis`' TopN wave from the filters.
+
+### `filters:confirmed`
+
+- **Type:** fact
+- **Emitter:** `singleSelect` (`dashboard/filters/singleSelect/commit/commitSelection.js` after owner notification, state apply and the history push; `dashboard/filters/singleSelect/historyReplay.js` after a successful replay apply) and `nativeMultiSelect` (`dashboard/filters/nativeMultiSelect/commit.js` after the scope write, BEFORE the history push, as the former direct wave call was; also for history replay via `history.js`). `sicht`, `dienststelle` and `specialSingleSelect` do not emit.
+- **Confirmation point:** the confirmed value is written to the host and the owner state. singleSelect skips `filterType: "sicht"` and a page-scope commit without `tabId`; singleSelect replay skips a page scope without `scopeId`; nativeMultiSelect skips `skipHistory` confirms.
+- **Delivery:** synchronous (bus `emit`): the subscriber's synchronous part runs at the emitter's call position. The subscriber is fire-and-forget; a failing subscriber cannot fail the commit.
+- **Payload:**
+  ```js
+  {
+    filterType: "singleSelect" | "nativeMultiSelect",
+    scopeType: "global" | "pageContext",
+    tabId?: string | null,        // only the keys the emitter knows
+    scopeId?: string | null,
+    columnId?: string,            // confirmed column id (replay and nativeMultiSelect)
+    confirmedValues?: Array<{ d, u }>  // nativeMultiSelect only (copy)
+  }
+  ```
+- **Subscribers:**
+  - `widgetVis` — file: `KDB3/js/dashboard/widgets/widgetVis/topN/filtersConfirmed.js` — handler: `onFiltersConfirmed` -> `topN/waveRequest.js buildWavePayload` -> `topN/wave.js runTopNFilterConfirmWave` (TopN filter-confirm wave, not awaited). Subscribed in `widgetVis.mount`; handle at `_KDB.runtime.widgetVis.subscriptions.filtersConfirmed`.
+- **Teardown owner:** `widgetVis.destroy()` (`disposeModuleRuntime` releases `subscriptions.filtersConfirmed`); the bus `dispose()` drops everything on destroy of the instance.
+
+---
+
 ## Template For A New Entry
 
 ````md

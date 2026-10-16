@@ -1,11 +1,12 @@
 define([
   "../../utils/kit/errors.js",
   "../../utils/kit/runtime.js",
+  "./config.js",
   "./loadLifecycle.js",
   "./tableInputs.js",
   "./tableOperations.js",
   "./tableState.js",
-], function (_errors, _runtime, _loadLifecycle, _tableInputs, _operations, _tableState) {
+], function (_errors, _runtime, _config, _loadLifecycle, _tableInputs, _operations, _tableState) {
   "use strict";
 
   const HOST_FACETS = ["canvas", "dataQuery", "visualization", "widgets"];
@@ -16,6 +17,14 @@ define([
     HOST_FACETS.forEach(function (name) {
       runtime[name + "Facet"] = host && host[name] ? host[name] : null;
     });
+  }
+
+  function registerLabels(_KDB) {
+    _KDB.config = _KDB.config || {};
+    _KDB.config.labels = _KDB.config.labels || {};
+    _KDB.config.labels.de = _KDB.config.labels.de || {};
+    const existing = _KDB.config.labels.de.tableData;
+    _KDB.config.labels.de.tableData = Object.assign({}, _config.tableDataLabels, existing && typeof existing === "object" ? existing : {});
   }
 
   function resetRuntime(runtime) {
@@ -29,12 +38,12 @@ define([
   // mode "reject": failures and calls after destroy reject; mode "undefined": they return undefined.
   function createGuard(disposal, mode) {
     return function guarded(methodName, run) {
-      return function (input) {
+      return function (input, options) {
         if (disposal.isDisposed()) {
           return mode === "reject" ? Promise.reject(new Error(DISPOSED_MESSAGE)) : undefined;
         }
         try {
-          return run(input);
+          return run(input, options);
         } catch (error) {
           console.error("[tableDataService." + methodName + "] public method failed", error);
           return mode === "reject" ? Promise.reject(error) : undefined;
@@ -71,14 +80,17 @@ define([
       loadTable: guardAsync("loadTable", function (input) {
         return _operations.loadTable(_KDB, normalize(input));
       }),
+      loadTables: guardAsync("loadTables", function (input) {
+        return _operations.loadTables(_KDB, normalize(input));
+      }),
       readRows: guardSync("readRows", function (input) {
         return _operations.readRows(_KDB, normalize(input));
       }),
       readPendingLoad: guardSync("readPendingLoad", function (input) {
         return _operations.readPendingLoad(_KDB, normalize(input));
       }),
-      waitForRows: guardAsync("waitForRows", function (input) {
-        return _operations.waitForRows(_KDB, normalize(input));
+      waitForRows: guardAsync("waitForRows", function (input, options) {
+        return _operations.waitForRows(_KDB, normalize(input), options);
       }),
       reloadTable: guardAsync("reloadTable", function (input) {
         return _operations.reloadTable(_KDB, normalize(input));
@@ -87,7 +99,7 @@ define([
         return _operations.ensureFreshRows(_KDB, normalize(input));
       }),
       readTableState: guardSync("readTableState", function (input) {
-        return input == null ? _KDB.state.tableData : _operations.readTableState(_KDB, normalize(input));
+        return input == null ? _tableState.viewAllTableStates(_KDB) : _operations.readTableState(_KDB, normalize(input));
       }),
       registerConfiguredLoads: guardAsync("registerConfiguredLoads", function (tablesConfig) {
         return _operations.registerConfiguredLoads(_KDB, tablesConfig);
@@ -111,6 +123,7 @@ define([
       canvasWidgetsForLookupPromise: null,
     });
     stampHostFacets(_KDB, runtime);
+    registerLabels(_KDB);
     _KDB.services.tableData = createTableDataService(_KDB);
     _KDB.services.tableData.registerConfiguredLoads().catch(function (error) {
       console.error("[tableDataService.registerConfiguredLoads] startup registry failed", error);

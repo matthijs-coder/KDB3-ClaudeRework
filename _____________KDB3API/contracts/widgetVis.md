@@ -1074,6 +1074,8 @@ KDB3/js/dashboard/widgets/widgetVis/
     gate.js               # TopN prerequisite and widgetVis/topNResolved
     periodPin.js          # period/Stichtag pin and readConfirmedJahrYear
     wave.js               # TopN filter-confirm wave (runTopNFilterConfirmWave)
+    waveRequest.js        # `filters:confirmed` event payload -> wave payload (Jahr decision, selectedYear)
+    filtersConfirmed.js   # subscribe(_KDB): starts the wave from `filters:confirmed` (fire-and-forget), installed by mount
   render/
     visProperties.js      # applyVisualizationProperties (declarative property application)
     displayOptions.js     # showValues / iterator / zoom / caption display options
@@ -1100,10 +1102,12 @@ KDB3/js/dashboard/widgets/widgetVis/
     domQueries.js         # focus-mode DOM queries
     maximizeIcon.js       # canvas maximize icon plant/cleanup
     maximizeToggle.js     # widgetVis/maximizeToggle handler
-  actions/runTopNFilterConfirmWave.js   # re-export shim over topN/wave.js (external importers)
-  effects/applyVisualizationProperties.js # re-export shim over render/visProperties.js (external importers)
-  effects/readConfirmedJahrYear.js        # re-export shim over topN/periodPin.js (external importers)
+  visualization.js    # published: applyVisualizationProperties (widgetTopN helper chart; transitional function import)
 ```
+
+### 17.1 Filter-confirm TopN wave (event)
+
+The filter owners (`singleSelect`, `nativeMultiSelect`) do not import widgetVis. After a confirmed commit or history replay they emit `filters:confirmed` (`core/events/filters.js`, payload `{ filterType, scopeType, tabId?, scopeId?, columnId?, confirmedValues? }`). `widgetVis.mount` subscribes (`topN/filtersConfirmed.js`; the unsubscribe lives in `runtime.subscriptions.filtersConfirmed` and is released on destroy). The handler maps the event to the wave request (`topN/waveRequest.js`: `isJahr` only for a string `columnId` equal to the TopN helper table's `jahrColumnId`; `selectedYearKnown`/`selectedYear` only when `confirmedValues` is present) and runs `runTopNFilterConfirmWave` without awaiting it; a failure is logged (`[widgetVis.filtersConfirmed] topN wave failed`) and never reaches the emitting commit. The bus emits synchronously, so the wave's synchronous prefix still runs at the emitter's call position (before the nativeMultiSelect history push, after the singleSelect history push). No wave starts while widgetVis is not mounted. The three former path shims (`actions/runTopNFilterConfirmWave.js`, `effects/readConfirmedJahrYear.js`, `effects/applyVisualizationProperties.js`) are deleted; `visualization.js` is the published import for widgetTopN's helper chart.
 
 ## 18. Bootstrap And Integration
 

@@ -78,7 +78,7 @@ define([
         type: actions.TAB_MUTATION_SCOPE_WRITE,
         payload: { scopeId: writeScopeKey, items: mergeReplayItem(oldList, mergedItem, liveItems, itemName), clear: false }
       });
-      _commit.startTopNWave(_ctx._KDB, scopeKey, filterRef.itemId ? String(filterRef.itemId) : "", undefined, values);
+      _commit.emitFilterConfirmed(_ctx._KDB, scopeKey, filterRef.itemId ? String(filterRef.itemId) : "", undefined, values);
       return true;
     } catch (err) {
       console.error("[nativeMultiSelect.applyHistoryReplay]", err);

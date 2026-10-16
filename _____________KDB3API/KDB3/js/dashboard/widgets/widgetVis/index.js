@@ -10,6 +10,7 @@ define([
   "./restore.js",
   "./binding/dienststelleChanged.js",
   "./topN/gate.js",
+  "./topN/filtersConfirmed.js",
   "./render/displayOptions.js",
   "./focus/maximizeToggle.js",
   "../../../core/utils/kit/data.js",
@@ -27,6 +28,7 @@ define([
   _restore,
   _dienststelleChanged,
   _topNGate,
+  _filtersConfirmed,
   _displayOptions,
   _maximizeToggle,
   _data,
@@ -105,6 +107,7 @@ define([
       try {
         _visContext.ensureVisState(_KDB);
         _visRuntime.initializeRuntime(_KDB).enableDrillthrough = (_mountOptions || {}).enableDrillthrough !== false;
+        _filtersConfirmed.subscribe(_KDB);
         instance.dispatchInternal({ type: TYPES.MOUNT_STARTED });
         instance.dispatchInternal({ type: TYPES.MOUNT_SUCCEEDED });
         return true;
