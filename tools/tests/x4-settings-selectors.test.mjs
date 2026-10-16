@@ -70,3 +70,17 @@ test("a read clones one record, not the whole state", () => {
   _KDB.api.widgetSettings.getState();
   assert.deepStrictEqual([counter.calls, counter.wholeStateCalls], [1, 1]);
 });
+
+test("Dienststelle broadcast and TopN wave never clone the whole widgetSettings state and scale linearly", async () => {
+  const { measureAll } = await import("./lib/x4-clone-bench.mjs");
+  const small = await measureAll(20);
+  const large = await measureAll(40);
+  [small.broadcast, small.wave, large.broadcast, large.wave].forEach((run) => {
+    assert.equal(run.cost.wholeStateCalls, 0);
+    assert.equal(run.result.ok === false, false);
+  });
+  assert.equal(small.broadcast.cost.calls, 80);
+  assert.equal(large.broadcast.cost.calls, 160);
+  assert.ok(large.broadcast.cost.bytes < small.broadcast.cost.bytes * 2.2);
+  assert.ok(large.wave.cost.bytes < small.wave.cost.bytes * 2.2);
+});
