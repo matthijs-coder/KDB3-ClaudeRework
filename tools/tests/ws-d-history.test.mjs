@@ -43,7 +43,7 @@ test("registration: initial state, runtime shape, service surface, single instan
   const { register, _KDB, service, emitted } = setup();
   assert.deepStrictEqual(Object.keys(service).sort(), [
     "beginWritebackRestore", "canRedo", "canUndo", "destroy", "finishWritebackRestore",
-    "getSnapshot", "pushCommittedStep", "redo", "undo",
+    "getSnapshot", "isWritebackRestoreActive", "pushCommittedStep", "redo", "undo",
   ]);
   assert.deepStrictEqual(_KDB.state.history, {
     lifecycle: "ready", stack: [], pointer: -1, limit: 5, pendingStep: null,
@@ -51,7 +51,7 @@ test("registration: initial state, runtime shape, service surface, single instan
   });
   const rt = _KDB.runtime.history;
   assert.deepStrictEqual(Object.keys(rt).sort(), [
-    "abortControllers", "adapters", "listeners", "pendingPromises", "replay",
+    "abortControllers", "adapters", "domRefs", "listeners", "observers", "pendingPromises", "replay",
     "subscriptions", "timers", "writebackRestore",
   ]);
   assert.equal(typeof rt.adapters.bindReplayHandlers, "function");
@@ -330,7 +330,7 @@ test("bindReplayHandlersOnly without a registered service warns and returns null
   const register = loadAmd(ENTRY, { stubs: { console: con } });
   const _KDB = {};
   assert.equal(register(_KDB, { bindReplayHandlersOnly: true, replayHandlers: {} }), null);
-  assert.equal(con.calls.warn[0][0], "[historyService.__orchestrator] bindReplayHandlersOnly requested but adapter or service is absent");
+  assert.equal(con.calls.warn[0][0], "[historyService.register] bindReplayHandlersOnly requested but adapter or service is absent");
   assert.equal(_KDB.services.history, undefined);
   assert.equal(typeof _KDB.runtime.history, "object");
 });
@@ -454,4 +454,53 @@ test("emit is skipped without an event bus and survives a throwing bus", async (
   assert.equal(con.calls.error[0][0], "[historyService.emitHistoryChanged] event emit failed");
   _KDB.events = null;
   assert.equal(await service.undo(), true);
+});
+
+// ---- additions with the WS-D2 refactor (not part of the baseline golden set) ----
+
+test("isWritebackRestoreActive: false when idle, true during a restore, undefined after destroy", () => {
+  const { service } = setup();
+  assert.equal(service.isWritebackRestoreActive(), false);
+  service.beginWritebackRestore({ runId: 1 });
+  assert.equal(service.isWritebackRestoreActive(), true);
+  service.finishWritebackRestore({ runId: 1 });
+  assert.equal(service.isWritebackRestoreActive(), false);
+  service.destroy();
+  assert.equal(service.isWritebackRestoreActive(), undefined);
+});
+
+test("destroy keeps idle writebackRestore and replay objects, drops the bind adapter", () => {
+  const { service, _KDB } = setup();
+  service.beginWritebackRestore({ runId: 3 });
+  service.destroy();
+  assert.deepStrictEqual(_KDB.runtime.history.writebackRestore, { active: false, runId: null, source: null, status: null, lastFinish: null });
+  assert.deepStrictEqual(_KDB.runtime.history.replay, { active: false, direction: null });
+  assert.deepStrictEqual(_KDB.runtime.history.adapters, {});
+});
+
+test("state is immutable: committed steps are kept by reference, never re-cloned", () => {
+  const { service, _KDB } = setup({ replayHandlers: { k: { apply: () => true } } });
+  service.pushCommittedStep(step("k", { v: 0 }, { v: 1 }));
+  const first = _KDB.state.history.stack[0];
+  const before = _KDB.state.history;
+  service.pushCommittedStep(step("k", { v: 1 }, { v: 2 }));
+  assert.equal(_KDB.state.history.stack[0], first);
+  assert.notEqual(_KDB.state.history, before);
+  assert.equal(before.stack.length, 1);
+  assert.equal(before.pointer, 0);
+});
+
+test("a push serialises its payload a bounded number of times, independent of stack size", () => {
+  const { service } = setup();
+  const original = JSON.stringify;
+  let count = 0;
+  JSON.stringify = function (...args) { count += 1; return original.apply(this, args); };
+  try {
+    for (let i = 0; i < 5; i += 1) service.pushCommittedStep(step("k", { v: i }, { v: i + 1 }));
+    count = 0;
+    service.pushCommittedStep(step("k", { v: 5 }, { v: 6 }));
+  } finally {
+    JSON.stringify = original;
+  }
+  assert.ok(count <= 4, "stringify calls per push: " + count);
 });
