@@ -30,7 +30,15 @@ function makeConsole(sink) {
 }
 
 function makeControl() {
-  return { failWrites: false, throwWrites: false, noopWrites: false, afterWrite: null, writes: 0 };
+  return { failWrites: false, throwWrites: false, noopWrites: false, afterWrite: null, afterFailedWrite: null, writes: 0 };
+}
+
+function fireOnce(_control, _key) {
+  if (_control[_key]) {
+    const hook = _control[_key];
+    _control[_key] = null;
+    hook();
+  }
 }
 
 function runtimeView(rt, extraKeys) {
@@ -58,6 +66,7 @@ export function bootSingleSelect(init) {
     "s1|g1": [{ d: "Mann", u: "1" }], "s1|j1": [],
     "s2|g1": [], "s2|j1": [{ d: "2022", u: "2022" }]
   };
+  if (options.tabCount > 3) { store["s3|g1"] = []; store["s3|j1"] = []; }
   const refKey = (ref) => (ref.scopeId || "") + "|" + (ref.itemId || ref.itemName || "");
   const facet = {
     listFilterItems: () => ({ ok: true, outcome: "ok", data: [] }),
@@ -66,7 +75,7 @@ export function bootSingleSelect(init) {
       control.writes += 1;
       log.push(["write", refKey(request.ref), copy(request.values)]);
       if (control.throwWrites) { throw new Error("write boom"); }
-      if (control.failWrites) { return { ok: false }; }
+      if (control.failWrites) { fireOnce(control, "afterFailedWrite"); return { ok: false }; }
       if (!control.noopWrites) { store[refKey(request.ref)] = copy(request.values); }
       if (control.afterWrite) { const hook = control.afterWrite; control.afterWrite = null; hook(); }
       return { ok: true };
@@ -94,7 +103,9 @@ export function bootSingleSelect(init) {
   const sel = (d, u, source) => ({ displayValue: d, useValue: u, displaySource: source });
   const alle = () => sel("Alle", "", "policy");
   const instances = {};
-  [["s0", "Frau", "2", "2020"], ["s1", "Mann", "1", ""], ["s2", "", "", "2022"]].forEach(([scope, gd, gu, jahr]) => {
+  const scopeRows = [["s0", "Frau", "2", "2020"], ["s1", "Mann", "1", ""], ["s2", "", "", "2022"]];
+  if (options.tabCount > 3) { scopeRows.push(["s3", "", "", ""]); }
+  scopeRows.forEach(([scope, gd, gu, jahr]) => {
     [["g1", "Geschlecht", gd, gu], ["j1", "Jahr", jahr, jahr]].forEach(([itemId, label, d, u]) => {
       const id = scope + "-" + itemId;
       instances[id] = {
@@ -117,7 +128,7 @@ export function bootSingleSelect(init) {
   return {
     name: "singleSelect", api, KDB, control, types, options,
     layoutTargets: { 0: { tabId: "t0" }, 1: { tabId: "t1", pageId: "p1" } },
-    targets: { 0: { scopeId: "s0" }, 1: { scopeId: "s1" }, 2: { scopeId: "s2" } },
+    targets: Object.assign({ 0: { scopeId: "s0" }, 1: { scopeId: "s1" }, 2: { scopeId: "s2" } }, options.tabCount > 3 ? { 3: { scopeId: "s3" } } : {}),
     takeLog: () => log.splice(0),
     takeConsole: () => sink.splice(0),
     runtime: () => rt(),
@@ -162,6 +173,7 @@ export function bootNativeMultiSelect(init) {
     item(JAHR, "Jahr", "page1_tabpanel", [v("2020")]), item(LAND, "Land", "page1_tabpanel", []),
     item(JAHR, "Jahr", "page2_tabpanel", []), item(LAND, "Land", "page2_tabpanel", [v("CH")])
   ];
+  if (options.tabCount > 3) { items.push(item(JAHR, "Jahr", "page3_tabpanel", []), item(LAND, "Land", "page3_tabpanel", [])); }
   const facet = {
     listFilterItems(query) {
       const q = query || {};
@@ -180,14 +192,15 @@ export function bootNativeMultiSelect(init) {
       control.writes += 1;
       log.push(["write", ref.itemName, ref.rawScopeId, copy(request.values)]);
       if (control.throwWrites) { throw new Error("host write crashed"); }
-      if (control.failWrites) { return { ok: false, errorCode: "HOST_FAIL" }; }
+      if (control.failWrites) { fireOnce(control, "afterFailedWrite"); return { ok: false, errorCode: "HOST_FAIL" }; }
       const target = items.find((i) => i.itemId === ref.itemId && norm(i.rawScopeId) === norm(ref.rawScopeId));
       if (target && !control.noopWrites) { target.values = copy(request.values); }
       if (control.afterWrite) { const hook = control.afterWrite; control.afterWrite = null; hook(); }
       return { ok: true };
     }
   };
-  const layoutTabs = [0, 1, 2].map((i) => ({ id: "page" + i + "_tabpanel", pageId: "p" + i }));
+  const tabIndexes = options.tabCount > 3 ? [0, 1, 2, 3] : [0, 1, 2];
+  const layoutTabs = tabIndexes.map((i) => ({ id: "page" + i + "_tabpanel", pageId: "p" + i }));
   const tabsFacet = { listTabs: () => ({ ok: true, data: layoutTabs }) };
   const KDB = {
     state: { filters: {} },
@@ -209,7 +222,7 @@ export function bootNativeMultiSelect(init) {
   };
   const register = loadAmd(path.join(FILTERS, "nativeMultiSelect/index.js"), { stubs: { console: makeConsole(sink), Date: FixedDate } });
   const api = register(KDB, {});
-  [0, 1, 2].forEach((i) => {
+  tabIndexes.forEach((i) => {
     api.dispatch({
       type: "nativeMultiSelect/tabMutationScopeWrite",
       payload: {
@@ -230,7 +243,7 @@ export function bootNativeMultiSelect(init) {
   return {
     name: "nativeMultiSelect", api, KDB, control, types, options,
     layoutTargets: { 0: { tabId: "page0_tabpanel" }, 1: { pageId: "p1" }, 2: { tabId: "zzz", pageId: "p2" } },
-    targets: { 0: { scopeId: "page0_tabpanel" }, 1: { scopeId: "page1_tabpanel" }, 2: { scopeId: "page2_tabpanel" } },
+    targets: tabIndexes.reduce((map, i) => { map[i] = { scopeId: "page" + i + "_tabpanel" }; return map; }, {}),
     takeLog: () => log.splice(0),
     takeConsole: () => sink.splice(0),
     runtime: () => rt(),
@@ -256,7 +269,7 @@ export function bootDienststelle(init) {
   const sink = [];
   const log = [];
   const control = makeControl();
-  const PAGES = ["tab0_tabpanel", "tab1_tabpanel", "tab2_tabpanel"];
+  const PAGES = options.tabCount > 3 ? ["tab0_tabpanel", "tab1_tabpanel", "tab2_tabpanel", "tab3_tabpanel"] : ["tab0_tabpanel", "tab1_tabpanel", "tab2_tabpanel"];
   const KEYS = ["Dienststelle_BW", "Dienststelle_DEZPV"];
   const itemId = (key) => "[Org_Source].[Dienststelle].[Dienststelle].[" + key + "]";
   const ok = (data) => ({ ok: true, data });
@@ -289,6 +302,7 @@ export function bootDienststelle(init) {
         if (ref.scopeId === "global") { store[ref.itemName].global = values; } else { store[ref.itemName].pages[ref.scopeId] = values; }
       }
       if (control.afterWrite) { const hook = control.afterWrite; control.afterWrite = null; hook(); }
+      if (control.failWrites) { fireOnce(control, "afterFailedWrite"); }
       return Promise.resolve({ ok: !control.failWrites, errorCode: "X" });
     },
     clearFilter(ref) {
@@ -299,7 +313,7 @@ export function bootDienststelle(init) {
       return Promise.resolve({ ok: !control.failWrites });
     }
   };
-  const tabsFacet = { listTabs: () => ok([0, 1, 2].map((i) => ({ index: i, id: "tab" + i, pageId: "page" + i }))) };
+  const tabsFacet = { listTabs: () => ok(PAGES.map((p, i) => ({ index: i, id: "tab" + i, pageId: "page" + i }))) };
   const KDB = {
     config: { tables: {}, tabs: {}, dataSources: { metrics: { default: { prefix: "metrics" } } }, labels: { de: {} } },
     state: { filters: {}, tabs: { activeTabId: "tab1" } },
@@ -336,7 +350,7 @@ export function bootDienststelle(init) {
   return {
     name: "dienststelle", api, KDB, control, types, options,
     layoutTargets: { 0: { tabId: "tab0" }, 1: { pageId: "page1" }, 2: { tabId: "zzz", pageId: "page2" } },
-    targets: { 0: { scopeId: "tab0_tabpanel" }, 1: { scopeId: "tab1_tabpanel" }, 2: { scopeId: "tab2_tabpanel" } },
+    targets: PAGES.reduce((map, p, i) => { map[i] = { scopeId: p }; return map; }, {}),
     takeLog: () => log.splice(0),
     takeConsole: () => sink.splice(0),
     runtime: () => rt(),
