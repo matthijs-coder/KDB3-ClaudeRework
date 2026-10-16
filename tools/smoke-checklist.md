@@ -261,7 +261,7 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 - [ ] Datapoint drillthrough icon appears after selecting datapoints in a maximized widget, and again after restore and after park/take.
 - [ ] TopN widget plus a Jahr filter change: one `widgetTopN/resolveRequested` per qualifying widget, and the resulting `plan.slots` are identical to before the refactor.
 - [ ] Load a parameter set with 3+ vis widgets (one with TopN): all of them bind, with no `WIDGET_VIS_BINDING_PREREQUISITE_TIMEOUT` and no stale TopN data.
-- [ ] Settings reset (parameterSetReset) on a vis widget: the widget empties as before and no legend or focus observer survives in `runtime.byId[id].observers`.
+- [ ] Settings reset (parameterSetReset) on a vis widget: the widget empties as before and no legend or focus observer survives in `_KDB.runtime.widgetVis.byId[id].observers`.
 
 ### WS-N Text + TopN widgets, header, footer, launchpad
 - [ ] Launchpad: pads and entries are the same and in the same order; the visible tabs in the launchpad match the canvas tabs (`dashboard` role tabs); the helper tab is not shown.

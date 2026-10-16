@@ -129,6 +129,14 @@ define([
       }
     }
 
+    function convertRejection(_promise) {
+      return _promise.catch(function (err) {
+        console.error("[widgetVis.dispatch] failed", err);
+        recordError("WIDGET_VIS_MOUNT_FAILED", err);
+        return _results.normalizeDispatchResult({ ok: false, errorCode: "WIDGET_VIS_MOUNT_FAILED" });
+      });
+    }
+
     function dispatch(_action) {
       if (guard.blocked("dispatch")) {
         return Promise.resolve(_results.normalizeDispatchResult({ ok: false, outcome: "aborted", reason: "disposed", skipped: true, status: "aborted" }));
@@ -140,9 +148,9 @@ define([
         }
         var context = _visContext.buildContext(instance);
         if (action.type === TYPES.DIENSTSTELLE_CHANGED && !action.widgetId) {
-          return _dienststelleChanged.broadcastDienststelleChanged(context, action).then(_results.normalizeDispatchResult);
+          return convertRejection(_dienststelleChanged.broadcastDienststelleChanged(context, action).then(_results.normalizeDispatchResult));
         }
-        return routeAction(context, action);
+        return action.type === TYPES.DIENSTSTELLE_CHANGED ? convertRejection(routeAction(context, action)) : routeAction(context, action);
       } catch (err) {
         console.error("[widgetVis.dispatch] failed", err);
         recordError("WIDGET_VIS_MOUNT_FAILED", err);
