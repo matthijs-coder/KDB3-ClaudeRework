@@ -1,7 +1,8 @@
 define([
   "../singleSelect/selectors.js",
+  "../_core/filterDefinitions.js",
   "./config.js"
-], function (_singleSelectSelectors, _config) {
+], function (_singleSelectSelectors, _filterDefinitions, _config) {
   "use strict";
 
   var errorCodes = _config.ERROR_CODES;
@@ -12,9 +13,7 @@ define([
     selectionOwner: "singleSelect"
   };
 
-  function normalizeValue(_value) {
-    return _value == null ? "" : String(_value).trim().toLowerCase();
-  }
+  var normalizeValue = _filterDefinitions.normalizeLower;
 
   function readInventoryStatus(_inventory, _inventoryGeneration) {
     var inventory = _inventory || {};
