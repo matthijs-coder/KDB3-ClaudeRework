@@ -145,7 +145,6 @@ define(["../../../../core/cognosHost/config/widgetChromeSelectors.js"], function
   return {
     LEGEND_TITLE_SELECTOR: LEGEND_TITLE_SELECTOR,
     isLegendCaptionHostElement: isLegendCaptionHostElement,
-    isLegendRootElement: isLegendRootElement,
     readCaptionChild: readCaptionChild,
     mutationNeedsLegendSanitize: mutationNeedsLegendSanitize,
     collectCaptionEntries: collectCaptionEntries
