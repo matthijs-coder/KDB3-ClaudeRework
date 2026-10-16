@@ -1,4 +1,4 @@
-define(["./visTypes.js"], function (_visTypes) {
+define(["./config.js", "./visTypes.js"], function (_config, _visTypes) {
   "use strict";
 
   var VIS_CONTROL_DEFAULTS = {
@@ -20,8 +20,7 @@ define(["./visTypes.js"], function (_visTypes) {
     if (_source && typeof _source.valueCaption === "boolean") {
       _target.valueCaption = _source.valueCaption;
     }
-    if (_source && (_source.grouping === "stichtag" || _source.grouping === "jahr" || _source.grouping === "jahrStichtag"
-      || _source.grouping === "stichtagProJahrH" || _source.grouping === "stichtagProJahrV")) {
+    if (_source && _config.isGroupingValue(_source.grouping)) {
       _target.grouping = _source.grouping;
     }
     return _target;

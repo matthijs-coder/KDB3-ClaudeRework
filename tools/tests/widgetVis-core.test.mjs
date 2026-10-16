@@ -118,7 +118,9 @@ function computeFixtures(core) {
     visualizationType: "List",
     datasourceHints: { datasourceId: "ds-1", datasourceName: "Hinted" }
   }).datasourceIdentity);
-  out.bindingContextDefaultType = sha(bc.resolveBindingContext(_KDB, {}));
+  const defaultContext = Object.assign({}, bc.resolveBindingContext(_KDB, {}));
+  DEAD_CONTEXT_KEYS.forEach((key) => delete defaultContext[key]);
+  out.bindingContextDefaultType = sha(defaultContext);
 
   out.dataTableConfig = {};
   for (const type of ["Line", "List", "Prognose", "Pie", null]) {
@@ -430,7 +432,7 @@ const FIXTURES = {
     "|P_A_MOA_01|Unknown_Table": "47938fae0eb0297b"
   },
   bindingContextHints: {datasourceId: "ds-1", datasourceName: "Hinted"},
-  bindingContextDefaultType: "74688f076cf8fb80",
+  bindingContextDefaultType: "303a5ba6f9af8f8c",
   dataTableConfig: {
     "Line|": "56b03bc5da7ab3e7",
     "Line|Personal_KDB": "56b03bc5da7ab3e7",
@@ -591,9 +593,11 @@ test("normalizeDispatchResult: frozen envelope, boolean coercion, extra fields s
   assert.equal(same.reportToSettings, report);
 });
 
-test("ACTION_TYPES: 27 keys, values unchanged", () => {
+test("ACTION_TYPES: 27 original keys unchanged, RECORD_REMOVED added", () => {
   const { ACTION_TYPES } = loadCore();
-  assert.deepStrictEqual(json(ACTION_TYPES), {
+  const { RECORD_REMOVED, ...original } = ACTION_TYPES;
+  assert.equal(RECORD_REMOVED, "widgetVis/recordRemoved");
+  assert.deepStrictEqual(json(original), {
     MOUNT_STARTED: "widgetVis/mountStarted",
     MOUNT_SUCCEEDED: "widgetVis/mountSucceeded",
     REGISTER_CONTENT: "widgetVis/registerContent",
@@ -634,7 +638,20 @@ test("reducer: initial state, identity on no-op actions", () => {
   assert.equal(reducer(undefined, undefined).lifecycle, "idle");
 });
 
-test("cloneState: deep JSON copy, undefined on cycles", () => {
+test("reducer: RECORD_REMOVED prunes only the named record", () => {
+  const core = loadCore();
+  const T = core.ACTION_TYPES;
+  const reducer = core.createWidgetVisReducer();
+  let state = reducer(undefined, { type: T.REGISTER_CONTENT, widgetId: "w1", payload: { record: { derived: { code: "K1" } } } });
+  state = reducer(state, { type: T.REGISTER_CONTENT, widgetId: "w2", payload: { record: { derived: { code: "K2" } } } });
+  const pruned = reducer(state, { type: T.RECORD_REMOVED, widgetId: "w1" });
+  assert.deepStrictEqual(Object.keys(pruned.byId), ["w2"]);
+  assert.deepStrictEqual(Object.keys(state.byId), ["w1", "w2"]);
+  assert.equal(reducer(pruned, { type: T.RECORD_REMOVED, widgetId: "w1" }), pruned);
+  assert.equal(reducer(pruned, { type: T.RECORD_REMOVED }), pruned);
+});
+
+test("cloneState: deep JSON copy, throws on cycles", () => {
   const { cloneState } = loadCore();
   const src = { a: [1, { b: 2 }] };
   const copy = cloneState(src);
@@ -644,14 +661,14 @@ test("cloneState: deep JSON copy, undefined on cycles", () => {
   assert.equal(cloneState(undefined), undefined);
   const cyclic = {};
   cyclic.self = cyclic;
-  assert.equal(cloneState(cyclic), undefined);
+  assert.throws(() => cloneState(cyclic), TypeError);
 });
 
-test("selectors: readVisRecord returns a copy, readVisMaximized", () => {
+test("selectors: readVisRecord returns the stored record, readVisMaximized", () => {
   const { selectors } = loadCore();
   const record = { widgetId: "w1", maximized: true, derived: { code: "K" } };
   const _KDB = { state: { widgets: { vis: { byId: { w1: record, w2: { maximized: "yes" } } } } } };
-  assert.deepStrictEqual(selectors.readVisRecord(_KDB, "w1"), record);
+  assert.equal(selectors.readVisRecord(_KDB, "w1"), record);
   assert.equal(selectors.readVisRecord(_KDB, "nope"), undefined);
   assert.equal(selectors.readVisRecord({}, "w1"), undefined);
   assert.equal(selectors.readVisMaximized(_KDB, "w1"), true);

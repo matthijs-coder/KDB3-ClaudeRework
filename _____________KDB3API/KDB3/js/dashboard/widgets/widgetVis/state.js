@@ -1,4 +1,4 @@
-define([], function () {
+define(["../../../core/utils/kit/data.js"], function (_data) {
   "use strict";
 
   var ACTION_TYPES = {
@@ -10,6 +10,7 @@ define([], function () {
     CLEANUP_SUCCEEDED: "widgetVis/cleanupSucceeded",
     MAXIMIZE_SUCCEEDED: "widgetVis/maximizeSucceeded",
     ERROR_RECORDED: "widgetVis/errorRecorded",
+    RECORD_REMOVED: "widgetVis/recordRemoved",
     DESTROY: "widgetVis/destroy",
     CONTENT_CREATE: "widgetVis/contentCreate",
     WAIT_UNTIL_CONTENT_READY: "widgetVis/waitUntilContentReady",
@@ -38,17 +39,6 @@ define([], function () {
       errorCode: null,
       errorMessage: null
     };
-  }
-
-  function cloneState(_value) {
-    if (_value === null || _value === undefined) {
-      return _value;
-    }
-    try {
-      return JSON.parse(JSON.stringify(_value));
-    } catch (_err) {
-      return undefined;
-    }
   }
 
   function firstNonEmpty() {
@@ -127,6 +117,8 @@ define([], function () {
           return maximizeSucceeded(state, action.widgetId, payload);
         case ACTION_TYPES.ERROR_RECORDED:
           return errorRecorded(state, action.widgetId, payload);
+        case ACTION_TYPES.RECORD_REMOVED:
+          return removeRecord(state, action.widgetId);
         case ACTION_TYPES.DESTROY:
           return Object.assign({}, state, { lifecycle: "disposed" });
         default:
@@ -142,10 +134,18 @@ define([], function () {
     var byId = Object.assign({}, _state.byId);
     var existing = byId[_widgetId] || createEmptyVisRecord(_widgetId);
     var record = _payload.record || {};
-    // Merge derived field-by-field: a wholesale replace dropped the canonical
-    // derived defaults (topNResultValues, emptyStatus, ...) after contentCreate.
+    // A wholesale replace dropped the canonical derived defaults (topNResultValues, emptyStatus, ...) after contentCreate.
     var derived = Object.assign({}, existing.derived, record.derived || {});
     byId[_widgetId] = Object.assign({}, existing, record, { derived: derived, widgetId: _widgetId });
+    return Object.assign({}, _state, { byId: byId });
+  }
+
+  function removeRecord(_state, _widgetId) {
+    if (!_widgetId || !_state.byId[_widgetId]) {
+      return _state;
+    }
+    var byId = Object.assign({}, _state.byId);
+    delete byId[_widgetId];
     return Object.assign({}, _state, { byId: byId });
   }
 
@@ -167,7 +167,7 @@ define([], function () {
       return _state;
     }
     var byId = Object.assign({}, _state.byId);
-    var derived = Object.assign({}, byId[_widgetId].derived, cloneState(_payload.derived || {}));
+    var derived = Object.assign({}, byId[_widgetId].derived, _data.cloneJson(_payload.derived || {}));
     byId[_widgetId] = Object.assign({}, byId[_widgetId], Object.assign({
       derived: derived,
       pending: { kind: null, opSeq: null },
@@ -219,7 +219,7 @@ define([], function () {
     ACTION_TYPES: ACTION_TYPES,
     createInitialWidgetVisState: createInitialWidgetVisState,
     createWidgetVisReducer: createWidgetVisReducer,
-    cloneState: cloneState,
+    cloneState: _data.cloneJson,
     normalizeMetricIdentity: normalizeMetricIdentity,
     resolveMetricFromContentCreatePayload: resolveMetricFromContentCreatePayload
   };

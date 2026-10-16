@@ -119,9 +119,6 @@ define([
       visPropBucketKey: _visTypes.resolveVisPropBucketKey(visualizationType, _KDB),
       cognosVisualizationTypeId: _visTypes.resolveCognosVisualizationTypeId(visualizationType, _KDB),
       normalizedVisualizationType: _visTypes.normalizeVisualizationType(visualizationType) || visualizationType,
-      visualizationDefinition: _visTypes.resolveVisualizationDefinition(visualizationType, _KDB),
-      propertyValues: _visTypes.resolveVisualizationPropertyValues(visualizationType, _KDB),
-      layoutPropertyValues: _visTypes.resolveVisualizationLayoutPropertyValues(visualizationType, _KDB),
       datasourceIdentity: resolveDatasourceIdentity(
         planSnapshots.parameterMappingObj,
         dataTableConfig,

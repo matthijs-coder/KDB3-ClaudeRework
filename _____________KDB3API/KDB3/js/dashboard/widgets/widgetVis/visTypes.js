@@ -1,6 +1,8 @@
 define([
+  "./config.js",
+  "../../../core/utils/kit/data.js",
   "../../../core/config/visualizations/buildKennzahlAggregationFilter.js"
-], function (_kennzahlAggregationFilter) {
+], function (_config, _data, _kennzahlAggregationFilter) {
   "use strict";
 
   var SETTINGS_VIS_TYPE_ALIASES = {
@@ -132,17 +134,9 @@ define([
     return grainByBucket[bucket];
   }
 
-  function isPlainObject(_value) {
-    return !!_value && typeof _value === "object" && !Array.isArray(_value);
-  }
-
   function resolveDefaultGrain(_visualizationType, _KDB) {
     var entry = readGrainEntry(_visualizationType, _KDB);
     return entry && typeof entry.defaultGrain === "string" ? entry.defaultGrain : undefined;
-  }
-
-  function isExplicitGrain(_grouping) {
-    return _grouping === "stichtag" || _grouping === "jahr" || _grouping === "jahrStichtag" || _grouping === "stichtagProJahrH" || _grouping === "stichtagProJahrV";
   }
 
   function isPieStackedBucket(_bucket) {
@@ -159,7 +153,7 @@ define([
     if (isPieStackedBucket(_bucket)) {
       return _grain === "jahr" || _grain === "jahrStichtag" || _grain === "stichtagProJahrH" || _grain === "stichtagProJahrV";
     }
-    return isExplicitGrain(_grain);
+    return _config.isGroupingValue(_grain);
   }
 
   function resolveGrainOverlay(_visualizationType, _grain, _KDB) {
@@ -175,11 +169,11 @@ define([
       return undefined;
     }
     var overlay = grains[_grain];
-    return isPlainObject(overlay) ? overlay : undefined;
+    return _data.isObjectLike(overlay) ? overlay : undefined;
   }
 
   function resolveEffectiveGrain(_visualizationType, _grouping, _KDB) {
-    if (isExplicitGrain(_grouping) && isAllowedGrain(resolveVisPropBucketKey(_visualizationType, _KDB), _grouping)) {
+    if (_config.isGroupingValue(_grouping) && isAllowedGrain(resolveVisPropBucketKey(_visualizationType, _KDB), _grouping)) {
       return _grouping;
     }
     return resolveDefaultGrain(_visualizationType, _KDB);
@@ -200,10 +194,7 @@ define([
     if (grain === "jahr") {
       return "jahr";
     }
-    if (grain === "stichtag" || grain === "jahrStichtag" || grain === "stichtagProJahrH" || grain === "stichtagProJahrV") {
-      return "stichtag";
-    }
-    return grain;
+    return _config.isGroupingValue(grain) ? "stichtag" : grain;
   }
 
   return {
