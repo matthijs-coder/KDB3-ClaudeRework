@@ -2,10 +2,7 @@ define([], function () {
   return [
     "./v1/ext/KDB3/css/header.css",
     "./v1/ext/KDB3/css/footer.css",
-    "./v1/ext/KDB3/css/customButtons/historyControls.css",
-    "./v1/ext/KDB3/css/customButtons/pdfExportControls.css",
-    "./v1/ext/KDB3/css/customButtons/shareControls.css",
-    "./v1/ext/KDB3/css/customButtons/wienKiControls.css",
+    "./v1/ext/KDB3/css/customButtons/toolbarControls.css",
     "./v1/ext/KDB3/css/messageService.css",
     "./v1/ext/KDB3/css/kdb-control/shell.css",
     "./v1/ext/KDB3/css/kdb-control/panels.css",
