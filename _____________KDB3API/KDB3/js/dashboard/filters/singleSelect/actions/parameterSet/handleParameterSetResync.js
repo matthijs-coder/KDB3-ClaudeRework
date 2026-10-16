@@ -3,13 +3,13 @@ define([
   "./parameterSetRuntime.js",
   "../../inventory/reconcile.js",
   "./parameterSetResyncApply.js",
-  "../../effects/handleFilterDockCommittedDisplayObserved.js"
+  "../../view.js"
 ], function (
   _config,
   _runtime,
   _reconcileInventory,
   _resyncApply,
-  _handleCommittedDisplay
+  _view
 ) {
   "use strict";
 
@@ -63,7 +63,7 @@ define([
         return _runtime.mergeTerminalCleanup(_KDB, payload, result, { reportAlreadyReleased: false });
       }
       if (result && result.ok !== false) {
-        _handleCommittedDisplay(_KDB);
+        _view.handleCommittedDisplay(_KDB);
       }
       return result || _resyncApply.settleResult(diagnostics, null, progress);
     } catch (error) {

@@ -3,9 +3,9 @@ define([
   "./routeIdentityAction.js",
   "./tabMutation/routeTabMutationAction.js",
   "../effects/processFilterDockHandoff.js",
-  "../effects/handleFilterDockCommittedDisplayObserved.js",
+  "../view.js",
   "../state/selectors.js"
-], function (_config, _routeIdentityAction, _tabMutation, _processFilterDockHandoff, _handleCommittedDisplay, _selectors) {
+], function (_config, _routeIdentityAction, _tabMutation, _processFilterDockHandoff, _view, _selectors) {
   "use strict";
 
   function __controller(_KDB, _runtime, _action, _options, _reduce) {
@@ -31,7 +31,7 @@ define([
           _KDB, _runtime, action.payload, action.type, _options
         );
       } else if (action.type === _config.actions.FILTER_DOCK_COMMITTED_DISPLAY_OBSERVED) {
-        _handleCommittedDisplay(_KDB);
+        _view.handleCommittedDisplay(_KDB);
       } else if (action.type === _config.actions.ERROR) {
         _reduce(action);
       }
