@@ -851,6 +851,36 @@
         "draggedElementType": ""
       },
       {
+        "resolved": true,
+        "code": "kennzahl_5",
+        "display": "kennzahl_5",
+        "langtext": "kennzahl_5: kennzahl_5",
+        "title": "kennzahl_5: kennzahl_5",
+        "metricsTable": "personal_kdb",
+        "url": "",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": true,
+        "code": "No code kurz",
+        "display": "No code kurz",
+        "langtext": "No code kurz: No code kurz",
+        "title": "No code kurz: No code kurz",
+        "metricsTable": "personal_kdb",
+        "url": "",
+        "draggedElementType": "visualization"
+      },
+      {
+        "resolved": true,
+        "code": "Only: langtext",
+        "display": "langtext",
+        "langtext": "Only: langtext",
+        "title": "Only: langtext",
+        "metricsTable": "personal_kdb",
+        "url": "",
+        "draggedElementType": "visualization"
+      },
+      {
         "resolved": false,
         "code": "",
         "display": "",
@@ -984,6 +1014,36 @@
       },
       {
         "resolved": false,
+        "code": "kennzahl_5",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "No code kurz",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "Only: langtext",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
         "code": "",
         "display": "",
         "langtext": "",
@@ -1107,6 +1167,36 @@
       {
         "resolved": false,
         "code": "kennzahl_3",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "kennzahl_5",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "No code kurz",
+        "display": "",
+        "langtext": "",
+        "title": "",
+        "metricsTable": "",
+        "url": "",
+        "draggedElementType": ""
+      },
+      {
+        "resolved": false,
+        "code": "Only: langtext",
         "display": "",
         "langtext": "",
         "title": "",

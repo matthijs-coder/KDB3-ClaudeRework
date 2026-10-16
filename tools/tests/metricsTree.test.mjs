@@ -58,7 +58,7 @@ const SCENARIOS = {
   invalidInput: { properties: {}, input: null }
 };
 
-const CODES = ["", "X1", " X1 ", "X9", "  X9 ", "missing", "BETA1", "M1", "M2", "AMP", "kennzahl_3", null, undefined];
+const CODES = ["", "X1", " X1 ", "X9", "  X9 ", "missing", "BETA1", "M1", "M2", "AMP", "kennzahl_3", "kennzahl_5", "No code kurz", "Only: langtext", null, undefined];
 
 function buildAll(buildSources) {
   const out = {};
