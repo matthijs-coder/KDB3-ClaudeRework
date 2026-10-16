@@ -21,16 +21,41 @@ const copy = (value) => JSON.parse(JSON.stringify(value));
 const fmt = (value) => (value instanceof Error ? "Error:" + value.message : typeof value === "string" ? value : JSON.stringify(value));
 const hash = (value) => crypto.createHash("sha1").update(JSON.stringify(value)).digest("hex").slice(0, 10);
 
-function makeConsole(sink) {
+function makeConsole(sink, control) {
+  const record = (level, a) => {
+    sink.push([level].concat(a.map(fmt)));
+    if (control && control.consoleThrows) { throw new Error("console exploded"); }
+  };
   return {
     log() {}, info() {}, debug() {},
-    warn: (...a) => sink.push(["warn"].concat(a.map(fmt))),
-    error: (...a) => sink.push(["error"].concat(a.map(fmt)))
+    warn: (...a) => record("warn", a),
+    error: (...a) => record("error", a)
   };
 }
 
 function makeControl() {
-  return { failWrites: false, throwWrites: false, noopWrites: false, afterWrite: null, afterFailedWrite: null, writes: 0 };
+  return { failWrites: false, throwWrites: false, noopWrites: false, afterWrite: null, afterFailedWrite: null, writes: 0,
+    failAfter: null, atWrite: null, readThrows: false, tabsThrow: false, consoleThrows: false, onRead: null, tabsItems: null };
+}
+
+// A write counts when it starts: control.atWrite = { n, fn } runs fn once as write number n begins, control.failAfter = k
+// makes every write after the k-th one fail (the first k land).
+function beginWrite(_control) {
+  _control.writes += 1;
+  if (_control.atWrite && _control.atWrite.n === _control.writes) {
+    const hook = _control.atWrite.fn;
+    _control.atWrite = null;
+    hook();
+  }
+  return _control.failWrites || (_control.failAfter !== null && _control.writes > _control.failAfter);
+}
+
+function readHook(_control) {
+  if (_control.onRead) {
+    const hook = _control.onRead;
+    _control.onRead = null;
+    hook();
+  }
 }
 
 function fireOnce(_control, _key) {
@@ -70,12 +95,16 @@ export function bootSingleSelect(init) {
   const refKey = (ref) => (ref.scopeId || "") + "|" + (ref.itemId || ref.itemName || "");
   const facet = {
     listFilterItems: () => ({ ok: true, outcome: "ok", data: [] }),
-    readFilterValues: (ref) => ({ ok: true, data: copy(store[refKey(ref)] || []) }),
+    readFilterValues: (ref) => {
+      readHook(control);
+      if (control.readThrows) { throw new Error("read boom"); }
+      return { ok: true, data: copy(store[refKey(ref)] || []) };
+    },
     async writeFilter(request) {
-      control.writes += 1;
+      const failing = beginWrite(control);
       log.push(["write", refKey(request.ref), copy(request.values)]);
       if (control.throwWrites) { throw new Error("write boom"); }
-      if (control.failWrites) { fireOnce(control, "afterFailedWrite"); return { ok: false }; }
+      if (failing) { fireOnce(control, "afterFailedWrite"); return { ok: false }; }
       if (!control.noopWrites) { store[refKey(request.ref)] = copy(request.values); }
       if (control.afterWrite) { const hook = control.afterWrite; control.afterWrite = null; hook(); }
       return { ok: true };
@@ -90,7 +119,7 @@ export function bootSingleSelect(init) {
     }
   };
   const register = loadAmd(path.join(FILTERS, "singleSelect/index.js"), {
-    stubs: { console: makeConsole(sink), Date: FixedDate },
+    stubs: { console: makeConsole(sink, control), Date: FixedDate },
     overrides: { "dashboard/filters/singleSelect/inventory/reconcile.js": reconcile }
   });
   const KDB = {
@@ -147,6 +176,7 @@ export function bootSingleSelect(init) {
         reconcileCalls: copy(reconcileCalls)
       };
     },
+    armPrepareThrow() { control.readThrows = true; },
     restoreSlice: (slice) => slice,
     seedSnapshot(id, runId) { rt().tabMutationSnapshots[id] = { runId: runId, operationId: id, byId: {} }; }
   };
@@ -176,6 +206,8 @@ export function bootNativeMultiSelect(init) {
   if (options.tabCount > 3) { items.push(item(JAHR, "Jahr", "page3_tabpanel", []), item(LAND, "Land", "page3_tabpanel", [])); }
   const facet = {
     listFilterItems(query) {
+      readHook(control);
+      if (control.readThrows) { throw new Error("list boom"); }
       const q = query || {};
       const data = q.allPageContextScopes
         ? items.filter((i) => norm(i.rawScopeId) !== "global")
@@ -189,10 +221,10 @@ export function bootNativeMultiSelect(init) {
     },
     async writeFilter(request) {
       const ref = request.ref;
-      control.writes += 1;
+      const failing = beginWrite(control);
       log.push(["write", ref.itemName, ref.rawScopeId, copy(request.values)]);
       if (control.throwWrites) { throw new Error("host write crashed"); }
-      if (control.failWrites) { fireOnce(control, "afterFailedWrite"); return { ok: false, errorCode: "HOST_FAIL" }; }
+      if (failing) { fireOnce(control, "afterFailedWrite"); return { ok: false, errorCode: "HOST_FAIL" }; }
       const target = items.find((i) => i.itemId === ref.itemId && norm(i.rawScopeId) === norm(ref.rawScopeId));
       if (target && !control.noopWrites) { target.values = copy(request.values); }
       if (control.afterWrite) { const hook = control.afterWrite; control.afterWrite = null; hook(); }
@@ -201,7 +233,12 @@ export function bootNativeMultiSelect(init) {
   };
   const tabIndexes = options.tabCount > 3 ? [0, 1, 2, 3] : [0, 1, 2];
   const layoutTabs = tabIndexes.map((i) => ({ id: "page" + i + "_tabpanel", pageId: "p" + i }));
-  const tabsFacet = { listTabs: () => ({ ok: true, data: layoutTabs }) };
+  const tabsFacet = {
+    listTabs: () => {
+      if (control.tabsThrow) { throw new Error("tabs boom"); }
+      return { ok: true, data: control.tabsItems ? control.tabsItems() : layoutTabs };
+    }
+  };
   const KDB = {
     state: { filters: {} },
     properties: {
@@ -220,7 +257,7 @@ export function bootNativeMultiSelect(init) {
     services: { cognosHost: { filters: facet, tabs: tabsFacet }, history: { pushCommittedStep: () => true } },
     api: {}, runtime: {}
   };
-  const register = loadAmd(path.join(FILTERS, "nativeMultiSelect/index.js"), { stubs: { console: makeConsole(sink), Date: FixedDate } });
+  const register = loadAmd(path.join(FILTERS, "nativeMultiSelect/index.js"), { stubs: { console: makeConsole(sink, control), Date: FixedDate } });
   const api = register(KDB, {});
   tabIndexes.forEach((i) => {
     api.dispatch({
@@ -257,6 +294,7 @@ export function bootNativeMultiSelect(init) {
         reconcileCalls: []
       };
     },
+    armPrepareThrow() { control.readThrows = true; },
     restoreSlice: (slice) => slice,
     seedSnapshot(id, runId) { rt().tabMutationSnapshots[id] = { runId: runId, operationId: id, byScope: {} }; }
   };
@@ -295,25 +333,31 @@ export function bootDienststelle(init) {
       return ok((values || []).map((x) => ({ ...x })));
     },
     writeFilter({ ref, values }) {
-      control.writes += 1;
+      const failing = beginWrite(control);
+      const failedByCount = failing && !control.failWrites;
       log.push(["write", ref.itemName, ref.scopeId, copy(values)]);
       if (control.throwWrites) { return Promise.reject(new Error("write boom")); }
-      if (!control.failWrites && !control.noopWrites) {
+      if (!failing && !control.noopWrites) {
         if (ref.scopeId === "global") { store[ref.itemName].global = values; } else { store[ref.itemName].pages[ref.scopeId] = values; }
       }
       if (control.afterWrite) { const hook = control.afterWrite; control.afterWrite = null; hook(); }
       if (control.failWrites) { fireOnce(control, "afterFailedWrite"); }
-      return Promise.resolve({ ok: !control.failWrites, errorCode: "X" });
+      return Promise.resolve({ ok: !(control.failWrites || failedByCount), errorCode: "X" });
     },
     clearFilter(ref) {
-      control.writes += 1;
+      const failing = beginWrite(control);
       log.push(["clear", ref.itemName, ref.scopeId]);
       if (control.throwWrites) { return Promise.reject(new Error("clear boom")); }
-      if (!control.failWrites && !control.noopWrites) { delete store[ref.itemName].pages[ref.scopeId]; }
-      return Promise.resolve({ ok: !control.failWrites });
+      if (!failing && !control.noopWrites) { delete store[ref.itemName].pages[ref.scopeId]; }
+      return Promise.resolve({ ok: !failing });
     }
   };
-  const tabsFacet = { listTabs: () => ok(PAGES.map((p, i) => ({ index: i, id: "tab" + i, pageId: "page" + i }))) };
+  const tabsFacet = {
+    listTabs: () => {
+      if (control.tabsThrow) { throw new Error("tabs boom"); }
+      return ok(control.tabsItems ? control.tabsItems() : PAGES.map((p, i) => ({ index: i, id: "tab" + i, pageId: "page" + i })));
+    }
+  };
   const KDB = {
     config: { tables: {}, tabs: {}, dataSources: { metrics: { default: { prefix: "metrics" } } }, labels: { de: {} } },
     state: { filters: {}, tabs: { activeTabId: "tab1" } },
@@ -327,10 +371,10 @@ export function bootDienststelle(init) {
     },
     api: { sicht: { getState: () => ({ activeSichtValue: "BW" }) } }
   };
-  const register = loadAmd(path.join(FILTERS, "dienststelle/index.js"), { stubs: { console: makeConsole(sink), Date: FixedDate } });
+  const register = loadAmd(path.join(FILTERS, "dienststelle/index.js"), { stubs: { console: makeConsole(sink, control), Date: FixedDate } });
   const api = register(KDB, {});
   api.mount({});
-  const dsState = loadAmd(path.join(FILTERS, "dienststelle/state.js"), { stubs: { console: makeConsole(sink), Date: FixedDate } });
+  const dsState = loadAmd(path.join(FILTERS, "dienststelle/state.js"), { stubs: { console: makeConsole(sink, control), Date: FixedDate } });
   const value = (d, u) => ({ displayValue: d, useValue: u, source: "user", hostDisplay: d });
   const seed = (key, scope, entry) => {
     KDB.state.filters.dienststelle = dsState.reduceDienststelle(KDB.state.filters.dienststelle, {
@@ -375,6 +419,18 @@ export function bootDienststelle(init) {
         host: hostPages,
         reconcileCalls: []
       };
+    },
+    armPrepareThrow() {
+      const root = KDB.state.filters.dienststelle;
+      const real = root.byFilter;
+      let armed = true;
+      Object.defineProperty(root, "byFilter", {
+        configurable: true,
+        get() {
+          if (armed) { armed = false; throw new Error("state boom"); }
+          return real;
+        }
+      });
     },
     restoreSlice: (slice) => slice,
     seedSnapshot(id, runId) { rt().tabMutationSnapshots[id] = { runId: runId, operationId: id, byScope: {} }; }

@@ -420,3 +420,79 @@ test("core tabMutationRun utils throw on a null runtime without logging themselv
   ledger.deleteSnapshot(runtime, 7);
   assert.deepEqual(runtime.tabMutationSnapshots, {});
 });
+
+// ---- restored owner behaviours (W6b review) ----
+
+test("slot lister keeps the old failure modes: null plan and non-array slotMoves", () => {
+  assert.throws(() => listSlots(null), TypeError);
+  assert.throws(() => listSlots(undefined), TypeError);
+  assert.deepEqual(listSlots(null, { dedupeByTabIdx: true }), []);
+  ["abc", { length: 1, 0: { fromTabIdx: 1 } }, 7, true].forEach((slotMoves) => {
+    assert.throws(() => listSlots({ slotMoves: slotMoves }, { dedupeByTabIdx: true }), /\(plan\.slotMoves \|\| \[\]\)\.forEach is not a function/);
+  });
+  const sparse = [];
+  sparse[2] = { fromTabIdx: 1, fromTabId: "a", toTabIdx: 2 };
+  assert.deepEqual(listSlots({ slotMoves: sparse }, { dedupeByTabIdx: true }), [{ tabIdx: 1, tabId: "a" }, { tabIdx: 2, tabId: null }]);
+  assert.throws(() => listSlots({ slotMoves: sparse }), TypeError);
+  assert.deepEqual(listSlots({ slotMoves: "ab" }), []);
+  assert.throws(() => listSlots({ slotMoves: [null] }, { dedupeByTabIdx: true }), TypeError);
+});
+
+test("the shared error codes equal the codes the owners' configs export", () => {
+  const ss = load("dashboard/filters/singleSelect/config.js").errorCodes;
+  const nms = load("dashboard/filters/nativeMultiSelect/config.js").tabMutationCodes;
+  assert.equal(runner.CODES.PREPARE_FAILED, ss.TAB_MUTATION_PREPARE_FAILED);
+  assert.equal(runner.CODES.APPLY_FAILED, ss.TAB_MUTATION_APPLY_FAILED);
+  assert.equal(runner.CODES.ROLLBACK_INCOMPLETE, ss.TAB_MUTATION_ROLLBACK_INCOMPLETE);
+  assert.equal(runner.CODES.CANCELLED, ss.TAB_MUTATION_CANCELLED);
+  assert.deepEqual(Object.assign({}, nms), Object.assign({}, runner.CODES));
+});
+
+test("ledger option: a raw ledger does not seed the runtime, the default one does", async () => {
+  const raw = {
+    writeSnapshot: (rt, id, s) => { rt.tabMutationSnapshots = rt.tabMutationSnapshots || {}; rt.tabMutationSnapshots[id] = s; },
+    readSnapshot: (rt, id) => rt.tabMutationSnapshots && rt.tabMutationSnapshots[id],
+    deleteSnapshot: (rt, id) => { if (rt.tabMutationSnapshots) { delete rt.tabMutationSnapshots[id]; } }
+  };
+  const rawBase = { name: "demo", guard: runner.createRunGuard({ options: { missingIdsMessage: "m", supersededMessage: "s" }, staleMode: "runId" }), ledger: raw };
+  const runtime = { tabMutationSnapshots: null };
+  assert.equal(runner.readRunSnapshot(rawBase, runtime, { operationId: "o", runId: 1 }), null);
+  assert.deepEqual(runtime, { tabMutationSnapshots: null });
+  assert.equal(runner.readRunSnapshot(base, runtime, { operationId: "o", runId: 1 }), null);
+  assert.deepEqual(runtime, { tabMutationRunId: 0, tabMutationSnapshots: {} });
+  const prepare = runner.createPrepare(rawBase, { capture: () => ({ ok: true, snapshot: { runId: 1 }, scopeIds: [] }), historySlice: () => ({}) });
+  const fresh = { tabMutationRunId: 1 };
+  await prepare({ runtime: fresh }, payload());
+  assert.deepEqual(fresh, { tabMutationRunId: 1, tabMutationSnapshots: { op: { runId: 1 } } });
+  const restore = runner.createRestore(rawBase, { release: "always", releaseMissing: true, run: async () => "ran" });
+  const falsy = { tabMutationRunId: 1, tabMutationSnapshots: { op: null } };
+  assert.deepEqual((await restore({ runtime: falsy }, payload())).restored, []);
+  assert.deepEqual(falsy.tabMutationSnapshots, {});
+  const keep = { tabMutationRunId: 1, tabMutationSnapshots: { op: null } };
+  await runner.createRestore(rawBase, { release: "always", run: async () => "ran" })({ runtime: keep }, payload());
+  assert.deepEqual(Object.keys(keep.tabMutationSnapshots), ["op"]);
+  const wiped = { tabMutationRunId: 1 };
+  assert.deepEqual((await restore({ runtime: wiped }, payload())).ok, true);
+  assert.deepEqual(wiped, { tabMutationRunId: 1 });
+});
+
+test("resync diagnostic hook, apply isSupported and the scope resolver's match guard", async () => {
+  const resync = runner.createResync(base, { run: async () => { throw new Error("push"); }, diagnostic: (code, message) => ({ code: code, extra: undefined, message: message }) });
+  const result = await resync(ctxOf(), payload());
+  assert.deepEqual(Object.keys(result.diagnostics[0]), ["code", "extra", "message"]);
+  const apply = runner.createApply(base, {
+    unsupportedMessage: "only these", operations: { delete: () => "ran" }, isSupported: (operation) => operation === "delete"
+  });
+  assert.equal(await apply(ctxOf(), payload({ plan: { operation: "delete" } })), "ran");
+  assert.equal((await apply(ctxOf(), payload({ plan: { operation: ["delete"] } }))).ok, false);
+  const hostile = { toString() { throw new Error("no string"); } };
+  const errors = [];
+  const guarded = scopes.createScopeIdResolver({ readTabs: () => [{ id: hostile }], onMatchError: (e) => errors.push(e.message) });
+  assert.deepEqual(guarded({}, { 0: { tabId: "x" } }, 0), { ok: false, scopeId: null, fromTarget: false });
+  assert.deepEqual(errors, ["no string"]);
+  const unguarded = scopes.createScopeIdResolver({ readTabs: () => [{ id: hostile }] });
+  assert.throws(() => unguarded({}, { 0: { tabId: "x" } }, 0), /no string/);
+  const failing = scopes.createScopeIdResolver({ readTabs: () => { throw new Error("facet"); }, onMatchError: (e) => errors.push(e.message) });
+  assert.equal(failing({}, { 0: { tabId: "x" } }, 0).ok, false);
+  assert.deepEqual(errors, ["no string", "facet"]);
+});
