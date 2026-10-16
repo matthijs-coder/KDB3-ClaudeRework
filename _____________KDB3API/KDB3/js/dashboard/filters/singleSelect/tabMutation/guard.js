@@ -1,29 +1,38 @@
 define([
-  "../../../../core/utils/filters/tabMutationRun/guardTabMutationRun.js",
+  "../../_core/tabMutation.js",
   "../../../../core/utils/normalizeCognosScopeId.js",
   "../../../../core/utils/kit/data.js"
-], function (_guardRunUtil, _normalizeScopeId, _data) {
+], function (_tabMutation, _normalizeScopeId, _data) {
   "use strict";
 
-  var SS_GUARD_OPTS = {
-    pinOperationId: true,
-    ensureRunIdDefault0: false,
-    includeRunIdsInDiagnostic: false,
-    missingIdsMessage: "tab mutation requires numeric runId and operationId",
-    supersededMessage: "tab mutation run was superseded",
-    operationMismatchMessage: "operationId does not match the active tab mutation run"
+  var RUN_GUARD = _tabMutation.createRunGuard({
+    staleMode: "pinned",
+    options: {
+      pinOperationId: true,
+      ensureRunIdDefault0: false,
+      includeRunIdsInDiagnostic: false,
+      missingIdsMessage: "tab mutation requires numeric runId and operationId",
+      supersededMessage: "tab mutation run was superseded",
+      operationMismatchMessage: "operationId does not match the active tab mutation run"
+    }
+  });
+  // singleSelect reads and writes its ledger as it always did: no seeding of the run id, no repair of a missing map.
+  var LEDGER = {
+    writeSnapshot: function (_runtime, _operationId, _snapshot) {
+      _runtime.tabMutationSnapshots = _runtime.tabMutationSnapshots || {};
+      _runtime.tabMutationSnapshots[_operationId] = _snapshot;
+    },
+    readSnapshot: function (_runtime, _operationId) {
+      return _runtime.tabMutationSnapshots && _runtime.tabMutationSnapshots[_operationId];
+    },
+    deleteSnapshot: function (_runtime, _operationId) {
+      if (_runtime.tabMutationSnapshots) { delete _runtime.tabMutationSnapshots[_operationId]; }
+    }
   };
-
-  function guardRun(_runtime, _payload) {
-    return _guardRunUtil.guardRun(_runtime, _payload, SS_GUARD_OPTS);
-  }
+  var TAB_MUTATION_BASE = { name: "singleSelect", guard: RUN_GUARD, ledger: LEDGER };
 
   function cancelled(_message) {
-    return _guardRunUtil.cancelled(_message, null, null, SS_GUARD_OPTS);
-  }
-
-  function isStaleRun(_runtime, _payload) {
-    return _guardRunUtil.isStale(_runtime, _payload, { staleMode: "ss" });
+    return RUN_GUARD.cancelled(_message, null, null);
   }
 
   function diagnostic(_code, _message, _record) {
@@ -155,9 +164,10 @@ define([
   }
 
   return {
-    guardRun: guardRun,
+    tabMutationBase: TAB_MUTATION_BASE,
+    guardRun: RUN_GUARD.guardRun,
     cancelled: cancelled,
-    isStaleRun: isStaleRun,
+    isStaleRun: RUN_GUARD.isStale,
     resolveScope: resolveScope,
     diagnostic: diagnostic,
     semanticKey: semanticKey,

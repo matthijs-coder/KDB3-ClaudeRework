@@ -3,8 +3,9 @@ define([
   "./transfers.js",
   "../inventory/reconcile.js",
   "../hostFilterIo.js",
-  "../config.js"
-], function (_support, _transfers, _reconcileInventory, _hostFilterIo, _config) {
+  "../config.js",
+  "../../_core/tabMutation.js"
+], function (_support, _transfers, _reconcileInventory, _hostFilterIo, _config, _tabMutation) {
   "use strict";
 
   function matchBySemanticKey(_instances, _scopeId, _snapshotRecord) {
@@ -149,60 +150,55 @@ define([
       ? Object.assign({}, _sourceSnapshot.pendingSelection) : null;
   }
 
-  async function applyTabMutation(_KDB, _runtime, _payload) {
-    var payload = _payload || {};
+  async function run(_ctx, _payload) {
+    var KDB = _ctx._KDB;
+    var runtime = _ctx.runtime;
+    var payload = _payload;
     var diagnostics = [];
     var appliedScopes = [];
     var clearedScopes = [];
     try {
-      var guard = _support.guardRun(_runtime, payload);
-      if (guard) { return guard; }
-      var snapshot = _runtime.tabMutationSnapshots &&
-        _runtime.tabMutationSnapshots[payload.operationId];
-      if (!snapshot || snapshot.runId !== payload.runId) {
-        return {
-          ok: false,
-          operationId: payload.operationId,
-          appliedScopes: [],
-          clearedScopes: [],
-          diagnostics: [_support.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED, "prepare snapshot missing")]
-        };
+      var snapshot = _tabMutation.readRunSnapshot(_support.tabMutationBase, runtime, payload);
+      if (!snapshot) {
+        return _tabMutation.applyFailure(payload.operationId, [], [], [
+          _support.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED, "prepare snapshot missing")
+        ]);
       }
       var work = _transfers.buildTabMutationTransfers(payload.plan);
       var overlays = {};
       var clearedIds = {};
       for (var c = 0; c < work.clearSlots.length; c += 1) {
-        var cleared = await clearScope(_KDB, _runtime, payload, work.clearSlots[c], clearedIds);
+        var cleared = await clearScope(KDB, runtime, payload, work.clearSlots[c], clearedIds);
         diagnostics = diagnostics.concat(cleared.diagnostics);
-        if (_support.isStaleRun(_runtime, payload)) {
+        if (_support.isStaleRun(runtime, payload)) {
           return _support.cancelled("tab mutation apply superseded during clear");
         }
         if (cleared.scopeId && clearedScopes.indexOf(cleared.scopeId) === -1) { clearedScopes.push(cleared.scopeId); }
       }
       for (var i = 0; i < work.transfers.length; i += 1) {
-        var transfer = await applyTransfer(_KDB, _runtime, payload, snapshot, work.transfers[i], overlays);
+        var transfer = await applyTransfer(KDB, runtime, payload, snapshot, work.transfers[i], overlays);
         diagnostics = diagnostics.concat(transfer.diagnostics);
-        if (_support.isStaleRun(_runtime, payload)) {
+        if (_support.isStaleRun(runtime, payload)) {
           return _support.cancelled("tab mutation apply superseded during transfer");
         }
         if (transfer.scopeId && appliedScopes.indexOf(transfer.scopeId) === -1) { appliedScopes.push(transfer.scopeId); }
       }
       if (payload.plan && payload.plan.operation === "restoreDeleted") {
-        var restored = await writeRestoreSlice(_KDB, _runtime, payload, overlays);
+        var restored = await writeRestoreSlice(KDB, runtime, payload, overlays);
         diagnostics = diagnostics.concat(restored.diagnostics);
-        if (_support.isStaleRun(_runtime, payload)) {
+        if (_support.isStaleRun(runtime, payload)) {
           return _support.cancelled("tab mutation apply superseded during restore");
         }
         if (restored.scopeId && appliedScopes.indexOf(restored.scopeId) === -1) { appliedScopes.push(restored.scopeId); }
       }
       if (diagnostics.length > 0) {
-        return { ok: false, operationId: payload.operationId, appliedScopes: appliedScopes, clearedScopes: clearedScopes, diagnostics: diagnostics };
+        return _tabMutation.applyFailure(payload.operationId, appliedScopes, clearedScopes, diagnostics);
       }
-      var reconciled = await _reconcileInventory.reconcileFilterInstances(_KDB, _runtime, { reason: "tabMutation", runId: payload.runId });
-      if (!reconciled.ok || _runtime.tabMutationRunId !== payload.runId) {
+      var reconciled = await _reconcileInventory.reconcileFilterInstances(KDB, runtime, { reason: "tabMutation", runId: payload.runId });
+      if (!reconciled.ok || runtime.tabMutationRunId !== payload.runId) {
         return _support.cancelled("tab mutation reconcile failed or was superseded");
       }
-      var root = _KDB.state.filters.singleSelect;
+      var root = KDB.state.filters.singleSelect;
       Object.keys(clearedIds).forEach(function (_id) {
         applyOverlay(root, _id, {
           currentSelection: { displayValue: _config.ALLE, useValue: "", displaySource: "policy" },
@@ -211,12 +207,21 @@ define([
         });
       });
       Object.keys(overlays).forEach(function (_id) { applyOverlay(root, _id, overlays[_id]); });
-      return { ok: true, operationId: payload.operationId, appliedScopes: appliedScopes, clearedScopes: clearedScopes, diagnostics: reconciled.diagnostics || [] };
+      return _tabMutation.applySuccess(payload.operationId, appliedScopes, clearedScopes, reconciled.diagnostics);
     } catch (error) {
       console.error("[singleSelect.applyTabMutation] failed", { operationId: payload.operationId }, error);
-      diagnostics.push(_support.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED, String(error && error.message ? error.message : error)));
-      return { ok: false, operationId: payload.operationId, appliedScopes: appliedScopes, clearedScopes: clearedScopes, diagnostics: diagnostics };
+      diagnostics.push(_support.diagnostic(_config.errorCodes.TAB_MUTATION_APPLY_FAILED, _tabMutation.errorMessage(error)));
+      return _tabMutation.applyFailure(payload.operationId, appliedScopes, clearedScopes, diagnostics);
     }
+  }
+
+  var apply = _tabMutation.createApply(_support.tabMutationBase, {
+    rejected: function (_guard) { return _guard; },
+    run: run
+  });
+
+  function applyTabMutation(_KDB, _runtime, _payload) {
+    return apply({ _KDB: _KDB, runtime: _runtime }, _payload);
   }
 
   return { applyTabMutation: applyTabMutation };

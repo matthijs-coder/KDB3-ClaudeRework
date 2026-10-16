@@ -1,0 +1,3336 @@
+{
+ "delete tab B": {
+  "result": {
+   "ok": true,
+   "outcome": "applied",
+   "phases": [
+    [
+     "plan",
+     "ok"
+    ],
+    [
+     "slotReadiness",
+     "ok"
+    ],
+    [
+     "scopeResolve",
+     "ok"
+    ],
+    [
+     "prepare",
+     "ok"
+    ],
+    [
+     "filterApply",
+     "ok"
+    ],
+    [
+     "widgetApply",
+     "ok"
+    ],
+    [
+     "commit",
+     "ok"
+    ],
+    [
+     "cognosSync",
+     "ok"
+    ],
+    [
+     "hostResync",
+     "ok"
+    ],
+    [
+     "finalize",
+     "ok"
+    ]
+   ],
+   "diagnostics": []
+  },
+  "tabs": [
+   "A",
+   "C",
+   "Tab 3(hidden)",
+   "D(hidden)"
+  ],
+  "ownerCalls": [
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/resyncTabMutationHost",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/resyncTabMutationHost",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/resyncTabMutationHost",
+    1
+   ]
+  ],
+  "history": [
+   {
+    "key": "tabs_delete",
+    "old": {
+     "insertTabIdx": 1,
+     "tabId": "t1",
+     "name": "B",
+     "hideSlot": {
+      "tabIdx": 2,
+      "index": 2,
+      "tabId": "t2"
+     },
+     "serializedByTabId": {
+      "t1": [
+       {
+        "sourceWidgetId": "v1a",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M1a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v1b",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M1b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x1",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ],
+      "t2": [
+       {
+        "sourceWidgetId": "v2a",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M2a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v2b",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M2b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x2",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ]
+     },
+     "filters": {
+      "singleSelect": {
+       "s1-g1": {
+        "filterInstanceId": "s1-g1",
+        "scopeId": "s1",
+        "semanticKey": "singleSelect|Geschlecht||Geschlecht",
+        "currentSelection": {
+         "displayValue": "Mann",
+         "useValue": "1",
+         "displaySource": "cognos"
+        },
+        "backupSelection": {
+         "displayValue": "Mann",
+         "useValue": "1",
+         "displaySource": "cognos"
+        },
+        "pendingSelection": {
+         "displayValue": "Mann"
+        },
+        "hostValues": [
+         {
+          "d": "Mann",
+          "u": "1"
+         }
+        ]
+       },
+       "s1-j1": {
+        "filterInstanceId": "s1-j1",
+        "scopeId": "s1",
+        "semanticKey": "singleSelect|Jahr||Jahr",
+        "currentSelection": {
+         "displayValue": "Alle",
+         "useValue": "",
+         "displaySource": "policy"
+        },
+        "backupSelection": {
+         "displayValue": "Alle",
+         "useValue": "",
+         "displaySource": "policy"
+        },
+        "pendingSelection": {
+         "displayValue": "Alle"
+        },
+        "hostValues": []
+       }
+      },
+      "dienststelle": {
+       "Dienststelle_BW": {
+        "currentValues": [
+         {
+          "displayValue": "Org D",
+          "useValue": "[Org].&[3]",
+          "source": "user",
+          "hostDisplay": "Org D"
+         }
+        ],
+        "backupValues": [],
+        "pendingValues": [],
+        "lastObservedHostValues": [],
+        "lastConfirmedAt": 5
+       },
+       "Dienststelle_DEZPV": {
+        "currentValues": [],
+        "backupValues": [],
+        "pendingValues": [],
+        "lastObservedHostValues": [],
+        "lastConfirmedAt": null
+       }
+      },
+      "nativeMultiSelect": [
+       {
+        "itemId": "[TM1].[Dim].[Jahr]",
+        "itemName": "Jahr",
+        "sourceId": "src_Jahr",
+        "values": [
+         {
+          "d": "2020",
+          "u": "u_2020"
+         }
+        ]
+       },
+       {
+        "itemId": "[TM1].[Dim].[Land]",
+        "itemName": "Land",
+        "sourceId": "src_Land",
+        "values": []
+       }
+      ]
+     }
+    },
+    "new": {
+     "tabIndex": 1,
+     "tabId": "t1"
+    }
+   }
+  ],
+  "snapshotStores": {
+   "widgetBase": [],
+   "singleSelect": [],
+   "dienststelle": [],
+   "nativeMultiSelect": []
+  },
+  "lock": [],
+  "owners": {
+   "singleSelect": {
+    "state": [
+     "s0-g1 Frau/2 Frau/2 Frau/",
+     "s0-j1 2020/2020 2020/2020 2020/",
+     "s1-g1 Alle/ Alle/ Alle/",
+     "s1-j1 2022/2022 2022/2022 2022/",
+     "s2-g1 Alle/ Alle/ Alle/",
+     "s2-j1 Alle/ Alle/ Alle/",
+     "s3-g1 Alle/ Alle/ Alle/",
+     "s3-j1 Alle/ Alle/ Alle/"
+    ],
+    "host": [
+     "s0|g1=Frau:2",
+     "s0|j1=2020:2020",
+     "s1|g1=",
+     "s1|j1=2022:2022",
+     "s2|g1=",
+     "s2|j1=",
+     "s3|g1=",
+     "s3|j1="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": [],
+     "tabMutationOperationId": "tabmut-T-1"
+    },
+    "console": []
+   },
+   "dienststelle": {
+    "state": [
+     "Dienststelle_BW@tab0_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_BW@tab1_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_BW@tab2_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab1_tabpanel cur=Org E/[Org].&[5] bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab2_tabpanel cur= bak= at=1700000000000"
+    ],
+    "host": [
+     "Dienststelle_BW@tab0_tabpanel=Org C",
+     "Dienststelle_BW@tab1_tabpanel=",
+     "Dienststelle_BW@tab2_tabpanel=",
+     "Dienststelle_DEZPV@tab1_tabpanel=Org E",
+     "Dienststelle_DEZPV@tab2_tabpanel="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   },
+   "nativeMultiSelect": {
+    "state": [
+     "page0_tabpanel: Jahr=own0;Land=",
+     "page1_tabpanel: Jahr=;Land=CH",
+     "page2_tabpanel: ",
+     "page3_tabpanel: Jahr=own3;Land="
+    ],
+    "host": [
+     "page0_tabpanel/Jahr=2019",
+     "page0_tabpanel/Land=DE+AT",
+     "page1_tabpanel/Jahr=",
+     "page1_tabpanel/Land=CH",
+     "page2_tabpanel/Jahr=",
+     "page2_tabpanel/Land=",
+     "page3_tabpanel/Jahr=",
+     "page3_tabpanel/Land="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   }
+  }
+ },
+ "duplicate tab A": {
+  "result": {
+   "ok": true,
+   "outcome": "applied",
+   "phases": [
+    [
+     "plan",
+     "ok"
+    ],
+    [
+     "slotReadiness",
+     "ok"
+    ],
+    [
+     "scopeResolve",
+     "ok"
+    ],
+    [
+     "prepare",
+     "ok"
+    ],
+    [
+     "filterApply",
+     "ok"
+    ],
+    [
+     "widgetApply",
+     "ok"
+    ],
+    [
+     "commit",
+     "ok"
+    ],
+    [
+     "cognosSync",
+     "ok"
+    ],
+    [
+     "hostResync",
+     "ok"
+    ],
+    [
+     "finalize",
+     "ok"
+    ]
+   ],
+   "diagnostics": []
+  },
+  "tabs": [
+   "A",
+   "A",
+   "B",
+   "C"
+  ],
+  "ownerCalls": [
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/resyncTabMutationHost",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/resyncTabMutationHost",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/resyncTabMutationHost",
+    1
+   ]
+  ],
+  "history": [
+   {
+    "key": "tabs_duplicate",
+    "old": {
+     "tabIndex": 1,
+     "tabId": "t1",
+     "widgetRebuild": true,
+     "serializedByTabId": {
+      "t3": [
+       {
+        "sourceWidgetId": "v3a",
+        "entry": {
+         "tab": 3,
+         "x": 30,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M3a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v3b",
+        "entry": {
+         "tab": 3,
+         "x": 30,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M3b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x3",
+        "entry": {
+         "tab": 3,
+         "x": 30,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ],
+      "t2": [
+       {
+        "sourceWidgetId": "v2a",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M2a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v2b",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M2b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x2",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ],
+      "t1": [
+       {
+        "sourceWidgetId": "v1a",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M1a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v1b",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M1b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x1",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ]
+     }
+    },
+    "new": {
+     "replayDuplicate": true,
+     "sourceTabId": "t0",
+     "sourceTabIndex": 0
+    }
+   }
+  ],
+  "snapshotStores": {
+   "widgetBase": [],
+   "singleSelect": [],
+   "dienststelle": [],
+   "nativeMultiSelect": []
+  },
+  "lock": [],
+  "owners": {
+   "singleSelect": {
+    "state": [
+     "s0-g1 Frau/2 Frau/2 Frau/",
+     "s0-j1 2020/2020 2020/2020 2020/",
+     "s1-g1 Frau/2 Frau/2 Frau/",
+     "s1-j1 2020/2020 2020/2020 2020/",
+     "s2-g1 Mann/1 Mann/1 Mann/",
+     "s2-j1 Alle/ Alle/ Alle/",
+     "s3-g1 Alle/ Alle/ Alle/",
+     "s3-j1 2022/2022 2022/2022 2022/"
+    ],
+    "host": [
+     "s0|g1=Frau:2",
+     "s0|j1=2020:2020",
+     "s1|g1=Frau:2",
+     "s1|j1=2020:2020",
+     "s2|g1=Mann:1",
+     "s2|j1=",
+     "s3|g1=",
+     "s3|j1=2022:2022"
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": [],
+     "tabMutationOperationId": "tabmut-T-1"
+    },
+    "console": []
+   },
+   "dienststelle": {
+    "state": [
+     "Dienststelle_BW@tab0_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_BW@tab1_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_BW@tab2_tabpanel cur=Org D/[Org].&[3] bak= at=5",
+     "Dienststelle_BW@tab3_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab1_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab2_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab3_tabpanel cur=Org E/[Org].&[5] bak= at=1700000000000"
+    ],
+    "host": [
+     "Dienststelle_BW@tab0_tabpanel=Org C",
+     "Dienststelle_BW@tab1_tabpanel=Org C",
+     "Dienststelle_BW@tab2_tabpanel=Org D",
+     "Dienststelle_BW@tab3_tabpanel=",
+     "Dienststelle_DEZPV@tab1_tabpanel=",
+     "Dienststelle_DEZPV@tab2_tabpanel=",
+     "Dienststelle_DEZPV@tab3_tabpanel=Org E"
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   },
+   "nativeMultiSelect": {
+    "state": [
+     "page0_tabpanel: Jahr=own0;Land=",
+     "page1_tabpanel: Jahr=2019;Land=DE+AT",
+     "page2_tabpanel: Jahr=2020;Land=",
+     "page3_tabpanel: Jahr=;Land=CH"
+    ],
+    "host": [
+     "page0_tabpanel/Jahr=own0",
+     "page0_tabpanel/Land=",
+     "page1_tabpanel/Jahr=2019",
+     "page1_tabpanel/Land=DE+AT",
+     "page2_tabpanel/Jahr=2020",
+     "page2_tabpanel/Land=",
+     "page3_tabpanel/Jahr=",
+     "page3_tabpanel/Land=CH"
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   }
+  }
+ },
+ "move tab A to position 2": {
+  "result": {
+   "ok": true,
+   "outcome": "applied",
+   "phases": [
+    [
+     "plan",
+     "ok"
+    ],
+    [
+     "slotReadiness",
+     "ok"
+    ],
+    [
+     "scopeResolve",
+     "ok"
+    ],
+    [
+     "prepare",
+     "ok"
+    ],
+    [
+     "filterApply",
+     "ok"
+    ],
+    [
+     "widgetApply",
+     "ok"
+    ],
+    [
+     "commit",
+     "ok"
+    ],
+    [
+     "cognosSync",
+     "ok"
+    ],
+    [
+     "hostResync",
+     "ok"
+    ],
+    [
+     "finalize",
+     "ok"
+    ]
+   ],
+   "diagnostics": []
+  },
+  "tabs": [
+   "B",
+   "C",
+   "A",
+   "D(hidden)"
+  ],
+  "ownerCalls": [
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/resyncTabMutationHost",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/resyncTabMutationHost",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/resyncTabMutationHost",
+    1
+   ]
+  ],
+  "history": [
+   {
+    "key": "tabs_move",
+    "old": {
+     "tabIndex": 2,
+     "targetPosition": 0,
+     "serializedByTabId": {
+      "t0": [
+       {
+        "sourceWidgetId": "v0a",
+        "entry": {
+         "tab": 0,
+         "x": 0,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M0a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v0b",
+        "entry": {
+         "tab": 0,
+         "x": 0,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M0b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x0",
+        "entry": {
+         "tab": 0,
+         "x": 0,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ],
+      "t2": [
+       {
+        "sourceWidgetId": "v2a",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M2a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v2b",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M2b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x2",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ],
+      "t1": [
+       {
+        "sourceWidgetId": "v1a",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M1a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v1b",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M1b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x1",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ]
+     }
+    },
+    "new": {
+     "tabIndex": 0,
+     "targetPosition": 2
+    }
+   }
+  ],
+  "snapshotStores": {
+   "widgetBase": [],
+   "singleSelect": [],
+   "dienststelle": [],
+   "nativeMultiSelect": []
+  },
+  "lock": [],
+  "owners": {
+   "singleSelect": {
+    "state": [
+     "s0-g1 Mann/1 Mann/1 Mann/",
+     "s0-j1 Alle/ Alle/ Alle/",
+     "s1-g1 Alle/ Alle/ Alle/",
+     "s1-j1 2022/2022 2022/2022 2022/",
+     "s2-g1 Frau/2 Frau/2 Frau/",
+     "s2-j1 2020/2020 2020/2020 2020/",
+     "s3-g1 Alle/ Alle/ Alle/",
+     "s3-j1 Alle/ Alle/ Alle/"
+    ],
+    "host": [
+     "s0|g1=Mann:1",
+     "s0|j1=",
+     "s1|g1=",
+     "s1|j1=2022:2022",
+     "s2|g1=Frau:2",
+     "s2|j1=2020:2020",
+     "s3|g1=",
+     "s3|j1="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": [],
+     "tabMutationOperationId": "tabmut-T-1"
+    },
+    "console": []
+   },
+   "dienststelle": {
+    "state": [
+     "Dienststelle_BW@tab0_tabpanel cur=Org D/[Org].&[3] bak= at=5",
+     "Dienststelle_BW@tab1_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_BW@tab2_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab0_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab1_tabpanel cur=Org E/[Org].&[5] bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab2_tabpanel cur= bak= at=1700000000000"
+    ],
+    "host": [
+     "Dienststelle_BW@tab0_tabpanel=Org D",
+     "Dienststelle_BW@tab1_tabpanel=",
+     "Dienststelle_BW@tab2_tabpanel=Org C",
+     "Dienststelle_DEZPV@tab0_tabpanel=",
+     "Dienststelle_DEZPV@tab1_tabpanel=Org E",
+     "Dienststelle_DEZPV@tab2_tabpanel="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   },
+   "nativeMultiSelect": {
+    "state": [
+     "page0_tabpanel: Jahr=2020;Land=",
+     "page1_tabpanel: Jahr=;Land=CH",
+     "page2_tabpanel: Jahr=2019;Land=DE+AT",
+     "page3_tabpanel: Jahr=own3;Land="
+    ],
+    "host": [
+     "page0_tabpanel/Jahr=2020",
+     "page0_tabpanel/Land=",
+     "page1_tabpanel/Jahr=",
+     "page1_tabpanel/Land=CH",
+     "page2_tabpanel/Jahr=2019",
+     "page2_tabpanel/Land=DE+AT",
+     "page3_tabpanel/Jahr=",
+     "page3_tabpanel/Land="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   }
+  }
+ },
+ "delete tab B, undo, redo": {
+  "tabs": [
+   "A",
+   "C",
+   "Tab 3(hidden)",
+   "D(hidden)"
+  ],
+  "ownerCalls": [
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/resyncTabMutationHost",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/resyncTabMutationHost",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/resyncTabMutationHost",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    2
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    2
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    2
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    2
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    2
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    2
+   ],
+   [
+    "singleSelect",
+    "singleSelect/resyncTabMutationHost",
+    2
+   ],
+   [
+    "dienststelle",
+    "dienststelle/resyncTabMutationHost",
+    2
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/resyncTabMutationHost",
+    2
+   ],
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    3
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    3
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    3
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    3
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    3
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    3
+   ],
+   [
+    "singleSelect",
+    "singleSelect/resyncTabMutationHost",
+    3
+   ],
+   [
+    "dienststelle",
+    "dienststelle/resyncTabMutationHost",
+    3
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/resyncTabMutationHost",
+    3
+   ]
+  ],
+  "history": [
+   {
+    "key": "tabs_delete",
+    "old": {
+     "insertTabIdx": 1,
+     "tabId": "t1",
+     "name": "B",
+     "hideSlot": {
+      "tabIdx": 2,
+      "index": 2,
+      "tabId": "t2"
+     },
+     "serializedByTabId": {
+      "t1": [
+       {
+        "sourceWidgetId": "v1a",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M1a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v1b",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M1b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x1",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ],
+      "t2": [
+       {
+        "sourceWidgetId": "v2a",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M2a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v2b",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M2b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x2",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ]
+     },
+     "filters": {
+      "singleSelect": {
+       "s1-g1": {
+        "filterInstanceId": "s1-g1",
+        "scopeId": "s1",
+        "semanticKey": "singleSelect|Geschlecht||Geschlecht",
+        "currentSelection": {
+         "displayValue": "Mann",
+         "useValue": "1",
+         "displaySource": "cognos"
+        },
+        "backupSelection": {
+         "displayValue": "Mann",
+         "useValue": "1",
+         "displaySource": "cognos"
+        },
+        "pendingSelection": {
+         "displayValue": "Mann"
+        },
+        "hostValues": [
+         {
+          "d": "Mann",
+          "u": "1"
+         }
+        ]
+       },
+       "s1-j1": {
+        "filterInstanceId": "s1-j1",
+        "scopeId": "s1",
+        "semanticKey": "singleSelect|Jahr||Jahr",
+        "currentSelection": {
+         "displayValue": "Alle",
+         "useValue": "",
+         "displaySource": "policy"
+        },
+        "backupSelection": {
+         "displayValue": "Alle",
+         "useValue": "",
+         "displaySource": "policy"
+        },
+        "pendingSelection": {
+         "displayValue": "Alle"
+        },
+        "hostValues": []
+       }
+      },
+      "dienststelle": {
+       "Dienststelle_BW": {
+        "currentValues": [
+         {
+          "displayValue": "Org D",
+          "useValue": "[Org].&[3]",
+          "source": "user",
+          "hostDisplay": "Org D"
+         }
+        ],
+        "backupValues": [],
+        "pendingValues": [],
+        "lastObservedHostValues": [],
+        "lastConfirmedAt": 5
+       },
+       "Dienststelle_DEZPV": {
+        "currentValues": [],
+        "backupValues": [],
+        "pendingValues": [],
+        "lastObservedHostValues": [],
+        "lastConfirmedAt": null
+       }
+      },
+      "nativeMultiSelect": [
+       {
+        "itemId": "[TM1].[Dim].[Jahr]",
+        "itemName": "Jahr",
+        "sourceId": "src_Jahr",
+        "values": [
+         {
+          "d": "2020",
+          "u": "u_2020"
+         }
+        ]
+       },
+       {
+        "itemId": "[TM1].[Dim].[Land]",
+        "itemName": "Land",
+        "sourceId": "src_Land",
+        "values": []
+       }
+      ]
+     }
+    },
+    "new": {
+     "tabIndex": 1,
+     "tabId": "t1"
+    }
+   }
+  ],
+  "snapshotStores": {
+   "widgetBase": [],
+   "singleSelect": [],
+   "dienststelle": [],
+   "nativeMultiSelect": []
+  },
+  "lock": [],
+  "owners": {
+   "singleSelect": {
+    "state": [
+     "s0-g1 Frau/2 Frau/2 Frau/",
+     "s0-j1 2020/2020 2020/2020 2020/",
+     "s1-g1 Alle/ Alle/ Alle/",
+     "s1-j1 2022/2022 2022/2022 2022/",
+     "s2-g1 Alle/ Alle/ Alle/",
+     "s2-j1 Alle/ Alle/ Alle/",
+     "s3-g1 Alle/ Alle/ Alle/",
+     "s3-j1 Alle/ Alle/ Alle/"
+    ],
+    "host": [
+     "s0|g1=Frau:2",
+     "s0|j1=2020:2020",
+     "s1|g1=",
+     "s1|j1=2022:2022",
+     "s2|g1=",
+     "s2|j1=",
+     "s3|g1=",
+     "s3|j1="
+    ],
+    "runtime": {
+     "tabMutationRunId": 3,
+     "snapshots": [],
+     "tabMutationOperationId": "tabmut-T-3"
+    },
+    "console": []
+   },
+   "dienststelle": {
+    "state": [
+     "Dienststelle_BW@tab0_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_BW@tab1_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_BW@tab2_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab1_tabpanel cur=Org E/[Org].&[5] bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab2_tabpanel cur= bak= at=1700000000000"
+    ],
+    "host": [
+     "Dienststelle_BW@tab0_tabpanel=Org C",
+     "Dienststelle_BW@tab1_tabpanel=",
+     "Dienststelle_BW@tab2_tabpanel=",
+     "Dienststelle_DEZPV@tab1_tabpanel=Org E",
+     "Dienststelle_DEZPV@tab2_tabpanel="
+    ],
+    "runtime": {
+     "tabMutationRunId": 3,
+     "snapshots": []
+    },
+    "console": []
+   },
+   "nativeMultiSelect": {
+    "state": [
+     "page0_tabpanel: Jahr=own0;Land=",
+     "page1_tabpanel: Jahr=;Land=CH",
+     "page2_tabpanel: ",
+     "page3_tabpanel: Jahr=own3;Land="
+    ],
+    "host": [
+     "page0_tabpanel/Jahr=2019",
+     "page0_tabpanel/Land=DE+AT",
+     "page1_tabpanel/Jahr=",
+     "page1_tabpanel/Land=CH",
+     "page2_tabpanel/Jahr=",
+     "page2_tabpanel/Land=",
+     "page3_tabpanel/Jahr=",
+     "page3_tabpanel/Land="
+    ],
+    "runtime": {
+     "tabMutationRunId": 3,
+     "snapshots": []
+    },
+    "console": []
+   }
+  }
+ },
+ "duplicate tab A, undo, redo": {
+  "tabs": [
+   "A",
+   "A",
+   "B",
+   "C"
+  ],
+  "ownerCalls": [
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/resyncTabMutationHost",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/resyncTabMutationHost",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/resyncTabMutationHost",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    2
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    2
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    2
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    2
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    2
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    2
+   ],
+   [
+    "singleSelect",
+    "singleSelect/resyncTabMutationHost",
+    2
+   ],
+   [
+    "dienststelle",
+    "dienststelle/resyncTabMutationHost",
+    2
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/resyncTabMutationHost",
+    2
+   ],
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    3
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    3
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    3
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    3
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    3
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    3
+   ],
+   [
+    "singleSelect",
+    "singleSelect/resyncTabMutationHost",
+    3
+   ],
+   [
+    "dienststelle",
+    "dienststelle/resyncTabMutationHost",
+    3
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/resyncTabMutationHost",
+    3
+   ]
+  ],
+  "history": [
+   {
+    "key": "tabs_duplicate",
+    "old": {
+     "tabIndex": 1,
+     "tabId": "t1",
+     "widgetRebuild": true,
+     "serializedByTabId": {
+      "t3": [
+       {
+        "sourceWidgetId": "v3a",
+        "entry": {
+         "tab": 3,
+         "x": 30,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M3a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v3b",
+        "entry": {
+         "tab": 3,
+         "x": 30,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M3b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x3",
+        "entry": {
+         "tab": 3,
+         "x": 30,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ],
+      "t2": [
+       {
+        "sourceWidgetId": "v2a",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M2a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v2b",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M2b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x2",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ],
+      "t1": [
+       {
+        "sourceWidgetId": "v1a",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M1a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v1b",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M1b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x1",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ]
+     }
+    },
+    "new": {
+     "replayDuplicate": true,
+     "sourceTabId": "t0",
+     "sourceTabIndex": 0
+    }
+   }
+  ],
+  "snapshotStores": {
+   "widgetBase": [],
+   "singleSelect": [],
+   "dienststelle": [],
+   "nativeMultiSelect": []
+  },
+  "lock": [],
+  "owners": {
+   "singleSelect": {
+    "state": [
+     "s0-g1 Frau/2 Frau/2 Frau/",
+     "s0-j1 2020/2020 2020/2020 2020/",
+     "s1-g1 Frau/2 Frau/2 Frau/",
+     "s1-j1 2020/2020 2020/2020 2020/",
+     "s2-g1 Mann/1 Mann/1 Mann/",
+     "s2-j1 Alle/ Alle/ Alle/",
+     "s3-g1 Alle/ Alle/ Alle/",
+     "s3-j1 2022/2022 2022/2022 2022/"
+    ],
+    "host": [
+     "s0|g1=Frau:2",
+     "s0|j1=2020:2020",
+     "s1|g1=Frau:2",
+     "s1|j1=2020:2020",
+     "s2|g1=Mann:1",
+     "s2|j1=",
+     "s3|g1=",
+     "s3|j1=2022:2022"
+    ],
+    "runtime": {
+     "tabMutationRunId": 3,
+     "snapshots": [],
+     "tabMutationOperationId": "tabmut-T-3"
+    },
+    "console": []
+   },
+   "dienststelle": {
+    "state": [
+     "Dienststelle_BW@tab0_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_BW@tab1_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_BW@tab2_tabpanel cur=Org D/[Org].&[3] bak= at=5",
+     "Dienststelle_BW@tab3_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab1_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab2_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab3_tabpanel cur=Org E/[Org].&[5] bak= at=1700000000000"
+    ],
+    "host": [
+     "Dienststelle_BW@tab0_tabpanel=Org C",
+     "Dienststelle_BW@tab1_tabpanel=Org C",
+     "Dienststelle_BW@tab2_tabpanel=Org D",
+     "Dienststelle_BW@tab3_tabpanel=",
+     "Dienststelle_DEZPV@tab1_tabpanel=",
+     "Dienststelle_DEZPV@tab2_tabpanel=",
+     "Dienststelle_DEZPV@tab3_tabpanel=Org E"
+    ],
+    "runtime": {
+     "tabMutationRunId": 3,
+     "snapshots": []
+    },
+    "console": []
+   },
+   "nativeMultiSelect": {
+    "state": [
+     "page0_tabpanel: Jahr=own0;Land=",
+     "page1_tabpanel: Jahr=own0;Land=",
+     "page2_tabpanel: Jahr=2020;Land=",
+     "page3_tabpanel: Jahr=;Land=CH"
+    ],
+    "host": [
+     "page0_tabpanel/Jahr=own0",
+     "page0_tabpanel/Land=",
+     "page1_tabpanel/Jahr=own0",
+     "page1_tabpanel/Land=",
+     "page2_tabpanel/Jahr=2020",
+     "page2_tabpanel/Land=",
+     "page3_tabpanel/Jahr=",
+     "page3_tabpanel/Land=CH"
+    ],
+    "runtime": {
+     "tabMutationRunId": 3,
+     "snapshots": []
+    },
+    "console": []
+   }
+  }
+ },
+ "move tab A to position 2, undo, redo": {
+  "tabs": [
+   "B",
+   "C",
+   "A",
+   "D(hidden)"
+  ],
+  "ownerCalls": [
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/resyncTabMutationHost",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/resyncTabMutationHost",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/resyncTabMutationHost",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    2
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    2
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    2
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    2
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    2
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    2
+   ],
+   [
+    "singleSelect",
+    "singleSelect/resyncTabMutationHost",
+    2
+   ],
+   [
+    "dienststelle",
+    "dienststelle/resyncTabMutationHost",
+    2
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/resyncTabMutationHost",
+    2
+   ],
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    3
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    3
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    3
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    3
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    3
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    3
+   ],
+   [
+    "singleSelect",
+    "singleSelect/resyncTabMutationHost",
+    3
+   ],
+   [
+    "dienststelle",
+    "dienststelle/resyncTabMutationHost",
+    3
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/resyncTabMutationHost",
+    3
+   ]
+  ],
+  "history": [
+   {
+    "key": "tabs_move",
+    "old": {
+     "tabIndex": 2,
+     "targetPosition": 0,
+     "serializedByTabId": {
+      "t0": [
+       {
+        "sourceWidgetId": "v0a",
+        "entry": {
+         "tab": 0,
+         "x": 0,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M0a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v0b",
+        "entry": {
+         "tab": 0,
+         "x": 0,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M0b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x0",
+        "entry": {
+         "tab": 0,
+         "x": 0,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ],
+      "t2": [
+       {
+        "sourceWidgetId": "v2a",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M2a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v2b",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M2b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x2",
+        "entry": {
+         "tab": 2,
+         "x": 20,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ],
+      "t1": [
+       {
+        "sourceWidgetId": "v1a",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M1a",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "v1b",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "vis",
+         "code": "M1b",
+         "type": "line"
+        }
+       },
+       {
+        "sourceWidgetId": "x1",
+        "entry": {
+         "tab": 1,
+         "x": 10,
+         "y": 20,
+         "w": 300,
+         "h": 200,
+         "kind": "txt",
+         "text": ""
+        }
+       }
+      ]
+     }
+    },
+    "new": {
+     "tabIndex": 0,
+     "targetPosition": 2
+    }
+   }
+  ],
+  "snapshotStores": {
+   "widgetBase": [],
+   "singleSelect": [],
+   "dienststelle": [],
+   "nativeMultiSelect": []
+  },
+  "lock": [],
+  "owners": {
+   "singleSelect": {
+    "state": [
+     "s0-g1 Mann/1 Mann/1 Mann/",
+     "s0-j1 Alle/ Alle/ Alle/",
+     "s1-g1 Alle/ Alle/ Alle/",
+     "s1-j1 2022/2022 2022/2022 2022/",
+     "s2-g1 Frau/2 Frau/2 Frau/",
+     "s2-j1 2020/2020 2020/2020 2020/",
+     "s3-g1 Alle/ Alle/ Alle/",
+     "s3-j1 Alle/ Alle/ Alle/"
+    ],
+    "host": [
+     "s0|g1=Mann:1",
+     "s0|j1=",
+     "s1|g1=",
+     "s1|j1=2022:2022",
+     "s2|g1=Frau:2",
+     "s2|j1=2020:2020",
+     "s3|g1=",
+     "s3|j1="
+    ],
+    "runtime": {
+     "tabMutationRunId": 3,
+     "snapshots": [],
+     "tabMutationOperationId": "tabmut-T-3"
+    },
+    "console": []
+   },
+   "dienststelle": {
+    "state": [
+     "Dienststelle_BW@tab0_tabpanel cur=Org D/[Org].&[3] bak= at=5",
+     "Dienststelle_BW@tab1_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_BW@tab2_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab0_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab1_tabpanel cur=Org E/[Org].&[5] bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab2_tabpanel cur= bak= at=1700000000000"
+    ],
+    "host": [
+     "Dienststelle_BW@tab0_tabpanel=Org D",
+     "Dienststelle_BW@tab1_tabpanel=",
+     "Dienststelle_BW@tab2_tabpanel=Org C",
+     "Dienststelle_DEZPV@tab0_tabpanel=",
+     "Dienststelle_DEZPV@tab1_tabpanel=Org E",
+     "Dienststelle_DEZPV@tab2_tabpanel="
+    ],
+    "runtime": {
+     "tabMutationRunId": 3,
+     "snapshots": []
+    },
+    "console": []
+   },
+   "nativeMultiSelect": {
+    "state": [
+     "page0_tabpanel: Jahr=2020;Land=",
+     "page1_tabpanel: Jahr=;Land=CH",
+     "page2_tabpanel: Jahr=2019;Land=DE+AT",
+     "page3_tabpanel: Jahr=own3;Land="
+    ],
+    "host": [
+     "page0_tabpanel/Jahr=2020",
+     "page0_tabpanel/Land=",
+     "page1_tabpanel/Jahr=",
+     "page1_tabpanel/Land=CH",
+     "page2_tabpanel/Jahr=2019",
+     "page2_tabpanel/Land=DE+AT",
+     "page3_tabpanel/Jahr=",
+     "page3_tabpanel/Land="
+    ],
+    "runtime": {
+     "tabMutationRunId": 3,
+     "snapshots": []
+    },
+    "console": []
+   }
+  }
+ },
+ "delete tab B, singleSelect host offline": {
+  "result": {
+   "ok": false,
+   "outcome": "degraded",
+   "phases": [
+    [
+     "plan",
+     "ok"
+    ],
+    [
+     "slotReadiness",
+     "ok"
+    ],
+    [
+     "scopeResolve",
+     "ok"
+    ],
+    [
+     "prepare",
+     "ok"
+    ],
+    [
+     "filterApply",
+     "failed"
+    ],
+    [
+     "rollback",
+     "degraded"
+    ]
+   ],
+   "diagnostics": [
+    [
+     "filterApply",
+     "SINGLE_SELECT_HOST_WRITE_FAILED",
+     null,
+     "clear host write verification failed"
+    ],
+    [
+     "filterApply",
+     "SINGLE_SELECT_HOST_WRITE_FAILED",
+     null,
+     "clear host write verification failed"
+    ],
+    [
+     "filterApply",
+     "SINGLE_SELECT_HOST_WRITE_FAILED",
+     null,
+     "clear host write verification failed"
+    ],
+    [
+     "filterApply",
+     "SINGLE_SELECT_HOST_WRITE_FAILED",
+     null,
+     "clear host write verification failed"
+    ],
+    [
+     "filterApply",
+     "SINGLE_SELECT_HOST_WRITE_FAILED",
+     null,
+     "target host write verification failed"
+    ],
+    [
+     "filterApply",
+     "SINGLE_SELECT_HOST_WRITE_FAILED",
+     null,
+     "target host write verification failed"
+    ],
+    [
+     "rollback",
+     "TABS_MUTATION_ROLLBACK_INCOMPLETE",
+     "singleSelect",
+     "Owner rollback incomplete or failed."
+    ],
+    [
+     "rollback",
+     "TABS_MUTATION_ROLLBACK_INCOMPLETE",
+     null,
+     "snapshot host pair could not be restored: SINGLE_SELECT_HOST_WRITE_FAILED"
+    ],
+    [
+     "rollback",
+     "TABS_MUTATION_ROLLBACK_INCOMPLETE",
+     null,
+     "snapshot host pair could not be restored: SINGLE_SELECT_HOST_WRITE_FAILED"
+    ],
+    [
+     "rollback",
+     "TABS_MUTATION_ROLLBACK_INCOMPLETE",
+     null,
+     "snapshot host pair could not be restored: SINGLE_SELECT_HOST_WRITE_FAILED"
+    ],
+    [
+     "rollback",
+     "TABS_MUTATION_ROLLBACK_INCOMPLETE",
+     null,
+     "snapshot host pair could not be restored: SINGLE_SELECT_HOST_WRITE_FAILED"
+    ]
+   ]
+  },
+  "tabs": [
+   "A",
+   "B",
+   "C",
+   "D(hidden)"
+  ],
+  "ownerCalls": [
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/restoreTabMutationSnapshot",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/restoreTabMutationSnapshot",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/restoreTabMutationSnapshot",
+    1
+   ]
+  ],
+  "history": [],
+  "snapshotStores": {
+   "widgetBase": [],
+   "singleSelect": [],
+   "dienststelle": [],
+   "nativeMultiSelect": []
+  },
+  "lock": [],
+  "owners": {
+   "singleSelect": {
+    "state": [
+     "s0-g1 Frau/2 Frau/2 Frau/",
+     "s0-j1 2020/2020 2020/2020 2020/",
+     "s1-g1 Mann/1 Mann/1 Mann/",
+     "s1-j1 Alle/ Alle/ Alle/",
+     "s2-g1 Alle/ Alle/ Alle/",
+     "s2-j1 2022/2022 2022/2022 2022/",
+     "s3-g1 Alle/ Alle/ Alle/",
+     "s3-j1 Alle/ Alle/ Alle/"
+    ],
+    "host": [
+     "s0|g1=Frau:2",
+     "s0|j1=2020:2020",
+     "s1|g1=Mann:1",
+     "s1|j1=",
+     "s2|g1=",
+     "s2|j1=2022:2022",
+     "s3|g1=",
+     "s3|j1="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": [],
+     "tabMutationOperationId": "tabmut-T-1"
+    },
+    "console": []
+   },
+   "dienststelle": {
+    "state": [
+     "Dienststelle_BW@tab0_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_BW@tab1_tabpanel cur=Org D/[Org].&[3] bak= at=5",
+     "Dienststelle_BW@tab2_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab1_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab2_tabpanel cur=Org E/[Org].&[5] bak= at=1700000000000"
+    ],
+    "host": [
+     "Dienststelle_BW@tab0_tabpanel=Org C",
+     "Dienststelle_BW@tab1_tabpanel=Org D",
+     "Dienststelle_DEZPV@tab2_tabpanel=Org E"
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   },
+   "nativeMultiSelect": {
+    "state": [
+     "page0_tabpanel: Jahr=own0;Land=",
+     "page1_tabpanel: Jahr=2020;Land=",
+     "page2_tabpanel: Jahr=;Land=CH",
+     "page3_tabpanel: Jahr=own3;Land="
+    ],
+    "host": [
+     "page0_tabpanel/Jahr=2019",
+     "page0_tabpanel/Land=DE+AT",
+     "page1_tabpanel/Jahr=2020",
+     "page1_tabpanel/Land=",
+     "page2_tabpanel/Jahr=",
+     "page2_tabpanel/Land=CH",
+     "page3_tabpanel/Jahr=",
+     "page3_tabpanel/Land="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   }
+  }
+ },
+ "duplicate tab A, dienststelle host offline": {
+  "result": {
+   "ok": false,
+   "outcome": "degraded",
+   "phases": [
+    [
+     "plan",
+     "ok"
+    ],
+    [
+     "slotReadiness",
+     "ok"
+    ],
+    [
+     "scopeResolve",
+     "ok"
+    ],
+    [
+     "prepare",
+     "ok"
+    ],
+    [
+     "filterApply",
+     "failed"
+    ],
+    [
+     "rollback",
+     "degraded"
+    ]
+   ],
+   "diagnostics": [
+    [
+     "filterApply",
+     "TABS_MUTATION_APPLY_FAILED",
+     null,
+     "X"
+    ],
+    [
+     "filterApply",
+     "TABS_MUTATION_APPLY_FAILED",
+     null,
+     "X"
+    ],
+    [
+     "filterApply",
+     "TABS_MUTATION_APPLY_FAILED",
+     null,
+     "X"
+    ],
+    [
+     "filterApply",
+     "TABS_MUTATION_APPLY_FAILED",
+     null,
+     "X"
+    ],
+    [
+     "filterApply",
+     "TABS_MUTATION_APPLY_FAILED",
+     null,
+     "X"
+    ],
+    [
+     "filterApply",
+     "TABS_MUTATION_APPLY_FAILED",
+     null,
+     "X"
+    ],
+    [
+     "rollback",
+     "TABS_MUTATION_ROLLBACK_INCOMPLETE",
+     "dienststelle",
+     "Owner rollback incomplete or failed."
+    ],
+    [
+     "rollback",
+     "TABS_MUTATION_ROLLBACK_INCOMPLETE",
+     null,
+     "dienststelle host scope restore failed"
+    ],
+    [
+     "rollback",
+     "TABS_MUTATION_ROLLBACK_INCOMPLETE",
+     null,
+     "dienststelle host scope restore failed"
+    ],
+    [
+     "rollback",
+     "TABS_MUTATION_ROLLBACK_INCOMPLETE",
+     null,
+     "dienststelle host scope restore failed"
+    ]
+   ]
+  },
+  "tabs": [
+   "A",
+   "B",
+   "C",
+   "D(hidden)"
+  ],
+  "ownerCalls": [
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/restoreTabMutationSnapshot",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/restoreTabMutationSnapshot",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/restoreTabMutationSnapshot",
+    1
+   ]
+  ],
+  "history": [],
+  "snapshotStores": {
+   "widgetBase": [],
+   "singleSelect": [],
+   "dienststelle": [],
+   "nativeMultiSelect": []
+  },
+  "lock": [],
+  "owners": {
+   "singleSelect": {
+    "state": [
+     "s0-g1 Frau/2 Frau/2 Frau/",
+     "s0-j1 2020/2020 2020/2020 2020/",
+     "s1-g1 Mann/1 Mann/1 Mann/",
+     "s1-j1 Alle/ Alle/ Alle/",
+     "s2-g1 Alle/ Alle/ Alle/",
+     "s2-j1 2022/2022 2022/2022 2022/",
+     "s3-g1 Alle/ Alle/ Alle/",
+     "s3-j1 Alle/ Alle/ Alle/"
+    ],
+    "host": [
+     "s0|g1=Frau:2",
+     "s0|j1=2020:2020",
+     "s1|g1=Mann:1",
+     "s1|j1=",
+     "s2|g1=",
+     "s2|j1=2022:2022",
+     "s3|g1=",
+     "s3|j1="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": [],
+     "tabMutationOperationId": "tabmut-T-1"
+    },
+    "console": []
+   },
+   "dienststelle": {
+    "state": [
+     "Dienststelle_BW@tab0_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_BW@tab1_tabpanel cur=Org D/[Org].&[3] bak= at=5",
+     "Dienststelle_BW@tab2_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_BW@tab3_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab0_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab1_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab2_tabpanel cur=Org E/[Org].&[5] bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab3_tabpanel cur= bak= at=1700000000000"
+    ],
+    "host": [
+     "Dienststelle_BW@tab0_tabpanel=Org C",
+     "Dienststelle_BW@tab1_tabpanel=Org D",
+     "Dienststelle_DEZPV@tab2_tabpanel=Org E"
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   },
+   "nativeMultiSelect": {
+    "state": [
+     "page0_tabpanel: Jahr=2019;Land=DE+AT",
+     "page1_tabpanel: Jahr=2020;Land=",
+     "page2_tabpanel: Jahr=;Land=CH",
+     "page3_tabpanel: Jahr=;Land="
+    ],
+    "host": [
+     "page0_tabpanel/Jahr=2019",
+     "page0_tabpanel/Land=DE+AT",
+     "page1_tabpanel/Jahr=2020",
+     "page1_tabpanel/Land=",
+     "page2_tabpanel/Jahr=",
+     "page2_tabpanel/Land=CH",
+     "page3_tabpanel/Jahr=",
+     "page3_tabpanel/Land="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   }
+  }
+ },
+ "move tab A, nativeMultiSelect host throws": {
+  "result": {
+   "ok": false,
+   "outcome": "degraded",
+   "phases": [
+    [
+     "plan",
+     "ok"
+    ],
+    [
+     "slotReadiness",
+     "ok"
+    ],
+    [
+     "scopeResolve",
+     "ok"
+    ],
+    [
+     "prepare",
+     "ok"
+    ],
+    [
+     "filterApply",
+     "failed"
+    ],
+    [
+     "rollback",
+     "degraded"
+    ]
+   ],
+   "diagnostics": [
+    [
+     "filterApply",
+     "TABS_MUTATION_APPLY_FAILED",
+     null,
+     "host write crashed"
+    ],
+    [
+     "rollback",
+     "TABS_MUTATION_ROLLBACK_INCOMPLETE",
+     "nativeMultiSelect",
+     "Owner rollback incomplete or failed."
+    ],
+    [
+     "rollback",
+     "TABS_MUTATION_ROLLBACK_INCOMPLETE",
+     null,
+     "host write crashed"
+    ]
+   ]
+  },
+  "tabs": [
+   "A",
+   "B",
+   "C",
+   "D(hidden)"
+  ],
+  "ownerCalls": [
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/restoreTabMutationSnapshot",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/restoreTabMutationSnapshot",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/restoreTabMutationSnapshot",
+    1
+   ]
+  ],
+  "history": [],
+  "snapshotStores": {
+   "widgetBase": [],
+   "singleSelect": [],
+   "dienststelle": [],
+   "nativeMultiSelect": []
+  },
+  "lock": [],
+  "owners": {
+   "singleSelect": {
+    "state": [
+     "s0-g1 Frau/2 Frau/2 Frau/",
+     "s0-j1 2020/2020 2020/2020 2020/",
+     "s1-g1 Mann/1 Mann/1 Mann/",
+     "s1-j1 Alle/ Alle/ Alle/",
+     "s2-g1 Alle/ Alle/ Alle/",
+     "s2-j1 2022/2022 2022/2022 2022/",
+     "s3-g1 Alle/ Alle/ Alle/",
+     "s3-j1 Alle/ Alle/ Alle/"
+    ],
+    "host": [
+     "s0|g1=Frau:2",
+     "s0|j1=2020:2020",
+     "s1|g1=Mann:1",
+     "s1|j1=",
+     "s2|g1=",
+     "s2|j1=2022:2022",
+     "s3|g1=",
+     "s3|j1="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": [],
+     "tabMutationOperationId": "tabmut-T-1"
+    },
+    "console": []
+   },
+   "dienststelle": {
+    "state": [
+     "Dienststelle_BW@tab0_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_BW@tab1_tabpanel cur=Org D/[Org].&[3] bak= at=5",
+     "Dienststelle_BW@tab2_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab0_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab1_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab2_tabpanel cur=Org E/[Org].&[5] bak= at=1700000000000"
+    ],
+    "host": [
+     "Dienststelle_BW@tab0_tabpanel=Org C",
+     "Dienststelle_BW@tab1_tabpanel=Org D",
+     "Dienststelle_DEZPV@tab2_tabpanel=Org E"
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   },
+   "nativeMultiSelect": {
+    "state": [
+     "page0_tabpanel: Jahr=2019;Land=DE+AT",
+     "page1_tabpanel: Jahr=own1;Land=",
+     "page2_tabpanel: Jahr=own2;Land=",
+     "page3_tabpanel: Jahr=own3;Land="
+    ],
+    "host": [
+     "page0_tabpanel/Jahr=2019",
+     "page0_tabpanel/Land=DE+AT",
+     "page1_tabpanel/Jahr=2020",
+     "page1_tabpanel/Land=",
+     "page2_tabpanel/Jahr=",
+     "page2_tabpanel/Land=CH",
+     "page3_tabpanel/Jahr=",
+     "page3_tabpanel/Land="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": [
+     [
+      "error",
+      "[nativeMultiSelect.applyTabMutation] failed",
+      "Error:host write crashed"
+     ],
+     [
+      "error",
+      "[nativeMultiSelect.restoreTabMutationSnapshot] failed",
+      "{\"operationId\":\"tabmut-T-1\"}",
+      "Error:host write crashed"
+     ]
+    ]
+   }
+  }
+ },
+ "delete tab B, singleSelect host recovers after the first failed write": {
+  "result": {
+   "ok": false,
+   "outcome": "aborted",
+   "phases": [
+    [
+     "plan",
+     "ok"
+    ],
+    [
+     "slotReadiness",
+     "ok"
+    ],
+    [
+     "scopeResolve",
+     "ok"
+    ],
+    [
+     "prepare",
+     "ok"
+    ],
+    [
+     "filterApply",
+     "failed"
+    ],
+    [
+     "rollback",
+     "ok"
+    ]
+   ],
+   "diagnostics": [
+    [
+     "filterApply",
+     "SINGLE_SELECT_HOST_WRITE_FAILED",
+     null,
+     "clear host write verification failed"
+    ]
+   ]
+  },
+  "tabs": [
+   "A",
+   "B",
+   "C",
+   "D(hidden)"
+  ],
+  "ownerCalls": [
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/restoreTabMutationSnapshot",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/restoreTabMutationSnapshot",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/restoreTabMutationSnapshot",
+    1
+   ]
+  ],
+  "history": [],
+  "snapshotStores": {
+   "widgetBase": [],
+   "singleSelect": [],
+   "dienststelle": [],
+   "nativeMultiSelect": []
+  },
+  "lock": [],
+  "owners": {
+   "singleSelect": {
+    "state": [
+     "s0-g1 Frau/2 Frau/2 Frau/",
+     "s0-j1 2020/2020 2020/2020 2020/",
+     "s1-g1 Mann/1 Mann/1 Mann/",
+     "s1-j1 Alle/ Alle/ Alle/",
+     "s2-g1 Alle/ Alle/ Alle/",
+     "s2-j1 2022/2022 2022/2022 2022/",
+     "s3-g1 Alle/ Alle/ Alle/",
+     "s3-j1 Alle/ Alle/ Alle/"
+    ],
+    "host": [
+     "s0|g1=Frau:2",
+     "s0|j1=2020:2020",
+     "s1|g1=Mann:1",
+     "s1|j1=",
+     "s2|g1=",
+     "s2|j1=2022:2022",
+     "s3|g1=",
+     "s3|j1="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": [],
+     "tabMutationOperationId": "tabmut-T-1"
+    },
+    "console": []
+   },
+   "dienststelle": {
+    "state": [
+     "Dienststelle_BW@tab0_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_BW@tab1_tabpanel cur=Org D/[Org].&[3] bak= at=5",
+     "Dienststelle_BW@tab2_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab1_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab2_tabpanel cur=Org E/[Org].&[5] bak= at=1700000000000"
+    ],
+    "host": [
+     "Dienststelle_BW@tab0_tabpanel=Org C",
+     "Dienststelle_BW@tab1_tabpanel=Org D",
+     "Dienststelle_DEZPV@tab2_tabpanel=Org E"
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   },
+   "nativeMultiSelect": {
+    "state": [
+     "page0_tabpanel: Jahr=own0;Land=",
+     "page1_tabpanel: Jahr=2020;Land=",
+     "page2_tabpanel: Jahr=;Land=CH",
+     "page3_tabpanel: Jahr=own3;Land="
+    ],
+    "host": [
+     "page0_tabpanel/Jahr=2019",
+     "page0_tabpanel/Land=DE+AT",
+     "page1_tabpanel/Jahr=2020",
+     "page1_tabpanel/Land=",
+     "page2_tabpanel/Jahr=",
+     "page2_tabpanel/Land=CH",
+     "page3_tabpanel/Jahr=",
+     "page3_tabpanel/Land="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   }
+  }
+ },
+ "move tab A, dienststelle host recovers after the first failed write": {
+  "result": {
+   "ok": false,
+   "outcome": "aborted",
+   "phases": [
+    [
+     "plan",
+     "ok"
+    ],
+    [
+     "slotReadiness",
+     "ok"
+    ],
+    [
+     "scopeResolve",
+     "ok"
+    ],
+    [
+     "prepare",
+     "ok"
+    ],
+    [
+     "filterApply",
+     "failed"
+    ],
+    [
+     "rollback",
+     "ok"
+    ]
+   ],
+   "diagnostics": [
+    [
+     "filterApply",
+     "TABS_MUTATION_APPLY_FAILED",
+     null,
+     "dienststelle host scope clear failed"
+    ],
+    [
+     "filterApply",
+     "TABS_MUTATION_APPLY_FAILED",
+     null,
+     "dienststelle host scope clear failed"
+    ],
+    [
+     "filterApply",
+     "TABS_MUTATION_APPLY_FAILED",
+     null,
+     "dienststelle host scope clear failed"
+    ]
+   ]
+  },
+  "tabs": [
+   "A",
+   "B",
+   "C",
+   "D(hidden)"
+  ],
+  "ownerCalls": [
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/restoreTabMutationSnapshot",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/restoreTabMutationSnapshot",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/restoreTabMutationSnapshot",
+    1
+   ]
+  ],
+  "history": [],
+  "snapshotStores": {
+   "widgetBase": [],
+   "singleSelect": [],
+   "dienststelle": [],
+   "nativeMultiSelect": []
+  },
+  "lock": [],
+  "owners": {
+   "singleSelect": {
+    "state": [
+     "s0-g1 Frau/2 Frau/2 Frau/",
+     "s0-j1 2020/2020 2020/2020 2020/",
+     "s1-g1 Mann/1 Mann/1 Mann/",
+     "s1-j1 Alle/ Alle/ Alle/",
+     "s2-g1 Alle/ Alle/ Alle/",
+     "s2-j1 2022/2022 2022/2022 2022/",
+     "s3-g1 Alle/ Alle/ Alle/",
+     "s3-j1 Alle/ Alle/ Alle/"
+    ],
+    "host": [
+     "s0|g1=Frau:2",
+     "s0|j1=2020:2020",
+     "s1|g1=Mann:1",
+     "s1|j1=",
+     "s2|g1=",
+     "s2|j1=2022:2022",
+     "s3|g1=",
+     "s3|j1="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": [],
+     "tabMutationOperationId": "tabmut-T-1"
+    },
+    "console": []
+   },
+   "dienststelle": {
+    "state": [
+     "Dienststelle_BW@tab0_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_BW@tab1_tabpanel cur=Org D/[Org].&[3] bak= at=5",
+     "Dienststelle_BW@tab2_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab0_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab1_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab2_tabpanel cur=Org E/[Org].&[5] bak= at=1700000000000"
+    ],
+    "host": [
+     "Dienststelle_BW@tab0_tabpanel=Org C",
+     "Dienststelle_BW@tab1_tabpanel=Org D",
+     "Dienststelle_DEZPV@tab2_tabpanel=Org E"
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   },
+   "nativeMultiSelect": {
+    "state": [
+     "page0_tabpanel: Jahr=2019;Land=DE+AT",
+     "page1_tabpanel: Jahr=2020;Land=",
+     "page2_tabpanel: Jahr=;Land=CH",
+     "page3_tabpanel: Jahr=own3;Land="
+    ],
+    "host": [
+     "page0_tabpanel/Jahr=2019",
+     "page0_tabpanel/Land=DE+AT",
+     "page1_tabpanel/Jahr=2020",
+     "page1_tabpanel/Land=",
+     "page2_tabpanel/Jahr=",
+     "page2_tabpanel/Land=CH",
+     "page3_tabpanel/Jahr=",
+     "page3_tabpanel/Land="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   }
+  }
+ },
+ "delete tab B, commit fails after every filter applied": {
+  "result": {
+   "ok": false,
+   "outcome": "failed",
+   "phases": [
+    [
+     "plan",
+     "ok"
+    ],
+    [
+     "slotReadiness",
+     "ok"
+    ],
+    [
+     "scopeResolve",
+     "ok"
+    ],
+    [
+     "prepare",
+     "ok"
+    ],
+    [
+     "filterApply",
+     "ok"
+    ],
+    [
+     "widgetApply",
+     "ok"
+    ],
+    [
+     "commit",
+     "failed"
+    ],
+    [
+     "rollback",
+     "ok"
+    ]
+   ],
+   "diagnostics": [
+    [
+     "commit",
+     "TABS_MUTATION_POSTCONDITION_FAILED",
+     null,
+     "tabs/tabMutationApply commit failed."
+    ]
+   ]
+  },
+  "tabs": [
+   "A",
+   "B",
+   "C",
+   "D(hidden)"
+  ],
+  "ownerCalls": [
+   [
+    "singleSelect",
+    "singleSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/prepareTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/prepareTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/applyTabMutation",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/applyTabMutation",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/applyTabMutation",
+    1
+   ],
+   [
+    "singleSelect",
+    "singleSelect/restoreTabMutationSnapshot",
+    1
+   ],
+   [
+    "dienststelle",
+    "dienststelle/restoreTabMutationSnapshot",
+    1
+   ],
+   [
+    "nativeMultiSelect",
+    "nativeMultiSelect/restoreTabMutationSnapshot",
+    1
+   ]
+  ],
+  "history": [],
+  "snapshotStores": {
+   "widgetBase": [],
+   "singleSelect": [],
+   "dienststelle": [],
+   "nativeMultiSelect": []
+  },
+  "lock": [],
+  "owners": {
+   "singleSelect": {
+    "state": [
+     "s0-g1 Frau/2 Frau/2 Frau/",
+     "s0-j1 2020/2020 2020/2020 2020/",
+     "s1-g1 Mann/1 Mann/1 Mann/",
+     "s1-j1 Alle/ Alle/ Alle/",
+     "s2-g1 Alle/ Alle/ Alle/",
+     "s2-j1 2022/2022 2022/2022 2022/",
+     "s3-g1 Alle/ Alle/ Alle/",
+     "s3-j1 Alle/ Alle/ Alle/"
+    ],
+    "host": [
+     "s0|g1=Frau:2",
+     "s0|j1=2020:2020",
+     "s1|g1=Mann:1",
+     "s1|j1=",
+     "s2|g1=",
+     "s2|j1=2022:2022",
+     "s3|g1=",
+     "s3|j1="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": [],
+     "tabMutationOperationId": "tabmut-T-1"
+    },
+    "console": []
+   },
+   "dienststelle": {
+    "state": [
+     "Dienststelle_BW@tab0_tabpanel cur=Org C/[Org].&[4] bak= at=1700000000000",
+     "Dienststelle_BW@tab1_tabpanel cur=Org D/[Org].&[3] bak= at=5",
+     "Dienststelle_BW@tab2_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab1_tabpanel cur= bak= at=1700000000000",
+     "Dienststelle_DEZPV@tab2_tabpanel cur=Org E/[Org].&[5] bak= at=1700000000000"
+    ],
+    "host": [
+     "Dienststelle_BW@tab0_tabpanel=Org C",
+     "Dienststelle_BW@tab1_tabpanel=Org D",
+     "Dienststelle_DEZPV@tab2_tabpanel=Org E"
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   },
+   "nativeMultiSelect": {
+    "state": [
+     "page0_tabpanel: Jahr=own0;Land=",
+     "page1_tabpanel: Jahr=2020;Land=",
+     "page2_tabpanel: Jahr=;Land=CH",
+     "page3_tabpanel: Jahr=own3;Land="
+    ],
+    "host": [
+     "page0_tabpanel/Jahr=2019",
+     "page0_tabpanel/Land=DE+AT",
+     "page1_tabpanel/Jahr=2020",
+     "page1_tabpanel/Land=",
+     "page2_tabpanel/Jahr=",
+     "page2_tabpanel/Land=CH",
+     "page3_tabpanel/Jahr=",
+     "page3_tabpanel/Land="
+    ],
+    "runtime": {
+     "tabMutationRunId": 1,
+     "snapshots": []
+    },
+    "console": []
+   }
+  }
+ }
+}
