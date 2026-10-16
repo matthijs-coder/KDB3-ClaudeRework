@@ -6,12 +6,13 @@ define([
   "./dimensions.js",
   "./dataSources.js",
   "./visualizations/definitions.js",
-  "./visualizations/bindingSpecs.js",
+  "./visualizations/bindingSpecsVisTypes.js",
+  "./visualizations/bindingSpecsGrain.js",
   "./visualizations/dimensions.js",
   "./visualizations/kennzahlDefaults.js",
   "./visualizations/sorting.js",
   "./visualizations/topNHelper.js"
-], function (_baseLinks, _tables, _tabs, _colorPalette, _dimensions, _dataSources, _visDefinitions, _visBindingSpecs, _visDimensions, _visKennzahlDefaults, _visSorting, _topNHelper) {
+], function (_baseLinks, _tables, _tabs, _colorPalette, _dimensions, _dataSources, _visDefinitions, _visBindingSpecsVisTypes, _visBindingSpecsGrain, _visDimensions, _visKennzahlDefaults, _visSorting, _topNHelper) {
   "use strict";
 
   function __orchestrator(_KDB) {
@@ -47,7 +48,7 @@ define([
       });
       _KDB.config.visualizations = {
         definitions: Object.assign({}, _visDefinitions, existingVisualizations.definitions || {}),
-        bindingSpecs: Object.assign({}, _visBindingSpecs, existingVisualizations.bindingSpecs || {}),
+        bindingSpecs: Object.assign({}, _visBindingSpecsVisTypes, _visBindingSpecsGrain, existingVisualizations.bindingSpecs || {}),
         dimensions: Object.assign({}, _visDimensions.dimensions || {}, existingVisualizations.dimensions || {}),
         kennzahlDefaults: Object.assign({}, _visKennzahlDefaults, existingVisualizations.kennzahlDefaults || {}),
         sorting: Object.assign({}, _visSorting.sorting || {}, existingVisualizations.sorting || {}),
