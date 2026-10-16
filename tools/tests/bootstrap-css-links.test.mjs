@@ -128,3 +128,24 @@ test('a link already detached from the page is released without error', () => {
   head.children.slice().forEach((el) => head.removeChild(el));
   assert.doesNotThrow(() => remove(kdb));
 });
+
+test('double boot with two separately loaded copies of the css modules: the survivor keeps the links', () => {
+  const { head, document } = setup();
+  const loadCopy = () => ({
+    orchestrate: loadAmd(path.join(JS_ROOT, 'core/css/__orchestratorCss.js'), { stubs: { document } }),
+    remove: loadAmd(path.join(JS_ROOT, 'core/css/removeCssLinks.js'), { stubs: { document } }),
+  });
+  const copyA = loadCopy();
+  const copyB = loadCopy();
+  const first = { runtime: { core: { domRefs: {} } } };
+  const second = { runtime: { core: { domRefs: {} } } };
+  copyA.orchestrate(first);
+  const count = head.children.length;
+  copyB.orchestrate(second);
+  assert.equal(head.children.length, count);
+  assert.equal(second.runtime.core.domRefs.cssLinks.length, count);
+  copyA.remove(first);
+  assert.equal(head.children.length, count);
+  copyB.remove(second);
+  assert.equal(head.children.length, 0);
+});
