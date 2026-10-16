@@ -3,7 +3,7 @@ define(["./kit/async.js", "./kit/errors.js"], function (_async, _errors) {
 
   // Resolves with the first value that satisfies `predicate`. A throwing check or predicate counts as "not ready yet".
   // timeoutMs <= 0 waits unbounded. Rejects with WAITFOR_TIMEOUT, or ABORTED when `signal` aborts first.
-  async function entryWaitFor(_conditionFn, _options) {
+  async function waitFor(_conditionFn, _options) {
     const opts = _options || {};
     const timeoutMs = typeof opts.timeoutMs === "number" ? opts.timeoutMs : 0;
     const outcome = await _async.pollUntil({
@@ -23,5 +23,5 @@ define(["./kit/async.js", "./kit/errors.js"], function (_async, _errors) {
     throw _errors.codedError("WAITFOR_TIMEOUT", "waitFor timed out after " + timeoutMs + "ms");
   }
 
-  return entryWaitFor;
+  return waitFor;
 });
