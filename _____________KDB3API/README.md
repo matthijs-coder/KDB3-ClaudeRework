@@ -8,6 +8,7 @@ Paths below are relative to this folder (`_____________KDB3API/`) unless they st
 
 | Need | Read |
 |---|---|
+| Overview for a new developer | `architecture/DEVELOPER_GUIDE.md` |
 | Agent rules | `AGENTS.md`, `.cursor/rules/core.mdc` |
 | Structure | `architecture/projectStructureRules.md` |
 | Module map | `architecture/jsModuleMap.md` |
