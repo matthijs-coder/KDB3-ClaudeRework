@@ -117,7 +117,7 @@ define([
   function startPostResolutionCleanup(_context, _op, _spec) {
     var request = _op.request;
     var ownerRuntime = _op.ownerRuntime;
-    if (!_spec || _state.isDefaultTopN(request.topNChoice) || _state.shouldSkipPostResolutionCleanup(request.config)) {
+    if (!_spec || _state.isDefaultTopN(request.topNChoice)) {
       return;
     }
     if (_context.isStaleOpSeq(request.ownerVisId, _op.opSeq) || _results.isAborted(_op.signal)) {

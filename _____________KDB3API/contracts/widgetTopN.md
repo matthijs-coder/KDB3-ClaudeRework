@@ -243,7 +243,7 @@ Flow:
 13. Call `_KDB.services.tableData.reloadTable([{ widgetId: helperWidgetId, shape:"row", pick:["display","use","d","u","value","v","label","caption"] }])` to read helper rows.
 14. Extract TopN result values from helper table rows and resolve `excludeItemId` from `dataConfig.dataTableConfig.dimensions[dataConfig.dimension].exclude.itemId`.
 15. If still current, write `resolutionStatus:"success"`, `helperWidgetId`, `resultValues`, `excludeItemId`, clear error/pending, dispatch terminal `widgetVis/topNResolved`.
-16. After the current terminal result has been dispatched, run post-resolution helper cleanup when a helper apply succeeded for this operation, unless inspection mode is enabled through `config.preserveHelperBindingForInspection === true`, `config.topNOptions.preserveHelperBindingForInspection === true` or `config.topNOptions.skipPostResolutionHelperCleanup === true`. Use the explicit helper cleanup sequence in Section 8 with `cleanupReason:"postResolution"`, `clearHelperBinding:true` and `releaseClaim:false`. This applies after terminal `success` and after current terminal `error` cases that occur after helper apply success (for example tableData read or extraction errors). Do not run post-resolution cleanup for `noHelperAvailable`, helper claim failure, helper plan failure or stale/aborted operations. Cleanup does not destroy or release the helper claim unless a separate explicit `cleanup` request asks for release.
+16. After the current terminal result has been dispatched, run post-resolution helper cleanup when a helper apply succeeded for this operation. There is no switch that skips it. Use the explicit helper cleanup sequence in Section 8 with `cleanupReason:"postResolution"`, `clearHelperBinding:true` and `releaseClaim:false`. This applies after terminal `success` and after current terminal `error` cases that occur after helper apply success (for example tableData read or extraction errors). Do not run post-resolution cleanup for `noHelperAvailable`, helper claim failure, helper plan failure or stale/aborted operations. Cleanup does not destroy or release the helper claim unless a separate explicit `cleanup` request asks for release.
 
 Terminal dispatch payload:
 
@@ -475,7 +475,7 @@ Cleanup apply options are the same helper target options as normal helper apply,
 Cleanup semantics:
 
 - The cleanup plan is a technical reset, not intentional emptying. It clears helper slots and local filters through `resetIntent`; it does not add an `emptyData/forceEmpty` filter.
-- Post-resolution cleanup runs after every successful helper apply for a non-default resolution, including read/extraction error paths after that apply, unless inspection mode explicitly preserves the helper for debugging. It is best-effort after the terminal result and must never dispatch a second `widgetVis/topNResolved`.
+- Post-resolution cleanup runs after every successful helper apply for a non-default resolution, including read/extraction error paths after that apply. It is best-effort after the terminal result and must never dispatch a second `widgetVis/topNResolved`.
 - Helper reuse relies on the `reason:"topN"` pre-apply reset instead of a separate pre-read cleanup apply.
 - Cleanup does not request a slot rebuild and does not directly clear slots; `widgetBindingPlan` owns `reason:"cleanup"` slot policy.
 - After cleanup success, runtime `helperManagedFilterItemIds` becomes `plan.managedFilterItemIds` for the cleanup plan, which is `[]` for reset-only helper cleanup.
@@ -740,7 +740,7 @@ CP-1 is acceptable when:
 12. `noHelperAvailable` is reported as a terminal status; `widgetTopN` shows no UI.
 13. Normal `widgetVis` calls supply `opSeq`; `widgetTopN` adopts/echoes it and increments only for calls without envelope `opSeq`.
 14. Supersession uses `opSeq` plus `AbortController`; stale work writes no state and dispatches no terminal result.
-15. Post-resolution helper cleanup runs after every non-default operation where helper apply succeeded, including read/extraction error paths after helper apply success, unless inspection mode is enabled.
+15. Post-resolution helper cleanup runs after every non-default operation where helper apply succeeded, including read/extraction error paths after helper apply success.
 16. Helper cleanup uses `buildPlan -> applyBinding` with `reason:"cleanup"` and `resetIntent.enabled === true`; no extra cleanup API is invented.
 17. Helper cleanup never dispatches a second terminal `widgetVis/topNResolved`.
 18. Helper cleanup does not destroy helpers and releases the TopN-owned claim only for explicit release triggers.
