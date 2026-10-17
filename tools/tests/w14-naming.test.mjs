@@ -50,3 +50,49 @@ test("splitWords splits camelCase, snake and acronym boundaries", () => {
   assert.deepEqual(splitWords("readHTMLValue_now"), ["read", "html", "value", "now"]);
   assert.deepEqual(splitWords("ALLE_LABEL"), ["alle", "label"]);
 });
+
+const PANEL_ATTRIBUTES = ["data-kdb-input-id", "data-kdb-control-id", "data-kdb-toolbox-action"];
+
+function scanAttributeUse(name) {
+  const used = { written: [], read: [], stray: [] };
+  for (const rel of files.filter((f) => f.startsWith("dashboard/canvas/kdbControl/"))) {
+    const tokens = tokenize(readSource(path.join(JS_ROOT, rel)));
+    tokens.forEach((t, i) => {
+      if (t.t !== "str") return;
+      const prev = tokens[i - 1];
+      const prev2 = tokens[i - 2];
+      const next = tokens[i + 1];
+      const call = prev && prev.v === "(" && prev2 ? prev2.v : null;
+      if (t.v === name && ((next && next.v === ":") || call === "setAttribute")) used.written.push(rel);
+      if ((t.v === name && call === "getAttribute") || t.v.includes(`[${name}`)) used.read.push(rel);
+    });
+  }
+  return used;
+}
+
+test("kdbControl panel attributes are written and read under kdbControl/ with the same spelling", () => {
+  for (const name of PANEL_ATTRIBUTES) {
+    const used = scanAttributeUse(name);
+    assert.ok(used.written.length > 0, `${name} is never written (setAttribute / attribute-map key)`);
+    assert.ok(used.read.length > 0, `${name} is never read (getAttribute / attribute selector)`);
+  }
+});
+
+test("every data-kdb-input/control/toolbox literal under kdbControl/ is one of the three known attributes", () => {
+  const known = new Set(PANEL_ATTRIBUTES);
+  const strays = [];
+  for (const rel of files.filter((f) => f.startsWith("dashboard/canvas/kdbControl/"))) {
+    for (const t of tokenize(readSource(path.join(JS_ROOT, rel)))) {
+      if (t.t !== "str") continue;
+      for (const m of t.v.matchAll(/data-kdb-(?:input|control|toolbox)[\w-]*/g)) {
+        if (!known.has(m[0])) strays.push(`${rel}: ${m[0]}`);
+      }
+    }
+  }
+  assert.deepEqual(strays, []);
+});
+
+test("the old data-placeholder-* attribute names appear nowhere in code or comments", () => {
+  const offenders = files.filter((rel) => /data-placeholder|data-kdb-toolbox-placeholder/.test(readSource(path.join(JS_ROOT, rel))));
+  assert.deepEqual(offenders, []);
+});
