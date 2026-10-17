@@ -1,4 +1,4 @@
-define([], function () {
+define(["../../../core/config/assetBase.js"], function (_assetBase) {
   "use strict";
 
   return {
@@ -11,8 +11,8 @@ define([], function () {
       dropbox: "kdb_dropbox"
     },
     avatarAssetPaths: {
-      text: "./v1/ext/KDB3/images/text--creation_32.svg",
-      visualization: "./v1/ext/KDB3/images/change-visualization_32.svg"
+      text: _assetBase.dotAssetPath("images/text--creation_32.svg"),
+      visualization: _assetBase.dotAssetPath("images/change-visualization_32.svg")
     },
     classNames: {
       activeDropbox: "kdb_drag-over",

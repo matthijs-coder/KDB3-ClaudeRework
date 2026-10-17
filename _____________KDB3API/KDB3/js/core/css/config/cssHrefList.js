@@ -1,24 +1,28 @@
-define([], function () {
-  return [
-    "./v1/ext/KDB3/css/header.css",
-    "./v1/ext/KDB3/css/footer.css",
-    "./v1/ext/KDB3/css/customButtons/toolbarControls.css",
-    "./v1/ext/KDB3/css/messageService.css",
-    "./v1/ext/KDB3/css/kdb-control/shell.css",
-    "./v1/ext/KDB3/css/kdb-control/panels.css",
-    "./v1/ext/KDB3/css/kdb-control/controls.css",
-    "./v1/ext/KDB3/css/loadingAnimation.css",
-    "./v1/ext/KDB3/css/libraries/jquery-ui.css",
-    "./v1/ext/KDB3/css/libraries/style.min.css",
-    "./v1/ext/KDB3/css/metricsTree.css",
-    "./v1/ext/KDB3/css/canvas.css",
-    "./v1/ext/KDB3/css/cognosButtons.css",
-    "./v1/ext/KDB3/css/widgets/hostWidgets.css",
-    "./v1/ext/KDB3/css/widgets/widgetSettings.css",
-    "./v1/ext/KDB3/css/widgets/widgetSettingsColorDropdown.css",
-    "./v1/ext/KDB3/css/widgets/widgetVis.css",
-    "./v1/ext/KDB3/css/widgets/widgetHiding.css",
-    "./v1/ext/KDB3/css/filters/filters.css",
-    "./v1/ext/KDB3/css/kdb.css"
+define(["../../config/assetBase.js"], function (_assetBase) {
+  "use strict";
+
+  var STYLESHEETS = [
+    "css/header.css",
+    "css/footer.css",
+    "css/customButtons/toolbarControls.css",
+    "css/messageService.css",
+    "css/kdb-control/shell.css",
+    "css/kdb-control/panels.css",
+    "css/kdb-control/controls.css",
+    "css/loadingAnimation.css",
+    "css/libraries/jquery-ui.css",
+    "css/libraries/style.min.css",
+    "css/metricsTree.css",
+    "css/canvas.css",
+    "css/cognosButtons.css",
+    "css/widgets/hostWidgets.css",
+    "css/widgets/widgetSettings.css",
+    "css/widgets/widgetSettingsColorDropdown.css",
+    "css/widgets/widgetVis.css",
+    "css/widgets/widgetHiding.css",
+    "css/filters/filters.css",
+    "css/kdb.css"
   ];
+
+  return STYLESHEETS.map(_assetBase.dotAssetPath);
 });

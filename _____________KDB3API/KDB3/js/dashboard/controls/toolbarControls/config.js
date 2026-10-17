@@ -1,4 +1,4 @@
-define([], function () {
+define(["../../../core/config/assetBase.js"], function (_assetBase) {
   "use strict";
 
   var TOOLBAR_WAIT_TIMEOUT_MS = 30000;
@@ -17,10 +17,10 @@ define([], function () {
 
   var ICON_ASSETS = {
     pdf: {
-      blackIconHref: "./v1/ext/KDB3/images/pdf-black.png",
-      whiteIconHref: "./v1/ext/KDB3/images/pdf-white.png"
+      blackIconHref: _assetBase.dotAssetPath("images/pdf-black.png"),
+      whiteIconHref: _assetBase.dotAssetPath("images/pdf-white.png")
     },
-    share: { iconHref: "./v1/ext/KDB3/images/share.png" }
+    share: { iconHref: _assetBase.dotAssetPath("images/share.png") }
   };
 
   var LABELS = {

@@ -70,3 +70,16 @@ test("no asset URL is empty and every one starts with one of the two recorded ba
   const bases = urls.match(/"(\.\/)?v1\/ext\/KDB3\//g) || [];
   assert.ok(bases.length >= 30, "found " + bases.length);
 });
+
+test("the asset base is spelled in exactly one production file", () => {
+  const holders = [];
+  const walk = (dir) => {
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) { if (entry.name !== "libraries") walk(full); }
+      else if (entry.name.endsWith(".js") && fs.readFileSync(full, "utf8").includes("v1/ext/KDB3")) holders.push(path.relative(JS_ROOT, full).split(path.sep).join("/"));
+    }
+  };
+  walk(JS_ROOT);
+  assert.deepEqual(holders, ["core/config/assetBase.js"]);
+});
