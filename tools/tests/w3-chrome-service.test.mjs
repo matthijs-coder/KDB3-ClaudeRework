@@ -8,7 +8,7 @@ import { JS_ROOT } from "../lib/amd-graph.mjs";
 
 const registerChrome = loadAmd(path.join(JS_ROOT, "core/services/chrome/index.js"));
 const registerSelectors = loadAmd(path.join(JS_ROOT, "core/cognosHost/registerCognosHostSelectors.js"));
-const loadOrchestrator = () => loadAmd(path.join(JS_ROOT, "core/services/__orchestratorServices.js"));
+const loadOrchestrator = () => loadAmd(path.join(JS_ROOT, "bootstrap/registerServices.js"));
 
 const silent = async (fn) => {
   const saved = { error: console.error, debug: console.debug };

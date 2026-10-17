@@ -117,7 +117,7 @@ Never replace `_KDB.runtime.<owner>` wholesale; stamps and owner fields live nex
 
 Phase 1 workstreams change only their own folders. Two kinds of files are imported from outside a module, and their paths must not move yet:
 
-- **Entry files.** `KDB.js` imports every feature `__orchestrator<M>.js`; `core/services/__orchestratorServices.js` imports every service `__orchestrator<S>.js`. Neither `KDB.js` nor `__orchestratorServices.js` is edited in Phase 1.
+- **Entry files.** `KDB.js` imports every feature `__orchestrator<M>.js`; `bootstrap/registerServices.js` imports every service `__orchestrator<S>.js`. Neither `KDB.js` nor `registerServices.js` is edited in Phase 1.
 - **Deep imports.** Any other file of your module that another module imports (published selectors, event names, and about 30 deep imports of `config/`, `view/`, `effects/`, `actions/` files).
 
 When you move such a file's code, leave a one-line shim at the old path that only re-exports the new location, marked for removal:

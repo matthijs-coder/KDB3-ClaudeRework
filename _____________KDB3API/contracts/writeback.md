@@ -167,7 +167,7 @@ workflows/parameterSet/
     └── waitForBridgeSetSettlement.js  armWaiter + notifyBridgeSetSettled
 ```
 
-Registration belongs in `core/services/__orchestratorServices.js`, alongside `tableData`, `loadingService`, `widgetBindingPlan`, `widgetBindingApply` and `history`.
+Registration belongs in `bootstrap/registerServices.js`, alongside `tableData`, `loadingService`, `widgetBindingPlan`, `widgetBindingApply` and `history`.
 
 ## 2. Public Services
 

@@ -327,7 +327,7 @@ Inner ring `core/cognosAPI/` is the allowed and required caller of `__getDashboa
 
 ## 7. Dependencies
 
-- `_KDB` — injected by `__orchestratorCognosHost` (called from `core/services/__orchestratorServices.js`).
+- `_KDB` — injected by `__orchestratorCognosHost` (called from `bootstrap/registerServices.js`).
 - `_KDB.cognosAPI.<theme>` — **from slice 1**, used only inside ring 1, always through `&&`-guards because the teardown invariant of cluster A nulls `_KDB.cognosAPI`.
 - No deep discovery: consumers receive their facet by injection from their own orchestrator/controller (tabs model). `window.top.getKDB()` or `_KDB.services.cognosHost` lookups in deep files are a violation (design doc §6.2).
 - **Injection points per consumer (slice 1):**

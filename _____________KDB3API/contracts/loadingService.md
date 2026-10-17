@@ -49,7 +49,7 @@ Legacy behavior summary:
 | **Q8 DOM responsibility** | Accept service-owned loading overlay DOM as a CP-1 exception-by-contract, with all live refs and restoration data under runtime. | The direct port would otherwise require moving overlay ownership to a feature/UI module, which is a redesign. The service may manipulate only the mount elements explicitly passed by callers or the documented root fallback. |
 | **Q9 Timer behavior** | Preserve legacy watchdog and remove-delay timing exactly; store timeout ids in `_KDB.runtime.loadingService.timers.watchdogsByMountKey` and `.removeDelaysByMountKey`. Boot overlay timeout (300000, `kdb-root-loading-animation-mount`) may then show the WP6 home dialog via `presentHomeChoice`; PDF `watchdogMs` 1800000 and other mountKeys stay finish-only. | Behavior stays the same while timer handles leave factory-scope state and are cleared by `finishLoading` / `destroy`. |
 | **Q10 Error semantics** | Preserve no-op semantics for missing `_KDB`, missing mount target, hide-before-show and overlapping calls; add boundary `try/catch` logging per rule. | Returning `null` / `undefined` remains unchanged for normal invalid inputs; only unexpected DOM/API failures are logged at public boundaries. |
-| **Q11 Bootstrap relationship** | Later registration is required in `core/services/__orchestratorServices.js` and likely consumption from `KDB.js`; do not perform it in this tranche. | Target production currently registers `tableData` only. Bootstrap/service wiring must be a later CP-2-approved tranche. |
+| **Q11 Bootstrap relationship** | Later registration is required in `bootstrap/registerServices.js` and likely consumption from `KDB.js`; do not perform it in this tranche. | Target production currently registers `tableData` only. Bootstrap/service wiring must be a later CP-2-approved tranche. |
 
 Open CP-1 point with behavior impact:
 
@@ -217,7 +217,7 @@ Rationale:
 
 ## 10. Out Of Scope
 
-- Bootstrap registration in `KDB.js` or `core/services/__orchestratorServices.js` — owner: later integration tranche.
+- Bootstrap registration in `KDB.js` or `bootstrap/registerServices.js` — owner: later integration tranche.
 - Browser harness or `TEST/` sandbox — out of scope for direct-port workflow.
 - Cross-service integration tests — out of scope for this tranche.
 - New loading events and `eventSubscribe.md` edits — require explicit user approval.

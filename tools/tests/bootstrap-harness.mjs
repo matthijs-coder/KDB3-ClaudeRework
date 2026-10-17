@@ -40,7 +40,7 @@ export const CORE_STEP_PATHS = {
   css: 'core/css/__orchestratorCss.js',
   cognosAPI: 'core/cognosAPI/__orchestratorCognosAPI.js',
   authoring: 'core/authoring/__orchestratorAuthoring.js',
-  services: 'core/services/__orchestratorServices.js',
+  services: 'bootstrap/registerServices.js',
   homeDialog: 'core/homeDialog/__orchestratorHomeDialog.js',
   utils: 'core/utils/__orchestratorUtils.js',
 };
@@ -250,7 +250,7 @@ export function loadManifest() {
   const noop = () => {};
   for (const rel of Object.values(CORE_STEP_PATHS)) overrides[rel] = noop;
   for (const feature of FEATURES) overrides[feature[1]] = noop;
-  return loadAmd(path.join(JS_ROOT, 'core/bootstrap/featureManifest.js'), { overrides });
+  return loadAmd(path.join(JS_ROOT, 'bootstrap/featureManifest.js'), { overrides });
 }
 
 export function loadBootstrapModule(rel) {

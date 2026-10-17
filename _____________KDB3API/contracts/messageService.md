@@ -348,7 +348,7 @@ Structural limits:
 
 Later registration target:
 
-- `KDB3/js/core/services/__orchestratorServices.js`.
+- `KDB3/js/bootstrap/registerServices.js`.
 
 No production file is changed before this contract moves to `Approved`.
 
@@ -376,7 +376,7 @@ Q1-Q12 are approved as recorded in `CP-1 Decisions Needed`. The tabs owner contr
 ## CP-2 Plan After Approval
 
 1. Implement and verify the isolated service, owned DOM, queue, disposed guard and teardown.
-2. Register `_KDB.services.message` through `core/services/__orchestratorServices.js`.
+2. Register `_KDB.services.message` through `bootstrap/registerServices.js`.
 3. Migrate current seams first:
    - `dashboard/canvas/kdbControl/dimensionGate.js` (`warnSettingsMessage`);
    - drag/drop validation's broken flat toast call;

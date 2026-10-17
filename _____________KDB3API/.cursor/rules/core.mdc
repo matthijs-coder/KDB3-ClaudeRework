@@ -20,10 +20,11 @@ During refactors also keep stable: action types other modules dispatch, the `_KD
 
 ## 2. Layers
 
-- `KDB.js`: bootstrap only (register, mount, destroy order; root namespaces). Lifecycle changes need review.
+- `KDB.js` and `bootstrap/` (composition root: `featureManifest.js`, `registerServices.js`): the only code that names every feature and service; register, mount, destroy order; root namespaces. Lifecycle changes need review. `core/bootstrap/` is the manifest-agnostic lifecycle engine it calls.
 - `core/`: infrastructure (event bus, config, properties, utils, Cognos rings, services under `core/services/`).
 - `dashboard/`: feature modules (header, footer, tabs, canvas, controls, launchpad, metricsTree, widgets, filters).
-- **`core` never imports `dashboard`.** The existing violations (writeback importing tabs, kdbControl, widgetSettings and singleSelect files) are Phase 2 work; do not add new ones.
+- `workflows/`: application sagas that drive several feature APIs (`parameterSet` = writeback services and the Cognos bridge, `pdfExport` = `services.dashboardPdf`). They publish `_KDB.services.*` and read features through `_KDB.api.<owner>` at call time.
+- **`core` never imports `dashboard` or `workflows`; `dashboard` never imports `workflows`.** Only `KDB.js` and `bootstrap/` may import both. `node tools/check-imports.mjs` fails on any such edge (no allow-list).
 - Across modules, import only the owner's published selectors and event-name constants. Commands go through `_KDB.api.<module>` or `_KDB.services.<service>`. Existing deep imports keep working through path-preserving shims until Phase 2 (`feature-structure.mdc`).
 
 ## 3. `_KDB` namespaces

@@ -17,11 +17,9 @@ test("only core files outside the allowed composition root importing dashboard f
     { from: "dashboard/tabs/index.js", to: "core/utils/b.js", line: 1 },
     { from: "dashboard/tabs/index.js", to: "dashboard/tabs/state.js", line: 2 }
   ];
-  assert.deepStrictEqual(findLayeringViolations(edges).map((e) => e.from), ["core/services/tableData/readTabs.js"]);
-  assert.deepStrictEqual(findLayeringViolations(edges, []).map((e) => e.from), [
-    "core/bootstrap/featureManifest.js", "core/services/tableData/readTabs.js"
-  ]);
-  assert.deepStrictEqual(ALLOWED_CORE_IMPORTERS, ["core/bootstrap/featureManifest.js"]);
+  assert.deepStrictEqual(findLayeringViolations(edges).map((e) => e.from), ["core/bootstrap/featureManifest.js", "core/services/tableData/readTabs.js"]);
+  assert.deepStrictEqual(findLayeringViolations(edges, ["core/bootstrap/featureManifest.js"]).map((e) => e.from), ["core/services/tableData/readTabs.js"]);
+  assert.deepStrictEqual(ALLOWED_CORE_IMPORTERS, []);
 });
 
 function copyTree(target) {
@@ -38,14 +36,11 @@ function runCheck(root) {
   return { status: result.status, json: JSON.parse(result.stdout) };
 }
 
-test("the real tree passes: the manifest is the only core file importing dashboard", () => {
+test("the real tree passes: no core file imports dashboard (the manifest is outside core/)", () => {
   const { status, json } = runCheck(REPO_ROOT);
   assert.equal(status, 0);
   assert.equal(json.summary.layeringViolations, 0);
-  assert.ok(json.coreToDashboard.length > 0);
-  assert.deepStrictEqual([...new Set(json.coreToDashboard.map((e) => e.from))], [
-    "_____________KDB3API/KDB3/js/core/bootstrap/featureManifest.js"
-  ]);
+  assert.deepStrictEqual(json.coreToDashboard, []);
 });
 
 test("a core file importing a dashboard file fails check-imports with a layering failure", () => {

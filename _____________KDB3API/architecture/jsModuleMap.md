@@ -2,7 +2,7 @@
 
 Levende inhoudsopgave van productie-JS. **Begin hier**, niet in `contracts/`.
 
-Bron: live `KDB3/js/KDB.js` (secties register, mount, destroy). Bijwerken wanneer een orchestrator in `KDB.js` landt of een modulelayout wijzigt (laatst gecontroleerd na Phase 1). First-week-tabel gepromoveerd uit `architecture/_archive/readability-maintainability.md` §6.1–6.2 (niet herschreven).
+Bron: live `KDB3/js/bootstrap/featureManifest.js` (register-, mount- en destroy-lijsten, aangeroepen vanuit `KDB.js`) en `bootstrap/registerServices.js`. Bijwerken wanneer een feature of service in de manifest landt of een modulelayout wijzigt (laatst gecontroleerd na Phase 1). First-week-tabel gepromoveerd uit `architecture/_archive/readability-maintainability.md` §6.1–6.2 (niet herschreven).
 
 Zoekgewoonte: open van die module `index.js` (ROUTES-tabel: actietype → handler) en de actietype-constanten (`config/actionTypes.js`, `state.js`, `config.js` of `actions.js`, per module verschillend). Dat is de echte TOC.
 
@@ -14,7 +14,7 @@ Modulelayout (feature-structure): `index.js` (mount/dispatch/destroy) + `config.
 
 | Leugen | Waarheid |
 |---|---|
-| `core/bootstrap/` | **Bestaat niet.** Boot is `KDB.js`. |
+| Boot-code | `KDB.js` (klasse) + `bootstrap/` (composition root: `featureManifest.js`, `registerServices.js`) + `core/bootstrap/` (manifest-agnostische motor: lifecycle, replay-registratie). |
 | Eén `cognosHost` | Drie verschillende folders: `core/cognosHost/` (chrome-selectors) ≠ `core/services/cognosHost/` (`_KDB.services.cognosHost`, ring 1) ≠ `core/cognosAPI/` (`_KDB.cognosAPI`, inner SDK). |
 | `_KDB.api.widgets` | **Bestaat niet** (0 hits in `KDB3/js`). Zes APIs: `widgetBase` / `widgetSettings` / `widgetText` / `widgetVis` / `widgetDataTable` / `widgetTopN`. |
 | `_KDB.api.canvas` | Live. Folder `dashboard/canvas/pageSurface/` (niet de groepsmap `dashboard/canvas/`). kdbControl stuurt intents via `dashboard/canvas/kdbControl/effects.js` (`dispatchCanvasIntent`) → `_KDB.api.canvas.dispatch`. Contract: `contracts/pageSurface.md`. |
@@ -33,7 +33,7 @@ De zes kaarten (week één):
 | Tab delete/move/duplicate | `dashboard/tabs/tabMutation/saga.js` |
 | Settings-gevolgen | `dashboard/widgets/widgetSettings/config.js` (`KIND_TABLE`: kind → owner/actie) + `intent/downstream.js` |
 | Opgeslagen dashboard terugzetten | `workflows/parameterSet/set/effects/runNormalRestore.js` |
-| Undo/redo-handlers | `core/bootstrap/registerReplayHandlers.js` (keys per feature in `core/bootstrap/featureManifest.js`) |
+| Undo/redo-handlers | `core/bootstrap/registerReplayHandlers.js` (keys per feature in `bootstrap/featureManifest.js`) |
 
 Als je X wilt wijzigen, begin in Y, publiek Z:
 
@@ -52,7 +52,7 @@ Als je X wilt wijzigen, begin in Y, publiek Z:
 | PDF export | `pdfExportControls` + `dashboardPdf` | `_KDB.api.pdfExportControls` + `_KDB.services.dashboardPdf` |
 | Cognos host-call (feature / writeback / andere service) | owner-lokale `readHostFacet` / `read*Facet`-helper (`runtime.js` of `effects.js`); how-to `contracts/cognosHostService.md` §0 + `.cursor/rules/cognos-adapter.mdc` | stamp `_KDB.runtime.<owner>.*Facet` — **niet** `_KDB.cognosAPI` |
 | Cognos SDK-wrapper (nieuwe host-chain) | `core/cognosAPI/<theme>.js` | `_KDB.cognosAPI` — alleen ring 1 (`core/services/cognosHost/`) belt dit |
-| App wiring / mountvolgorde | `KDB.js` | Geen `core/bootstrap/` |
+| App wiring / mountvolgorde | `bootstrap/featureManifest.js` (register/mount/destroy-lijsten) + `bootstrap/registerServices.js` (service-volgorde) | `KDB.js` leest de manifest-lijsten |
 
 Ook: `_KDB.services.tableData`, `_KDB.services.loading`, `_KDB.services.message`, `_KDB.api.metricsTree`, `_KDB.api.authoring`.
 
@@ -125,7 +125,7 @@ Geen `_KDB.api.filters`, geen `_KDB.api.widgets`, geen `_KDB.api.properties`. `_
 
 ---
 
-## Services — bron `core/services/__orchestratorServices.js`
+## Services — bron `bootstrap/registerServices.js`
 
 | Service | Folder | Publiek | Eén zin |
 |---|---|---|---|

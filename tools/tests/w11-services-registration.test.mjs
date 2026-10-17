@@ -9,7 +9,7 @@ import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
 const QUIET = { error() {}, warn() {}, log() {}, info() {}, debug() {} };
-const REGISTRAR = "core/services/__orchestratorServices.js";
+const REGISTRAR = "bootstrap/registerServices.js";
 
 function register(preset) {
   const registerServices = loadAmd(path.join(JS_ROOT, REGISTRAR), { stubs: { console: QUIET } });

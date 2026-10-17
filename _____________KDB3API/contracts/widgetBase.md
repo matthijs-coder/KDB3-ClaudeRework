@@ -676,7 +676,7 @@ Replayability in this tranche means replay within the same Cognos dashboard/spec
 
 Registration and implementation file: `history.js` (`createWidgetBaseHistoryReplayHandler` accepts `widget_canvasDrop`, `widget_launchpadTransfer`, `widget_layoutMove` and `widget_layoutResize`; canvas-drop replay and launchpad-transfer replay (`undoLaunchpadTransfer` / `redoLaunchpadTransfer`) live in the same file).
 
-The `widgetBase` entry of `core/bootstrap/featureManifest.js` must list `widget_launchpadTransfer` next to `widget_canvasDrop` (same contribution).
+The `widgetBase` entry of `bootstrap/featureManifest.js` must list `widget_launchpadTransfer` next to `widget_canvasDrop` (same contribution).
 
 `widget_layoutMove` / `widget_layoutResize` replay semantics:
 

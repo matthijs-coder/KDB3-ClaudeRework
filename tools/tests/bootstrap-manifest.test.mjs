@@ -1,4 +1,4 @@
-// Consistency of core/bootstrap/featureManifest.js and the manifest-driven replay registration.
+// Consistency of bootstrap/featureManifest.js and the manifest-driven replay registration.
 // Run: node --test tools/tests/bootstrap-manifest.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

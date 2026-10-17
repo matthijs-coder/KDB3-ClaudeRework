@@ -52,7 +52,7 @@ Reference contracts: one living contract per module, listed in `contracts/README
 
 The production code tree. AMD modules per `amd.mdc`. All code follows the rules in `.cursor/rules/`; modules are refactored to the module template one at a time.
 
-**JS-on-ramp = `architecture/jsModuleMap.md`.** Boot is `KDB3/js/KDB.js`. There is **no** `core/bootstrap/` folder.
+**JS-on-ramp = `architecture/jsModuleMap.md`.** Boot is `KDB3/js/KDB.js` plus the composition root `KDB3/js/bootstrap/` (`featureManifest.js`, `registerServices.js`); `core/bootstrap/` holds the manifest-agnostic lifecycle code.
 
 Folders within `KDB3/js/` follow `feature-structure.mdc`. Three Cognos-related folders are **not** the same thing:
 

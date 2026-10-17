@@ -37,7 +37,7 @@ const fn = loadAmd('/abs/path/to/KDB3/js/core/utils/readableTextColorForHex.js')
 
 - `stubs`: object of globals shadowed inside every loaded module (`{ window, document, setTimeout, console }`); nothing leaks into `globalThis`.
 - `modules`: map for non-relative deps, e.g. `{ jquery: fakeJq }`; an unknown bare dep throws with a hint.
-- `overrides`: map from a path relative to `KDB3/js` (e.g. `'core/services/__orchestratorServices.js'`) to the value that replaces that module wherever it is imported (fake orchestrators in bootstrap tests).
+- `overrides`: map from a path relative to `KDB3/js` (e.g. `'bootstrap/registerServices.js'`) to the value that replaces that module wherever it is imported (fake orchestrators in bootstrap tests).
 - Modules are compiled as sloppy-mode functions (the AMD factories add `"use strict"` themselves): an undeclared assignment at file level or in a non-strict factory leaks onto `globalThis`. Stub names must be valid JS identifiers (they become wrapper parameters).
 - Modules run in the main Node realm, so `assert.deepStrictEqual` works on their results.
 - Use `path.join(JS_ROOT, 'core/...')` with `JS_ROOT` from `tools/lib/amd-graph.mjs`.
