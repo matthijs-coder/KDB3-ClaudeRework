@@ -22,7 +22,6 @@ define([
   "../dashboard/widgets/widgetSettings/index.js",
   "../dashboard/widgets/widgetText/index.js",
   "../dashboard/widgets/widgetVis/index.js",
-  "../dashboard/widgets/widgetDataTable/__orchestratorWidgetDataTable.js",
   "../dashboard/widgets/widgetTopN/index.js",
   "../dashboard/canvas/dragDrop/index.js",
   "../dashboard/metricsTree/index.js",
@@ -57,7 +56,6 @@ define([
   _registerWidgetSettings,
   _registerWidgetText,
   _registerWidgetVis,
-  _registerWidgetDataTable,
   _registerWidgetTopN,
   _registerDragDrop,
   _registerMetricsTree,
@@ -106,7 +104,6 @@ define([
     { name: "widgetSettings", register: _registerWidgetSettings, api: "widgetSettings", mount: { options: {} } },
     { name: "widgetText", register: _registerWidgetText, api: "widgetText", mount: { options: {} } },
     { name: "widgetVis", register: _registerWidgetVis, api: "widgetVis", mount: { options: { enableDrillthrough: true } } },
-    { name: "widgetDataTable", register: _registerWidgetDataTable, api: "widgetDataTable", mount: { options: {} } },
     { name: "widgetTopN", register: _registerWidgetTopN, api: "widgetTopN", mount: { options: {} } },
     { name: "dragDrop", register: _registerDragDrop, api: "dragDrop", mount: { options: {} } },
     { name: "metricsTree", register: _registerMetricsTree, api: "metricsTree", mount: { options: {} } },
@@ -123,7 +120,7 @@ define([
   var destroyOrder = [
     "nativeMultiSelect", "specialSingleSelect", "sicht", "dienststelle", "singleSelect", "filterDock", "metricsTree",
     "pdfExportControls", "wienKiControls", "shareControls", "pageSurface", "authoring", "kdbControl", "tabs",
-    "historyControls", "dragDrop", "widgetTopN", "widgetDataTable", "widgetVis", "widgetText", "widgetSettings", "widgetBase",
+    "historyControls", "dragDrop", "widgetTopN", "widgetVis", "widgetText", "widgetSettings", "widgetBase",
     "launchpad", "footer", "header", "properties", "homeDialog", "css"
   ];
 

@@ -9,7 +9,7 @@ import { createHarness, deferred, flush, REPLAY_KEYS_BY_FEATURE, REGISTER_STAMPE
 // DELTA (W12 toolbar commit): one `toolbarControls` registration replaces the four button registrations; the four
 // buttons are still mounted and destroyed one by one (MOUNT_STEPS and EXPECTED_DESTROY are unchanged).
 const REGISTER_FEATURES = [
-  'header', 'footer', 'tabs', 'kdbControl', 'pageSurface', 'toolbarControls', 'launchpad', 'widgetBase', 'widgetSettings', 'widgetText', 'widgetVis', 'widgetDataTable', 'widgetTopN',
+  'header', 'footer', 'tabs', 'kdbControl', 'pageSurface', 'toolbarControls', 'launchpad', 'widgetBase', 'widgetSettings', 'widgetText', 'widgetVis', 'widgetTopN',
   'dragDrop', 'metricsTree', 'filterDock', 'singleSelect', 'dienststelle', 'sicht', 'specialSingleSelect', 'nativeMultiSelect',
 ];
 
@@ -37,7 +37,7 @@ const MOUNT_FEATURE_STEPS = [
   'mount:header:{}', 'mount:footer:{}', 'mount:tabs:{}', 'mount:kdbControl:{}', 'mount:pageSurface:{}',
   'mount:historyControls:{}', 'mount:pdfExportControls:{}', 'mount:wienKiControls:{}', 'mount:shareControls:{}',
   'mount:launchpad:{}', 'mount:widgetBase:{}', 'mount:widgetSettings:{}', 'mount:widgetText:{}',
-  'mount:widgetVis:{"enableDrillthrough":true}', 'mount:widgetDataTable:{}', 'mount:widgetTopN:{}', 'mount:dragDrop:{}',
+  'mount:widgetVis:{"enableDrillthrough":true}', 'mount:widgetTopN:{}', 'mount:dragDrop:{}',
   'mount:metricsTree:{}', 'mount:singleSelect:{}', 'mount:dienststelle:{}', 'mount:sicht:{}',
   'mount:specialSingleSelect:{}', 'mount:nativeMultiSelect:{}',
 ];
@@ -62,7 +62,7 @@ const EXPECTED_DESTROY = [
   'destroy:filterDock', 'destroy:metricsTree', 'destroy:pdfExportControls', 'destroy:wienKiControls', 'destroy:shareControls',
   // DELTA (authoring commit): authoring is destroyed before kdbControl and tabs (it was after launchpad).
   'destroy:pageSurface', 'destroy:authoring', 'destroy:kdbControl', 'destroy:tabs', 'destroy:historyControls', 'destroy:dragDrop',
-  'destroy:widgetTopN', 'destroy:widgetDataTable', 'destroy:widgetVis', 'destroy:widgetText', 'destroy:widgetSettings',
+  'destroy:widgetTopN', 'destroy:widgetVis', 'destroy:widgetText', 'destroy:widgetSettings',
   'destroy:widgetBase', 'destroy:launchpad', 'destroy:footer', 'destroy:header',
   'destroy:properties.controller',
   // DELTA (W2b): drillthrough is destroyed first among the services (it was never destroyed).

@@ -17,7 +17,6 @@ export const FEATURES = [
   ['widgetSettings', 'dashboard/widgets/widgetSettings/index.js', 'widgetSettings'],
   ['widgetText', 'dashboard/widgets/widgetText/index.js', 'widgetText'],
   ['widgetVis', 'dashboard/widgets/widgetVis/index.js', 'widgetVis'],
-  ['widgetDataTable', 'dashboard/widgets/widgetDataTable/__orchestratorWidgetDataTable.js', 'widgetDataTable'],
   ['widgetTopN', 'dashboard/widgets/widgetTopN/index.js', 'widgetTopN'],
   ['dragDrop', 'dashboard/canvas/dragDrop/index.js', 'dragDrop'],
   ['metricsTree', 'dashboard/metricsTree/index.js', 'metricsTree'],

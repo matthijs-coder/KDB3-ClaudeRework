@@ -1,18 +1,15 @@
-// Characterisation of every path that touches the "datatable" widget kind (Phase 2 W12): content create in the drop
-// workflow, delete, writeback save, v2/v3 saved-set loading. Recorded on the unchanged code (widgetDataTable module
-// registered); the retirement commit must keep every assertion except the ones marked "OLD ONLY".
+// Every path that touches the "datatable" widget kind (Phase 2 W12): content create in the drop workflow, delete,
+// writeback save, v2/v3 saved-set loading. Recorded on the code with the widgetDataTable scaffold module registered;
+// after the module was removed the same assertions hold (only the owner-call test was dropped).
 // Run: node --test tools/tests/w12-datatable-characterisation.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import fs from "node:fs";
 import path from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
 const quiet = { log() {}, info() {}, warn() {}, error() {}, debug() {} };
 const WB_DIR = "dashboard/widgets/widgetBase";
-const DATATABLE_ENTRY = path.join(JS_ROOT, "dashboard/widgets/widgetDataTable/index.js");
-const hasDataTableModule = fs.existsSync(DATATABLE_ENTRY);
 
 const state = loadAmd(path.join(JS_ROOT, WB_DIR, "state.js"), { stubs: { console: quiet } });
 const realRoute = loadAmd(path.join(JS_ROOT, WB_DIR, "launchpadRoute.js"), { stubs: { console: quiet } });
@@ -40,7 +37,7 @@ function loadCanvas(claimedWidgetId, shellEl) {
   });
 }
 
-function createWorld({ registerDataTable }) {
+function createWorld() {
   const calls = [];
   const internal = [];
   const steps = [];
@@ -52,15 +49,6 @@ function createWorld({ registerDataTable }) {
     services: { history: { pushCommittedStep: (step) => { steps.push(step); return true; } } },
     api: { widgetVis: apiSpy("widgetVis"), widgetText: apiSpy("widgetText"), widgetSettings: apiSpy("widgetSettings"), widgetTopN: apiSpy("widgetTopN") }
   };
-  if (registerDataTable && hasDataTableModule) {
-    const register = loadAmd(DATATABLE_ENTRY, { stubs: { console: quiet } });
-    register(_KDB);
-    const original = _KDB.api.widgetDataTable.dispatch;
-    _KDB.api.widgetDataTable.dispatch = (action) => {
-      calls.push(["widgetDataTable", action.type]);
-      return original(action);
-    };
-  }
   let frame;
   const context = {
     _KDB,
@@ -91,7 +79,7 @@ test("route: list/hierarchy drag or LIST/HIERARCHY/TABLE/CROSSTAB visual types r
 });
 
 test("content create: a dropped datatable keeps its frame on the canvas, pushes the drop step and starts no settings chrome", async () => {
-  const w = createWorld({ registerDataTable: true });
+  const w = createWorld();
   const shell = createFakeShell("w1");
   const canvas = loadCanvas("w1", shell);
   const result = await canvas.handleDropCreate(w.context, { type: "widgetBase/dropCreate", widgetId: "w1", payload: { dropRequest: DROP_PAYLOAD, widgetId: "w1" } });
@@ -116,23 +104,12 @@ test("content create: a dropped datatable keeps its frame on the canvas, pushes 
   assert.equal(w.steps[0].new.placement, "onCanvas");
   assert.equal(w.steps[0].old, null);
   assert.equal(w._KDB.runtime.widgetBase.byId.w1.domRefs.shellEl, shell);
-  assert.deepStrictEqual(w.calls.filter(([owner]) => owner !== "widgetDataTable"), [], "no other owner (vis, text, settings, topN) is called for a datatable drop");
-});
-
-test("OLD ONLY: the widgetDataTable owner receives widgetDataTable/contentCreate and answers the scaffold no-op", async () => {
-  if (!hasDataTableModule) return;
-  const w = createWorld({ registerDataTable: true });
-  const canvas = loadCanvas("w1", createFakeShell("w1"));
-  await canvas.handleDropCreate(w.context, { type: "widgetBase/dropCreate", widgetId: "w1", payload: { dropRequest: DROP_PAYLOAD, widgetId: "w1" } });
-  assert.deepStrictEqual(w.calls, [["widgetDataTable", "widgetDataTable/contentCreate"]]);
-  assert.deepStrictEqual(
-    w._KDB.api.widgetDataTable.dispatch({ type: "x" }),
-    { ok: true, skipped: true, reasonCode: "SCAFFOLD_NOOP", actionType: "x" }
-  );
+  assert.equal(w._KDB.api.widgetDataTable, undefined, "the scaffold owner no longer exists");
+  assert.deepStrictEqual(w.calls, [], "no owner (vis, text, settings, topN) is called for a datatable drop");
 });
 
 test("content create: an `other` resource drop ends in the same final state (frame kind other, one drop step)", async () => {
-  const w = createWorld({ registerDataTable: true });
+  const w = createWorld();
   const canvas = loadCanvas("w2", createFakeShell("w2"));
   const dropRequest = Object.assign({}, DROP_PAYLOAD, { draggedElementType: "image", payload: {} });
   const result = await canvas.handleDropCreate(w.context, { type: "widgetBase/dropCreate", widgetId: "w2", payload: { dropRequest, widgetId: "w2" } });
@@ -143,7 +120,7 @@ test("content create: an `other` resource drop ends in the same final state (fra
 });
 
 test("delete: removing a datatable frame disposes vis, cleans settings, detaches the shell and skips the TopN claim cleanup", async () => {
-  const w = createWorld({ registerDataTable: true });
+  const w = createWorld();
   const canvas = loadCanvas("w1", createFakeShell("w1"));
   w.setFrame({ widgetId: "w1", kind: "datatable", role: "primary", placement: "onCanvas", tabId: "tabA" });
   const result = await canvas.handleRemove(w.context, { type: "widgetBase/remove", widgetId: "w1", payload: { reason: "user" } });
@@ -151,7 +128,6 @@ test("delete: removing a datatable frame disposes vis, cleans settings, detaches
   assert.deepStrictEqual(w.internal.map((action) => action.type), [state.ACTION_TYPES.REMOVE_SUCCEEDED]);
   const owners = w.calls.map(([owner]) => owner);
   assert.equal(owners.includes("widgetTopN"), false);
-  assert.equal(owners.includes("widgetDataTable"), false);
   assert.deepStrictEqual(owners.slice().sort(), ["widgetSettings", "widgetVis"]);
   assert.equal(w.steps.length, 1);
   assert.equal(w.steps[0].key, "widget_removed");
