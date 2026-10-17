@@ -3,7 +3,7 @@ define([
   "../../../../core/utils/kit/async.js",
   "../../../../core/utils/kit/runtime.js",
   "../../set/state/ensureWritebackRuntime.js",
-  "../collectors/collectorSupport.js",
+  "../collectors/collectorReads.js",
   "./persistLoadingOverlay.js",
   "./persistPopupProbe.js"
 ], function (_tabsVocabulary, _kitAsync, _kitRuntime, _ensureWritebackRuntime, _support, _persistLoading, _persistPopupProbe) {

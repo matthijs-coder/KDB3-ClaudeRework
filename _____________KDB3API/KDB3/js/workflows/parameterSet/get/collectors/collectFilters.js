@@ -3,7 +3,7 @@ define([
   "./collectDienststelleFilter.js",
   "./collectSingleSelectInstances.js",
   "./collectNativeMultiSelect.js",
-  "./collectorSupport.js",
+  "./collectorReads.js",
 ], function (_errorCodes, _collectDienststelleFilter, _collectSingleSelectInstances, _collectNativeMultiSelect, _support) {
   "use strict";
 

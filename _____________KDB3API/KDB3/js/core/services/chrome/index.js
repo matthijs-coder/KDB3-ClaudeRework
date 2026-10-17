@@ -12,7 +12,7 @@
  * Missing checks (or a method missing on partial checks) never throw: wait and miss calls are no-ops, trackWait
  * hands the promise back untouched, exactly as the former per-feature readers did. The checks are resolved on
  * every call, so a replaced checks object is seen. The failure handling inside the checks (log, disposed
- * instance) is unchanged. scheduleFlush also has the boundary core/bootstrap/renderSupport.js had (a throwing
+ * instance) is unchanged. scheduleFlush also has the boundary core/bootstrap/renderBoundary.js had (a throwing
  * checks object is logged as `[core.chromeCapability] scheduleFlush failed`, never thrown). Stateless: nothing to
  * tear down.
  */

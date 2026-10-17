@@ -5,8 +5,8 @@ define([
   "./core/bootstrap/rootLifecycle.js",
   "./core/bootstrap/runtimeCore.js",
   "./core/bootstrap/getKDBAnchor.js",
-  "./core/bootstrap/renderSupport.js"
-], function (_createEventBus, _manifest, _lifecycle, _rootLifecycle, _runtimeCore, _getKDBAnchor, _renderSupport) {
+  "./core/bootstrap/renderBoundary.js"
+], function (_createEventBus, _manifest, _lifecycle, _rootLifecycle, _runtimeCore, _getKDBAnchor, _renderBoundary) {
   const setRootLifecycle = _rootLifecycle.setRootLifecycle;
 
   function releaseRootNamespaces(_KDB) {
@@ -112,23 +112,23 @@ define([
         }
         rootLoadingHandle = await this.startDashboardInitialization();
         if (this._isDisposed) { return abandonDisposedRender("startDashboardInitialization"); }
-        await _renderSupport.awaitCubesUnavailableHomeDialog(this);
+        await _renderBoundary.awaitCubesUnavailableHomeDialog(this);
         if (this._isDisposed) { return abandonDisposedRender("cubes dialog"); }
         await this.startModules(_renderOptions);
         if (this._isDisposed) { return abandonDisposedRender("startModules"); }
-        _renderSupport.scheduleChromeCapabilityFlush(this);
+        _renderBoundary.scheduleChromeCapabilityFlush(this);
         return await this.finishDashboardInitialization(rootLoadingHandle);
       } catch (error) {
         console.error("[core.renderKDB] failed", error);
         if (this._isDisposed) { return false; }
         setRootLifecycle(this, "error", error);
-        _renderSupport.reportRenderFailure(this, rootLoadingHandle, error);
+        _renderBoundary.reportRenderFailure(this, rootLoadingHandle, error);
         return false;
       }
     }
 
     async startDashboardInitialization() {
-      return _renderSupport.startBootLoading(this);
+      return _renderBoundary.startBootLoading(this);
     }
 
     async finishDashboardInitialization(rootLoadingHandle) {
