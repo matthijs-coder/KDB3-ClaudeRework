@@ -19,7 +19,7 @@ define(["../../../../core/utils/kit/runtime.js"], function (_kitRuntime) {
     getPersistLoadingHandle: null
   });
 
-  // Flags are written by other modules (and by widgetBase through `+= 1`); a wrong type is repaired on read
+  // Flags are written by other modules (and by the writeback service for the restore run id); a wrong type is repaired on read
   // so every consumer can rely on booleans and numbers.
   function coerceFlags(runtime) {
     runtime.parameterSetRestoreActive = runtime.parameterSetRestoreActive === true;
