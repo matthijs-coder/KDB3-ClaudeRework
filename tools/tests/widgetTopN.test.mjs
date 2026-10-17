@@ -685,9 +685,18 @@ test("a helper that Cognos re-parented to the canvas during the cleanup render i
     await waitUntil(() => env.log.some((e) => e.ev === "cleanupStart"));
     env.canvas.insertBefore(env.doc.getElementById("h1"), null);
     assert.equal(env.helperInSlot("h1"), false);
-    await waitUntil(() => env.idle());
-    await sleep(10);
-    assert.equal(env.helperInSlot("h1"), true);
+    await waitUntil(() => env.idle() && env.helperInSlot("h1"));
+  });
+});
+
+test("the park after an earlier cleanup does not pull the helper away from the owner's newer op", async () => {
+  await withEnv({ applyMs: (n) => (n === 1 ? 10 : 150), readMs: 10, cleanupMs: 100 }, async (env) => {
+    await env.resolve("o1", 1);
+    const second = env.resolve("o1", 2);
+    const result = await second;
+    assert.equal(result.status, "success");
+    assert.deepEqual(env.misplaced, [], "helper was beside the owner when the second apply finished");
+    await waitUntil(() => env.idle() && env.helperInSlot("h1"));
   });
 });
 
