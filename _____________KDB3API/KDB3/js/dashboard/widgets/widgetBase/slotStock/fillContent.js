@@ -2,7 +2,7 @@ define([
   "../../widgetSettings/selectors.js",
   "../../widgetText/selectors.js",
   "../../widgetVis/selectors.js",
-  "../../../../core/services/writeback/set/state/ensureWritebackRuntime.js"
+  "../../../../workflows/parameterSet/set/state/ensureWritebackRuntime.js"
 ], function (_settingsSelectors, _textSelectors, _visSelectors, _ensureWritebackRuntime) {
   "use strict";
 

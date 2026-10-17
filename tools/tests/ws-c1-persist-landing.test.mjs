@@ -6,7 +6,7 @@ import path from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
-const WB = path.join(JS_ROOT, "core/services/writeback");
+const WB = path.join(JS_ROOT, "workflows/parameterSet");
 const kit = (name) => loadAmd(path.join(JS_ROOT, "core/utils/kit", name));
 const kitRuntime = kit("runtime.js");
 

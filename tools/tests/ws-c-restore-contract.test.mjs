@@ -8,7 +8,7 @@ import path from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
-const WB = path.join(JS_ROOT, "core/services/writeback");
+const WB = path.join(JS_ROOT, "workflows/parameterSet");
 const MODULES = {
   constants: "set/config/restoreConstants.js",
   labels: "set/config/writebackLabels.js",

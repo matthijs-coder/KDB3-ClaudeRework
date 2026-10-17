@@ -8,8 +8,8 @@ define([
   "./widgetBindingPlan/__orchestratorWidgetBindingPlan.js",
   "./widgetBindingApply/__orchestratorWidgetBindingApply.js",
   "./widgetBinding/index.js",
-  "./dashboardPdf/__orchestratorDashboardPdf.js",
-  "./writeback/__orchestratorWriteback.js",
+  "../../workflows/pdfExport/__orchestratorDashboardPdf.js",
+  "../../workflows/parameterSet/__orchestratorWriteback.js",
   "./drillthrough/__orchestratorDrillthrough.js"
 ], function (
   _orchestratorCognosHost,

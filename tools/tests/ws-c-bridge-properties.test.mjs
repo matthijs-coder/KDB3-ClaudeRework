@@ -6,7 +6,7 @@ import path from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
-const WB = path.join(JS_ROOT, "core/services/writeback");
+const WB = path.join(JS_ROOT, "workflows/parameterSet");
 const PROPS = path.join(JS_ROOT, "core/properties");
 const RUNTIME_BUCKETS = ["domRefs", "listeners", "subscriptions", "abortControllers", "observers", "timers", "pendingPromises"];
 

@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT, REPO_ROOT } from "../lib/amd-graph.mjs";
 
-const WB = path.join(JS_ROOT, "core/services/writeback");
+const WB = path.join(JS_ROOT, "workflows/parameterSet");
 const GOLDEN = path.join(path.dirname(fileURLToPath(import.meta.url)), "ws-c-writeback-map.golden.json");
 const RECORD = process.env.WSC_RECORD === "1";
 

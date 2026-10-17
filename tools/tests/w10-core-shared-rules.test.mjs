@@ -21,7 +21,7 @@ const tabsEventNames = at("dashboard/tabs/events/eventNames.js");
 const slots = at("dashboard/tabs/slots.js");
 const tabsSelectors = at("dashboard/tabs/selectors.js");
 const tabsState = at("dashboard/tabs/state.js");
-const support = at("core/services/writeback/get/collectors/collectorSupport.js");
+const support = at("workflows/parameterSet/get/collectors/collectorSupport.js");
 const initialState = at("dashboard/canvas/kdbControl/state/initialState.js");
 const settingsDefaults = at("dashboard/canvas/kdbControl/config/settingsDefaults.js");
 
@@ -135,7 +135,7 @@ test("core/utils/tabSlots.js answers like the recorded tabs rules; tabs and writ
   const shared = { overrides: { "core/utils/tabSlots.js": core } };
   assert.strictEqual(loadAmd(path.join(JS_ROOT, "dashboard/tabs/slots.js"), shared).isDashboardTab, core.isDashboardTab);
   assert.strictEqual(loadAmd(path.join(JS_ROOT, "dashboard/tabs/slots.js"), shared).listDashboardSlots, core.listDashboardSlots);
-  assert.strictEqual(loadAmd(path.join(JS_ROOT, "core/services/writeback/get/collectors/collectorSupport.js"), shared).isDashboardTab, core.isDashboardTab);
+  assert.strictEqual(loadAmd(path.join(JS_ROOT, "workflows/parameterSet/get/collectors/collectorSupport.js"), shared).isDashboardTab, core.isDashboardTab);
   assert.strictEqual(loadAmd(path.join(JS_ROOT, "dashboard/tabs/config/defaults.js"), shared).MAX_USER_TABS, core.MAX_USER_TABS);
 });
 

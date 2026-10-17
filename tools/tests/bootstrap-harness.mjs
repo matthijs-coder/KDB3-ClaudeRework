@@ -60,8 +60,8 @@ const SERVICE_SUBPATHS = {
   message: 'core/services/messageService/__orchestratorMessageService.js',
   widgetBindingPlan: 'core/services/widgetBindingPlan/__orchestratorWidgetBindingPlan.js',
   widgetBindingApply: 'core/services/widgetBindingApply/__orchestratorWidgetBindingApply.js',
-  dashboardPdf: 'core/services/dashboardPdf/__orchestratorDashboardPdf.js',
-  writeback: 'core/services/writeback/__orchestratorWriteback.js',
+  dashboardPdf: 'workflows/pdfExport/__orchestratorDashboardPdf.js',
+  writeback: 'workflows/parameterSet/__orchestratorWriteback.js',
   drillthrough: 'core/services/drillthrough/__orchestratorDrillthrough.js',
 };
 

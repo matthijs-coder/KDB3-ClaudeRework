@@ -12,14 +12,14 @@ import { REPO_ROOT } from "../lib/amd-graph.mjs";
 test("only core files outside the allowed composition root importing dashboard files are violations", () => {
   const edges = [
     { from: "core/bootstrap/featureManifest.js", to: "dashboard/tabs/__orchestratorTabs.js", line: 20 },
-    { from: "core/services/writeback/get/collectTabs.js", to: "dashboard/tabs/state/selectors.js", line: 3 },
+    { from: "core/services/tableData/readTabs.js", to: "dashboard/tabs/state/selectors.js", line: 3 },
     { from: "core/utils/a.js", to: "core/utils/b.js", line: 1 },
     { from: "dashboard/tabs/index.js", to: "core/utils/b.js", line: 1 },
     { from: "dashboard/tabs/index.js", to: "dashboard/tabs/state.js", line: 2 }
   ];
-  assert.deepStrictEqual(findLayeringViolations(edges).map((e) => e.from), ["core/services/writeback/get/collectTabs.js"]);
+  assert.deepStrictEqual(findLayeringViolations(edges).map((e) => e.from), ["core/services/tableData/readTabs.js"]);
   assert.deepStrictEqual(findLayeringViolations(edges, []).map((e) => e.from), [
-    "core/bootstrap/featureManifest.js", "core/services/writeback/get/collectTabs.js"
+    "core/bootstrap/featureManifest.js", "core/services/tableData/readTabs.js"
   ]);
   assert.deepStrictEqual(ALLOWED_CORE_IMPORTERS, ["core/bootstrap/featureManifest.js"]);
 });
