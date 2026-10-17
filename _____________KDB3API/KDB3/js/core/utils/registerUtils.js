@@ -15,7 +15,7 @@ define([
 ) {
   "use strict";
 
-  function __orchestrator(_KDB) {
+  function registerUtils(_KDB) {
     _KDB.utils = _KDB.utils || {};
     _KDB.utils.convertUnitToPx = _convertUnitToPx;
     _KDB.utils.getTableConfigObject = _getTableConfigObject;
@@ -26,5 +26,5 @@ define([
     return _KDB.utils;
   }
 
-  return __orchestrator;
+  return registerUtils;
 });

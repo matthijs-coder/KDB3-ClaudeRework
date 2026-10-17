@@ -67,7 +67,7 @@ define([
     };
   }
 
-  function __orchestrator(_KDB) {
+  function registerProperties(_KDB) {
     mergeDeveloperModeLabels(_KDB);
     const runtime = _kitRuntime.ensureRuntime(_KDB, "properties", { hintSeq: 0 });
     const controller = createController(_KDB, runtime);
@@ -79,5 +79,5 @@ define([
     return controller;
   }
 
-  return __orchestrator;
+  return registerProperties;
 });
