@@ -664,3 +664,42 @@ test("an op aborted by release, clear or destroy while the helper is on loan sti
     });
   }
 });
+
+test("restore falls back to another slot of the same pad and tab when the original slot is gone", async () => {
+  await withEnv({ applyMs: 60, readMs: 60, cleanupMs: 20 }, async (env, messages) => {
+    const spare = env.doc.create(null, { "data-kdb-launchpad-pad": "topN", cor_page_id: "t1", cor_page_index: "7" }, env.slot.parentNode);
+    const pending = env.resolve("o1", 1);
+    await waitUntil(() => env.ownerRuntime("o1") && env.ownerRuntime("o1").helperPlacement);
+    env.slot.parentNode.children.splice(env.slot.parentNode.children.indexOf(env.slot), 1);
+    env.slot.parentNode = null;
+    await pending;
+    assert.equal(env.doc.getElementById("h1").parentNode, spare);
+    assert.deepEqual(widgetTopNWarnings(messages).filter((m) => m.text.indexOf("restore failed") >= 0), []);
+    await waitUntil(() => env.idle());
+  });
+});
+
+test("a helper that Cognos re-parented to the canvas during the cleanup render is parked again", async () => {
+  await withEnv({ cleanupMs: 120 }, async (env) => {
+    await env.resolve("o1", 1);
+    await waitUntil(() => env.log.some((e) => e.ev === "cleanupStart"));
+    env.canvas.insertBefore(env.doc.getElementById("h1"), null);
+    assert.equal(env.helperInSlot("h1"), false);
+    await waitUntil(() => env.idle());
+    await sleep(10);
+    assert.equal(env.helperInSlot("h1"), true);
+  });
+});
+
+test("a stray helper claimed by another owner is not parked away from that owner", async () => {
+  await withEnv({ cleanupMs: 120 }, async (env) => {
+    await env.resolve("o1", 1);
+    await waitUntil(() => env.log.some((e) => e.ev === "cleanupStart"));
+    const helper = env.doc.getElementById("h1");
+    env.canvas.insertBefore(helper, null);
+    helper.setAttribute("data-connected-vis-widget-id", "o2");
+    await waitUntil(() => env.idle());
+    await sleep(10);
+    assert.equal(helper.parentNode, env.canvas);
+  });
+});
