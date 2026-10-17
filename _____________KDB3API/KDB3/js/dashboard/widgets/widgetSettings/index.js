@@ -10,7 +10,8 @@ define([
   "./view/controls.js",
   "../../../core/utils/kit/data.js",
   "../../../core/utils/kit/errors.js",
-  "../../../core/utils/kit/runtime.js"
+  "../../../core/utils/kit/runtime.js",
+  "../../../core/utils/kit/history.js"
 ], function (
   _actionTypes,
   _config,
@@ -23,9 +24,12 @@ define([
   _controls,
   _kitData,
   _kitErrors,
-  _kitRuntime
+  _kitRuntime,
+  _historyKit
 ) {
   "use strict";
+
+  var REPLAY_KEYS = ["widgetSettings_optionSelect"];
 
   // Lifecycle terms for widgetSettings: idle, ready, error, disposed.
   const DISPOSED_RESULT = { ok: false, outcome: "aborted", reason: "disposed", skipped: true, status: "aborted" };
@@ -48,6 +52,7 @@ define([
     ensureState(_KDB);
     const runtime = _runtime.ensureWidgetSettingsRuntime(_KDB);
     runtime.historyReplayHandlerContribution = _history.createWidgetSettingsHistoryReplayHandler(_KDB);
+    _historyKit.registerReplayKeys(_KDB, REPLAY_KEYS, runtime.historyReplayHandlerContribution);
     const controller = createWidgetSettingsController(_KDB);
     _KDB.api.widgetSettings = controller;
     return controller;

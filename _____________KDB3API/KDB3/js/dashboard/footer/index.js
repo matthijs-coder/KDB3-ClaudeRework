@@ -10,7 +10,8 @@ define([
   "../header/events/eventNames.js",
   "../tabs/events/eventNames.js",
   "../../core/utils/kit/runtime.js",
-  "../../core/utils/kit/errors.js"
+  "../../core/utils/kit/errors.js",
+  "../../core/utils/kit/history.js"
 ], function (
   _config,
   _state,
@@ -23,9 +24,13 @@ define([
   _headerEvents,
   _tabsEvents,
   _rt,
-  _errors
+  _errors,
+  _historyKit
 ) {
   "use strict";
+
+  var REPLAY_KEYS = ["footer_chromeChange"];
+
   // Lifecycle terms: idle, mounted, disposed. `status` (`idle`|`active`|`removed`) is domain chrome presence.
 
   function isValidSource(_source) {
@@ -113,6 +118,7 @@ define([
           _mountTarget.waitForFooterMountTarget(_KDB, isDisposed, runEffectsAfterMountTarget);
         }
         rt.historyReplayHandlerContribution = _history.createFooterReplayHandler();
+        _historyKit.registerReplayKeys(_KDB, REPLAY_KEYS, rt.historyReplayHandlerContribution);
         subscribeToEvents();
         _effects.runFooterEffects(_KDB, { type: "__mountSync", payload: { source: "bootstrap" } }, _KDB.state.footer);
       } catch (err) {

@@ -10,7 +10,8 @@ define([
   "./widgetRuntime.js",
   "../../../core/utils/kit/data.js",
   "../../../core/utils/kit/errors.js",
-  "../../../core/utils/kit/runtime.js"
+  "../../../core/utils/kit/runtime.js",
+  "../../../core/utils/kit/history.js"
 ], function (
   _actionTypes,
   _dispatchResult,
@@ -23,9 +24,12 @@ define([
   _widgetRuntime,
   _data,
   _errors,
-  _rt
+  _rt,
+  _historyKit
 ) {
   "use strict";
+
+  var REPLAY_KEYS = ["widget_textEdit"];
   // Lifecycle terms: idle, initializing, ready, error, disposed.
 
   var UNKNOWN_ACTION = "WIDGET_TEXT_UNKNOWN_ACTION";
@@ -195,6 +199,7 @@ define([
     }
     var runtime = _widgetRuntime.readRuntimeRoot(_KDB);
     runtime.historyReplayHandlerContribution = _history.createWidgetTextReplayHandler();
+    _historyKit.registerReplayKeys(_KDB, REPLAY_KEYS, runtime.historyReplayHandlerContribution);
     var cognosHost = _KDB.services ? _KDB.services.cognosHost : null;
     runtime.widgetsFacet = cognosHost && cognosHost.widgets ? cognosHost.widgets : null;
     var controller = createWidgetTextController(_KDB, _options);

@@ -90,15 +90,35 @@ function runPhases(name) {
 }
 
 for (const name of Object.keys(OWNERS)) {
-  const [, phase] = OWNERS[name];
-  test(name + ": the replay contribution is stamped at " + phase, () => {
+  const [, phase, keys] = OWNERS[name];
+  test(name + ": stamps its replay contribution and registers " + keys.length + " key(s) with the history service at " + phase, () => {
     const run = runPhases(name);
     if (phase === "register") {
       assert.equal(typeof (run.afterRegister || {}).apply, "function");
+      assert.deepStrictEqual(run.registeredAfterRegister.map((entry) => entry.key), keys);
     } else {
       assert.equal(run.afterRegister, null);
+      assert.deepStrictEqual(run.registeredAfterRegister, [], "nothing is registered before the mount stamps");
     }
     assert.equal(typeof (run.afterMount || {}).apply, "function");
-    assert.deepStrictEqual(run.world.registered.map((entry) => entry.key).sort(), []);
+    assert.deepStrictEqual(run.world.registered.map((entry) => entry.key), keys);
+    run.world.registered.forEach((entry) => assert.strictEqual(entry.handler, run.afterMount, entry.key));
   });
 }
+
+test("the 11 owners together register exactly the 18 replay keys once each", () => {
+  const all = Object.keys(OWNERS).flatMap((name) => runPhases(name).world.registered.map((entry) => entry.key));
+  assert.equal(all.length, 18);
+  assert.equal(new Set(all).size, 18);
+});
+
+test("a missing history service is a silent no-op for register and mount", () => {
+  const warnings = [];
+  const world = createWorld();
+  delete world._KDB.services.history;
+  const consoleStub = Object.assign({}, quiet, { warn: (...args) => warnings.push(args) });
+  const register = loadAmd(path.join(DASHBOARD, OWNERS.widgetText[0]), { stubs: Object.assign({}, world.stubs, { console: consoleStub }) });
+  register(world._KDB);
+  assert.equal(typeof world._KDB.runtime.widgetText.historyReplayHandlerContribution.apply, "function");
+  assert.deepStrictEqual(warnings, []);
+});

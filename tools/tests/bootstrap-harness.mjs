@@ -48,6 +48,15 @@ export const CORE_STEP_PATHS = {
 // Registration-time stamps of the real owners (header, footer and kdbControl stamp in mount()).
 const STAMPS_AT_REGISTER = ['widgetSettings', 'widgetBase', 'widgetText', 'tabs', 'dienststelle', 'singleSelect', 'nativeMultiSelect', 'sicht'];
 const STAMPS_AT_MOUNT = ['header', 'footer', 'kdbControl'];
+export const REPLAY_KEYS_BY_FEATURE = {
+  kdbControl: ['kdbControl_settingsChange'], header: ['header_chromeChange', 'header_textChange'], footer: ['footer_chromeChange'],
+  singleSelect: ['filter_singleSelect'], sicht: ['filter_sicht'], dienststelle: ['filter_dienststelle'], nativeMultiSelect: ['filter_nativeMultiSelect'],
+  widgetBase: ['widget_canvasDrop', 'widget_launchpadTransfer', 'widget_layoutMove', 'widget_layoutResize'],
+  widgetSettings: ['widgetSettings_optionSelect'], widgetText: ['widget_textEdit'],
+  tabs: ['tabs_move', 'tabs_delete', 'tabs_duplicate', 'tabs_rename'],
+};
+export const REGISTER_STAMPERS = STAMPS_AT_REGISTER;
+export const MOUNT_STAMPERS = STAMPS_AT_MOUNT;
 export const REPLAY_OWNER_BY_FEATURE = { kdbControl: 'kdbControl', header: 'header', footer: 'footer', singleSelect: 'singleSelect', sicht: 'sicht', dienststelle: 'dienststelle', nativeMultiSelect: 'nativeMultiSelect', widgetBase: 'widgetBase', widgetSettings: 'widgetSettings', widgetText: 'widgetText', tabs: 'tabs' };
 
 // Services published by the real services orchestrator that KDB.js knows by name.
@@ -125,6 +134,9 @@ export function createHarness({ realCss = false, realServices = false, props = {
     kdb.runtime[name] = kdb.runtime[name] || {};
     contributions[name] = { apply: async (_kdb, value, step) => { log.push('replay:' + name + ':' + step.key); return true; } };
     kdb.runtime[name].historyReplayHandlerContribution = contributions[name];
+    // The real owners register their keys with the history service where they stamp (kit history.registerReplayKeys).
+    const history = kdb.services && kdb.services.history;
+    for (const key of REPLAY_KEYS_BY_FEATURE[name]) history.registerReplayHandler(key, contributions[name]);
   }
 
   function featureFake([name, , apiKey]) {

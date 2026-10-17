@@ -1,8 +1,8 @@
-// Consistency of bootstrap/featureManifest.js and the manifest-driven replay registration.
+// Consistency of bootstrap/featureManifest.js.
 // Run: node --test tools/tests/bootstrap-manifest.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { FEATURES, TOOLBAR_API_KEYS, loadManifest, loadBootstrapModule } from './bootstrap-harness.mjs';
+import { FEATURES, TOOLBAR_API_KEYS, REPLAY_KEYS_BY_FEATURE, loadManifest } from './bootstrap-harness.mjs';
 
 const manifest = loadManifest();
 const byName = new Map(manifest.entries.map((entry) => [entry.name, entry]));
@@ -57,16 +57,13 @@ test('manifest: mount phases and options', () => {
   }
 });
 
-test('manifest: 18 replay keys, owners and order', () => {
-  assert.equal(new Set(manifest.replayOrder).size, manifest.replayOrder.length);
-  const keys = manifest.replayOrder.flatMap((name) => byName.get(name).replayKeys);
-  assert.equal(keys.length, 18);
-  assert.equal(new Set(keys).size, 18);
-  assert.deepEqual(manifest.replayOrder, [
-    'kdbControl', 'header', 'footer', 'singleSelect', 'sicht', 'dienststelle', 'nativeMultiSelect', 'widgetBase', 'widgetSettings', 'widgetText', 'tabs',
-  ]);
-  const declared = manifest.entries.filter((entry) => entry.replayKeys).map((entry) => entry.name);
-  assert.deepEqual([...declared].sort(), [...manifest.replayOrder].sort());
+test('manifest: replay registration is owned by the features (no replayKeys/replayOrder, no collector module)', () => {
+  assert.equal(manifest.replayOrder, undefined);
+  assert.deepEqual(manifest.entries.filter((entry) => 'replayKeys' in entry), []);
+  assert.deepEqual(Object.keys(manifest).sort(), ['destroyOrder', 'entries', 'serviceDestroyOrder']);
+  const owners = Object.keys(REPLAY_KEYS_BY_FEATURE);
+  assert.equal(owners.flatMap((name) => REPLAY_KEYS_BY_FEATURE[name]).length, 18);
+  for (const name of owners) assert.ok(byName.has(name), name);
 });
 
 test('manifest: service teardown order', () => {
@@ -74,59 +71,4 @@ test('manifest: service teardown order', () => {
     'drillthrough', 'writebackBridge', 'writebackSet', 'writebackGet', 'writebackMap', 'dashboardPdf', 'widgetBindingApply', 'history', 'message', 'loading', 'tableData', 'cognosHost',
   ]);
   assert.ok(manifest.serviceDestroyOrder.indexOf('drillthrough') < manifest.serviceDestroyOrder.indexOf('tableData'));
-});
-
-function replayKit({ withHistory = true } = {}) {
-  const registered = [];
-  const warnings = [];
-  const registerReplayHandlers = loadBootstrapModule('core/bootstrap/registerReplayHandlers.js');
-  const kdb = { runtime: {}, services: withHistory ? { history: { registerReplayHandler: (key, handler) => registered.push([key, handler]) } } : {} };
-  const originalWarn = console.warn;
-  const run = () => {
-    console.warn = (...args) => warnings.push(args);
-    try { registerReplayHandlers(kdb, manifest); } finally { console.warn = originalWarn; }
-  };
-  return { kdb, registered, warnings, run };
-}
-
-test('registerReplayHandlers: every contribution is registered under its keys in manifest replay order', () => {
-  const { kdb, registered, run } = replayKit();
-  const contributions = {};
-  for (const name of manifest.replayOrder) {
-    contributions[name] = { apply() {} };
-    kdb.runtime[name] = { historyReplayHandlerContribution: contributions[name] };
-  }
-  run();
-  assert.deepEqual(registered.map(([key]) => key), [
-    'kdbControl_settingsChange', 'header_chromeChange', 'header_textChange', 'footer_chromeChange', 'filter_singleSelect', 'filter_sicht',
-    'filter_dienststelle', 'filter_nativeMultiSelect', 'widget_canvasDrop', 'widget_launchpadTransfer', 'widget_layoutMove', 'widget_layoutResize',
-    'widgetSettings_optionSelect', 'widget_textEdit', 'tabs_move', 'tabs_delete', 'tabs_duplicate', 'tabs_rename',
-  ]);
-  for (const [key, handler] of registered) {
-    const owner = manifest.replayOrder.find((name) => byName.get(name).replayKeys.includes(key));
-    assert.equal(handler, contributions[owner], key);
-  }
-});
-
-test('registerReplayHandlers: contributions without apply, missing owners and missing runtime are skipped', () => {
-  const none = replayKit();
-  none.kdb.runtime = undefined;
-  none.run();
-  assert.deepEqual(none.registered, []);
-  const partial = replayKit();
-  partial.kdb.runtime = {
-    header: { historyReplayHandlerContribution: {} },
-    tabs: { historyReplayHandlerContribution: { apply() {} } },
-    footer: {},
-    sicht: null,
-  };
-  partial.run();
-  assert.deepEqual(partial.registered.map(([key]) => key), ['tabs_move', 'tabs_delete', 'tabs_duplicate', 'tabs_rename']);
-});
-
-test('registerReplayHandlers: a missing history service only warns', () => {
-  const { registered, warnings, run } = replayKit({ withHistory: false });
-  run();
-  assert.deepEqual(registered, []);
-  assert.deepEqual(warnings.map((entry) => entry[0]), ['[bootstrap.registerReplayHandlers] services.history.registerReplayHandler is missing']);
 });

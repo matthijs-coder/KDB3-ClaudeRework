@@ -10,9 +10,12 @@ define([
   "../_core/ownerController.js",
   "../_core/tabMutation.js",
   "../../../core/utils/kit/runtime.js",
-  "../../../core/utils/kit/errors.js"
-], function (_config, _state, _commit, _history, _restore, _snapshot, _apply, _hostScopes, _ownerController, _tabMutation, _runtime, _errors) {
+  "../../../core/utils/kit/errors.js",
+  "../../../core/utils/kit/history.js"
+], function (_config, _state, _commit, _history, _restore, _snapshot, _apply, _hostScopes, _ownerController, _tabMutation, _runtime, _errors, _historyKit) {
   "use strict";
+
+  var REPLAY_KEYS = ["filter_nativeMultiSelect"];
 
   // Lifecycle terms for NativeMultiSelect: idle, ready, error, disposed.
 
@@ -129,6 +132,7 @@ define([
     // The tabs facet is read by tabMutation/guard.js; deep files do not look up cognosHost themselves.
     runtime.tabsFacet = readHostFacet(_KDB, "tabs");
     runtime.historyReplayHandlerContribution = _history.createHistoryReplayHandler();
+    _historyKit.registerReplayKeys(_KDB, REPLAY_KEYS, runtime.historyReplayHandlerContribution);
     _KDB.api.nativeMultiSelect = createNativeMultiSelectController(_KDB, readHostFacet(_KDB, "filters"));
     return _KDB.api.nativeMultiSelect;
   }

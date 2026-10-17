@@ -31,6 +31,8 @@ define([
 ) {
   "use strict";
 
+  var REPLAY_KEYS = ["filter_dienststelle"];
+
   // Lifecycle terms for dienststelle: idle, ready, error, disposed.
   var ACTIONS = _state.ACTIONS;
 
@@ -189,6 +191,7 @@ define([
     runtime.historyReplayHandlerContribution = _kitHistory.createReplayHandler({
       filter_dienststelle: _history.applyReplay
     });
+    _kitHistory.registerReplayKeys(_KDB, REPLAY_KEYS, runtime.historyReplayHandlerContribution);
     controllerApi = createDienststelleController({
       _KDB: _KDB,
       filtersFacet: readHostFacet(_KDB, "filters"),

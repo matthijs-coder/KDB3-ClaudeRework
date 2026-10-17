@@ -241,7 +241,7 @@ define([
     };
   }
 
-  // Staged on runtime.tabs.historyReplayHandlerContribution (read by core/services/collectReplayHandlers.js).
+  // Staged on runtime.tabs.historyReplayHandlerContribution; tabs/index.js registers it for the four tabs_* keys.
   function createTabsHistoryReplayHandler() {
     return _kitHistory.createReplayHandler({
       tabs_move: withReplayBoundary(replayMove),

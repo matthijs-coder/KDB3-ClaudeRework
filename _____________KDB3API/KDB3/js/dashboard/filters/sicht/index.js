@@ -13,7 +13,8 @@ define([
   "../_core/tableDataWatcher.js",
   "../../../core/utils/kit/runtime.js",
   "../../../core/utils/kit/errors.js",
-  "../../../core/utils/kit/data.js"
+  "../../../core/utils/kit/data.js",
+  "../../../core/utils/kit/history.js"
 ], function (
   _config,
   _state,
@@ -29,9 +30,12 @@ define([
   _tableDataWatcher,
   _rt,
   _errors,
-  _kitData
+  _kitData,
+  _historyKit
 ) {
   "use strict";
+
+  var REPLAY_KEYS = ["filter_sicht"];
 
   // Lifecycle terms for sicht: idle, ready, error, disposed.
 
@@ -208,6 +212,7 @@ define([
 
     var rt = _rt.ensureRuntime(_KDB, "sicht", createRuntimeDefaults());
     rt.historyReplayHandlerContribution = _history.createSichtReplayHandler();
+    _historyKit.registerReplayKeys(_KDB, REPLAY_KEYS, rt.historyReplayHandlerContribution);
     var controller = createSichtController(_KDB);
     _KDB.api.sicht = controller;
     _tableDataWatcher.watchTableData(_KDB, {

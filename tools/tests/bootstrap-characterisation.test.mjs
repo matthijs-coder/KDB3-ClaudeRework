@@ -4,7 +4,7 @@
 // Run: node --test tools/tests/bootstrap-characterisation.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createHarness, deferred, flush } from './bootstrap-harness.mjs';
+import { createHarness, deferred, flush, REPLAY_KEYS_BY_FEATURE, REGISTER_STAMPERS, MOUNT_STAMPERS } from './bootstrap-harness.mjs';
 
 // DELTA (W12 toolbar commit): one `toolbarControls` registration replaces the four button registrations; the four
 // buttons are still mounted and destroyed one by one (MOUNT_STEPS and EXPECTED_DESTROY are unchanged).
@@ -13,11 +13,17 @@ const REGISTER_FEATURES = [
   'dragDrop', 'metricsTree', 'filterDock', 'singleSelect', 'dienststelle', 'sicht', 'specialSingleSelect', 'nativeMultiSelect',
 ];
 
+function replayLines(stampers, name) {
+  return stampers.includes(name) ? REPLAY_KEYS_BY_FEATURE[name].map((key) => 'replay.register:' + key) : [];
+}
+
 const EXPECTED_REGISTER = [
   'register:cognosHostSelectors', 'register:properties', 'register:config', 'register:css', 'register:cognosAPI',
   // DELTA (authoring commit): authoring registers after services (it was before them).
   'register:services', 'register:authoring', 'register:homeDialog', 'register:utils',
-  ...REGISTER_FEATURES.map((name) => 'register:' + name),
+  // DELTA (W12 replay commit): a feature that stamps its replay contribution at registration registers its keys right
+  // after its own register step (the manifest collector after the last mount is gone).
+  ...REGISTER_FEATURES.flatMap((name) => ['register:' + name, ...replayLines(REGISTER_STAMPERS, name)]),
 ];
 
 const REPLAY_KEYS_IN_ORDER = [
@@ -27,16 +33,18 @@ const REPLAY_KEYS_IN_ORDER = [
   'tabs_duplicate', 'tabs_rename',
 ];
 
-const MOUNT_STEPS = [
+const MOUNT_FEATURE_STEPS = [
   'mount:header:{}', 'mount:footer:{}', 'mount:tabs:{}', 'mount:kdbControl:{}', 'mount:pageSurface:{}',
   'mount:historyControls:{}', 'mount:pdfExportControls:{}', 'mount:wienKiControls:{}', 'mount:shareControls:{}',
   'mount:launchpad:{}', 'mount:widgetBase:{}', 'mount:widgetSettings:{}', 'mount:widgetText:{}',
   'mount:widgetVis:{"enableDrillthrough":true}', 'mount:widgetDataTable:{}', 'mount:widgetTopN:{}', 'mount:dragDrop:{}',
   'mount:metricsTree:{}', 'mount:singleSelect:{}', 'mount:dienststelle:{}', 'mount:sicht:{}',
   'mount:specialSingleSelect:{}', 'mount:nativeMultiSelect:{}',
-  // DELTA (replay registration commit): one registration after the last mount replaces the two wholesale binds.
-  ...REPLAY_KEYS_IN_ORDER.map((key) => 'replay.register:' + key),
 ];
+
+// DELTA (W12 replay commit): header, footer and kdbControl stamp in mount(), so their keys are registered right after
+// their own mount step; the single registration pass after the last mount is gone.
+const MOUNT_STEPS = MOUNT_FEATURE_STEPS.flatMap((step) => [step, ...replayLines(MOUNT_STAMPERS, step.split(':')[1])]);
 
 const EXPECTED_BOOT_FLOW = [
   ...EXPECTED_REGISTER,
@@ -110,15 +118,20 @@ test('mount arguments: the render parent is stored as domRefs.renderParentEl bef
   assert.equal(kdb.runtime.core.adapters.userProfile, 'u');
 });
 
-test('replay handlers: 18 keys in order, each routed to its owner (real history service)', async () => {
+test('replay handlers: 18 keys, each registered by its own feature and routed to its owner (real history service)', async () => {
   const h = createHarness({ realServices: true });
   const kdb = h.createKdb();
   await kdb.renderKDB({});
   const history = kdb.services.history;
-  const bindLines = h.log.filter((line) => line.startsWith('replay.bind:'));
-  const registerLines = h.log.filter((line) => line.startsWith('replay.register:'));
-  assert.deepEqual(bindLines, []);
-  assert.deepEqual(registerLines, REPLAY_KEYS_IN_ORDER.map((key) => 'replay.register:' + key));
+  const registerKeys = h.log.filter((line) => line.startsWith('replay.register:')).map((line) => line.slice('replay.register:'.length));
+  assert.deepEqual(h.log.filter((line) => line.startsWith('replay.bind:')), []);
+  assert.deepEqual([...registerKeys].sort(), [...REPLAY_KEYS_IN_ORDER].sort());
+  assert.equal(new Set(registerKeys).size, 18);
+  for (const key of REPLAY_KEYS_IN_ORDER) {
+    const owner = REPLAY_OWNER_BY_KEY[key];
+    const stepIndex = h.log.indexOf((MOUNT_STAMPERS.includes(owner) ? 'mount:' + owner + ':{}' : 'register:' + owner));
+    assert.ok(h.log.indexOf('replay.register:' + key) > stepIndex && stepIndex >= 0, key + ' is registered by its own ' + owner + ' step');
+  }
   h.log.length = 0;
   for (const key of REPLAY_KEYS_IN_ORDER) {
     assert.equal(history.pushCommittedStep({ key, old: { v: 1 }, new: { v: 2 } }), true, key);
@@ -429,8 +442,8 @@ test('a throwing mount still registers the replay handlers of the owners that st
   assert.equal(await kdb.renderKDB({}), false);
   // kdbControl stamps in mount(), which never ran; every other owner stamped at registration or mounted before tabs.
   assert.deepEqual(
-    h.log.filter((line) => line.startsWith('replay.register:')),
-    REPLAY_KEYS_IN_ORDER.filter((key) => key !== 'kdbControl_settingsChange').map((key) => 'replay.register:' + key),
+    h.log.filter((line) => line.startsWith('replay.register:')).sort(),
+    REPLAY_KEYS_IN_ORDER.filter((key) => key !== 'kdbControl_settingsChange').map((key) => 'replay.register:' + key).sort(),
   );
   assert.equal(h.log.includes('mount:kdbControl:{}'), false);
 });
@@ -453,7 +466,7 @@ test('a throwing first mount registers only the registration-time owners and the
   assert.equal(await kdb.renderKDB({}), false);
   assert.equal(kdb.state.rootLifecycle.errorMessage, 'mount failed header');
   const keys = h.log.filter((line) => line.startsWith('replay.register:')).map((line) => line.slice('replay.register:'.length));
-  assert.deepEqual(keys, REPLAY_KEYS_IN_ORDER.filter((key) => !['kdbControl_settingsChange', 'header_chromeChange', 'header_textChange', 'footer_chromeChange'].includes(key)));
+  assert.deepEqual(keys.sort(), REPLAY_KEYS_IN_ORDER.filter((key) => !['kdbControl_settingsChange', 'header_chromeChange', 'header_textChange', 'footer_chromeChange'].includes(key)).sort());
 });
 
 test('render failure on a destroyed instance shows nothing', async () => {

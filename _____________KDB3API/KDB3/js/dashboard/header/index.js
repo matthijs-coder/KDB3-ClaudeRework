@@ -6,9 +6,13 @@ define([
   "./restore.js",
   "./view.js",
   "../../core/utils/kit/runtime.js",
-  "../../core/utils/kit/errors.js"
-], function (_config, _state, _effects, _history, _restore, _view, _rt, _errors) {
+  "../../core/utils/kit/errors.js",
+  "../../core/utils/kit/history.js"
+], function (_config, _state, _effects, _history, _restore, _view, _rt, _errors, _historyKit) {
   "use strict";
+
+  var REPLAY_KEYS = ["header_chromeChange", "header_textChange"];
+
   // Lifecycle terms: idle, mounted, disposed. Field `status` (`idle`|`active`|`removed`) is domain chrome presence.
 
   function isValidSource(_source) {
@@ -94,6 +98,7 @@ define([
       try {
         rt.domRefs.mountTargetEl = resolveMountTarget(_KDB, _options);
         rt.historyReplayHandlerContribution = _history.createHeaderReplayHandler();
+        _historyKit.registerReplayKeys(_KDB, REPLAY_KEYS, rt.historyReplayHandlerContribution);
         var initialChrome = _state.snapshotChrome(_state.createInitialHeaderState());
         _effects.runHeaderEffects(_KDB, initialChrome, { type: "__mountSync", payload: { source: "bootstrap" } });
       } catch (err) {
