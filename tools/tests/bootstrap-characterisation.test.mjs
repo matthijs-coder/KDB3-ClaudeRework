@@ -115,7 +115,10 @@ test('mount arguments: the render parent is stored as domRefs.renderParentEl bef
   const renderParent = { id: 'render-parent' };
   await kdb.renderKDB({ parent: renderParent });
   assert.equal(kdb.runtime.core.domRefs.renderParentEl, renderParent);
-  assert.equal(kdb.runtime.core.adapters.userProfile, 'u');
+  // DELTA (W12 runtime.core commit): the unread raw Cognos handles (features, userProfile, ...) are gone; `content` stays.
+  assert.deepEqual(Object.keys(kdb.runtime.core).sort(), ['adapters', 'domRefs']);
+  assert.deepEqual(Object.keys(kdb.runtime.core.adapters), ['content']);
+  assert.equal(kdb.runtime.core.adapters.content, options.content);
 });
 
 test('replay handlers: 18 keys, each registered by its own feature and routed to its owner (real history service)', async () => {
