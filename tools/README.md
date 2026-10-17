@@ -6,7 +6,7 @@ Node >= 22, ESM, zero npm dependencies. Run from the repo root. All scripts only
 |---|---|---|
 | `node tools/check-all.mjs [--verbose]` | Runs the three checks below, one PASS/FAIL line each | any check fails |
 | `node tools/check-syntax.mjs [--json]` | Parses every `.js` with `node:vm` (script mode); prints `file:line:col message`. UTF-8 BOM and UTF-16 vendor files are decoded first | any syntax error |
-| `node tools/check-imports.mjs [--json] [--verbose]` | AMD `define([...])` dependency graph | broken relative path, cycle, orphan not allowlisted, or a `core/**` file other than the composition root (`core/bootstrap/featureManifest.js`) importing `dashboard/**` (`tools/lib/layering.mjs`) |
+| `node tools/check-imports.mjs [--json] [--verbose]` | AMD `define([...])` dependency graph | broken relative path, cycle, orphan not allowlisted, or a layering violation, with no allow-list: `core/**` importing `dashboard/**` or `workflows/**`, `dashboard/**` importing `workflows/**`, `bootstrap/**` (composition root) imported by anything but `KDB.js` (`tools/lib/layering.mjs`; `workflows -> dashboard` edges are only reported) |
 | `node tools/line-report.mjs [--json] [--module <prefix>] [--top N] [--include-vendor]` | Size report: total/code lines, max line length, lines > 180 chars, files over 400/500/800 code lines, top N (default 30), per-module totals, files < 30 lines. `--module` takes a directory/file prefix, js-relative (`dashboard/tabs`) or repo-style (`_____________KDB3API/KDB3/js/dashboard/tabs`) | never for the report itself; exit 1 only on bad usage (`--module` without value or matching no file) |
 | `node --test tools/tests/*.test.mjs` | Unit tests (kit etc.); `check-all` runs them only when at least one `tools/tests/*.test.mjs` exists (on Node 22 `--test` needs the glob, not the directory) | a test fails |
 
@@ -16,7 +16,7 @@ Node >= 22, ESM, zero npm dependencies. Run from the repo root. All scripts only
 - Edges are the relative string paths in the first `define([...])` array (tokenizer skips comments, strings, regex, templates). `require`/`exports`/`module` and bare or plugin ids (e.g. `jquery`) are ignored and listed as "non-path deps".
 - Files that depend on `"require"` also get **dynamic edges** for relative `*.js` string literals (runtime `require([...])`, used for the PDF vendors).
 - `core/libraries/**` is vendored and not parsed. It is reported as `referenced`/`unreferenced` and never fails (`jquery-ui.min.js` has no reference; the CSS side is loaded separately).
-- Cross-module summary: module = 2-3 leading segments (`core/services/<x>`, `dashboard/{canvas,controls,filters,widgets}/<x>`, else first two). `core/** -> dashboard/**` edges print a WARNING (known layering violations), never a FAIL.
+- Cross-module summary: module = 2-3 leading segments (`core/services/<x>`, `dashboard/{canvas,controls,filters,widgets}/<x>`, else first two). The layering line prints the violation count per rule (all must be 0).
 - A cycle prints one concrete path (`a -> b -> a`); other members of a larger cycle group are listed after it (first 20). The checks also FAIL if no files or no entry roots are found.
 - FAIL means: fix the import path or break the cycle; for an orphan either wire it in, delete it, or allowlist it on purpose.
 
