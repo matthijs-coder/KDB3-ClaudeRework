@@ -23,7 +23,7 @@ test("no console.log, console.trace or debugger statement in production JS", () 
 });
 
 test("no TEMP or [sicht-jahr] probe and no debug outline", () => {
-  assert.deepEqual(find(/\bconsole\.\w+\([^)]*\b(TEMP|tmp)\b|\[sicht-jahr\]|#c0392b/i), []);
+  assert.deepEqual(find(/\bTEMP\b|\[sicht-jahr\]|#c0392b/), []);
 });
 
 test("no TopN helper parking or inspection switch", () => {

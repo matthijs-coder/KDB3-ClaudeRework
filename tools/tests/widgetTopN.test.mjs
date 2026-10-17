@@ -646,3 +646,21 @@ test("the helper sits beside the owner only while the op binds and reads, then r
     await waitUntil(() => env.idle());
   });
 });
+
+test("an op aborted by release, clear or destroy while the helper is on loan still returns it to its slot", async () => {
+  const aborters = {
+    release: (env) => env.release("o1"),
+    clear: (env) => env.clear("o1", DATA_CONFIG),
+    destroy: (env) => env.api.destroy()
+  };
+  for (const [name, abort] of Object.entries(aborters)) {
+    await withEnv({ applyMs: 100, readMs: 100, cleanupMs: 20 }, async (env) => {
+      const pending = env.resolve("o1", 1);
+      await waitUntil(() => env.ownerRuntime("o1") && env.ownerRuntime("o1").helperPlacement);
+      assert.equal(env.helperInSlot("h1"), false, name + ": on loan");
+      await abort(env);
+      await pending;
+      assert.equal(env.helperInSlot("h1"), true, name + ": back in its slot");
+    });
+  }
+});
