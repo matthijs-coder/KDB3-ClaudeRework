@@ -138,11 +138,10 @@ Published from `header/state/selectors.js` (per `module-public-api.mdc`): o.a. `
 
 ## 9. Folder layout
 
-As built (exports per file). `__orchestratorHeader.js` is a shim over `index.js` (controller + `registerHeader`). Destroy cleanup (abort controllers, DOM, `domRefs`, history replay handler) is in `index.js`.
+As built (exports per file). `index.js` is the registrar (controller + `registerHeader`). Destroy cleanup (abort controllers, DOM, `domRefs`, history replay handler) is in `index.js`.
 
 ```txt
 dashboard/header/
-  __orchestratorHeader.js                             shim over index.js (path kept for KDB.js)
   config.js                                           DEFAULT_ICON_KEY, ICON_KEY_UNSAFE_PATTERN, IMAGES_BASE_PATH, VALID_SOURCES, LABELS, ERROR_CODES
   editSession.js                                      bindHeaderEditSession
   effects.js                                          runHeaderEffects

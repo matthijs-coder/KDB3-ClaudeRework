@@ -283,7 +283,7 @@ Delete, duplicate, move and reorder require a separate persistence/writeback/his
 
 ## 8. Selectors And Read Projections
 
-Published selectors live under `tabs/state/selectors.js`.
+Published selectors live in `tabs/selectors.js` (the `tabs/state/selectors.js` shim was removed in Phase 2 W12).
 
 Required selectors:
 
@@ -519,11 +519,10 @@ Before using request events such as `tabs:toolRequested`, the contract must docu
 
 ## 18. Module Shape
 
-As built (exports per file; shims keep legacy import paths). `__orchestratorTabs.js` is a shim over `index.js` (controller + `registerTabs`).
+As built (exports per file; shims keep legacy import paths). `index.js` is the registrar (controller + `registerTabs`).
 
 ```txt
 dashboard/tabs/
-  __orchestratorTabs.js                               shim over index.js (path kept for KDB.js)
   chrome.js                                           hasTabInnerFrame, readTabItemIndex, readTabButtons, readPrimaryTabButtons, resolveTabWrapper, resolveLabelNode, resolveTabListElement, ...
   config.js                                           selectors, filterScopeCodes, parameterSetCodes, mutationOwners, mutationUi, editIcons
   effects.js                                          applyTabsEffects, createCognosTabsAdapter

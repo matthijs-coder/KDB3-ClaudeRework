@@ -60,7 +60,7 @@ Mapped REDESIGN2 files:
 
 | REDESIGN2 file | Evidence used | Production mapping |
 |---|---|---|
-| `__stelleHierarchyOrchestrator.js` | Interaction state machine for open / cancel / clear / option / confirm; confirm reads Cognos values through reconcile. | `__orchestratorDienststelle.js` plus controller/effects split. |
+| `__stelleHierarchyOrchestrator.js` | Interaction state machine for open / cancel / clear / option / confirm; confirm reads Cognos values through reconcile. | `dashboard/filters/dienststelle/index.js` plus controller/effects split. |
 | `setupStelleHierarchy.js` | Setup for widget bridge subscription and label sanitizing bootstrap. | `index.js` mount/setup, with observer lifecycle adjusted to current `filterDock` ownership. |
 | `ensureHierarchyState.js` | Root and per-filter state shape. | `state.js` (`createInitialState`, `reduceDienststelle`) and `selectors.js` for `_KDB.state.filters.dienststelle`. |
 | `reconcileConfirmedHierarchy.js` | Core commit/reconcile, defaults, Cognos writes, dominance, sticky sync, event emit. | `effects/reconcile/runReconcile.js` (`reconcileConfirmed`) with `hostScopes.js`, `pageScopes.js`, `defaults.js`, `widgetVisNotify.js`. |
@@ -852,11 +852,10 @@ Rules:
 
 Production target after CP-1 and execution-spec approval:
 
-As built (exports per file). `__orchestratorDienststelle.js` is a shim over `index.js` (controller + `registerDienststelle`). `effects/` holds reconcile, host-scope and Sicht-sync work, `restore/` the parameter-set restore, `view/` the DOM sync.
+As built (exports per file). `index.js` is the registrar (controller + `registerDienststelle`). `effects/` holds reconcile, host-scope and Sicht-sync work, `restore/` the parameter-set restore, `view/` the DOM sync.
 
 ```txt
 dashboard/filters/dienststelle/
-  __orchestratorDienststelle.js                       shim over index.js (path kept for KDB.js)
   config.js                                           FILTER_KEYS, DEFINITIONS, LABELS, PARAMETER_SET_CODES, DOM_SELECTORS, createRuntimeDefaults, resolveDefinition, ...
   history.js                                          buildCommittedStep, pushDienststelleHistoryStep, applyReplay, normalizeReplayTargetSnapshot, readDominantStoredSelection
   index.js                                            registerDienststelle
@@ -901,7 +900,7 @@ Do not add vague folders such as `helpers`, `common`, `misc`, `manager`, or `sha
 
 Expected integration after CP-1 approval:
 
-- `KDB.js` registers `_KDB.api.dienststelle` via `dienststelle/__orchestratorDienststelle.js`.
+- `KDB.js` registers `_KDB.api.dienststelle` via `dienststelle/index.js`.
 - `filterDock/ownerRouter.js` / `ownerRoutes.js` (`OWNER_ROUTE_MAP`) routes `dienststelle` to `_KDB.api.dienststelle`.
 - `dashboard/filters/sicht/commit.js` (`commitConfirmedSicht`) dispatches confirmed Sicht changes to `_KDB.api.dienststelle`.
 - History replay collection registers `filter_dienststelle` handler.

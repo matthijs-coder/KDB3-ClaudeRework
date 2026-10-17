@@ -674,11 +674,10 @@ Rules:
 
 ## 18. Folder Layout
 
-As built (13 files, exports per file). `__orchestratorWidgetTopN.js` is a shim over `index.js` (controller, dispatch table, `registerWidgetTopN`).
+As built (13 files, exports per file). `index.js` is the registrar (controller, dispatch table, `registerWidgetTopN`).
 
 ```txt
 dashboard/widgets/widgetTopN/
-  __orchestratorWidgetTopN.js                         shim over index.js (path kept for KDB.js)
   cleanup.js                                          handleCleanup, startPostResolutionCleanup
   config.js                                           TOPN_PAD_KEY, PAD_ATTR, CLAIM_OWNER_ATTR, CLAIM_TOKEN_ATTR, NOTE_EDITABLE_SELECTOR, CLAIM_CONFIRM_MS, CLEANUP_KEY_PREFIX, ...
   extractTopNResult.js                                extractTopNResult
@@ -699,7 +698,7 @@ No `view/`, `events/` or `lifecycle/` folder. The helper claim DOM mirror lives 
 
 Required registration:
 
-- Import and call `__orchestratorWidgetTopN` from the widget-domain bootstrap point after `launchpad`, `widgetBase`, `widgetBindingPlan`, `widgetBindingApply` and `widgetVis` are registered.
+- Import and call `dashboard/widgets/widgetTopN/index.js` from the widget-domain bootstrap point after `launchpad`, `widgetBase`, `widgetBindingPlan`, `widgetBindingApply` and `widgetVis` are registered.
 - Register `_KDB.api.widgetTopN`.
 - Mount after dependencies are available; `mount()` itself does not claim helpers.
 - Destroy before `widgetBase` / `launchpad` if possible so owned helper claim mirrors can be cleared while helper shells and launchpad ids still resolve.

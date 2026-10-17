@@ -55,7 +55,7 @@ Why: dependencies point one way, and Cognos changes stay in one place.
 
 Small modules use fewer files. Large modules split by sub-domain (`binding.js`, `drillthrough.js`, or a `binding/` folder), at most 3 folder levels deep. New and refactored code does not use the `__controller` / `__orchestrator` entry names.
 
-Phase 1 transition: `KDB.js` (feature orchestrators) and `bootstrap/registerServices.js` (service orchestrators) are not edited in Phase 1, so the existing `__orchestrator<M>.js` paths stay as one-line shims to `index.js`. The same applies to any file that is imported from outside its module: when a refactor moves or merges it, the old path stays as a one-line path-preserving shim until Phase 2. Find such imports with `node tools/check-imports.mjs --json` or a grep for the path. Full details: `.cursor/rules/feature-structure.mdc`.
+Registration: `bootstrap/featureManifest.js` calls `register(_KDB)` of every module (its `index.js`); `bootstrap/registerServices.js` does the same for the services. A file that a refactor moves or merges has its importers repointed in the same change (no path-preserving shims remain; Phase 2 W12 removed them). Find such imports with `node tools/check-imports.mjs --json` or grep.
 
 Why: one predictable shape per module lets a reader find any concept without a map.
 
@@ -82,7 +82,7 @@ Split by cohesion, not by count. One concept per file.
 | over 800 | justify in a header comment |
 | functions over about 60 | split into named steps |
 
-No line packing (lines over 180 characters). No files that only forward to or wrap another file, except the Phase 1 path-preserving shims. No folder for fewer than about 4 files unless it is a named sub-domain. Measure with `node tools/line-report.mjs`.
+No line packing (lines over 180 characters). No files that only forward to or wrap another file. No folder for fewer than about 4 files unless it is a named sub-domain. Measure with `node tools/line-report.mjs`.
 
 Why: the old 150-line cap split single concepts across many tiny files and folders, which made the code harder to read, not easier.
 

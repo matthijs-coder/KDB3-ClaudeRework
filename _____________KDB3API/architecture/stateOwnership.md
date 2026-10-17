@@ -111,10 +111,9 @@ There is **no** `_KDB.api.widgets` (0 hits in production JS). Older drafts and e
 | `_KDB.state.widgets.settings` | `widgetSettings` | `_KDB.api.widgetSettings` |
 | `_KDB.state.widgets.text` | `widgetText` | `_KDB.api.widgetText` |
 | `_KDB.state.widgets.vis` | `widgetVis` | `_KDB.api.widgetVis` |
-| `_KDB.state.widgets.dataTable` | `widgetDataTable` | `_KDB.api.widgetDataTable` |
 | `_KDB.state.widgets.topN` | `widgetTopN` | `_KDB.api.widgetTopN` |
 
-`widgetDataTable` is a mounted stub (dispatch no-op) until a real List tranche. Runtime owners stay top-level (`_KDB.runtime.widgetBase`, …), not under `runtime.widgets`.
+The `widgetDataTable` scaffold module was retired in Phase 2 W12 (frames of kind `datatable` stay a `widgetBase` concept with no content owner). Runtime owners stay top-level (`_KDB.runtime.widgetBase`, …), not under `runtime.widgets`.
 
 The JS-on-ramp for these APIs is `_____________KDB3API/architecture/jsModuleMap.md`.
 
@@ -147,7 +146,6 @@ _KDB.api.widgetBase
 _KDB.api.widgetSettings
 _KDB.api.widgetText
 _KDB.api.widgetVis
-_KDB.api.widgetDataTable
 _KDB.api.widgetTopN
 _KDB.api.launchpad
 _KDB.api.singleSelect
@@ -464,7 +462,7 @@ kdbControl/
   createKdbControlController.js
   createControlElementsRegistry.js
   kdbControl.css
-  __orchestratorKdbControl.js
+  dashboard/canvas/kdbControl/index.js
 ```
 
 Optional later folders:

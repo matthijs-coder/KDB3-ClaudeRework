@@ -81,7 +81,6 @@ KDB3/js/
       view.js
       effects.js
       config.js
-      __orchestrator<Module>.js   one-line shim to index.js until Phase 2
 ```
 
 This is the target module template (`feature-structure.mdc`); many modules still use the older `config/ state/ view/ effects/ adapters/ events/` folders plus `create<Module>Controller.js` until they are refactored. The living module list is `jsModuleMap.md`, not this sketch.

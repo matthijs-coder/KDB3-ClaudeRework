@@ -35,7 +35,6 @@ Reference contracts for the KDB3 modules and services. One living contract per m
 - [`widgetBase.md`](widgetBase.md): Widget base (routing, lifecycle).
 - [`widgetBindingApply.md`](widgetBindingApply.md): Shared Cognos binding-apply service.
 - [`widgetBindingPlan.md`](widgetBindingPlan.md): Shared binding-planning service.
-- [`widgetDataTable.md`](widgetDataTable.md): Data-table widget (stub).
 - [`widgetSettings.md`](widgetSettings.md): Widget settings (stub).
 - [`widgetText.md`](widgetText.md): Text widget.
 - [`widgetTopN.md`](widgetTopN.md): TopN resolution widget.

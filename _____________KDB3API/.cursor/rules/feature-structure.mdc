@@ -1,5 +1,5 @@
 ---
-description: KDB3 module template, file-size guideline, folder rules and Phase 1 path-preserving shims. Use when creating, splitting, merging, moving or restructuring files and folders under KDB3/js, or when refactoring a module.
+description: KDB3 module template, file-size guideline and folder rules. Use when creating, splitting, merging, moving or restructuring files and folders under KDB3/js, or when refactoring a module.
 globs: **/KDB3/js/dashboard/**/*.js, **/KDB3/js/core/services/**/*.js, **/KDB3/js/KDB.js
 alwaysApply: false
 ---
@@ -99,7 +99,7 @@ Never replace `_KDB.runtime.<owner>` wholesale; stamps and owner fields live nex
 
 | Today | Template |
 |---|---|
-| `__orchestrator<M>.js` + `create<M>Controller.js` + `runtime/ensure*`, `cleanup*` + `lifecycle/` | `index.js` (kit `ensureRuntime`, `disposeRuntimeBuckets`, `createDisposedGuard`) |
+| `__orchestrator<M>.js` (entry, now `index.js`) + `create<M>Controller.js` + `runtime/ensure*`, `cleanup*` + `lifecycle/` | `index.js` (kit `ensureRuntime`, `disposeRuntimeBuckets`, `createDisposedGuard`) |
 | nested sub-orchestrators (`kdbControl/{framework,settings,authoringMode,effects}/__orchestrator*.js`, `header` / `footer` `effects/__orchestrator*Effects.js`) | `index.js` or the sub-domain file they set up |
 | `config/actionTypes.js`, `ACTION_*` constants in `events/eventNames.js`, `state/initialState.js`, `state/create*Reducer.js`, reducer helpers | `state.js` |
 | `state/selectors.js` | `selectors.js` |
@@ -113,21 +113,9 @@ Never replace `_KDB.runtime.<owner>` wholesale; stamps and owner fields live nex
 | `effects/*`, `actions/*` | `effects.js` or sub-domain files |
 | `effects/read*Facet.js` | delete; read the stamp `_KDB.runtime.<owner>.<x>Facet` where it is used |
 
-## Phase 1 transition: path-preserving shims
+## Moving files that other modules import
 
-Phase 1 workstreams change only their own folders. Two kinds of files are imported from outside a module, and their paths must not move yet:
-
-- **Entry files.** `KDB.js` imports every feature `__orchestrator<M>.js`; `bootstrap/registerServices.js` imports every service `__orchestrator<S>.js`. Neither `KDB.js` nor `registerServices.js` is edited in Phase 1.
-- **Deep imports.** Any other file of your module that another module imports (published selectors, event names, and about 30 deep imports of `config/`, `view/`, `effects/`, `actions/` files).
-
-When you move such a file's code, leave a one-line shim at the old path that only re-exports the new location, marked for removal:
-
-```js
-// shim: path kept for imports from outside this module; remove in Phase 2
-define(["../view.js"], function (_view) { return _view.buildSettingsIcon; });
-```
-
-These shims are the **only** allowed forwarding files. Phase 2 rewrites the importers and deletes the shims. To find the imports into your module, run from the repo root `node tools/check-imports.mjs --json` (the `crossModule` and `coreToDashboard` lists) and list the files with a search from outside the folder, for example `rg -n "widgetSettings/" _____________KDB3API/KDB3/js --glob '!**/widgetSettings/**'`.
+The path-preserving shims of Phase 1 are gone (Phase 2 W12). When you move or merge a file that another module imports (published selectors, event names, a deep import), repoint every importer in the same change; do not leave a forwarding file behind. Entry files: `bootstrap/featureManifest.js` calls `register(_KDB)` of every feature (its `index.js`), `bootstrap/registerServices.js` does the same for the services (`core/config` and `core/utils` use `registerConfig.js` / `registerUtils.js`). To find the imports into your module, run from the repo root `node tools/check-imports.mjs --json` (the `crossModule` list) and search from outside the folder, for example `rg -n "widgetSettings/" _____________KDB3API/KDB3/js --glob '!**/widgetSettings/**'`.
 
 Modules not yet refactored keep their current layout (`config/ state/ view/ effects/ actions/ history/ runtime/ observation/ adapters/`). Do not add new files in that style to a module you are converting.
 
@@ -143,7 +131,7 @@ Split by cohesion, not by count. A file holds one concept: a reducer and its act
 | function over about 60 lines | split into named steps |
 
 - Lines over 180 characters count as packing; un-pack them. Never compress code to meet a size target.
-- Do not create a file that only forwards to another file, re-exports it, or wraps it in try/catch (except the Phase 1 shims above).
+- Do not create a file that only forwards to another file, re-exports it, or wraps it in try/catch .
 - Merge tiny files (under about 30 lines with one importer) into their caller or their concept's file.
 - Do not create a folder for fewer than about 4 files unless it is a named sub-domain.
 - No vague names for files or folders: `helpers`, `common`, `misc`, `manager`, `shared`, `stuff`, nor overflow suffixes (`Support`, `Helpers`, `Internals`).

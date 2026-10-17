@@ -246,11 +246,10 @@ Legacy handler imports are intentionally not ported into `historyService` in thi
 
 Production target after CP-1 and execution-spec approval:
 
-As built (exports per file). `__orchestratorHistoryService.js` is a shim over `index.js` (`registerHistoryService`).
+As built (exports per file). `index.js` is the registrar (`registerHistoryService`).
 
 ```txt
 core/services/historyService/
-  __orchestratorHistoryService.js                     shim over index.js (path kept for KDB.js)
   index.js                                            registerHistoryService
   replay.js                                           readHistoryState, readWritebackRestoreFlag, isHistoryLocked, emitHistoryChanged, runReplay
   state.js                                            DEFAULT_HISTORY_LIMIT, createInitialState, normalizeHistoryState, normalizeHistoryStep, areSameJson, reduceHistory
@@ -266,7 +265,7 @@ Bootstrap registration is required for production usage but is explicitly deferr
 
 Deferred integration target:
 
-- import `./historyService/__orchestratorHistoryService.js` from `bootstrap/registerServices.js`;
+- import `./historyService/index.js` from `bootstrap/registerServices.js`;
 - call `_orchestratorHistoryService(_KDB)` during service registration;
 - ensure root `destroy()` eventually calls `_KDB.services.history.destroy()`.
 

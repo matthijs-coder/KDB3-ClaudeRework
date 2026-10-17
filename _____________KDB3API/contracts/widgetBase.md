@@ -262,7 +262,7 @@ Flow:
 9. Dispatch content creation to the content owner:
    - `text` -> `_KDB.api.widgetText.dispatch({ type: "widgetText/contentCreate", widgetId, payload })`; payload carries the toolbox text-button drop request and any initial text defaults.
    - `vis` -> `_KDB.api.widgetVis.dispatch({ type: "widgetVis/contentCreate", widgetId, payload })`; payload carries the Kennzahl/metrics-tree drop request and the metric descriptor. The descriptor is resolved through the canonical lookup `_KDB.api.metricsTree.resolveMetricByCode(code)` (`metricsTree-resolveMetricByCode-contractdelta.md`); the drag payload fields serve as fallback when the lookup is unresolved (sync 2026-07-14).
-   - `datatable` -> `_KDB.api.widgetDataTable.dispatch({ type: "widgetDataTable/contentCreate", widgetId, payload })`
+   - `datatable` -> no content owner (since Phase 2 W12, like `other` and `topN`): the drop is finalized without a content-create dispatch
    - `topN` helper frames are not created by direct user drop in this tranche; only startup discovery, restore or explicit TopN helper claim may park an untitled LIST as `topN`.
    - `other` / `otherResource` has no content owner in this tranche and is route-only.
 10. After successful `contentCreate`, dispatch post-drop settings startup when `_KDB.api.widgetSettings` is available:
@@ -289,8 +289,8 @@ Payload:
 ```js
 {
   reason: "startup" | "user" | "contentRequest" | "rollback" | "historyReplay",
-  sourceModule: "widgetBase" | "widgetText" | "widgetVis" | "widgetDataTable" | "widgetTopN" | string,
-  requestedBy: "widgetSettings" | "widgetBase" | "widgetText" | "widgetVis" | "widgetDataTable" | "widgetTopN" | string | null,
+  sourceModule: "widgetBase" | "widgetText" | "widgetVis" | "widgetTopN" | string,
+  requestedBy: "widgetSettings" | "widgetBase" | "widgetText" | "widgetVis" | "widgetTopN" | string | null,
   widgetType: "WIDGET.VISUALIZATION" | "WIDGET.TEXT" | string | null,
   isLiveWidget: boolean,
   isTextWidget: boolean,
@@ -591,7 +591,7 @@ Required catalog delta before implementation: `architecture/eventSubscribe.md` m
 - `_KDB.api.launchpad.getState()` and published launchpad selectors, especially `readLaunchpadReady`, `readLaunchpadSlotMeta` and selector config. No reads from `_KDB.runtime.launchpad`.
 - `_KDB.api.launchpad.dispatch({ type: "launchpad/waitUntilReady", payload })` for Promise-based readiness waiting. `widgetBase` must not await `launchpad` by reading `_KDB.runtime.launchpad.pendingPromises`.
 - `_KDB.api.launchpad.dispatch({ type: "launchpad/readSlotWidgets", payload })` for ordered widget-id enumeration during `dropCreate` shell claim. `widgetBase` applies its own eligibility checks after receiving ids; launchpad does not return DOM refs or eligible-only lists.
-- `_KDB.api.widgetText`, `_KDB.api.widgetVis`, `_KDB.api.widgetDataTable`, `_KDB.api.widgetTopN` when mounted; missing content owners make `dropCreate` fail and rollback.
+- `_KDB.api.widgetText`, `_KDB.api.widgetVis`, `_KDB.api.widgetTopN` when mounted; missing content owners make `dropCreate` fail and rollback.
 - `_KDB.api.widgetSettings` when mounted for post-drop settings startup: `widgetSettings/placeControls` and `widgetSettings/seedDefaults` after successful `contentCreate`. Missing or failed settings startup does not make shell placement/content creation fail. For colour dropdowns, `widgetSettings` owns the canonical value/history and dispatches `widgetBase/applyColour` / `widgetBase/setColour` as the consequence-owner.
 - `_KDB.services.history.pushCommittedStep(step)` for committed base history.
 - `_KDB.cognosAPI.canvas.findCanvasContent()` for startup discovery.
@@ -716,7 +716,6 @@ As built after the Phase 1 module-template rework (27 files; one concern per fil
 
 ```txt
 KDB3/js/dashboard/widgets/widgetBase/
-  __orchestratorWidgetBase.js   # shim: re-exports index.js (path kept for KDB.js)
   index.js            # createWidgetBaseController: mount/dispatch/destroy, ROUTES table, drop/tabs subscriptions, startup route-all
   config.js           # launchpad channels, skip reasons, chart types, writeback titles, host widget id, labels
   state.js            # ACTION_TYPES, initial state, frame reducer, normalizeDispatchResult
@@ -756,7 +755,7 @@ Production bootstrap registration is needed after CP-2 but is not implemented in
 
 Required integration target:
 
-- import `./dashboard/widgets/widgetBase/__orchestratorWidgetBase.js` from `KDB.js` or the dashboard feature orchestrator once the project has a widget-domain registration point;
+- import `./dashboard/widgets/widgetBase/index.js` from `KDB.js` or the dashboard feature orchestrator once the project has a widget-domain registration point;
 - register `_KDB.api.widgetBase`;
 - mount after `launchpad.mount()` has been started and before content modules need base routing; `widgetBase.mount()` must await `launchpad/waitUntilReady` before `routeAllToLaunchpad`;
 - destroy during root destroy before launchpad is destroyed, so widgetBase can clean subscriptions and runtime while launchpad DOM still exists.

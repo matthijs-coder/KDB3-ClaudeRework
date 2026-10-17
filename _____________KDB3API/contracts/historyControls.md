@@ -289,7 +289,6 @@ Those native Cognos plugin controls are out of scope. **2026-09-03:** they stay 
 
 ```txt
 KDB3/js/dashboard/controls/
-  historyControls/__orchestratorHistoryControls.js   # shim: re-exports toolbarControls/historyButton.js (path kept for KDB.js)
   toolbarControls/
     index.js          # shared controller: { mount, destroy } per button
     config.js         # BUTTON_ORDER, BUTTONS, labels, selectors (history: kdb-history-controls)
@@ -298,7 +297,7 @@ KDB3/js/dashboard/controls/
     historyButton.js  # history definition: undo/redo DOM, enabled-state sync, click handler, history:changed subscription
 ```
 
-No state folder is created because no state is owned. **As built (Phase 1):** all four toolbar buttons (share, wienKi, pdf, history) share one controller and one toolbar host in `KDB3/js/dashboard/controls/toolbarControls/`. Runtime is the shared `_KDB.runtime.toolbarControls` (kit buckets: `abortControllers.hostWait` plus one `<id>Bind` abort controller per button, `pendingPromises.hostWait`, `observers.toolbar`, `timers.toolbarSync`, `domRefs.toolbarHostEl`; fields `buttons`, `isHostReady`, `dashboardFacet`), not a per-button namespace. One toolbar wait (30 s) and one `MutationObserver` serve all buttons, reference counted by mount/destroy; button order is `BUTTON_ORDER` in `config.js`. `_KDB.api.<apiName>` exposes `{ mount, destroy }` (share also `applyReadOnlyChrome`). The `__orchestrator*Controls.js` files under the per-button folders are shims that re-export the button file.
+No state folder is created because no state is owned. **As built (Phase 1):** all four toolbar buttons (share, wienKi, pdf, history) share one controller and one toolbar host in `KDB3/js/dashboard/controls/toolbarControls/`. Runtime is the shared `_KDB.runtime.toolbarControls` (kit buckets: `abortControllers.hostWait` plus one `<id>Bind` abort controller per button, `pendingPromises.hostWait`, `observers.toolbar`, `timers.toolbarSync`, `domRefs.toolbarHostEl`; fields `buttons`, `isHostReady`, `dashboardFacet`), not a per-button namespace. One toolbar wait (30 s) and one `MutationObserver` serve all buttons, reference counted by mount/destroy; button order is `BUTTON_ORDER` in `config.js`. `_KDB.api.<apiName>` exposes `{ mount, destroy }` (share also `applyReadOnlyChrome`). `toolbarControls/index.js` registers all four buttons in one call (history, pdf, wienKi, share); the bootstrap manifest still mounts and destroys each button on its own.
 
 No events folder is created because this module emits no events.
 
@@ -306,7 +305,7 @@ No events folder is created because this module emits no events.
 
 Update `KDB3/js/KDB.js`:
 
-- Add AMD import for `./dashboard/controls/historyControls/__orchestratorHistoryControls.js`.
+- Add AMD import for `./dashboard/controls/toolbarControls/index.js` (registers all four toolbar buttons).
 - Add factory parameter `_orchestratorHistoryControls`.
 - Call `_orchestratorHistoryControls(_KDB)` in `registerFeatureModules(_KDB)`.
 - Call `_KDB.api.historyControls.mount({})` in `mountFeatureModules(_KDB, _renderOptions)` after history service exists and before or after other dashboard feature mounts. Recommended order: after `kdbControl.mount({})`, before launchpad/dragDrop/metricsTree.

@@ -319,11 +319,10 @@ The widget geodata warning remains a widget-owned Cognos-popover integration bec
 
 Target production tree after CP-1 approval:
 
-As built (7 files, exports per file; the stylesheet is `KDB3/css/messageService.css`). `__orchestratorMessageService.js` is a shim over `index.js` (`registerMessageService`).
+As built (7 files, exports per file; the stylesheet is `KDB3/css/messageService.css`). `index.js` is the registrar (`registerMessageService`).
 
 ```txt
 core/services/messageService/
-  __orchestratorMessageService.js                     shim over index.js (path kept for KDB.js)
   config.js                                           ANCHORED_DURATION_MS, GLOBAL_DURATION_MS, ROOT_ID, STACK_GAP_PX, messageLabels
   copyable.js                                         appendCopyableToggle, bindCopyableToggle, copyActiveRequestText, readActionLabel, showCopyable
   dialog.js                                           bindDialog, cleanupDialog, mountDialog
@@ -344,7 +343,7 @@ Structural limits:
 - no inline or nested subfunctions;
 - at most six imports per normal executable file;
 - `core/services/messageService/index.js` (`createMessageService`) coordinates named helpers and does not become a god factory;
-- `__orchestratorMessageService.js` performs wiring and registration only.
+- `core/services/messageService/index.js` performs wiring and registration only.
 
 Later registration target:
 

@@ -14,6 +14,6 @@ Do not change the frozen external contract (`KDB3/spec.json`, extension entry po
 
 Shared helpers live in the kit (`KDB3/js/core/utils/kit/`); use them instead of local copies.
 
-Phase 1 refactors do not edit `KDB3/js/KDB.js` or `KDB3/js/bootstrap/registerServices.js`. When you move or merge a file that is imported from outside its module (find these with `node tools/check-imports.mjs --json` or grep), keep the old path as a one-line shim until Phase 2.
+When you move or merge a file that is imported from outside its module (find these with `node tools/check-imports.mjs --json` or grep), repoint every importer in the same change; no forwarding shim files remain (removed in Phase 2 W12). Features and services register through `register(_KDB)` of their `index.js`, listed in `KDB3/js/bootstrap/featureManifest.js` and `bootstrap/registerServices.js`.
 
 Cognos stays in three separate rings (`core/cognosAPI`, `core/services/cognosHost`, `core/cognosHost`); do not merge them: the pure Cognos wrappers stay isolated and usable on their own, so Cognos upgrades stay contained.

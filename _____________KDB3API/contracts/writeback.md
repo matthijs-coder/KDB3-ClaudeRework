@@ -57,7 +57,7 @@ entry files `validateV3.js` / `normalizeV3.js` compose the per-§4-section modul
 
 ```txt
 workflows/parameterSet/
-├── __orchestratorWriteback.js         registers writebackGet/Set/Map + writebackBridge, merges German labels
+├── workflows/parameterSet/index.js         registers writebackGet/Set/Map + writebackBridge, merges German labels
 ├── cognosWritebackBridge.js           guarded host bridge (WBParameterGetFunction / WBParameterSetFunction), install/uninstall
 ├── schema/
 │   ├── v3Defaults.js
@@ -702,7 +702,7 @@ Text widget:
 { tab, x, y, w, h, kind: "txt", text, fsize?, bgcol?, style? }
 ```
 
-Kind `"tbl"` (Cognos List/datatable shells, pad dataTables, stub `widgetDataTable`) and helper kind `"topn"` (role `topNHelper`, pad `topN`) carry no field spec and are skipped by design. There is no `WIDGET_FIELDS.tbl` / `.topn`.
+Kind `"tbl"` (Cognos List/datatable shells, pad dataTables) and helper kind `"topn"` (role `topNHelper`, pad `topN`) carry no field spec and are skipped by design. There is no `WIDGET_FIELDS.tbl` / `.topn`.
 
 Rules:
 
@@ -777,7 +777,7 @@ This matrix is normative for `set(get())` acceptance. `writebackGet`, `writeback
 | `wgts` `"vis"` layout/kind/metric/vis settings | required | restore layout, metric, visType (including `type: "list"` as `kind: "vis"`, not `"tbl"`), dimension, vis key `topn` (topNChoice; distinct from helper kind `"topn"`) and colours within owner defaults |
 | `wgts` `"txt"` content/style | required | restore text, font size, text colour, background/restyle if present |
 | `localFilters` | derived-only | not a v3 widget key; BindingPlan rebuilds after restore; GET does not collect; compact `[[filterKey, values]]` is a rejected persist form, not a future-on-by-default schema; v2 map omit + `WRITEBACK_WIDGET_LOCALFILTER_UNSUPPORTED`; a v3 widget that includes `localFilters` → `WRITEBACK_INVALID_V3_PAYLOAD`; exclude from parity claim |
-| `"tbl"` widgets (Cognos List/datatable shells, pad dataTables, stub `widgetDataTable`) | skipped by design | GET omit, no restore, no `WIDGET_FIELDS.tbl`; SET: if `kind: "tbl"` still appears in `wgts`, `validateV3` emits tolerant `WRITEBACK_WIDGET_KIND_UNSUPPORTED` and widgetBase skips (no claim/contentCreate); v2 map omit + `WRITEBACK_WIDGET_KIND_UNSUPPORTED` |
+| `"tbl"` widgets (Cognos List/datatable shells, pad dataTables) | skipped by design | GET omit, no restore, no `WIDGET_FIELDS.tbl`; SET: if `kind: "tbl"` still appears in `wgts`, `validateV3` emits tolerant `WRITEBACK_WIDGET_KIND_UNSUPPORTED` and widgetBase skips (no claim/contentCreate); v2 map omit + `WRITEBACK_WIDGET_KIND_UNSUPPORTED` |
 | helper `"topn"` widgets (role `topNHelper`, pad `topN`) | skipped by design | GET omit, no restore, no `WIDGET_FIELDS.topn`; distinct from vis key `wgts[].topn`; SET: if `kind: "topn"` still appears in `wgts`, `validateV3` emits tolerant `WRITEBACK_WIDGET_KIND_UNSUPPORTED` and widgetBase skips; v2 map omit + `WRITEBACK_WIDGET_KIND_UNSUPPORTED` |
 | `writebackTable` widgets | skipped by design | GET omit, no restore; not part of visual parity |
 | host/KDB container widget | skipped by design | GET omit, no restore |
@@ -800,7 +800,7 @@ Round-trip tests must assert by owner state, not by raw JSON bytes alone.
 | Diagnostic-required unsupported | legacy header widgets | get/map emits a fixed diagnostic code and parity tests exclude that field |
 | Diagnostic-tolerant header icon | unknown `head.icon` stem | SET `ok: true`, `outcome: "degraded"`, `WRITEBACK_HEADER_FIELD_UNSUPPORTED`; logo falls back to default; GET of default still omits `head.icon` |
 | Derived-only / map-only diagnostic | `localFilters` | not a skipped widget; GET does not collect; compact persist form is rejected; v2 map omit + `WRITEBACK_WIDGET_LOCALFILTER_UNSUPPORTED`; a v3 widget that includes `localFilters` fails validate (`WRITEBACK_INVALID_V3_PAYLOAD`); BindingPlan rebuilds after restore; exclude from parity |
-| Skipped by design | `"tbl"` (Cognos List/datatable shells, pad dataTables, stub `widgetDataTable`), helper `"topn"` (role `topNHelper`, pad `topN`), launchpad-only widgets, `writebackTable`, host/KDB container widget, leftover host filter kinds (not `filt.sicht` / `dstl` / `sels` / `pcfs`) | GET silent-omit is an accepted leftover; tests must not require GET to emit `WRITEBACK_SKIPPED_BY_DESIGN` (optional later WP may emit it) or `WRITEBACK_FILTER_KIND_UNSUPPORTED` for leftover host filters. SET: if `kind` `"tbl"` / `"topn"` appears in `wgts`, `validateV3` emits tolerant `WRITEBACK_WIDGET_KIND_UNSUPPORTED` and widgetBase skips. Do not copy that SET-tolerant clause onto `filt` (unknown `filt.*` → `WRITEBACK_INVALID_V3_PAYLOAD`). Exclude the object from visual parity |
+| Skipped by design | `"tbl"` (Cognos List/datatable shells, pad dataTables), helper `"topn"` (role `topNHelper`, pad `topN`), launchpad-only widgets, `writebackTable`, host/KDB container widget, leftover host filter kinds (not `filt.sicht` / `dstl` / `sels` / `pcfs`) | GET silent-omit is an accepted leftover; tests must not require GET to emit `WRITEBACK_SKIPPED_BY_DESIGN` (optional later WP may emit it) or `WRITEBACK_FILTER_KIND_UNSUPPORTED` for leftover host filters. SET: if `kind` `"tbl"` / `"topn"` appears in `wgts`, `validateV3` emits tolerant `WRITEBACK_WIDGET_KIND_UNSUPPORTED` and widgetBase skips. Do not copy that SET-tolerant clause onto `filt` (unknown `filt.*` → `WRITEBACK_INVALID_V3_PAYLOAD`). Exclude the object from visual parity |
 | Runtime-derived | Cognos ids, `widgetId`, DOM refs, `scopeId`, derived widgetVis state | never assert persisted value; assert successful runtime resolution or explicit target diagnostic |
 
 Required diagnostics:

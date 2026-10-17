@@ -71,11 +71,10 @@ ParameterSet before tab-mutation; collect before generic reducer dispatch. filte
 
 ## 6. Folder
 
-As built: 13 files; exports are listed per file. `__orchestratorNativeMultiSelect.js` is a shim over `index.js`. Tab-mutation code sits in `tabMutation/`, parameter-set restore and the GET collect in `restore.js`.
+As built: 13 files; exports are listed per file. `index.js` is the registrar. Tab-mutation code sits in `tabMutation/`, parameter-set restore and the GET collect in `restore.js`.
 
 ```txt
 dashboard/filters/nativeMultiSelect/
-  __orchestratorNativeMultiSelect.js                  shim over index.js (path kept for KDB.js)
   commit.js                                           commitFilterDockConfirm, mapConfirmedValues, prepareConfirmWrite, buildCommittedStep, emitFilterConfirmed (emits `filters:confirmed` with the confirmed column and values; widgetVis derives Jahr and the year), findByName
   config.js                                           actions, parameterSetCodes, tabMutationCodes, HISTORY_STEP_KEY
   history.js                                          createHistoryReplayHandler, applyHistoryReplay, mergeReplayItem

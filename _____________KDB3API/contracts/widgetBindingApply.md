@@ -495,7 +495,6 @@ As built after the Phase 1 module-template rework:
 
 ```txt
 KDB3/js/core/services/widgetBindingApply/
-  __orchestratorWidgetBindingApply.js  # shim: re-exports index.js (path kept for __orchestratorServices.js)
   index.js            # registerWidgetBindingApply: service registration, host facet stamps
   config.js           # timeouts and defaults
   applyBindingPlan.js # applyBindingPlan: input validation, step runner, timer scope
@@ -519,7 +518,7 @@ The service owns no state, DOM, emitted events or host adapter, so there are no 
 
 Required registration:
 
-- `KDB3/js/bootstrap/registerServices.js` imports and calls `__orchestratorWidgetBindingApply`.
+- `KDB3/js/bootstrap/registerServices.js` imports and calls `core/services/widgetBindingApply/index.js`.
 - The service registers `_KDB.services.widgetBindingApply`.
 - `KDB3/js/KDB.js` does not need a direct service import if existing service bootstrap already calls `__orchestratorServices`; only the services orchestrator changes.
 

@@ -684,11 +684,10 @@ Starting a new inline edit aborts any existing edit session for the same widget 
 
 ## 15. Folder Layout
 
-As built (exports per file). `__orchestratorWidgetText.js` is a shim over `index.js` (controller + `registerWidgetText`).
+As built (exports per file). `index.js` is the registrar (controller + `registerWidgetText`).
 
 ```txt
 dashboard/widgets/widgetText/
-  __orchestratorWidgetText.js                         shim over index.js (path kept for KDB.js)
   config.js                                           defaultText, automaticFontSize, contentWrapperSelector, staticContentSelector, textFillSelector, editableSelector, staticContentClass, ...
   dispatchResult.js                                   failureResult, staleResult, normalizeDispatchResult
   effects.js                                          handleContentCreate, handleApplyFontSize, handleApplyRestyle, handleApplyReadableTextColor, handleCleanupContent, cleanupAllWidgetRuntimes
@@ -712,7 +711,7 @@ No events file exists because `widgetText` emits no events.
 
 Production bootstrap registration appears already present:
 
-- `KDB.js` imports `./dashboard/widgets/widgetText/__orchestratorWidgetText.js`;
+- `KDB.js` imports `./dashboard/widgets/widgetText/index.js`;
 - feature registration assigns `_KDB.api.widgetText`;
 - feature mounting calls `_KDB.api.widgetText.mount({})`;
 - root destroy calls `destroyFeatureApi(this.api.widgetText)`.

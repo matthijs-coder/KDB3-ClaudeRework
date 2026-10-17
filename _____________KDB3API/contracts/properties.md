@@ -141,7 +141,7 @@ Notes:
 ### Core bootstrap module
 
 - Published global surface: none.
-- Orchestrator AMD module: `core/properties/__orchestratorProperties.js`.
+- Orchestrator AMD module: `core/properties/index.js`.
 - Invocation style: bootstrap calls the orchestrator directly during core setup.
 - Return value: local controller object for bootstrap wiring, not registered on `_KDB.api` or `_KDB.services`.
 
@@ -229,8 +229,7 @@ If option B is approved, the event contract is:
 
 - `_KDB` (always).
 - Host property content object, read from the redesigned runtime placement instead of legacy `_KDB.apiContent`:
-  - preferred candidate: `_KDB.runtime.core.adapters.properties`, if it exposes `getPropertyValue(propertyId)`;
-  - fallback candidate to be confirmed during execution: `_KDB.runtime.core.adapters.dashboardApi` or `_KDB.runtime.core.adapters.features.Properties`, if that is where Cognos exposes property access in the current host.
+  - as built: `_KDB.runtime.core.adapters.content` (`getPropertyValue`, `on`, `off`); the other raw handles (`adapters.properties`, `dashboardApi`, `features`) were never read and were removed in Phase 2 W12.
 - Host property change API on the same content object: `content.on("change:property:<propertyId>", handler)`.
 - Known owner public API for `KDBHideWidgetsToggle` reaction, pending CP-1 owner decision:
   - likely `_KDB.api.launchpad.dispatch(...)` if launchpad remains the owner of hiding/showing widgets via launchpad routing;
@@ -253,8 +252,7 @@ As built (6 files). The target tree sketched in earlier drafts (per-function fil
 
 ```txt
 KDB3/js/core/properties/
-  __orchestratorProperties.js  # shim: path kept for KDB.js
-  index.js                # __orchestrator: label merge, controller { loadProperties, subscribePropertyChanges, applyDeveloperMode, destroy }, _KDB.api.properties.applyDeveloperMode
+  index.js                # registerProperties: label merge, controller { loadProperties, subscribePropertyChanges, applyDeveloperMode, destroy }, _KDB.api.properties.applyDeveloperMode
   propertyDefinitions.js  # object and toggle property id -> _KDB.properties runtime key tables, developer-mode labels
   loadProperties.js       # read + parse + normalise property values into _KDB.properties
   developerMode.js        # developer-mode class, KDBHideWidgetsToggle handling, property-change subscription

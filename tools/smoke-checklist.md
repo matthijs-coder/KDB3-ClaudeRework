@@ -281,7 +281,7 @@ WS-I details. In the console use `const getKDB = window.top.getKDB;`.
 - [ ] Performance tab with 15-20 vis widgets: re-render (change Jahr) and Dienststelle change. Expected: not slower than baseline; only **one** focus-mode `MutationObserver`.
 - [ ] Maximize ("Vollbild") and restore ("Normale Größe") a widget; legend remains correct; toggling legend items works.
 - [ ] Remove a widget, then change Dienststelle. Expected: no console error, the removed widget does not reappear and no hidden re-render happens.
-- [ ] Data tables (widgetDataTable): behaviour as baseline (it is a no-op stub; nothing must visibly change).
+- [ ] Data tables: behaviour as baseline (the no-op `widgetDataTable` stub was retired in Phase 2 W12; see P2-W12, a datatable frame is still placed and refused by tab mutations as before).
 - [ ] Park a vis widget to the launchpad, change Dienststelle, take it back: it shows the new Dienststelle data (guards D2).
 - [ ] Park a vis widget, then undo: it returns with its settings and data. Then save: the widget is in the saved state, with no `WRITEBACK_WIDGET_RESTORE_FAILED` (guards D1).
 - [ ] Remove a vis widget, then save and reload: the widget stays gone, there is no console error, and `_KDB.runtime.widgetVis.byId` has no entry for it.

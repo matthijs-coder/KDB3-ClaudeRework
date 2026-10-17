@@ -175,7 +175,7 @@ Runtime buckets:
 | `observers` | Short-lived popup/options observers owned by `singleSelect`; no dock-level observer. |
 | `timers` | RequestAnimationFrame or timeout handles for owner-local popup sync. |
 | `pendingPromises` | In-flight commit or popup wait work that must be ignored/cleared on destroy. |
-| `filtersFacet` | Injected adapter stamp from `__orchestratorSingleSelect`. Not a live host handle. |
+| `filtersFacet` | Injected adapter stamp from `dashboard/filters/singleSelect/index.js`. Not a live host handle. |
 | `inFlight` | Owner M4 registry (design doc §3.6 point 1): `{ [filterInstanceId]: { key, startedAt } }`. Set before the host-write await, cleared in `finally`. |
 
 Rules:
@@ -352,7 +352,7 @@ Request-events: none. `filterDock` integration uses direct API because the owner
 
 - `_KDB` (always).
 - `filterDock` handoff payloads through `_KDB.api.singleSelect.dispatch(...)`; no direct import or runtime read from filterDock.
-- `_KDB.services.cognosHost.filters` — injected by `__orchestratorSingleSelect` onto `_KDB.runtime.singleSelect.filtersFacet`. Commit, rollback, inventory, restore and replay go through the facet (`writeFilter` / `readFilterValues` / `listFilterItems`). Deep files must not look up `_KDB.services.cognosHost` or `_KDB.cognosAPI.filters`.
+- `_KDB.services.cognosHost.filters` — injected by `dashboard/filters/singleSelect/index.js` onto `_KDB.runtime.singleSelect.filtersFacet`. Commit, rollback, inventory, restore and replay go through the facet (`writeFilter` / `readFilterValues` / `listFilterItems`). Deep files must not look up `_KDB.services.cognosHost` or `_KDB.cognosAPI.filters`.
 - `_KDB.services.history.pushCommittedStep(...)` for commit history, if history integration remains in scope.
 
 Deep files must not discover dependencies through `window._KDB`, `window.top.getKDB()`, `window.KDB.logging`, or legacy global names.
@@ -450,11 +450,10 @@ If the `filterDock` handoff cannot supply the live DOM context needed for origin
 
 Production target after CP-1 and execution-spec approval:
 
-As built (exports per file). `__orchestratorSingleSelect.js` is a shim over `index.js`; `index.js` holds the controller (`register`). The folders group the concerns: `commit/` (confirmed selection + owner notify), `dockHandoff/` (filterDock handoff, popup interaction), `inventory/` (live filter instance inventory), `restore/` (parameter-set clear/restore/resync), `state/` (reducer, selectors, instance identity), `tabMutation/` (tab move/delete/duplicate).
+As built (exports per file). `index.js` is the registrar; `index.js` holds the controller (`register`). The folders group the concerns: `commit/` (confirmed selection + owner notify), `dockHandoff/` (filterDock handoff, popup interaction), `inventory/` (live filter instance inventory), `restore/` (parameter-set clear/restore/resync), `state/` (reducer, selectors, instance identity), `tabMutation/` (tab move/delete/duplicate).
 
 ```txt
 dashboard/filters/singleSelect/
-  __orchestratorSingleSelect.js                       shim over index.js (path kept for KDB.js)
   config.js                                           ALLE, DELEGATED_OPERATION_WINDOW, DIAGNOSTICS_LIMIT, actions, errorCodes, parameterSetCodes, historyReplayCodes, ...
   history.js                                          normalizeStepValue, sameInstance, buildCommittedStep, pushCommittedSelectionStep, recordHistoryReplayDiagnostic
   historyReplay.js                                    createHistoryReplayHandler, applyHistoryReplay, resolveHistoryTarget, replayCommittedSelection

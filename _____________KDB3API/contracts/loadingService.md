@@ -194,11 +194,10 @@ The service manipulates browser DOM only. It performs no `_KDB.cognosAPI.<theme>
 
 Target production tree, pending CP-1:
 
-As built (exports per file). `__orchestratorLoadingService.js` is a shim over `index.js` (`registerLoadingService`).
+As built (exports per file). `index.js` is the registrar (`registerLoadingService`).
 
 ```txt
 core/services/loadingService/
-  __orchestratorLoadingService.js                     shim over index.js (path kept for KDB.js)
   caption.js                                          resolveLoadingMessage, syncLoadingCaption, syncLoadingSessionCaption, updateLoadingMessage
   config.js                                           BOOT_MOUNT_KEY, DEFAULT_REMOVE_DELAY_MS, ROOT_MOUNT_KEY, WATCHDOG_MS, loadingLabels
   index.js                                            registerLoadingService
@@ -209,7 +208,7 @@ core/services/loadingService/
 
 Rationale:
 
-- `__orchestratorLoadingService.js` is kept because the existing services tree uses orchestrators for service registration.
+- `core/services/loadingService/index.js` is kept because the existing services tree uses orchestrators for service registration.
 - `runtime/` isolates runtime bucket initialization and cleanup because legacy has timers, live DOM refs and position restoration.
 - `state/` contains the canonical writer helpers for `_KDB.state.loading`.
 - `effects/` contains DOM and timer side effects so the service factory remains a named-method public surface coordinator.

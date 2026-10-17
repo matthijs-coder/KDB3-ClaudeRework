@@ -1047,7 +1047,6 @@ As built after the Phase 1 module-template rework (53 files, one concern per fil
 
 ```txt
 KDB3/js/dashboard/widgets/widgetVis/
-  __orchestratorWidgetVis.js  # shim: re-exports index.js (path kept for KDB.js)
   index.js            # registerWidgetVis: controller, ROUTES table, host facet stamps, mount/dispatch/destroy
   config.js           # timeouts, class names, focus-mode poll values, GROUPINGS
   state.js            # ACTION_TYPES, initial state, reducer, metric identity helpers

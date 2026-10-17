@@ -168,7 +168,6 @@ As built after the Phase 1 module-template rework (33 files):
 
 ```txt
 KDB3/js/dashboard/widgets/widgetSettings/
-  __orchestratorWidgetSettings.js  # shim: re-exports index.js (path kept for KDB.js)
   index.js            # registerWidgetSettings: mount/dispatch/destroy/getState, action ROUTES table
   config.js           # KIND_TABLE (kind -> owner, action type, state key), labels, option tables, image paths, option defaults
   config/

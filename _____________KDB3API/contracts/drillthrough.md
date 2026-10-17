@@ -545,7 +545,7 @@ No new cognosHost facet for `pathRef`.
 
 ### 13.2 Bootstrap
 
-`KDB3/js/bootstrap/registerServices.js` imports `__orchestratorDrillthrough` and registers `_KDB.services.drillthrough`. `KDB.js` does not need a direct import if services bootstrap already runs `__orchestratorServices`.
+`KDB3/js/bootstrap/registerServices.js` imports `core/services/drillthrough/index.js` and registers `_KDB.services.drillthrough`. `KDB.js` does not need a direct import if services bootstrap already runs `__orchestratorServices`.
 
 ---
 
@@ -566,11 +566,10 @@ Feature modules never call `_KDB.cognosAPI`. `widgetVis` (tranche 2) consumes st
 
 ## 15. Folder Layout
 
-As built (exports per file; `org/` files each export one function). `__orchestratorDrillthrough.js` is a shim over `index.js` (`registerDrillthrough`).
+As built (exports per file; `org/` files each export one function). `index.js` is the registrar (`registerDrillthrough`).
 
 ```txt
 core/services/drillthrough/
-  __orchestratorDrillthrough.js                       shim over index.js (path kept for KDB.js)
   assemble.js                                         assembleIconDrillConfig, assembleDatapointDrillConfig
   buildDrillthroughUrl.js                             buildDrillthroughUrl, createBuildResult
   config.js                                           aufrissMatchers, promptCatalog, monthLabels, drillthroughLabels, DEFERRED_OPEN_TIMEOUT_MS, datenart
