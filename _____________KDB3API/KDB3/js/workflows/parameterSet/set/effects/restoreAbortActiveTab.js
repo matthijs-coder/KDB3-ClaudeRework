@@ -1,4 +1,4 @@
-define(["../../schema/errorCodes.js"], function (_errorCodes) {
+define(["../../../../core/config/writebackErrorCodes.js"], function (_errorCodes) {
   "use strict";
 
   // Best-effort abort landing per writeback T2 item 5b: on non-success

@@ -1,5 +1,5 @@
 define([
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "./ensureTabWidgetsRouted.js",
   "./bindVisPerActiveTab.js",
 ], function (_errorCodes, _ensureTabWidgetsRouted, _bindVisPerActiveTab) {

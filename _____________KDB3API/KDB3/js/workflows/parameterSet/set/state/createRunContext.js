@@ -1,6 +1,6 @@
 define([
   "../config/restoreConstants.js",
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "./ensureWritebackRuntime.js",
   "../effects/dispatchOwnerPhase.js",
 ], function (_constants, _errorCodes, _ensureWritebackRuntime, _dispatchOwnerPhase) {

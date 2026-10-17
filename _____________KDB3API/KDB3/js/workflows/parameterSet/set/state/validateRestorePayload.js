@@ -2,7 +2,7 @@ define([
   "../config/restoreConstants.js",
   "../../schema/normalizeV3.js",
   "../../schema/validateV3.js",
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "../../../../core/config/mapping/kidIndex.js",
 ], function (_constants, _normalizeV3, _validateV3, _errorCodes, _kidIndex) {
   "use strict";

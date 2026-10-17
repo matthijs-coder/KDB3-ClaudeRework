@@ -1,5 +1,5 @@
 define([
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "./classifyV2FilterItem.js",
   "./extractV2FilterValues.js",
 ], function (_errorCodes, _classifyV2FilterItem, _extractV2FilterValues) {

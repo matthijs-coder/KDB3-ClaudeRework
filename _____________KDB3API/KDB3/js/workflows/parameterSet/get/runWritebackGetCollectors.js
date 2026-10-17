@@ -1,5 +1,5 @@
 define([
-  "../schema/errorCodes.js",
+  "../../../core/config/writebackErrorCodes.js",
   "./collectors/collectCanvasSettings.js",
   "./collectors/collectHeaderFooter.js",
   "./collectors/collectTabs.js",

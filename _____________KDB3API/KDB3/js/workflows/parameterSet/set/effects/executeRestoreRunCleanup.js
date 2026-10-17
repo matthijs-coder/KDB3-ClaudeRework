@@ -1,5 +1,5 @@
 define([
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "./runGuards.js",
   "../state/ensureWritebackRuntime.js",
   "./finalizeSingleSelectRun.js",

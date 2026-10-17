@@ -1,6 +1,6 @@
 define([
   "../config/restoreConstants.js",
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "../state/ensureWritebackRuntime.js",
   "../state/buildRestoreResult.js",
   "./runGuards.js",

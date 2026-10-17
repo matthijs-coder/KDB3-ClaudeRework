@@ -2,7 +2,7 @@ define([
   "./waitForBridgeSetSettlement.js",
   "./hostParameterSetSelect.js",
   "../set/state/ensureWritebackRuntime.js",
-  "../schema/errorCodes.js"
+  "../../../core/config/writebackErrorCodes.js"
 ], function (_waitForBridgeSetSettlement, _hostParameterSetSelect, _ensureWritebackRuntime, _errorCodes) {
   "use strict";
 

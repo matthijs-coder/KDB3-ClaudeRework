@@ -1,6 +1,6 @@
 define([
   "../state/ensureWritebackRuntime.js",
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "../../../../core/utils/kit/async.js"
 ], function (_ensureWritebackRuntime, _errorCodes, _async) {
   "use strict";

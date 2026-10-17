@@ -1,5 +1,5 @@
 define([
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "./buildScopeIdToTabIdx.js",
 ], function (_errorCodes, _buildScopeIdToTabIdx) {
   "use strict";

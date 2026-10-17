@@ -17,7 +17,7 @@ const RECORD = process.env.WSC_RECORD === "1";
 const silentConsole = { log() {}, info() {}, warn() {}, error() {}, debug() {} };
 const load = (rel) => loadAmd(path.join(WB, rel), { stubs: { console: silentConsole } });
 
-const errorCodes = load("schema/errorCodes.js");
+const errorCodes = loadAmd(path.join(JS_ROOT, "core/config/writebackErrorCodes.js"), { stubs: { console: silentConsole } });
 const detectSourceFormat = load("schema/detectSourceFormat.js");
 const normalizeBridgeSetInput = load("bridge/normalizeBridgeSetInput.js");
 const createWritebackMapService = load("map/createWritebackMapService.js");

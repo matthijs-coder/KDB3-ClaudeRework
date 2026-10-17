@@ -1,5 +1,5 @@
 define([
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "./collectorSupport.js",
 ], function (_errorCodes, _support) {
   "use strict";

@@ -1,7 +1,7 @@
 define([
   "../schema/normalizeV3.js",
   "../schema/validateV3.js",
-  "../schema/errorCodes.js",
+  "../../../core/config/writebackErrorCodes.js",
   "../schema/v3Defaults.js",
   "../../../core/config/mapping/kidIndex.js",
   "./runWritebackGetCollectors.js",

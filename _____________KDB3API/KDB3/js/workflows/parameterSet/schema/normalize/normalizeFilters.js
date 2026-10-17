@@ -1,6 +1,6 @@
 define([
   "../v3Defaults.js",
-  "../errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "./normalizePcfs.js",
 ], function (_v3Defaults, _errorCodes, _normalizePcfs) {
   "use strict";

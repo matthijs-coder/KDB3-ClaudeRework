@@ -5,7 +5,7 @@ define([
   "./mapV2Chrome.js",
   "./mapV2Filters.js",
   "./mapV2Widgets.js",
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "../../schema/v3Defaults.js",
 ], function (
   _parameterMapping,

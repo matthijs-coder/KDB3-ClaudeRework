@@ -1,5 +1,5 @@
 define([
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "../../../../core/config/mapping/kidIndex.js",
   "../../../../core/utils/kit/data.js",
   "./v2KidTree.js",

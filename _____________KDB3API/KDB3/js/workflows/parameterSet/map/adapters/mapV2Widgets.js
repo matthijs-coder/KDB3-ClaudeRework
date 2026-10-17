@@ -1,6 +1,6 @@
 define([
   "../../../../core/config/dropdownDefaults.js",
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "./mapV2Layout.js",
 ], function (_dropdownDefaults, _errorCodes, _mapV2Layout) {
   "use strict";

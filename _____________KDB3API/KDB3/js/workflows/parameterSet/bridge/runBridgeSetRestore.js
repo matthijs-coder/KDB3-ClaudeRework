@@ -2,7 +2,7 @@ define([
   "./confirmDiscardUnsavedChanges.js",
   "./normalizeBridgeSetInput.js",
   "./bridgeResult.js",
-  "../schema/errorCodes.js",
+  "../../../core/config/writebackErrorCodes.js",
   "./waitForBridgeSetSettlement.js",
   "../set/config/restoreConstants.js"
 ], function (

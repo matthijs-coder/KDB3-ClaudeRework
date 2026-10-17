@@ -1,7 +1,7 @@
 define([
   "./readUrlParameterId.js",
   "../set/state/ensureWritebackRuntime.js",
-  "../schema/errorCodes.js",
+  "../../../core/config/writebackErrorCodes.js",
   "./mapUrlShareSelectResult.js",
   "./presentPendingUrlShareMessage.js",
   "../bridge/ensureNewDashboardOption.js",

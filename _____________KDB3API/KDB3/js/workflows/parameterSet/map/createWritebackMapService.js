@@ -2,7 +2,7 @@ define([
   "../schema/detectSourceFormat.js",
   "../schema/normalizeV3.js",
   "../schema/validateV3.js",
-  "../schema/errorCodes.js",
+  "../../../core/config/writebackErrorCodes.js",
   "./adapters/mapV2ToV3.js",
   "../../../core/utils/kit/errors.js",
 ], function (_detectSourceFormat, _normalizeV3, _validateV3, _errorCodes, _mapV2ToV3, _kitErrors) {

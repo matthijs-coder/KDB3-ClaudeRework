@@ -60,7 +60,6 @@ workflows/parameterSet/
 ├── __orchestratorWriteback.js         registers writebackGet/Set/Map + writebackBridge, merges German labels
 ├── cognosWritebackBridge.js           guarded host bridge (WBParameterGetFunction / WBParameterSetFunction), install/uninstall
 ├── schema/
-│   ├── errorCodes.js                  error code table (includes WRITEBACK_TIMEOUT)
 │   ├── v3Defaults.js
 │   ├── detectSourceFormat.js
 │   ├── validateV3.js
@@ -1363,7 +1362,7 @@ v0/v1 scope:
 
 ## 8. Error Codes
 
-The canonical error enum lives in `schema/errorCodes.js` and is shared by all three services and the bridge.
+The canonical error enum lives in `core/config/writebackErrorCodes.js` (core, because the pure widget serialiser `core/utils/buildWidgetObject.js` also emits diagnostics) and is shared by all three services and the bridge. It includes `WRITEBACK_TIMEOUT`.
 
 Initial error enum:
 

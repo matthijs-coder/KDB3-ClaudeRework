@@ -1,5 +1,5 @@
 define([
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "./collectDienststelleFilter.js",
   "./collectSingleSelectInstances.js",
   "./collectNativeMultiSelect.js",

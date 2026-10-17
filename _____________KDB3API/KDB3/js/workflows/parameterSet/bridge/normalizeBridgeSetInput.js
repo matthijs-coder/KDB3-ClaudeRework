@@ -1,6 +1,6 @@
 define([
   "../schema/detectSourceFormat.js",
-  "../schema/errorCodes.js",
+  "../../../core/config/writebackErrorCodes.js",
 ], function (_detectSourceFormat, _errorCodes) {
   "use strict";
 

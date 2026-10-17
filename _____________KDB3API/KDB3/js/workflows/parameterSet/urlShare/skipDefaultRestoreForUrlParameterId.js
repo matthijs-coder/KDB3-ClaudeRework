@@ -1,7 +1,7 @@
 define([
   "./readUrlParameterId.js",
   "../set/state/createRunContext.js",
-  "../schema/errorCodes.js",
+  "../../../core/config/writebackErrorCodes.js",
   "../set/state/buildRestoreResult.js"
 ], function (_readUrlParameterId, _createRunContext, _errorCodes, _buildRestoreResult) {
   "use strict";

@@ -1,5 +1,5 @@
 define([
-  "./errorCodes.js",
+  "../../../core/config/writebackErrorCodes.js",
   "./validate/validatePrimitives.js",
   "./validate/validateCoreFields.js",
   "./validate/validateChrome.js",

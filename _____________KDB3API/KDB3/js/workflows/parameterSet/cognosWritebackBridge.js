@@ -1,6 +1,6 @@
 define([
   "../../core/utils/kit/errors.js",
-  "./schema/errorCodes.js",
+  "../../core/config/writebackErrorCodes.js",
   "./set/state/ensureWritebackRuntime.js",
   "./bridge/hostGlobals.js",
   "./bridge/bridgeResult.js",

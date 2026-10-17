@@ -1,4 +1,4 @@
-define(["../../../schema/errorCodes.js"], function (_errorCodes) {
+define(["../../../../../core/config/writebackErrorCodes.js"], function (_errorCodes) {
   "use strict";
 
   async function dispatchSpecialSingleSelectRestore(_run, _resolvedTargets, _terminalInventoryGeneration) {

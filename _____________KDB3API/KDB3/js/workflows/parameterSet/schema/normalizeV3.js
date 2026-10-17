@@ -1,6 +1,6 @@
 define([
   "./v3Defaults.js",
-  "./errorCodes.js",
+  "../../../core/config/writebackErrorCodes.js",
   "./normalize/normalizeCoreFields.js",
   "./normalize/normalizeFilters.js",
   "./normalize/normalizeTabsWidgets.js",

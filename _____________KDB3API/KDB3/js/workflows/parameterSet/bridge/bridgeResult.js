@@ -1,4 +1,4 @@
-define(["../schema/errorCodes.js", "../set/config/restoreConstants.js"], function (_errorCodes, _restoreConstants) {
+define(["../../../core/config/writebackErrorCodes.js", "../set/config/restoreConstants.js"], function (_errorCodes, _restoreConstants) {
   "use strict";
 
   function toBridgeDiagnostic(error) {

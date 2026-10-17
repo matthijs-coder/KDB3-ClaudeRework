@@ -1,6 +1,6 @@
 define([
   "../v3Defaults.js",
-  "../errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "./validatePrimitives.js",
   "./validateWidgetFields.js",
 ], function (_v3Defaults, _errorCodes, _primitives, _validateWidgetFields) {

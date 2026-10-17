@@ -1,5 +1,5 @@
 define([
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "../state/validateRestorePayload.js",
   "../state/readOwnerTargets.js",
   "./filters/runFilterRestore.js",

@@ -1,6 +1,6 @@
 define([
   "../../../../core/utils/convertUnitToPx.js",
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
 ], function (_convertUnitToPx, _errorCodes) {
   "use strict";
 

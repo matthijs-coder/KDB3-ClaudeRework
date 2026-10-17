@@ -1,6 +1,6 @@
 define([
   "./config/restoreConstants.js",
-  "../schema/errorCodes.js",
+  "../../../core/config/writebackErrorCodes.js",
   "./state/createRunContext.js",
   "./effects/executeRestoreRun.js",
   "../urlShare/skipDefaultRestoreForUrlParameterId.js",

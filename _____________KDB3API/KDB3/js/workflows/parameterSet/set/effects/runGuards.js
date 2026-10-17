@@ -1,5 +1,5 @@
 define([
-  "../../schema/errorCodes.js",
+  "../../../../core/config/writebackErrorCodes.js",
   "../state/ensureWritebackRuntime.js",
 ], function (_errorCodes, _ensureWritebackRuntime) {
   "use strict";
