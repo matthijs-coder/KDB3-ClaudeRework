@@ -1,7 +1,7 @@
 define(["../state/actionTypes.js"], function (_types) {
   "use strict";
 
-  // Settings-bound inputs of the settings panel, keyed by `data-placeholder-input-id`.
+  // Settings-bound inputs of the settings panel, keyed by `data-kdb-input-id`.
   // path: location in state.settings; type/key/field: action dispatched on edit; isColor: also dispatched on every `input` event.
   var INPUTS = {
     dashboardWidth: { path: ["dashboard", "width"], type: _types.ACTION_SETTINGS_SET_DASHBOARD_DIMENSION, key: "dimension", field: "width" },

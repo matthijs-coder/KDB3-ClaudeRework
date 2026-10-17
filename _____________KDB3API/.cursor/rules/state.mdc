@@ -10,7 +10,7 @@ alwaysApply: false
 
 | Namespace | Holds |
 |---|---|
-| `_KDB.state.<subtree>` | JSON-serialisable dashboard/session state: selections, confirmed settings, active tab, visibility/presence status, load lifecycle, history stack |
+| `_KDB.state.<subtree>` | JSON-serialisable dashboard-session state: selections, confirmed settings, active tab, visibility/presence status, load lifecycle, history stack |
 | `_KDB.runtime.<owner>` | technical, non-serialisable resources (see `runtime.mdc`) |
 | `_KDB.api.<module>` / `_KDB.services.<service>` | public APIs (see `module-public-api.mdc`) |
 | `_KDB.events` | the event bus and nothing else |

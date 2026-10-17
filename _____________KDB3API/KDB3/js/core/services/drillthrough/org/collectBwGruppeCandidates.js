@@ -14,7 +14,7 @@ define([], function () {
     return true;
   }
 
-  function __controller(_nodesById, _selectedIdMap) {
+  function collectBwGruppeCandidates(_nodesById, _selectedIdMap) {
     var nodesById = _nodesById && typeof _nodesById === "object" ? _nodesById : {};
     var selectedIdMap = _selectedIdMap && typeof _selectedIdMap === "object" ? _selectedIdMap : {};
     var candidateMap = {};
@@ -38,5 +38,5 @@ define([], function () {
     return candidateMap;
   }
 
-  return __controller;
+  return collectBwGruppeCandidates;
 });

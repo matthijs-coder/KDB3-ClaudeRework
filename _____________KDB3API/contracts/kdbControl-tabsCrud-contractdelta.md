@@ -19,7 +19,7 @@
 Two UI surfaces expose tab-CRUD; both are *dispatch-only* — all domain logic lives in the tabs saga:
 
 1. **Tab edit icons** (delete / duplicate / move) — rendered by the **tabs owner** itself (`dashboard/tabs/editUi/icons.js` (`renderTabEditIcons`)) onto the tab buttons during an edit session. Today all three are `aria-disabled="true"` with a console-log click stub (`onDeferredIconClick`).
-2. **kdbControl toolbox** — hosts the edit-target radios and the `tabs.add` button (`kdbControl/framework/bindToolboxActions.js`). Radios still dispatch `tabs/selectEditTarget` via `safeTabsDispatch`. Add click goes through `dispatchToolboxTabsAdd.js` (consult `getState().canAdd`; false → `_KDB.services.message.notify` same copy as duplicate, no `tabs/add`). Delete / duplicate / move stay on the **tabs-owned** edit icons, not the toolbox.
+2. **kdbControl toolbox** — hosts the edit-target radios and the `tabs.add` button (`kdbControl/panel/bindToolboxActions.js`). Radios still dispatch `tabs/selectEditTarget` via `safeTabsDispatch`. Add click goes through `dispatchToolboxTabsAdd.js` (consult `getState().canAdd`; false → `_KDB.services.message.notify` same copy as duplicate, no `tabs/add`). Delete / duplicate / move stay on the **tabs-owned** edit icons, not the toolbox.
 
 Ownership stays as-is: the icons remain tabs-owned DOM/effects; kdbControl remains the host shell and dispatch relay. This delta does **not** move the icons into kdbControl.
 

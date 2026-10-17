@@ -1,5 +1,5 @@
 define([
-  "./createFrameworkElement.js",
+  "./createPanelElement.js",
   "./primitives/toggleSwitch.js",
   "./primitives/formRows.js",
   "./settingsRows.js",
@@ -21,7 +21,7 @@ define([
     hint.textContent = TEXTS.commentHint;
     row.appendChild(hint);
     var button = _formRows.createDraggableActionButton(TEXTS.commentButton, "text");
-    button.setAttribute("data-kdb-toolbox-placeholder", "comments.startCreate");
+    button.setAttribute("data-kdb-toolbox-action", "comments.startCreate");
     row.appendChild(button);
     body.appendChild(row);
   }

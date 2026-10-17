@@ -38,5 +38,26 @@ High-frequency events never run their work inline:
 ## Labels
 
 - User-facing text lives in the module's `config.js` or in the `_KDB.config.labels.<lang>.<module>` buckets that the module orchestrators seed (for example `widgetBase`, `widgetSettings`, `messageService`, `loadingService`).
-- There is no `core/config/labels/` folder and no `en` translation; labels are German.
+- There is no labels folder under `core/config` and no `en` translation; labels are German.
 - Feature code reads labels and does not hard-code user text.
+
+## Final layout (end of Phase 2)
+
+Paths are relative to `KDB3/js/`. The layering gate is `tools/lib/layering.mjs`, enforced by `node tools/check-imports.mjs` (part of `node tools/check-all.mjs`, no allow-list).
+
+| Folder | Role | May import |
+|---|---|---|
+| `KDB.js` | Cognos renderer entry (`render`/`destroy`), root namespaces, register/mount/destroy order | everything |
+| `bootstrap/` | Composition root: `featureManifest.js` (ordered feature entries, each an `index.js` with `register(_KDB)`) and `registerServices.js`. The only place that names every feature and service | imported only by `KDB.js` (rule `composition-root`) |
+| `core/` | Infrastructure: `bootstrap/` (boot lifecycle steps), `config/`, `events/` (shared event/action vocabulary: `createEventBus`, `tabs`, `filters`, `authoringMode`), `properties/`, `authoring/`, `cognosAPI/` + `services/cognosHost/` + `cognosHost/` (the three Cognos rings), `services/*` (history, loading, message, tableData, drillthrough, chrome, widgetBinding*), `utils/` (incl. the helper kit `utils/kit/`) | never `dashboard/` (rule `core->dashboard`) and never `workflows/` (rule `core->workflows`) |
+| `dashboard/` | Feature modules (`header`, `footer`, `tabs`, `canvas/*`, `controls/toolbarControls`, `launchpad`, `metricsTree`, `widgets/*`, `filters/*`), each published as `_KDB.api.<module>` | `core/`; never `workflows/` (rule `dashboard->workflows`) |
+| `workflows/` | Application sagas that drive several feature APIs: `parameterSet/` (writeback GET/SET services and the Cognos bridge) and `pdfExport/` (dashboard PDF). They publish `_KDB.services.*` and reach features through `_KDB.api.<owner>` at call time | `core/`; edges into `dashboard/` are reported by `check-imports`, not failed |
+
+Kits and facades:
+
+- `core/utils/kit/` is the helper kit (`async`, `data`, `errors`, `history`, `runtime`): use it instead of local timers, error guards, history-step and replay-handler code.
+- `dashboard/filters/_core/` is the shared filter-owner kit (owner controller, owner policy, dock handoff, tab-mutation strategy, table-data watcher, parameter-set run claim). The five filter families (`sicht`, `singleSelect`, `specialSingleSelect`, `dienststelle`, `nativeMultiSelect`) use it; `filterDock` routes to them. Nothing outside `dashboard/filters/` imports `_core`.
+- `selectors.js` facade rule: another module imports from an owner only its `selectors.js` (or `state/selectors.js`) and its event-name file (`events.js` or `core/events/*`). The facade may also re-publish the owner's `ACTION_TYPES` and, for `widgetSettings`, its hosted-panel helpers (transitional panel kit); anything else stays private to the owner. Commands go through `_KDB.api.<owner>.dispatch`.
+- Entry files are `index.js` (`register(_KDB)` or `{ mount, destroy, dispatch, getState }`), also under `core/services/cognosHost/facets/<facet>/`. No `__controller` or `__orchestrator*` names remain (gate: `tools/tests/w14-naming.test.mjs`).
+
+Doc and naming gates (part of `check-all`): `tools/check-doc-paths.mjs` fails when a living doc cites a code path that does not exist (allow-list `tools/doc-paths-allowlist.txt`, empty since W14; `--suggest` shows the rename-history target, `--fix` rewrites unambiguous ones); `tools/check-imports.mjs` also fails a relative `define` dependency id without `.js`.

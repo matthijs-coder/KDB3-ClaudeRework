@@ -1,5 +1,5 @@
 define([
-  "../createFrameworkElement.js",
+  "../createPanelElement.js",
   "./colorPalette.js",
   "../../config/labels.js",
   "../../../../../core/utils/kit/runtime.js"
@@ -86,7 +86,7 @@ define([
     var inputEl = _createElement("input", null, "kdb-control_text-input", {
       type: "text",
       placeholder: _labels.colorPlaceholder,
-      "data-placeholder-input-id": inputId,
+      "data-kdb-input-id": inputId,
       autocomplete: "off",
       readonly: "readonly"
     });

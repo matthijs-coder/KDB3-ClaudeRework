@@ -1,4 +1,4 @@
-define(["../createFrameworkElement.js"], function (_createElement) {
+define(["../createPanelElement.js"], function (_createElement) {
   "use strict";
 
   // Checkbox switch row. Options: action (`data-kdb-action`), checked, ariaLabel, title (default: label, or ariaLabel for the

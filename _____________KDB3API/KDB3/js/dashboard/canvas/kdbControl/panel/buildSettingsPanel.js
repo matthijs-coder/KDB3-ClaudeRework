@@ -1,5 +1,5 @@
 define([
-  "./createFrameworkElement.js",
+  "./createPanelElement.js",
   "./primitives/colorField.js",
   "./primitives/toggleSwitch.js",
   "./primitives/formRows.js",

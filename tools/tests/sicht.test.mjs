@@ -2,7 +2,9 @@
 // Run: node --test tools/tests/sicht.test.mjs   (Node >= 22, no dependencies)
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
@@ -1315,6 +1317,60 @@ test("parameterSetClear: failed delegation is ok for newDashboard, failure other
   const tolerated = await parameterSet(env, "parameterSetClearRequested", { runId: 2, inventoryGeneration: 7, status: "newDashboard" });
   assert.equal(tolerated.ok, true);
   assert.equal(tolerated.degraded, true);
+});
+
+// Delegation outcome x superseded run: a run that was superseded while the delegated write was in flight reports the
+// cancellation, whatever the write returned. Expected acks recorded on the pre-split code (W14_SICHT_RECORD=1 rewrites).
+const SUPERSEDED_FIXTURE = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures/w14-sicht-superseded.json");
+const DELEGATION_RESULTS = {
+  failed: () => ({ ok: false, diagnostics: [{ code: "Z", message: "no" }] }),
+  failedNoDiagnostics: () => ({ ok: false }),
+  nullResult: () => null,
+  ok: () => ({ ok: true, diagnostics: [{ code: "D", message: "d" }] }),
+  okDegraded: () => ({ ok: true, degraded: true, diagnostics: [] })
+};
+const SUPERSEDED_SCENARIOS = [];
+["restore", "clear"].forEach((kind) => {
+  Object.keys(DELEGATION_RESULTS).forEach((result) => {
+    [false, true].forEach((supersede) => {
+      (kind === "clear" ? [undefined, "newDashboard"] : [undefined]).forEach((status) => {
+        SUPERSEDED_SCENARIOS.push({ kind, result, supersede, status, name: [kind, result, supersede ? "superseded" : "current", status].filter(Boolean).join(" / ") });
+      });
+    });
+  });
+});
+
+async function runSupersededScenario(sc) {
+  const env = makeEnv({
+    applyResult: () => {
+      if (sc.supersede && env.KDB.runtime.sicht.parameterSetRunId === 1) { env.KDB.runtime.sicht.parameterSetRunId = 9; }
+      return DELEGATION_RESULTS[sc.result]();
+    }
+  });
+  await env.controller.dispatch({ type: "sicht/tableDataChanged", payload: {} });
+  const payload = sc.kind === "restore"
+    ? { runId: 1, sicht: "uBW", inventoryGeneration: 7 }
+    : { runId: 1, inventoryGeneration: 7 };
+  if (sc.status) { payload.status = sc.status; }
+  return parameterSet(env, sc.kind === "restore" ? "parameterSetRestoreRequested" : "parameterSetClearRequested", payload);
+}
+
+test("parameterSet restore/clear: delegation outcome x superseded run matches the recorded acks", async () => {
+  const actual = {};
+  for (const sc of SUPERSEDED_SCENARIOS) { actual[sc.name] = json(await runSupersededScenario(sc)); }
+  if (process.env.W14_SICHT_RECORD === "1") {
+    fs.writeFileSync(SUPERSEDED_FIXTURE, JSON.stringify(actual, null, 2) + "\n");
+  }
+  assert.deepStrictEqual(actual, JSON.parse(fs.readFileSync(SUPERSEDED_FIXTURE, "utf8")));
+});
+
+test("parameterSet restore/clear: a superseded run is reported as cancelled even when the delegation failed", async () => {
+  for (const sc of SUPERSEDED_SCENARIOS.filter((x) => x.supersede)) {
+    const ack = await runSupersededScenario(sc);
+    assert.equal(ack.ok, false, sc.name);
+    assert.deepStrictEqual(ack.diagnostics.map((d) => d.code), ["WRITEBACK_RESTORE_CANCELLED"], sc.name);
+    assert.equal(ack.diagnostics[0].message, "parameterSet run 1 superseded by 9", sc.name);
+  }
 });
 
 test("parameterSetDownstreamVisibility: notifies special; dienststelle only when it does not follow", async () => {

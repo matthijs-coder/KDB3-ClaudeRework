@@ -19,7 +19,7 @@ define([
   function bindControlInputs(ctx, signal) {
     var _KDB = ctx._KDB;
 
-    function selectPlaceholder(controlId, value) {
+    function selectControlValue(controlId, value) {
       ctx.dispatch({ type: _types.ACTION_FRAMEWORK_SET_PLACEHOLDER_SELECTION, payload: { controlId: controlId, value: value } });
       ctx.syncView();
     }
@@ -31,21 +31,21 @@ define([
 
     function onInput(event) {
       var target = event.target;
-      var inputId = target && target.getAttribute && target.getAttribute("data-placeholder-input-id");
+      var inputId = target && target.getAttribute && target.getAttribute("data-kdb-input-id");
       if (!inputId || target.tagName !== "INPUT" || _settingsInputs.isSettingsInput(inputId)) return;
       ctx.dispatch({ type: _types.ACTION_FRAMEWORK_SET_PLACEHOLDER_INPUT, payload: { inputId: inputId, value: target.value } });
       ctx.syncView();
     }
 
     function onRadioChange(radio) {
-      var row = radio.closest(".kdb-control__gallery-row-radio[data-placeholder-control-id]");
-      var controlId = row && row.getAttribute("data-placeholder-control-id");
+      var row = radio.closest(".kdb-control__gallery-row-radio[data-kdb-control-id]");
+      var controlId = row && row.getAttribute("data-kdb-control-id");
       if (controlId === "headerEditMode" && radio.checked) {
         dispatchHeaderEditRadio(radio.value);
         return;
       }
       if (radio.closest(".kdb-control_tab-edit-placeholder")) return;
-      if (controlId && radio.checked) selectPlaceholder(controlId, radio.value);
+      if (controlId && radio.checked) selectControlValue(controlId, radio.value);
     }
 
     function onSwitchChange(checkbox) {
@@ -62,7 +62,7 @@ define([
         ctx.dispatch({ type: _types.ACTION_SETTINGS_TOGGLE_DEVELOPER_MODE, payload: {} });
         ctx.syncView();
       } else {
-        selectPlaceholder(action, checkbox.checked ? "1" : "0");
+        selectControlValue(action, checkbox.checked ? "1" : "0");
       }
     }
 

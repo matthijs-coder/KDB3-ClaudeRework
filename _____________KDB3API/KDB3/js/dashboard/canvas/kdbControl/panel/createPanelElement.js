@@ -1,7 +1,7 @@
 define([], function () {
   "use strict";
 
-  function createFrameworkElement(tagName, id, className, attributes) {
+  function createPanelElement(tagName, id, className, attributes) {
     var el = document.createElement(tagName);
     if (id) el.id = id;
     if (className) el.className = className;
@@ -13,5 +13,5 @@ define([], function () {
     return el;
   }
 
-  return createFrameworkElement;
+  return createPanelElement;
 });

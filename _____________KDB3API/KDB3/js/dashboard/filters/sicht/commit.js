@@ -15,6 +15,69 @@ define([
 
   var actions = _state.actions;
 
+  function rejectCommit(_dispatchInternal, _code, _message) {
+    dispatchError(_dispatchInternal, _code, _message);
+    return { ok: false, code: _code, message: _message };
+  }
+
+  // Ack for an operationId that was already claimed: another instance is a rejection, the same
+  // instance is acknowledged as in flight or stale.
+  function readDuplicateCommitAck(_dispatchInternal, _opClaim, _payload) {
+    if (_opClaim.entry.filterInstanceId &&
+      _opClaim.entry.filterInstanceId !== _payload.filterInstanceId) {
+      return rejectCommit(
+        _dispatchInternal,
+        "SICHT_INSTANCE_INVALID",
+        "operationId was reused for another Sicht instance"
+      );
+    }
+    return {
+      ok: true,
+      code: _opClaim.isInFlight
+        ? "SICHT_COMMIT_IN_FLIGHT" : "SICHT_COMMIT_STALE",
+      message: _opClaim.isInFlight
+        ? "delegated operationId is already committing"
+        : "duplicate delegated operationId ignored"
+    };
+  }
+
+  function buildCommitInput(_payload, _flags, _validation) {
+    return {
+      filterInstanceId: String(_payload.filterInstanceId),
+      selection: _validation.selection,
+      timestamp: _payload.timestamp != null
+        ? _payload.timestamp
+        : (_payload.observedAt != null ? _payload.observedAt : Date.now()),
+      isStartupDefault: _flags.isStartupDefault,
+      isHistoryReplay: _flags.isHistoryReplay,
+      isParameterClear: _validation.isClear === true,
+      skipHistory: _payload.skipHistory === true,
+      skipDownstreamVisibility: _flags.skipDownstreamVisibility
+    };
+  }
+
+  function buildCommitAck(_commitResult, _operationId, _settled) {
+    var diagnostics = (_commitResult.diagnostics || []).slice();
+    if (!_operationId) {
+      diagnostics.push({
+        code: "SICHT_OPERATION_ID_COMPATIBILITY",
+        message: "interactive commit accepted without operationId"
+      });
+    }
+    if (!_settled) {
+      diagnostics.push({
+        code: "SICHT_OPERATION_SETTLE_FAILED",
+        message: "operationId could not be marked committed"
+      });
+    }
+    return {
+      ok: true,
+      degraded: _commitResult.degraded === true ||
+        !_settled || !_operationId,
+      diagnostics: diagnostics
+    };
+  }
+
   // Sole entry point for confirmed singleSelect commits, whether delivered from
   // an interactive popup confirm or from a delegated applyOwnerSelection
   // (startup/restore/historyReplay). Returns a structured ack singleSelect awaits.
@@ -23,49 +86,19 @@ define([
       var payload = _payload || {};
       var operationId = payload.operationId ? String(payload.operationId) : "";
       var opClaim = _operations.inspectOperation(_runtime, operationId);
-      var validation;
-      var flags;
-      var settled;
-      var diagnostics;
       if (!operationId && _validation.isDelegatedCommitSource(payload.source)) {
-        dispatchError(
+        return rejectCommit(
           _dispatchInternal,
           "SICHT_OPERATION_ID_INVALID",
           "delegated singleSelect commit requires operationId"
         );
-        return {
-          ok: false,
-          code: "SICHT_OPERATION_ID_INVALID",
-          message: "delegated singleSelect commit requires operationId"
-        };
       }
       if (opClaim.isDuplicate === true) {
-        if (opClaim.entry.filterInstanceId &&
-          opClaim.entry.filterInstanceId !== payload.filterInstanceId) {
-          dispatchError(
-            _dispatchInternal,
-            "SICHT_INSTANCE_INVALID",
-            "operationId was reused for another Sicht instance"
-          );
-          return {
-            ok: false,
-            code: "SICHT_INSTANCE_INVALID",
-            message: "operationId was reused for another Sicht instance"
-          };
-        }
-        return {
-          ok: true,
-          code: opClaim.isInFlight
-            ? "SICHT_COMMIT_IN_FLIGHT" : "SICHT_COMMIT_STALE",
-          message: opClaim.isInFlight
-            ? "delegated operationId is already committing"
-            : "duplicate delegated operationId ignored"
-        };
+        return readDuplicateCommitAck(_dispatchInternal, opClaim, payload);
       }
-      validation = _validation.validateSingleSelectCommitPayload(_KDB, payload, opClaim.entry);
+      var validation = _validation.validateSingleSelectCommitPayload(_KDB, payload, opClaim.entry);
       if (validation.ok !== true) {
-        dispatchError(_dispatchInternal, validation.code, validation.message);
-        return { ok: false, code: validation.code, message: validation.message };
+        return rejectCommit(_dispatchInternal, validation.code, validation.message);
       }
       if (operationId &&
         !_operations.beginOperationCommit(_runtime, payload)) {
@@ -75,59 +108,29 @@ define([
           message: "operationId could not enter commit state"
         };
       }
-      flags = mapCommitSourceFlags(payload.source);
-      var commitResult = await commitConfirmedSicht(_KDB, _dispatchInternal, {
-        filterInstanceId: String(payload.filterInstanceId),
-        selection: validation.selection,
-        timestamp: payload.timestamp != null
-          ? payload.timestamp
-          : (payload.observedAt != null ? payload.observedAt : Date.now()),
-        isStartupDefault: flags.isStartupDefault,
-        isHistoryReplay: flags.isHistoryReplay,
-        isParameterClear: validation.isClear === true,
-        skipHistory: payload.skipHistory === true,
-        skipDownstreamVisibility: flags.skipDownstreamVisibility
-      });
-      settled = !operationId || _operations.markOperationCommitted(
+      var flags = mapCommitSourceFlags(payload.source);
+      var commitResult = await commitConfirmedSicht(
+        _KDB,
+        _dispatchInternal,
+        buildCommitInput(payload, flags, validation)
+      );
+      var settled = !operationId || _operations.markOperationCommitted(
         _runtime,
         operationId,
         String(payload.filterInstanceId)
       );
-      diagnostics = (commitResult.diagnostics || []).slice();
-      if (!operationId) {
-        diagnostics.push({
-          code: "SICHT_OPERATION_ID_COMPATIBILITY",
-          message: "interactive commit accepted without operationId"
-        });
-      }
-      if (!settled) {
-        diagnostics.push({
-          code: "SICHT_OPERATION_SETTLE_FAILED",
-          message: "operationId could not be marked committed"
-        });
-      }
-      return {
-        ok: true,
-        degraded: commitResult.degraded === true ||
-          !settled || !operationId,
-        diagnostics: diagnostics
-      };
+      return buildCommitAck(commitResult, operationId, settled);
     } catch (error) {
       _operations.abandonOperation(
         _runtime,
         _payload && _payload.operationId
       );
       console.error("[sicht.applySingleSelectCommit] failed", error);
-      dispatchError(
+      return rejectCommit(
         _dispatchInternal,
         "SICHT_COMMIT_FAILED",
         String(error && error.message ? error.message : error)
       );
-      return {
-        ok: false,
-        code: "SICHT_COMMIT_FAILED",
-        message: String(error && error.message ? error.message : error)
-      };
     }
   }
 

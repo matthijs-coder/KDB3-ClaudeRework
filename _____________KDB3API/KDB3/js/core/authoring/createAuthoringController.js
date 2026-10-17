@@ -1,4 +1,4 @@
-define(["../events/authoringMode"], function (_authoringMode) {
+define(["../events/authoringMode.js"], function (_authoringMode) {
   "use strict";
   var ENTER = "authoring/enter";
   var EXIT = "authoring/exit";

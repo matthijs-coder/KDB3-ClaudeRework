@@ -3,7 +3,7 @@ define([
 ], function (_sanitizeHashValue) {
   "use strict";
 
-  function __controller(_sel, _tree) {
+  function resolveOrgNodeId(_sel, _tree) {
     try {
       var display;
       var idValueRaw;
@@ -54,5 +54,5 @@ define([
     }
   }
 
-  return __controller;
+  return resolveOrgNodeId;
 });

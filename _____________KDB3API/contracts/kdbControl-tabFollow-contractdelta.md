@@ -15,13 +15,13 @@
 
 ## 1. Purpose
 
-The kdb-control shell is placed once at mount inside the `.KDB3Widget` host element (`dashboard/canvas/kdbControl/framework/index.js` (`placeControlShell`)), which lives in the initially rendered tab's page/dropbox. When the user activates another tab, the control stays behind in the previous tab's (now hidden) container. The control must follow the active tab.
+The kdb-control shell is placed once at mount inside the `.KDB3Widget` host element (`dashboard/canvas/kdbControl/panel/index.js` (`placeControlShell`)), which lives in the initially rendered tab's page/dropbox. When the user activates another tab, the control stays behind in the previous tab's (now hidden) container. The control must follow the active tab.
 
 ## 2. Behavior (CP-1, 2026-07-11)
 
-> **CP-1 supersedes the original per-shell resolution:** instead of moving only the control shell into a per-tab `kdbWidget` match (which exists only in the first tab and therefore never resolved on other tabs), kdbControl moves the **entire `.KDB3Widget` host element** into the active tab's page/dropbox. The shell, its domRefs and the launchpad (also mounted in the host) all move along; `dashboard/canvas/kdbControl/framework/index.js` (`placeControlShell`) stays untouched.
+> **CP-1 supersedes the original per-shell resolution:** instead of moving only the control shell into a per-tab `kdbWidget` match (which exists only in the first tab and therefore never resolved on other tabs), kdbControl moves the **entire `.KDB3Widget` host element** into the active tab's page/dropbox. The shell, its domRefs and the launchpad (also mounted in the host) all move along; `dashboard/canvas/kdbControl/panel/index.js` (`placeControlShell`) stays untouched.
 
-`kdbControl` subscribes to `tabs:activationStarted` (click-ahead, same tick as the user click) **and** `tabs:changed` (`framework/followActiveTab.js`). Same move handler; `firstActivation` remains irrelevant. Click-ahead details: `contracts/_archive/tabs-kdbControl-clickAhead-follow-contractdelta.md`.
+`kdbControl` subscribes to `tabs:activationStarted` (click-ahead, same tick as the user click) **and** `tabs:changed` (`panel/followActiveTab.js`). Same move handler; `firstActivation` remains irrelevant. Click-ahead details: `contracts/_archive/tabs-kdbControl-clickAhead-follow-contractdelta.md`.
 
 On `tabs:changed` (and on `tabs:activationStarted`):
 

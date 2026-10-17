@@ -21,7 +21,7 @@
 
 | Topic | Decision |
 |---|---|
-| Placement | `KDB3/js/dashboard/controls/shareControls/` |
+| Placement | `KDB3/js/dashboard/controls/toolbarControls/` (as built: `shareButton.js`, `shareLink.js`) |
 | Public surface | `{ mount, destroy }` — named lifecycle, no `dispatch` / `getState` |
 | State | No `_KDB.state.shareControls` |
 | With / without parameter set | Legacy parity: follow host `#selectParameterSet` via **writebackBridge** read. No extra choose/confirm. Dialog **title** tells the user what the link contains. |

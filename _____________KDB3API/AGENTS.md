@@ -6,11 +6,13 @@ Read first: `.cursor/rules/core.mdc` (the rules every change must follow). Topic
 
 Before a PR, run from the repo root:
 
-- `node tools/check-all.mjs` (must pass)
+- `node tools/check-all.mjs` (must pass: syntax, import graph and layering, living-doc code paths, tests)
 - `node tools/line-report.mjs` (file size report)
 - manual Cognos checks from `tools/smoke-checklist.md` for the areas you touched
 
 Do not change the frozen external contract (`KDB3/spec.json`, extension entry points, saved parameter sets v2/v3, settings/storage formats and persisted keys, `_KDB.api.*` / `_KDB.services.*` names, event names) without a written note in the PR and explicit review.
+
+When a change moves or renames a file that a living doc cites, repoint the citation (`node tools/check-doc-paths.mjs --suggest`).
 
 Shared helpers live in the kit (`KDB3/js/core/utils/kit/`); use them instead of local copies.
 

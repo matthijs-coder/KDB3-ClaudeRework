@@ -50,7 +50,7 @@ Catalog entries for `_____________KDB3API/contracts/kdbControl.md` Section 6. Em
   ```
 - **Subscribers:**
   - `footer` — file: `KDB3/js/dashboard/footer/index.js` — handler: `header:confirmedChanged` subscription in `mount` applies **G-header-removed** (`footer.md` §6) via guarded `footer/hide` dispatch; wrapped in `try/catch`.
-  - `kdbControl` (sandbox toolbox read-sync) — file: `KDB3/js/dashboard/canvas/kdbControl/framework/index.js` — handler: calls the framework `syncView` only (no `_KDB.state.kdbControl` mirror of header/footer); unsubscribe stored at `_KDB.runtime.kdbControl.subscriptions.headerFooterToolboxReadSync`.
+  - `kdbControl` (sandbox toolbox read-sync) — file: `KDB3/js/dashboard/canvas/kdbControl/panel/index.js` — handler: calls the framework `syncView` only (no `_KDB.state.kdbControl` mirror of header/footer); unsubscribe stored at `_KDB.runtime.kdbControl.subscriptions.headerFooterToolboxReadSync`.
 - **Teardown owner:** **`footer.destroy()`** clears `runtime.footer.subscriptions.headerConfirmedChanged`; **`kdbControl.destroy()`** clears `headerFooterToolboxReadSync` per `kdbControl-header-footer-toolbox-contractdelta.md` §6.
 
 ### ~~Toolbox request-events superseded (CP-1)~~
@@ -230,7 +230,7 @@ The event names and the `tabs/*` action types live in `KDB3/js/core/events/tabs.
   }
   ```
 - **Subscribers:**
-  - `kdbControl` — file: `KDB3/js/dashboard/canvas/kdbControl/framework/followActiveTab.js` — same host-move handler as `tabs:changed` (`moveHostToActiveTab`); skip while tabs work is in flight; handle at `_KDB.runtime.kdbControl.subscriptions.tabsActivationStarted`.
+  - `kdbControl` — file: `KDB3/js/dashboard/canvas/kdbControl/panel/followActiveTab.js` — same host-move handler as `tabs:changed` (`moveHostToActiveTab`); skip while tabs work is in flight; handle at `_KDB.runtime.kdbControl.subscriptions.tabsActivationStarted`.
 - **Teardown owner:** `tabs.destroy()` aborts `_KDB.runtime.tabs.abortControllers.tabListClick`; kdbControl `destroy()` clears `subscriptions.tabsActivationStarted`.
 
 ### `tabs:changed`
@@ -251,7 +251,7 @@ The event names and the `tabs/*` action types live in `KDB3/js/core/events/tabs.
   ```
 - **Subscribers:**
   - `widgetBase` — file: `KDB3/js/dashboard/widgets/widgetBase/index.js` (`subscribeTabsChanged`) — handler: dispatches `widgetBase/ensureTabWidgetsRouted` on every activation with a non-null `tabId` (idempotent via `routedTabIds`; bugfix sync 2026-07-12, the earlier `firstActivation` filter made retry of a raced first ensure unreachable) per `widgetBase-lazyLaunchpadRouting-contractdelta.md` §4; suppression predicate matches tabs in-flight work (`pendingPromises.traverse || pendingPromises.startup || pendingPromises.tabMutation`); handle at `_KDB.runtime.widgetBase.subscriptions.tabsChanged`.
-  - `kdbControl` — file: `KDB3/js/dashboard/canvas/kdbControl/framework/followActiveTab.js` — handler: re-parents the `.KDB3Widget` host (control shell + launchpad) into the active tab's page element resolved by payload `pageId` per `kdbControl-tabFollow-contractdelta.md` §2 (CP-1) and `tabs-kdbControl-clickAhead-follow-contractdelta.md`; ignores events while tabs work is in flight (`_KDB.runtime.tabs.pendingPromises.traverse || .startup || .tabMutation`); handle at `_KDB.runtime.kdbControl.subscriptions.tabsChanged` (wrapper clears the `tabFollowRetry` timer before unsubscribing). Also subscribes to `tabs:activationStarted` (`subscriptions.tabsActivationStarted`).
+  - `kdbControl` — file: `KDB3/js/dashboard/canvas/kdbControl/panel/followActiveTab.js` — handler: re-parents the `.KDB3Widget` host (control shell + launchpad) into the active tab's page element resolved by payload `pageId` per `kdbControl-tabFollow-contractdelta.md` §2 (CP-1) and `tabs-kdbControl-clickAhead-follow-contractdelta.md`; ignores events while tabs work is in flight (`_KDB.runtime.tabs.pendingPromises.traverse || .startup || .tabMutation`); handle at `_KDB.runtime.kdbControl.subscriptions.tabsChanged` (wrapper clears the `tabFollowRetry` timer before unsubscribing). Also subscribes to `tabs:activationStarted` (`subscriptions.tabsActivationStarted`).
   - `widgetVis` — file: `KDB3/js/dashboard/widgets/widgetVis/topN/wave.js` — handler: `replayWaveOnTabShown` replays a pending TopN filter-confirm wave on the tab that becomes visible; handle at `_KDB.runtime.widgetVis.subscriptions.topNFilterWave`.
   - `writeback` (get) — files: `KDB3/js/workflows/parameterSet/get/persist/persistLanding.js` (`subscriptions.persistRestoreTab`) and `persistLoadingOverlay.js` (`subscriptions.persistLoadingCancel`) — handlers: watch the landing tab and cancel the persist loading overlay while a save/landing is in flight.
   - `footer` — file: `KDB3/js/dashboard/footer/index.js` — handler: `onTabsChanged` → footer sync from state (page indicator = physical `readActiveTabIndex` + 1). No in-flight suppression (paint only; must not use `__mountSync`). Handle: `_KDB.runtime.footer.abortControllers.subscriptions` (AbortSignal). Teardown: `footer.destroy()`.

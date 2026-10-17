@@ -37,12 +37,12 @@ Rule-alignment decision from CP-1 discussion: `launchpad` is the environment own
 | Legacy file | Evidence used |
 |---|---|
 | `legacy:js/dashboard/launchpad/__orchestratorLaunchpad.js` | Startup sequence: ensure state, resolve tabs, build/place DOM, settle readiness, subscribe to legacy widget/property signals, route widgets. |
-| `ensureLaunchpadState.js` + `core/bootstrap/statePromises/initializeLaunchpadState.js` | Legacy launchpad state fields and rule violations: runtime promise and subscriptions live in state and must move to `_KDB.runtime.launchpad`. |
+| `ensureLaunchpadState.js` + `legacy:js/core/bootstrap/statePromises/initializeLaunchpadState.js` | Legacy launchpad state fields and rule violations: runtime promise and subscriptions live in state and must move to `_KDB.runtime.launchpad`. |
 | `getLaunchpadPadConfig.js` | Canonical **legacy** pad keys and host ids: `visualization`, `text`, `dataTables`, `shapes`. Production target streamlines these — see the pad-label note in §10. |
 | `getLaunchpadTabDescriptors.js`, `collectLaunchpadTabIndexes.js`, `buildLaunchpadTabsFromState.js`, `buildLaunchpadTabsFromConfig.js`, `buildLaunchpadTabsFromCanvas.js`, `buildLaunchpadTabDescriptor.js`, `resolveLaunchpadHelperTabs.js` | Tab descriptor discovery from legacy `_KDB.state.tabs`, `_KDB.config.tabs`, Cognos canvas content, and helper-tab metadata; target reads tabs only through a published tabs API/selector when available. |
 | `dashboard/launchpad/view.js` (`buildLaunchpadDom`), `dashboard/launchpad/view.js` (`placeLaunchpadDom`), `appendWidgetToLaunchpadSlot.js`, `findLaunchpadSlotMeta.js`, `resolveLaunchpadTabGenericPage.js` | Launchpad DOM structure, hidden host, pad containers, slot metadata, and selector shape. |
 | `routeAllWidgetsToLaunchpad.js`, `sendWidgetToLaunchpad.js`, `takeWidgetFromLaunchpad.js`, `takeAllWidgetsFromLaunchpad.js`, `cleanLaunchpadWidget.js`, `setLaunchpadWidgetPlacement.js` | Legacy widget movement and widget-state writes; these are not owned by launchpad under the new rules and are deferred to a future `widgets` owner tranche. |
-| `subscribeHideWidgetsToggle.js`, `subscribeLaunchpadWidgetSend.js`, `core/events/launchpad.js`, `core/events/widgetProperties.js` | Legacy event/request wiring; rule-alignment replaces known-owner widget movement with direct `widgets` API/dispatch in a later tranche. |
+| `subscribeHideWidgetsToggle.js`, `subscribeLaunchpadWidgetSend.js`, `legacy:js/core/events/launchpad.js`, `legacy:js/core/events/widgetProperties.js` | Legacy event/request wiring; rule-alignment replaces known-owner widget movement with direct `widgets` API/dispatch in a later tranche. |
 
 Production evidence:
 
@@ -268,7 +268,7 @@ Adding any `launchpad:*` fact-event later requires a contract delta and an `even
 ## 8. Dependencies
 
 - `_KDB` (always).
-- `_KDB.config.tabs` for configured dashboard/helper tab roles.
+- `_KDB.config.tabs` for configured dashboard or helper tab roles.
 - `_KDB.api.tabs.getState()` or published tabs selectors for current tab descriptors when available; if no tabs public surface exists in this tranche, fall back to config/canvas discovery rather than deep-reading `_KDB.state.tabs`.
 - `_KDB.cognosAPI.tabs.getTabsContainers()` for tab layout discovery fallback.
 - `_KDB.cognosAPI.canvas.findCanvasContent()` for canvas-content fallback.
@@ -282,7 +282,7 @@ Calls performed by launchpad:
 
 | Call | Context | State mirror owner |
 |---|---|---|
-| `_KDB.cognosAPI.tabs.getTabsContainers()` | Resolve dashboard/helper tab descriptors when a tabs owner snapshot is unavailable or insufficient. | `launchpad` stores only serializable descriptor metadata under `_KDB.state.launchpad`. |
+| `_KDB.cognosAPI.tabs.getTabsContainers()` | Resolve dashboard or helper tab descriptors when a tabs owner snapshot is unavailable or insufficient. | `launchpad` stores only serializable descriptor metadata under `_KDB.state.launchpad`. |
 | `_KDB.cognosAPI.canvas.findCanvasContent()` | Fallback descriptor discovery when tab config/state are unavailable. | `launchpad` stores only serializable descriptor metadata under `_KDB.state.launchpad`. |
 
 No widget Cognos calls are performed by launchpad in this contract. Widget rendering, widget container resolution, widget type classification, and widget cleanup belong to the future `widgets` owner.

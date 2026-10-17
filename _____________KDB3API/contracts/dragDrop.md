@@ -73,7 +73,7 @@ Recommended CP-1 decision:
 | Question | Recommendation |
 |---|---|
 | Q1 placement | `KDB3/js/dashboard/canvas/dragDrop/`. Legacy evidence is canvas-specific: dropboxes, canvas scale, helper-tab exclusion, avatar DOM, and widget placement boundary. |
-| Core/split architecture | Do not create `core/dragDrop` or a core/dashboard split in this tranche. The legacy files do not show a reusable engine boundary clean enough to port separately without behavioral redesign. |
+| Core/split architecture | Do not create a core-level dragDrop folder or a core-versus-dashboard split in this tranche. The legacy files do not show a reusable engine boundary clean enough to port separately without behavioral redesign. |
 | Q2 classification | Feature module / canvas subsystem with a named interaction API under `_KDB.api.dragDrop`, not `_KDB.services.dragDrop`. |
 
 The public API deviates from the feature-module dispatch default because source binders and the existing production `metricsTree` adapter require a narrow imperative interaction surface (`refreshDropboxes`, `startDrag`, `finishDrag`). Internally, state writes still go through a reducer/dispatch helper owned by `dragDrop`.
@@ -349,7 +349,7 @@ Naming bridge: legacy `kennzahlenTree` source-binder behavior maps to the produc
 
 In this tranche, the only owner-specific source binders that may be specified are:
 
-- As built: the metrics tree source binder is `dashboard/metricsTree/dragSource.js`; the toolbox text source binder is in `dashboard/canvas/kdbControl/framework/bindToolboxActions.js`. Both call `_KDB.api.dragDrop`.
+- As built: the metrics tree source binder is `dashboard/metricsTree/dragSource.js`; the toolbox text source binder is in `dashboard/canvas/kdbControl/panel/bindToolboxActions.js`. Both call `_KDB.api.dragDrop`.
 
 Do not move general `kdbControl`, `kennzahlenTree`, or toolbox behavior into generic dragDrop code.
 
@@ -387,7 +387,7 @@ Runtime ownership (avatar DOM, source copy, listeners, timers) is created and re
 
 `events.js` and `dropboxes/publish.js` (`publishValidatedDrop`) own the `canvas:dropValidated` event (see `architecture/eventSubscribe.md`).
 
-No `core/dragDrop/` folder is created in this tranche.
+No core-level dragDrop folder is created in this tranche.
 
 ## 14. Bootstrap Registration
 
@@ -412,7 +412,7 @@ Until bootstrap registration exists, `metricsTree` may warn that the drag/drop A
 - Porting `dashboard/widgets/widgetBase/view/placement.js` (`placeWidgetOnCanvas`) into `dragDrop`.
 - Writing `_KDB.state.widgets`, `_KDB.runtime.widgets`, filters, tabs, launchpad, history, kdbControl, or metricsTree state.
 - Reworking widget placement behavior beyond rule-alignment.
-- Creating a core/shared dragDrop service.
+- Creating a shared core-level dragDrop service.
 - Porting full kdbControl, kennzahlenTree, widgets, canvas, launchpad, filters, tabs, or history behavior.
 - Bootstrap registration in `KDB.js` unless CP-1 expands scope.
 - Browser harness, TEST sandbox, cross-feature integration tests.
@@ -422,7 +422,7 @@ Until bootstrap registration exists, `metricsTree` may warn that the drag/drop A
 
 | Question | Recommendation captured in this contract |
 |---|---|
-| Q1 placement | `KDB3/js/dashboard/canvas/dragDrop/`; no core/split architecture. |
+| Q1 placement | `KDB3/js/dashboard/canvas/dragDrop/`; no core-level split. |
 | Q2 classification/API | Feature module/canvas subsystem with motivated named methods on `_KDB.api.dragDrop`. |
 | Q3 state | Own `_KDB.state.dragDrop` for serializable lifecycle/session snapshot; active drag is `isDragging/session`, not a lifecycle term. |
 | Q4 runtime | Own `_KDB.runtime.dragDrop` for avatar DOM, source copy, dropbox refs, listeners, timers, and transient pointer/source data. |

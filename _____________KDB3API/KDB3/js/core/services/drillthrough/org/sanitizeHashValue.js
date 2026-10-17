@@ -1,7 +1,7 @@
 define([], function () {
   "use strict";
 
-  function __controller(_value) {
+  function sanitizeHashValue(_value) {
     var raw = String(_value == null ? "" : _value).trim();
     var hashIndex;
     if (!raw) {
@@ -20,5 +20,5 @@ define([], function () {
     return String(raw.slice(0, hashIndex)).trim();
   }
 
-  return __controller;
+  return sanitizeHashValue;
 });

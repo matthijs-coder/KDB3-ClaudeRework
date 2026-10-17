@@ -18,7 +18,7 @@
 
 | Question | Decision requested |
 |---|---|
-| Placement | `KDB3/js/dashboard/controls/historyControls/` under the dashboard controls owner area. |
+| Placement | `KDB3/js/dashboard/controls/toolbarControls/` (as built: `historyButton.js`) under the dashboard controls owner area. |
 | Public surface | Minimal lifecycle surface `_KDB.api.historyControls = { mount, destroy }`; no dispatch because this module only owns two buttons and no state transitions. |
 | State ownership | No `_KDB.state.historyControls`; history state remains owned by `historyService`. |
 | Runtime ownership | `_KDB.runtime.historyControls` owns DOM refs, subscriptions, abort controllers, observers and pending mount promises. |
@@ -39,9 +39,9 @@ Read-only evidence:
 
 | Legacy file | Evidence used |
 |---|---|
-| `dashboard/historyControls/mountHistoryButtons.js` | Builds a wrapper with undo and redo buttons, waits for `[id="com.ibm.bi.dashboard.toolbars.actionBar"] .leading`, and inserts the wrapper before the first toolbar child. |
-| `dashboard/historyControls/__historyControlsOrchestrator.js` | Mounts/syncs the buttons, listens for clicks, subscribes to `history:changed`, and observes toolbar rebuilds. |
-| `dashboard/historyControls/updateHistoryButtonsState.js` | Reads `canUndo()` / `canRedo()` and toggles disabled button state. |
+| `historyControls/mountHistoryButtons.js` | Builds a wrapper with undo and redo buttons, waits for `[id="com.ibm.bi.dashboard.toolbars.actionBar"] .leading`, and inserts the wrapper before the first toolbar child. |
+| `historyControls/__historyControlsOrchestrator.js` | Mounts/syncs the buttons, listens for clicks, subscribes to `history:changed`, and observes toolbar rebuilds. |
+| `historyControls/updateHistoryButtonsState.js` | Reads `canUndo()` / `canRedo()` and toggles disabled button state. |
 | `base/events/history.js` | Defines `HISTORY_CHANGED = "history:changed"`. |
 | `base/services/historyService/createHistoryApi.js` | Legacy service methods consumed by the buttons: `undo`, `redo`, `canUndo`, `canRedo`, `getSnapshot`. |
 | `KDB.js` in REDESIGN2 | Registers legacy history service in `setupBase()` and starts history controls in `startModules()`. |
@@ -64,7 +64,7 @@ Production evidence:
 Target after CP-1 and execution-spec approval:
 
 ```txt
-_____________KDB3API/KDB3/js/dashboard/controls/historyControls/
+_____________KDB3API/KDB3/js/dashboard/controls/toolbarControls/
 ```
 
 Classification: thin dashboard UI feature module.
@@ -330,7 +330,7 @@ The current production bootstrap registers historyService after feature registra
 
 ## 16. CP-1 Questions
 
-1. Approve `KDB3/js/dashboard/controls/historyControls/` as final production placement?
+1. Approve `KDB3/js/dashboard/controls/toolbarControls/` as final production placement?
 2. Approve minimal `_KDB.api.historyControls = { mount, destroy }` lifecycle surface with no dispatch?
 3. Approve no `_KDB.state.historyControls` and runtime-only ownership?
 4. Approve updating `KDB.js` for import, register, mount and destroy wiring?

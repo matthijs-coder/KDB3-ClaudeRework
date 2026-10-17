@@ -50,7 +50,7 @@ CP-1 recommendations captured in this draft:
 | `base/events/history.js` | Event constant `HISTORY_CHANGED = "history:changed"`. |
 | `KDB.js` in legacy | Legacy bootstrap registers `_KDB.history = createHistoryApi(_KDB)` during base setup. New target uses `_KDB.services.history`. |
 | History callers across filters, widgets, tabs, header, footer | Legacy callers push serializable committed steps after confirmed changes; replay adapters often write feature state directly or call feature-local helpers. |
-| `dashboard/historyControls/*` | UI consumes `undo`, `redo`, `canUndo`, `canRedo`, `getSnapshot` and subscribes to `history:changed`. History controls are out of this service tranche. |
+| `dashboard/controls/toolbarControls/historyButton.js` | UI consumes `undo`, `redo`, `canUndo`, `canRedo`, `getSnapshot` and subscribes to `history:changed`. History controls are out of this service tranche. |
 
 Production evidence:
 

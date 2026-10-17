@@ -211,7 +211,7 @@ Action types:
 | `specialSingleSelect/sichtChanged` | `sicht` module or parent filters orchestrator | Confirmed Sicht value changed; sync root Sicht class on `#filterDockContainer` and evaluate auto set/clear. |
 | `specialSingleSelect/filterDockStateChanged` | `filterDock` routing | Special filter click/user interaction handoff. Gate or delegate to `singleSelect`. |
 | `specialSingleSelect/filterDockPopupReady` | `filterDock` routing | Popup-ready handoff. Apply wrapper/Alle classes and delegate generic popup sync to `singleSelect`. |
-| `specialSingleSelect/tableDataChanged` | bootstrap/tableData integration or explicit refresh | Re-evaluate rights and option rows after relevant tableData changes. |
+| `specialSingleSelect/tableDataChanged` | bootstrap or tableData integration, or explicit refresh | Re-evaluate rights and option rows after relevant tableData changes. |
 | `specialSingleSelect/userSelectionCommitted` | mandatory `singleSelect` integration hook or approved parent filters orchestrator hook | Mark `selectionSource: "user"` and store the committed selection metadata so hidden-filter clearing can park rather than lose user intent. |
 | `specialSingleSelect/syncRequested` | local / integration hook | Idempotently sync all known special filters. |
 | `specialSingleSelect/error` | internal catch boundary | Record owned error state. |

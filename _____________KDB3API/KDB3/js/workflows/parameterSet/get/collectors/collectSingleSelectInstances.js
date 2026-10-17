@@ -1,7 +1,7 @@
 define([
   "../../../../core/config/writebackErrorCodes.js",
   "../../../../core/utils/tabSlots.js",
-  "./collectorSupport.js",
+  "./collectorReads.js",
   "./materializeSingleSelect.js",
 ], function (_errorCodes, _tabSlots, _support, _materializeSingleSelectEntries) {
   "use strict";

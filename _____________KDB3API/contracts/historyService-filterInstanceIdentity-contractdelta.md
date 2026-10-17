@@ -230,11 +230,9 @@ instance steps. A stale run cannot publish a late step.
 Expected responsibilities after contract approval:
 
 ```txt
-dashboard/filters/singleSelect/history/buildCommittedStep.js
-dashboard/filters/singleSelect/history/applySingleSelectHistoryReplay.js
-dashboard/filters/singleSelect/history/createSingleSelectHistoryReplayHandler.js
-dashboard/filters/singleSelect/effects/replayCommittedSelection.js
-core/services/historyService/state/normalizeHistoryStep.js
+dashboard/filters/singleSelect/history.js         (buildCommittedStep)
+dashboard/filters/singleSelect/historyReplay.js   (applyHistoryReplay, replayCommittedSelection; the handler is built by `_kitHistory.createReplayHandler`)
+core/services/historyService/state.js             (normalizeHistoryStep)
 ```
 
 The history service change is limited to preserving/validating the allowlisted

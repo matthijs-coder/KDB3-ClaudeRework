@@ -1,6 +1,6 @@
 # Module Contract: `properties`
 
-> Direct-port CP-1 contract for the legacy-known-good property bootstrap loader and property-change host listeners. This contract translates `core/bootstrap/loadProperties` and the small `subscribeProperties` workflow into the 2026 rule set without redesigning property semantics.
+> Direct-port CP-1 contract for the legacy-known-good property bootstrap loader and property-change host listeners. This contract translates the legacy `loadProperties` bootstrap (`legacy:js/core/bootstrap/loadProperties`, now `core/properties/loadProperties.js`) and the small `subscribeProperties` workflow into the 2026 rule set without redesigning property semantics.
 
 ---
 
@@ -54,7 +54,7 @@ Legacy behavior summary:
 
 | ID | Recommendation | Reason / trade-off |
 |---|---|---|
-| **Q1 Target path** | Use `KDB3/js/core/properties/`. | This is core bootstrap/property-panel configuration, not a reusable named-method service. It writes the already-approved `_KDB.properties` top-level namespace. |
+| **Q1 Target path** | Use `KDB3/js/core/properties/`. | This is core bootstrap and property-panel configuration, not a reusable named-method service. It writes the already-approved `_KDB.properties` top-level namespace. |
 | **Q2 Public surface** | No `_KDB.services.properties`. **2026-09-02 exception:** narrow `_KDB.api.properties = { applyDeveloperMode }` only — [kdbControl-developer-mode-toggle-contractdelta.md](./_archive/kdbControl-developer-mode-toggle-contractdelta.md). | Bootstrap remains the owner; kdbControl needs a legal callee that does **not** re-read Cognos. |
 | **Q3 State ownership** | No `_KDB.state.properties` in this tranche. | `_KDB.properties` is the canonical namespace for Cognos dashboard spec / property panel configuration per `kdb-object.mdc`; adding state would duplicate the same data. |
 | **Q4 Runtime ownership** | Use `_KDB.runtime.properties.subscriptions` for Cognos property-change listener cleanup. | The load-only path has no runtime resources, but `content.on("change:property:...")` creates a host listener and therefore needs owner cleanup per `runtime.mdc`. |

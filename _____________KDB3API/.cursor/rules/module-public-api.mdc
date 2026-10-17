@@ -8,7 +8,7 @@ alwaysApply: false
 
 Each feature module publishes exactly one `_KDB.api.<module>` object; each service publishes exactly one `_KDB.services.<service>` object. A module does not also publish under `_KDB.services`, and the reverse. The event bus is `_KDB.events`, not a service.
 
-Other modules use only: the public object, the owner's `selectors.js` (today often `state/selectors.js`) for granular reads, and the emitter's event-name constants. They never touch `_KDB.runtime.<owner>`. Existing deep imports of other files that remain are listed in the Phase 2 follow-ups; do not add new ones.
+Other modules use only: the public object, the owner's `selectors.js` (today often `state/selectors.js`) for granular reads, and the emitter's event-name constants. `selectors.js` may also re-publish the owner's `ACTION_TYPES` and, for `widgetSettings`, the hosted-panel helpers (transitional panel kit). They never touch `_KDB.runtime.<owner>`. Existing deep imports of other files that remain are listed in the Phase 2 follow-ups; do not add new ones.
 
 ## Two shapes, never mixed
 

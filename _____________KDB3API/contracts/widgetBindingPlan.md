@@ -88,7 +88,7 @@ Method signature:
 |---|---|---|
 | `buildPlan` | `(spec: BindingPlanSpec) => BindingPlan` | Synchronously validates and normalizes the spec, builds slot intent, local-filter intent and mirror proposal, then returns a serializable plan or a serializable failure. It never throws for known validation failures. |
 
-Post-disposal discipline is not applicable because this pure service has no `destroy()` lifecycle and no runtime resources. If root bootstrap removes `_KDB.services.widgetBindingPlan`, callers must treat the missing service as a bootstrap/integration error.
+Post-disposal discipline is not applicable because this pure service has no `destroy()` lifecycle and no runtime resources. If root bootstrap removes `_KDB.services.widgetBindingPlan`, callers must treat the missing service as a bootstrap or integration error.
 
 ### 4.1 Action Payload Schemas
 

@@ -26,8 +26,10 @@ Paths below are relative to this folder (`_____________KDB3API/`) unless they st
 - `KDB3/`: the extension that is deployed.
   - `spec.json`: Cognos extension manifest (frozen external contract; property ids and renderer).
   - `js/KDB.js`: boot entry; registers and mounts the modules.
+  - `js/bootstrap/`: composition root (`featureManifest.js`, `registerServices.js`), imported only by `KDB.js`.
   - `js/core/`: services, properties, events, Cognos adapters, CSS loader, vendored libraries.
   - `js/dashboard/`: canvas (kdbControl, page surface, drag and drop), controls, filters, header, footer, launchpad, metrics tree, tabs, widgets.
+  - `js/workflows/`: application sagas over several features (`parameterSet` writeback, `pdfExport`).
   - `css/`: stylesheets, loaded in the order of `js/core/css/config/cssHrefList.js`. `css/libraries/` holds vendor CSS.
   - `images/`: icons and widget assets.
 - `architecture/`: stable rules, catalogs and navigation help. `_archive/` is historical only.
@@ -38,7 +40,7 @@ Paths below are relative to this folder (`_____________KDB3API/`) unless they st
 
 ## Deploy
 
-Zip the `KDB3/` folder and upload it as the Cognos extension. At runtime everything resolves under `./v1/ext/KDB3/` (hard-coded in `spec.json`, `js/core/css/config/cssHrefList.js` and the image configs). Re-upload the extension whenever `spec.json` changes.
+Zip the `KDB3/` folder and upload it as the Cognos extension. At runtime everything resolves under `./v1/ext/KDB3/` (declared in `spec.json`; the JS asset base is the single value in `js/core/config/assetBase.js`, used by `js/core/css/config/cssHrefList.js` and the image configs). Re-upload the extension whenever `spec.json` changes.
 
 ## Checks
 

@@ -13,74 +13,94 @@ define([
   var INVALID_PAYLOAD = "WRITEBACK_INVALID_V3_PAYLOAD";
   var RESTORE_FAILED = "WRITEBACK_SICHT_RESTORE_FAILED";
 
+  function readGenerationTypeFailure(_payload) {
+    if (_payload.inventoryGeneration != null && (typeof _payload.inventoryGeneration !== "number" ||
+      !isFinite(_payload.inventoryGeneration))) {
+      return failResult(
+        INVALID_PAYLOAD,
+        "payload.inventoryGeneration must be numeric when provided"
+      );
+    }
+    return null;
+  }
+
+  function isStaleInventoryGeneration(_payload, _currentGeneration) {
+    return _payload.inventoryGeneration != null && (_currentGeneration == null ||
+      Number(_payload.inventoryGeneration) !== Number(_currentGeneration));
+  }
+
+  function buildGenerationCompatibilityDiagnostic(_currentGeneration) {
+    return diagnostic(
+      "WRITEBACK_SICHT_INVENTORY_GENERATION_COMPATIBILITY",
+      "inventoryGeneration missing; current singleSelect inventory was resolved safely",
+      { currentGeneration: _currentGeneration }
+    );
+  }
+
+  function withInventoryGeneration(_delegatedPayload, _payload, _currentGeneration) {
+    if (_currentGeneration != null) {
+      _delegatedPayload.inventoryGeneration = _payload.inventoryGeneration != null
+        ? _payload.inventoryGeneration : _currentGeneration;
+    }
+    return _delegatedPayload;
+  }
+
+  // Clear with no resolvable global Sicht instance: satisfied when none exists at all, a failure
+  // when several make it ambiguous or the single one cannot be resolved.
+  function readClearWithoutInstanceResult(_KDB, _runtime, _payload) {
+    var liveInstanceCount = _delegation.readLiveSichtInstances(_KDB).length;
+    var runStatus;
+    if (liveInstanceCount === 0) {
+      runStatus = ensureCurrentRun(_runtime, _payload.runId);
+      return runStatus || ack(true, [diagnostic(
+        "WRITEBACK_SICHT_CLEAR_NO_LIVE_INSTANCE",
+        "no live Sicht instance exists; clear is already satisfied"
+      )], true);
+    }
+    return failResult(
+      RESTORE_FAILED,
+      liveInstanceCount > 1
+        ? "multiple live global Sicht instances make clear ambiguous"
+        : "live global Sicht instance could not be resolved"
+    );
+  }
+
   async function clearParameterSet(_KDB, _deps, _action) {
     var payload = (_action && _action.payload) || {};
     var runtime = _deps.runtime;
     var runClaim = claimRunId(runtime, payload.runId);
     var diagnostics = [];
-    var filterInstanceId;
-    var result;
-    var runStatus;
-    var currentGeneration;
-    var liveInstanceCount;
     var hasGeneration = payload.inventoryGeneration != null;
     var failed = false;
     if (runClaim) {
       return runClaim;
     }
     try {
-      if (hasGeneration && (typeof payload.inventoryGeneration !== "number" ||
-        !isFinite(payload.inventoryGeneration))) {
-        return failResult(
-          INVALID_PAYLOAD,
-          "payload.inventoryGeneration must be numeric when provided"
-        );
+      var typeFailure = readGenerationTypeFailure(payload);
+      if (typeFailure) {
+        return typeFailure;
       }
-      filterInstanceId = _delegation.resolveDelegatedSichtInstanceId(_KDB);
+      var filterInstanceId = _delegation.resolveDelegatedSichtInstanceId(_KDB);
       if (!filterInstanceId) {
-        liveInstanceCount = _delegation.readLiveSichtInstances(_KDB).length;
-        if (liveInstanceCount === 0) {
-          diagnostics.push(diagnostic(
-            "WRITEBACK_SICHT_CLEAR_NO_LIVE_INSTANCE",
-            "no live Sicht instance exists; clear is already satisfied"
-          ));
-          runStatus = ensureCurrentRun(runtime, payload.runId);
-          return runStatus || ack(true, diagnostics, true);
-        }
-        return failResult(
-          RESTORE_FAILED,
-          liveInstanceCount > 1
-            ? "multiple live global Sicht instances make clear ambiguous"
-            : "live global Sicht instance could not be resolved"
-        );
+        return readClearWithoutInstanceResult(_KDB, runtime, payload);
       }
-      currentGeneration = _delegation.readSingleSelectInventoryGeneration(_KDB);
-      if (hasGeneration && (currentGeneration == null ||
-        Number(payload.inventoryGeneration) !== Number(currentGeneration))) {
+      var currentGeneration = _delegation.readSingleSelectInventoryGeneration(_KDB);
+      if (isStaleInventoryGeneration(payload, currentGeneration)) {
         return failResult(
           "WRITEBACK_RESTORE_CANCELLED",
           "stale inventoryGeneration for sicht clear"
         );
       }
       if (!hasGeneration) {
-        diagnostics.push(diagnostic(
-          "WRITEBACK_SICHT_INVENTORY_GENERATION_COMPATIBILITY",
-          "inventoryGeneration missing; current singleSelect inventory was resolved safely",
-          { currentGeneration: currentGeneration }
-        ));
+        diagnostics.push(buildGenerationCompatibilityDiagnostic(currentGeneration));
       }
-      var delegatedPayload = {
+      var result = await _delegation.dispatchSingleSelectOwnerSelection(_KDB, withInventoryGeneration({
         filterInstanceId: filterInstanceId,
         operationId: _operations.buildSichtOperationId("clear"),
         operationKind: "clear",
         selection: { displayValue: _config.ALLE_LABEL, useValue: "" },
         source: "parameterRestore"
-      };
-      if (currentGeneration != null) {
-        delegatedPayload.inventoryGeneration = hasGeneration
-          ? payload.inventoryGeneration : currentGeneration;
-      }
-      result = await _delegation.dispatchSingleSelectOwnerSelection(_KDB, delegatedPayload);
+      }, payload, currentGeneration));
       if (!result || result.ok !== true) {
         failed = true;
         diagnostics.push(diagnostic(
@@ -89,7 +109,7 @@ define([
           { diagnostics: result && result.diagnostics }
         ));
       }
-      runStatus = ensureCurrentRun(runtime, payload.runId);
+      var runStatus = ensureCurrentRun(runtime, payload.runId);
       if (runStatus) {
         return runStatus;
       }
@@ -106,6 +126,36 @@ define([
     }
   }
 
+  // Display/use pair of the option matching the use value, or null when it is unknown or incomplete.
+  function readRestoreSelection(_KDB, _deps, _normalizedUse) {
+    var byOption = _availability.evaluateAndStoreSichtOptions(_KDB, _deps.dispatchInternal);
+    var option = _selectors.findOptionByUse(byOption, _normalizedUse);
+    var selection = option
+      ? { displayValue: String(option.displayValue || ""), useValue: String(option.useValue || "") }
+      : null;
+    return selection && selection.displayValue && selection.useValue ? selection : null;
+  }
+
+  // Ack after the delegated write: a superseded run wins over a failed delegation.
+  function readRestoreDelegationAck(_runtime, _payload, _result, _diagnostics) {
+    var runStatus = ensureCurrentRun(_runtime, _payload.runId);
+    if (runStatus) {
+      return runStatus;
+    }
+    if (!_result || _result.ok !== true) {
+      return failResult(
+        RESTORE_FAILED,
+        "sicht restore failed while delegating to singleSelect",
+        { diagnostics: _result && _result.diagnostics }
+      );
+    }
+    return ack(
+      true,
+      _diagnostics.concat(_result.diagnostics || []),
+      _payload.inventoryGeneration == null || _result.degraded === true
+    );
+  }
+
   // The filter write is delegated to the canonical singleSelect instance instead of a
   // direct Cognos write, gated by the writeback-owned inventoryGeneration.
   async function restoreParameterSet(_KDB, _deps, _action) {
@@ -113,14 +163,6 @@ define([
     var runtime = _deps.runtime;
     var runClaim = claimRunId(runtime, payload.runId);
     var normalizedUse = payload.sicht != null ? String(payload.sicht).trim() : "";
-    var currentGeneration;
-    var byOption;
-    var option;
-    var selection;
-    var filterInstanceId;
-    var result;
-    var runStatus;
-    var diagnostics = [];
     var hasGeneration = payload.inventoryGeneration != null;
     if (runClaim) {
       return runClaim;
@@ -129,72 +171,37 @@ define([
       if (!normalizedUse) {
         return failResult(INVALID_PAYLOAD, "sicht/parameterSetRestoreRequested requires payload.sicht (use value)");
       }
-      if (hasGeneration && (typeof payload.inventoryGeneration !== "number" ||
-        !isFinite(payload.inventoryGeneration))) {
-        return failResult(
-          INVALID_PAYLOAD,
-          "payload.inventoryGeneration must be numeric when provided"
-        );
+      var typeFailure = readGenerationTypeFailure(payload);
+      if (typeFailure) {
+        return typeFailure;
       }
-      currentGeneration = _delegation.readSingleSelectInventoryGeneration(_KDB);
-      if (hasGeneration && (currentGeneration == null ||
-        Number(payload.inventoryGeneration) !== Number(currentGeneration))) {
+      var currentGeneration = _delegation.readSingleSelectInventoryGeneration(_KDB);
+      if (isStaleInventoryGeneration(payload, currentGeneration)) {
         return failResult("WRITEBACK_RESTORE_CANCELLED", "stale inventoryGeneration for sicht restore", {
           inventoryGeneration: payload.inventoryGeneration,
           currentGeneration: currentGeneration
         });
       }
-      if (!hasGeneration) {
-        diagnostics.push(diagnostic(
-          "WRITEBACK_SICHT_INVENTORY_GENERATION_COMPATIBILITY",
-          "inventoryGeneration missing; current singleSelect inventory was resolved safely",
-          { currentGeneration: currentGeneration }
-        ));
-      }
-      byOption = _availability.evaluateAndStoreSichtOptions(_KDB, _deps.dispatchInternal);
-      option = _selectors.findOptionByUse(byOption, normalizedUse);
-      selection = option
-        ? { displayValue: String(option.displayValue || ""), useValue: String(option.useValue || "") }
-        : null;
-      if (!selection || !selection.displayValue || !selection.useValue) {
+      var diagnostics = hasGeneration ? [] : [buildGenerationCompatibilityDiagnostic(currentGeneration)];
+      var selection = readRestoreSelection(_KDB, _deps, normalizedUse);
+      if (!selection) {
         return failResult(
           INVALID_PAYLOAD,
           "unsupported Sicht use value \"" + normalizedUse + "\"",
           { sicht: normalizedUse }
         );
       }
-      filterInstanceId = _delegation.resolveDelegatedSichtInstanceId(_KDB);
+      var filterInstanceId = _delegation.resolveDelegatedSichtInstanceId(_KDB);
       if (!filterInstanceId) {
         return failResult(RESTORE_FAILED, "no unique live global Sicht instance available for restore");
       }
-      var delegatedPayload = {
+      var result = await _delegation.dispatchSingleSelectOwnerSelection(_KDB, withInventoryGeneration({
         filterInstanceId: filterInstanceId,
         operationId: _operations.buildSichtOperationId("restore"),
         selection: selection,
         source: "parameterRestore"
-      };
-      if (currentGeneration != null) {
-        delegatedPayload.inventoryGeneration = hasGeneration
-          ? payload.inventoryGeneration : currentGeneration;
-      }
-      result = await _delegation.dispatchSingleSelectOwnerSelection(_KDB, delegatedPayload);
-      runStatus = ensureCurrentRun(runtime, payload.runId);
-      if (runStatus) {
-        return runStatus;
-      }
-      if (!result || result.ok !== true) {
-        return failResult(
-          RESTORE_FAILED,
-          "sicht restore failed while delegating to singleSelect",
-          { diagnostics: result && result.diagnostics }
-        );
-      }
-      diagnostics = diagnostics.concat(result.diagnostics || []);
-      return ack(
-        true,
-        diagnostics,
-        !hasGeneration || result.degraded === true
-      );
+      }, payload, currentGeneration));
+      return readRestoreDelegationAck(runtime, payload, result, diagnostics);
     } catch (error) {
       console.error("[sicht.restoreParameterSet] failed", error);
       return failResult(

@@ -70,7 +70,7 @@ define([
     return raw.length >= 5 && raw.slice(-5) === "|ALLE";
   }
 
-  function __controller(_orgSelection, _tree, _warnings) {
+  function mapDezpvOrgPrompts(_orgSelection, _tree, _warnings) {
     try {
       var selectedArr = _orgSelection && Array.isArray(_orgSelection.selectedValues) ? _orgSelection.selectedValues : [];
       var i, sel, resolved, wins, rootId, memberId, normalized;
@@ -140,5 +140,5 @@ define([
     }
   }
 
-  return __controller;
+  return mapDezpvOrgPrompts;
 });

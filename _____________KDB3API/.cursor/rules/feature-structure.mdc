@@ -24,6 +24,7 @@ New modules, and modules being refactored, use this one shape:
   events.js       optional: names of events this module emits to others
 ```
 
+- Filter owners share the kit in `dashboard/filters/_core/` (owner controller, policy, dock handoff, tab-mutation strategy); only files under `dashboard/filters/` import it. Cognos host facets (`core/services/cognosHost/facets/<facet>/`) are entered through `index.js`.
 - Create only files with real content. Small modules (toolbar controls, pageSurface, authoring, stubs) can be just `index.js` plus one or two files.
 - Large modules split by **sub-domain**, not by step: for example `widgetVis/binding.js`, `widgetVis/drillthrough.js`, `widgetVis/topN.js`, or a folder `binding/` once it holds about 4 or more files. Same for a large `restore/` or `view/`.
 - At most 3 folder levels below the module folder.

@@ -87,7 +87,7 @@ Classification: feature module / filters subsystem, published as `_KDB.api.filte
 
 Rationale:
 
-- The behavior is dashboard/filters-specific: Cognos filter dock DOM, `filterItemWrapper`, filter popup/options/footer observation, and routing to filter-type owners.
+- The behavior is specific to the dashboard filters: Cognos filter dock DOM, `filterItemWrapper`, filter popup/options/footer observation, and routing to filter-type owners.
 - Legacy evidence does not prove a reusable `core/` engine boundary.
 - `_KDB.api.filterDock` keeps the public surface explicit and avoids turning `_KDB.api.filters` into a router or god object.
 
@@ -610,7 +610,7 @@ Future integration target:
 
 | Date | Status change | Approver | Notes |
 |---|---|---|---|
-| 2026-05-21 | `Draft` (scope/filterType delta) | — | `scopeType`/`scope`, `specialSingleSelect`, `resolveFilterType`, `Dienststellenleitung` mapping, bootstrap/KDB.js. |
+| 2026-05-21 | `Draft` (scope/filterType delta) | — | `scopeType`/`scope`, `specialSingleSelect`, `resolveFilterType`, `Dienststellenleitung` mapping, bootstrap in `KDB.js`. |
 | 2026-05-22 | `Draft` (contract sync) | — | `filterKey` vs `filterId`, `resolveFilterType` table matches `identity.js`; popup-ready dedupe requires non-empty `filterKey`. |
 | 2026-05-26 | `Draft` (integration phase sync) | — | Promoted to observer + router + popup-ready phase; direct API routing documented; `specialSingleSelect` → `_KDB.api.specialSingleSelect`; removed mandatory `[filterDock.click]` log; deferred `dispatchSingleSelectHandoff` rename. |
 | 2026-05-26 | `Draft` (handoff dispatcher rename) | — | Renamed the single-select handoff dispatcher to a generic filter handoff dispatcher (historical file names; now `ownerRouter.js`, `dispatchHandoffToOwner`); behavior unchanged. |

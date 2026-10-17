@@ -580,7 +580,7 @@ Q10. Should history be commit-only in this tranche, with replay adapter registra
 
 Q11. Resolved at CP-1: `specialRights/**` remains deferred and becomes its own future module / `specialSingleSelect` contract.
 
-Q12. Should a parent filters orchestrator (not built) be created now, or should bootstrap/parent wiring be deferred?
+Q12. Should a parent filters orchestrator (not built) be created now, or should bootstrap or parent wiring be deferred?
 
 ## Approval Log
 

@@ -1,7 +1,7 @@
 define(["./config/settingsInputs.js"], function (_inputs) {
   "use strict";
 
-  var INPUT_ID_ATTRIBUTE = "data-placeholder-input-id";
+  var INPUT_ID_ATTRIBUTE = "data-kdb-input-id";
 
   function readSettingsInput(event) {
     var target = event.target;

@@ -25,7 +25,7 @@ define([
     };
   }
 
-  function __controller(_spec, _deps, _warnings) {
+  function mapOrgPrompts(_spec, _deps, _warnings) {
     try {
       var spec = _spec && typeof _spec === "object" ? _spec : {};
       var sicht = _hierarchyTable.normalizeSicht(spec.sicht);
@@ -48,5 +48,5 @@ define([
     }
   }
 
-  return __controller;
+  return mapOrgPrompts;
 });

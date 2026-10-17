@@ -236,7 +236,7 @@ Rationale:
 - **Q8:** Approve service-owned DOM overlay responsibility as a contract-level exception to the usual UI-feature ownership expectation?
 - **Q9:** Approve preserving legacy `watchdogMs` and `removeDelayMs` timing behavior while moving timer handles into runtime?
 - **Q10:** Approve preserving no-op semantics for missing mount target, hide-before-show and overlapping calls?
-- **Q11:** Approve documenting later bootstrap/service registration as required but out of scope for this tranche?
+- **Q11:** Approve documenting later bootstrap and service registration as required but out of scope for this tranche?
 - **Q12:** Choose handle shape: **A** legacy-compatible `{ mountKey, mountEl }` as an explicit temporary compatibility exception (recommended for direct port; never stored in `_KDB.state`), or **B** opaque `{ mountKey }` (cleaner rule-aligned handle, but observable API change).
 
 ---

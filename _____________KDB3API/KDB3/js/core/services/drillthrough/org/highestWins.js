@@ -19,7 +19,7 @@ define([], function () {
     return false;
   }
 
-  function __controller(_resolvedItems, _nodesById) {
+  function highestWins(_resolvedItems, _nodesById) {
     var items = Array.isArray(_resolvedItems) ? _resolvedItems : [];
     var nodesById = _nodesById && typeof _nodesById === "object" ? _nodesById : {};
     var selectedIdSet = {};
@@ -46,5 +46,5 @@ define([], function () {
     return { highest: highest, unresolved: unresolved };
   }
 
-  return __controller;
+  return highestWins;
 });

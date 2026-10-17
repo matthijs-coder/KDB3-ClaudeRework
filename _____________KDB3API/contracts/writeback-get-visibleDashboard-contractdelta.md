@@ -134,7 +134,7 @@ no `wgts` / page-`filt` rows for those hidden indexes.
 - `KDB3/js/workflows/parameterSet/get/collectors/collectWidgets.js` — traverse payload + visible-only widget emit; `needsTraversal` visible-only
 - `KDB3/js/workflows/parameterSet/get/collectors/collectTabs.js` — comment only (still all shells)
 - `KDB3/js/workflows/parameterSet/get/collectors/collectDienststelleFilter.js` — `byTab` only visible `tabIdx`
-- `KDB3/js/workflows/parameterSet/get/collectors/collectSingleSelectInstances.js` (scope helpers in `collectorSupport.js`) — skip hidden page instances silently (not `SCOPE_TARGET_MISSING`)
+- `KDB3/js/workflows/parameterSet/get/collectors/collectSingleSelectInstances.js` (scope helpers in `collectorReads.js`) — skip hidden page instances silently (not `SCOPE_TARGET_MISSING`)
 - `dashboard/filters/nativeMultiSelect/restore.js` (`collectWritebackSnapshot`) — `collectPageEntries` skip hidden targets
 
 **SET JS — change (decision 8 allow-list)**

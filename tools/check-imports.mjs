@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// AMD import graph check. FAIL (exit 1): broken relative deps, cycles, orphans not allowlisted, layering violations
+// AMD import graph check. FAIL (exit 1): broken relative deps, relative define deps without the .js suffix, cycles, orphans not allowlisted, layering violations
 // (core -> dashboard / workflows, dashboard -> workflows, imports of bootstrap/ outside KDB.js; tools/lib/layering.mjs).
 // Usage: node tools/check-imports.mjs [--json] [--verbose]
 import fs from 'node:fs';
@@ -75,6 +75,7 @@ const failures = [];
 if (graph.files.length === 0) failures.push(`no .js files found under ${JS_ROOT_REPO_REL}`);
 if (graph.roots.length === 0) failures.push('no entry roots found (KDB.js / spec.json)');
 if (graph.broken.length) failures.push(`${graph.broken.length} broken import(s)`);
+if (graph.suffixless.length) failures.push(`${graph.suffixless.length} relative define dependency id(s) without .js`);
 if (graph.missingSpecRoots.length) failures.push(`${graph.missingSpecRoots.length} spec.json root(s) missing`);
 if (cycles.length) failures.push(`${cycles.length} cycle(s)`);
 if (failingOrphans.length) failures.push(`${failingOrphans.length} non-allowlisted orphan(s)`);
@@ -89,6 +90,7 @@ const summary = {
   staticEdges: graph.edges.filter((e) => !e.dynamic).length,
   dynamicEdges: graph.edges.filter((e) => e.dynamic).length,
   broken: graph.broken.length,
+  suffixless: graph.suffixless.length,
   cycles: cycles.length,
   orphans: orphans.length,
   orphansAllowlisted: orphanResults.length - failingOrphans.length,
@@ -106,6 +108,7 @@ if (asJson) {
   console.log(JSON.stringify({
     pass, failures, summary,
     broken: graph.broken.map((b) => ({ ...b, from: repoPath(b.from) })),
+    suffixless: graph.suffixless.map((b) => ({ ...b, from: repoPath(b.from) })),
     cycles: cycles.map((c) => ({ size: c.size, path: c.path.map(repoPath), members: c.members.map(repoPath) })), orphans: orphanResults, vendored,
     staleAllowlist: staleAllowlist.map((a) => a.pattern),
     nonPathDeps: graph.nonPathDeps.map((d) => ({ ...d, from: repoPath(d.from) })),
@@ -121,6 +124,7 @@ const out = (s = '') => console.log(s);
 out(`check-imports: ${summary.files} files, ${summary.edges} edges (${summary.staticEdges} static + ${summary.dynamicEdges} dynamic require), roots: ${graph.roots.map(repoPath).join(', ')}`);
 out(`  broken: ${summary.broken}  cycles: ${summary.cycles}  orphans: ${summary.orphans} (${summary.orphansAllowlisted} allowlisted, ${summary.orphansFailing} failing)  vendored: ${summary.vendored} (${summary.vendoredUnreferenced} unreferenced)`);
 for (const b of graph.broken) out(`FAIL broken import: ${repoPath(b.from)}:${b.line} "${b.spec}" -> ${JS_ROOT_REPO_REL}/${b.resolved} (not found)`);
+for (const b of graph.suffixless) out(`FAIL relative define dependency without .js suffix: ${repoPath(b.from)}:${b.line} "${b.spec}"`);
 for (const m of graph.missingSpecRoots) out(`FAIL spec.json root not found: "${m.spec}" -> ${JS_ROOT_REPO_REL}/${m.resolved}`);
 for (const c of cycles) {
   out(`FAIL cycle (${c.size} files): ${c.path.map(repoPath).join(' -> ')}`);
