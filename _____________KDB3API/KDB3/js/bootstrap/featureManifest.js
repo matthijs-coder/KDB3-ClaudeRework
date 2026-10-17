@@ -13,7 +13,7 @@ define([
   "../core/utils/registerUtils.js",
   "../dashboard/header/index.js",
   "../dashboard/footer/index.js",
-  "../dashboard/tabs/__orchestratorTabs.js",
+  "../dashboard/tabs/index.js",
   "../dashboard/canvas/kdbControl/index.js",
   "../dashboard/canvas/pageSurface/index.js",
   "../dashboard/controls/toolbarControls/index.js",

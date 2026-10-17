@@ -37,8 +37,8 @@ function load(rel) {
     modules: {
       "../../inventory/reconcile.js": reconcileModule,
       "../inventory/reconcile.js": reconcileModule,
-      "../../../../tabs/state/selectors.js": tabsSelectorsStub,
-      "../../../tabs/state/selectors.js": tabsSelectorsStub
+      "../../../../tabs/selectors.js": tabsSelectorsStub,
+      "../../../tabs/selectors.js": tabsSelectorsStub
     }
   });
 }

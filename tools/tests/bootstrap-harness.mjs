@@ -9,7 +9,7 @@ import { JS_ROOT } from '../lib/amd-graph.mjs';
 export const FEATURES = [
   ['header', 'dashboard/header/index.js', 'header'],
   ['footer', 'dashboard/footer/index.js', 'footer'],
-  ['tabs', 'dashboard/tabs/__orchestratorTabs.js', 'tabs'],
+  ['tabs', 'dashboard/tabs/index.js', 'tabs'],
   ['kdbControl', 'dashboard/canvas/kdbControl/index.js', 'kdbControl'],
   ['pageSurface', 'dashboard/canvas/pageSurface/index.js', 'canvas'],
   ['launchpad', 'dashboard/launchpad/index.js', 'launchpad'],

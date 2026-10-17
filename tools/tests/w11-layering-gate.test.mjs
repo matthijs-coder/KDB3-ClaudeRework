@@ -14,7 +14,7 @@ const edge = (from, to) => ({ from, to, line: 1 });
 
 test("rules flag exactly the forbidden directions and name the rule", () => {
   const edges = [
-    edge("core/services/tableData/index.js", "dashboard/tabs/__orchestratorTabs.js"),
+    edge("core/services/tableData/index.js", "dashboard/tabs/index.js"),
     edge("core/utils/a.js", "workflows/parameterSet/index.js"),
     edge("dashboard/widgets/widgetBase/index.js", "workflows/pdfExport/index.js"),
     edge("core/utils/a.js", "bootstrap/featureManifest.js"),
@@ -25,13 +25,13 @@ test("rules flag exactly the forbidden directions and name the rule", () => {
     edge("dashboard/tabs/index.js", "dashboard/tabs/state.js"),
     edge("workflows/parameterSet/index.js", "core/utils/b.js"),
     edge("KDB.js", "bootstrap/featureManifest.js"),
-    edge("bootstrap/featureManifest.js", "dashboard/tabs/__orchestratorTabs.js"),
+    edge("bootstrap/featureManifest.js", "dashboard/tabs/index.js"),
     edge("bootstrap/registerServices.js", "workflows/parameterSet/index.js"),
     edge("bootstrap/registerServices.js", "core/services/history/index.js"),
     edge("workflows/parameterSet/index.js", "dashboard/tabs/selectors.js")
   ];
   assert.deepStrictEqual(findLayeringViolations(edges).map((v) => [v.rule, v.from, v.to]), [
-    ["core->dashboard", "core/services/tableData/index.js", "dashboard/tabs/__orchestratorTabs.js"],
+    ["core->dashboard", "core/services/tableData/index.js", "dashboard/tabs/index.js"],
     ["core->workflows", "core/utils/a.js", "workflows/parameterSet/index.js"],
     ["dashboard->workflows", "dashboard/widgets/widgetBase/index.js", "workflows/pdfExport/index.js"],
     ["composition-root", "core/utils/a.js", "bootstrap/featureManifest.js"],

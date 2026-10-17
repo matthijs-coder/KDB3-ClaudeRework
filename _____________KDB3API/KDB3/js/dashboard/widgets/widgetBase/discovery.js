@@ -4,10 +4,10 @@ define([
   "./state/selectors.js",
   "./view/resolveWidgetShell.js",
   "./runtime.js",
-  "../../tabs/effects/hasTabInnerFrame.js",
+  "../../tabs/chrome.js",
   "../../../core/cognosHost/config/widgetChromeSelectors.js",
   "../../../core/utils/kit/async.js"
-], function (_config, _launchpadRoute, _selectors, _shellModule, _runtime, _hasTabInnerFrame, _widgetChrome, _async) {
+], function (_config, _launchpadRoute, _selectors, _shellModule, _runtime, _tabsChrome, _widgetChrome, _async) {
   "use strict";
 
   // Bounded DOM waits so hidden-tab shells cannot stall tab-scoped discovery.
@@ -225,7 +225,7 @@ define([
       return Promise.resolve();
     }
     return pollKeyed(_KDB, "tabContainerPoll:" + _tabId, function () {
-      return _hasTabInnerFrame(_KDB, _tabId);
+      return _tabsChrome.hasTabInnerFrame(_KDB, _tabId);
     });
   }
 

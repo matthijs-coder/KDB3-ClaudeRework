@@ -6,10 +6,10 @@ define([
   "../canvas.js",
   "../../widgetVis/selectors.js",
   "../../widgetText/selectors.js",
-  "../../../tabs/effects/hasTabInnerFrame.js",
-  "../../../tabs/actions/guardParameterSetRun.js"
+  "../../../tabs/chrome.js",
+  "../../../tabs/restore/guard.js"
 ], function (
-  _runtimeModule, _effects, _launchpadRoute, _launchpadTransfer, _canvas, _widgetVisSelectors, _widgetTextSelectors, _hasTabInnerFrame, _guardParameterSetRun
+  _runtimeModule, _effects, _launchpadRoute, _launchpadTransfer, _canvas, _widgetVisSelectors, _widgetTextSelectors, _tabsChrome, _guardParameterSetRun
 ) {
   "use strict";
 
@@ -323,7 +323,7 @@ define([
       return { ok: true, created: created, degradedEntries: degradedEntries };
     }
     await ensureRevealTakeTarget(_context, { index: destinationIndex(deps.plan, _tabId), tabId: _tabId });
-    if (_hasTabInnerFrame(_context._KDB, _tabId) !== true) {
+    if (_tabsChrome.hasTabInnerFrame(_context._KDB, _tabId) !== true) {
       return { ok: false, structural: true, created: created, degradedEntries: degradedEntries, message: "Destination page is not inside its tab wrapper." };
     }
     await parkTabCanvas(_context, _tabId, deps);

@@ -6,7 +6,7 @@ define([
   "./generationGuards.js",
   "./applySelection.js",
   "../../../../core/utils/normalizeCognosScopeId.js",
-  "../../../tabs/state/selectors.js"
+  "../../../tabs/selectors.js"
 ], function (
   _config,
   _selectors,

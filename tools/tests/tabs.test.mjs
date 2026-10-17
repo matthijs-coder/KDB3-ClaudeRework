@@ -80,7 +80,7 @@ test("parameterSet router: unknown types and disposed acknowledgements", async (
 });
 
 test("destroy restores the original _KDB.utils.readCurrentTab, re-orchestration binds it again", () => {
-  const orchestrate = load("__orchestratorTabs.js");
+  const orchestrate = load("index.js");
   const original = function readCurrentTab() { return "original"; };
   const _KDB = { utils: { readCurrentTab: original }, config: {}, services: {} };
   const first = orchestrate(_KDB, {});
@@ -232,7 +232,7 @@ test("selectors: scope match by alias and live scope, tab targets", () => {
 });
 
 test("controller: disposed dispatch answers without throwing, rename without a target is a no-op", async () => {
-  const orchestrate = load("__orchestratorTabs.js");
+  const orchestrate = load("index.js");
   const _KDB = { utils: {}, config: {}, services: {} };
   const controller = orchestrate(_KDB, {});
   assert.equal(controller.dispatch({ type: "tabs/rename", payload: { name: "x" } }), false);
@@ -244,7 +244,7 @@ test("controller: disposed dispatch answers without throwing, rename without a t
 });
 
 test("controller: rename commits pending, asks Cognos, confirms and records the name", async () => {
-  const orchestrate = load("__orchestratorTabs.js");
+  const orchestrate = load("index.js");
   const renamed = [];
   const facet = { setTabName: (tab, name) => { renamed.push([tab.pageId, name]); return { ok: true, data: name }; } };
   const _KDB = { utils: {}, config: {}, services: { cognosHost: { tabs: facet } }, state: {} };
@@ -346,7 +346,7 @@ test("tab mutation saga: a throwing kdbControl view neither degrades the result 
 });
 
 test("controller: destroy mid-mutation commits nothing afterwards and releases the lock", async () => {
-  const orchestrate = load("__orchestratorTabs.js", { document: { querySelector: () => null, querySelectorAll: () => [], getElementById: () => null } });
+  const orchestrate = load("index.js", { document: { querySelector: () => null, querySelectorAll: () => [], getElementById: () => null } });
   const widgetCalls = [];
   let releaseWidget = null;
   let released = false;
@@ -459,7 +459,7 @@ test("traverse: destroy mid-traversal stops clicking, confirms nothing and still
 });
 
 test("rename: a throwing kdbControl view neither fails the rename nor the Cognos round trip", async () => {
-  const orchestrate = load("__orchestratorTabs.js");
+  const orchestrate = load("index.js");
   const renamed = [];
   const facet = { setTabName: (tab, name) => { renamed.push([tab.pageId, name]); return { ok: true, data: name }; } };
   const _KDB = {

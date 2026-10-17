@@ -1,12 +1,12 @@
 define([
-  "../../tabs/effects/hasTabInnerFrame.js",
+  "../../tabs/chrome.js",
   "./state.js",
   "./state/selectors.js",
   "./runtime.js",
   "./effects.js",
   "./launchpadTransfer.js",
   "./discovery.js"
-], function (_hasTabInnerFrame, _state, _selectors, _runtime, _effects, _launchpadTransfer, _discovery) {
+], function (_tabsChrome, _state, _selectors, _runtime, _effects, _launchpadTransfer, _discovery) {
   "use strict";
 
   const normalizeDispatchResult = _state.normalizeDispatchResult;
@@ -125,7 +125,7 @@ define([
   function finishRoute(runtime, tabId, _result, _KDB) {
     clearPending(runtime, tabId);
     const result = _result || {};
-    if (result.ok === true && mayMarkRouted(result, _hasTabInnerFrame(_KDB, tabId))) {
+    if (result.ok === true && mayMarkRouted(result, _tabsChrome.hasTabInnerFrame(_KDB, tabId))) {
       runtime.routedTabIds[tabId] = true;
     }
     return buildEnsureResult({
