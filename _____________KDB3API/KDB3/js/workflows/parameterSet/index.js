@@ -19,7 +19,7 @@ define([
   // window.top by default so WBParameterGetFunction/WBParameterSetFunction are always reachable for the
   // external extension; pass options.installCognosBridge === false to keep the globals off, or call
   // _KDB.services.writebackBridge.uninstall() at runtime.
-  function __orchestrator(_KDB, _options) {
+  function registerWriteback(_KDB, _options) {
     const options = _options || {};
     _KDB.services = _KDB.services || {};
     _ensureWritebackRuntime(_KDB);
@@ -53,5 +53,5 @@ define([
     _KDB.config.labels.de.writeback = Object.assign({}, _writebackLabels, existing);
   }
 
-  return __orchestrator;
+  return registerWriteback;
 });

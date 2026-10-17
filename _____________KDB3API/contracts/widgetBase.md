@@ -262,7 +262,7 @@ Flow:
 9. Dispatch content creation to the content owner:
    - `text` -> `_KDB.api.widgetText.dispatch({ type: "widgetText/contentCreate", widgetId, payload })`; payload carries the toolbox text-button drop request and any initial text defaults.
    - `vis` -> `_KDB.api.widgetVis.dispatch({ type: "widgetVis/contentCreate", widgetId, payload })`; payload carries the Kennzahl/metrics-tree drop request and the metric descriptor. The descriptor is resolved through the canonical lookup `_KDB.api.metricsTree.resolveMetricByCode(code)` (`metricsTree-resolveMetricByCode-contractdelta.md`); the drag payload fields serve as fallback when the lookup is unresolved (sync 2026-07-14).
-   - `datatable` -> `_KDB.api.widgetDataTable.dispatch({ type: "widgetDataTable/contentCreate", widgetId, payload })`
+   - `datatable` -> no content owner (since Phase 2 W12, like `other` and `topN`): the drop is finalized without a content-create dispatch
    - `topN` helper frames are not created by direct user drop in this tranche; only startup discovery, restore or explicit TopN helper claim may park an untitled LIST as `topN`.
    - `other` / `otherResource` has no content owner in this tranche and is route-only.
 10. After successful `contentCreate`, dispatch post-drop settings startup when `_KDB.api.widgetSettings` is available:
@@ -289,8 +289,8 @@ Payload:
 ```js
 {
   reason: "startup" | "user" | "contentRequest" | "rollback" | "historyReplay",
-  sourceModule: "widgetBase" | "widgetText" | "widgetVis" | "widgetDataTable" | "widgetTopN" | string,
-  requestedBy: "widgetSettings" | "widgetBase" | "widgetText" | "widgetVis" | "widgetDataTable" | "widgetTopN" | string | null,
+  sourceModule: "widgetBase" | "widgetText" | "widgetVis" | "widgetTopN" | string,
+  requestedBy: "widgetSettings" | "widgetBase" | "widgetText" | "widgetVis" | "widgetTopN" | string | null,
   widgetType: "WIDGET.VISUALIZATION" | "WIDGET.TEXT" | string | null,
   isLiveWidget: boolean,
   isTextWidget: boolean,
@@ -591,7 +591,7 @@ Required catalog delta before implementation: `architecture/eventSubscribe.md` m
 - `_KDB.api.launchpad.getState()` and published launchpad selectors, especially `readLaunchpadReady`, `readLaunchpadSlotMeta` and selector config. No reads from `_KDB.runtime.launchpad`.
 - `_KDB.api.launchpad.dispatch({ type: "launchpad/waitUntilReady", payload })` for Promise-based readiness waiting. `widgetBase` must not await `launchpad` by reading `_KDB.runtime.launchpad.pendingPromises`.
 - `_KDB.api.launchpad.dispatch({ type: "launchpad/readSlotWidgets", payload })` for ordered widget-id enumeration during `dropCreate` shell claim. `widgetBase` applies its own eligibility checks after receiving ids; launchpad does not return DOM refs or eligible-only lists.
-- `_KDB.api.widgetText`, `_KDB.api.widgetVis`, `_KDB.api.widgetDataTable`, `_KDB.api.widgetTopN` when mounted; missing content owners make `dropCreate` fail and rollback.
+- `_KDB.api.widgetText`, `_KDB.api.widgetVis`, `_KDB.api.widgetTopN` when mounted; missing content owners make `dropCreate` fail and rollback.
 - `_KDB.api.widgetSettings` when mounted for post-drop settings startup: `widgetSettings/placeControls` and `widgetSettings/seedDefaults` after successful `contentCreate`. Missing or failed settings startup does not make shell placement/content creation fail. For colour dropdowns, `widgetSettings` owns the canonical value/history and dispatches `widgetBase/applyColour` / `widgetBase/setColour` as the consequence-owner.
 - `_KDB.services.history.pushCommittedStep(step)` for committed base history.
 - `_KDB.cognosAPI.canvas.findCanvasContent()` for startup discovery.
@@ -664,7 +664,7 @@ Replayability in this tranche means replay within the same Cognos dashboard/spec
 | `remove` | Commit `widget_removed` only for user removal if implemented in this tranche. |
 | rollback/error/destroy/startup route-all | No history. |
 
-`widget_launchpadTransfer` requires an owner replay handler registered under `widgetBase` (`historyReplayHandlerContribution` → `core/bootstrap/registerReplayHandlers.js` → `services.history.registerReplayHandler`). Replay semantics:
+`widget_launchpadTransfer` requires an owner replay handler registered under `widgetBase` (`historyReplayHandlerContribution` → kit `history.registerReplayKeys` in `widgetBase/index.js` → `services.history.registerReplayHandler`). Replay semantics:
 
 - **Undo** of a transfer whose `new.placement === "inLaunchpad"` dispatches `widgetBase/takeFromLaunchpad` with `reason:"historyReplay"` and `isHistoryReplay: true`, using the serializable `old` canvas frame/layout and the stable `widgetId` from `step.old`.
 - **Redo** dispatches `widgetBase/routeToLaunchpad` with `reason:"historyReplay"` and `isHistoryReplay: true`, using the serializable `new` launchpad route from `step.new`.
@@ -683,7 +683,7 @@ The `widgetBase` entry of `bootstrap/featureManifest.js` must list `widget_launc
 - **Undo** dispatches `widgetBase/move` or `widgetBase/resize` via `_KDB.api.widgetBase.dispatch` with `isFinal: true`, `isHistoryReplay: true`, `reason: "historyReplay"`. `toLayout` is derived from `step.old` (undo) or `step.new` (redo); `widgetId` is read from the active frame.
 - Replay must not call `_KDB.services.history.pushCommittedStep`; it applies the existing step only.
 - Replay success means durable `layout`, Cognos `setLayoutPosition`, and reducer state updated via the same path as user move/resize.
-- Handler registration follows the same `historyReplayHandlerContribution` + manifest `replayKeys` pattern as `widget_canvasDrop`.
+- Handler registration follows the same pattern as `widget_canvasDrop`: `widgetBase/index.js` registers the four widget keys with the history service when it stamps `historyReplayHandlerContribution`.
 
 ## 14. Error Taxonomy
 
@@ -716,7 +716,6 @@ As built after the Phase 1 module-template rework (27 files; one concern per fil
 
 ```txt
 KDB3/js/dashboard/widgets/widgetBase/
-  __orchestratorWidgetBase.js   # shim: re-exports index.js (path kept for KDB.js)
   index.js            # createWidgetBaseController: mount/dispatch/destroy, ROUTES table, drop/tabs subscriptions, startup route-all
   config.js           # launchpad channels, skip reasons, chart types, writeback titles, host widget id, labels
   state.js            # ACTION_TYPES, initial state, frame reducer, normalizeDispatchResult
@@ -756,7 +755,7 @@ Production bootstrap registration is needed after CP-2 but is not implemented in
 
 Required integration target:
 
-- import `./dashboard/widgets/widgetBase/__orchestratorWidgetBase.js` from `KDB.js` or the dashboard feature orchestrator once the project has a widget-domain registration point;
+- import `./dashboard/widgets/widgetBase/index.js` from `KDB.js` or the dashboard feature orchestrator once the project has a widget-domain registration point;
 - register `_KDB.api.widgetBase`;
 - mount after `launchpad.mount()` has been started and before content modules need base routing; `widgetBase.mount()` must await `launchpad/waitUntilReady` before `routeAllToLaunchpad`;
 - destroy during root destroy before launchpad is destroyed, so widgetBase can clean subscriptions and runtime while launchpad DOM still exists.
@@ -811,7 +810,7 @@ CP-1 is acceptable when:
 17. Production files use AMD full-compact form and pass lints.
 18. Settings-delete (reset control) produces exactly one `widget_launchpadTransfer` history step.
 19. Undo of that step returns the shell to canvas, restores settings controls via `widgetSettings/placeControls`, and re-applies committed vis settings via `widgetSettings/restoreCommittedSettings`; redo parks the widget in launchpad and runs `widgetSettings/cleanupWidgetControls`.
-20. `widget_launchpadTransfer` replay is registered through the manifest replay keys (`registerReplayHandlers`) and does not log `handler missing`.
+20. `widget_launchpadTransfer` replay is registered by `widgetBase/index.js` (`registerReplayKeys`) and does not log `handler missing`.
 21. Replay does not push a second history step.
 22. When `requestedBy: "widgetSettings"`, undo must attempt vis rebind through `widgetSettings/restoreCommittedSettings`; acceptance passes when shell, settings UI, and vis binding restore succeed. Documented vis-restore failure after successful UI restore is settings-owned and does not fail the history pointer.
 23. Armed move and resize keep the shell inside the dropbox `clientWidth` / `clientHeight` box with jQuery `containment` off. East, south, and southeast resize do not change `x` or `y`. Drop placement, history replay, and take-from-launchpad do not use that gesture clamp. At canvas scale other than 1, armed move keeps the pointer on the widget and can place the shell on the client edge. Armed resize changes size by the scaled pointer delta. The 2px inset between the drop border-box and the client-box is not part of this item. Before the minimum clamp, west and north keep the opposite edge; after the clamp hits the minimum, the existing west/north overshoot may still shift that edge.

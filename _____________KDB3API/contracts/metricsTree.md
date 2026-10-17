@@ -22,7 +22,6 @@ Renders the searchable Kennzahlen (metrics) jsTree inside the kdbControl metrics
 
 ```txt
 KDB3/js/dashboard/metricsTree/
-  __orchestratorMetricsTree.js  # shim: re-exports index.js (path kept for KDB.js)
   index.js         # registerMetricsTree: state/runtime setup, api
   config.js        # DOM selector, table keys, column candidates, search icon
   state.js         # initial state and reducer

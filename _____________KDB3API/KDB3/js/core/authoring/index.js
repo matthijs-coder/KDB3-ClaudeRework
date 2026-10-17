@@ -10,11 +10,11 @@ define(["./createAuthoringController"], function (_createAuthoringController) {
   }
 
   // Runs after the services are registered (cognosHost publishes the dashboard facet).
-  function __orchestratorAuthoring(_KDB) {
+  function registerAuthoring(_KDB) {
     _KDB.api.authoring = _createAuthoringController(_KDB);
     _KDB.api.authoring.mount();
     // Stamp after mount: mount resets runtime.authoring to {}.
     attachDashboardFacet(_KDB);
   }
-  return __orchestratorAuthoring;
+  return registerAuthoring;
 });

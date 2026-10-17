@@ -14,7 +14,7 @@ const json = (value) => JSON.parse(JSON.stringify(value));
 
 const serialize = load("dashboard/widgets/widgetBase/slotStock/serialize.js");
 const fillContent = load("dashboard/widgets/widgetBase/slotStock/fillContent.js");
-const registerWriteback = load("workflows/parameterSet/__orchestratorWriteback.js");
+const registerWriteback = load("workflows/parameterSet/index.js");
 
 const DIAG = "WRITEBACK_WIDGET_RESTORE_FAILED";
 const layout = { x: 1, y: 2, width: 30, height: 20 };

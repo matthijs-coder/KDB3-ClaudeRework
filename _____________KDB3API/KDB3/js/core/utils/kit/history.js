@@ -1,8 +1,7 @@
 /*
  * kit/history.js: thin owner-side wrappers over `_KDB.services.history`. Step keys, step shapes and the
- * historyService itself are unchanged; replay handlers are registered through
- * `services.history.registerReplayHandler` (the manifest in core/bootstrap collects each owner's
- * runtime.<owner>.historyReplayHandlerContribution).
+ * historyService itself are unchanged. Each owner registers its own replay handler with the history service
+ * (registerReplayKeys) where it creates it: in register, or in mount when the handler needs the mounted state.
  *
  * pushHistoryStep(_KDB, step, options?)  boolean. Returns false without pushing when options.isHistoryReplay
  *                                        or options.skipHistory is true, or when the history service is missing;
@@ -12,6 +11,13 @@
  *   timestamp, rejects steps whose old equals new, and rejects steps while a writeback restore is active.
  *   Owners that adopt this helper can drop their local cloneSerializable, areSnapshotsEqual and
  *   runtime.history.writebackRestore checks.
+ * registerReplayKeys(_KDB, keys, handler)
+ *                                        Registers `handler` under every step key of `keys` with
+ *                                        services.history.registerReplayHandler and returns one function that
+ *                                        unregisters them all. A missing history service is a silent no-op like in
+ *                                        pushHistoryStep (registerServices always registers it). The history
+ *                                        service looks handlers up by key, so registration order does not matter;
+ *                                        its destroy clears them.
  * createReplayHandler(applyByKey)        { apply(_KDB, targetValue, step, ctx) } for a contribution object.
  *                                        Calls applyByKey[step.key](_KDB, targetValue, step, ctx) and returns its
  *                                        result (boolean or Promise<boolean>); unknown keys return false.
@@ -51,8 +57,33 @@ define([], function () {
     };
   }
 
+  /**
+   * @param {object} _KDB
+   * @param {string[]} keys   step keys the handler replays
+   * @param {{apply: Function}} handler
+   * @returns {Function} unregisters every key registered here
+   */
+  function registerReplayKeys(_KDB, keys, handler) {
+    var history = _KDB && _KDB.services && _KDB.services.history;
+    var unregisters;
+    if (!history || typeof history.registerReplayHandler !== "function") {
+      return function () {};
+    }
+    unregisters = keys.map(function (key) {
+      return history.registerReplayHandler(key, handler);
+    });
+    return function unregisterReplayKeys() {
+      unregisters.forEach(function (unregister) {
+        if (typeof unregister === "function") {
+          unregister();
+        }
+      });
+    };
+  }
+
   return {
     pushHistoryStep: pushHistoryStep,
-    createReplayHandler: createReplayHandler
+    createReplayHandler: createReplayHandler,
+    registerReplayKeys: registerReplayKeys
   };
 });

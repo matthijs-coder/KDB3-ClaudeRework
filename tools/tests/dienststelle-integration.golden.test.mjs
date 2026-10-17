@@ -127,7 +127,7 @@ function makeHost(init) {
 
 function boot(init) {
   const host = makeHost(init);
-  const register = loadAmd(path.join(ROOT, 'dashboard/filters/dienststelle/__orchestratorDienststelle.js'), {
+  const register = loadAmd(path.join(ROOT, 'dashboard/filters/dienststelle/index.js'), {
     stubs: { Date: FixedDate }
   });
   const api = register(host.KDB, {});

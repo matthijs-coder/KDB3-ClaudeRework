@@ -67,7 +67,7 @@ Production evidence:
 
 - `_____________KDB3API/KDB3/js/dashboard/filters/filterDock/` exists (Mode 2 port).
 - `_____________KDB3API/contracts/filterDock.md` and `filterDock-port-execution-spec.md` govern this tranche.
-- `KDB.js` registers and mounts `_KDB.api.filterDock` via `__orchestratorFilterDock.js` (there is no parent filters orchestrator).
+- `KDB.js` registers and mounts `_KDB.api.filterDock` via `dashboard/filters/filterDock/index.js` (there is no parent filters orchestrator).
 
 ## 2. Purpose
 
@@ -93,7 +93,7 @@ Rationale:
 
 Bootstrap (current):
 
-- `KDB.js` imports `dashboard/filters/filterDock/__orchestratorFilterDock.js` and registers `_KDB.api.filterDock` during `setupCore`.
+- `KDB.js` imports `dashboard/filters/filterDock/index.js` and registers `_KDB.api.filterDock` during `setupCore`.
 - First `filterDock.mount()` runs in `finishDashboardInitialization` **after** `await whenUrlShareRestoreSettled` (absent / SET / recovery / failed) and **before** `presentPendingUrlShareMessage`. It does **not** run from `startModules` / `mountFeatureModules`. Cognos does not create `#filterDockContainer` while the boot spinner is mounted; inbound canvas+select can occupy the post-lift window, so a 30s wait started in `startModules` expires before host dock chrome exists (PO Cognos 2026-08-29).
 - Cognos dock selector keys live in `core/cognosHost/config/filterDockChromeSelectors.js` and are copied into `_KDB.elements.selectors.filterDock` at register time.
 
@@ -533,11 +533,10 @@ Live refs belong under `_KDB.runtime.filterDock.domRefs` and must be cleared on 
 
 Production target after CP-1 and execution-spec approval:
 
-As built (flat entry files plus `interaction/` and `observation/`; exports per file). `__orchestratorFilterDock.js` is a shim over `index.js`.
+As built (flat entry files plus `interaction/` and `observation/`; exports per file). `index.js` is the registrar.
 
 ```txt
 dashboard/filters/filterDock/
-  __orchestratorFilterDock.js                         shim over index.js (path kept for KDB.js)
   chromeWait.js                                       waitForDockChrome
   config.js                                           CHROME, DOCK_SELECTOR_DEFAULTS, FILTERS_READY_STABILITY_MS, FILTERS_READY_MAX_WAIT_MS, POPUP_DISPLAY_RESYNC_CONFIRM_DELAYS_MS, CHROME_WAIT_TIMEOUT_MS, ERROR_CHROME_WAIT_TIMEOUT, ...
   identity.js                                         readFilterLabel, readScopeContext, readRuntimeScope, readFilterConfig, readFilterCapabilities, toHandoffCapabilities, resolveFilterType, ...
@@ -569,7 +568,7 @@ dashboard/filters/filterDock/
 
 Implemented:
 
-- `KDB.js` imports `__orchestratorFilterDock.js`, calls it during init, exposes `_KDB.api.filterDock`, invokes `destroy()` with other dashboard features, and invokes first `mount()` after overlay lift + `whenUrl` settlement (not from `mountFeatureModules`).
+- `KDB.js` imports `dashboard/filters/filterDock/index.js`, calls it during init, exposes `_KDB.api.filterDock`, invokes `destroy()` with other dashboard features, and invokes first `mount()` after overlay lift + `whenUrl` settlement (not from `mountFeatureModules`).
 
 Future integration target:
 

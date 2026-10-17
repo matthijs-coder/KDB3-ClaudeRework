@@ -78,7 +78,7 @@ test("owners publish their action types through selectors.js (used by widgetBase
 
 test("widgetVis readVisPropBucketKey equals visTypes.resolveVisPropBucketKey for the configured bindingSpecs", () => {
   const _KDB = { config: { options: {} }, api: {}, properties: {}, state: {}, runtime: {} };
-  load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/config/registerConfig.js")(_KDB);
   const vis = load("dashboard/widgets/widgetVis/selectors.js");
   const visTypes = load("dashboard/widgets/widgetVis/visTypes.js");
   const types = ["Line", "line", "Pie", "pie", "List", "StackedBar", "StackedColumn", "Prognose", "prognose", "Bar", "", null, undefined];

@@ -227,7 +227,7 @@ Contract:
 - Result data is serializable metadata only. It never includes DOM nodes, jQuery objects, Cognos objects, shell references or functions.
 - It does not claim widgets, move widgets, write widget state, write launchpad state, write history, emit events or call Cognos widget APIs.
 - `includeShells` is intentionally not part of the contract. A consumer that needs a shell resolves it inside its own ownership boundary from the returned `widgetId`.
-- `onlyEligibleWidgetShells` is intentionally not part of the contract. Cognos-content eligibility, host/writeback filtering, helper claimability and widget-type semantics belong to `widgetBase`, `widgetTopN` and `widgetDataTable`, not to launchpad.
+- `onlyEligibleWidgetShells` is intentionally not part of the contract. Cognos-content eligibility, host/writeback filtering, helper claimability and widget-type semantics belong to `widgetBase` and `widgetTopN` (the `widgetDataTable` stub was retired in Phase 2 W12), not to launchpad.
 
 ## 6. Readers / Writers
 
@@ -322,7 +322,6 @@ As built after the Phase 1 module-template rework (8 files):
 
 ```txt
 KDB3/js/dashboard/launchpad/
-  __orchestratorLaunchpad.js  # shim: re-exports index.js (path kept for KDB.js)
   index.js              # registerLaunchpad: controller, mount/dispatch/destroy, readiness
   config.js             # DOM_SELECTORS (published as _KDB.elements.selectors.launchpad), PAD_CONFIG (five pads), ACTION_TYPES
   state.js              # initial state and reducer (mountStarted/Succeeded/Failed, destroy)
@@ -340,7 +339,7 @@ Bootstrap registration in `KDB.js` is needed for the module to run in production
 
 Deferred integration target:
 
-- import `./dashboard/launchpad/__orchestratorLaunchpad.js`;
+- import `./dashboard/launchpad/index.js`;
 - call the orchestrator during feature registration;
 - call `_KDB.api.launchpad.mount({})` during feature mounting;
 - call `_KDB.api.launchpad.destroy()` during root destroy.

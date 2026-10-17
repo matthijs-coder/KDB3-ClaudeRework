@@ -187,9 +187,9 @@ Both emitted events are catalogued in [architecture/eventSubscribe.md](../archit
 
 - `_KDB` (always).
 - `_KDB.events` (emit only).
-- `_KDB.runtime.tableData.canvasFacet` — stamped by `__orchestratorTableData` from `_KDB.services.cognosHost.canvas` (slice 2). `resolveTableWidgetId.js` reads it directly from the runtime bucket.
-- `_KDB.runtime.tableData.dataQueryFacet` — stamped by `__orchestratorTableData` from `_KDB.services.cognosHost.dataQuery` (slice 4). `readTableQueryResult` (`queryRead.js`) reads it from the runtime bucket. The former `waitForTableQueryResult.js` is gone (it was dead and not on the load path; do not revive it). Deep files do not look up `_KDB.services.cognosHost`.
-- `_KDB.runtime.tableData.visualizationFacet` / `_KDB.runtime.tableData.widgetsFacet` — stamped by `__orchestratorTableData` from existing `cognosHost.visualization` / `cognosHost.widgets` (not a new facet/op). Leftover Hierarchy `HideData` park wrap only: unpark instance ids `HideData` / `_none` / `_1`; body live `containsignorecase` `"b"`; repark then unsignaled `renderWidget` gated by `shouldRestorePark`. Authority: `tableData-hierarchy-park-filter-contractdelta.md`.
+- `_KDB.runtime.tableData.canvasFacet` — stamped by `core/services/tableData/index.js` from `_KDB.services.cognosHost.canvas` (slice 2). `resolveTableWidgetId.js` reads it directly from the runtime bucket.
+- `_KDB.runtime.tableData.dataQueryFacet` — stamped by `core/services/tableData/index.js` from `_KDB.services.cognosHost.dataQuery` (slice 4). `readTableQueryResult` (`queryRead.js`) reads it from the runtime bucket. The former `waitForTableQueryResult.js` is gone (it was dead and not on the load path; do not revive it). Deep files do not look up `_KDB.services.cognosHost`.
+- `_KDB.runtime.tableData.visualizationFacet` / `_KDB.runtime.tableData.widgetsFacet` — stamped by `core/services/tableData/index.js` from existing `cognosHost.visualization` / `cognosHost.widgets` (not a new facet/op). Leftover Hierarchy `HideData` park wrap only: unpark instance ids `HideData` / `_none` / `_1`; body live `containsignorecase` `"b"`; repark then unsignaled `renderWidget` gated by `shouldRestorePark`. Authority: `tableData-hierarchy-park-filter-contractdelta.md`.
 - Table-name source — see **Q3**: either `_KDB.properties.loadingTablesPropObj` (REDESIGN2 pattern, name-based) or `_KDB.config.tables` (KDB3 pattern, handle-based).
 
 `core/services/tableData/index.js` (`createTableDataService`) stays at 150 lines / 10 AMD. Slice 4 does not add a named method. `abortTable` is unchanged (cluster D): array of `{tableName|tableid|widgetId}`; disposed → `Promise.reject(new Error("tableDataService disposed"))`; aborted loads silent.
@@ -210,11 +210,10 @@ tableData does **not** call `_KDB.cognosAPI` after slice 4. Host access is ring 
 
 Target tree for port / skeleton (under `TEST/tableDataService-port/` for the litmustest; under `KDB3/js/core/services/tableData/` for production). Per Q5, no `config/actionTypes.js` and no internal reducer.
 
-As built (production tree `core/services/tableData/`, exports per file). `__orchestratorTableData.js` is a shim over `index.js` (`registerTableData`).
+As built (production tree `core/services/tableData/`, exports per file). `index.js` is the registrar (`registerTableData`).
 
 ```txt
 core/services/tableData/
-  __orchestratorTableData.js                          shim over index.js (path kept for KDB.js)
   config.js                                           READ_BUDGET_MS, POLL_INTERVAL_MS, DEFAULT_PICK, tableDataLabels (German toast text, registered on `config.labels.de.tableData`), LOAD_FAILED_CODE, LOAD_FAILED_MESSAGE, ...
   index.js                                            registerTableData
   loadLifecycle.js                                    startTableLoad, abortTableLoad, abortAllLoads

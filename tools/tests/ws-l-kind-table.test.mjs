@@ -212,7 +212,7 @@ function createKdb() {
 
 test("controller: register, mount, state shape, unknown action, destroy and disposed dispatch", () => {
   const fakeConsole = createConsole();
-  const register = loadAmd(path.join(SETTINGS_DIR, "__orchestratorWidgetSettings.js"), { stubs: { console: fakeConsole.stub } });
+  const register = loadAmd(path.join(SETTINGS_DIR, "index.js"), { stubs: { console: fakeConsole.stub } });
   const { _KDB } = createKdb();
   const controller = register(_KDB);
   assert.equal(_KDB.api.widgetSettings, controller);

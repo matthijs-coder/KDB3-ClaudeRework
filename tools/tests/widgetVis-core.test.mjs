@@ -1,4 +1,4 @@
-// Golden tests for the widgetVis core leaves and widgetDataTable (WS-M W1).
+// Golden tests for the widgetVis core leaves (WS-M W1).
 // Run: node --test tools/tests/widgetVis-core.test.mjs
 // Only loadCore()/loadDataTable() know module paths; fixtures are the recorded outputs of origin/main.
 import { test } from "node:test";
@@ -35,18 +35,12 @@ function loadCore() {
   };
 }
 
-function loadDataTable() {
-  return load("dashboard/widgets/widgetDataTable/__orchestratorWidgetDataTable.js", {
-    stubs: { console: { error() {}, warn() {}, log() {} } }
-  });
-}
-
 const sha = (value) => createHash("sha256").update(JSON.stringify(value === undefined ? "<undefined>" : value)).digest("hex").slice(0, 16);
 const json = (value) => (value === undefined ? "<undefined>" : JSON.parse(JSON.stringify(value)));
 
 function buildKdb(extra) {
   const _KDB = Object.assign({ config: { options: {} }, api: {}, properties: {} }, extra || {});
-  load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/config/registerConfig.js")(_KDB);
   return _KDB;
 }
 
@@ -726,28 +720,6 @@ test("published selectors: action types and bucket key equal the leaves", () => 
   const published = load(W + "selectors.js", { overrides: { [W + "state.js"]: state } });
   assert.equal(published.ACTION_TYPES, state.ACTION_TYPES);
   assert.equal(published.readVisPropBucketKey({}, "Line"), visTypes.resolveVisPropBucketKey("Line", {}));
-});
-
-test("widgetDataTable: mount, dispatch, destroy, dispatch after destroy, getState", () => {
-  const register = loadDataTable();
-  const _KDB = {};
-  const api = register(_KDB, {});
-  assert.equal(_KDB.api.widgetDataTable, api);
-  assert.deepStrictEqual(Object.keys(api).sort(), ["destroy", "dispatch", "getState", "mount"]);
-  assert.deepStrictEqual(api.getState(), { lifecycle: "idle", byId: {}, errorCode: null, errorMessage: null });
-  assert.equal(api.mount({}), true);
-  assert.deepStrictEqual(api.getState(), { lifecycle: "ready", byId: {}, errorCode: null, errorMessage: null });
-  assert.notEqual(api.getState(), _KDB.state.widgets.dataTable);
-  assert.deepStrictEqual(api.dispatch({ type: "widgetDataTable/contentCreate", widgetId: "w" }),
-    { ok: true, skipped: true, reasonCode: "SCAFFOLD_NOOP", actionType: "widgetDataTable/contentCreate" });
-  assert.deepStrictEqual(api.dispatch(undefined), { ok: true, skipped: true, reasonCode: "SCAFFOLD_NOOP", actionType: null });
-  api.destroy();
-  assert.equal(_KDB.state.widgets.dataTable.lifecycle, "disposed");
-  assert.equal(api.getState(), undefined);
-  assert.deepStrictEqual(api.dispatch({ type: "x" }), { ok: false, outcome: "aborted", reason: "disposed", skipped: true, status: "aborted" });
-  assert.equal(api.mount({}), false);
-  api.destroy();
-  assert.equal(_KDB.state.widgets.dataTable.lifecycle, "disposed");
 });
 
 const QUIET_CONSOLE = { error() {}, warn() {}, log() {} };

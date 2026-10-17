@@ -1,7 +1,7 @@
 define(["./config/cssHrefList.js", "./addCssLinks.js"], function (_cssHrefList, _addCssLinks) {
-  function __orchestrator(_KDB) {
+  function registerCss(_KDB) {
     _addCssLinks(_KDB, _cssHrefList);
   }
 
-  return __orchestrator;
+  return registerCss;
 });

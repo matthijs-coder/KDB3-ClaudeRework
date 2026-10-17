@@ -18,7 +18,7 @@ test("history labels equal the old literals", () => {
 });
 
 test("history registration publishes the labels; existing values win; a replay failure notifies the label text", async () => {
-  const register = loadAmd(path.join(JS_ROOT, "core/services/historyService/__orchestratorHistoryService.js"), {
+  const register = loadAmd(path.join(JS_ROOT, "core/services/historyService/index.js"), {
     stubs: { console: { ...console, error() {}, warn() {} } }
   });
   const notified = [];

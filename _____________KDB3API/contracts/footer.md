@@ -105,7 +105,7 @@ _KDB.state.footer = {
 
 ## 8. Selectors
 
-`footer/state/selectors.js`: o.a. `readFooterStatus(_KDB)` → `"idle" | "active" | "removed"`; re-export `readHeaderStatus`, **`readHeaderTitleText`**, and **`readActiveTabIndex`** (from `tabs/state/selectors.js`; page indicator = that index + 1 when numeric).
+`footer/state/selectors.js`: o.a. `readFooterStatus(_KDB)` → `"idle" | "active" | "removed"`; re-export `readHeaderStatus`, **`readHeaderTitleText`**, and **`readActiveTabIndex`** (from `tabs/selectors.js`; page indicator = that index + 1 when numeric).
 
 **Reads of header:** import **`readHeaderStatus`** (en andere gepubliceerde header-selectors) vanuit **`header/state/selectors.js`**; geen interne imports buiten het public selector-pad.
 
@@ -129,11 +129,10 @@ _KDB.state.footer = {
 
 ## 11. Folder layout
 
-As built (exports per file). `__orchestratorFooter.js` is a shim over `index.js` (controller + `registerFooter`).
+As built (exports per file). `index.js` is the registrar (controller + `registerFooter`).
 
 ```txt
 dashboard/footer/
-  __orchestratorFooter.js                             shim over index.js (path kept for KDB.js)
   config.js                                           VALID_SOURCES, MOUNT_TARGET_TIMEOUT_MS, UPDATE_DATE_TABLE_INPUT, LABELS, ERROR_CODES
   effects.js                                          runFooterEffects
   history.js                                          pushFooterHistoryStep, createFooterReplayHandler

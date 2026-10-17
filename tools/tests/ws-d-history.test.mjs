@@ -7,7 +7,7 @@ import { dirname, resolve } from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 
 const JS_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../_____________KDB3API/KDB3/js");
-const ENTRY = JS_ROOT + "/core/services/historyService/__orchestratorHistoryService.js";
+const ENTRY = JS_ROOT + "/core/services/historyService/index.js";
 
 function quietConsole() {
   const calls = { warn: [], error: [] };

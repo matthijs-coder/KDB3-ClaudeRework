@@ -218,7 +218,8 @@ define([
       if (layoutResult.ok !== true) {
         return rollbackDrop(context, widgetId, claim, route, previousFrame, layoutResult.errorCode);
       }
-      if (route.kind === "other" || route.kind === "topN") {
+      // These kinds have no content owner that creates anything: the frame is placed as is.
+      if (route.kind === "other" || route.kind === "topN" || route.kind === "datatable") {
         return finalizeDrop(context, action, dropRequest, widgetId, opSeq, route, placeResult.layout, previousFrame, claim);
       }
       return _effects.dispatchContentCreate(context._KDB, {

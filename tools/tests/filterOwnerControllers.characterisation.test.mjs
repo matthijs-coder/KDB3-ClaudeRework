@@ -73,7 +73,7 @@ function bootSingleSelect(modules) {
 
 function bootSicht() {
   const con = makeConsole();
-  const register = loadAmd(path.join(FILTERS, "sicht/__orchestratorSicht.js"), { stubs: { console: con, document: {} } });
+  const register = loadAmd(path.join(FILTERS, "sicht/index.js"), { stubs: { console: con, document: {} } });
   const counter = { subscribed: [], unsubscribed: 0 };
   const { KDB, arm } = armableKDB({
     state: { filters: { singleSelect: { instancesById: {}, inventory: { generation: 1 } } } }, runtime: {}, api: {}, elements: {},
@@ -87,7 +87,7 @@ function bootSicht() {
 
 function bootSpecial() {
   const con = makeConsole();
-  const register = loadAmd(path.join(FILTERS, "specialSingleSelect/__orchestratorSpecialSingleSelect.js"), {
+  const register = loadAmd(path.join(FILTERS, "specialSingleSelect/index.js"), {
     stubs: { console: con, document: { querySelector: () => null } }
   });
   const counter = { subscribed: [], unsubscribed: 0 };
@@ -103,7 +103,7 @@ function bootSpecial() {
 
 function bootDienststelle() {
   const con = makeConsole();
-  const register = loadAmd(path.join(FILTERS, "dienststelle/__orchestratorDienststelle.js"), { stubs: { console: con } });
+  const register = loadAmd(path.join(FILTERS, "dienststelle/index.js"), { stubs: { console: con } });
   const counter = { subscribed: [], unsubscribed: 0 };
   const { KDB, arm } = armableKDB({
     state: { filters: {} }, runtime: {}, api: {}, elements: {},
@@ -117,7 +117,7 @@ function bootDienststelle() {
 
 function bootNative() {
   const con = makeConsole();
-  const register = loadAmd(path.join(FILTERS, "nativeMultiSelect/__orchestratorNativeMultiSelect.js"), { stubs: { console: con } });
+  const register = loadAmd(path.join(FILTERS, "nativeMultiSelect/index.js"), { stubs: { console: con } });
   const counter = { subscribed: [], unsubscribed: 0 };
   const { KDB, arm } = armableKDB({
     state: { filters: {} }, runtime: {}, api: {}, elements: {},
@@ -542,7 +542,7 @@ test("singleSelect: STATE handlers return the state snapshot, ERROR is reduced, 
 
 function bootDienststelleWithEvents() {
   const con = makeConsole();
-  const register = loadAmd(path.join(FILTERS, "dienststelle/__orchestratorDienststelle.js"), { stubs: { console: con } });
+  const register = loadAmd(path.join(FILTERS, "dienststelle/index.js"), { stubs: { console: con } });
   const handlers = [];
   const counter = { subscribed: [], unsubscribed: 0 };
   const { KDB, arm } = armableKDB({

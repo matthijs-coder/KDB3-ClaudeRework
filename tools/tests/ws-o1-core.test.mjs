@@ -171,7 +171,7 @@ function setupAuthoring({ withHost = false } = {}) {
       },
     };
   }
-  const orchestrator = load('core/authoring/__orchestratorAuthoring.js', { stubs: { console } });
+  const orchestrator = load('core/authoring/index.js', { stubs: { console } });
   return { kdb, events, host, calls, orchestrator };
 }
 
@@ -268,7 +268,7 @@ test('authoring: destroy unsubscribes host (remove/off/unsubscribe/dispose/funct
     let detached = 0;
     let cb;
     kdb.services.cognosHost = { dashboard: { subscribeUiState(c) { cb = c; return make(() => { detached += 1; }); } } };
-    load('core/authoring/__orchestratorAuthoring.js', { stubs: { console } })(kdb);
+    load('core/authoring/index.js', { stubs: { console } })(kdb);
     kdb.api.authoring.dispatch(enter('api'));
     kdb.api.authoring.destroy();
     assert.equal(detached, 1, kind);
@@ -312,7 +312,7 @@ test('homeDialog orchestrator: existing labels win, the runtime keys are set', (
   const dataSources = { hasErrorDataSource() {} };
   const dashboard = { replaceWithBiHomePerspective() {} };
   kdb.services.cognosHost = { dataSources, dashboard };
-  const orchestrator = load('core/homeDialog/__orchestratorHomeDialog.js', { stubs: { console } });
+  const orchestrator = load('core/homeDialog/index.js', { stubs: { console } });
   const runtime = orchestrator(kdb);
   const labels = kdb.config.labels.de.homeDialog;
   assert.equal(labels.closeLabel, 'Custom close');
@@ -336,7 +336,7 @@ test('homeDialog orchestrator: existing labels win, the runtime keys are set', (
 test('homeDialog orchestrator: without cognosHost the facets are null; empty KDB works', () => {
   const { console } = silentConsole();
   const kdb = {};
-  const runtime = load('core/homeDialog/__orchestratorHomeDialog.js', { stubs: { console } })(kdb);
+  const runtime = load('core/homeDialog/index.js', { stubs: { console } })(kdb);
   assert.equal(runtime.dataSourcesFacet, null);
   assert.equal(runtime.dashboardFacet, null);
   assert.deepEqual(Object.keys(runtime).sort(), ['dashboardFacet', 'dataSourcesFacet', 'presentCubesUnavailable', 'presentHomeChoice', 'unregisterWatchdog']);
@@ -363,7 +363,7 @@ function setupHomeDialog({ choice, facetOverrides } = {}) {
       },
     },
   };
-  load('core/homeDialog/__orchestratorHomeDialog.js', { stubs: { console } })(kdb);
+  load('core/homeDialog/index.js', { stubs: { console } })(kdb);
   return { kdb, nav, choose, calls };
 }
 
@@ -447,7 +447,7 @@ test('homeDialog: registers the boot watchdog handler and forwards the payload t
   const unregister = () => registered.push('unregistered');
   kdb.services.loading = { registerWatchdogHandler: (key, fn) => { registered.push([key, fn]); return unregister; } };
   const { console } = silentConsole();
-  load('core/homeDialog/__orchestratorHomeDialog.js', { stubs: { console } })(kdb);
+  load('core/homeDialog/index.js', { stubs: { console } })(kdb);
   assert.equal(registered.length, 1);
   assert.equal(registered[0][0], 'kdb-root-loading-animation-mount');
   assert.equal(kdb.runtime.homeDialog.unregisterWatchdog, unregister);

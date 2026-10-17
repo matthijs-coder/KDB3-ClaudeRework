@@ -58,7 +58,7 @@ Also paint one surround node, `.ba-common-container.ba-common-tabList__innerCont
 
 `KDB.js` only:
 
-- `registerFeatureModules`: call `__orchestratorPageSurface` immediately after `__orchestratorKdbControl`, so `dispatch` exists before any mount.
+- `registerFeatureModules`: call `dashboard/canvas/pageSurface/index.js` immediately after `dashboard/canvas/kdbControl/index.js`, so `dispatch` exists before any mount.
 - `mountFeatureModules`: `_KDB.api.canvas.mount({})` immediately after `_KDB.api.kdbControl.mount({})`.
 - `destroyRegisteredFeatures`: `api.canvas` immediately before `api.kdbControl`.
 
@@ -74,7 +74,6 @@ As built (3 files):
 
 ```txt
 dashboard/canvas/pageSurface/
-  __orchestratorPageSurface.js   shim over index.js (path kept for KDB.js)
   index.js                       registerPageSurface: mount/dispatch/destroy, canvasFacet stamp, whenCanvasReady wait
   effects.js                     applyAxis, flushPendingAndSettings, writePending (page size px, page/surround background)
 ```

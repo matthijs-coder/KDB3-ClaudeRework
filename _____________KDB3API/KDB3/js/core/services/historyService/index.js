@@ -3,7 +3,7 @@
  * Lifecycle: ready, error, disposed. State lives in `_KDB.state.history`; `_KDB.runtime.history` holds the
  * standard buckets plus `adapters`, `writebackRestore` and `replay` (both read by other
  * modules, so begin/finish replace the writebackRestore object and keep its field names).
- * Replay handlers: owners (or the bootstrap on their behalf) call `registerReplayHandler(key, handler)`.
+ * Replay handlers: each owner calls `registerReplayHandler(key, handler)` (kit history.registerReplayKeys) when it creates its handler.
  */
 define([
   "../../utils/kit/data.js",

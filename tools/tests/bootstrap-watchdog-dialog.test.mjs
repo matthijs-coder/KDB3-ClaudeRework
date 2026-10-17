@@ -39,12 +39,12 @@ function setup({ withHomeDialog = true, choice = null } = {}) {
       }
     }
   };
-  const register = loadAmd(path.join(JS_ROOT, "core/services/loadingService/__orchestratorLoadingService.js"), { stubs: env.stubs });
+  const register = loadAmd(path.join(JS_ROOT, "core/services/loadingService/index.js"), { stubs: env.stubs });
   const loading = register(_KDB);
   _KDB.services.loading = loading;
   let homeDialog = null;
   if (withHomeDialog) {
-    homeDialog = loadAmd(path.join(JS_ROOT, "core/homeDialog/__orchestratorHomeDialog.js"), { stubs: env.stubs });
+    homeDialog = loadAmd(path.join(JS_ROOT, "core/homeDialog/index.js"), { stubs: env.stubs });
     homeDialog(_KDB);
   }
   return { env, _KDB, loading, widgetEl, chooseRequests, navigation, homeDialog };

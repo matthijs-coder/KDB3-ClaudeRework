@@ -28,7 +28,7 @@ define([
     return Object.assign({}, _defaults, _existing);
   }
 
-  function __orchestrator(_KDB) {
+  function registerConfig(_KDB) {
     var config = _KDB.config = _KDB.config || {};
     var existing = {
       links: config.links,
@@ -58,5 +58,5 @@ define([
     };
   }
 
-  return __orchestrator;
+  return registerConfig;
 });

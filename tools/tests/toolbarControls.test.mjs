@@ -9,12 +9,6 @@ import { JS_ROOT } from "../lib/amd-graph.mjs";
 import { createFakeDom } from "./lib/toolbar-fake-dom.mjs";
 
 const KEYS = ["historyControls", "pdfExportControls", "wienKiControls", "shareControls"];
-const SHIMS = {
-  historyControls: "History",
-  pdfExportControls: "PdfExport",
-  wienKiControls: "WienKi",
-  shareControls: "Share"
-};
 
 // Markup produced by the four original modules (light toolbar), left to right.
 const GOLDEN_LIGHT = [
@@ -107,8 +101,7 @@ function createHarness(options = {}) {
       }
     }
   };
-  const register = (key) => loadAmd(path.join(JS_ROOT, `dashboard/controls/${key}/__orchestrator${SHIMS[key]}Controls.js`), { stubs })(_KDB);
-  KEYS.forEach(register);
+  loadAmd(path.join(JS_ROOT, "dashboard/controls/toolbarControls/index.js"), { stubs })(_KDB);
   const settle = async () => {
     await tick();
     dom.flushFrames();
@@ -130,6 +123,13 @@ async function mountAll(harness, order = KEYS) {
 }
 
 const BUTTON_CLASSES = ["kdb-share-controls", "kdb-wien-ki-controls", "kdb-pdf-export-controls", "kdb-history-controls"];
+
+test("one registration publishes the four button APIs in the old consecutive order, each with mount and destroy", () => {
+  const harness = createHarness();
+  assert.deepEqual(Object.keys(harness._KDB.api).filter((key) => KEYS.includes(key)), KEYS);
+  KEYS.forEach((key) => assert.deepEqual(Object.keys(harness._KDB.api[key]).filter((name) => name !== "applyReadOnlyChrome").sort(), ["destroy", "mount"], key));
+  assert.equal(typeof harness._KDB.api.shareControls.applyReadOnlyChrome, "function");
+});
 
 test("four buttons share one toolbar wait and one body observer, in the declared order", async () => {
   const harness = createHarness();

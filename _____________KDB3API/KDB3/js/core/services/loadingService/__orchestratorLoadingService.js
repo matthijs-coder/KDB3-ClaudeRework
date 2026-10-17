@@ -1,2 +1,0 @@
-// shim: path kept for imports from outside this module; remove in Phase 2
-define(["./index.js"], function (_registerLoadingService) { return _registerLoadingService; });

@@ -1,6 +1,6 @@
 ---
 description: KDB3 _KDB.runtime discipline. Owner-private technical resources, standard bucket names, cleanup in destroy, AbortController and { signal } listener hygiene, no serialisation.
-globs: **/KDB3/js/**/runtime/**/*.js, **/KDB3/js/**/index.js, **/KDB3/js/**/__orchestrator*.js, **/KDB3/js/**/create*Controller.js, **/KDB3/js/**/create*Service.js
+globs: **/KDB3/js/**/runtime/**/*.js, **/KDB3/js/**/index.js, **/KDB3/js/**/create*Controller.js, **/KDB3/js/**/create*Service.js
 alwaysApply: false
 ---
 

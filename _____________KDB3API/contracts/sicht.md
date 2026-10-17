@@ -533,7 +533,6 @@ As built (`KDB3/js/dashboard/filters/sicht/`, 14 files):
 
 ```txt
 KDB3/js/dashboard/filters/sicht/
-  __orchestratorSicht.js   one-line shim over index.js (imported by KDB.js)
   index.js                 createSichtController + ROUTES table + tableData subscription; registerSicht
   config.js                Sicht action/selector/class constants (chrome selectors from _KDB.elements.selectors)
   state.js                 actions, createInitialState, createSichtReducer
@@ -553,7 +552,7 @@ KDB3/js/dashboard/filters/sicht/
 
 This tranche includes bootstrap and CSS registration after CP-1 approval:
 
-- `KDB.js` imports `dashboard/filters/sicht/__orchestratorSicht.js`.
+- `KDB.js` imports `dashboard/filters/sicht/index.js`.
 - `KDB.js` registers `_KDB.api.sicht` with the other filter modules.
 - `KDB.js` mounts `_KDB.api.sicht`.
 - `KDB.js` destroys `_KDB.api.sicht`.

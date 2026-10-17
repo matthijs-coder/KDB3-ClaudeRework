@@ -55,10 +55,10 @@ This is a direct port: preserve legacy native HTML5 drag/drop behavior and chang
 
 Production evidence:
 
-- Historical (at draft time): `dashboard/canvas/dragDrop/` did not exist and `KDB.js` did not register it. Today `KDB.js` imports `__orchestratorDragDrop.js` and calls `_KDB.api.dragDrop.mount({})`.
+- Historical (at draft time): `dashboard/canvas/dragDrop/` did not exist and `KDB.js` did not register it. Today `KDB.js` imports `dashboard/canvas/dragDrop/index.js` and calls `_KDB.api.dragDrop.mount({})`.
 - `metricsTree` already has a `createDragDropAdapter` that reads `_KDB.api.dragDrop` and expects `refreshDropboxes`, `startDrag`, and `finishDrag`.
 - No production `widgets` owner/API is present in this tranche, so final drop handling is documented but not implemented here.
-- Historical (at draft time): no `_KDB.utils.throttle`. Today `core/utils/` has no `throttle.js`; `KDB.js` bootstraps `core/utils/__orchestratorUtils.js`, which registers `convertUnitToPx`, `getTableConfigObject`, `readCurrentTab`, `waitFor`, `waitForElObserver` and `readableTextColorForHex`.
+- Historical (at draft time): no `_KDB.utils.throttle`. Today `core/utils/` has no `throttle.js`; `KDB.js` bootstraps `core/utils/registerUtils.js`, which registers `convertUnitToPx`, `getTableConfigObject`, `readCurrentTab`, `waitFor`, `waitForElObserver` and `readableTextColorForHex`.
 
 ## 2. Purpose
 
@@ -366,7 +366,6 @@ As built (`KDB3/js/dashboard/canvas/dragDrop/`):
 
 ```txt
 KDB3/js/dashboard/canvas/dragDrop/
-  __orchestratorDragDrop.js   one-line shim over index.js (imported by KDB.js)
   index.js                    createDragDropController: mount, refreshDropboxes, startDrag, finishDrag, getState, destroy; registers _KDB.api.dragDrop
   config.js                   accepted element types, DOM attribute/class names, avatar asset paths, default widget dimensions
   events.js                   event name constants (DROP_VALIDATED = "canvas:dropValidated")
@@ -396,11 +395,11 @@ Bootstrap registration in `KDB.js` is needed for production execution, but is ex
 
 CP-1 scope expansion for utilities:
 
-- Not carried out: no `throttle.js` exists in `core/utils/` and dragDrop does not use one. `KDB.js` does bootstrap `core/utils/__orchestratorUtils.js` (without a throttle helper).
+- Not carried out: no `throttle.js` exists in `core/utils/` and dragDrop does not use one. `KDB.js` does bootstrap `core/utils/registerUtils.js` (without a throttle helper).
 
 Deferred dragDrop integration target:
 
-- import `./dashboard/canvas/dragDrop/__orchestratorDragDrop.js`;
+- import `./dashboard/canvas/dragDrop/index.js`;
 - call the orchestrator during feature registration before `metricsTree` mounts;
 - call `_KDB.api.dragDrop.mount({})` during feature mounting;
 - call `_KDB.api.dragDrop.destroy()` during root destroy.

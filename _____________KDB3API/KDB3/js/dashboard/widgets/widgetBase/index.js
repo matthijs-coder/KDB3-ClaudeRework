@@ -14,12 +14,15 @@ define([
   "./tabWidgets.js",
   "./state/selectors.js",
   "./restore.js",
-  "./slotStock/tabMutationOwner.js"
+  "./slotStock/tabMutationOwner.js",
+  "../../../core/utils/kit/history.js"
 ], function (
   _data, _errors, _runtimeKit, _launchpadSelectors, _tabsEventNames, _dragDropEvents, _config, _state, _runtime, _history, _canvas, _transfer, _tabWidgets,
-  _selectors, _restore, _tabMutationOwner
+  _selectors, _restore, _tabMutationOwner, _historyKit
 ) {
   "use strict";
+
+  var REPLAY_KEYS = ["widget_canvasDrop", "widget_launchpadTransfer", "widget_layoutMove", "widget_layoutResize"];
 
   // Lifecycle terms for widgetBase: idle, initializing, loading, ready, error, disposed.
   const TYPES = _state.ACTION_TYPES;
@@ -365,6 +368,7 @@ define([
     }
     _runtime.ensureWidgetBaseRuntime(_KDB);
     _KDB.runtime.widgetBase.historyReplayHandlerContribution = _history.createWidgetBaseHistoryReplayHandler(_KDB);
+    _historyKit.registerReplayKeys(_KDB, REPLAY_KEYS, _KDB.runtime.widgetBase.historyReplayHandlerContribution);
     stampHostFacets(_KDB);
     const controller = createWidgetBaseController({
       _KDB: _KDB,

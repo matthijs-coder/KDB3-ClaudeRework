@@ -18,12 +18,15 @@ define([
   "./readCurrentTab.js",
   "./traverse/traverse.js",
   "../../core/utils/kit/runtime.js",
-  "../../core/utils/kit/errors.js"
+  "../../core/utils/kit/errors.js",
+  "../../core/utils/kit/history.js"
 ], function (
   _actionTypes, _config, _state, _reducer, _selectors, _effects, _view, _observe, _chrome, _history, _slots,
-  _session, _renameActions, _parameterSet, _tabMutation, _slotStockLedger, _readCurrentTab, _traverse, _rt, _errors
+  _session, _renameActions, _parameterSet, _tabMutation, _slotStockLedger, _readCurrentTab, _traverse, _rt, _errors, _historyKit
 ) {
   "use strict";
+
+  var REPLAY_KEYS = ["tabs_move", "tabs_delete", "tabs_duplicate", "tabs_rename"];
 
   // Tabs module entry. Lifecycle terms: idle, initializing, loading, ready, error, disposed.
 
@@ -36,6 +39,7 @@ define([
     _KDB.state.tabs = _KDB.state.tabs || _state.createInitialTabsState();
     const adapter = initializeRuntime(_KDB);
     _KDB.runtime.tabs.historyReplayHandlerContribution = _history.createTabsHistoryReplayHandler(_KDB);
+    _historyKit.registerReplayKeys(_KDB, REPLAY_KEYS, _KDB.runtime.tabs.historyReplayHandlerContribution);
     const controller = createTabsController({ _KDB: _KDB, adapter: adapter, options: _options || {} });
     _KDB.api.tabs = controller;
     return controller;

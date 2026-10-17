@@ -55,7 +55,7 @@ function makeEnv(options) {
     }
   };
   const fakeConsole = { error: (...a) => logs.push(a), warn: () => {}, log: () => {}, info: () => {} };
-  const register = loadAmd(path.join(SERVICE_DIR, "__orchestratorTableData.js"), { stubs: { console: fakeConsole } });
+  const register = loadAmd(path.join(SERVICE_DIR, "index.js"), { stubs: { console: fakeConsole } });
   return { KDB, service: register(KDB), toasts, events, queries, logs };
 }
 

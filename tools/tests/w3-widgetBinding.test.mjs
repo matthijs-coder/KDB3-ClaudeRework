@@ -147,8 +147,8 @@ test("the services orchestrator registers widgetBinding right after widgetBindin
 
 // ---- against the real plan and apply services ----
 
-const registerPlan = load("core/services/widgetBindingPlan/__orchestratorWidgetBindingPlan.js");
-const registerApply = load("core/services/widgetBindingApply/__orchestratorWidgetBindingApply.js");
+const registerPlan = load("core/services/widgetBindingPlan/index.js");
+const registerApply = load("core/services/widgetBindingApply/index.js");
 const visTypes = load("core/config/visualizations/bindingSpecsVisTypes.js");
 
 const GESCHLECHT = "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]";

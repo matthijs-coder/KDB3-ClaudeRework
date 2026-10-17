@@ -56,7 +56,7 @@ Writeback is unchanged: step 18 still awaits this action before step 19 writes; 
 
 ## 3. Live-widget readiness wait
 
-- **Facet access:** new tabs reader `effects/readCanvasFacet.js` (same shape as `widgetBase/effects/readCanvasFacet.js`) over the existing stamp `_KDB.runtime.tabs.canvasFacet` (`__orchestratorTabs.js:80`). The orchestrator (120 lines, hard cap) is not edited.
+- **Facet access:** new tabs reader `effects/readCanvasFacet.js` (same shape as `widgetBase/effects/readCanvasFacet.js`) over the existing stamp `_KDB.runtime.tabs.canvasFacet` (`tabs/index.js`). The orchestrator (120 lines, hard cap) is not edited.
 - **Inventory:** `canvasFacet.listCanvasWidgets()` (sync Outcome, sources `getCanvas().findContent()`). Keep descriptors with `isLiveWidget === true` (`contentType === "widget.live"`) and `tabId === slot.tabId`. Every live widget counts, whether or not widgetBase knows it (helper lists, hierarchy tables, pool charts). Inventory is read **after** the inner-frame predicate holds.
 - **Wait:** for each id, `canvasFacet.whenWidgetReady(widgetId, { signal, budgetMs })` (existing op; ring 1 arms host `getWidgetWhenReady`). All ids in parallel. No shared in-flight promise exists in ring 1; each call arms its own host waiter.
 - **Budget (mandatory, maximum):** `whenWidgetReady` has **no default budget**; without `budgetMs` it never times out. The effect always passes one tab-level `budgetMs` of **5000 ms** (§7 Q1). The wait ends as soon as all waits settle; the budget is only consumed in full when a widget never reports ready.

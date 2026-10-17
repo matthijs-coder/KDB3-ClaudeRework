@@ -1,29 +1,29 @@
 define([
-  "../core/services/cognosHost/__orchestratorCognosHost.js",
+  "../core/services/cognosHost/index.js",
   "../core/services/chrome/index.js",
-  "../core/services/tableData/__orchestratorTableData.js",
-  "../core/services/loadingService/__orchestratorLoadingService.js",
-  "../core/services/messageService/__orchestratorMessageService.js",
-  "../core/services/historyService/__orchestratorHistoryService.js",
-  "../core/services/widgetBindingPlan/__orchestratorWidgetBindingPlan.js",
-  "../core/services/widgetBindingApply/__orchestratorWidgetBindingApply.js",
+  "../core/services/tableData/index.js",
+  "../core/services/loadingService/index.js",
+  "../core/services/messageService/index.js",
+  "../core/services/historyService/index.js",
+  "../core/services/widgetBindingPlan/index.js",
+  "../core/services/widgetBindingApply/index.js",
   "../core/services/widgetBinding/index.js",
-  "../workflows/pdfExport/__orchestratorDashboardPdf.js",
-  "../workflows/parameterSet/__orchestratorWriteback.js",
-  "../core/services/drillthrough/__orchestratorDrillthrough.js"
+  "../workflows/pdfExport/index.js",
+  "../workflows/parameterSet/index.js",
+  "../core/services/drillthrough/index.js"
 ], function (
-  _orchestratorCognosHost,
+  _registerCognosHost,
   _registerChrome,
-  _orchestratorTableData,
-  _orchestratorLoadingService,
-  _orchestratorMessageService,
-  _orchestratorHistoryService,
-  _orchestratorWidgetBindingPlan,
-  _orchestratorWidgetBindingApply,
+  _registerTableData,
+  _registerLoadingService,
+  _registerMessageService,
+  _registerHistoryService,
+  _registerWidgetBindingPlan,
+  _registerWidgetBindingApply,
   _registerWidgetBinding,
-  _orchestratorDashboardPdf,
-  _orchestratorWriteback,
-  _orchestratorDrillthrough
+  _registerDashboardPdf,
+  _registerWriteback,
+  _registerDrillthrough
 ) {
   "use strict";
 
@@ -32,20 +32,20 @@ define([
   // services). `destroy` order lives in featureManifest.serviceDestroyOrder.
   function registerServices(_KDB) {
     _KDB.services = _KDB.services || {};
-    _orchestratorCognosHost(_KDB);
+    _registerCognosHost(_KDB);
     _registerChrome(_KDB);
-    _orchestratorTableData(_KDB);
-    _orchestratorLoadingService(_KDB);
-    _orchestratorMessageService(_KDB);
-    _orchestratorWidgetBindingPlan(_KDB);
-    _orchestratorWidgetBindingApply(_KDB);
+    _registerTableData(_KDB);
+    _registerLoadingService(_KDB);
+    _registerMessageService(_KDB);
+    _registerWidgetBindingPlan(_KDB);
+    _registerWidgetBindingApply(_KDB);
     _registerWidgetBinding(_KDB);
-    _orchestratorDashboardPdf(_KDB);
+    _registerDashboardPdf(_KDB);
     if (!_KDB.services.history) {
-      _orchestratorHistoryService(_KDB, { replayHandlers: {} });
+      _registerHistoryService(_KDB, { replayHandlers: {} });
     }
-    _orchestratorWriteback(_KDB);
-    _orchestratorDrillthrough(_KDB);
+    _registerWriteback(_KDB);
+    _registerDrillthrough(_KDB);
     return _KDB.services;
   }
 

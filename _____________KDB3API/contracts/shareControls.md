@@ -57,7 +57,7 @@
 - Runtime `adapters` unused; luminance lives in `toolbarControls/iconHref.js` (`readToolbarIconTone`, `pickToneIconHref`)
 - Stamp: `dashboardFacet` — set once by the orchestrator from `_KDB.services.cognosHost.dashboard`. `mount` / runtime normalize **must preserve** this stamp.
 
-**As built (Phase 1):** all four toolbar buttons (share, wienKi, pdf, history) share one controller and one toolbar host in `KDB3/js/dashboard/controls/toolbarControls/`. Runtime is the shared `_KDB.runtime.toolbarControls` (kit buckets: `abortControllers.hostWait` plus one `<id>Bind` abort controller per button, `pendingPromises.hostWait`, `observers.toolbar`, `timers.toolbarSync`, `domRefs.toolbarHostEl`; fields `buttons`, `isHostReady`, `dashboardFacet`), not a per-button namespace. One toolbar wait (30 s) and one `MutationObserver` serve all buttons, reference counted by mount/destroy; button order is `BUTTON_ORDER` in `config.js`. `_KDB.api.<apiName>` exposes `{ mount, destroy }` (share also `applyReadOnlyChrome`). The `__orchestrator*Controls.js` files under the per-button folders are shims that re-export the button file.
+**As built (Phase 1):** all four toolbar buttons (share, wienKi, pdf, history) share one controller and one toolbar host in `KDB3/js/dashboard/controls/toolbarControls/`. Runtime is the shared `_KDB.runtime.toolbarControls` (kit buckets: `abortControllers.hostWait` plus one `<id>Bind` abort controller per button, `pendingPromises.hostWait`, `observers.toolbar`, `timers.toolbarSync`, `domRefs.toolbarHostEl`; fields `buttons`, `isHostReady`, `dashboardFacet`), not a per-button namespace. One toolbar wait (30 s) and one `MutationObserver` serve all buttons, reference counted by mount/destroy; button order is `BUTTON_ORDER` in `config.js`. `_KDB.api.<apiName>` exposes `{ mount, destroy }` (share also `applyReadOnlyChrome`). `toolbarControls/index.js` registers all four buttons in one call (history, pdf, wienKi, share); the bootstrap manifest still mounts and destroys each button on its own.
 
 - Cleanup: `destroy()` — abort mount wait, disconnect observer, clear timers, remove listeners, detach placed DOM, reset the runtime bucket (keep stamp-preservation rules on normalize, not on destroy)
 - Overlay / URL restore runtime lives on writeback, not here
@@ -71,7 +71,7 @@
 - Surface: `_KDB.api.shareControls`
 - Style: **named lifecycle** (deviation from feature/UI dispatch default)
 - Methods: `mount`, `destroy`, `applyReadOnlyChrome` (`applyReadOnlyChrome` is idempotent class reconcile; `KDB.js` calls it in `finishDashboardInitialization` immediately before `whenUrlShareRestoreSettled`)
-- Orchestrator AMD id: `./dashboard/controls/shareControls/__orchestratorShareControls.js`
+- Orchestrator AMD id: `./dashboard/controls/toolbarControls/index.js` (registers all four toolbar buttons)
 - `mount` returns `true` / `false` like live `pdfExportControls` (shared toolbar wait in `toolbarControls/toolbarHost.js`): `true` when the 30s wait is **armed** or already pending; `false` when disposed / missing `waitForElObserver` / missing selector. `true` is not “placed”. Abort is not a synchronous `false`. `KDB.js` ignores the return.
 
 ```js
@@ -138,7 +138,6 @@ If `writebackBridge.readSelectedParameterSet`, `message.showCopyable` / `showAle
 
 ```txt
 KDB3/js/dashboard/controls/
-  shareControls/__orchestratorShareControls.js   # shim: re-exports toolbarControls/shareButton.js (path kept for KDB.js)
   toolbarControls/
     index.js          # createToolbarController / registerToolbarButton: { mount, destroy } per button, onRegister/extendApi hooks
     config.js         # BUTTON_ORDER, BUTTONS (apiName, class/data prefixes), ICON_ASSETS, LABELS (share, ...), selectors, readOnlyClass kdb-share-read-only
@@ -157,7 +156,7 @@ Labels: defaults live in `toolbarControls/config.js` (`LABELS.share`); `readButt
 
 Bootstrap (`KDB.js`, allowed 500-line wiring exception):
 
-- `registerFeatureModules`: call `__orchestratorShareControls` immediately after `__orchestratorWienKiControls` (WienKI after PDF).
+- Registration: `toolbarControls/index.js` registers history, pdf, wienKi and share in this order (WienKI after PDF, share last).
 - `mountFeatureModules`: `_KDB.api.shareControls.mount({})` immediately after `_KDB.api.wienKiControls.mount({})` (WienKI after PDF). Share last re-asserts leftmost.
 - `destroyRegisteredFeatures`: `api.shareControls` next to `api.pdfExportControls` / `api.wienKiControls`, **not** in `destroyCoreServices`. Must run before `writebackBridge` / `message` / `cognosHost` teardown.
 

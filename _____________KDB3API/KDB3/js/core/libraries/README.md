@@ -6,7 +6,7 @@ Third-party code loaded by KDB3. Do not edit these files by hand. jQuery and jQu
 
 | Library | Version | File | Loader | License | Used for |
 |---|---|---|---|---|---|
-| jsTree | 3.3.17 (header URL says 3.3.12) | `jstree.min.js` | `dashboard/metricsTree/__orchestratorMetricsTree.js:4`, `dashboard/metricsTree/view/renderMetricsTrees.js:3` | MIT | Metrics tree |
+| jsTree | 3.3.17 (header URL says 3.3.12) | `jstree.min.js` | `dashboard/metricsTree/view.js:3` | MIT | Metrics tree |
 | html2canvas | 1.4.1 | `html2canvas.min.js` | `workflows/pdfExport/vendors.js:10` (runtime `require`) | MIT | Dashboard PDF export (DOM to canvas) |
 | jsPDF | 2.4.0 | `jspdf.umd.min.js` | `workflows/pdfExport/vendors.js:9` (runtime `require`) | MIT | Dashboard PDF export (PDF document) |
 

@@ -1,7 +1,7 @@
 // Golden tests for dashboard/filters/nativeMultiSelect (WS-H Task A).
 // Run: node --test tools/tests/nativeMultiSelect.golden.test.mjs   (Node >= 22, no dependencies)
 // Expected values were captured from the pre-restructure modules on main. The controller-level tests go
-// through the frozen entry path (__orchestratorNativeMultiSelect.js) and survive the restructure unchanged;
+// through the registrar path (nativeMultiSelect/index.js) and survive the restructure unchanged;
 // the unit-level tests load the pure functions from the module files listed in UNITS.
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -155,7 +155,7 @@ function boot(opts) {
     },
     runtime: {}
   };
-  const register = loadAmd(path.join(options.nmsDir || NMS, "__orchestratorNativeMultiSelect.js"), {
+  const register = loadAmd(path.join(options.nmsDir || NMS, "index.js"), {
     stubs: { console: testConsole },
     modules: options.modules || {}
   });
@@ -422,7 +422,7 @@ test("register: existing state and runtime are kept", () => {
     services: {},
     api: {}
   };
-  loadAmd(nmsFile("__orchestratorNativeMultiSelect.js"), { stubs: { console: c } })(KDB);
+  loadAmd(nmsFile("index.js"), { stubs: { console: c } })(KDB);
   assert.deepEqual(KDB.state.filters.nativeMultiSelect.byScope, { a: [] });
   assert.equal(KDB.runtime.nativeMultiSelect.tabMutationRunId, 9);
   assert.deepEqual(KDB.runtime.nativeMultiSelect.listeners, { k: 1 });

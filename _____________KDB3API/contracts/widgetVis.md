@@ -232,7 +232,7 @@ Normalized dispatch result:
 
 `reportToSettings` is a result object for the caller (`widgetSettings`) to consume; `widgetVis` does not write settings state directly.
 
-Post-disposal dispatch returns the uniform silent disposed outcome (E0b, 2026-08-20, `ADAPTER_ONTWERP_2026-08-20.md` §3.4): `{ ok: false, outcome: "aborted", reason: "disposed", skipped: true, status: "aborted" }` — no user message, no history entry, one-time console warn. The same shape (minus `skipped` where the module's normalizer has no such field) applies to `widgetSettings`, `widgetText`, `widgetDataTable` and `widgetTopN`; `widgetBase` keeps its `ok:false` + `errorCode` disposed result and adds `outcome`/`reason`.
+Post-disposal dispatch returns the uniform silent disposed outcome (E0b, 2026-08-20, `ADAPTER_ONTWERP_2026-08-20.md` §3.4): `{ ok: false, outcome: "aborted", reason: "disposed", skipped: true, status: "aborted" }` — no user message, no history entry, one-time console warn. The same shape (minus `skipped` where the module's normalizer has no such field) applies to `widgetSettings`, `widgetText` and `widgetTopN` (and, until its retirement in Phase 2 W12, `widgetDataTable`); `widgetBase` keeps its `ok:false` + `errorCode` disposed result and adds `outcome`/`reason`.
 
 ## 6. Action Payloads And Behaviour
 
@@ -1047,7 +1047,6 @@ As built after the Phase 1 module-template rework (53 files, one concern per fil
 
 ```txt
 KDB3/js/dashboard/widgets/widgetVis/
-  __orchestratorWidgetVis.js  # shim: re-exports index.js (path kept for KDB.js)
   index.js            # registerWidgetVis: controller, ROUTES table, host facet stamps, mount/dispatch/destroy
   config.js           # timeouts, class names, focus-mode poll values, GROUPINGS
   state.js            # ACTION_TYPES, initial state, reducer, metric identity helpers

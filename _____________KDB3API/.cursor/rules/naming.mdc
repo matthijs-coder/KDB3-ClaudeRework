@@ -29,5 +29,5 @@ alwaysApply: false
 - Other files are named for the concept they hold (`binding.js`, `drillthrough.js`, `legend.js`), or verb + noun for a single job (`buildLaunchpadTabs.js`).
 - Folder names are nouns for domains (`binding/`, `restore/`, `primitives/`).
 - Forbidden vague names: `helpers`, `common`, `misc`, `manager`, `shared`, `stuff`, and overflow suffixes `Support`, `Helpers`, `Internals`, `Core` (as in `applyRestoreSelectionCore.js`).
-- New and refactored code does not use the magic entry names `__controller` or `__orchestrator`; the existing `__orchestrator<M>.js` files that `KDB.js` imports keep their names until Phase 2. Do not mass-rename `handle*` or `__controller` outside a module you are refactoring.
+- New and refactored code does not use the magic entry names `__controller` or `__orchestrator`; the entry files are `index.js` (`register(_KDB)`). Do not mass-rename `handle*` or `__controller` outside a module you are refactoring.
 - Rule files: `kebab-case.mdc`.

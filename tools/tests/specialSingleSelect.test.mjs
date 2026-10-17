@@ -431,7 +431,7 @@ function createHarness(options) {
       }
     }
   };
-  const register = loadAmd(path.join(SPECIAL, "__orchestratorSpecialSingleSelect.js"), {
+  const register = loadAmd(path.join(SPECIAL, "index.js"), {
     stubs: { console: stubConsole, document: dom.document }
   });
   return { KDB, register, dom, stubConsole, reads, policyCalls, subscribers, tables, instances };

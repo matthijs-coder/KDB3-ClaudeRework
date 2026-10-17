@@ -1,17 +1,28 @@
-// Consistency of bootstrap/featureManifest.js and the manifest-driven replay registration.
+// Consistency of bootstrap/featureManifest.js.
 // Run: node --test tools/tests/bootstrap-manifest.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { FEATURES, loadManifest, loadBootstrapModule } from './bootstrap-harness.mjs';
+import path from 'node:path';
+import { loadAmd } from '../lib/amd-loader.mjs';
+import { JS_ROOT } from '../lib/amd-graph.mjs';
+import { FEATURES, TOOLBAR_API_KEYS, REPLAY_KEYS_BY_FEATURE, loadManifest } from './bootstrap-harness.mjs';
 
 const manifest = loadManifest();
 const byName = new Map(manifest.entries.map((entry) => [entry.name, entry]));
 
-test('manifest: names are unique, every entry registers, features keep the Phase 1 orchestrator order', () => {
+test('manifest: names are unique, every entry registers except the four toolbar buttons (one toolbarControls registration), features keep the mount order', () => {
   assert.equal(byName.size, manifest.entries.length);
-  for (const entry of manifest.entries) assert.equal(typeof entry.register, 'function', entry.name);
+  for (const entry of manifest.entries) {
+    if (TOOLBAR_API_KEYS.includes(entry.name)) assert.equal(entry.register, undefined, entry.name);
+    else assert.equal(typeof entry.register, 'function', entry.name);
+  }
   const featureNames = manifest.entries.filter((entry) => entry.mount).map((entry) => entry.name);
-  assert.deepEqual(featureNames, FEATURES.map((feature) => feature[0]));
+  const expected = FEATURES.map((feature) => feature[0]);
+  expected.splice(expected.indexOf('pageSurface') + 1, 0, ...TOOLBAR_API_KEYS);
+  assert.deepEqual(featureNames, expected);
+  const names = manifest.entries.map((entry) => entry.name);
+  assert.equal(names.indexOf('toolbarControls'), names.indexOf('pageSurface') + 1);
+  assert.equal(names.indexOf('historyControls'), names.indexOf('toolbarControls') + 1);
 });
 
 test('manifest: core steps register before the features, services before authoring', () => {
@@ -23,6 +34,7 @@ test('manifest: core steps register before the features, services before authori
 
 test('manifest: api keys match the keys the orchestrators publish', () => {
   for (const [name, , apiKey] of FEATURES) assert.equal(byName.get(name).api, apiKey, name);
+  for (const name of TOOLBAR_API_KEYS) assert.equal(byName.get(name).api, name);
   assert.equal(byName.get('authoring').api, 'authoring');
 });
 
@@ -48,16 +60,13 @@ test('manifest: mount phases and options', () => {
   }
 });
 
-test('manifest: 18 replay keys, owners and order', () => {
-  assert.equal(new Set(manifest.replayOrder).size, manifest.replayOrder.length);
-  const keys = manifest.replayOrder.flatMap((name) => byName.get(name).replayKeys);
-  assert.equal(keys.length, 18);
-  assert.equal(new Set(keys).size, 18);
-  assert.deepEqual(manifest.replayOrder, [
-    'kdbControl', 'header', 'footer', 'singleSelect', 'sicht', 'dienststelle', 'nativeMultiSelect', 'widgetBase', 'widgetSettings', 'widgetText', 'tabs',
-  ]);
-  const declared = manifest.entries.filter((entry) => entry.replayKeys).map((entry) => entry.name);
-  assert.deepEqual([...declared].sort(), [...manifest.replayOrder].sort());
+test('manifest: replay registration is owned by the features (no replayKeys/replayOrder, no collector module)', () => {
+  assert.equal(manifest.replayOrder, undefined);
+  assert.deepEqual(manifest.entries.filter((entry) => 'replayKeys' in entry), []);
+  assert.deepEqual(Object.keys(manifest).sort(), ['destroyOrder', 'entries', 'serviceDestroyOrder']);
+  const owners = Object.keys(REPLAY_KEYS_BY_FEATURE);
+  assert.equal(owners.flatMap((name) => REPLAY_KEYS_BY_FEATURE[name]).length, 18);
+  for (const name of owners) assert.ok(byName.has(name), name);
 });
 
 test('manifest: service teardown order', () => {
@@ -67,57 +76,25 @@ test('manifest: service teardown order', () => {
   assert.ok(manifest.serviceDestroyOrder.indexOf('drillthrough') < manifest.serviceDestroyOrder.indexOf('tableData'));
 });
 
-function replayKit({ withHistory = true } = {}) {
-  const registered = [];
-  const warnings = [];
-  const registerReplayHandlers = loadBootstrapModule('core/bootstrap/registerReplayHandlers.js');
-  const kdb = { runtime: {}, services: withHistory ? { history: { registerReplayHandler: (key, handler) => registered.push([key, handler]) } } : {} };
-  const originalWarn = console.warn;
-  const run = () => {
-    console.warn = (...args) => warnings.push(args);
-    try { registerReplayHandlers(kdb, manifest); } finally { console.warn = originalWarn; }
-  };
-  return { kdb, registered, warnings, run };
-}
-
-test('registerReplayHandlers: every contribution is registered under its keys in manifest replay order', () => {
-  const { kdb, registered, run } = replayKit();
-  const contributions = {};
-  for (const name of manifest.replayOrder) {
-    contributions[name] = { apply() {} };
-    kdb.runtime[name] = { historyReplayHandlerContribution: contributions[name] };
-  }
-  run();
-  assert.deepEqual(registered.map(([key]) => key), [
-    'kdbControl_settingsChange', 'header_chromeChange', 'header_textChange', 'footer_chromeChange', 'filter_singleSelect', 'filter_sicht',
-    'filter_dienststelle', 'filter_nativeMultiSelect', 'widget_canvasDrop', 'widget_launchpadTransfer', 'widget_layoutMove', 'widget_layoutResize',
-    'widgetSettings_optionSelect', 'widget_textEdit', 'tabs_move', 'tabs_delete', 'tabs_duplicate', 'tabs_rename',
-  ]);
-  for (const [key, handler] of registered) {
-    const owner = manifest.replayOrder.find((name) => byName.get(name).replayKeys.includes(key));
-    assert.equal(handler, contributions[owner], key);
-  }
+test('manifest with the REAL registrar modules: every entry that has a register key has a function registrar', () => {
+  const quiet = { log() {}, info() {}, warn() {}, error() {}, debug() {} };
+  const documentStub = { createElement: () => ({}), querySelector: () => null, querySelectorAll: () => [], getElementById: () => null, addEventListener() {}, location: {} };
+  // Vendored libraries are replaced; they cannot be evaluated in Node and are not registrars.
+  const overrides = { 'core/libraries/jstree.min.js': {}, 'core/libraries/jspdf.umd.min.js': {}, 'core/libraries/html2canvas.min.js': {} };
+  const real = loadAmd(path.join(JS_ROOT, 'bootstrap/featureManifest.js'), {
+    stubs: { console: quiet, document: documentStub, window: { top: {} }, navigator: {} },
+    modules: { jquery: () => {} },
+    overrides
+  });
+  const registering = real.entries.filter((entry) => 'register' in entry);
+  assert.equal(registering.length, real.entries.length - TOOLBAR_API_KEYS.length);
+  for (const entry of registering) assert.equal(typeof entry.register, 'function', entry.name);
 });
 
-test('registerReplayHandlers: contributions without apply, missing owners and missing runtime are skipped', () => {
-  const none = replayKit();
-  none.kdb.runtime = undefined;
-  none.run();
-  assert.deepEqual(none.registered, []);
-  const partial = replayKit();
-  partial.kdb.runtime = {
-    header: { historyReplayHandlerContribution: {} },
-    tabs: { historyReplayHandlerContribution: { apply() {} } },
-    footer: {},
-    sicht: null,
-  };
-  partial.run();
-  assert.deepEqual(partial.registered.map(([key]) => key), ['tabs_move', 'tabs_delete', 'tabs_duplicate', 'tabs_rename']);
-});
-
-test('registerReplayHandlers: a missing history service only warns', () => {
-  const { registered, warnings, run } = replayKit({ withHistory: false });
-  run();
-  assert.deepEqual(registered, []);
-  assert.deepEqual(warnings.map((entry) => entry[0]), ['[bootstrap.registerReplayHandlers] services.history.registerReplayHandler is missing']);
+test('registerAll skips only entries without a register key; a non-function register throws', () => {
+  const lifecycle = loadAmd(path.join(JS_ROOT, 'core/bootstrap/lifecycle.js'));
+  const calls = [];
+  lifecycle.registerAll({}, { entries: [{ name: 'a', register: () => calls.push('a') }, { name: 'buttons', api: 'x' }, { name: 'b', register: () => calls.push('b') }] });
+  assert.deepEqual(calls, ['a', 'b']);
+  assert.throws(() => lifecycle.registerAll({}, { entries: [{ name: 'broken', register: undefined }] }), TypeError);
 });

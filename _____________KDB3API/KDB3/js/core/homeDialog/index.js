@@ -35,7 +35,7 @@ define(["./presentHomeChoice.js", "./presentCubesUnavailable.js", "../bootstrap/
     });
   }
 
-  function __orchestrator(_KDB) {
+  function registerHomeDialog(_KDB) {
     var cognosHost = _KDB.services && _KDB.services.cognosHost;
     mergeHomeDialogLabels(_KDB);
     _KDB.runtime = _KDB.runtime || {};
@@ -49,5 +49,5 @@ define(["./presentHomeChoice.js", "./presentCubesUnavailable.js", "../bootstrap/
     return _KDB.runtime.homeDialog;
   }
 
-  return __orchestrator;
+  return registerHomeDialog;
 });

@@ -457,11 +457,10 @@ No live DOM nodes are stored in `_KDB.state`. Runtime refs belong under `_KDB.ru
 
 Production target after CP-1 and execution-spec approval:
 
-As built (11 files, exports per file). `__orchestratorSpecialSingleSelect.js` is a shim over `index.js`.
+As built (11 files, exports per file). `index.js` is the registrar.
 
 ```txt
 dashboard/filters/specialSingleSelect/
-  __orchestratorSpecialSingleSelect.js                shim over index.js (path kept for KDB.js)
   config.js                                           SPECIAL_FILTER_VARIANTS, DEFINITIONS_BY_ID, DEFINITIONS_BY_LABEL, TABLE_KEYS, ERROR_CODES, SELECTORS, resolveSpecialFilterId
   delegation.js                                       handleFilterDockHandoff, normalizeUserSelectionCommittedPayload, reduceCommittedPayload, buildOwnerAck, buildTargetScopedAck, mapFilterDockHandoff (profile over _core/dockHandoff.js mapDockHandoff)
   index.js                                            registerSpecialSingleSelect

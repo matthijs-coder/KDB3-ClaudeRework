@@ -71,7 +71,7 @@ Deviation from Option A `<a target=_blank>`: PO accepted the named-popup POC. `w
 - Surface: `_KDB.api.wienKiControls`
 - Style: **named lifecycle** (same deviation as `pdfExportControls` / `shareControls`)
 - Motivation: one caller (`KDB.js`), one user command (open/focus popup), no undo/redo, no owner state subtree, fewer than three state-changing actions
-- Orchestrator AMD id: `./dashboard/controls/wienKiControls/__orchestratorWienKiControls.js`
+- Orchestrator AMD id: `./dashboard/controls/toolbarControls/index.js` (registers all four toolbar buttons)
 - `mount` return: `true` / `false` like live PDF/Share (`waitForElObserver` armed vs disposed / missing util / missing selector). `KDB.js` ignores the return.
 
 ```js
@@ -126,7 +126,6 @@ No `cognosHost`, no `dashboardPdf`.
 
 ```txt
 controls/
-  wienKiControls/__orchestratorWienKiControls.js   # shim: re-exports toolbarControls/wienKiButton.js (path kept for KDB.js)
   toolbarControls/
     index.js          # shared controller: { mount, destroy } per button
     config.js         # BUTTON_ORDER, BUTTONS.wienKi, WIEN_KI_POPUP (windowName, widthPx, insets, chromeFeatures), labels
@@ -138,7 +137,7 @@ controls/
 
 No `state/`, no `events/`, no `adapters/` (inline SVG, no luminance PNG helper).
 
-**As built (Phase 1):** all four toolbar buttons (share, wienKi, pdf, history) share one controller and one toolbar host in `KDB3/js/dashboard/controls/toolbarControls/`. Runtime is the shared `_KDB.runtime.toolbarControls` (kit buckets: `abortControllers.hostWait` plus one `<id>Bind` abort controller per button, `pendingPromises.hostWait`, `observers.toolbar`, `timers.toolbarSync`, `domRefs.toolbarHostEl`; fields `buttons`, `isHostReady`, `dashboardFacet`), not a per-button namespace. One toolbar wait (30 s) and one `MutationObserver` serve all buttons, reference counted by mount/destroy; button order is `BUTTON_ORDER` in `config.js`. `_KDB.api.<apiName>` exposes `{ mount, destroy }` (share also `applyReadOnlyChrome`). The `__orchestrator*Controls.js` files under the per-button folders are shims that re-export the button file.
+**As built (Phase 1):** all four toolbar buttons (share, wienKi, pdf, history) share one controller and one toolbar host in `KDB3/js/dashboard/controls/toolbarControls/`. Runtime is the shared `_KDB.runtime.toolbarControls` (kit buckets: `abortControllers.hostWait` plus one `<id>Bind` abort controller per button, `pendingPromises.hostWait`, `observers.toolbar`, `timers.toolbarSync`, `domRefs.toolbarHostEl`; fields `buttons`, `isHostReady`, `dashboardFacet`), not a per-button namespace. One toolbar wait (30 s) and one `MutationObserver` serve all buttons, reference counted by mount/destroy; button order is `BUTTON_ORDER` in `config.js`. `_KDB.api.<apiName>` exposes `{ mount, destroy }` (share also `applyReadOnlyChrome`). `toolbarControls/index.js` registers all four buttons in one call (history, pdf, wienKi, share); the bootstrap manifest still mounts and destroys each button on its own.
 
 CSS: `KDB3/css/customButtons/toolbarControls.css` — clone PDF button chrome (32×32 button, clipped label, `is-unavailable` on **root**). Icon box is **24×24** (not 16×16): speech-bubble + `KI` needs more pixels than a silhouette PNG. Register in `cssHrefList.js` next to share/pdf.
 
@@ -177,7 +176,7 @@ Empty / non-https URL at `finishMount`: `serviceAvailable: false`, root `is-unav
 
 `KDB.js` (wiring-only, 500-line exception):
 
-- AMD import `__orchestratorWienKiControls.js`
+- AMD import `dashboard/controls/toolbarControls/index.js`
 - `registerFeatureModules`: after PDF, before Share
 - `mountFeatureModules`: `_KDB.api.wienKiControls.mount({})` **after PDF, before Share** (Share remount re-asserts leftmost)
 - `destroyRegisteredFeatures`: next to `pdfExportControls` / `shareControls`, **before** message / cognosHost teardown

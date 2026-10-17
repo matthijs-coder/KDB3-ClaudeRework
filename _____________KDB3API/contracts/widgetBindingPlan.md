@@ -608,7 +608,6 @@ As built after the Phase 1 module-template rework:
 
 ```txt
 KDB3/js/core/services/widgetBindingPlan/
-  __orchestratorWidgetBindingPlan.js  # shim: re-exports index.js (path kept for __orchestratorServices.js)
   index.js            # registerWidgetBindingPlan: service registration
   config.js           # ALL_SLOT_NAMES, default empty/reset intents
   buildPlan.js        # buildPlan: spec validation, canonical vis type, plan assembly
@@ -633,9 +632,9 @@ The service owns no state, DOM, emitted events or host adapter, so there are no 
 
 Required registration:
 
-- `KDB3/js/bootstrap/registerServices.js` imports and calls `__orchestratorWidgetBindingPlan`.
+- `KDB3/js/bootstrap/registerServices.js` imports and calls `core/services/widgetBindingPlan/index.js`.
 - The orchestrator registers `_KDB.services.widgetBindingPlan`.
-- `KDB3/js/KDB.js` does not need a direct service import if existing service bootstrap already calls `__orchestratorServices`; only the services orchestrator changes.
+- `KDB3/js/KDB.js` does not need a direct service import if existing service bootstrap already calls `bootstrap/registerServices.js`; only the services registrar changes.
 
 This tranche explicitly defers direct `KDB.js` bootstrap registration. Service-orchestrator registration is required during CP-2 implementation unless the implementation is staged as files-only.
 

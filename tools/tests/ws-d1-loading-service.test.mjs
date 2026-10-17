@@ -1,5 +1,5 @@
 // Golden tests for core/services/loadingService (WS-D1). They lock the public surface, the overlay DOM contract,
-// the state.loading counters and the watchdog behaviour through core/services/loadingService/__orchestratorLoadingService.js.
+// the state.loading counters and the watchdog behaviour through core/services/loadingService/index.js.
 // Run: node --test tools/tests/ws-d1-loading-service.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -8,7 +8,7 @@ import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 import { createEnv } from "./ws-d1-fake-dom.mjs";
 
-const ENTRY = path.join(JS_ROOT, "core/services/loadingService/__orchestratorLoadingService.js");
+const ENTRY = path.join(JS_ROOT, "core/services/loadingService/index.js");
 const BOOT_KEY = "kdb-root-loading-animation-mount";
 
 function setup(options = {}) {

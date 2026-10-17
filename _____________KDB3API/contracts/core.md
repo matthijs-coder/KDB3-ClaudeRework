@@ -48,17 +48,15 @@ Lifecycle subset for `rootLifecycle`: `idle`, `initializing`, `ready`, `error`, 
 ## 3. Runtime
 
 - Owner namespace: `_KDB.runtime.core`
-- Buckets used: `domRefs`, `subscriptions`, `abortControllers`, `adapters`, `pendingPromises`
+- Keys (since Phase 2 W12; the unread raw Cognos handles and the never-filled `subscriptions`/`abortControllers`/`pendingPromises` buckets are gone): `domRefs.renderParentEl` (render parent, set by the boot mount), `domRefs.cssLinks` (created by `core/css`), `adapters.content` (the Cognos content object, read only by `core/properties`)
 - Cleanup trigger: `KDB.destroy()`
-- Notes: bootstrap-owned Cognos feature references and root DOM references live under `_KDB.runtime.core`, not under `_KDB.state`, `_KDB.elements` or ad hoc legacy keys.
+- Notes: bootstrap-owned root DOM references and the Cognos content adapter live under `_KDB.runtime.core`, not under `_KDB.state`, `_KDB.elements` or ad hoc legacy keys.
 
 Cleanup order in `KDB.destroy()` (host teardown entrypoint; the Cognos content-API calls it directly on the class instance):
 
 1. Repeat calls are a no-op via `_teardownComplete` (set after teardown finishes); `_isDisposed` is set first, before any cleanup runs.
 2. Call `destroy()` on all registered feature APIs, then on core services (incl. `writebackBridge`, which de-installs `window.top.WBParameter*Function` with an ownership check so a newer boot's globals are never removed).
-3. Unsubscribe `_KDB.runtime.core.subscriptions`.
-4. Abort `_KDB.runtime.core.abortControllers`.
-5. Clear runtime references; remove the `window.top.getKDB` anchor when it still points to this instance (ownership check for double-boot); dispose root lifecycle; then null `_KDB.events`, `_KDB.services`, `_KDB.api` and `_KDB.cognosAPI`.
+3. Clear runtime references (`_KDB.runtime.core = {}`); remove the `window.top.getKDB` anchor when it still points to this instance (ownership check for double-boot); dispose root lifecycle; then null `_KDB.events`, `_KDB.services`, `_KDB.api` and `_KDB.cognosAPI`.
 
 ## 4. Public API
 
@@ -105,7 +103,7 @@ _KDB.events.unsubscribe(eventName, handler);
 - Cognos renderer options: `options.content`, `options.features`
 - Cognos dependencies from manifest: `Dashboard.Canvas`, `UserProfile`, `Properties`, `Dashboard.API`
 - Runtime dependency from manifest: none in this tranche; `DataQueryExecution` is deferred until a table/data-query tranche requires it.
-- Module orchestrators: `header/__orchestratorHeader`, `footer/__orchestratorFooter`, `dashboard/canvas/kdbControl/__orchestratorKdbControl`
+- Module registrars: `dashboard/header/index.js`, `dashboard/footer/index.js`, `dashboard/canvas/kdbControl/index.js` (called from `bootstrap/featureManifest.js`)
 - Thin wrappers: `core/cognosAPI/canvas`, `core/cognosAPI/glassMessages`
 - Event bus: `core/events/createEventBus`
 
@@ -137,7 +135,7 @@ _____________KDB3API/
         events/
           createEventBus.js
         cognosAPI/
-          __orchestratorCognosAPI.js
+          index.js
           canvas.js
           glassMessages.js
       dashboard/

@@ -23,7 +23,7 @@ function selectedChromeRoot(index) {
 }
 
 function mountTabs(extra) {
-  const orchestrate = tabsLoad("__orchestratorTabs.js");
+  const orchestrate = tabsLoad("index.js");
   const facet = {
     listTabs: () => ({ ok: true, data: [{ index: 0, id: "pageA" }, { index: 1, id: "pageB" }] })
   };

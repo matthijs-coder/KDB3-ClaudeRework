@@ -38,7 +38,7 @@ function adapter() {
   const interaction = load("dockHandoff/interaction.js");
   const history = load("history.js");
   return {
-    register: load("__orchestratorSingleSelect.js"),
+    register: load("index.js"),
     buildFilterInstanceId: instance.buildFilterInstanceId,
     createFilterInstanceState: instance,
     ensureFilterState: instance.ensureFilterState,

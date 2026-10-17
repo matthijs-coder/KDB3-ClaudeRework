@@ -34,7 +34,7 @@ No production behavior code may be generated until this CP-1 contract is approve
 | `architecture/_archive/widgets-domain-blueprint.md` | Authority for shared-service boundary, no `_KDB.state.widgets` writes, named-method public API, write-after-apply discipline and §12 detail requirements. |
 | `contracts/widgetBindingPlan.md` | Schema authority for `BindingPlan`; `widgetBindingApply` consumes its output and must not rebuild domain decisions. |
 | `contracts/widgetVis.md` | Visible-widget consumer; expects `applyBinding(plan, { target: { widgetId, targetKind:"vis" }, signal, timeoutProfile:"vis" })`. |
-| `contracts/widgetTopN.md` / `widgetDataTable.md` | Helper-table consumer path; topN configures a datatable/List helper through this service and reads helper rows through `tableDataService`. |
+| `contracts/widgetTopN.md` | Helper-table consumer path; topN configures a datatable/List helper through this service and reads helper rows through `tableDataService`. |
 | `architecture/_archive/widgets-legacy-survey-redesign2.md` RUN 4 | Legacy apply order, plan fields, slot/filter/render touchpoints, post-success writebacks, supersession checks, rollback and diagnostics. |
 | Read-only legacy investigation report | Confirms `applyBindingPlan` as the authoritative apply path and `applyLiveWidgetSlots`/`applyLiveWidgetLocalFilters` as superseded imperative twins. |
 
@@ -495,7 +495,6 @@ As built after the Phase 1 module-template rework:
 
 ```txt
 KDB3/js/core/services/widgetBindingApply/
-  __orchestratorWidgetBindingApply.js  # shim: re-exports index.js (path kept for __orchestratorServices.js)
   index.js            # registerWidgetBindingApply: service registration, host facet stamps
   config.js           # timeouts and defaults
   applyBindingPlan.js # applyBindingPlan: input validation, step runner, timer scope
@@ -519,9 +518,9 @@ The service owns no state, DOM, emitted events or host adapter, so there are no 
 
 Required registration:
 
-- `KDB3/js/bootstrap/registerServices.js` imports and calls `__orchestratorWidgetBindingApply`.
+- `KDB3/js/bootstrap/registerServices.js` imports and calls `core/services/widgetBindingApply/index.js`.
 - The service registers `_KDB.services.widgetBindingApply`.
-- `KDB3/js/KDB.js` does not need a direct service import if existing service bootstrap already calls `__orchestratorServices`; only the services orchestrator changes.
+- `KDB3/js/KDB.js` does not need a direct service import if existing service bootstrap already calls `bootstrap/registerServices.js`; only the services registrar changes.
 
 This tranche explicitly defers bootstrap registration in `KDB.js`. Service-orchestrator registration is required during CP-2 implementation unless the implementation is staged as files-only.
 
@@ -530,7 +529,7 @@ Integration order:
 1. `widgetBindingPlan` contract/service first or same wave.
 2. `widgetBindingApply` service registered.
 3. `widgetVis` consumes visible-target apply.
-4. `widgetDataTable` / `widgetTopN` consume helper-target apply; helper row reads use `tableDataService`.
+4. `widgetTopN` consumes helper-target apply (`widgetDataTable` was retired in Phase 2 W12); helper row reads use `tableDataService`.
 
 ## 20. Out Of Scope
 

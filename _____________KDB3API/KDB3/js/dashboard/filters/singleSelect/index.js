@@ -18,7 +18,8 @@ define([
   "./tabMutation/restore.js",
   "./tabMutation/resync.js",
   "../_core/ownerController.js",
-  "../../../core/utils/kit/errors.js"
+  "../../../core/utils/kit/errors.js",
+  "../../../core/utils/kit/history.js"
 ], function (
   _config,
   _historyReplay,
@@ -39,9 +40,12 @@ define([
   _restoreTabMutation,
   _resyncTabMutation,
   _ownerController,
-  _kitErrors
+  _kitErrors,
+  _historyKit
 ) {
   "use strict";
+
+  var REPLAY_KEYS = ["filter_singleSelect"];
 
   // Lifecycle terms for singleSelect: idle, ready, error, disposed.
 
@@ -186,6 +190,7 @@ define([
     // orchestrators run; the guard covers a harness that boots without services.
     runtime.filtersFacet = readHostFiltersFacet(_KDB);
     runtime.historyReplayHandlerContribution = _historyReplay.createHistoryReplayHandler();
+    _historyKit.registerReplayKeys(_KDB, REPLAY_KEYS, runtime.historyReplayHandlerContribution);
     var controller = createController(_KDB, _options);
     _KDB.api.singleSelect = controller;
     return controller;

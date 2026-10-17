@@ -148,9 +148,6 @@ define([
     if (kind === "vis") {
       return _KDB.api.widgetVis;
     }
-    if (kind === "datatable") {
-      return _KDB.api.widgetDataTable;
-    }
     if (kind === "topN") {
       return _KDB.api.widgetTopN;
     }
@@ -201,9 +198,6 @@ define([
     }
     if (kind === "vis") {
       return { type: "widgetVis/contentCreate", widgetId: widgetId, payload: buildVisContentCreatePayload(_KDB, payload) };
-    }
-    if (kind === "datatable") {
-      return { type: "widgetDataTable/contentCreate", widgetId: widgetId, payload: payload };
     }
     if (kind === "topN") {
       return { type: "widgetTopN/contentCreate", widgetId: widgetId, payload: payload };

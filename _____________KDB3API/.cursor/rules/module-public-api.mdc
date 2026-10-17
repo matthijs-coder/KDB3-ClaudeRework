@@ -8,7 +8,7 @@ alwaysApply: false
 
 Each feature module publishes exactly one `_KDB.api.<module>` object; each service publishes exactly one `_KDB.services.<service>` object. A module does not also publish under `_KDB.services`, and the reverse. The event bus is `_KDB.events`, not a service.
 
-Other modules use only: the public object, the owner's `selectors.js` (today often `state/selectors.js`) for granular reads, and the emitter's event-name constants. They never touch `_KDB.runtime.<owner>`. Existing deep imports of other files are kept working through shims until Phase 2 (see `feature-structure.mdc`); do not add new ones.
+Other modules use only: the public object, the owner's `selectors.js` (today often `state/selectors.js`) for granular reads, and the emitter's event-name constants. They never touch `_KDB.runtime.<owner>`. Existing deep imports of other files that remain are listed in the Phase 2 follow-ups; do not add new ones.
 
 ## Two shapes, never mixed
 
@@ -57,4 +57,4 @@ To get a working module again, the registering code calls the factory again and 
 
 ## Registration
 
-`index.js` (today `__orchestrator<M>.js`) creates the controller and assigns `_KDB.api.<module>` or `_KDB.services.<service>`. `KDB.js` registers every module and service before it mounts any of them, so new code does not add `typeof ... === "function"` guards around registered APIs (the existing guards are removed with the Phase 2 bootstrap rework).
+`index.js` (`register(_KDB)`, called by `bootstrap/featureManifest.js` or `registerServices.js`) creates the controller and assigns `_KDB.api.<module>` or `_KDB.services.<service>`. `KDB.js` registers every module and service before it mounts any of them, so new code does not add `typeof ... === "function"` guards around registered APIs (the existing guards are removed with the Phase 2 bootstrap rework).

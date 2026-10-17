@@ -6,7 +6,7 @@ import path from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
-const ENTRY = path.join(JS_ROOT, "core/services/drillthrough/__orchestratorDrillthrough.js");
+const ENTRY = path.join(JS_ROOT, "core/services/drillthrough/index.js");
 const LINKS = { pkzAnalysetool: { prod: "https://prod.example/pkz?run=1" } };
 const BW_ROWS = [
   { level00: { text: "Magistrat", id: "mag" }, level01: { text: "Geschäftsgruppe Finanzen", id: "GGF#" }, level02: { text: "MA 05", id: "MA05#1" } }

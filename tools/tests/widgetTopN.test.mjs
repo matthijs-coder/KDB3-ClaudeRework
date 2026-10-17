@@ -8,7 +8,7 @@ import { dirname, resolve } from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 
 const JS_DIR = resolve(dirname(fileURLToPath(import.meta.url)), "../../_____________KDB3API/KDB3/js");
-const ENTRY = resolve(JS_DIR, "dashboard/widgets/widgetTopN/__orchestratorWidgetTopN.js");
+const ENTRY = resolve(JS_DIR, "dashboard/widgets/widgetTopN/index.js");
 
 const DATA_CONFIG = {
   datasourceId: "ds1",

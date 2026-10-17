@@ -6,7 +6,7 @@ Bron: live `KDB3/js/bootstrap/featureManifest.js` (register-, mount- en destroy-
 
 Zoekgewoonte: open van die module `index.js` (ROUTES-tabel: actietype → handler) en de actietype-constanten (`config/actionTypes.js`, `state.js`, `config.js` of `actions.js`, per module verschillend). Dat is de echte TOC.
 
-Modulelayout (feature-structure): `index.js` (mount/dispatch/destroy) + `config.js`, `state.js` (+ `state/selectors.js`), `runtime.js`, `effects.js`, `view.js`, `history.js`, `restore.js`, plus subfolders per concern (bijv. `tabMutation/`, `restore/`, `inventory/`). `__orchestrator<Module>.js` is een shim die `index.js` re-exporteert (pad blijft voor `KDB.js`).
+Modulelayout (feature-structure): `index.js` (mount/dispatch/destroy) + `config.js`, `state.js` (+ `state/selectors.js`), `runtime.js`, `effects.js`, `view.js`, `history.js`, `restore.js`, plus subfolders per concern (bijv. `tabMutation/`, `restore/`, `inventory/`). `index.js` is ook de registratiefunctie `register(_KDB)` die `bootstrap/featureManifest.js` aanroept (alleen `core/config` en `core/utils` hebben `registerConfig.js` / `registerUtils.js`).
 
 ---
 
@@ -16,7 +16,7 @@ Modulelayout (feature-structure): `index.js` (mount/dispatch/destroy) + `config.
 |---|---|
 | Boot-code | `KDB.js` (klasse) + `bootstrap/` (composition root: `featureManifest.js`, `registerServices.js`) + `core/bootstrap/` (manifest-agnostische motor: lifecycle, replay-registratie). |
 | Eén `cognosHost` | Drie verschillende folders: `core/cognosHost/` (chrome-selectors) ≠ `core/services/cognosHost/` (`_KDB.services.cognosHost`, ring 1) ≠ `core/cognosAPI/` (`_KDB.cognosAPI`, inner SDK). |
-| `_KDB.api.widgets` | **Bestaat niet** (0 hits in `KDB3/js`). Zes APIs: `widgetBase` / `widgetSettings` / `widgetText` / `widgetVis` / `widgetDataTable` / `widgetTopN`. |
+| `_KDB.api.widgets` | **Bestaat niet** (0 hits in `KDB3/js`). Vijf APIs: `widgetBase` / `widgetSettings` / `widgetText` / `widgetVis` / `widgetTopN` (`widgetDataTable` is in Phase 2 W12 vervallen). |
 | `_KDB.api.canvas` | Live. Folder `dashboard/canvas/pageSurface/` (niet de groepsmap `dashboard/canvas/`). kdbControl stuurt intents via `dashboard/canvas/kdbControl/effects.js` (`dispatchCanvasIntent`) → `_KDB.api.canvas.dispatch`. Contract: `contracts/pageSurface.md`. |
 | `_KDB.services.writeback` | **Bestaat niet.** Vier keys: `writebackGet` / `writebackSet` / `writebackMap` / `writebackBridge`. **Set = restore-orchestrator**, geen cache. |
 
@@ -33,7 +33,7 @@ De zes kaarten (week één):
 | Tab delete/move/duplicate | `dashboard/tabs/tabMutation/saga.js` |
 | Settings-gevolgen | `dashboard/widgets/widgetSettings/config.js` (`KIND_TABLE`: kind → owner/actie) + `intent/downstream.js` |
 | Opgeslagen dashboard terugzetten | `workflows/parameterSet/set/effects/runNormalRestore.js` |
-| Undo/redo-handlers | `core/bootstrap/registerReplayHandlers.js` (keys per feature in `bootstrap/featureManifest.js`) |
+| Undo/redo-handlers | each owner registers its own handler (`core/utils/kit/history.js` `registerReplayKeys`, in the owner's `index.js`) |
 
 Als je X wilt wijzigen, begin in Y, publiek Z:
 
@@ -44,7 +44,7 @@ Als je X wilt wijzigen, begin in Y, publiek Z:
 | Parameter set restore | `workflows/parameterSet/set/` (`runNormalRestore.js` = faselijst) | `_KDB.services.writebackSet` → `"<owner>/parameterSetRestoreRequested"` |
 | Widget drop / launchpad | dragDrop `dropboxes/publish.js` (validated drop) → widgetBase `canvas.js` (`handleDropCreate`) / `launchpadTransfer.js` (`handleTakeFromLaunchpad`) | `_KDB.api.dragDrop` / `_KDB.api.widgetBase`. Launchpad is parkeerplaats, niet de drop-workflow |
 | Vis binding naar Cognos | `widgetVis/binding/pipeline.js` (`runBindingPipeline`) | `_KDB.api.widgetVis` → `_KDB.services.widgetBindingPlan` (puur) + `widgetBindingApply` |
-| Undo/redo | `core/services/historyService` + `<module>/history.js` | `_KDB.services.history`; chrome: `_KDB.api.historyControls`; registry: `core/bootstrap/registerReplayHandlers.js` via `_KDB.services.history.registerReplayHandler` |
+| Undo/redo | `core/services/historyService` + `<module>/history.js` | `_KDB.services.history`; chrome: `_KDB.api.historyControls`; replay registry: each owner calls `registerReplayKeys` (kit) -> `_KDB.services.history.registerReplayHandler` |
 | Header/footer | `dashboard/header/`, `dashboard/footer/` | `_KDB.api.header` / `footer` |
 | Control-paneel | `dashboard/canvas/kdbControl/` | `_KDB.api.kdbControl` |
 | Dashboard page size / achtergrond | `dashboard/canvas/pageSurface/` | `_KDB.api.canvas` (niet de groepsmap `canvas/`) |
@@ -85,14 +85,13 @@ Volgorde = `registerFeatureModules` (authoring komt uit `setupCoreFactories` en 
 | tabs | `dashboard/tabs/` | `_KDB.api.tabs` | Tab-identiteit **+** tabMutation-saga. Kaart: `tabMutation/saga.js`. |
 | kdbControl | `dashboard/canvas/kdbControl/` | `_KDB.api.kdbControl` | Dashboard-stuurpaneel in `.KDB3Widget`. `canvas/` blijft groepsmap. |
 | pageSurface | `dashboard/canvas/pageSurface/` | `_KDB.api.canvas` | Cognos page size + achtergrond. Intents van kdbControl. Geen state-subtree. |
-| historyControls | `dashboard/controls/historyControls/` (shim) → `toolbarControls/historyButton.js` | `_KDB.api.historyControls` | Undo/Redo-knoppen (chrome). Stack: `_KDB.services.history`. |
-| pdfExportControls | `dashboard/controls/pdfExportControls/` (shim) → `toolbarControls/pdfButton.js` | `_KDB.api.pdfExportControls` | PDF-knop → `dashboardPdf`. |
+| historyControls | `dashboard/controls/toolbarControls/historyButton.js` | `_KDB.api.historyControls` | Undo/Redo-knoppen (chrome). Stack: `_KDB.services.history`. |
+| pdfExportControls | `dashboard/controls/toolbarControls/pdfButton.js` | `_KDB.api.pdfExportControls` | PDF-knop → `dashboardPdf`. |
 | launchpad | `dashboard/launchpad/` | `_KDB.api.launchpad` | Verborgen parkeerplaats voor widgets. |
 | widgetBase | `dashboard/widgets/widgetBase/` | `_KDB.api.widgetBase` | Frame: id, plaats, launchpad, move/resize. Geen base-class. |
 | widgetSettings | `dashboard/widgets/widgetSettings/` | `_KDB.api.widgetSettings` | Tandwielpaneel + control values. Kaart: `config.js` (`KIND_TABLE`). |
 | widgetText | `dashboard/widgets/widgetText/` | `_KDB.api.widgetText` | Editable tekst, geen binding. |
 | widgetVis | `dashboard/widgets/widgetVis/` | `_KDB.api.widgetVis` | Visualisatie-inhoud + binding-pipeline. |
-| widgetDataTable | `dashboard/widgets/widgetDataTable/` | `_KDB.api.widgetDataTable` | Gemonteerde stub; dispatch is no-op. |
 | widgetTopN | `dashboard/widgets/widgetTopN/` | `_KDB.api.widgetTopN` | Vis-helper, geen droppable widget. State keyed op `ownerVisId`. |
 | dragDrop | `dashboard/canvas/dragDrop/` | `_KDB.api.dragDrop` | HTML5 drag-sessie; maakt geen widgets. |
 | metricsTree | `dashboard/metricsTree/` | `_KDB.api.metricsTree` | Kennzahlen-jsTree in kdbControl-DOM. |
@@ -103,13 +102,13 @@ Volgorde = `registerFeatureModules` (authoring komt uit `setupCoreFactories` en 
 | specialSingleSelect | `dashboard/filters/specialSingleSelect/` | `_KDB.api.specialSingleSelect` | Rights-gated PG/DSL; delegeert host. |
 | nativeMultiSelect | `dashboard/filters/nativeMultiSelect/` | `_KDB.api.nativeMultiSelect` | Unowned native multi-selects. |
 
-Gedeelde toolbar-knoppen (history, pdf, share, wienKi): `dashboard/controls/toolbarControls/` (`index.js`, `toolbarHost.js`, `toolbarButton.js`, `historyButton.js`, `pdfButton.js`, `shareButton.js`, `shareLink.js`, `wienKiButton.js`, `wienKiPopup.js`, `iconHref.js`, `config.js`). De `__orchestrator*Controls.js`-bestanden onder `historyControls/`, `pdfExportControls/`, `shareControls/` en `wienKiControls/` zijn shims die de betreffende knop re-exporteren; `KDB.js` mount elke knop apart via `_KDB.api.<apiName>`.
+Gedeelde toolbar-knoppen (history, pdf, share, wienKi): `dashboard/controls/toolbarControls/` (`index.js`, `toolbarHost.js`, `toolbarButton.js`, `historyButton.js`, `pdfButton.js`, `shareButton.js`, `shareLink.js`, `wienKiButton.js`, `wienKiPopup.js`, `iconHref.js`, `config.js`). `toolbarControls/index.js` registreert alle vier de knoppen in één aanroep; de manifest mount en vernietigt elke knop apart via `_KDB.api.<apiName>`.
 
 ### Waar staat wat binnen een module (na Phase 1)
 
 | Module | Kernbestanden (t.o.v. de modulefolder) |
 |---|---|
-| tabs | `index.js`, `state.js` + `reducer.js`, `selectors.js` + `state/selectors.js`, `observe.js` (tabs:changed), `slots.js`, `chrome.js`, `tabMutation/` (`saga.js`, `plans.js`, `owners.js`, `actions.js`, `reduce.js`, `loadingFrame.js`), `restore/` (parameterSet restore/activation/landing), `traverse/`, `editUi/`, `history.js` |
+| tabs | `index.js`, `state.js` + `reducer.js`, `selectors.js`, `observe.js` (tabs:changed), `slots.js`, `chrome.js`, `tabMutation/` (`saga.js`, `plans.js`, `owners.js`, `actions.js`, `reduce.js`, `loadingFrame.js`), `restore/` (parameterSet restore/activation/landing), `traverse/`, `editUi/`, `history.js` |
 | filterDock | `index.js`, `ownerRoutes.js` + `ownerRouter.js`, `selectors.js`, `state.js`, `identity.js`, `observation/` (dock observer, popup sessions), `interaction/` |
 | singleSelect | `index.js`, `state/` (reducer, instance, selection, selectors), `inventory/`, `commit/`, `dockHandoff/`, `restore/`, `tabMutation/`, `hostFilterIo.js`, `historyReplay.js`, `view.js` |
 | sicht / specialSingleSelect | `index.js`, `state.js`, `commit.js` / `policy.js`, `delegation.js`, `restore.js`, `view.js` |

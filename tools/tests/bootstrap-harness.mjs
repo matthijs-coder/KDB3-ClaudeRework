@@ -7,62 +7,70 @@ import { JS_ROOT } from '../lib/amd-graph.mjs';
 
 // [manifest name, orchestrator path relative to KDB3/js, _KDB.api key set by the real orchestrator]
 export const FEATURES = [
-  ['header', 'dashboard/header/__orchestratorHeader.js', 'header'],
-  ['footer', 'dashboard/footer/__orchestratorFooter.js', 'footer'],
-  ['tabs', 'dashboard/tabs/__orchestratorTabs.js', 'tabs'],
-  ['kdbControl', 'dashboard/canvas/kdbControl/__orchestratorKdbControl.js', 'kdbControl'],
-  ['pageSurface', 'dashboard/canvas/pageSurface/__orchestratorPageSurface.js', 'canvas'],
-  ['historyControls', 'dashboard/controls/historyControls/__orchestratorHistoryControls.js', 'historyControls'],
-  ['pdfExportControls', 'dashboard/controls/pdfExportControls/__orchestratorPdfExportControls.js', 'pdfExportControls'],
-  ['wienKiControls', 'dashboard/controls/wienKiControls/__orchestratorWienKiControls.js', 'wienKiControls'],
-  ['shareControls', 'dashboard/controls/shareControls/__orchestratorShareControls.js', 'shareControls'],
-  ['launchpad', 'dashboard/launchpad/__orchestratorLaunchpad.js', 'launchpad'],
-  ['widgetBase', 'dashboard/widgets/widgetBase/__orchestratorWidgetBase.js', 'widgetBase'],
-  ['widgetSettings', 'dashboard/widgets/widgetSettings/__orchestratorWidgetSettings.js', 'widgetSettings'],
-  ['widgetText', 'dashboard/widgets/widgetText/__orchestratorWidgetText.js', 'widgetText'],
-  ['widgetVis', 'dashboard/widgets/widgetVis/__orchestratorWidgetVis.js', 'widgetVis'],
-  ['widgetDataTable', 'dashboard/widgets/widgetDataTable/__orchestratorWidgetDataTable.js', 'widgetDataTable'],
-  ['widgetTopN', 'dashboard/widgets/widgetTopN/__orchestratorWidgetTopN.js', 'widgetTopN'],
-  ['dragDrop', 'dashboard/canvas/dragDrop/__orchestratorDragDrop.js', 'dragDrop'],
-  ['metricsTree', 'dashboard/metricsTree/__orchestratorMetricsTree.js', 'metricsTree'],
-  ['filterDock', 'dashboard/filters/filterDock/__orchestratorFilterDock.js', 'filterDock'],
-  ['singleSelect', 'dashboard/filters/singleSelect/__orchestratorSingleSelect.js', 'singleSelect'],
-  ['dienststelle', 'dashboard/filters/dienststelle/__orchestratorDienststelle.js', 'dienststelle'],
-  ['sicht', 'dashboard/filters/sicht/__orchestratorSicht.js', 'sicht'],
-  ['specialSingleSelect', 'dashboard/filters/specialSingleSelect/__orchestratorSpecialSingleSelect.js', 'specialSingleSelect'],
-  ['nativeMultiSelect', 'dashboard/filters/nativeMultiSelect/__orchestratorNativeMultiSelect.js', 'nativeMultiSelect'],
+  ['header', 'dashboard/header/index.js', 'header'],
+  ['footer', 'dashboard/footer/index.js', 'footer'],
+  ['tabs', 'dashboard/tabs/index.js', 'tabs'],
+  ['kdbControl', 'dashboard/canvas/kdbControl/index.js', 'kdbControl'],
+  ['pageSurface', 'dashboard/canvas/pageSurface/index.js', 'canvas'],
+  ['launchpad', 'dashboard/launchpad/index.js', 'launchpad'],
+  ['widgetBase', 'dashboard/widgets/widgetBase/index.js', 'widgetBase'],
+  ['widgetSettings', 'dashboard/widgets/widgetSettings/index.js', 'widgetSettings'],
+  ['widgetText', 'dashboard/widgets/widgetText/index.js', 'widgetText'],
+  ['widgetVis', 'dashboard/widgets/widgetVis/index.js', 'widgetVis'],
+  ['widgetTopN', 'dashboard/widgets/widgetTopN/index.js', 'widgetTopN'],
+  ['dragDrop', 'dashboard/canvas/dragDrop/index.js', 'dragDrop'],
+  ['metricsTree', 'dashboard/metricsTree/index.js', 'metricsTree'],
+  ['filterDock', 'dashboard/filters/filterDock/index.js', 'filterDock'],
+  ['singleSelect', 'dashboard/filters/singleSelect/index.js', 'singleSelect'],
+  ['dienststelle', 'dashboard/filters/dienststelle/index.js', 'dienststelle'],
+  ['sicht', 'dashboard/filters/sicht/index.js', 'sicht'],
+  ['specialSingleSelect', 'dashboard/filters/specialSingleSelect/index.js', 'specialSingleSelect'],
+  ['nativeMultiSelect', 'dashboard/filters/nativeMultiSelect/index.js', 'nativeMultiSelect'],
 ];
+
+// One registration publishes four toolbar button APIs; each is still mounted and destroyed on its own.
+export const TOOLBAR_ENTRY = 'dashboard/controls/toolbarControls/index.js';
+export const TOOLBAR_API_KEYS = ['historyControls', 'pdfExportControls', 'wienKiControls', 'shareControls'];
 
 export const CORE_STEP_PATHS = {
   cognosHostSelectors: 'core/cognosHost/registerCognosHostSelectors.js',
-  properties: 'core/properties/__orchestratorProperties.js',
-  config: 'core/config/__orchestratorConfig.js',
-  css: 'core/css/__orchestratorCss.js',
-  cognosAPI: 'core/cognosAPI/__orchestratorCognosAPI.js',
-  authoring: 'core/authoring/__orchestratorAuthoring.js',
+  properties: 'core/properties/index.js',
+  config: 'core/config/registerConfig.js',
+  css: 'core/css/index.js',
+  cognosAPI: 'core/cognosAPI/index.js',
+  authoring: 'core/authoring/index.js',
   services: 'bootstrap/registerServices.js',
-  homeDialog: 'core/homeDialog/__orchestratorHomeDialog.js',
-  utils: 'core/utils/__orchestratorUtils.js',
+  homeDialog: 'core/homeDialog/index.js',
+  utils: 'core/utils/registerUtils.js',
 };
 
 // Registration-time stamps of the real owners (header, footer and kdbControl stamp in mount()).
 const STAMPS_AT_REGISTER = ['widgetSettings', 'widgetBase', 'widgetText', 'tabs', 'dienststelle', 'singleSelect', 'nativeMultiSelect', 'sicht'];
 const STAMPS_AT_MOUNT = ['header', 'footer', 'kdbControl'];
+export const REPLAY_KEYS_BY_FEATURE = {
+  kdbControl: ['kdbControl_settingsChange'], header: ['header_chromeChange', 'header_textChange'], footer: ['footer_chromeChange'],
+  singleSelect: ['filter_singleSelect'], sicht: ['filter_sicht'], dienststelle: ['filter_dienststelle'], nativeMultiSelect: ['filter_nativeMultiSelect'],
+  widgetBase: ['widget_canvasDrop', 'widget_launchpadTransfer', 'widget_layoutMove', 'widget_layoutResize'],
+  widgetSettings: ['widgetSettings_optionSelect'], widgetText: ['widget_textEdit'],
+  tabs: ['tabs_move', 'tabs_delete', 'tabs_duplicate', 'tabs_rename'],
+};
+export const REGISTER_STAMPERS = STAMPS_AT_REGISTER;
+export const MOUNT_STAMPERS = STAMPS_AT_MOUNT;
 export const REPLAY_OWNER_BY_FEATURE = { kdbControl: 'kdbControl', header: 'header', footer: 'footer', singleSelect: 'singleSelect', sicht: 'sicht', dienststelle: 'dienststelle', nativeMultiSelect: 'nativeMultiSelect', widgetBase: 'widgetBase', widgetSettings: 'widgetSettings', widgetText: 'widgetText', tabs: 'tabs' };
 
 // Services published by the real services orchestrator that KDB.js knows by name.
 const SERVICE_NAMES = ['cognosHost', 'tableData', 'loading', 'message', 'widgetBindingPlan', 'widgetBindingApply', 'dashboardPdf', 'writebackBridge', 'writebackSet', 'writebackGet', 'writebackMap', 'drillthrough'];
 
 const SERVICE_SUBPATHS = {
-  cognosHost: 'core/services/cognosHost/__orchestratorCognosHost.js',
-  tableData: 'core/services/tableData/__orchestratorTableData.js',
-  loading: 'core/services/loadingService/__orchestratorLoadingService.js',
-  message: 'core/services/messageService/__orchestratorMessageService.js',
-  widgetBindingPlan: 'core/services/widgetBindingPlan/__orchestratorWidgetBindingPlan.js',
-  widgetBindingApply: 'core/services/widgetBindingApply/__orchestratorWidgetBindingApply.js',
-  dashboardPdf: 'workflows/pdfExport/__orchestratorDashboardPdf.js',
-  writeback: 'workflows/parameterSet/__orchestratorWriteback.js',
-  drillthrough: 'core/services/drillthrough/__orchestratorDrillthrough.js',
+  cognosHost: 'core/services/cognosHost/index.js',
+  tableData: 'core/services/tableData/index.js',
+  loading: 'core/services/loadingService/index.js',
+  message: 'core/services/messageService/index.js',
+  widgetBindingPlan: 'core/services/widgetBindingPlan/index.js',
+  widgetBindingApply: 'core/services/widgetBindingApply/index.js',
+  dashboardPdf: 'workflows/pdfExport/index.js',
+  writeback: 'workflows/parameterSet/index.js',
+  drillthrough: 'core/services/drillthrough/index.js',
 };
 
 export function deferred() {
@@ -125,6 +133,9 @@ export function createHarness({ realCss = false, realServices = false, props = {
     kdb.runtime[name] = kdb.runtime[name] || {};
     contributions[name] = { apply: async (_kdb, value, step) => { log.push('replay:' + name + ':' + step.key); return true; } };
     kdb.runtime[name].historyReplayHandlerContribution = contributions[name];
+    // The real owners register their keys with the history service where they stamp (kit history.registerReplayKeys).
+    const history = kdb.services && kdb.services.history;
+    for (const key of REPLAY_KEYS_BY_FEATURE[name]) history.registerReplayHandler(key, contributions[name]);
   }
 
   function featureFake([name, , apiKey]) {
@@ -132,18 +143,27 @@ export function createHarness({ realCss = false, realServices = false, props = {
       log.push('register:' + name);
       kdb.runtime = kdb.runtime || {};
       if (STAMPS_AT_REGISTER.includes(name)) stampContribution(kdb, name);
-      kdb.api[apiKey] = {
-        mount(options) {
-          log.push('mount:' + name + ':' + JSON.stringify(options));
-          if (failMount === name) throw new Error('mount failed ' + name);
-          if (STAMPS_AT_MOUNT.includes(name)) stampContribution(kdb, name);
-        },
-        destroy() {
-          log.push('destroy:' + name);
-          if (failDestroy === name) throw new Error('boom ' + name);
-        },
-        applyReadOnlyChrome() { log.push('call:shareControls.applyReadOnlyChrome'); },
-      };
+      kdb.api[apiKey] = createFakeApi(kdb, name);
+    };
+  }
+
+  function toolbarFake(kdb) {
+    log.push('register:toolbarControls');
+    for (const name of TOOLBAR_API_KEYS) kdb.api[name] = createFakeApi(kdb, name);
+  }
+
+  function createFakeApi(kdb, name) {
+    return {
+      mount(options) {
+        log.push('mount:' + name + ':' + JSON.stringify(options));
+        if (failMount === name) throw new Error('mount failed ' + name);
+        if (STAMPS_AT_MOUNT.includes(name)) stampContribution(kdb, name);
+      },
+      destroy() {
+        log.push('destroy:' + name);
+        if (failDestroy === name) throw new Error('boom ' + name);
+      },
+      applyReadOnlyChrome() { log.push('call:shareControls.applyReadOnlyChrome'); },
     };
   }
 
@@ -230,6 +250,7 @@ export function createHarness({ realCss = false, realServices = false, props = {
     };
   }
   for (const feature of FEATURES) overrides[feature[1]] = featureFake(feature);
+  overrides[TOOLBAR_ENTRY] = toolbarFake;
 
   const KDB = loadAmd(path.join(JS_ROOT, 'KDB.js'), {
     stubs: { window: windowStub, document: documentStub, console: consoleStub },
@@ -250,6 +271,7 @@ export function loadManifest() {
   const noop = () => {};
   for (const rel of Object.values(CORE_STEP_PATHS)) overrides[rel] = noop;
   for (const feature of FEATURES) overrides[feature[1]] = noop;
+  overrides[TOOLBAR_ENTRY] = noop;
   return loadAmd(path.join(JS_ROOT, 'bootstrap/featureManifest.js'), { overrides });
 }
 

@@ -1,4 +1,4 @@
-define(["../../../../tabs/state/selectors.js"], function (_tabsSelectors) {
+define(["../../../../tabs/selectors.js"], function (_tabsSelectors) {
   "use strict";
 
   // Host choke point for dienststelle. This is the single place in the module

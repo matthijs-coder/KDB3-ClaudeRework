@@ -30,7 +30,7 @@ function createLoader() {
 const sha = (value) => createHash("sha256").update(JSON.stringify(value)).digest("hex").slice(0, 16);
 
 function buildConfig(existing) {
-  const orchestrator = createLoader()("core/config/__orchestratorConfig.js");
+  const orchestrator = createLoader()("core/config/registerConfig.js");
   const _KDB = { config: existing || { options: {} } };
   orchestrator(_KDB);
   return _KDB.config;
@@ -114,7 +114,7 @@ test("config: existing values win and nested merges are kept", () => {
 });
 
 test("config: running the orchestrator twice is stable", () => {
-  const orchestrator = createLoader()("core/config/__orchestratorConfig.js");
+  const orchestrator = createLoader()("core/config/registerConfig.js");
   const _KDB = { config: { options: {} } };
   orchestrator(_KDB);
   const first = sha(_KDB.config);
@@ -248,7 +248,7 @@ test("readElementScale", () => {
 });
 
 test("utils orchestrator publishes exactly the six readers", () => {
-  const orchestrator = createLoader()("core/utils/__orchestratorUtils.js");
+  const orchestrator = createLoader()("core/utils/registerUtils.js");
   const _KDB = {};
   const utils = orchestrator(_KDB);
   assert.equal(utils, _KDB.utils);

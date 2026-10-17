@@ -31,7 +31,7 @@ function setup() {
   // One registry instance shared by the orchestrator and the remover, like the AMD module in the page.
   const registry = loadAmd(path.join(JS_ROOT, 'core/css/cssLinkRegistry.js'), { stubs: { document } });
   const overrides = { 'core/css/cssLinkRegistry.js': registry };
-  const load = () => loadAmd(path.join(JS_ROOT, 'core/css/__orchestratorCss.js'), { stubs: { document }, overrides });
+  const load = () => loadAmd(path.join(JS_ROOT, 'core/css/index.js'), { stubs: { document }, overrides });
   const remove = loadAmd(path.join(JS_ROOT, 'core/css/removeCssLinks.js'), { stubs: { document }, overrides });
   const newKdb = () => ({ runtime: { core: { domRefs: {} } } });
   return { head, document, load, remove, newKdb };
@@ -132,7 +132,7 @@ test('a link already detached from the page is released without error', () => {
 test('double boot with two separately loaded copies of the css modules: the survivor keeps the links', () => {
   const { head, document } = setup();
   const loadCopy = () => ({
-    orchestrate: loadAmd(path.join(JS_ROOT, 'core/css/__orchestratorCss.js'), { stubs: { document } }),
+    orchestrate: loadAmd(path.join(JS_ROOT, 'core/css/index.js'), { stubs: { document } }),
     remove: loadAmd(path.join(JS_ROOT, 'core/css/removeCssLinks.js'), { stubs: { document } }),
   });
   const copyA = loadCopy();

@@ -20,7 +20,7 @@ The rules for all KDB3 code. `core.mdc` is always applied; the topic rules load 
 | `naming.mdc` | Identifiers, files, folders, events, actions, error codes; English with German domain nouns. |
 | `module-public-api.mdc` | Single API surface, dispatch vs named methods, disposed guard, tableData read contract. |
 | `events.mdc` | Event bus at `_KDB.events`, direct API vs request-events vs fact-events. |
-| `feature-structure.mdc` | Module template, `index.js` skeleton, old-to-new file mapping, Phase 1 path-preserving shims. |
+| `feature-structure.mdc` | Module template, `index.js` skeleton, old-to-new file mapping, moving files that other modules import. |
 | `error-handling.mdc` | try/catch only at boundaries, no log-and-rethrow, error codes, result objects. |
 | `dom.mdc` | Selectors under `_KDB.elements.selectors.<module>`, live refs under `_KDB.runtime.<owner>.domRefs`, scoped queries, builder/placer/mutator. |
 | `cognos-adapter.mdc` | The three Cognos rings, facet stamps, Outcome objects. |
@@ -81,7 +81,6 @@ KDB3/js/
       view.js
       effects.js
       config.js
-      __orchestrator<Module>.js   one-line shim to index.js until Phase 2
 ```
 
 This is the target module template (`feature-structure.mdc`); many modules still use the older `config/ state/ view/ effects/ adapters/ events/` folders plus `create<Module>Controller.js` until they are refactored. The living module list is `jsModuleMap.md`, not this sketch.

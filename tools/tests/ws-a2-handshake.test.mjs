@@ -6,8 +6,8 @@ import path from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
-const ORCHESTRATOR = path.join(JS_ROOT, "core/services/cognosHost/__orchestratorCognosHost.js");
-const AUTHORING = path.join(JS_ROOT, "core/authoring/__orchestratorAuthoring.js");
+const ORCHESTRATOR = path.join(JS_ROOT, "core/services/cognosHost/index.js");
+const AUTHORING = path.join(JS_ROOT, "core/authoring/index.js");
 
 function uiStateHost() {
   const host = { subscribed: 0, getCurrentDashboardUiState: () => ({ authoring: true, mode: "edit" }) };

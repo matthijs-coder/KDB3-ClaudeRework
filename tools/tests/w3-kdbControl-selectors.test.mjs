@@ -64,7 +64,7 @@ test("the frozen deep paths stay importable with their shapes", () => {
 
 // ---- syncView: api.kdbControl.syncView is the one public entry ----
 
-const registerKdbControl = loadAmd(at("__orchestratorKdbControl.js"), { stubs: { console: quiet } });
+const registerKdbControl = loadAmd(at("index.js"), { stubs: { console: quiet } });
 
 test("api.kdbControl.syncView runs the bound framework sync (what header and footer reach through the bind context)", () => {
   const _KDB = { api: {}, state: {}, runtime: { kdbControl: {} } };

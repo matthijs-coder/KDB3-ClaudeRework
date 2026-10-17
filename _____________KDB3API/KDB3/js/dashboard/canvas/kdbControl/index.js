@@ -8,9 +8,13 @@ define([
   "./settingsForm.js",
   "./framework/index.js",
   "../../../core/utils/kit/runtime.js",
-  "../../../core/utils/kit/errors.js"
-], function (_types, _initialState, _reduceKdbControl, _actions, _effects, _history, _bindSettingsForm, _mountFramework, _rt, _errors) {
+  "../../../core/utils/kit/errors.js",
+  "../../../core/utils/kit/history.js"
+], function (_types, _initialState, _reduceKdbControl, _actions, _effects, _history, _bindSettingsForm, _mountFramework, _rt, _errors, _historyKit) {
   "use strict";
+
+  var REPLAY_KEYS = ["kdbControl_settingsChange"];
+
   // Lifecycle terms: idle, mounted, error, disposed (state.kdbControl.lifecycle).
 
   function createKdbControlController(_KDB) {
@@ -53,6 +57,7 @@ define([
       try {
         var rt = _rt.ensureRuntime(_KDB, "kdbControl", { warnedMissingApis: {} });
         rt.historyReplayHandlerContribution = _history.createSettingsReplayHandler(runner.applySettingsAction);
+        _historyKit.registerReplayKeys(_KDB, REPLAY_KEYS, rt.historyReplayHandlerContribution);
         _KDB.state.kdbControl = _reduceKdbControl(_initialState(), { type: _types.ACTION_INIT });
         var seeded = _KDB.properties && _KDB.properties.KDBHideWidgetsToggle === true;
         dispatch({ type: _types.ACTION_SETTINGS_SET_DEVELOPER_MODE, payload: { value: seeded, skipHistory: true } });

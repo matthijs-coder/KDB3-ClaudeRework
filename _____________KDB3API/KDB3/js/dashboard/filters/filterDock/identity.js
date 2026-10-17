@@ -1,6 +1,6 @@
 define([
   "./config.js",
-  "../../tabs/state/selectors.js",
+  "../../tabs/selectors.js",
   "../../../core/utils/getKennzahlenSource.js",
   "../../../core/utils/kit/data.js"
 ], function (_config, _tabsSelectors, _getKennzahlenSource, _data) {
