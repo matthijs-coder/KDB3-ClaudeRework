@@ -3,9 +3,12 @@ define([], function () {
 
   function registerAll(_KDB, _manifest) {
     _manifest.entries.forEach(function (entry) {
-      if (typeof entry.register === "function") {
-        entry.register(_KDB);
+      // Entries without a `register` key (the toolbar buttons) are published by an earlier entry; a present but
+      // non-function `register` is a wiring error and throws.
+      if (!("register" in entry)) {
+        return;
       }
+      entry.register(_KDB);
     });
   }
 

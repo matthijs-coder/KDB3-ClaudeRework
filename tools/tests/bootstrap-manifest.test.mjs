@@ -2,6 +2,9 @@
 // Run: node --test tools/tests/bootstrap-manifest.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import path from 'node:path';
+import { loadAmd } from '../lib/amd-loader.mjs';
+import { JS_ROOT } from '../lib/amd-graph.mjs';
 import { FEATURES, TOOLBAR_API_KEYS, REPLAY_KEYS_BY_FEATURE, loadManifest } from './bootstrap-harness.mjs';
 
 const manifest = loadManifest();
@@ -71,4 +74,27 @@ test('manifest: service teardown order', () => {
     'drillthrough', 'writebackBridge', 'writebackSet', 'writebackGet', 'writebackMap', 'dashboardPdf', 'widgetBindingApply', 'history', 'message', 'loading', 'tableData', 'cognosHost',
   ]);
   assert.ok(manifest.serviceDestroyOrder.indexOf('drillthrough') < manifest.serviceDestroyOrder.indexOf('tableData'));
+});
+
+test('manifest with the REAL registrar modules: every entry that has a register key has a function registrar', () => {
+  const quiet = { log() {}, info() {}, warn() {}, error() {}, debug() {} };
+  const documentStub = { createElement: () => ({}), querySelector: () => null, querySelectorAll: () => [], getElementById: () => null, addEventListener() {}, location: {} };
+  // Vendored libraries are replaced; they cannot be evaluated in Node and are not registrars.
+  const overrides = { 'core/libraries/jstree.min.js': {}, 'core/libraries/jspdf.umd.min.js': {}, 'core/libraries/html2canvas.min.js': {} };
+  const real = loadAmd(path.join(JS_ROOT, 'bootstrap/featureManifest.js'), {
+    stubs: { console: quiet, document: documentStub, window: { top: {} }, navigator: {} },
+    modules: { jquery: () => {} },
+    overrides
+  });
+  const registering = real.entries.filter((entry) => 'register' in entry);
+  assert.equal(registering.length, real.entries.length - TOOLBAR_API_KEYS.length);
+  for (const entry of registering) assert.equal(typeof entry.register, 'function', entry.name);
+});
+
+test('registerAll skips only entries without a register key; a non-function register throws', () => {
+  const lifecycle = loadAmd(path.join(JS_ROOT, 'core/bootstrap/lifecycle.js'));
+  const calls = [];
+  lifecycle.registerAll({}, { entries: [{ name: 'a', register: () => calls.push('a') }, { name: 'buttons', api: 'x' }, { name: 'b', register: () => calls.push('b') }] });
+  assert.deepEqual(calls, ['a', 'b']);
+  assert.throws(() => lifecycle.registerAll({}, { entries: [{ name: 'broken', register: undefined }] }), TypeError);
 });
