@@ -52,7 +52,7 @@ define([
     _arr.push(_value);
   }
 
-  function __controller(_orgSelection, _tree, _warnings) {
+  function mapBwOrgPrompts(_orgSelection, _tree, _warnings) {
     try {
       var selectedArr = _orgSelection && Array.isArray(_orgSelection.selectedValues) ? _orgSelection.selectedValues : [];
       var i, sel, resolved, wins, selectedIdMap, candidateMap, allCovered, candKeys, children, c;
@@ -144,5 +144,5 @@ define([
     }
   }
 
-  return __controller;
+  return mapBwOrgPrompts;
 });

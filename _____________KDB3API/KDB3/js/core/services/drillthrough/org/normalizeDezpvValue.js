@@ -1,7 +1,7 @@
 define([], function () {
   "use strict";
 
-  function __controller(_raw, _level) {
+  function normalizeDezpvValue(_raw, _level) {
     var value = String(_raw == null ? "" : _raw).trim();
     if (!value) {
       return "";
@@ -18,5 +18,5 @@ define([], function () {
     return value.trim();
   }
 
-  return __controller;
+  return normalizeDezpvValue;
 });

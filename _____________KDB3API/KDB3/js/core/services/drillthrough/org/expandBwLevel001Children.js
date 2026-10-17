@@ -14,7 +14,7 @@ define([
     return String(meta.text || "").trim();
   }
 
-  function __controller(_node, _tree) {
+  function expandBwLevel001Children(_node, _tree) {
     var out = [];
     var seen = {};
     var children;
@@ -37,5 +37,5 @@ define([
     return out;
   }
 
-  return __controller;
+  return expandBwLevel001Children;
 });
