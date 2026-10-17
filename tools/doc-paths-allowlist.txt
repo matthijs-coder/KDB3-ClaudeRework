@@ -1,0 +1,4 @@
+# Known historical code-path citations in living docs that are intentionally not repointed.
+# One entry per line: `<doc path relative to the repo root> | <cited path>  # reason`
+# check-doc-paths fails for a stale citation that is not listed here AND for a listed entry that no longer matches a stale
+# citation, so this file only shrinks. Empty since W14: every stale citation was repointed or reworded.

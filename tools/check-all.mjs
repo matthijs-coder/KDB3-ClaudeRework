@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Runs check-syntax, check-imports and (if any tools/tests/*.test.mjs exist) `node --test tools/tests/*.test.mjs`. Exit 1 if any fail.
+// Runs check-syntax, check-imports, check-doc-paths and (if any tools/tests/*.test.mjs exist) `node --test tools/tests/*.test.mjs`. Exit 1 if any fail.
 // Usage: node tools/check-all.mjs [--verbose]   (--verbose prints each check's full output)
 import fs from 'node:fs';
 import path from 'node:path';
@@ -13,6 +13,7 @@ const verbose = process.argv.includes('--verbose');
 const checks = [
   { name: 'check-syntax', args: [path.join(toolsDir, 'check-syntax.mjs')] },
   { name: 'check-imports', args: [path.join(toolsDir, 'check-imports.mjs')] },
+  { name: 'check-doc-paths', args: [path.join(toolsDir, 'check-doc-paths.mjs')] },
 ];
 const testsDir = path.join(toolsDir, 'tests');
 const hasTests = fs.existsSync(testsDir) && fs.readdirSync(testsDir).some((f) => f.endsWith('.test.mjs'));
