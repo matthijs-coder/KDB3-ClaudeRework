@@ -155,7 +155,7 @@ function boot(opts) {
     },
     runtime: {}
   };
-  const register = loadAmd(path.join(options.nmsDir || NMS, "__orchestratorNativeMultiSelect.js"), {
+  const register = loadAmd(path.join(options.nmsDir || NMS, "index.js"), {
     stubs: { console: testConsole },
     modules: options.modules || {}
   });
@@ -422,7 +422,7 @@ test("register: existing state and runtime are kept", () => {
     services: {},
     api: {}
   };
-  loadAmd(nmsFile("__orchestratorNativeMultiSelect.js"), { stubs: { console: c } })(KDB);
+  loadAmd(nmsFile("index.js"), { stubs: { console: c } })(KDB);
   assert.deepEqual(KDB.state.filters.nativeMultiSelect.byScope, { a: [] });
   assert.equal(KDB.runtime.nativeMultiSelect.tabMutationRunId, 9);
   assert.deepEqual(KDB.runtime.nativeMultiSelect.listeners, { k: 1 });

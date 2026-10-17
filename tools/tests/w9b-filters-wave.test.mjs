@@ -283,7 +283,7 @@ function bootNms(behaviour) {
     runtime: {}
   };
   const modules = wireWave(KDB, wave, spy);
-  const register = loadAmd(path.join(NMS, "__orchestratorNativeMultiSelect.js"), { stubs: { console: spy.console }, modules });
+  const register = loadAmd(path.join(NMS, "index.js"), { stubs: { console: spy.console }, modules });
   const api = register(KDB, {});
   return { api, trace, wave, spy, KDB };
 }

@@ -21,12 +21,12 @@ export const FEATURES = [
   ['widgetTopN', 'dashboard/widgets/widgetTopN/index.js', 'widgetTopN'],
   ['dragDrop', 'dashboard/canvas/dragDrop/index.js', 'dragDrop'],
   ['metricsTree', 'dashboard/metricsTree/index.js', 'metricsTree'],
-  ['filterDock', 'dashboard/filters/filterDock/__orchestratorFilterDock.js', 'filterDock'],
-  ['singleSelect', 'dashboard/filters/singleSelect/__orchestratorSingleSelect.js', 'singleSelect'],
-  ['dienststelle', 'dashboard/filters/dienststelle/__orchestratorDienststelle.js', 'dienststelle'],
-  ['sicht', 'dashboard/filters/sicht/__orchestratorSicht.js', 'sicht'],
-  ['specialSingleSelect', 'dashboard/filters/specialSingleSelect/__orchestratorSpecialSingleSelect.js', 'specialSingleSelect'],
-  ['nativeMultiSelect', 'dashboard/filters/nativeMultiSelect/__orchestratorNativeMultiSelect.js', 'nativeMultiSelect'],
+  ['filterDock', 'dashboard/filters/filterDock/index.js', 'filterDock'],
+  ['singleSelect', 'dashboard/filters/singleSelect/index.js', 'singleSelect'],
+  ['dienststelle', 'dashboard/filters/dienststelle/index.js', 'dienststelle'],
+  ['sicht', 'dashboard/filters/sicht/index.js', 'sicht'],
+  ['specialSingleSelect', 'dashboard/filters/specialSingleSelect/index.js', 'specialSingleSelect'],
+  ['nativeMultiSelect', 'dashboard/filters/nativeMultiSelect/index.js', 'nativeMultiSelect'],
 ];
 
 // One registration publishes four toolbar button APIs; each is still mounted and destroyed on its own.

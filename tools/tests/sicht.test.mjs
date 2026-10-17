@@ -45,7 +45,7 @@ const T = {
   buildCommittedStep: load("history.js").buildCommittedStep,
   selectors: load("state/selectors.js"),
   chrome: config.SELECTORS,
-  registerSicht: (stubs) => load("__orchestratorSicht.js", stubs)
+  registerSicht: (stubs) => load("index.js", stubs)
 };
 
 function deepFreeze(value) {

@@ -26,12 +26,12 @@ define([
   "../dashboard/widgets/widgetTopN/index.js",
   "../dashboard/canvas/dragDrop/index.js",
   "../dashboard/metricsTree/index.js",
-  "../dashboard/filters/filterDock/__orchestratorFilterDock.js",
-  "../dashboard/filters/singleSelect/__orchestratorSingleSelect.js",
-  "../dashboard/filters/dienststelle/__orchestratorDienststelle.js",
-  "../dashboard/filters/sicht/__orchestratorSicht.js",
-  "../dashboard/filters/specialSingleSelect/__orchestratorSpecialSingleSelect.js",
-  "../dashboard/filters/nativeMultiSelect/__orchestratorNativeMultiSelect.js",
+  "../dashboard/filters/filterDock/index.js",
+  "../dashboard/filters/singleSelect/index.js",
+  "../dashboard/filters/dienststelle/index.js",
+  "../dashboard/filters/sicht/index.js",
+  "../dashboard/filters/specialSingleSelect/index.js",
+  "../dashboard/filters/nativeMultiSelect/index.js",
   "../core/bootstrap/teardownSteps.js"
 ], function (
   _labels,
