@@ -79,7 +79,7 @@ define([
 
     try {
       const kdbControlApi = _KDB && _KDB.api ? _KDB.api.kdbControl : null;
-      const snapshot = kdbControlApi && typeof kdbControlApi.getState === "function" ? kdbControlApi.getState() : undefined;
+      const snapshot = kdbControlApi ? kdbControlApi.getState() : undefined;
       const defaults = draggedElementType === "text"
         ? _kdbControlSelectors.readCommentDefaults(snapshot)
         : _kdbControlSelectors.readVisualizationDefaults(snapshot);

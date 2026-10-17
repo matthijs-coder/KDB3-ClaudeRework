@@ -32,7 +32,7 @@ define([
 
   function hasMessageCopyable(_KDB) {
     var message = _KDB.services && _KDB.services.message;
-    return !!(message && typeof message.showCopyable === "function");
+    return !!message;
   }
 
   function initializeWienKi(_KDB, inst) {

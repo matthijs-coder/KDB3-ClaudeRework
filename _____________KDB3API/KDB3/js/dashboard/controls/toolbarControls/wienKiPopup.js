@@ -175,7 +175,7 @@ define(["./config.js", "./toolbarButton.js"], function (_config, _button) {
     var labels;
     var handle = null;
     if (inst.instructionDialogOpen === true) return;
-    if (!message || typeof message.showCopyable !== "function") return;
+    if (!message) return;
     labels = readInstructionLabels(_KDB);
     inst.instructionDialogOpen = true;
     try {

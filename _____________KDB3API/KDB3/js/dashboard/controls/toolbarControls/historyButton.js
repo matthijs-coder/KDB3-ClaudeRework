@@ -73,10 +73,10 @@ define([
 
   function runHistoryAction(_KDB, action) {
     var historyService = readHistoryService(_KDB);
-    if (historyService && action === "undo" && typeof historyService.undo === "function") {
+    if (historyService && action === "undo") {
       return Promise.resolve(historyService.undo());
     }
-    if (historyService && action === "redo" && typeof historyService.redo === "function") {
+    if (historyService && action === "redo") {
       return Promise.resolve(historyService.redo());
     }
     return Promise.resolve();

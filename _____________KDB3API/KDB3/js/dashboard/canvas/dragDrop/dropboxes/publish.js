@@ -138,7 +138,7 @@ define([
   function showValidationWarning(_KDB, reason) {
     const messageService = _KDB && _KDB.services ? _KDB.services.message : null;
 
-    if (!messageService || typeof messageService.notify !== "function") {
+    if (!messageService) {
       console.warn("[dragDrop.publishValidatedDrop] message service unavailable", reason || "unknown");
       return;
     }

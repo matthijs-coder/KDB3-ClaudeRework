@@ -53,7 +53,7 @@ define([
 
   function readHelperTabIds(_KDB) {
     const launchpadApi = _KDB && _KDB.api ? _KDB.api.launchpad : null;
-    const launchpadState = launchpadApi && typeof launchpadApi.getState === "function"
+    const launchpadState = launchpadApi
       ? launchpadApi.getState()
       : (_KDB && _KDB.state ? _KDB.state.launchpad : null);
     const helperTabIds = launchpadState && Array.isArray(launchpadState.helperTabIds)

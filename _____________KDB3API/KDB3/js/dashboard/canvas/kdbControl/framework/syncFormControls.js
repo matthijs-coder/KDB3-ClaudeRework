@@ -18,7 +18,7 @@ define([
 
   function readTabsState(_KDB) {
     var tabsApi = _KDB.api && _KDB.api.tabs;
-    if (!tabsApi || typeof tabsApi.getState !== "function") return null;
+    if (!tabsApi) return null;
     var state;
     try {
       state = tabsApi.getState();
@@ -38,7 +38,7 @@ define([
     if (!framework) return;
     var inputValues = framework.placeholderInputs || {};
     var selections = framework.placeholderSelections || {};
-    var hasTabsOwner = !!(_KDB.api && _KDB.api.tabs && typeof _KDB.api.tabs.getState === "function");
+    var hasTabsOwner = !!(_KDB.api && _KDB.api.tabs);
     gallery.querySelectorAll("[data-placeholder-input-id]").forEach(function (inputEl) {
       var id = inputEl.getAttribute("data-placeholder-input-id");
       if (id && Object.prototype.hasOwnProperty.call(inputValues, id)) inputEl.value = inputValues[id];

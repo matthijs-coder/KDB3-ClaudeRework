@@ -21,13 +21,13 @@ define([
   function addTab(_KDB) {
     try {
       var tabsApi = _KDB.api && _KDB.api.tabs;
-      var snapshot = tabsApi && typeof tabsApi.getState === "function" ? tabsApi.getState() : null;
+      var snapshot = tabsApi ? tabsApi.getState() : null;
       if (snapshot === undefined || snapshot === null || typeof snapshot !== "object") {
         console.warn("[kdbControl.addTab] tabs getState unavailable; add blocked");
         return;
       }
       var messages = _KDB.services && _KDB.services.message;
-      if (!messages || typeof messages.notify !== "function") {
+      if (!messages) {
         console.warn("[kdbControl.addTab] messageService.notify unavailable; add blocked (fail closed)");
         return;
       }
@@ -98,14 +98,14 @@ define([
 
     function onDragStart(event) {
       var dragDrop = _KDB.api && _KDB.api.dragDrop;
-      if (isCommentsStartTarget(event.target) && dragDrop && typeof dragDrop.startDrag === "function") {
+      if (isCommentsStartTarget(event.target) && dragDrop) {
         dragDrop.startDrag(event, buildCommentsDragSource(event.target));
       }
     }
 
     function onDragEnd(event) {
       var dragDrop = _KDB.api && _KDB.api.dragDrop;
-      if (isCommentsStartTarget(event.target) && dragDrop && typeof dragDrop.finishDrag === "function") dragDrop.finishDrag(event);
+      if (isCommentsStartTarget(event.target) && dragDrop) dragDrop.finishDrag(event);
     }
 
     ctx.contentEl.addEventListener("click", onClick, { signal: signal });
