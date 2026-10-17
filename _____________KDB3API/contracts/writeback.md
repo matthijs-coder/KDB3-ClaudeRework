@@ -81,7 +81,7 @@ workflows/parameterSet/
 │   ├── createWritebackGetService.js   public writebackGet; runs collectors, then the bridge-only persist landing
 │   ├── runWritebackGetCollectors.js   collector run + notifySaveFailed alert
 │   ├── collectors/
-│   │   ├── collectorSupport.js        shared helpers (dashboard-tab role rule, scope helpers)
+│   │   ├── collectorReads.js          shared reads (dashboard-tab role rule, scope helpers)
 │   │   ├── collectCanvasSettings.js   (canv/sett)
 │   │   ├── collectHeaderFooter.js     (head/foot)
 │   │   ├── collectTabs.js             (tabs; hidden dashboard shells as hide:1)
@@ -461,7 +461,7 @@ Top-level fields:
 - `v` is required and must be `3`.
 - `pkg` is required and stores the semantic package/profile key used for mapping validation, not a Cognos model id.
 - `canv` is optional canvas size `{ w, h }` and must be omitted when equal to default.
-- `sett` is optional dashboard/settings delta.
+- `sett` is optional dashboard-settings delta.
 - `head` is optional top-header delta.
 - `foot` is optional footer delta.
 - `filt` is optional filters payload.

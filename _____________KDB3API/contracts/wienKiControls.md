@@ -20,7 +20,7 @@
 
 | Topic | Decision |
 |---|---|
-| Placement | `KDB3/js/dashboard/controls/wienKiControls/` |
+| Placement | `KDB3/js/dashboard/controls/toolbarControls/` (as built: `wienKiButton.js`, `wienKiPopup.js`) |
 | Public surface | `{ mount, destroy }` — named lifecycle, no `dispatch` / `getState` |
 | State | No `_KDB.state.wienKiControls` |
 | Click | Toolbar: instruction `showCopyable` (not `window.open`). Named popup only from action `whenDone` `{ action: "selected" }`. Law: `wienKiControls-instruction-dialog-contractdelta.md` |

@@ -86,7 +86,7 @@ It does not render icons, bind visualization selections, read widget settings, w
 - A hierarchy wait also arms one timeout of `DEFERRED_OPEN_TIMEOUT_MS` (120000, `drillthrough/config.js`). If the load has not settled by then, the wait window shows the `loadFailedBody` text and a later settle is ignored.
 - `destroy()` is idempotent. It cancels the deferred-open timeouts, closes wait windows that are still waiting (opens that already settled keep their window) and makes a late settle a no-op. It does not abort the `tableData` load. After `destroy()`, `openDrillthrough` returns `ok:false`, `errorCode:"DRILLTHROUGH_DISPOSED"` without calling `window.open`; `buildDrillthroughUrl` stays available (pure).
 
-If root bootstrap removes `_KDB.services.drillthrough`, callers treat the missing service as a bootstrap/integration error.
+If root bootstrap removes `_KDB.services.drillthrough`, callers treat the missing service as a bootstrap or integration error.
 
 ---
 

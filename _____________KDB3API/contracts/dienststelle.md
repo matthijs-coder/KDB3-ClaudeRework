@@ -239,7 +239,7 @@ Active-filter switching rule:
 Inactive-variant decision after CP-4.1 planning:
 
 - On Sicht switch, Dienststelle must not remove and recreate the inactive Cognos filter variant as the normal path.
-- Both Dienststelle Cognos filter shells may exist so their dashboard/filterDock positions remain stable.
+- Both Dienststelle Cognos filter shells may exist so their dashboard and filterDock positions remain stable.
 - The inactive variant must have empty Cognos values, must be hidden in the UI, and must be ignored by Dienststelle filterDock handoff handling.
 - The active variant must remain visible and must be reconciled/defaulted for the confirmed/current Sicht.
 - Owner state must distinguish the active variant from inactive variants. Inactive variants may use status `inactive` if added by implementation, or `removed` only if the variant is truly absent from Cognos; state must not claim a variant is removed while a hidden empty shell still exists.

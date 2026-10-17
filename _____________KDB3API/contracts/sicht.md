@@ -605,7 +605,7 @@ After tableData-derived `byOption` is evaluated on mount or sync:
 
 | Dimension | Draft decision / recommendation |
 |---|---|
-| Scope slice | Narrow tranche: `sicht` owner + `filterDock` routing + delegation to `singleSelect` + notify `specialSingleSelect` + history + bootstrap/CSS. |
+| Scope slice | Narrow tranche: `sicht` owner + `filterDock` routing + delegation to `singleSelect` + notify `specialSingleSelect` + history + bootstrap and CSS. |
 | Final target path | `KDB3/js/dashboard/filters/sicht/`; CSS at `KDB3/css/filters/filters.css`. |
 | Classification | Dashboard/filters feature module, not service. |
 | State owner/subtree | `_KDB.state.filters.sicht`; confirmed active Sicht owned only by `sicht`. |

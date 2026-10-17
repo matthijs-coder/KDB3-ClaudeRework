@@ -114,7 +114,7 @@ Gedeelde toolbar-knoppen (history, pdf, share, wienKi): `dashboard/controls/tool
 | sicht / specialSingleSelect | `index.js`, `state.js`, `commit.js` / `policy.js`, `delegation.js`, `restore.js`, `view.js` |
 | dienststelle | `index.js`, `state.js`, `effects/` (`dispatchRoute.js`, `hostScope/`, `reconcile/`), `restore/`, `tabMutation.js` + `tabMutationScopes.js`, `view/` |
 | nativeMultiSelect | `index.js`, `state.js`, `commit.js`, `inventory.js`, `hostFilterIo.js`, `restore.js`, `tabMutation/` |
-| kdbControl | `index.js`, `actions.js`, `state/`, `framework/` (panel/toolbox build + bind), `effects.js`, `settingsForm.js`, `config/` |
+| kdbControl | `index.js`, `actions.js`, `state/`, `panel/` (panel/toolbox build + bind), `effects.js`, `settingsForm.js`, `config/` |
 | dragDrop | `index.js`, `session.js`, `avatar.js`, `events.js`, `dropboxes/` (`publish.js` = validated drop) |
 | launchpad | `index.js`, `config.js` (pads), `state.js` + `state/selectors.js`, `view.js`, `effects.js`, `buildLaunchpadTabs.js` |
 | widgetBase / widgetSettings / widgetVis | zie `contracts/<module>.md` §Folder Layout |

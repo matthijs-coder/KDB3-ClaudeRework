@@ -42,28 +42,29 @@ Reference contracts for the KDB3 modules and services. One living contract per m
 - [`wienKiControls.md`](wienKiControls.md): Stadt Wien KI chat popup control.
 - [`writeback.md`](writeback.md): Writeback services (GET/SET, parameter sets).
 
-## Contract deltas still cited from code or living contracts
+## Contract deltas still cited from code or living docs
 
-These stay in place because JS comments or living contracts cite them. Move them to `_archive/` once those references are rewritten.
+These stay in place because a JS comment (`KDB3/js/**`) or a living contract/architecture doc still cites them. Move one to `_archive/` once its last citation is rewritten to point at the owning living contract. Citers as of W14 (JS = number of JS files citing it; docs = living docs other than this README):
 
-- [`footer-parameterSetRestore-contractdelta.md`](footer-parameterSetRestore-contractdelta.md)
-- [`header-parameterSetRestore-contractdelta.md`](header-parameterSetRestore-contractdelta.md)
-- [`historyService-filterInstanceIdentity-contractdelta.md`](historyService-filterInstanceIdentity-contractdelta.md)
-- [`historyService-writebackRestore-contractdelta.md`](historyService-writebackRestore-contractdelta.md)
-- [`kdbControl-parameterSetRestore-contractdelta.md`](kdbControl-parameterSetRestore-contractdelta.md)
-- [`kdbControl-tabFollow-contractdelta.md`](kdbControl-tabFollow-contractdelta.md)
-- [`kdbControl-tabsCrud-contractdelta.md`](kdbControl-tabsCrud-contractdelta.md)
-- [`sicht-filterInstanceIdentity-contractdelta.md`](sicht-filterInstanceIdentity-contractdelta.md)
-- [`singleSelect-filterInstanceIdentity-contractdelta.md`](singleSelect-filterInstanceIdentity-contractdelta.md)
-- [`tabs-inner-frame-skip-empty-snapshot-contractdelta.md`](tabs-inner-frame-skip-empty-snapshot-contractdelta.md)
-- [`tabs-parameterSetActivate-liveWidgetsReady-contractdelta.md`](tabs-parameterSetActivate-liveWidgetsReady-contractdelta.md)
-- [`tabs-parameterSetRestore-contractdelta.md`](tabs-parameterSetRestore-contractdelta.md)
-- [`tabs-writeback-readiness-contractdelta.md`](tabs-writeback-readiness-contractdelta.md)
-- [`widgetBase-lazyLaunchpadRouting-contractdelta.md`](widgetBase-lazyLaunchpadRouting-contractdelta.md)
-- [`widgetBase-parameterSetReset-contractdelta.md`](widgetBase-parameterSetReset-contractdelta.md)
-- [`writeback-get-visibleDashboard-contractdelta.md`](writeback-get-visibleDashboard-contractdelta.md)
-- [`writeback-step27-bindPerActiveTab-contractdelta.md`](writeback-step27-bindPerActiveTab-contractdelta.md)
-- [`writeback-t2-item5b-contractdelta.md`](writeback-t2-item5b-contractdelta.md)
+- [`footer-parameterSetRestore-contractdelta.md`](footer-parameterSetRestore-contractdelta.md): docs `writeback.md`
+- [`header-parameterSetRestore-contractdelta.md`](header-parameterSetRestore-contractdelta.md): docs `writeback.md`
+- [`historyService-filterInstanceIdentity-contractdelta.md`](historyService-filterInstanceIdentity-contractdelta.md): JS 3 (`singleSelect/{history,config,historyReplay}.js`)
+- [`historyService-writebackRestore-contractdelta.md`](historyService-writebackRestore-contractdelta.md): JS 1 (`parameterSet/set/effects/runGuards.js`), docs `writeback.md`
+- [`kdbControl-parameterSetRestore-contractdelta.md`](kdbControl-parameterSetRestore-contractdelta.md): docs `writeback.md`
+- [`kdbControl-tabFollow-contractdelta.md`](kdbControl-tabFollow-contractdelta.md): docs `architecture/eventSubscribe.md`
+- [`kdbControl-tabsCrud-contractdelta.md`](kdbControl-tabsCrud-contractdelta.md): docs `tabs.md`, `messageService.md`, `architecture/jsModuleMap.md`
+- [`singleSelect-filterInstanceIdentity-contractdelta.md`](singleSelect-filterInstanceIdentity-contractdelta.md): JS 1 (`singleSelect/history.js`)
+- [`tabs-inner-frame-skip-empty-snapshot-contractdelta.md`](tabs-inner-frame-skip-empty-snapshot-contractdelta.md): JS 2, docs `writeback.md`
+- [`tabs-parameterSetActivate-liveWidgetsReady-contractdelta.md`](tabs-parameterSetActivate-liveWidgetsReady-contractdelta.md): docs `writeback.md`
+- [`tabs-parameterSetRestore-contractdelta.md`](tabs-parameterSetRestore-contractdelta.md): JS 6 (`tabs/{selectors,config,restore/*}.js`), docs `writeback.md`
+- [`tabs-writeback-readiness-contractdelta.md`](tabs-writeback-readiness-contractdelta.md): docs `writeback.md`, `widgetBase.md`
+- [`widgetBase-lazyLaunchpadRouting-contractdelta.md`](widgetBase-lazyLaunchpadRouting-contractdelta.md): JS 3, docs `writeback.md`, `architecture/eventSubscribe.md`
+- [`widgetBase-parameterSetReset-contractdelta.md`](widgetBase-parameterSetReset-contractdelta.md): JS 1 (`widgetSettings/restore.js`), docs `writeback.md`
+- [`writeback-get-visibleDashboard-contractdelta.md`](writeback-get-visibleDashboard-contractdelta.md): JS 1 (`collectors/collectTabs.js`), docs `writeback.md`
+- [`writeback-step27-bindPerActiveTab-contractdelta.md`](writeback-step27-bindPerActiveTab-contractdelta.md): JS 1, docs `writeback.md`, `widgetTopN.md`
+- [`writeback-t2-item5b-contractdelta.md`](writeback-t2-item5b-contractdelta.md): JS 1 (`tabs/restore/parameterSetLanding.js`), docs `writeback.md`
+
+Archived in W14 (no remaining citation): `sicht-filterInstanceIdentity-contractdelta.md`.
 
 ## Other files kept in place
 

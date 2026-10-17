@@ -102,7 +102,7 @@ Ownership rules:
 - Content modules write only their own subtrees (`text`, `vis`, `topN`, `dataTable`) and request frame changes through `_KDB.api.widgetBase.dispatch(...)`.
 - No module writes `_KDB.state.widgets` as a root blob.
 - `_KDB.state.widgets.base.byId[widgetId].widgetId` is the Cognos widget DOM id. `widgetBase` never mints an independent KDB id in this tranche.
-- Widget ids are assumed stable only within the current Cognos dashboard/spec identity context and are the correlation key for launchpad routing, content-module dispatch and same-context history replay. Cross-session or copied-dashboard Cognos id remapping requires a later identity adapter and is out of scope.
+- Widget ids are assumed stable only within the current Cognos dashboard-spec identity context and are the correlation key for launchpad routing, content-module dispatch and same-context history replay. Cross-session or copied-dashboard Cognos id remapping requires a later identity adapter and is out of scope.
 - `tabId` is the durable tab identity. `tabHandle` is diagnostic/Cognos correlation only and must not be used as durable identity.
 - `layout` is `null` while a widget is parked in launchpad or removed. `lastCanvasLayout` preserves the last confirmed canvas geometry for take-back/undo decisions without pretending the widget is currently on canvas.
 - `colour` is a base-frame mirror written by `widgetBase` after a confirmed shell/Cognos colour apply. The canonical colour setting and its history are owned by `widgetSettings`; content-specific styling remains owned by content modules.
@@ -649,7 +649,7 @@ Forbidden:
 
 History service is called only after confirmed successful effects. Steps are JSON-serializable and keyed by stable `widgetId`.
 
-Replayability in this tranche means replay within the same Cognos dashboard/spec identity context where the same Cognos widget DOM ids still resolve. Cross-session remapping is out of scope.
+Replayability in this tranche means replay within the same Cognos dashboard-spec identity context where the same Cognos widget DOM ids still resolve. Cross-session remapping is out of scope.
 
 | Action | History |
 |---|---|

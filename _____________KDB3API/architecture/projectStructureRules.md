@@ -10,7 +10,7 @@ Why: a fixed set of namespaces tells a reader where to look.
 
 ## State and runtime
 
-- `_KDB.state` holds JSON-serialisable dashboard/session state: selections, confirmed settings, active tab, presence status, load lifecycle, history.
+- `_KDB.state` holds JSON-serialisable dashboard-session state: selections, confirmed settings, active tab, presence status, load lifecycle, history.
 - `_KDB.runtime.<owner>` holds technical resources: DOM refs, listeners, subscriptions, AbortControllers, timers, observers, pending promises, Cognos facet stamps. It is owner-private and never serialised.
 - Every runtime resource has a cleanup path in `destroy`. Prefer one AbortController per scope and `{ signal }` on DOM listeners and bus subscriptions.
 

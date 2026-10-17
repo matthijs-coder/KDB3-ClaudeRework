@@ -6,7 +6,7 @@
 
 ---
 
-**Status:** `Implementing` (slice 5 dashboard/messages/tabs **accepted** 2026-08-24 ±12:08; live §S5.11b. Slice 6 close-out **in progress** (docs+buckets). Empty global Jahr / “current year” is futureTodo, not E/F.)
+**Status:** `Implementing` (slice 5 (dashboard, messages and tabs facets) **accepted** 2026-08-24 ±12:08; live §S5.11b. Slice 6 close-out **in progress** (docs+buckets). Empty global Jahr / “current year” is futureTodo, not E/F.)
 **Owner module / service:** `cognosHostService`, published as `_KDB.services.cognosHost`
 **Type:** `shared service` (Cognos host adapter — "ring 1" of `ADAPTER_ONTWERP_2026-08-20.md` §2.1)
 **Authoring AI:** Cursor captain E, 2026-08-20
@@ -376,7 +376,7 @@ Inner ring `core/cognosAPI/` is the allowed and required caller of `__getDashboa
 
 ## 9. Folder Layout
 
-As built (33 files; exports per file). The slice-by-slice trees of earlier revisions are replaced by this listing; facets are one folder per host area, each with a `create<Facet>Adapter.js` plus a few topic files. `index.js` is the registrar.
+As built (33 files; exports per file). The slice-by-slice trees of earlier revisions are replaced by this listing; facets are one folder per host area, each with an `index.js` (exports `create<Facet>Adapter`) plus a few topic files. `index.js` is the registrar.
 
 ```txt
 core/services/cognosHost/
@@ -388,40 +388,40 @@ core/services/cognosHost/
   runtime.js                                          ensureRuntime, clearRuntime, nextGeneration, registerWait, releaseWait, addSubscription, pruneSubscription
   facets/
     canvas/
-      createCanvasAdapter.js                          createCanvasAdapter
+      index.js                                        createCanvasAdapter
       listCanvasWidgets.js                            listCanvasWidgets
       setCanvasPageSize.js                            setCanvasPageSize
       waits.js                                        createWaitOps
     dashboard/
-      createDashboardAdapter.js                       createDashboardAdapter
+      index.js                                        createDashboardAdapter
       navigation.js                                   openAppView, replaceWithBiHomePerspective
       read.js                                         createValueGetters, buildUiStateSnapshot
       subscribeUiState.js                             subscribeUiState
     dataQuery/
-      createDataQueryAdapter.js                       createDataQueryAdapter
+      index.js                                        createDataQueryAdapter
       rows.js                                         readQueryRows, peekQueryRows
       waitForQueryResult.js                           waitForQueryResult
     dataSources/
-      createDataSourcesAdapter.js                     createDataSourcesAdapter
+      index.js                                        createDataSourcesAdapter
     filters/
-      createFiltersAdapter.js                         createFiltersAdapter
+      index.js                                        createFiltersAdapter
       filterIndex.js                                  buildScopeContext, buildIdKey, buildNameKey, readHostFilterItems, resolveFilterMethodApi, refreshFilterIndex, invalidateFilterIndexEntry, ...
       read.js                                         listFilterItems, findFilterItem, readFilterValues, listPageContextScopes
       waitForPageContextReady.js                      waitForPageContextReady
       write.js                                        writeFilter, clearFilter
     messages/
-      createMessagesAdapter.js                        createMessagesAdapter
+      index.js                                        createMessagesAdapter
     tabs/
-      createTabsAdapter.js                            createTabsAdapter
+      index.js                                        createTabsAdapter
     visualization/
-      createVisualizationAdapter.js                   createVisualizationAdapter
+      index.js                                        createVisualizationAdapter
       localFilters.js                                 createLocalFilterOps
       properties.js                                   createPropertyOps
       read.js                                         createReadOps
       selections.js                                   createSelectionOps, flattenSelectionCategories
       slots.js                                        createSlotOps
     widgets/
-      createWidgetsAdapter.js                         createWidgetsAdapter
+      index.js                                        createWidgetsAdapter
 ```
 
 ## 10. Out Of Scope
