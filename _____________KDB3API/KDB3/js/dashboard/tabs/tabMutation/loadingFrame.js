@@ -21,12 +21,10 @@ define(["../selectors.js"], function (_selectors) {
       const loading = kdb && kdb.services && kdb.services.loading;
       const mountEl = readMutationMountEl(kdb);
       const sessionMessageKey = SESSION_KEYS[_plan && _plan.operation] || "";
-      if (!loading || typeof loading.startLoading !== "function" || !mountEl || !sessionMessageKey) { return false; }
+      if (!loading || !mountEl || !sessionMessageKey) { return false; }
       started = true;
       loading.startLoading({ mountEl: mountEl, mountKey: MOUNT_KEY, sessionMessageKey: sessionMessageKey });
-      if (typeof loading.updateLoadingMessage === "function") {
-        loading.updateLoadingMessage({ mountKey: MOUNT_KEY, message: formatSlotMessage(kdb, readPlanIndex(_plan)) });
-      }
+      loading.updateLoadingMessage({ mountKey: MOUNT_KEY, message: formatSlotMessage(kdb, readPlanIndex(_plan)) });
       return started;
     } catch (err) {
       console.warn("[tabs.startMutationFrame] failed", err);
@@ -37,7 +35,7 @@ define(["../selectors.js"], function (_selectors) {
   function finishMutationFrame(_ctx) {
     try {
       const loading = _ctx && _ctx._KDB && _ctx._KDB.services && _ctx._KDB.services.loading;
-      if (loading && typeof loading.finishLoading === "function") { loading.finishLoading({ mountKey: MOUNT_KEY }); }
+      if (loading) { loading.finishLoading({ mountKey: MOUNT_KEY }); }
     } catch (err) {
       console.warn("[tabs.finishMutationFrame] failed", err);
     }
@@ -48,7 +46,7 @@ define(["../selectors.js"], function (_selectors) {
     if (!_options || _options.source !== "tabsMutation") { return false; }
     try {
       const loading = _KDB && _KDB.services ? _KDB.services.loading : null;
-      if (!loading || typeof loading.updateLoadingMessage !== "function") { return false; }
+      if (!loading) { return false; }
       const message = formatSlotMessage(_KDB, readTraverseIndex(_state, _options));
       return loading.updateLoadingMessage({ mountKey: MOUNT_KEY, message: message }) === true;
     } catch (err) {

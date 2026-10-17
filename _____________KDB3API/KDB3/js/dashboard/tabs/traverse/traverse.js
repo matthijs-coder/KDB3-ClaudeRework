@@ -162,7 +162,7 @@ define([
   async function awaitTabWidgetsRendered(_KDB, _tab) {
     const tabId = _tab && _tab.tabId ? _tab.tabId : null;
     const api = _KDB && _KDB.api ? _KDB.api.widgetBase : null;
-    if (!tabId || !api || typeof api.dispatch !== "function") {
+    if (!tabId || !api) {
       return { ok: false, skipped: true };
     }
     try {

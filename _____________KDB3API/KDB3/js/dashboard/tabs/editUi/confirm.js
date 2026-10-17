@@ -21,7 +21,7 @@ define([
     try {
       const request = _request || {};
       if (isTabMutationInFlight(_KDB)) {
-        if (svc && typeof svc.notify === "function") {
+        if (svc) {
           svc.notify({ code: _codes.CONFLICT, severity: "warning", message: _defaults.TAB_DELETE_CONFLICT_TEXT });
         }
         return { ok: false, diagnostics: [{ code: _codes.CONFLICT }] };
@@ -39,7 +39,7 @@ define([
       return result;
     } catch (err) {
       const message = String(err && err.message ? err.message : err);
-      if (svc && typeof svc.showAlert === "function") {
+      if (svc) {
         svc.showAlert({ code: "TABS_MUTATION_APPLY_FAILED", severity: "error", title: ui.failedTitle, message: message });
       }
       return { ok: false, diagnostics: [{ code: _codes.APPLY_FAILED, message: message }] };

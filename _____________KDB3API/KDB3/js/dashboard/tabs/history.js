@@ -189,7 +189,7 @@ define([
     }
     const result = await _KDB.api.tabs.dispatch(action);
     const message = _KDB.services && _KDB.services.message;
-    if (result && result.outcome === "degraded" && message && typeof message.notify === "function") {
+    if (result && result.outcome === "degraded" && message) {
       message.notify({ severity: "info", message: _defaults.TAB_MUTATION_DEGRADED_TEXT });
     }
     return isAppliedOrDegraded(result);
@@ -230,7 +230,7 @@ define([
   function withReplayBoundary(replay) {
     return async function (_KDB, _targetValue, _step) {
       try {
-        if (!_KDB || !_KDB.api || !_KDB.api.tabs || typeof _KDB.api.tabs.dispatch !== "function") { return false; }
+        if (!_KDB || !_KDB.api || !_KDB.api.tabs) { return false; }
         return await replay(_KDB, _targetValue || {}, _step || {});
       } catch (err) {
         if (!err || err.name !== "AbortError") {

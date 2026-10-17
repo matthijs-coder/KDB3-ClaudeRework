@@ -44,7 +44,7 @@ define([], function () {
 
   function readTabsSnapshotFromApi(_KDB) {
     const tabsApi = _KDB && _KDB.api ? _KDB.api.tabs : null;
-    if (!tabsApi || typeof tabsApi.getState !== "function") { return undefined; }
+    if (!tabsApi) { return undefined; }
     // Intentionally keeps the old log-and-continue behaviour (no snapshot on failure).
     try {
       return tabsApi.getState();
