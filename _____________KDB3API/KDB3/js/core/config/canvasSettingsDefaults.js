@@ -4,7 +4,7 @@
  * values live in core/config and neither side imports the other.
  *
  *   dimensions               minimum (validation/clamp) and default per target; dashboard defaults are px, widget defaults cm
- *   colorInputs              default colour per colour input (`data-placeholder-input-id`)
+ *   colorInputs              default colour per colour input (`data-kdb-input-id`)
  *   createDefaultSettings()  a fresh `state.kdbControl.settings` tree built from the two tables above
  */
 define([], function () {

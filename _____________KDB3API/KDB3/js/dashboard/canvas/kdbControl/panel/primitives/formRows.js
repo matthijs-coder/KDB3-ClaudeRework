@@ -1,4 +1,4 @@
-define(["../createFrameworkElement.js"], function (_createElement) {
+define(["../createPanelElement.js"], function (_createElement) {
   "use strict";
 
   function createTextInputRow(label, placeholder, inputId, initialValue) {
@@ -8,7 +8,7 @@ define(["../createFrameworkElement.js"], function (_createElement) {
     var inputEl = _createElement("input", null, "kdb-control_text-input", {
       type: "text",
       placeholder: placeholder || "",
-      "data-placeholder-input-id": inputId
+      "data-kdb-input-id": inputId
     });
     if (initialValue != null && String(initialValue).trim() !== "") inputEl.value = String(initialValue).trim();
     row.appendChild(labelEl);
@@ -50,7 +50,7 @@ define(["../createFrameworkElement.js"], function (_createElement) {
     return label;
   }
 
-  // Radio group; `controlId` becomes `data-placeholder-control-id` of the form row. layout: { hideCaptions, formRow }.
+  // Radio group; `controlId` becomes `data-kdb-control-id` of the form row. layout: { hideCaptions, formRow }.
   function createRadioGroup(label, name, options, controlId, layoutOptions) {
     var layout = layoutOptions || {};
     var wrap = _createElement("div", null, "kdb-control_radio-group", null);
@@ -60,7 +60,7 @@ define(["../createFrameworkElement.js"], function (_createElement) {
       wrap.appendChild(caption);
     }
     var formClass = "kdb-control__gallery-row-radio kdb-control_radio-form" + (layout.formRow ? " kdb-control_radio-form--row" : "");
-    var form = _createElement("div", null, formClass, { "data-placeholder-control-id": controlId || "headerEditMode" });
+    var form = _createElement("div", null, formClass, { "data-kdb-control-id": controlId || "headerEditMode" });
     options.forEach(function (option, index) {
       form.appendChild(createRadioOption(name, index, option, layout));
     });

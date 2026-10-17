@@ -33,18 +33,18 @@ define([
     return state && typeof state === "object" ? state : null;
   }
 
-  function syncPlaceholderState(_KDB, gallery) {
+  function syncInputState(_KDB, gallery) {
     var framework = readKdbControlState(_KDB) && readKdbControlState(_KDB).framework;
     if (!framework) return;
     var inputValues = framework.placeholderInputs || {};
     var selections = framework.placeholderSelections || {};
     var hasTabsOwner = !!(_KDB.api && _KDB.api.tabs);
-    gallery.querySelectorAll("[data-placeholder-input-id]").forEach(function (inputEl) {
-      var id = inputEl.getAttribute("data-placeholder-input-id");
+    gallery.querySelectorAll("[data-kdb-input-id]").forEach(function (inputEl) {
+      var id = inputEl.getAttribute("data-kdb-input-id");
       if (id && Object.prototype.hasOwnProperty.call(inputValues, id)) inputEl.value = inputValues[id];
     });
-    gallery.querySelectorAll(".kdb-control__gallery-row-radio[data-placeholder-control-id]").forEach(function (group) {
-      var controlId = group.getAttribute("data-placeholder-control-id");
+    gallery.querySelectorAll(".kdb-control__gallery-row-radio[data-kdb-control-id]").forEach(function (group) {
+      var controlId = group.getAttribute("data-kdb-control-id");
       if (controlId === "headerEditMode" || (controlId === "tabEditActions" && hasTabsOwner)) return;
       var selected = controlId ? selections[controlId] : null;
       group.querySelectorAll('input[type="radio"]').forEach(function (radio) {
@@ -55,14 +55,14 @@ define([
 
   function syncSettingsBoundInputs(_KDB, gallery) {
     var settings = readKdbControlState(_KDB) && readKdbControlState(_KDB).settings;
-    gallery.querySelectorAll("[data-placeholder-input-id]").forEach(function (inputEl) {
-      var id = inputEl.getAttribute("data-placeholder-input-id");
+    gallery.querySelectorAll("[data-kdb-input-id]").forEach(function (inputEl) {
+      var id = inputEl.getAttribute("data-kdb-input-id");
       if (id && _settingsInputs.isSettingsInput(id)) inputEl.value = _settingsInputs.readSettingsInputValue(settings, id);
     });
   }
 
   function syncHeaderEditModeRadios(_KDB, gallery) {
-    var row = gallery.querySelector('.kdb-control__gallery-row-radio[data-placeholder-control-id="headerEditMode"]');
+    var row = gallery.querySelector('.kdb-control__gallery-row-radio[data-kdb-control-id="headerEditMode"]');
     if (!row) return;
     var target = _headerSelectors.readHeaderEditTarget(_KDB);
     var value = target === "title" ? "renameHeader" : target === "subtitle" ? "renameHeaderSubtitle" : null;
@@ -131,7 +131,7 @@ define([
   // Writes owner and framework state into the inputs, radios and switches below `gallery` (the control panel content).
   function syncFormControls(_KDB, gallery) {
     if (!gallery) return;
-    syncPlaceholderState(_KDB, gallery);
+    syncInputState(_KDB, gallery);
     syncSettingsBoundInputs(_KDB, gallery);
     syncHeaderEditModeRadios(_KDB, gallery);
     var tabsState = readTabsState(_KDB);

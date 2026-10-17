@@ -1,5 +1,5 @@
 define([
-  "./createFrameworkElement.js",
+  "./createPanelElement.js",
   "./primitives/formRows.js",
   "../config/labels.js"
 ], function (_createElement, _formRows, _labels) {

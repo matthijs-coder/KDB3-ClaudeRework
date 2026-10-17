@@ -24,7 +24,7 @@
   {
     "guard": "api.dragDrop.finishDrag",
     "files": [
-      "dashboard/canvas/kdbControl/framework/bindToolboxActions.js"
+      "dashboard/canvas/kdbControl/panel/bindToolboxActions.js"
     ]
   },
   {
@@ -36,7 +36,7 @@
   {
     "guard": "api.dragDrop.startDrag",
     "files": [
-      "dashboard/canvas/kdbControl/framework/bindToolboxActions.js"
+      "dashboard/canvas/kdbControl/panel/bindToolboxActions.js"
     ]
   },
   {
@@ -160,8 +160,8 @@
   {
     "guard": "api.tabs.getState",
     "files": [
-      "dashboard/canvas/kdbControl/framework/bindToolboxActions.js",
-      "dashboard/canvas/kdbControl/framework/syncFormControls.js",
+      "dashboard/canvas/kdbControl/panel/bindToolboxActions.js",
+      "dashboard/canvas/kdbControl/panel/syncFormControls.js",
       "dashboard/launchpad/buildLaunchpadTabs.js",
       "dashboard/widgets/widgetBase/discovery.js",
       "dashboard/widgets/widgetBase/index.js",
@@ -320,7 +320,7 @@
       "core/services/tableData/loadLifecycle.js",
       "dashboard/canvas/dragDrop/dropboxes/publish.js",
       "dashboard/canvas/kdbControl/dimensionGate.js",
-      "dashboard/canvas/kdbControl/framework/bindToolboxActions.js",
+      "dashboard/canvas/kdbControl/panel/bindToolboxActions.js",
       "dashboard/filters/dienststelle/effects/reconcile/defaults.js",
       "dashboard/tabs/editUi/confirm.js",
       "dashboard/tabs/history.js",

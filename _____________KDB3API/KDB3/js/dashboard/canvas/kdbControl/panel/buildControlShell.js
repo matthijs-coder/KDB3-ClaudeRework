@@ -1,5 +1,5 @@
 define([
-  "./createFrameworkElement.js",
+  "./createPanelElement.js",
   "./buildSettingsPanel.js",
   "./buildToolboxPanel.js",
   "../config/domSelectors.js",

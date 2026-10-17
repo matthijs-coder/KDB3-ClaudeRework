@@ -6,11 +6,11 @@ define([
   "./effects.js",
   "./history.js",
   "./settingsForm.js",
-  "./framework/index.js",
+  "./panel/index.js",
   "../../../core/utils/kit/runtime.js",
   "../../../core/utils/kit/errors.js",
   "../../../core/utils/kit/history.js"
-], function (_types, _initialState, _reduceKdbControl, _actions, _effects, _history, _bindSettingsForm, _mountFramework, _rt, _errors, _historyKit) {
+], function (_types, _initialState, _reduceKdbControl, _actions, _effects, _history, _bindSettingsForm, _mountPanel, _rt, _errors, _historyKit) {
   "use strict";
 
   var REPLAY_KEYS = ["kdbControl_settingsChange"];
@@ -62,7 +62,7 @@ define([
         var seeded = _KDB.properties && _KDB.properties.KDBHideWidgetsToggle === true;
         dispatch({ type: _types.ACTION_SETTINGS_SET_DEVELOPER_MODE, payload: { value: seeded, skipHistory: true } });
         var surface = { dispatch: dispatch, getState: getState };
-        _mountFramework(_KDB, surface);
+        _mountPanel(_KDB, surface);
         _bindSettingsForm(_KDB, surface);
         _effects.applyInitialEffects(_KDB);
         _effects.subscribeAuthoringMode(_KDB);

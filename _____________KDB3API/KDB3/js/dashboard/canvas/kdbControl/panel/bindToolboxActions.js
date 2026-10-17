@@ -10,7 +10,7 @@ define([
   var TAB_SELECT_TIMER_KEY = "tabSelectEditTarget";
 
   function isCommentsStartTarget(target) {
-    return !!target && target.tagName === "BUTTON" && target.getAttribute("data-kdb-toolbox-placeholder") === "comments.startCreate";
+    return !!target && target.tagName === "BUTTON" && target.getAttribute("data-kdb-toolbox-action") === "comments.startCreate";
   }
 
   function isTabEditRadio(el) {
