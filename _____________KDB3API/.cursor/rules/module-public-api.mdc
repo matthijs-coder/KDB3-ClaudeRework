@@ -1,6 +1,6 @@
 ---
 description: KDB3 public API shapes for _KDB.api modules and _KDB.services services. Dispatch vs named methods, getState, disposed-state guards, tableData read contract, cross-module calls.
-globs: **/KDB3/js/dashboard/**/*.js, **/KDB3/js/core/services/**/*.js
+globs: **/KDB3/js/dashboard/**/*.js, **/KDB3/js/core/services/**/*.js, **/KDB3/js/workflows/**/*.js
 alwaysApply: false
 ---
 
@@ -15,7 +15,7 @@ Other modules use only: the public object, the owner's `selectors.js` (today oft
 | Category | Shape | Examples |
 |---|---|---|
 | Feature / UI module (`dashboard/`) | `{ mount, destroy, dispatch, getState }` (+ optional `register*`) | header, tabs, kdbControl, widgetVis, singleSelect |
-| Service (`core/services/`) | named methods (verb or verb + noun) | `tableData.readRows`, `history.undo`, `message.notify` |
+| Service (`core/services/`, `workflows/`) | named methods (verb or verb + noun) | `tableData.readRows`, `history.undo`, `message.notify` |
 
 - `dispatch(action)` is the single entry point for state changes: `{ type: "<module>/<action>", payload }`. It returns a result object (`{ ok: true, ... }` / `{ ok: false, errorCode }`). Cross-module dispatch, such as `"<owner>/parameterSetRestoreRequested"` from the writeback restore, is the app's command bus; treat used action types as public.
 - `getState()` returns the module's read-only snapshot. It is the only read method on `_KDB.api.<module>`. Granular reads go through selectors, never through `read*` methods on the API.

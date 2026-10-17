@@ -90,6 +90,13 @@ function makeWorld(options) {
     },
     services: {
       loading: { startLoading() { loading.push("start"); }, finishLoading() { loading.push("finish"); } },
+      writebackSet: {
+        allocateRestoreRunId() {
+          KDB.runtime.writeback = KDB.runtime.writeback || { parameterSetRestoreRunId: 0 };
+          KDB.runtime.writeback.parameterSetRestoreRunId += 1;
+          return KDB.runtime.writeback.parameterSetRestoreRunId;
+        }
+      },
       history: {
         pushCommittedStep(step) {
           if (opts.historyThrows) { throw new Error("history exploded"); }

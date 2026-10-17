@@ -15,9 +15,9 @@ const RECORD = process.env.W8_RECORD === "1";
 const QUIET = { error() {}, warn() {}, log() {}, info() {}, debug() {} };
 const load = (rel) => loadAmd(path.join(JS_ROOT, rel), { stubs: { console: QUIET } });
 
-const collectCanvasSettings = load("core/services/writeback/get/collectors/collectCanvasSettings.js");
+const collectCanvasSettings = load("workflows/parameterSet/get/collectors/collectCanvasSettings.js");
 const initialState = load("dashboard/canvas/kdbControl/state/initialState.js");
-const v3Defaults = load("core/services/writeback/schema/v3Defaults.js");
+const v3Defaults = load("workflows/parameterSet/schema/v3Defaults.js");
 
 const clone = (value) => JSON.parse(JSON.stringify(value));
 

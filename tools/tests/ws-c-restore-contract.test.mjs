@@ -8,7 +8,7 @@ import path from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
-const WB = path.join(JS_ROOT, "core/services/writeback");
+const WB = path.join(JS_ROOT, "workflows/parameterSet");
 const MODULES = {
   constants: "set/config/restoreConstants.js",
   labels: "set/config/writebackLabels.js",
@@ -44,7 +44,7 @@ function load(name, options = {}) {
 }
 
 const constants = load("constants");
-const errorCodes = loadAmd(path.join(WB, "schema/errorCodes.js"));
+const errorCodes = loadAmd(path.join(JS_ROOT, "core/config/writebackErrorCodes.js"));
 const realWaitFor = loadAmd(path.join(JS_ROOT, "core/utils/waitFor.js"));
 const CODES = errorCodes.codes;
 const flush = () => new Promise((resolve) => setImmediate(resolve));

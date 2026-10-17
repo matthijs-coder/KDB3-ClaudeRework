@@ -1,6 +1,6 @@
 define([
   "./core/events/createEventBus.js",
-  "./core/bootstrap/featureManifest.js",
+  "./bootstrap/featureManifest.js",
   "./core/bootstrap/lifecycle.js",
   "./core/bootstrap/rootLifecycle.js",
   "./core/bootstrap/runtimeCore.js",

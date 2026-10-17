@@ -1,4 +1,4 @@
-// Golden test for core/services/dashboardPdf (WS-D task D3). Drives the service through its stable entry
+// Golden test for workflows/pdfExport (WS-D task D3). Drives the service through its stable entry
 // (__orchestratorDashboardPdf.js) with a fake _KDB, fake jsPDF/html2canvas and a fake DOM.
 // Run: node --test tools/tests/ws-d3-dashboard-pdf.test.mjs
 // Re-record after an intended behaviour change: RECORD=1 node --test tools/tests/ws-d3-dashboard-pdf.test.mjs
@@ -12,7 +12,7 @@ import { JS_ROOT } from "../lib/amd-graph.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GOLDEN_PATH = path.join(HERE, "ws-d3-dashboard-pdf.golden.json");
-const PDF_ROOT = path.join(JS_ROOT, "core/services/dashboardPdf");
+const PDF_ROOT = path.join(JS_ROOT, "workflows/pdfExport");
 const ENTRY = path.join(PDF_ROOT, "__orchestratorDashboardPdf.js");
 const LIBRARIES_ROOT = path.join(JS_ROOT, "core/libraries");
 const realSetTimeout = globalThis.setTimeout;

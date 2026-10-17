@@ -633,7 +633,7 @@ The service owns no state, DOM, emitted events or host adapter, so there are no 
 
 Required registration:
 
-- `KDB3/js/core/services/__orchestratorServices.js` imports and calls `__orchestratorWidgetBindingPlan`.
+- `KDB3/js/bootstrap/registerServices.js` imports and calls `__orchestratorWidgetBindingPlan`.
 - The orchestrator registers `_KDB.services.widgetBindingPlan`.
 - `KDB3/js/KDB.js` does not need a direct service import if existing service bootstrap already calls `__orchestratorServices`; only the services orchestrator changes.
 

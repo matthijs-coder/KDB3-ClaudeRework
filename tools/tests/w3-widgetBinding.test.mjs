@@ -136,7 +136,7 @@ test("plan, hook and options run synchronously before the first await (call-site
 });
 
 test("the services orchestrator registers widgetBinding right after widgetBindingApply", () => {
-  const orchestrator = load("core/services/__orchestratorServices.js");
+  const orchestrator = load("bootstrap/registerServices.js");
   const _KDB = { elements: { selectors: {} }, runtime: {}, state: {}, events: { emit() {}, subscribe() {} }, config: {} };
   load("core/cognosHost/registerCognosHostSelectors.js")(_KDB);
   orchestrator(_KDB);

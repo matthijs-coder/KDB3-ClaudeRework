@@ -43,13 +43,13 @@ test("chrome flush alert shows the old text, registered labels override it", () 
 });
 
 test("dashboardPdf labels equal the old literals", () => {
-  const config = loadAmd(path.join(JS_ROOT, "core/services/dashboardPdf/config.js"));
+  const config = loadAmd(path.join(JS_ROOT, "workflows/pdfExport/config.js"));
   const flat = Object.assign({}, ...Object.values(old.dashboardPdf.files));
   assert.deepStrictEqual({ ...config.pdfLabels }, flat);
 });
 
 test("dashboardPdf readLabels: registered labels override single keys, missing config falls back to the defaults", () => {
-  const config = loadAmd(path.join(JS_ROOT, "core/services/dashboardPdf/config.js"));
+  const config = loadAmd(path.join(JS_ROOT, "workflows/pdfExport/config.js"));
   assert.equal(config.readLabels({}).attachmentTitle, "Anhang");
   assert.equal(config.readLabels(null).unnamedTab, "Unbenannter Tab");
   const labels = config.readLabels({ config: { labels: { de: { dashboardPdf: { attachmentTitle: "Appendix" } } } } });
@@ -58,7 +58,7 @@ test("dashboardPdf readLabels: registered labels override single keys, missing c
 });
 
 test("dashboardPdf registration publishes the labels under config.labels.de.dashboardPdf", () => {
-  const register = loadAmd(path.join(JS_ROOT, "core/services/dashboardPdf/__orchestratorDashboardPdf.js"));
+  const register = loadAmd(path.join(JS_ROOT, "workflows/pdfExport/__orchestratorDashboardPdf.js"));
   const kdb = { config: { labels: { de: { dashboardPdf: { attachmentTitle: "Appendix" } } } } };
   register(kdb);
   const flat = Object.assign({}, ...Object.values(old.dashboardPdf.files));

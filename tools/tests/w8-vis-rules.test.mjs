@@ -2,7 +2,7 @@
 // Run:    node --test tools/tests/w8-vis-rules.test.mjs
 // Record: W8_RECORD=1 node --test tools/tests/w8-vis-rules.test.mjs   (rewrites the golden; only on a deliberate contract change)
 // The golden was recorded on the code BEFORE the W8 migration. For every vis type x grain it records what each
-// copy of the rules answers: widgetVis visTypes, widgetSettings restore + optionMarking, writeback buildWidgetObject
+// copy of the rules answers: widgetVis visTypes, widgetSettings restore + optionMarking, core buildWidgetObject
 // and the widgetBindingPlan (end to end through the widgetVis spec builder). Module paths used here are the ones
 // that survive the migration (module entry points, not the config files that move).
 import { test } from "node:test";
@@ -43,9 +43,9 @@ function buildKdb() {
 const visTypes = load("dashboard/widgets/widgetVis/visTypes.js");
 const buildBindingSpec = load("dashboard/widgets/widgetVis/binding/spec.js").buildBindingSpec;
 const buildPlan = load("core/services/widgetBindingPlan/buildPlan.js");
-const buildWidgetObject = load("core/services/writeback/get/collectors/buildWidgetObject.js");
-const v3Defaults = load("core/services/writeback/schema/v3Defaults.js");
-const validateWidgetFields = load("core/services/writeback/schema/validate/validateWidgetFields.js");
+const buildWidgetObject = load("core/utils/buildWidgetObject.js");
+const v3Defaults = load("workflows/parameterSet/schema/v3Defaults.js");
+const validateWidgetFields = load("workflows/parameterSet/schema/validate/validateWidgetFields.js");
 const settingsConfig = load("dashboard/widgets/widgetSettings/config.js");
 const selectors = load("dashboard/widgets/widgetSettings/config/selectors.js");
 const settingsRestore = load("dashboard/widgets/widgetSettings/restore.js", { document: { querySelector: () => null } });

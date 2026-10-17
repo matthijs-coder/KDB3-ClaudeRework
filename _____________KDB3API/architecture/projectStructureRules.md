@@ -55,7 +55,7 @@ Why: dependencies point one way, and Cognos changes stay in one place.
 
 Small modules use fewer files. Large modules split by sub-domain (`binding.js`, `drillthrough.js`, or a `binding/` folder), at most 3 folder levels deep. New and refactored code does not use the `__controller` / `__orchestrator` entry names.
 
-Phase 1 transition: `KDB.js` (feature orchestrators) and `core/services/__orchestratorServices.js` (service orchestrators) are not edited in Phase 1, so the existing `__orchestrator<M>.js` paths stay as one-line shims to `index.js`. The same applies to any file that is imported from outside its module: when a refactor moves or merges it, the old path stays as a one-line path-preserving shim until Phase 2. Find such imports with `node tools/check-imports.mjs --json` or a grep for the path. Full details: `.cursor/rules/feature-structure.mdc`.
+Phase 1 transition: `KDB.js` (feature orchestrators) and `bootstrap/registerServices.js` (service orchestrators) are not edited in Phase 1, so the existing `__orchestrator<M>.js` paths stay as one-line shims to `index.js`. The same applies to any file that is imported from outside its module: when a refactor moves or merges it, the old path stays as a one-line path-preserving shim until Phase 2. Find such imports with `node tools/check-imports.mjs --json` or a grep for the path. Full details: `.cursor/rules/feature-structure.mdc`.
 
 Why: one predictable shape per module lets a reader find any concept without a map.
 

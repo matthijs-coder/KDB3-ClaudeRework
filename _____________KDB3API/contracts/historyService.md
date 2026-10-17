@@ -55,7 +55,7 @@ CP-1 recommendations captured in this draft:
 Production evidence:
 
 - `_____________KDB3API/KDB3/js/core/services/historyService/` does not exist yet.
-- `_____________KDB3API/KDB3/js/core/services/__orchestratorServices.js` currently registers `tableData` and `loading`; it does not register `history`.
+- `_____________KDB3API/KDB3/js/bootstrap/registerServices.js` currently registers `tableData` and `loading`; it does not register `history`.
 - `_____________KDB3API/KDB3/js/KDB.js` imports `__orchestratorServices.js` only; no direct history import exists.
 - `architecture/stateOwnership.md`, `projectStructureRules.md`, `state.mdc`, and `module-public-api.mdc` already identify `_KDB.state.history` as owned by `historyService` and `_KDB.services.history` as the canonical public service surface.
 
@@ -266,11 +266,11 @@ Bootstrap registration is required for production usage but is explicitly deferr
 
 Deferred integration target:
 
-- import `./historyService/__orchestratorHistoryService.js` from `core/services/__orchestratorServices.js`;
+- import `./historyService/__orchestratorHistoryService.js` from `bootstrap/registerServices.js`;
 - call `_orchestratorHistoryService(_KDB)` during service registration;
 - ensure root `destroy()` eventually calls `_KDB.services.history.destroy()`.
 
-No `KDB.js` edit is required in this tranche if registration remains inside `core/services/__orchestratorServices.js`; that file already participates in bootstrap.
+No `KDB.js` edit is required in this tranche if registration remains inside `bootstrap/registerServices.js`; that file already participates in bootstrap.
 
 ## 13. Out Of Scope
 

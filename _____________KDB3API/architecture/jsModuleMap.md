@@ -2,7 +2,7 @@
 
 Levende inhoudsopgave van productie-JS. **Begin hier**, niet in `contracts/`.
 
-Bron: live `KDB3/js/KDB.js` (secties register, mount, destroy). Bijwerken wanneer een orchestrator in `KDB.js` landt of een modulelayout wijzigt (laatst gecontroleerd na Phase 1). First-week-tabel gepromoveerd uit `architecture/_archive/readability-maintainability.md` §6.1–6.2 (niet herschreven).
+Bron: live `KDB3/js/bootstrap/featureManifest.js` (register-, mount- en destroy-lijsten, aangeroepen vanuit `KDB.js`) en `bootstrap/registerServices.js`. Bijwerken wanneer een feature of service in de manifest landt of een modulelayout wijzigt (laatst gecontroleerd na Phase 1). First-week-tabel gepromoveerd uit `architecture/_archive/readability-maintainability.md` §6.1–6.2 (niet herschreven).
 
 Zoekgewoonte: open van die module `index.js` (ROUTES-tabel: actietype → handler) en de actietype-constanten (`config/actionTypes.js`, `state.js`, `config.js` of `actions.js`, per module verschillend). Dat is de echte TOC.
 
@@ -14,7 +14,7 @@ Modulelayout (feature-structure): `index.js` (mount/dispatch/destroy) + `config.
 
 | Leugen | Waarheid |
 |---|---|
-| `core/bootstrap/` | **Bestaat niet.** Boot is `KDB.js`. |
+| Boot-code | `KDB.js` (klasse) + `bootstrap/` (composition root: `featureManifest.js`, `registerServices.js`) + `core/bootstrap/` (manifest-agnostische motor: lifecycle, replay-registratie). |
 | Eén `cognosHost` | Drie verschillende folders: `core/cognosHost/` (chrome-selectors) ≠ `core/services/cognosHost/` (`_KDB.services.cognosHost`, ring 1) ≠ `core/cognosAPI/` (`_KDB.cognosAPI`, inner SDK). |
 | `_KDB.api.widgets` | **Bestaat niet** (0 hits in `KDB3/js`). Zes APIs: `widgetBase` / `widgetSettings` / `widgetText` / `widgetVis` / `widgetDataTable` / `widgetTopN`. |
 | `_KDB.api.canvas` | Live. Folder `dashboard/canvas/pageSurface/` (niet de groepsmap `dashboard/canvas/`). kdbControl stuurt intents via `dashboard/canvas/kdbControl/effects.js` (`dispatchCanvasIntent`) → `_KDB.api.canvas.dispatch`. Contract: `contracts/pageSurface.md`. |
@@ -32,8 +32,8 @@ De zes kaarten (week één):
 | Filterfamilie-routing | `dashboard/filters/filterDock/ownerRoutes.js` |
 | Tab delete/move/duplicate | `dashboard/tabs/tabMutation/saga.js` |
 | Settings-gevolgen | `dashboard/widgets/widgetSettings/config.js` (`KIND_TABLE`: kind → owner/actie) + `intent/downstream.js` |
-| Opgeslagen dashboard terugzetten | `core/services/writeback/set/effects/runNormalRestore.js` |
-| Undo/redo-handlers | `core/bootstrap/registerReplayHandlers.js` (keys per feature in `core/bootstrap/featureManifest.js`) |
+| Opgeslagen dashboard terugzetten | `workflows/parameterSet/set/effects/runNormalRestore.js` |
+| Undo/redo-handlers | `core/bootstrap/registerReplayHandlers.js` (keys per feature in `bootstrap/featureManifest.js`) |
 
 Als je X wilt wijzigen, begin in Y, publiek Z:
 
@@ -41,7 +41,7 @@ Als je X wilt wijzigen, begin in Y, publiek Z:
 |---|---|---|
 | Filterwaarde na dock-confirm | `dashboard/filters/filterDock/` + owner | `_KDB.api.filterDock` observeert; **bezit geen values**. Dispatch `"<owner>/filterDockStateChanged"` |
 | Tab delete/move/duplicate | `dashboard/tabs/tabMutation/saga.js` | `_KDB.api.tabs.dispatch` — tabs schrijft geen filter/widget-state |
-| Parameter set restore | `core/services/writeback/set/` (`runNormalRestore.js` = faselijst) | `_KDB.services.writebackSet` → `"<owner>/parameterSetRestoreRequested"` |
+| Parameter set restore | `workflows/parameterSet/set/` (`runNormalRestore.js` = faselijst) | `_KDB.services.writebackSet` → `"<owner>/parameterSetRestoreRequested"` |
 | Widget drop / launchpad | dragDrop `dropboxes/publish.js` (validated drop) → widgetBase `canvas.js` (`handleDropCreate`) / `launchpadTransfer.js` (`handleTakeFromLaunchpad`) | `_KDB.api.dragDrop` / `_KDB.api.widgetBase`. Launchpad is parkeerplaats, niet de drop-workflow |
 | Vis binding naar Cognos | `widgetVis/binding/pipeline.js` (`runBindingPipeline`) | `_KDB.api.widgetVis` → `_KDB.services.widgetBindingPlan` (puur) + `widgetBindingApply` |
 | Undo/redo | `core/services/historyService` + `<module>/history.js` | `_KDB.services.history`; chrome: `_KDB.api.historyControls`; registry: `core/bootstrap/registerReplayHandlers.js` via `_KDB.services.history.registerReplayHandler` |
@@ -52,7 +52,7 @@ Als je X wilt wijzigen, begin in Y, publiek Z:
 | PDF export | `pdfExportControls` + `dashboardPdf` | `_KDB.api.pdfExportControls` + `_KDB.services.dashboardPdf` |
 | Cognos host-call (feature / writeback / andere service) | owner-lokale `readHostFacet` / `read*Facet`-helper (`runtime.js` of `effects.js`); how-to `contracts/cognosHostService.md` §0 + `.cursor/rules/cognos-adapter.mdc` | stamp `_KDB.runtime.<owner>.*Facet` — **niet** `_KDB.cognosAPI` |
 | Cognos SDK-wrapper (nieuwe host-chain) | `core/cognosAPI/<theme>.js` | `_KDB.cognosAPI` — alleen ring 1 (`core/services/cognosHost/`) belt dit |
-| App wiring / mountvolgorde | `KDB.js` | Geen `core/bootstrap/` |
+| App wiring / mountvolgorde | `bootstrap/featureManifest.js` (register/mount/destroy-lijsten) + `bootstrap/registerServices.js` (service-volgorde) | `KDB.js` leest de manifest-lijsten |
 
 Ook: `_KDB.services.tableData`, `_KDB.services.loading`, `_KDB.services.message`, `_KDB.api.metricsTree`, `_KDB.api.authoring`.
 
@@ -125,7 +125,7 @@ Geen `_KDB.api.filters`, geen `_KDB.api.widgets`, geen `_KDB.api.properties`. `_
 
 ---
 
-## Services — bron `core/services/__orchestratorServices.js`
+## Services — bron `bootstrap/registerServices.js`
 
 | Service | Folder | Publiek | Eén zin |
 |---|---|---|---|
@@ -135,12 +135,12 @@ Geen `_KDB.api.filters`, geen `_KDB.api.widgets`, geen `_KDB.api.properties`. `_
 | message | `core/services/messageService/` | `_KDB.services.message` | Toast / alert / confirm / choose. |
 | widgetBindingPlan | `core/services/widgetBindingPlan/` | `_KDB.services.widgetBindingPlan` | Pure spec → plan. Geen destroy in `KDB.js`. |
 | widgetBindingApply | `core/services/widgetBindingApply/` | `_KDB.services.widgetBindingApply` | Plan uitvoeren op Cognos. |
-| dashboardPdf | `core/services/dashboardPdf/` | `_KDB.services.dashboardPdf` | PDF-export **+** filter-appendix-saga. |
+| dashboardPdf | `workflows/pdfExport/` | `_KDB.services.dashboardPdf` | PDF-export **+** filter-appendix-saga. |
 | history | `core/services/historyService/` | `_KDB.services.history` | Undo/redo-stack + writeback-baseline. |
-| writebackGet | `core/services/writeback/get/` | `_KDB.services.writebackGet` | State → compact v3 (collectors). |
-| writebackSet | `core/services/writeback/set/` | `_KDB.services.writebackSet` | **Restore-orchestrator** (v3 → owners). Kaart: `runNormalRestore.js`. |
-| writebackMap | `core/services/writeback/map/` | `_KDB.services.writebackMap` | Legacy → v3 mapping. |
-| writebackBridge | `core/services/writeback/` | `_KDB.services.writebackBridge` | `window.top` WBParameterGet/Set-globals. |
+| writebackGet | `workflows/parameterSet/get/` | `_KDB.services.writebackGet` | State → compact v3 (collectors). |
+| writebackSet | `workflows/parameterSet/set/` | `_KDB.services.writebackSet` | **Restore-orchestrator** (v3 → owners). Kaart: `runNormalRestore.js`. |
+| writebackMap | `workflows/parameterSet/map/` | `_KDB.services.writebackMap` | Legacy → v3 mapping. |
+| writebackBridge | `workflows/parameterSet/` | `_KDB.services.writebackBridge` | `window.top` WBParameterGet/Set-globals. |
 
 Replay-handlers worden **tweemaal** gebonden (`KDB.js` na kdbControl-mount en na nativeMultiSelect-mount).
 

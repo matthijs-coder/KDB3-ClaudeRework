@@ -8,20 +8,20 @@
   },
   "dashboardPdf": {
     "files": {
-      "core/services/dashboardPdf/config.js": {
+      "workflows/pdfExport/config.js": {
         "titleFallback": "konfigurierbares Personaldashboard",
         "subtitleFallback": "PER130 konfigurierbares Personaldashboard"
       },
-      "core/services/dashboardPdf/tabNavigation.js": {
+      "workflows/pdfExport/tabNavigation.js": {
         "unnamedTab": "Unbenannter Tab"
       },
-      "core/services/dashboardPdf/attachment/renderRows.js": {
+      "workflows/pdfExport/attachment/renderRows.js": {
         "attachmentTitle": "Anhang"
       },
-      "core/services/dashboardPdf/attachment/filterRows.js": {
+      "workflows/pdfExport/attachment/filterRows.js": {
         "tabFilterSuffix": " -Tab Filter: "
       },
-      "core/services/dashboardPdf/attachment/buildRows.js": {
+      "workflows/pdfExport/attachment/buildRows.js": {
         "dashboardName": "Dashboard-Name",
         "filterSection": "Filter:",
         "globalFilters": "Globale Filter: ",
@@ -38,7 +38,7 @@
         "metricsPrefix": "siehe Dataspot: ",
         "dataSteward": "Data Steward"
       },
-      "core/services/dashboardPdf/exportRun.js": {
+      "workflows/pdfExport/exportRun.js": {
         "pageFooterPrefix": "Seite "
       }
     }

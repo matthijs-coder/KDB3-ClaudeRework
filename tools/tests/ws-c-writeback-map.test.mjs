@@ -10,18 +10,18 @@ import { fileURLToPath } from "node:url";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT, REPO_ROOT } from "../lib/amd-graph.mjs";
 
-const WB = path.join(JS_ROOT, "core/services/writeback");
+const WB = path.join(JS_ROOT, "workflows/parameterSet");
 const GOLDEN = path.join(path.dirname(fileURLToPath(import.meta.url)), "ws-c-writeback-map.golden.json");
 const RECORD = process.env.WSC_RECORD === "1";
 
 const silentConsole = { log() {}, info() {}, warn() {}, error() {}, debug() {} };
 const load = (rel) => loadAmd(path.join(WB, rel), { stubs: { console: silentConsole } });
 
-const errorCodes = load("schema/errorCodes.js");
+const errorCodes = loadAmd(path.join(JS_ROOT, "core/config/writebackErrorCodes.js"), { stubs: { console: silentConsole } });
 const detectSourceFormat = load("schema/detectSourceFormat.js");
 const normalizeBridgeSetInput = load("bridge/normalizeBridgeSetInput.js");
 const createWritebackMapService = load("map/createWritebackMapService.js");
-const buildWidgetObject = loadAmd(path.join(WB, "get/collectors/buildWidgetObject.js"), { stubs: { console: silentConsole } });
+const buildWidgetObject = loadAmd(path.join(JS_ROOT, "core/utils/buildWidgetObject.js"), { stubs: { console: silentConsole } });
 
 function readFilterPropObj() {
   const src = fs.readFileSync(path.join(REPO_ROOT, "_____________KDB3API/__savedProperties/filterPropId.js"), "utf8");

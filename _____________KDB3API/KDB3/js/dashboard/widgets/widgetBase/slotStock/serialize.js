@@ -1,5 +1,5 @@
 define([
-  "../../../../core/services/writeback/get/collectors/buildWidgetObject.js",
+  "../../../../core/utils/buildWidgetObject.js",
   "../config.js",
   "../history.js",
   "../launchpadRoute.js",

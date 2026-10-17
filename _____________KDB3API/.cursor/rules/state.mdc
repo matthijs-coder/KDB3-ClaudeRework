@@ -1,6 +1,6 @@
 ---
 description: KDB3 _KDB namespaces and _KDB.state discipline. What goes where, canonical writers, selectors vs commands, lifecycle and freshness, Cognos mirror, ownership decisions.
-globs: **/KDB3/js/**/state/**/*.js, **/KDB3/js/**/state.js, **/KDB3/js/**/selectors.js, **/KDB3/js/core/services/writeback/**/*.js
+globs: **/KDB3/js/**/state/**/*.js, **/KDB3/js/**/state.js, **/KDB3/js/**/selectors.js, **/KDB3/js/workflows/parameterSet/**/*.js
 alwaysApply: false
 ---
 

@@ -131,17 +131,17 @@ no `wgts` / page-`filt` rows for those hidden indexes.
 
 **GET JS (after PO ack)**
 
-- `KDB3/js/core/services/writeback/get/collectors/collectWidgets.js` — traverse payload + visible-only widget emit; `needsTraversal` visible-only
-- `KDB3/js/core/services/writeback/get/collectors/collectTabs.js` — comment only (still all shells)
-- `KDB3/js/core/services/writeback/get/collectors/collectDienststelleFilter.js` — `byTab` only visible `tabIdx`
-- `KDB3/js/core/services/writeback/get/collectors/collectSingleSelectInstances.js` (scope helpers in `collectorSupport.js`) — skip hidden page instances silently (not `SCOPE_TARGET_MISSING`)
+- `KDB3/js/workflows/parameterSet/get/collectors/collectWidgets.js` — traverse payload + visible-only widget emit; `needsTraversal` visible-only
+- `KDB3/js/workflows/parameterSet/get/collectors/collectTabs.js` — comment only (still all shells)
+- `KDB3/js/workflows/parameterSet/get/collectors/collectDienststelleFilter.js` — `byTab` only visible `tabIdx`
+- `KDB3/js/workflows/parameterSet/get/collectors/collectSingleSelectInstances.js` (scope helpers in `collectorSupport.js`) — skip hidden page instances silently (not `SCOPE_TARGET_MISSING`)
 - `dashboard/filters/nativeMultiSelect/restore.js` (`collectWritebackSnapshot`) — `collectPageEntries` skip hidden targets
 
 **SET JS — change (decision 8 allow-list)**
 
-- `core/services/writeback/set/effects/filters/buildAllowedClearTabIdxs.js` — visible + payload-named `tabIdx`s
-- `core/services/writeback/set/effects/filters/dispatchFilterClearPhases.js` — pass allow-list into owner clears (do not shrink `tabs/resolveFilterScopeTargets`)
-- `core/services/writeback/set/effects/filters/runFilterRestore.js` — same allow-list; step 18 still activates payload-named hidden `tabIdx`s
+- `workflows/parameterSet/set/effects/filters/buildAllowedClearTabIdxs.js` — visible + payload-named `tabIdx`s
+- `workflows/parameterSet/set/effects/filters/dispatchFilterClearPhases.js` — pass allow-list into owner clears (do not shrink `tabs/resolveFilterScopeTargets`)
+- `workflows/parameterSet/set/effects/filters/runFilterRestore.js` — same allow-list; step 18 still activates payload-named hidden `tabIdx`s
 - `dashboard/filters/nativeMultiSelect/restore.js` (`parameterSetClear`) — `collectScopeIds` honor allow-list
 - `dashboard/filters/nativeMultiSelect/restore.js` (`parameterSetClear`)
 - `KDB3/js/dashboard/filters/dienststelle/effects/hostScope/clear.js` (`clearHostFilter`) — do not clear unlisted hidden host scopes
@@ -150,12 +150,12 @@ no `wgts` / page-`filt` rows for those hidden indexes.
 
 **SET JS — keep (do not edit in this WP)**
 
-- `KDB3/js/core/services/writeback/set/effects/runNormalRestore.js` — step 9 park-all; step 28 `visibleDashboard`
+- `KDB3/js/workflows/parameterSet/set/effects/runNormalRestore.js` — step 9 park-all; step 28 `visibleDashboard`
 - `KDB3/js/dashboard/widgets/widgetBase/restore.js` (`handleParameterSetReset`) — park all `onCanvas`
-- `KDB3/js/core/services/writeback/set/effects/runWidgetRestore.js` — step 23 still `includeHidden` for named `wgts.tab`
-- `core/services/writeback/set/effects/filters/filterRestoreTargets.js` — stay full identity map
+- `KDB3/js/workflows/parameterSet/set/effects/runWidgetRestore.js` — step 23 still `includeHidden` for named `wgts.tab`
+- `workflows/parameterSet/set/effects/filters/filterRestoreTargets.js` — stay full identity map
 - `dashboard/tabs/selectors.js` (`buildTabTargets`) — stay full (every dashboard slot + `visible`)
-- `collectFilters.js` / `core/services/writeback/get/collectors/collectFilters.js` (filter target resolution) — orchestrator only; no shrink
+- `collectFilters.js` / `workflows/parameterSet/get/collectors/collectFilters.js` (filter target resolution) — orchestrator only; no shrink
 
 Do not change PDF traverse, tab-mutation traverse, or `runNewDashboardReset.js` (full-reset branch).
 

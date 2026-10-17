@@ -40,7 +40,7 @@ export const CORE_STEP_PATHS = {
   css: 'core/css/__orchestratorCss.js',
   cognosAPI: 'core/cognosAPI/__orchestratorCognosAPI.js',
   authoring: 'core/authoring/__orchestratorAuthoring.js',
-  services: 'core/services/__orchestratorServices.js',
+  services: 'bootstrap/registerServices.js',
   homeDialog: 'core/homeDialog/__orchestratorHomeDialog.js',
   utils: 'core/utils/__orchestratorUtils.js',
 };
@@ -60,8 +60,8 @@ const SERVICE_SUBPATHS = {
   message: 'core/services/messageService/__orchestratorMessageService.js',
   widgetBindingPlan: 'core/services/widgetBindingPlan/__orchestratorWidgetBindingPlan.js',
   widgetBindingApply: 'core/services/widgetBindingApply/__orchestratorWidgetBindingApply.js',
-  dashboardPdf: 'core/services/dashboardPdf/__orchestratorDashboardPdf.js',
-  writeback: 'core/services/writeback/__orchestratorWriteback.js',
+  dashboardPdf: 'workflows/pdfExport/__orchestratorDashboardPdf.js',
+  writeback: 'workflows/parameterSet/__orchestratorWriteback.js',
   drillthrough: 'core/services/drillthrough/__orchestratorDrillthrough.js',
 };
 
@@ -250,7 +250,7 @@ export function loadManifest() {
   const noop = () => {};
   for (const rel of Object.values(CORE_STEP_PATHS)) overrides[rel] = noop;
   for (const feature of FEATURES) overrides[feature[1]] = noop;
-  return loadAmd(path.join(JS_ROOT, 'core/bootstrap/featureManifest.js'), { overrides });
+  return loadAmd(path.join(JS_ROOT, 'bootstrap/featureManifest.js'), { overrides });
 }
 
 export function loadBootstrapModule(rel) {
