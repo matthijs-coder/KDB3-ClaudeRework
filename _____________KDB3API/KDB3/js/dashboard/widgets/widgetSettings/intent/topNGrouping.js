@@ -41,11 +41,11 @@ define([
     const message = labels && labels.topNGroupingRequired ? labels.topNGroupingRequired : _config.LABELS.topNGroupingRequired;
     const svc = _KDB.services && _KDB.services.message;
     const code = "WIDGET_SETTINGS_TOPN_DIMENSION_ABSENT";
-    if (svc && _anchor && typeof svc.notifyAnchored === "function") {
+    if (svc && _anchor) {
       svc.notifyAnchored({ anchor: _anchor, code: code, message: message, severity: "warning" });
       return;
     }
-    if (svc && typeof svc.notify === "function") {
+    if (svc) {
       svc.notify({ code: code, message: message, severity: "warning" });
       return;
     }

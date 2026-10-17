@@ -214,7 +214,7 @@ define([
     var langtext = asTrimmed(derived.langtext);
     var url = asTrimmed(derived.url);
     var treeApi = _options._KDB && _options._KDB.api && _options._KDB.api.metricsTree;
-    if ((!langtext || !url) && code && treeApi && typeof treeApi.resolveMetricByCode === "function") {
+    if ((!langtext || !url) && code && treeApi) {
       var descriptor = treeApi.resolveMetricByCode(code);
       if (descriptor && descriptor.resolved) {
         langtext = langtext || asTrimmed(descriptor.langtext);

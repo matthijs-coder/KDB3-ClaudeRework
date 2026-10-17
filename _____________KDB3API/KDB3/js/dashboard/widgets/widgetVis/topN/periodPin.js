@@ -34,7 +34,7 @@ define([
     var leftoverId;
     var widgetsFacet;
     var outcome;
-    if (!tableData || typeof tableData.reloadTable !== "function") {
+    if (!tableData) {
       throw stichtagUnavailable("tableData.reloadTable is unavailable.");
     }
     await tableData.reloadTable(input);

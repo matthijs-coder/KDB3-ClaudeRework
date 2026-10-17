@@ -249,7 +249,7 @@ define([
       throw new Error("Failed to activate reveal slot before duplicate shift take.");
     }
     var dragDrop = _context._KDB.api.dragDrop;
-    if (dragDrop && typeof dragDrop.refreshDropboxes === "function") {
+    if (dragDrop) {
       dragDrop.refreshDropboxes();
     }
   }

@@ -247,7 +247,7 @@ define([
 
     planService = _KDB.services && _KDB.services.widgetBindingPlan;
     bindingService = _KDB.services && _KDB.services.widgetBinding;
-    if (!planService || typeof planService.buildPlan !== "function") {
+    if (!planService) {
       console.error("[widgetVis.runBindingPipeline] widgetBindingPlan service missing");
       return Promise.resolve({
         ok: false,

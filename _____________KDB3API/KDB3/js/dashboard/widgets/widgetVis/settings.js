@@ -111,7 +111,7 @@ define([
   function finishApplySettingRenderLoadingIfFailed(_context, _action, _result) {
     var loading = _context._KDB.services && _context._KDB.services.loading;
     var widgetId = String(_action && _action.widgetId || "");
-    if ((_result && (_result.ok === true || _result.stale === true)) || !loading || typeof loading.finishLoading !== "function") {
+    if ((_result && (_result.ok === true || _result.stale === true)) || !loading) {
       return;
     }
     try {

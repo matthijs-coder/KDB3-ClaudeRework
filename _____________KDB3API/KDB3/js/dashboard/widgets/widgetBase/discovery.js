@@ -281,7 +281,7 @@ define([
     var aliases = {};
     try {
       var tabsApi = _KDB.api ? _KDB.api.tabs : null;
-      var tabsState = tabsApi && typeof tabsApi.getState === "function" ? tabsApi.getState() : null;
+      var tabsState = tabsApi ? tabsApi.getState() : null;
       var tabTargets = tabsState && tabsState.tabTargets ? tabsState.tabTargets : {};
       Object.keys(tabTargets).forEach(function (tabIdx) {
         var target = tabTargets[tabIdx] || {};

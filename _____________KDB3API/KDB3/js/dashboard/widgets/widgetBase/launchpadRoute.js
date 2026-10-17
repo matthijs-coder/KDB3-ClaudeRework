@@ -190,7 +190,7 @@ define(["./config.js", "./view/resolveWidgetShell.js"], function (_config, _shel
 
   function claimFromPad(context, padKey, tabId) {
     const _KDB = context._KDB;
-    if (!_KDB || !_KDB.api || !_KDB.api.launchpad || typeof _KDB.api.launchpad.dispatch !== "function") {
+    if (!_KDB || !_KDB.api || !_KDB.api.launchpad) {
       return Promise.resolve(null);
     }
     return Promise.resolve(_KDB.api.launchpad.dispatch({

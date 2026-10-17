@@ -29,7 +29,7 @@ define([
     record.pending.kind = "backgroundColor";
 
     const baseApi = _KDB.api && _KDB.api.widgetBase;
-    if (!baseApi || typeof baseApi.dispatch !== "function") {
+    if (!baseApi) {
       return finishFailure(record, "WIDGET_SETTINGS_WIDGET_BASE_API_MISSING", "widgetBase dispatch is not available.");
     }
     const action = {
@@ -91,8 +91,7 @@ define([
       if (String(payload.widgetType || "").toLowerCase() !== "text"
         || typeof readableFn !== "function"
         || !backgroundHex
-        || !textApi
-        || typeof textApi.dispatch !== "function") {
+        || !textApi) {
         return;
       }
       Promise.resolve(textApi.dispatch({

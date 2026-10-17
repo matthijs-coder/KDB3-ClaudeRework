@@ -60,7 +60,7 @@ define([
       const labels = _KDB && _KDB.config && _KDB.config.labels && _KDB.config.labels.de ? _KDB.config.labels.de.widgetBase : null;
       const message = (labels && labels.maxWidgetsPerTab) || _config.LABELS_DE.maxWidgetsPerTab;
       const service = _KDB && _KDB.services && _KDB.services.message;
-      if (!service || typeof service.notify !== "function") {
+      if (!service) {
         console.warn("[widgetBase.subscribeDropValidated] message service unavailable");
         return;
       }
@@ -138,7 +138,7 @@ define([
 
   function readActiveTabId(_KDB) {
     const tabsApi = _KDB.api ? _KDB.api.tabs : null;
-    const tabsState = tabsApi && typeof tabsApi.getState === "function" ? tabsApi.getState() : null;
+    const tabsState = tabsApi ? tabsApi.getState() : null;
     if (!tabsState) {
       return null;
     }
@@ -168,7 +168,7 @@ define([
     const timeoutMs = typeof options.launchpadReadyTimeoutMs === "number" ? options.launchpadReadyTimeoutMs : 5000;
     const launchpad = _KDB.api && _KDB.api.launchpad;
     try {
-      const isReady = launchpad && typeof launchpad.dispatch === "function"
+      const isReady = launchpad
         ? await launchpad.dispatch({ type: "launchpad/waitUntilReady", payload: { timeoutMs: timeoutMs } })
         : false;
       if (isReady !== true) {

@@ -46,7 +46,7 @@ define([
   async function dispatchTopNCleanupWhenDimensionAbsent(_context, _widgetId) {
     try {
       var api = _context && _context._KDB && _context._KDB.api ? _context._KDB.api.widgetTopN : null;
-      if (!api || typeof api.dispatch !== "function") {
+      if (!api) {
         return;
       }
       var record = _topNSelectors.readOwnerState(_context._KDB, _widgetId);
@@ -142,7 +142,7 @@ define([
       return unblocked(null, null);
     }
     var topNApi = _KDB.api && _KDB.api.widgetTopN;
-    if (!topNApi || typeof topNApi.dispatch !== "function") {
+    if (!topNApi) {
       return {
         blocked: true,
         result: _gates.blockedResult("deferred", "WIDGET_VIS_TOPN_UNAVAILABLE", "awaiting_topN", _input, { topNUnavailable: true })

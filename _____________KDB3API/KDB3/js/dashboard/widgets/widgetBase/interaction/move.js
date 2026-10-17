@@ -63,7 +63,7 @@ define([
 
   function dispatchFinalMove(_KDB, _widgetId, _fromLayout, _toLayout) {
     var api = _KDB && _KDB.api && _KDB.api.widgetBase;
-    if (!api || typeof api.dispatch !== "function") {
+    if (!api) {
       return Promise.resolve({ ok: false, errorCode: "WIDGET_BASE_API_MISSING" });
     }
     return Promise.resolve(api.dispatch({

@@ -120,7 +120,7 @@ define([
     try {
       const loading = _KDB && _KDB.services ? _KDB.services.loading : null;
       const id = String(widgetId || "");
-      if (id && loading && typeof loading.finishLoading === "function") {
+      if (id && loading) {
         loading.finishLoading({ mountKey: "kdb-widget-render-loading-" + id });
       }
     } catch (err) {
