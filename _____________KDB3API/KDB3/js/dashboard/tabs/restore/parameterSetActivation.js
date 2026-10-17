@@ -214,7 +214,6 @@ define([
   }
 
   function ensureAbortControllers(_KDB) {
-    _KDB.runtime = _KDB.runtime || {};
     _KDB.runtime.tabs = _KDB.runtime.tabs || {};
     _KDB.runtime.tabs.abortControllers = _KDB.runtime.tabs.abortControllers || {};
     return _KDB.runtime.tabs.abortControllers;

@@ -36,7 +36,7 @@ define([
       _options.clickOriginalButton(_handoffContext, _buttonTid);
       return;
     }
-    if (!_KDB || !_KDB.api || !_KDB.api.filterDock || typeof _KDB.api.filterDock.dispatch !== "function") {
+    if (!_KDB || !_KDB.api || !_KDB.api.filterDock) {
       return;
     }
     _KDB.api.filterDock.dispatch({
@@ -55,7 +55,7 @@ define([
       _options.closePopup();
       return;
     }
-    if (!_KDB || !_KDB.api || !_KDB.api.filterDock || typeof _KDB.api.filterDock.dispatch !== "function") {
+    if (!_KDB || !_KDB.api || !_KDB.api.filterDock) {
       return;
     }
     _KDB.api.filterDock.dispatch({

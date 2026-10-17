@@ -182,7 +182,7 @@ define([
     if (previous) previous.abort();
     var scope = new AbortController();
     rt.abortControllers.developerModeToggleVisibility = scope;
-    if (tableData && typeof tableData.waitForRows === "function") revealDeveloperModeToggle(_KDB, tableData, scope);
+    if (tableData) revealDeveloperModeToggle(_KDB, tableData, scope);
   }
 
   function applyInitialEffects(_KDB) {
@@ -222,7 +222,7 @@ define([
       delete rt.listeners[SLOT_RUNTIME_KEY];
     }
     var loading = _KDB && _KDB.services && _KDB.services.loading;
-    if (loading && typeof loading.finishLoading === "function") loading.finishLoading({ mountKey: SLOT_MOUNT_KEY });
+    if (loading) loading.finishLoading({ mountKey: SLOT_MOUNT_KEY });
   }
 
   // Shows the loading indicator in the save/load slot until a foreign child (the host's own control) appears or 30 s pass.
@@ -231,7 +231,7 @@ define([
     if (!rt || !slotEl || slotEl.nodeType !== 1) return;
     finishSaveLoadSlotLoading(_KDB);
     var loading = _KDB.services && _KDB.services.loading;
-    if (!loading || typeof loading.startLoading !== "function") return;
+    if (!loading) return;
     var handle = loading.startLoading({ mountEl: slotEl, mountKey: SLOT_MOUNT_KEY, messageKey: "parameterSelect" });
     if (!handle) return;
     if (hasForeignSlotChild(slotEl)) {

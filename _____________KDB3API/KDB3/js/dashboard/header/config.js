@@ -1,10 +1,10 @@
-define([], function () {
+define(["../../core/config/assetBase.js"], function (_assetBase) {
   "use strict";
 
   var DEFAULT_ICON_KEY = "Stadt-wien";
   // Catalog stems may contain spaces, dots and umlauts; only characters that can change the image URL target are rejected.
   var ICON_KEY_UNSAFE_PATTERN = /[\/\\:?#%\u0000-\u001f\u007f]|\.\./;
-  var IMAGES_BASE_PATH = "v1/ext/KDB3/images/";
+  var IMAGES_BASE_PATH = _assetBase.assetPath("images/");
 
   var VALID_SOURCES = { kdbControl: 1, api: 1, bootstrap: 1 };
 

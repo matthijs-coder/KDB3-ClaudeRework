@@ -115,7 +115,7 @@ define([
       return false;
     }
     const history = _KDB.services && _KDB.services.history;
-    if (!history || typeof history.pushCommittedStep !== "function") {
+    if (!history) {
       warnHistoryServiceMissingOnce(_KDB);
       return false;
     }

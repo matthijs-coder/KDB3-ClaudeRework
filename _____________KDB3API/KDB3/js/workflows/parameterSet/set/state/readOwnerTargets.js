@@ -13,7 +13,7 @@ define([
     }
     try {
       const headerApi = _KDB && _KDB.api ? _KDB.api.header : null;
-      if (headerApi && typeof headerApi.getState === "function") {
+      if (headerApi) {
         const state = headerApi.getState();
         if (state && typeof state.status === "string") {
           return state.status;
@@ -34,7 +34,7 @@ define([
     }
     try {
       const tabsApi = _KDB && _KDB.api ? _KDB.api.tabs : null;
-      if (tabsApi && typeof tabsApi.getState === "function") {
+      if (tabsApi) {
         const state = tabsApi.getState();
         if (state && typeof state === "object") {
           run.recordPhase("tabTargetResolve", "tabs", true);

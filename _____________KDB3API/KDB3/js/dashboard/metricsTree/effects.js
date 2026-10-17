@@ -78,7 +78,7 @@ define([
       ..._KDB.config.tables[tableKey]
     }];
     const tableData = _KDB.services && _KDB.services.tableData;
-    if (!tableData || typeof tableData.waitForRows !== "function" || typeof tableData.readRows !== "function") {
+    if (!tableData) {
       throw new Error("metricsTree requires _KDB.services.tableData waitForRows/readRows.");
     }
     const waitedRows = await tableData.waitForRows(input, { signal: signal });
@@ -93,14 +93,14 @@ define([
 
   async function readSuperUserAllowed(_KDB, signal) {
     const tableData = _KDB.services ? _KDB.services.tableData : null;
-    if (!tableData || typeof tableData.waitForRows !== "function") {
+    if (!tableData) {
       return false;
     }
 
     const input = [{ tableName: _config.SUPERUSER_TABLE_NAME, isCoreTable: true }];
     try {
       const waitedRows = await tableData.waitForRows(input, { signal: signal });
-      const rows = typeof tableData.readRows === "function" ? tableData.readRows(input) : null;
+      const rows = tableData.readRows(input);
       const superUserRows = Array.isArray(rows) ? rows : waitedRows;
       return Array.isArray(superUserRows) && superUserRows.length > 0
         && _readRightFlag(superUserRows) === true;
@@ -114,7 +114,7 @@ define([
 
   function startLoading(_KDB) {
     const loading = _KDB.services && _KDB.services.loading;
-    if (!loading || typeof loading.startLoading !== "function") { return; }
+    if (!loading) { return; }
     const rootSelector = _kdbControlSelectors && _kdbControlSelectors.mainBlocksSelector;
     const mountEl = rootSelector ? document.querySelector(rootSelector) : null;
     if (!mountEl) { return; }
@@ -127,7 +127,7 @@ define([
 
   function finishLoading(_KDB) {
     const loading = _KDB.services && _KDB.services.loading;
-    if (loading && typeof loading.finishLoading === "function") {
+    if (loading) {
       loading.finishLoading({ mountKey: _config.LOADING_MOUNT_KEY });
     }
   }

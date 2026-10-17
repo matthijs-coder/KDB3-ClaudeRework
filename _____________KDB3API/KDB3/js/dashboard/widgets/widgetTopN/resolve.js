@@ -216,7 +216,7 @@ define([
   // a result for the caller instead of a throw out of the resolve flow.
   async function dispatchTopNResolved(_KDB, _payload) {
     var widgetVis = _KDB.api && _KDB.api.widgetVis;
-    if (!widgetVis || typeof widgetVis.dispatch !== "function") {
+    if (!widgetVis) {
       return { ok: false, terminalDispatched: false, errorCode: "WIDGET_TOPN_UNAVAILABLE_DEPENDENCY" };
     }
     try {

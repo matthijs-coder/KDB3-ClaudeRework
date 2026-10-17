@@ -143,15 +143,12 @@ define([
   async function readConfiguredRows(_KDB, _tableInput) {
     var tableData = _KDB && _KDB.services ? _KDB.services.tableData : null;
     var rows;
-    if (!tableData || typeof tableData.readRows !== "function") {
+    if (!tableData) {
       return { ok: false, errorCode: "tableDataUnavailable", rows: null, source: null };
     }
     rows = tableData.readRows(_tableInput);
     if (Array.isArray(rows)) {
       return { ok: true, rows: rows, source: "readRows" };
-    }
-    if (typeof tableData.waitForRows !== "function") {
-      return { ok: false, errorCode: "tableNotReady", rows: null, source: null };
     }
     try {
       rows = await tableData.waitForRows(_tableInput);

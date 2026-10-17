@@ -58,7 +58,7 @@ define(["../../utils/kit/runtime.js", "./config.js", "./state.js"], function (_r
   function runWatchdog(_KDB, mountEl, mountKey) {
     var loading = _KDB.services && _KDB.services.loading;
     try {
-      if (loading && typeof loading.finishLoading === "function") {
+      if (loading) {
         loading.finishLoading({ mountEl: mountEl, mountKey: mountKey, removeDelayMs: 0 });
       }
     } catch (error) {

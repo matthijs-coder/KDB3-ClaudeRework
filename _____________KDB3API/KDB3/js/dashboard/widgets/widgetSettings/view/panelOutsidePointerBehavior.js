@@ -28,7 +28,7 @@ define([
     }
     const widgetId = readPanelWidgetId(panel);
     const api = _KDB && _KDB.api ? _KDB.api.widgetBase : null;
-    if (!widgetId || !api || typeof api.dispatch !== "function") {
+    if (!widgetId || !api) {
       return;
     }
     api.dispatch({ type: "widgetBase/setMoveMode", widgetId: widgetId, payload: { mode: "default", source: "widgetSettings", reason: "outsidePointerDown" } });

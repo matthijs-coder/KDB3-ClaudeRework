@@ -137,7 +137,7 @@ define([
   async function readHelperTableRows(_KDB, _context) {
     try {
       var service = _KDB && _KDB.services ? _KDB.services.tableData : null;
-      if (!service || typeof service.reloadTable !== "function") {
+      if (!service) {
         return _results.failure("WIDGET_TOPN_UNAVAILABLE_DEPENDENCY", "tableData.reloadTable is unavailable.");
       }
       if (_results.isAborted(_context.signal)) {

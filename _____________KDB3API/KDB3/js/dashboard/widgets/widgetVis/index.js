@@ -184,7 +184,7 @@ define([
     runtime.widgetsFacet = host && host.widgets ? host.widgets : null;
     runtime.filtersFacet = host && host.filters ? host.filters : null;
     runtime.drillthroughService = _KDB.services && _KDB.services.drillthrough ? _KDB.services.drillthrough : null;
-    runtime.tableDataReadRows = tableData && typeof tableData.readRows === "function" ? tableData.readRows.bind(tableData) : null;
+    runtime.tableDataReadRows = tableData ? tableData.readRows.bind(tableData) : null;
     runtime.dataQueryFacet = host && host.dataQuery ? host.dataQuery : null;
   }
 

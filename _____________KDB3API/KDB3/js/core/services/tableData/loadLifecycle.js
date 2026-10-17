@@ -88,7 +88,7 @@ define([
   // Toast, not modal: several tables can fail at once. One toast per table while the same error message persists.
   function notifyLoadFailed(_KDB, entry, tableKey) {
     const messageService = _KDB.services.message;
-    if (!messageService || typeof messageService.notify !== "function" || !entry) {
+    if (!messageService || !entry) {
       return;
     }
     try {

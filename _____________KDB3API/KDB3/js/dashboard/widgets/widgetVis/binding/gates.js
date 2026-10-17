@@ -108,7 +108,7 @@ define([
       }
     }
     api = _KDB.api && _KDB.api.dienststelle;
-    if (!api || typeof api.getCurrentHierarchySnapshot !== "function") {
+    if (!api) {
       return null;
     }
     normalized = normalizeHierarchySnapshot({ hierarchySnapshot: api.getCurrentHierarchySnapshot({ pageScopeId: "active" }) });

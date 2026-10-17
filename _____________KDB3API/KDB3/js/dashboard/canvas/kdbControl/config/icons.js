@@ -1,9 +1,9 @@
-define([], function () {
+define(["../../../../core/config/assetBase.js"], function (_assetBase) {
   "use strict";
 
   var DEFAULT_ICON_SRC = {
-    kdbControlHeaderIconSettingsSrc: "v1/ext/KDB3/images/settings.svg",
-    kdbControlHeaderIconInfoSrc: "v1/ext/KDB3/images/info.svg"
+    kdbControlHeaderIconSettingsSrc: _assetBase.assetPath("images/settings.svg"),
+    kdbControlHeaderIconInfoSrc: _assetBase.assetPath("images/info.svg")
   };
 
   function readIconSrc(_KDB, optionKey) {

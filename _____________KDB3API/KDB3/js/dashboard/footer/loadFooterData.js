@@ -54,7 +54,7 @@ define(["./config.js"], function (_config) {
   async function runUpdateDateLoad(_KDB, _signal) {
     try {
       var tableData = _KDB.services && _KDB.services.tableData;
-      if (!tableData || typeof tableData.waitForRows !== "function" || typeof tableData.readRows !== "function") {
+      if (!tableData) {
         applyUpdateDate(_KDB, null, null);
         return;
       }

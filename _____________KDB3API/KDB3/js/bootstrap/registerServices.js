@@ -31,7 +31,6 @@ define([
   // (workflows/), because the order interleaves them (history registers after dashboardPdf, before the writeback
   // services). `destroy` order lives in featureManifest.serviceDestroyOrder.
   function registerServices(_KDB) {
-    _KDB.services = _KDB.services || {};
     _registerCognosHost(_KDB);
     _registerChrome(_KDB);
     _registerTableData(_KDB);

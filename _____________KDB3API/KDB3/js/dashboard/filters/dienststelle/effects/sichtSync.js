@@ -11,7 +11,7 @@ define([
   function readActiveSichtFromApi(_KDB) {
     var sichtApi = _KDB && _KDB.api ? _KDB.api.sicht : null;
     var sichtState;
-    if (!sichtApi || typeof sichtApi.getState !== "function") {
+    if (!sichtApi) {
       return null;
     }
     sichtState = sichtApi.getState();
@@ -63,7 +63,7 @@ define([
       var tableData = _KDB && _KDB.services ? _KDB.services.tableData : null;
       var keys;
       var abortPromise;
-      if (!nextKey || !tableData || typeof tableData.abortTable !== "function") {
+      if (!nextKey || !tableData) {
         return;
       }
       keys = collectInactiveHierarchyKeys(_KDB, nextKey);

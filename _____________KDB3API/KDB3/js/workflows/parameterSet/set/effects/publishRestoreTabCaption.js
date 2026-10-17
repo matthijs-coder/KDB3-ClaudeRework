@@ -5,7 +5,7 @@ define([], function () {
   // an absent or destroyed tabs owner reads as no tabs.
   function readTabs(_KDB) {
     const api = _KDB && _KDB.api ? _KDB.api.tabs : null;
-    return (api && typeof api.getState === "function" ? api.getState() : null) || {};
+    return (api ? api.getState() : null) || {};
   }
 
   function publishRestoreTabCaption(_KDB, _run, _request) {
@@ -15,7 +15,7 @@ define([], function () {
       let formatted;
       let updated;
       if (!_run || _run.loadingStarted !== true || _run.loadingHandle == null) { return; }
-      if (!loading || typeof loading.updateLoadingMessage !== "function") { return; }
+      if (!loading) { return; }
       caption = resolveCaption(_KDB, _request);
       if (!caption || caption.skip === true) { return; }
       formatted = caption.message;

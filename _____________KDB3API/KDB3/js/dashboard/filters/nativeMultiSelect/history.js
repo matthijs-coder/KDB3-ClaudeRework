@@ -91,7 +91,7 @@ define([
   async function applyReplayStep(_KDB, _targetValue, _step) {
     var api = _KDB && _KDB.api && _KDB.api.nativeMultiSelect;
     var result;
-    if (!api || typeof api.dispatch !== "function") {
+    if (!api) {
       return false;
     }
     try {

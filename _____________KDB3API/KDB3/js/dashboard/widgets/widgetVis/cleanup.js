@@ -9,7 +9,7 @@ define([
 
   function dispatchTopNCleanup(_context, _widgetId, _payload) {
     var api = _context._KDB.api && _context._KDB.api.widgetTopN;
-    if (!api || typeof api.dispatch !== "function") {
+    if (!api) {
       return Promise.resolve({ ok: true, skipped: true });
     }
     var reason = _payload.reason || "cleanup";

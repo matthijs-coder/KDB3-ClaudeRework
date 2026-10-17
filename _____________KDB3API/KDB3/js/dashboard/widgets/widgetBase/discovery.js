@@ -5,9 +5,8 @@ define([
   "./view/resolveWidgetShell.js",
   "./runtime.js",
   "../../tabs/chrome.js",
-  "../../../core/cognosHost/config/widgetChromeSelectors.js",
   "../../../core/utils/kit/async.js"
-], function (_config, _launchpadRoute, _selectors, _shellModule, _runtime, _tabsChrome, _widgetChrome, _async) {
+], function (_config, _launchpadRoute, _selectors, _shellModule, _runtime, _tabsChrome, _async) {
   "use strict";
 
   // Bounded DOM waits so hidden-tab shells cannot stall tab-scoped discovery.
@@ -141,7 +140,7 @@ define([
       meta.widgetType = "WIDGET.TEXT";
       meta.isTextWidget = true;
     }
-    var strings = _widgetChrome.widget.strings;
+    var strings = _KDB.elements.selectors.widget;
     var shellEl = _shellModule.resolveWidgetShell(_KDB, _widgetId);
     if (shellEl && (shellEl.classList.contains(strings.textWidgetClassName) || shellEl.querySelector(strings.textWidgetClass))) {
       meta.widgetType = "WIDGET.TEXT";
@@ -282,7 +281,7 @@ define([
     var aliases = {};
     try {
       var tabsApi = _KDB.api ? _KDB.api.tabs : null;
-      var tabsState = tabsApi && typeof tabsApi.getState === "function" ? tabsApi.getState() : null;
+      var tabsState = tabsApi ? tabsApi.getState() : null;
       var tabTargets = tabsState && tabsState.tabTargets ? tabsState.tabTargets : {};
       Object.keys(tabTargets).forEach(function (tabIdx) {
         var target = tabTargets[tabIdx] || {};

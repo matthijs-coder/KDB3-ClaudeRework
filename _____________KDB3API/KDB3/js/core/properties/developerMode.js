@@ -39,7 +39,6 @@ define([
   }
 
   function setHideWidgetsToggle(_KDB, _value) {
-    _KDB.properties = _KDB.properties || {};
     _KDB.properties[TOGGLE_ID] = _value;
     applyDeveloperModeClass(_KDB, _value);
   }

@@ -8,7 +8,7 @@ define([
   function readRows(_KDB, _tableKey) {
     var tableData = _KDB && _KDB.services ? _KDB.services.tableData : null;
     var tableInput = _config.buildTableInput(_KDB, _tableKey);
-    if (!tableData || typeof tableData.readRows !== "function" || !tableInput) {
+    if (!tableData || !tableInput) {
       return [];
     }
     return tableData.readRows(tableInput) || [];

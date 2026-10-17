@@ -1,0 +1,415 @@
+[
+  {
+    "guard": "api.dienststelle.dispatch",
+    "files": [
+      "dashboard/filters/dienststelle/history.js",
+      "dashboard/filters/sicht/commit.js",
+      "dashboard/filters/sicht/history.js",
+      "dashboard/filters/sicht/restore.js"
+    ]
+  },
+  {
+    "guard": "api.dienststelle.getCurrentHierarchySnapshot",
+    "files": [
+      "dashboard/widgets/widgetVis/binding/gates.js"
+    ]
+  },
+  {
+    "guard": "api.dienststelle.getState",
+    "files": [
+      "dashboard/filters/sicht/history.js",
+      "workflows/parameterSet/get/collectors/collectDienststelleFilter.js"
+    ]
+  },
+  {
+    "guard": "api.dragDrop.finishDrag",
+    "files": [
+      "dashboard/canvas/kdbControl/framework/bindToolboxActions.js"
+    ]
+  },
+  {
+    "guard": "api.dragDrop.refreshDropboxes",
+    "files": [
+      "dashboard/widgets/widgetBase/slotStock/placeEntries.js"
+    ]
+  },
+  {
+    "guard": "api.dragDrop.startDrag",
+    "files": [
+      "dashboard/canvas/kdbControl/framework/bindToolboxActions.js"
+    ]
+  },
+  {
+    "guard": "api.filterDock.dispatch",
+    "files": [
+      "dashboard/filters/singleSelect/dockHandoff/popup.js"
+    ]
+  },
+  {
+    "guard": "api.filterDock.getState",
+    "files": [
+      "workflows/parameterSet/urlShare/waitForSingleSelectInventoryQuiet.js"
+    ]
+  },
+  {
+    "guard": "api.header.getState",
+    "files": [
+      "workflows/parameterSet/set/state/readOwnerTargets.js"
+    ]
+  },
+  {
+    "guard": "api.kdbControl.getState",
+    "files": [
+      "dashboard/canvas/dragDrop/session.js",
+      "dashboard/canvas/pageSurface/effects.js",
+      "workflows/parameterSet/get/collectors/collectCanvasSettings.js"
+    ]
+  },
+  {
+    "guard": "api.kdbControl.syncView",
+    "files": [
+      "dashboard/tabs/view.js"
+    ]
+  },
+  {
+    "guard": "api.launchpad.dispatch",
+    "files": [
+      "dashboard/widgets/widgetBase/index.js",
+      "dashboard/widgets/widgetBase/launchpadRoute.js",
+      "dashboard/widgets/widgetBase/slotStock/serialize.js",
+      "dashboard/widgets/widgetTopN/helperClaim.js"
+    ]
+  },
+  {
+    "guard": "api.launchpad.getState",
+    "files": [
+      "dashboard/canvas/dragDrop/dropboxes/lookup.js"
+    ]
+  },
+  {
+    "guard": "api.metricsTree.resolveMetricByCode",
+    "files": [
+      "dashboard/widgets/widgetBase/effects.js",
+      "dashboard/widgets/widgetVis/render/title.js"
+    ]
+  },
+  {
+    "guard": "api.nativeMultiSelect.dispatch",
+    "files": [
+      "dashboard/filters/nativeMultiSelect/history.js",
+      "workflows/parameterSet/get/collectors/collectNativeMultiSelect.js"
+    ]
+  },
+  {
+    "guard": "api.sicht.dispatch",
+    "files": [
+      "dashboard/filters/singleSelect/commit/ownerSelection.js",
+      "dashboard/filters/singleSelect/dockHandoff/sichtDraft.js"
+    ]
+  },
+  {
+    "guard": "api.sicht.getState",
+    "files": [
+      "dashboard/filters/dienststelle/effects/reconcile/runReconcile.js",
+      "dashboard/filters/dienststelle/effects/sichtSync.js"
+    ]
+  },
+  {
+    "guard": "api.singleSelect.dispatch",
+    "files": [
+      "dashboard/filters/sicht/delegation.js",
+      "dashboard/filters/singleSelect/historyReplay.js",
+      "dashboard/filters/specialSingleSelect/delegation.js",
+      "dashboard/filters/specialSingleSelect/policy.js",
+      "workflows/parameterSet/set/effects/finalizeSingleSelectRun.js"
+    ]
+  },
+  {
+    "guard": "api.singleSelect.getState",
+    "files": [
+      "workflows/parameterSet/set/effects/filters/filterRestoreGeneration.js",
+      "workflows/parameterSet/urlShare/waitForSingleSelectInventoryQuiet.js"
+    ]
+  },
+  {
+    "guard": "api.specialSingleSelect.dispatch",
+    "files": [
+      "dashboard/filters/sicht/commit.js",
+      "dashboard/filters/singleSelect/historyReplay.js"
+    ]
+  },
+  {
+    "guard": "api.specialSingleSelect.getState",
+    "files": [
+      "dashboard/filters/singleSelect/historyReplay.js"
+    ]
+  },
+  {
+    "guard": "api.tabs.dispatch",
+    "files": [
+      "dashboard/filters/nativeMultiSelect/commit.js",
+      "dashboard/filters/singleSelect/dockHandoff/routeInteraction.js",
+      "dashboard/tabs/history.js",
+      "dashboard/widgets/widgetVis/topN/wave.js",
+      "workflows/parameterSet/get/collectors/collectFilters.js",
+      "workflows/parameterSet/get/collectors/collectWidgets.js",
+      "workflows/parameterSet/get/persist/persistLanding.js",
+      "workflows/parameterSet/set/effects/restoreAbortActiveTab.js"
+    ]
+  },
+  {
+    "guard": "api.tabs.getState",
+    "files": [
+      "dashboard/canvas/kdbControl/framework/bindToolboxActions.js",
+      "dashboard/canvas/kdbControl/framework/syncFormControls.js",
+      "dashboard/launchpad/buildLaunchpadTabs.js",
+      "dashboard/widgets/widgetBase/discovery.js",
+      "dashboard/widgets/widgetBase/index.js",
+      "dashboard/widgets/widgetBase/launchpadTransfer.js",
+      "workflows/parameterSet/get/persist/persistLanding.js",
+      "workflows/parameterSet/set/effects/publishRestoreTabCaption.js",
+      "workflows/parameterSet/set/state/createRunContext.js",
+      "workflows/parameterSet/set/state/readOwnerTargets.js",
+      "workflows/pdfExport/tabNavigation.js"
+    ]
+  },
+  {
+    "guard": "api.tabs.isMutationRunning",
+    "files": [
+      "dashboard/filters/dienststelle/effects/dispatchRoute.js"
+    ]
+  },
+  {
+    "guard": "api.widgetBase.dispatch",
+    "files": [
+      "dashboard/tabs/traverse/traverse.js",
+      "dashboard/widgets/widgetBase/interaction/move.js",
+      "dashboard/widgets/widgetBase/interaction/resize.js",
+      "dashboard/widgets/widgetSettings/colour.js",
+      "dashboard/widgets/widgetSettings/view/panelOutsidePointerBehavior.js",
+      "workflows/parameterSet/set/effects/ensureTabWidgetsRouted.js"
+    ]
+  },
+  {
+    "guard": "api.widgetSettings.dispatch",
+    "files": [
+      "dashboard/widgets/widgetBase/effects.js"
+    ]
+  },
+  {
+    "guard": "api.widgetText.dispatch",
+    "files": [
+      "dashboard/widgets/widgetBase/effects.js",
+      "dashboard/widgets/widgetSettings/colour.js",
+      "dashboard/widgets/widgetText/history.js"
+    ]
+  },
+  {
+    "guard": "api.widgetTopN.dispatch",
+    "files": [
+      "dashboard/widgets/widgetVis/cleanup.js",
+      "dashboard/widgets/widgetVis/topN/gate.js",
+      "dashboard/widgets/widgetVis/topN/wave.js"
+    ]
+  },
+  {
+    "guard": "api.widgetVis.dispatch",
+    "files": [
+      "dashboard/filters/dienststelle/effects/reconcile/widgetVisNotify.js",
+      "dashboard/widgets/widgetSettings/seed.js",
+      "dashboard/widgets/widgetTopN/resolve.js",
+      "dashboard/widgets/widgetVis/focus/maximizeIcon.js",
+      "workflows/pdfExport/tabNavigation.js"
+    ]
+  },
+  {
+    "guard": "api.widgetVis.getState",
+    "files": [
+      "workflows/pdfExport/tabNavigation.js"
+    ]
+  },
+  {
+    "guard": "services.dashboardPdf.exportDashboardPdf",
+    "files": [
+      "dashboard/controls/toolbarControls/pdfButton.js"
+    ]
+  },
+  {
+    "guard": "services.history.beginWritebackRestore",
+    "files": [
+      "workflows/parameterSet/set/effects/runGuards.js"
+    ]
+  },
+  {
+    "guard": "services.history.finishWritebackRestore",
+    "files": [
+      "workflows/parameterSet/set/effects/runGuards.js"
+    ]
+  },
+  {
+    "guard": "services.history.pushCommittedStep",
+    "files": [
+      "dashboard/widgets/widgetSettings/history.js"
+    ]
+  },
+  {
+    "guard": "services.history.redo",
+    "files": [
+      "dashboard/controls/toolbarControls/historyButton.js"
+    ]
+  },
+  {
+    "guard": "services.history.undo",
+    "files": [
+      "dashboard/controls/toolbarControls/historyButton.js"
+    ]
+  },
+  {
+    "guard": "services.loading.finishLoading",
+    "files": [
+      "core/services/loadingService/watchdog.js",
+      "core/services/widgetBindingApply/renderWait.js",
+      "dashboard/canvas/kdbControl/effects.js",
+      "dashboard/metricsTree/effects.js",
+      "dashboard/tabs/pageLoading.js",
+      "dashboard/tabs/tabMutation/loadingFrame.js",
+      "dashboard/widgets/widgetSettings/view/controls.js",
+      "dashboard/widgets/widgetVis/settings.js",
+      "workflows/parameterSet/get/persist/persistLoadingOverlay.js",
+      "workflows/parameterSet/set/effects/runGuards.js",
+      "workflows/pdfExport/session.js"
+    ]
+  },
+  {
+    "guard": "services.loading.registerWatchdogHandler",
+    "files": [
+      "core/homeDialog/index.js"
+    ]
+  },
+  {
+    "guard": "services.loading.startLoading",
+    "files": [
+      "dashboard/canvas/kdbControl/effects.js",
+      "dashboard/metricsTree/effects.js",
+      "dashboard/tabs/pageLoading.js",
+      "dashboard/tabs/tabMutation/loadingFrame.js",
+      "dashboard/widgets/widgetSettings/effects/startWidgetRenderLoading.js",
+      "workflows/parameterSet/get/persist/persistLoadingOverlay.js",
+      "workflows/parameterSet/set/effects/runGuards.js",
+      "workflows/pdfExport/session.js"
+    ]
+  },
+  {
+    "guard": "services.loading.updateLoadingMessage",
+    "files": [
+      "dashboard/tabs/tabMutation/loadingFrame.js",
+      "workflows/parameterSet/set/effects/publishRestoreTabCaption.js",
+      "workflows/pdfExport/session.js"
+    ]
+  },
+  {
+    "guard": "services.message.confirm",
+    "files": [
+      "workflows/parameterSet/bridge/confirmDiscardUnsavedChanges.js"
+    ]
+  },
+  {
+    "guard": "services.message.notify",
+    "files": [
+      "core/services/historyService/replay.js",
+      "core/services/tableData/loadLifecycle.js",
+      "dashboard/canvas/dragDrop/dropboxes/publish.js",
+      "dashboard/canvas/kdbControl/dimensionGate.js",
+      "dashboard/canvas/kdbControl/framework/bindToolboxActions.js",
+      "dashboard/filters/dienststelle/effects/reconcile/defaults.js",
+      "dashboard/tabs/editUi/confirm.js",
+      "dashboard/tabs/history.js",
+      "dashboard/widgets/widgetBase/index.js",
+      "dashboard/widgets/widgetSettings/intent/topNGrouping.js",
+      "workflows/parameterSet/set/effects/notifyRestoreOutcome.js"
+    ]
+  },
+  {
+    "guard": "services.message.notifyAnchored",
+    "files": [
+      "dashboard/canvas/kdbControl/dimensionGate.js",
+      "dashboard/filters/dienststelle/effects/reconcile/defaults.js",
+      "dashboard/widgets/widgetSettings/intent/topNGrouping.js"
+    ]
+  },
+  {
+    "guard": "services.message.showAlert",
+    "files": [
+      "core/cognosHost/chromeChecks.js",
+      "dashboard/controls/toolbarControls/pdfButton.js",
+      "dashboard/tabs/editUi/confirm.js",
+      "workflows/parameterSet/get/runWritebackGetCollectors.js",
+      "workflows/parameterSet/set/effects/notifyRestoreOutcome.js"
+    ]
+  },
+  {
+    "guard": "services.message.showCopyable",
+    "files": [
+      "dashboard/controls/toolbarControls/wienKiButton.js",
+      "dashboard/controls/toolbarControls/wienKiPopup.js"
+    ]
+  },
+  {
+    "guard": "services.tableData.abortTable",
+    "files": [
+      "dashboard/filters/dienststelle/effects/sichtSync.js"
+    ]
+  },
+  {
+    "guard": "services.tableData.readRows",
+    "files": [
+      "dashboard/filters/dienststelle/effects/reconcile/defaults.js",
+      "dashboard/filters/dienststelle/restore/scopeTargets.js",
+      "dashboard/filters/sicht/availability.js",
+      "dashboard/filters/singleSelect/commit/tableValues.js",
+      "dashboard/filters/singleSelect/restore/applySelection.js",
+      "dashboard/filters/specialSingleSelect/tableData.js",
+      "dashboard/footer/loadFooterData.js",
+      "dashboard/metricsTree/effects.js",
+      "dashboard/widgets/widgetVis/index.js"
+    ]
+  },
+  {
+    "guard": "services.tableData.readTableState",
+    "files": [
+      "core/properties/hideDataHint.js",
+      "dashboard/filters/dienststelle/effects/reconcile/runReconcile.js"
+    ]
+  },
+  {
+    "guard": "services.tableData.reloadTable",
+    "files": [
+      "dashboard/widgets/widgetTopN/helperBinding.js",
+      "dashboard/widgets/widgetVis/topN/periodPin.js"
+    ]
+  },
+  {
+    "guard": "services.tableData.waitForRows",
+    "files": [
+      "core/properties/hideDataHint.js",
+      "dashboard/canvas/kdbControl/effects.js",
+      "dashboard/filters/dienststelle/effects/reconcile/runReconcile.js",
+      "dashboard/filters/singleSelect/commit/tableValues.js",
+      "dashboard/filters/singleSelect/restore/applySelection.js",
+      "dashboard/footer/loadFooterData.js",
+      "dashboard/metricsTree/effects.js"
+    ]
+  },
+  {
+    "guard": "services.widgetBindingPlan.buildPlan",
+    "files": [
+      "dashboard/widgets/widgetVis/binding/pipeline.js"
+    ]
+  },
+  {
+    "guard": "services.writebackSet.restore",
+    "files": [
+      "workflows/parameterSet/urlShare/whenUrlShareRestoreSettled.js"
+    ]
+  }
+]

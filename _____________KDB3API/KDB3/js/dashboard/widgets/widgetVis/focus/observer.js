@@ -2,12 +2,9 @@ define([
   "../runtime.js",
   "../drillthrough/install.js",
   "../../../../core/utils/kit/runtime.js",
-  "../../../../core/cognosHost/config/widgetChromeSelectors.js",
   "./panel.js"
-], function (_visRuntime, _drillthroughInstall, _kitRuntime, _widgetChrome, _panel) {
+], function (_visRuntime, _drillthroughInstall, _kitRuntime, _panel) {
   "use strict";
-
-  var focus = _widgetChrome.focusMode.strings;
 
   function readFocusWatch(_moduleRuntime) {
     _moduleRuntime.focusWatch = _moduleRuntime.focusWatch || { byWidget: {} };
@@ -44,7 +41,7 @@ define([
     if (!watch || _KDB.runtime.widgetVis !== _moduleRuntime) {
       return;
     }
-    containers = Array.prototype.slice.call(document.querySelectorAll(focus.expandModeContainerSelector));
+    containers = Array.prototype.slice.call(document.querySelectorAll(_KDB.elements.selectors.focusMode.expandModeContainerSelector));
     Object.keys(watch.byWidget).forEach(function (widgetId) {
       var entry = watch.byWidget[widgetId];
       var selector = '[id="' + widgetId + '"]';

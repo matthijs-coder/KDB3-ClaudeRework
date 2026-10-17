@@ -27,7 +27,7 @@ define(["./presentHomeChoice.js", "./presentCubesUnavailable.js", "../bootstrap/
   // The boot overlay is the only overlay that offers the home dialog when its watchdog fires.
   function registerBootWatchdog(_KDB) {
     var loading = _KDB.services && _KDB.services.loading;
-    if (!loading || typeof loading.registerWatchdogHandler !== "function") {
+    if (!loading) {
       return null;
     }
     return loading.registerWatchdogHandler(_bootstrapConfig.BOOT_LOADING_MOUNT_KEY, function (payload) {

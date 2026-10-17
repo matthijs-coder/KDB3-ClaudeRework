@@ -1,0 +1,77 @@
+{
+  "cssHrefs": [
+    "./v1/ext/KDB3/css/header.css",
+    "./v1/ext/KDB3/css/footer.css",
+    "./v1/ext/KDB3/css/customButtons/toolbarControls.css",
+    "./v1/ext/KDB3/css/messageService.css",
+    "./v1/ext/KDB3/css/kdb-control/shell.css",
+    "./v1/ext/KDB3/css/kdb-control/panels.css",
+    "./v1/ext/KDB3/css/kdb-control/controls.css",
+    "./v1/ext/KDB3/css/loadingAnimation.css",
+    "./v1/ext/KDB3/css/libraries/jquery-ui.css",
+    "./v1/ext/KDB3/css/libraries/style.min.css",
+    "./v1/ext/KDB3/css/metricsTree.css",
+    "./v1/ext/KDB3/css/canvas.css",
+    "./v1/ext/KDB3/css/cognosButtons.css",
+    "./v1/ext/KDB3/css/widgets/hostWidgets.css",
+    "./v1/ext/KDB3/css/widgets/widgetSettings.css",
+    "./v1/ext/KDB3/css/widgets/widgetSettingsColorDropdown.css",
+    "./v1/ext/KDB3/css/widgets/widgetVis.css",
+    "./v1/ext/KDB3/css/widgets/widgetHiding.css",
+    "./v1/ext/KDB3/css/filters/filters.css",
+    "./v1/ext/KDB3/css/kdb.css"
+  ],
+  "kdbControlIcons": {
+    "kdbControlHeaderIconSettingsSrc": "v1/ext/KDB3/images/settings.svg",
+    "kdbControlHeaderIconInfoSrc": "v1/ext/KDB3/images/info.svg"
+  },
+  "kdbControlIconsConfigured": "custom/info.svg",
+  "dragDropAvatars": {
+    "text": "./v1/ext/KDB3/images/text--creation_32.svg",
+    "visualization": "./v1/ext/KDB3/images/change-visualization_32.svg"
+  },
+  "headerImagesBase": "v1/ext/KDB3/images/",
+  "headerImageUrls": [
+    "v1/ext/KDB3/images/Stadt-wien.png",
+    "v1/ext/KDB3/images/benutzerHandbuch.png",
+    "v1/ext/KDB3/images/dataspot.png"
+  ],
+  "toolbarIcons": {
+    "pdf": {
+      "blackIconHref": "./v1/ext/KDB3/images/pdf-black.png",
+      "whiteIconHref": "./v1/ext/KDB3/images/pdf-white.png"
+    },
+    "share": {
+      "iconHref": "./v1/ext/KDB3/images/share.png"
+    }
+  },
+  "widgetSettingsBase": "./v1/ext/KDB3/images/",
+  "widgetSettingsSettingsIcon": "./v1/ext/KDB3/images/settings.svg",
+  "tabsBase": "./v1/ext/KDB3/images/",
+  "tabIconUrls": [
+    "./v1/ext/KDB3/images/close_32.svg",
+    "./v1/ext/KDB3/images/copy.svg",
+    "./v1/ext/KDB3/images/move.svg"
+  ],
+  "widgetSettingsControlIconUrls": [
+    "./v1/ext/KDB3/images/info.svg",
+    "./v1/ext/KDB3/images/minimize.svg",
+    "./v1/ext/KDB3/images/change-visualization_32.svg",
+    "./v1/ext/KDB3/images/grouping.svg",
+    "./v1/ext/KDB3/images/dimensions.png",
+    "./v1/ext/KDB3/images/top10.png",
+    "./v1/ext/KDB3/images/move.svg",
+    "./v1/ext/KDB3/images/resize.svg",
+    "./v1/ext/KDB3/images/maximize_32.svg",
+    "./v1/ext/KDB3/images/backgroundColor.png",
+    "./v1/ext/KDB3/images/adjust.svg",
+    "./v1/ext/KDB3/images/delete_32.svg",
+    "./v1/ext/KDB3/images/text--creation_32.svg",
+    "./v1/ext/KDB3/images/move.svg",
+    "./v1/ext/KDB3/images/resize.svg",
+    "./v1/ext/KDB3/images/backgroundColor.png",
+    "./v1/ext/KDB3/images/fontSize.png",
+    "./v1/ext/KDB3/images/borders.svg",
+    "./v1/ext/KDB3/images/delete_32.svg"
+  ]
+}

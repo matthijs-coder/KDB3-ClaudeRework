@@ -122,9 +122,6 @@ define([
   }
 
   function registerLabels(_KDB) {
-    _KDB.config = _KDB.config || {};
-    _KDB.config.labels = _KDB.config.labels || {};
-    _KDB.config.labels.de = _KDB.config.labels.de || {};
     _KDB.config.labels.de.message = Object.assign({}, _config.messageLabels, _KDB.config.labels.de.message || {});
     return _KDB.config.labels.de.message;
   }
@@ -136,7 +133,6 @@ define([
 
   function registerMessageService(_KDB) {
     var labels;
-    _KDB.services = _KDB.services || {};
     _runtime.ensureMessageRuntime(_KDB).messagesFacet = readMessagesFacet(_KDB);
     if (_KDB.services.message) return _KDB.services.message;
     labels = registerLabels(_KDB);

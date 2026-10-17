@@ -102,7 +102,7 @@ define([
 
   function notifySaveIssue(_KDB, severity, messageText) {
     const messageService = _KDB.services && _KDB.services.message;
-    if (!messageService || typeof messageService.showAlert !== "function") { return; }
+    if (!messageService) { return; }
     try {
       messageService.showAlert({ title: ALERT_TITLE, severity: severity, message: messageText });
     } catch (messageError) {

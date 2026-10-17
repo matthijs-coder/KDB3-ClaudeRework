@@ -33,7 +33,7 @@ define([
 
   async function readHelperCandidates(_KDB, _context) {
     var launchpad = _KDB.api && _KDB.api.launchpad;
-    if (!launchpad || typeof launchpad.dispatch !== "function") {
+    if (!launchpad) {
       return _results.failure("WIDGET_TOPN_UNAVAILABLE_DEPENDENCY", "launchpad dispatch is unavailable.");
     }
     var tabId = resolveOwnerTabId(_KDB, _context);

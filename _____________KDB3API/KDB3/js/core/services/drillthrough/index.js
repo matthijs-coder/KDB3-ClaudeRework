@@ -42,8 +42,6 @@ define([
     var tableData;
     var existing;
     var service;
-    _KDB.services = _KDB.services || {};
-    _KDB.config = _KDB.config || {};
     _KDB.config.labels = _KDB.config.labels || {};
     _KDB.config.labels.de = _KDB.config.labels.de || {};
     existing = _KDB.config.labels.de.drillthrough && typeof _KDB.config.labels.de.drillthrough === "object"

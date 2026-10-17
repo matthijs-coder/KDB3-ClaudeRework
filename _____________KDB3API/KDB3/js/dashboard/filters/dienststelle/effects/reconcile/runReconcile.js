@@ -15,7 +15,7 @@ define([
     var tableData = _KDB && _KDB.services ? _KDB.services.tableData : null;
     var tableInput;
     var tableState;
-    if (!tableData || typeof tableData.readTableState !== "function" || !_tableKey) {
+    if (!tableData || !_tableKey) {
       return null;
     }
     tableInput = _config.buildTableInput(_KDB, _tableKey);
@@ -65,7 +65,7 @@ define([
     if (areKeysReady(_KDB, keys)) {
       return Promise.resolve(true);
     }
-    if (!tableData || typeof tableData.waitForRows !== "function") {
+    if (!tableData) {
       return Promise.resolve(false);
     }
     inputs = buildInputs(_KDB, keys);
@@ -184,7 +184,7 @@ define([
     }
     var sichtApi = _KDB && _KDB.api ? _KDB.api.sicht : null;
     var sichtState;
-    if (sichtApi && typeof sichtApi.getState === "function") {
+    if (sichtApi) {
       sichtState = sichtApi.getState();
       if (sichtState && sichtState.activeSichtValue) {
         return String(sichtState.activeSichtValue);

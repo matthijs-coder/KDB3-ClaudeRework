@@ -179,7 +179,7 @@ define([
       return _state.reuseByScopeKey(_KDB, providedScope) || providedScope;
     }
     tabsApi = _KDB && _KDB.api ? _KDB.api.tabs : null;
-    if (payload.tabId && tabsApi && typeof tabsApi.dispatch === "function") {
+    if (payload.tabId && tabsApi) {
       result = await tabsApi.dispatch({
         type: "tabs/resolveFilterScopeTargets",
         payload: { source: "nativeMultiSelectConfirm" }

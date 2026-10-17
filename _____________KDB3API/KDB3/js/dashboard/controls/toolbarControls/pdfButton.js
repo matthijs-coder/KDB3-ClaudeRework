@@ -15,7 +15,7 @@ define([
 
   function readExportService(_KDB) {
     var service = _KDB.services && _KDB.services.dashboardPdf;
-    return service && typeof service.exportDashboardPdf === "function" ? service : null;
+    return service || null;
   }
 
   function buildViewModel(isAvailable, isBusy, label) {
@@ -30,7 +30,7 @@ define([
     var messageService = _KDB.services && _KDB.services.message;
     var message = result && result.errorMessage ? result.errorMessage : LABELS.fatalMessage;
     console.error("[pdfExportControls.export]", result);
-    if (!messageService || typeof messageService.showAlert !== "function") return;
+    if (!messageService) return;
     try {
       messageService.showAlert({ message: message, severity: "error", title: LABELS.fatalTitle });
     } catch (error) {

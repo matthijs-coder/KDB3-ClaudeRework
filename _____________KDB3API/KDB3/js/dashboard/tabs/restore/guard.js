@@ -60,7 +60,6 @@ define(["../config.js", "../slots.js"], function (_config, _slots) {
   }
 
   function ensureRuntime(_KDB) {
-    _KDB.runtime = _KDB.runtime || {};
     _KDB.runtime.tabs = _KDB.runtime.tabs || {};
     return _KDB.runtime.tabs;
   }

@@ -39,7 +39,7 @@ define([
     }
 
     const api = _KDB && _KDB.api ? _KDB.api.widgetBase : null;
-    if (!api || typeof api.dispatch !== "function") {
+    if (!api) {
       failPhase(run, _errorCodes.codes.WRITEBACK_WIDGET_RESTORE_FAILED,
         "owner API \"" + OWNER + "\" is not available for " + TYPE,
         { type: TYPE, tabIdx: tabIdx, tabId: tabId });

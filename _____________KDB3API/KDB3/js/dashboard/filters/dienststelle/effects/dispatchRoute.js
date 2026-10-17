@@ -61,7 +61,7 @@ define([
   // stays as the answer while api.tabs is not registered.
   function isTabMutationRunning(_KDB) {
     var tabsApi = _KDB && _KDB.api ? _KDB.api.tabs : null;
-    if (tabsApi && typeof tabsApi.isMutationRunning === "function") {
+    if (tabsApi) {
       return tabsApi.isMutationRunning();
     }
     return _kitRuntime.readTabsBusy(_KDB, ["tabMutation"]);

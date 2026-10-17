@@ -77,11 +77,11 @@ define([
   function warnSettingsMessage(_KDB, payload) {
     var service = _KDB && _KDB.services && _KDB.services.message;
     var severity = SEVERITIES[payload.severity] === 1 ? payload.severity : "warning";
-    if (service && typeof service.notify === "function") {
+    if (service) {
       var anchor = payload.fieldId ? document.getElementById(payload.fieldId) : null;
       var notification = { code: payload.code, message: payload.message, severity: severity };
       try {
-        if (anchor && typeof service.notifyAnchored === "function") {
+        if (anchor) {
           notification.anchor = anchor;
           service.notifyAnchored(notification);
         } else {

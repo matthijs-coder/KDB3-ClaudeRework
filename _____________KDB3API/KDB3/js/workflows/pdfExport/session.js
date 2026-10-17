@@ -23,7 +23,7 @@ define(["./config.js"], function (_config) {
       var loadingService = _KDB.services && _KDB.services.loading;
       var selectors = _KDB.elements && _KDB.elements.selectors ? _KDB.elements.selectors.dashboardPdf : null;
       var selector = selectors && selectors.loadingMountSelector ? selectors.loadingMountSelector : "";
-      if (!loadingService || typeof loadingService.startLoading !== "function") {
+      if (!loadingService) {
         addSessionWarning(runSession, "loading", "DASHBOARD_PDF_LOADING_SERVICE_MISSING", "Loading service is unavailable.");
         return;
       }
@@ -55,7 +55,7 @@ define(["./config.js"], function (_config) {
     try {
       if (!runSession.loadingHandle) return;
       var loadingService = _KDB.services && _KDB.services.loading;
-      if (loadingService && typeof loadingService.finishLoading === "function") {
+      if (loadingService) {
         loadingService.finishLoading({ handle: runSession.loadingHandle });
         return;
       }
@@ -70,7 +70,7 @@ define(["./config.js"], function (_config) {
     try {
       if (!(runSession && runSession.loadingHandle)) return;
       var loadingService = _KDB.services && _KDB.services.loading;
-      if (!loadingService || typeof loadingService.updateLoadingMessage !== "function") {
+      if (!loadingService) {
         console.warn("[dashboardPdf.loading] DASHBOARD_PDF_LOADING_UPDATE_UNAVAILABLE Loading service is unavailable for caption update.");
         return;
       }
@@ -94,7 +94,7 @@ define(["./config.js"], function (_config) {
   function updateTabCaption(_KDB, handle, messageKey, n, m) {
     var loadingService = _KDB.services && _KDB.services.loading;
     try {
-      if (!handle || !loadingService || typeof loadingService.updateLoadingMessage !== "function") return;
+      if (!handle || !loadingService) return;
       var message = formatTabCaption(_KDB, messageKey, n, m);
       if (message) loadingService.updateLoadingMessage({ handle: handle, message: message });
     } catch (error) {

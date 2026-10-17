@@ -129,7 +129,7 @@ define([
   async function waitForVisualContentReady(_KDB, _widgetId) {
     const widgetId = String(_widgetId || "");
     const api = _KDB && _KDB.api ? _KDB.api.widgetVis : null;
-    if (!api || typeof api.dispatch !== "function") {
+    if (!api) {
       return { ok: false, errorCode: "WIDGET_SETTINGS_WIDGET_VIS_API_MISSING" };
     }
     try {

@@ -130,10 +130,6 @@ define([
   }
 
   function registerDragDrop(_KDB) {
-    _KDB.state = _KDB.state || {};
-    _KDB.api = _KDB.api || {};
-    _KDB.elements = _KDB.elements || {};
-    _KDB.elements.selectors = _KDB.elements.selectors || {};
     if (!_KDB.state.dragDrop) {
       _KDB.state.dragDrop = _state.createInitialDragDropState();
     }

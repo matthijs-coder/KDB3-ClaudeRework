@@ -3,7 +3,6 @@ define(["./createAuthoringController"], function (_createAuthoringController) {
 
   function attachDashboardFacet(_KDB) {
     var host = _KDB.services && _KDB.services.cognosHost;
-    _KDB.runtime = _KDB.runtime || {};
     _KDB.runtime.authoring = _KDB.runtime.authoring || {};
     _KDB.runtime.authoring.dashboardFacet = host && host.dashboard ? host.dashboard : null;
     _createAuthoringController.syncFromDashboardMode(_KDB);

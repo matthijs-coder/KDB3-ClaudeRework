@@ -8,7 +8,7 @@ define([], function () {
       if (!widgetId || !widgetEl || widgetEl.nodeType !== 1 || context.widgetType !== "live" || isReplay) {
         return;
       }
-      if (!loading || typeof loading.startLoading !== "function") {
+      if (!loading) {
         return;
       }
       loading.startLoading({

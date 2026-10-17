@@ -261,7 +261,7 @@ define([
       return tabId;
     }
     try {
-      const state = _KDB.api && _KDB.api.tabs && typeof _KDB.api.tabs.getState === "function" ? _KDB.api.tabs.getState() : null;
+      const state = _KDB.api && _KDB.api.tabs ? _KDB.api.tabs.getState() : null;
       const tabTargets = state && state.tabTargets ? state.tabTargets : {};
       const keys = Object.keys(tabTargets);
       for (let keyIndex = 0; keyIndex < keys.length; keyIndex += 1) {

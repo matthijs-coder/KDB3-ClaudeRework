@@ -131,7 +131,7 @@ define([
       }
     });
     var api = _context._KDB && _context._KDB.api && _context._KDB.api.launchpad;
-    if (!api || typeof api.dispatch !== "function") { return { unevaluable: true, count: count }; }
+    if (!api) { return { unevaluable: true, count: count }; }
     var result = await api.dispatch({ type: "launchpad/readSlotWidgets", payload: { padKey: _padKey, tabId: _tabId, mode: "all" } });
     if (!result || result.ok !== true) { return { unevaluable: true, count: count }; }
     var sawUnevaluable = false;

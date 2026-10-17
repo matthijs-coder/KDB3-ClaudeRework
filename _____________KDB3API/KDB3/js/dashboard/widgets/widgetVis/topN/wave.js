@@ -57,7 +57,7 @@ define([
     if (!scopeId) {
       return null;
     }
-    if (!tabsApi || typeof tabsApi.dispatch !== "function") {
+    if (!tabsApi) {
       console.warn("[widgetVis.resolveWaveTabFromScope] tabs api missing", { scopeId: scopeId });
       return null;
     }
@@ -106,7 +106,7 @@ define([
 
   async function releaseTopNClaim(_KDB, _widgetId) {
     var api = _KDB.api && _KDB.api.widgetTopN;
-    if (!api || typeof api.dispatch !== "function") {
+    if (!api) {
       return;
     }
     try {

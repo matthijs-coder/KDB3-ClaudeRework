@@ -164,7 +164,7 @@ define([
     try {
       var loading = _KDB.services ? _KDB.services.loading : null;
       var widgetId = String(_widgetId || "");
-      if (!widgetId || !loading || typeof loading.finishLoading !== "function") {
+      if (!widgetId || !loading) {
         return;
       }
       loading.finishLoading({ mountKey: _config.RENDER_LOADING_MOUNT_KEY_PREFIX + widgetId });

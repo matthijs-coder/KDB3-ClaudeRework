@@ -30,7 +30,7 @@ define([
     var targetValue = _targetValue || {};
     var widgetId = String(targetValue.widgetId || "");
     var api = _KDB && _KDB.api ? _KDB.api.widgetText : null;
-    if (!widgetId || !api || typeof api.dispatch !== "function") {
+    if (!widgetId || !api) {
       return false;
     }
     var result = await api.dispatch({

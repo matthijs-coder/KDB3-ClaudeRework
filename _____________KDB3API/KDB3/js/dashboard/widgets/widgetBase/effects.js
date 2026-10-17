@@ -100,7 +100,7 @@ define([
       const api = _KDB && _KDB.api && _KDB.api.widgetSettings;
       const request = _request || {};
       const widgetId = request.widgetId;
-      if (!api || typeof api.dispatch !== "function" || !widgetId) {
+      if (!api || !widgetId) {
         return Promise.resolve(false);
       }
       const shellEl = request.shellEl;
@@ -131,7 +131,7 @@ define([
 
   function resolveMetricByCode(_KDB, _code) {
     const api = _KDB && _KDB.api && _KDB.api.metricsTree;
-    if (!api || typeof api.resolveMetricByCode !== "function") {
+    if (!api) {
       return Object.assign({}, EMPTY_METRIC);
     }
     const descriptor = api.resolveMetricByCode(_code);
@@ -211,7 +211,7 @@ define([
       const kind = request.kind;
       const widgetId = request.widgetId;
       const api = resolveContentApi(_KDB, kind);
-      if (!api || typeof api.dispatch !== "function") {
+      if (!api) {
         return Promise.resolve({ ok: false, errorCode: CONTENT_CREATE_FAILED, errorMessage: "Content owner API unavailable for kind " + kind + "." });
       }
       const action = buildContentAction(_KDB, kind, widgetId, request.payload || {});

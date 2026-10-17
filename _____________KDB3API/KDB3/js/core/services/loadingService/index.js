@@ -99,8 +99,6 @@ define([
   function mergeLoadingLabels(_KDB) {
     var existing;
     _KDB.config = _KDB.config || {};
-    _KDB.config.labels = _KDB.config.labels || {};
-    _KDB.config.labels.de = _KDB.config.labels.de || {};
     existing = _KDB.config.labels.de.loading;
     _KDB.config.labels.de.loading = Object.assign({}, _config.loadingLabels, existing && typeof existing === "object" ? existing : {});
   }

@@ -16,7 +16,7 @@ define(["../../core/utils/kit/async.js"], function (_async) {
       finish(_KDB);
       const options = _options || {};
       const loading = _KDB.services && _KDB.services.loading;
-      if (!loading || typeof loading.startLoading !== "function") { return null; }
+      if (!loading) { return null; }
       if (options.finishWhenReady === true && hasInnerPage(_KDB, options)) { return null; }
       const wrapper = resolvePageWrapper(_KDB, options);
       const mountEl = findInnerPage(wrapper, _KDB) || wrapper;
@@ -34,7 +34,7 @@ define(["../../core/utils/kit/async.js"], function (_async) {
     try {
       abortInnerPagePoll(_KDB);
       const loading = _KDB.services && _KDB.services.loading;
-      if (loading && typeof loading.finishLoading === "function") { loading.finishLoading({ mountKey: MOUNT_KEY }); }
+      if (loading) { loading.finishLoading({ mountKey: MOUNT_KEY }); }
     } catch (err) {
       console.warn("[tabs.pageLoading.finish] loading cover failed", err);
     }
@@ -65,7 +65,6 @@ define(["../../core/utils/kit/async.js"], function (_async) {
   }
 
   function ensureAbortControllers(_KDB) {
-    _KDB.runtime = _KDB.runtime || {};
     _KDB.runtime.tabs = _KDB.runtime.tabs || {};
     _KDB.runtime.tabs.abortControllers = _KDB.runtime.tabs.abortControllers || {};
     return _KDB.runtime.tabs.abortControllers;

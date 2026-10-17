@@ -1,4 +1,7 @@
-define(["../../../core/utils/tabSlots.js"], function (_tabSlots) {
+define([
+  "../../../core/config/assetBase.js",
+  "../../../core/utils/tabSlots.js"
+], function (_assetBase, _tabSlots) {
   "use strict";
 
   return {
@@ -12,7 +15,7 @@ define(["../../../core/utils/tabSlots.js"], function (_tabSlots) {
     POLL_INTERVAL_MS: 300,
     HYDRATE_TIMEOUT_MS: 30000,
     TRAVERSE_CLICK_DELAY_MS: 150,
-    EDIT_ICON_IMAGES_BASE: "./v1/ext/KDB3/images/",
+    EDIT_ICON_IMAGES_BASE: _assetBase.dotAssetPath("images/"),
     EDIT_ICON_CLASS: "kdb-tab-edit-icon",
     EDIT_ICON_WRAPPER_CLOSE_CLASS: "KDB_tabClose",
     EDIT_ICON_WRAPPER_DUPLICATE_CLASS: "KDB_tabCopy",

@@ -110,7 +110,7 @@ define(["../../../core/utils/convertUnitToPx.js"], function (_convertUnitToPx) {
 
   function applySettingsForAxes(_KDB, rt, axes) {
     const api = _KDB.api && _KDB.api.kdbControl;
-    const snapshot = api && typeof api.getState === "function" ? api.getState() : null;
+    const snapshot = api ? api.getState() : null;
     const dashboard = snapshot && snapshot.settings && snapshot.settings.dashboard;
 
     if (!dashboard) {

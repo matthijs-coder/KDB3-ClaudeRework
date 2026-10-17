@@ -1,6 +1,7 @@
 define([
+  "../../../core/config/assetBase.js",
   "../../../core/config/dropdownDefaults.js"
-], function (_dropdownDefaults) {
+], function (_assetBase, _dropdownDefaults) {
   "use strict";
 
   // START HERE for settings consequences: every settings kind, the owner that applies it and the
@@ -105,7 +106,7 @@ define([
   };
 
   function readImagePath() {
-    return "./v1/ext/KDB3/images/";
+    return _assetBase.dotAssetPath("images/");
   }
 
   const OPTIONS = {

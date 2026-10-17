@@ -57,7 +57,7 @@ define(["../state/ensureWritebackRuntime.js"], function (_ensureWritebackRuntime
     for (idx = 0; idx < _labelKeys.length; idx += 1) {
       labelKey = _labelKeys[idx];
       message = labels && labelKey ? labels[labelKey] : null;
-      if (!message || !messageService || typeof messageService.notify !== "function") {
+      if (!message || !messageService) {
         if (_warnSss) {
           console.warn("[writebackSet.notifyRestoreOutcome] specialSingleSelect restore info skipped");
         }
@@ -90,7 +90,7 @@ define(["../state/ensureWritebackRuntime.js"], function (_ensureWritebackRuntime
           return undefined;
         }
         messageService = _KDB.services && _KDB.services.message;
-        if (!messageService || typeof messageService.showAlert !== "function") {
+        if (!messageService) {
           return undefined;
         }
         messageService.showAlert({

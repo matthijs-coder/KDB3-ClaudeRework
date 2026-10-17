@@ -45,7 +45,7 @@ define([
         _event.preventDefault();
         _event.stopPropagation();
       }
-      if (!api || typeof api.dispatch !== "function") {
+      if (!api) {
         console.error("[widgetVis.canvasMaximizeClick] missing widgetVis api");
         return;
       }
