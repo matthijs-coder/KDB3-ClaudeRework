@@ -3,7 +3,9 @@ define(["./registerReplayHandlers.js"], function (_registerReplayHandlers) {
 
   function registerAll(_KDB, _manifest) {
     _manifest.entries.forEach(function (entry) {
-      entry.register(_KDB);
+      if (typeof entry.register === "function") {
+        entry.register(_KDB);
+      }
     });
   }
 

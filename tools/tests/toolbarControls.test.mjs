@@ -9,12 +9,6 @@ import { JS_ROOT } from "../lib/amd-graph.mjs";
 import { createFakeDom } from "./lib/toolbar-fake-dom.mjs";
 
 const KEYS = ["historyControls", "pdfExportControls", "wienKiControls", "shareControls"];
-const SHIMS = {
-  historyControls: "History",
-  pdfExportControls: "PdfExport",
-  wienKiControls: "WienKi",
-  shareControls: "Share"
-};
 
 // Markup produced by the four original modules (light toolbar), left to right.
 const GOLDEN_LIGHT = [
@@ -107,8 +101,7 @@ function createHarness(options = {}) {
       }
     }
   };
-  const register = (key) => loadAmd(path.join(JS_ROOT, `dashboard/controls/${key}/__orchestrator${SHIMS[key]}Controls.js`), { stubs })(_KDB);
-  KEYS.forEach(register);
+  loadAmd(path.join(JS_ROOT, "dashboard/controls/toolbarControls/index.js"), { stubs })(_KDB);
   const settle = async () => {
     await tick();
     dom.flushFrames();

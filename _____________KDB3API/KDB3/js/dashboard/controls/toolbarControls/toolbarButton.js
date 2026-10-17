@@ -137,7 +137,7 @@ define(["./config.js"], function (_config) {
    * @param {object} config id (key of config.BUTTONS), readTexts, icon ({ resolve } | { build }), defaultLabel,
    *   defaultViewModel, isUnavailable, onClick, and the optional labelAttributes, syncExtras, initialize,
    *   onDetach, onRegister, extendApi.
-   * @returns {object} button definition consumed by toolbarControls/index.js and toolbarHost.js
+   * @returns {object} button definition consumed by toolbarControls/registerButton.js and toolbarHost.js
    */
   function createToolbarButton(config) {
     var meta = BUTTONS[config.id];

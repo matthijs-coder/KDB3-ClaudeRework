@@ -6,9 +6,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHarness, deferred, flush } from './bootstrap-harness.mjs';
 
+// DELTA (W12 toolbar commit): one `toolbarControls` registration replaces the four button registrations; the four
+// buttons are still mounted and destroyed one by one (MOUNT_STEPS and EXPECTED_DESTROY are unchanged).
 const REGISTER_FEATURES = [
-  'header', 'footer', 'tabs', 'kdbControl', 'pageSurface', 'historyControls', 'pdfExportControls', 'wienKiControls',
-  'shareControls', 'launchpad', 'widgetBase', 'widgetSettings', 'widgetText', 'widgetVis', 'widgetDataTable', 'widgetTopN',
+  'header', 'footer', 'tabs', 'kdbControl', 'pageSurface', 'toolbarControls', 'launchpad', 'widgetBase', 'widgetSettings', 'widgetText', 'widgetVis', 'widgetDataTable', 'widgetTopN',
   'dragDrop', 'metricsTree', 'filterDock', 'singleSelect', 'dienststelle', 'sicht', 'specialSingleSelect', 'nativeMultiSelect',
 ];
 

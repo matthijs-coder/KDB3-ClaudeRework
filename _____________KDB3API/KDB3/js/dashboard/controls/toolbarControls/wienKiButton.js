@@ -1,5 +1,5 @@
 define([
-  "./index.js",
+  "./registerButton.js",
   "./config.js",
   "./toolbarButton.js",
   "./wienKiPopup.js"

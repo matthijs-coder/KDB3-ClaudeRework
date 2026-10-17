@@ -20,7 +20,7 @@ const actionsModule = loadAmd(at("actions.js"), { stubs: { document: domStub, co
 const syncFormControls = loadAmd(at("framework/syncFormControls.js"), { stubs: { console: quietConsole } });
 const history = loadAmd(at("history.js"));
 const restore = loadAmd(at("restore.js"));
-const registerKdbControl = loadAmd(at("__orchestratorKdbControl.js"), { stubs: { console: quietConsole } });
+const registerKdbControl = loadAmd(at("index.js"), { stubs: { console: quietConsole } });
 
 const dimensionAction = (value) => ({ type: "kdbControl/settings/setDashboardDimension", payload: { dimension: "width", value } });
 

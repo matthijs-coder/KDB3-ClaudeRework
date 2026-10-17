@@ -2,16 +2,24 @@
 // Run: node --test tools/tests/bootstrap-manifest.test.mjs
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { FEATURES, loadManifest, loadBootstrapModule } from './bootstrap-harness.mjs';
+import { FEATURES, TOOLBAR_API_KEYS, loadManifest, loadBootstrapModule } from './bootstrap-harness.mjs';
 
 const manifest = loadManifest();
 const byName = new Map(manifest.entries.map((entry) => [entry.name, entry]));
 
-test('manifest: names are unique, every entry registers, features keep the Phase 1 orchestrator order', () => {
+test('manifest: names are unique, every entry registers except the four toolbar buttons (one toolbarControls registration), features keep the mount order', () => {
   assert.equal(byName.size, manifest.entries.length);
-  for (const entry of manifest.entries) assert.equal(typeof entry.register, 'function', entry.name);
+  for (const entry of manifest.entries) {
+    if (TOOLBAR_API_KEYS.includes(entry.name)) assert.equal(entry.register, undefined, entry.name);
+    else assert.equal(typeof entry.register, 'function', entry.name);
+  }
   const featureNames = manifest.entries.filter((entry) => entry.mount).map((entry) => entry.name);
-  assert.deepEqual(featureNames, FEATURES.map((feature) => feature[0]));
+  const expected = FEATURES.map((feature) => feature[0]);
+  expected.splice(expected.indexOf('pageSurface') + 1, 0, ...TOOLBAR_API_KEYS);
+  assert.deepEqual(featureNames, expected);
+  const names = manifest.entries.map((entry) => entry.name);
+  assert.equal(names.indexOf('toolbarControls'), names.indexOf('pageSurface') + 1);
+  assert.equal(names.indexOf('historyControls'), names.indexOf('toolbarControls') + 1);
 });
 
 test('manifest: core steps register before the features, services before authoring', () => {
@@ -23,6 +31,7 @@ test('manifest: core steps register before the features, services before authori
 
 test('manifest: api keys match the keys the orchestrators publish', () => {
   for (const [name, , apiKey] of FEATURES) assert.equal(byName.get(name).api, apiKey, name);
+  for (const name of TOOLBAR_API_KEYS) assert.equal(byName.get(name).api, name);
   assert.equal(byName.get('authoring').api, 'authoring');
 });
 
