@@ -71,6 +71,108 @@ define(["./config.js"], function (_config) {
     };
   }
 
+  function withMeta(_state, _metaPatch) {
+    return Object.assign({}, _state, { meta: Object.assign({}, _state.meta, _metaPatch) });
+  }
+
+  function readErrorMessage(_payload) {
+    return _payload.errorMessage != null ? String(_payload.errorMessage) : "";
+  }
+
+  function reduceInventoryReconciled(_state, _payload) {
+    return withMeta(_state, {
+      lastInventoryGeneration: _payload.inventoryGeneration != null
+        ? _payload.inventoryGeneration
+        : _payload.generation,
+      lastInventorySource: _payload.source || null,
+      lastInventoryAt: _payload.timestamp
+    });
+  }
+
+  function reduceStartupDefaultFailed(_state, _payload) {
+    return Object.assign({}, withMeta(_state, { startupDefaultInProgress: false }), {
+      errorCode: _payload.errorCode || "SICHT_STARTUP_DEFAULT_FAILED",
+      errorMessage: readErrorMessage(_payload)
+    });
+  }
+
+  function reduceDockHandoff(_state, _payload) {
+    return withMeta(_state, {
+      lastHandoffAt: _payload.timestamp != null ? _payload.timestamp : _state.meta.lastHandoffAt
+    });
+  }
+
+  function readConfirmedSelection(_selection) {
+    return {
+      displayValue: _selection.displayValue != null ? String(_selection.displayValue) : "",
+      useValue: _selection.useValue != null ? String(_selection.useValue) : "",
+      displaySource: _selection.displaySource != null ? String(_selection.displaySource) : "unknown"
+    };
+  }
+
+  function readCommittedMeta(_state, _payload) {
+    var nextMeta = Object.assign({}, _state.meta, {
+      lastCommittedAt: _payload.timestamp != null ? _payload.timestamp : _state.meta.lastCommittedAt
+    });
+    if (_payload.isStartupDefault === true) {
+      nextMeta.startupDefaultCommitted = true;
+      nextMeta.startupDefaultInProgress = false;
+    }
+    if (_payload.isParameterClear === true) {
+      nextMeta.startupDefaultCommitted = false;
+      nextMeta.startupDefaultInProgress = false;
+    }
+    return nextMeta;
+  }
+
+  function reduceCommitted(_state, _payload) {
+    var selection = _payload.selection || {};
+    var nextMeta = readCommittedMeta(_state, _payload);
+    return Object.assign({}, _state, {
+      lifecycle: "ready",
+      activeFilterInstanceId: _payload.filterInstanceId != null
+        ? String(_payload.filterInstanceId)
+        : _state.activeFilterInstanceId,
+      currentSelection: readConfirmedSelection(selection),
+      backupSelection: readConfirmedSelection(selection),
+      pendingSelection: {
+        displayValue: selection.displayValue != null ? String(selection.displayValue) : ""
+      },
+      activeSichtValue: selection.displayValue
+        ? String(selection.displayValue) : null,
+      meta: nextMeta,
+      lastHistoryStep: _payload.historyStep || null,
+      errorCode: null,
+      errorMessage: null
+    });
+  }
+
+  function reduceDraft(_state, _payload) {
+    var pendingSelection = _payload.pendingSelection || {};
+    return Object.assign({}, _state, {
+      pendingSelection: {
+        displayValue: pendingSelection.displayValue != null
+          ? String(pendingSelection.displayValue)
+          : (_payload.pendingDisplayValue || "")
+      }
+    });
+  }
+
+  function reduceError(_state, _payload) {
+    return Object.assign({}, _state, {
+      lifecycle: "error",
+      errorCode: _payload.errorCode || "SICHT_ERROR",
+      errorMessage: readErrorMessage(_payload)
+    });
+  }
+
+  function reduceDestroy(_state) {
+    return Object.assign({}, withMeta(_state, { lastHandoffAt: null }), {
+      lifecycle: "disposed",
+      pendingSelection: { displayValue: "" }
+    });
+  }
+
   function createSichtReducer() {
     return function reducer(_state, _action) {
       var state = _state || createInitialState();
@@ -92,82 +194,22 @@ define(["./config.js"], function (_config) {
         });
       }
       if (action.type === actions.SINGLE_SELECT_INVENTORY_RECONCILED) {
-        return Object.assign({}, state, {
-          meta: Object.assign({}, state.meta, {
-            lastInventoryGeneration: payload.inventoryGeneration != null
-              ? payload.inventoryGeneration
-              : payload.generation,
-            lastInventorySource: payload.source || null,
-            lastInventoryAt: payload.timestamp
-          })
-        });
+        return reduceInventoryReconciled(state, payload);
       }
       if (action.type === actions.STARTUP_DEFAULT_IN_PROGRESS) {
-        return Object.assign({}, state, {
-          meta: Object.assign({}, state.meta, {
-            startupDefaultInProgress: true
-          })
-        });
+        return withMeta(state, { startupDefaultInProgress: true });
       }
       if (action.type === actions.STARTUP_DEFAULT_FAILED) {
-        return Object.assign({}, state, {
-          meta: Object.assign({}, state.meta, {
-            startupDefaultInProgress: false
-          }),
-          errorCode: payload.errorCode || "SICHT_STARTUP_DEFAULT_FAILED",
-          errorMessage: payload.errorMessage != null ? String(payload.errorMessage) : ""
-        });
+        return reduceStartupDefaultFailed(state, payload);
       }
       if (
         action.type === actions.FILTER_DOCK_STATE_CHANGED ||
         action.type === actions.FILTER_DOCK_POPUP_READY
       ) {
-        return Object.assign({}, state, {
-          meta: Object.assign({}, state.meta, {
-            lastHandoffAt: payload.timestamp != null ? payload.timestamp : state.meta.lastHandoffAt
-          })
-        });
+        return reduceDockHandoff(state, payload);
       }
       if (action.type === actions.SINGLE_SELECT_COMMITTED) {
-        var selection = payload.selection || {};
-        var nextMeta = Object.assign({}, state.meta, {
-          lastCommittedAt: payload.timestamp != null ? payload.timestamp : state.meta.lastCommittedAt
-        });
-        if (payload.isStartupDefault === true) {
-          nextMeta.startupDefaultCommitted = true;
-          nextMeta.startupDefaultInProgress = false;
-        }
-        if (payload.isParameterClear === true) {
-          nextMeta.startupDefaultCommitted = false;
-          nextMeta.startupDefaultInProgress = false;
-        }
-        return Object.assign({}, state, {
-          lifecycle: "ready",
-          activeFilterInstanceId: payload.filterInstanceId != null
-            ? String(payload.filterInstanceId)
-            : state.activeFilterInstanceId,
-          currentSelection: {
-            displayValue: selection.displayValue != null ? String(selection.displayValue) : "",
-            useValue: selection.useValue != null ? String(selection.useValue) : "",
-            displaySource: selection.displaySource != null
-              ? String(selection.displaySource) : "unknown"
-          },
-          backupSelection: {
-            displayValue: selection.displayValue != null ? String(selection.displayValue) : "",
-            useValue: selection.useValue != null ? String(selection.useValue) : "",
-            displaySource: selection.displaySource != null
-              ? String(selection.displaySource) : "unknown"
-          },
-          pendingSelection: {
-            displayValue: selection.displayValue != null ? String(selection.displayValue) : ""
-          },
-          activeSichtValue: selection.displayValue
-            ? String(selection.displayValue) : null,
-          meta: nextMeta,
-          lastHistoryStep: payload.historyStep || null,
-          errorCode: null,
-          errorMessage: null
-        });
+        return reduceCommitted(state, payload);
       }
       if (action.type === actions.HISTORY_STEP_FINALIZED) {
         return Object.assign({}, state, {
@@ -178,30 +220,13 @@ define(["./config.js"], function (_config) {
         action.type === actions.SINGLE_SELECT_DRAFT_CHANGED ||
         action.type === actions.SINGLE_SELECT_DRAFT_REVERTED
       ) {
-        var pendingSelection = payload.pendingSelection || {};
-        return Object.assign({}, state, {
-          pendingSelection: {
-            displayValue: pendingSelection.displayValue != null
-              ? String(pendingSelection.displayValue)
-              : (payload.pendingDisplayValue || "")
-          }
-        });
+        return reduceDraft(state, payload);
       }
       if (action.type === actions.ERROR) {
-        return Object.assign({}, state, {
-          lifecycle: "error",
-          errorCode: payload.errorCode || "SICHT_ERROR",
-          errorMessage: payload.errorMessage != null ? String(payload.errorMessage) : ""
-        });
+        return reduceError(state, payload);
       }
       if (action.type === actions.DESTROY) {
-        return Object.assign({}, state, {
-          lifecycle: "disposed",
-          pendingSelection: { displayValue: "" },
-          meta: Object.assign({}, state.meta, {
-            lastHandoffAt: null
-          })
-        });
+        return reduceDestroy(state);
       }
       return state;
     };
