@@ -59,7 +59,7 @@ define([
 
   function readOwnerState(_KDB) {
     const api = _KDB && _KDB.api ? _KDB.api.dienststelle : null;
-    return api && typeof api.getState === "function" ? api.getState() : null;
+    return api ? api.getState() : null;
   }
 
   function extractUseValues(currentValues) {

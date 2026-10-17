@@ -54,7 +54,7 @@ define([
   async function ensureDashboardTabsTraversed(_KDB, _diagnostics, orderedTabs, tabsState) {
     if (orderedTabs.length === 0 || !needsTraversal(orderedTabs, tabsState)) return;
     const tabsApi = _KDB && _KDB.api ? _KDB.api.tabs : null;
-    if (!tabsApi || typeof tabsApi.dispatch !== "function") {
+    if (!tabsApi) {
       _diagnostics.push(_errorCodes.makeDiagnostic(
         _errorCodes.codes.WRITEBACK_TABS_NOT_READY, "get",
         "tabs traversal barrier failed; widgets on not-yet-loaded dashboard tabs may be missing"

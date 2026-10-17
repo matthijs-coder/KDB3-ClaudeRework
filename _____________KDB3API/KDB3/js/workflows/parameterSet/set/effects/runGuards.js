@@ -11,7 +11,7 @@ define([
 
   function historyBeginGuarded(_KDB, run) {
     const history = _KDB && _KDB.services ? _KDB.services.history : null;
-    if (!history || typeof history.beginWritebackRestore !== "function") {
+    if (!history) {
       // historyService writeback delta not registered: record explicitly
       // instead of silently continuing without a guard (fail closed).
       recordHistoryGuardFailure(run, "historyBegin",
@@ -31,7 +31,7 @@ define([
 
   function historyFinishGuarded(_KDB, run, outcome, baseline) {
     const history = _KDB && _KDB.services ? _KDB.services.history : null;
-    if (!history || typeof history.finishWritebackRestore !== "function") {
+    if (!history) {
       recordHistoryGuardFailure(run, "historyFinish",
         "history.finishWritebackRestore is not available (history writeback delta not implemented)");
       return;
@@ -70,7 +70,7 @@ define([
         return false;
       }
       const loading = _KDB && _KDB.services ? _KDB.services.loading : null;
-      if (!loading || typeof loading.startLoading !== "function") {
+      if (!loading) {
         return false;
       }
       const mountEl = readSetLoadingMountEl(_KDB);
@@ -97,7 +97,7 @@ define([
         return;
       }
       const loading = _KDB && _KDB.services ? _KDB.services.loading : null;
-      if (loading && typeof loading.finishLoading === "function") {
+      if (loading) {
         loading.finishLoading({ handle: run.loadingHandle });
       }
     } catch (error) {

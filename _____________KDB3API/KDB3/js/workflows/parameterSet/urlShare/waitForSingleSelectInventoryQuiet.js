@@ -13,8 +13,8 @@ define(["../../../core/utils/kit/async.js"], function (_async) {
     if (_signal && _signal.aborted) return { aborted: true };
     filterDockApi = _KDB && _KDB.api && _KDB.api.filterDock;
     singleSelectApi = _KDB && _KDB.api && _KDB.api.singleSelect;
-    if (!filterDockApi || typeof filterDockApi.getState !== "function") return null;
-    if (!singleSelectApi || typeof singleSelectApi.getState !== "function") return null;
+    if (!filterDockApi) return null;
+    if (!singleSelectApi) return null;
     filterDockState = filterDockApi.getState();
     singleSelectState = singleSelectApi.getState();
     if (filterDockState == null || singleSelectState == null) return null;

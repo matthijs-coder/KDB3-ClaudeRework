@@ -9,7 +9,7 @@ define([
 
   async function collectFilterTargets(_KDB) {
     const tabsApi = _KDB && _KDB.api ? _KDB.api.tabs : null;
-    if (!tabsApi || typeof tabsApi.dispatch !== "function") {
+    if (!tabsApi) {
       throw _errorCodes.createWritebackError(
         _errorCodes.codes.WRITEBACK_TABS_NOT_READY,
         "get",

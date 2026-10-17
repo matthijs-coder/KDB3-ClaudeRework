@@ -80,7 +80,7 @@ define([
 
   function captureOriginalActive(_KDB) {
     const api = _KDB && _KDB.api ? _KDB.api.tabs : null;
-    if (!api || typeof api.getState !== "function") { return null; }
+    if (!api) { return null; }
     const state = api.getState() || {};
     const index = typeof state.activeIndex === "number" ? state.activeIndex : null;
     const tab = index !== null && state.byIndex ? state.byIndex[String(index)] : null;

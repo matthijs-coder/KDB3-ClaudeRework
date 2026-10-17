@@ -6,7 +6,7 @@ define([
   function collectNativeMultiSelect(_KDB, diagnostics, liveTabTargets) {
     try {
       var api = _KDB && _KDB.api ? _KDB.api.nativeMultiSelect : null;
-      if (!api || typeof api.dispatch !== "function") {
+      if (!api) {
         diagnostics.push(_errorCodes.makeDiagnostic(
           _errorCodes.codes.WRITEBACK_SKIPPED_BY_DESIGN,
           "get",

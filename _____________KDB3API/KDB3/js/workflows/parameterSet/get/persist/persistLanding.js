@@ -36,7 +36,7 @@ define([
       };
 
       const tabsApi = _KDB && _KDB.api && _KDB.api.tabs;
-      const tabsState = tabsApi && typeof tabsApi.getState === "function" ? tabsApi.getState() : null;
+      const tabsState = tabsApi ? tabsApi.getState() : null;
       const capturedIndex = tabsState ? tabsState.activeIndex : undefined;
       const firstVisible = readFirstVisibleDashboardIndex(tabsState);
       if (capturedIndex === firstVisible) { return; }
@@ -98,7 +98,7 @@ define([
   async function dispatchPersistLanding(_KDB, _tabIndex) {
     try {
       const tabsApi = _KDB && _KDB.api && _KDB.api.tabs;
-      if (!tabsApi || typeof tabsApi.dispatch !== "function") {
+      if (!tabsApi) {
         console.warn("[writebackGet.persistLanding] tabs dispatch unavailable");
         return false;
       }

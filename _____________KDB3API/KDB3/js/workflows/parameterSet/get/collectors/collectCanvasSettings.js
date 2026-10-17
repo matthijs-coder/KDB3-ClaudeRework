@@ -175,7 +175,7 @@ define([
 
   function readKdbControlState(_KDB) {
     const api = _KDB && _KDB.api ? _KDB.api.kdbControl : null;
-    return api && typeof api.getState === "function" ? api.getState() : null;
+    return api ? api.getState() : null;
   }
 
   return collectCanvasSettings;

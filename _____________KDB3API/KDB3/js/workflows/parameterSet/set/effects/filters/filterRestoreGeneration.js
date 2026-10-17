@@ -31,7 +31,7 @@ define([
   // Owner state comes from the published singleSelect getState(); an absent or destroyed owner reads as no inventory.
   function readInventory(_KDB) {
     const api = _KDB && _KDB.api ? _KDB.api.singleSelect : null;
-    const state = api && typeof api.getState === "function" ? api.getState() : null;
+    const state = api ? api.getState() : null;
     return state && state.inventory ? state.inventory : null;
   }
 

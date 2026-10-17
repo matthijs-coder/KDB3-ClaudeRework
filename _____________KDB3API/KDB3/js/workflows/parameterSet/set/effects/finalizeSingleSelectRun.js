@@ -5,7 +5,7 @@ define([
 
   async function finalizeSingleSelectRun(_KDB, run, outcome) {
     const api = _KDB && _KDB.api ? _KDB.api.singleSelect : null;
-    if (!api || typeof api.dispatch !== "function") {
+    if (!api) {
       return [
         _errorCodes.makeDiagnostic(
           _errorCodes.codes.WRITEBACK_FILTER_RESTORE_FAILED,

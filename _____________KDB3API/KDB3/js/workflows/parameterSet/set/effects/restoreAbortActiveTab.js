@@ -10,7 +10,7 @@ define(["../../../../core/config/writebackErrorCodes.js"], function (_errorCodes
     if (_outcome === "committed" || _outcome === "degraded") { return []; }
     if (!run || !run.originalActive || typeof run.originalActive.index !== "number") { return []; }
     const api = _KDB && _KDB.api ? _KDB.api.tabs : null;
-    if (!api || typeof api.dispatch !== "function") { return []; }
+    if (!api) { return []; }
     try {
       const result = await api.dispatch({
         type: "tabs/parameterSetAbortLandingRequested",

@@ -25,7 +25,7 @@ define([
 
   function startWritebackGetPersistLoading(_KDB) {
     const loading = readLoadingService(_KDB);
-    if (!loading || typeof loading.startLoading !== "function") {
+    if (!loading) {
       return null;
     }
     try {
@@ -61,7 +61,7 @@ define([
       const handle = runtime.getPersistLoadingHandle;
       runtime.getPersistLoadingHandle = null;
       const loading = readLoadingService(_KDB);
-      if (handle && loading && typeof loading.finishLoading === "function") {
+      if (handle && loading) {
         loading.finishLoading({ handle: handle });
       }
     } catch (error) {

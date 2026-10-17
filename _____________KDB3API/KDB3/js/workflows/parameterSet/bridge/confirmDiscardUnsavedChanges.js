@@ -29,7 +29,7 @@ define([
         return false;
       }
       svc = _KDB.services && _KDB.services.message;
-      if (!svc || typeof svc.confirm !== "function") {
+      if (!svc) {
         console.warn("[writeback.confirmDiscardUnsavedChanges] messageService unavailable — restore blocked (fail closed)");
         _hostParameterSetSelect.revertSelect(runtime);
         return false;

@@ -11,7 +11,7 @@ define([
 
   function readVisibleTabsManifest(_KDB, labels) {
     var api = _KDB.api && _KDB.api.tabs;
-    var state = api && typeof api.getState === "function" ? api.getState() : null;
+    var state = api ? api.getState() : null;
     if (!state || !Array.isArray(state.visibleTabs)) {
       return {
         activeIndex: null,
@@ -124,7 +124,7 @@ define([
     };
     try {
       var api = readWidgetVisApi(_KDB);
-      var state = api && typeof api.getState === "function" ? api.getState() : null;
+      var state = api ? api.getState() : null;
       if (state === undefined || state === null) return stateUnavailable(null);
       if (!state.byId || typeof state.byId !== "object") return { ok: true, widgetIds: [], skipped: true };
       var widgetIds = Object.keys(state.byId).filter(function (key) {
@@ -140,7 +140,7 @@ define([
   async function dispatchMaximizeToggle(_KDB, widgetId, nextMaximized) {
     try {
       var api = readWidgetVisApi(_KDB);
-      if (!api || typeof api.dispatch !== "function") {
+      if (!api) {
         return { ok: false, widgetId: widgetId, errorCode: FOCUS_STATE_UNAVAILABLE, errorMessage: "widgetVis.dispatch is unavailable." };
       }
       var result = await api.dispatch({

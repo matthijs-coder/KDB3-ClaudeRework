@@ -63,7 +63,7 @@ define([
     var recoverCopy = readRecoverCopy(_mapped);
     var restoreResult;
     _runtime.pendingUrlShareMessage = { parameterId: _mapped.parameterId, copy: recoverCopy };
-    if (!writebackSet || typeof writebackSet.restore !== "function") {
+    if (!writebackSet) {
       return { kind: "failed", parameterId: _mapped.parameterId };
     }
     try {
