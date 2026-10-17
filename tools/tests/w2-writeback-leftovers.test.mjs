@@ -8,6 +8,7 @@ import { JS_ROOT } from "../lib/amd-graph.mjs";
 
 const WB = path.join(JS_ROOT, "core/services/writeback");
 const publish = loadAmd(path.join(WB, "set/effects/publishRestoreTabCaption.js"));
+const tabsSelectors = loadAmd(path.join(JS_ROOT, "dashboard/tabs/selectors.js"));
 
 const LABELS = {
   tabProgressNamedCounted: "Registerkarte {n} von {m}: {name}",
@@ -22,11 +23,14 @@ function tab(index, name) {
 function makeKdb({ labels = LABELS, tabs = [tab(0, "Alpha"), tab(1, ""), tab(2, "Gamma")], updates, updateResult } = {}) {
   const byIndex = {};
   tabs.forEach((entry) => { byIndex[String(entry.index)] = entry; });
-  return {
+  // The tabs owner is read through its published getState(); the raw state stays for the owner selector behind it.
+  const kdb = {
     state: { tabs: { order: tabs.map((entry) => entry.index), byIndex } },
     config: { labels: { de: { loading: labels } } },
     services: { loading: { updateLoadingMessage: (arg) => { updates.push(arg); return updateResult; } } }
   };
+  kdb.api = { tabs: { getState: () => tabsSelectors.readTabsState(kdb) } };
+  return kdb;
 }
 
 const RUN = { loadingStarted: true, loadingHandle: { mountKey: "m" } };

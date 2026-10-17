@@ -211,6 +211,8 @@ Catalog entry for `_____________KDB3API/contracts/dragDrop.md` Section 8. Emitte
 
 Catalog entry for `_____________KDB3API/contracts/_archive/tabs-activationEvent-contractdelta.md` and `_____________KDB3API/contracts/_archive/tabs-kdbControl-clickAhead-follow-contractdelta.md`. Emitter uses `_KDB.events` per `events.mdc`. **Status: approved and implemented 2026-07-11; click-ahead 2026-09-04, Cognos groen.**
 
+The event names and the `tabs/*` action types live in `KDB3/js/core/events/tabs.js` (`EVENTS`, `ACTIONS`) so core services (writeback) import them without importing tabs; `dashboard/tabs/events/eventNames.js` and `config/actionTypes.js` re-export the same objects (refactor Phase 2 W10).
+
 ### `tabs:activationStarted`
 
 - **Type:** fact

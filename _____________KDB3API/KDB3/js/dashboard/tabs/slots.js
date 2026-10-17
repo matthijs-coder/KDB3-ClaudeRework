@@ -1,15 +1,10 @@
-define(["./config/defaults.js"], function (_defaults) {
+define(["../../core/utils/tabSlots.js"], function (_tabSlots) {
   "use strict";
 
-  // A tab without a role counts as a dashboard tab when it is not the helper and
-  // sits below maxUserTabs (state.limits when given, as collectTabs.js does on the GET side).
-  function isDashboardTab(tab, state) {
-    if (!tab) { return false; }
-    if (tab.role) { return tab.role === "dashboard"; }
-    const limits = state && state.limits;
-    const maxUserTabs = limits && typeof limits.maxUserTabs === "number" ? limits.maxUserTabs : _defaults.MAX_USER_TABS;
-    return tab.isHelper !== true && tab.index < maxUserTabs;
-  }
+  // The rules live in core/utils/tabSlots.js (writeback shares them); a tab without a role counts as a dashboard tab
+  // when it is not the helper and sits below maxUserTabs (state.limits when given).
+  const isDashboardTab = _tabSlots.isDashboardTab;
+  const listDashboardSlots = _tabSlots.listDashboardSlots;
 
   function isVisibleUserTab(tab) {
     return !!tab && tab.visible === true && isDashboardTab(tab);
@@ -28,17 +23,6 @@ define(["./config/defaults.js"], function (_defaults) {
       position += 1;
     }
     return null;
-  }
-
-  // Dashboard-role tabs in tabIdx order: the array position of each tab IS its
-  // writeback tabIdx, matching the GET-side convention in collectTabs.js.
-  function listDashboardSlots(_state) {
-    const state = _state || {};
-    const order = Array.isArray(state.order) ? state.order : [];
-    const byIndex = state.byIndex || {};
-    return order
-      .map(function (physicalIndex) { return byIndex[String(physicalIndex)]; })
-      .filter(function (tab) { return isDashboardTab(tab, state); });
   }
 
   function resolveDashboardOrderIndex(state, tabIndex) {

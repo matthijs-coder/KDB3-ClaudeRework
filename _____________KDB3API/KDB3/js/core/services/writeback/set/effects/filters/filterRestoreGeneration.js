@@ -1,8 +1,7 @@
 define([
   "../../config/restoreConstants.js",
   "../../../schema/errorCodes.js",
-  "../../../../../../dashboard/filters/singleSelect/state/selectors.js",
-], function (_constants, _errorCodes, _singleSelectSelectors) {
+], function (_constants, _errorCodes) {
   "use strict";
 
   async function reconcileSingleSelectInventory(_KDB, run) {
@@ -29,9 +28,15 @@ define([
     return resultGeneration;
   }
 
+  // Owner state comes from the published singleSelect getState(); an absent or destroyed owner reads as no inventory.
+  function readInventory(_KDB) {
+    const api = _KDB && _KDB.api ? _KDB.api.singleSelect : null;
+    const state = api && typeof api.getState === "function" ? api.getState() : null;
+    return state && state.inventory ? state.inventory : null;
+  }
+
   function readInventorySnapshot(_KDB) {
-    const state = _singleSelectSelectors.readSingleSelectState(_KDB) || {};
-    const inventory = state.inventory || {};
+    const inventory = readInventory(_KDB) || {};
     const generation = typeof inventory.generation === "number" && isFinite(inventory.generation)
       ? Number(inventory.generation)
       : null;
@@ -95,8 +100,10 @@ define([
   }
 
   function readInventoryGeneration(_KDB) {
-    const generation = _singleSelectSelectors.readInventoryGeneration(_KDB);
-    return typeof generation === "number" && isFinite(generation) ? Number(generation) : null;
+    const inventory = readInventory(_KDB);
+    if (!inventory) return null;
+    const generation = Number(inventory.generation || 0);
+    return isFinite(generation) ? generation : null;
   }
 
   return Object.freeze({

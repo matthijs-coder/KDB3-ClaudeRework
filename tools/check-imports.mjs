@@ -1,10 +1,12 @@
 #!/usr/bin/env node
-// AMD import graph check. FAIL (exit 1): broken relative deps, cycles, orphans not allowlisted.
+// AMD import graph check. FAIL (exit 1): broken relative deps, cycles, orphans not allowlisted, core -> dashboard imports
+// outside the composition root (tools/lib/layering.mjs).
 // Usage: node tools/check-imports.mjs [--json] [--verbose]
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildGraph, findCycles, moduleOf, isVendored, JS_ROOT_REPO_REL } from './lib/amd-graph.mjs';
+import { ALLOWED_CORE_IMPORTERS, findLayeringViolations } from './lib/layering.mjs';
 
 const args = new Set(process.argv.slice(2));
 const asJson = args.has('--json');
@@ -69,6 +71,8 @@ for (const e of coreToDashboard) {
   coreToDashboardModules.set(k, (coreToDashboardModules.get(k) || 0) + 1);
 }
 
+const layeringViolations = findLayeringViolations(graph.edges).map((e) => ({ from: repoPath(e.from), to: repoPath(e.to), line: e.line }));
+
 const failures = [];
 if (graph.files.length === 0) failures.push(`no .js files found under ${JS_ROOT_REPO_REL}`);
 if (graph.roots.length === 0) failures.push('no entry roots found (KDB.js / spec.json)');
@@ -76,6 +80,7 @@ if (graph.broken.length) failures.push(`${graph.broken.length} broken import(s)`
 if (graph.missingSpecRoots.length) failures.push(`${graph.missingSpecRoots.length} spec.json root(s) missing`);
 if (cycles.length) failures.push(`${cycles.length} cycle(s)`);
 if (failingOrphans.length) failures.push(`${failingOrphans.length} non-allowlisted orphan(s)`);
+if (layeringViolations.length) failures.push(`${layeringViolations.length} core -> dashboard import(s) outside ${ALLOWED_CORE_IMPORTERS.join(', ')}`);
 const pass = failures.length === 0;
 
 const summary = {
@@ -91,6 +96,7 @@ const summary = {
   vendored: vendored.length,
   vendoredUnreferenced: vendored.filter((v) => v.status === 'unreferenced').length,
   coreToDashboardEdges: coreToDashboard.length,
+  layeringViolations: layeringViolations.length,
   roots: graph.roots.map(repoPath),
 };
 
@@ -104,7 +110,7 @@ if (asJson) {
     noDefine: graph.noDefine.map(repoPath), nonLiteralDepArrays: graph.nonLiteralArrays.map(repoPath),
     dynamicEdges: graph.edges.filter((e) => e.dynamic).map((e) => ({ ...e, from: repoPath(e.from), to: repoPath(e.to) })),
     missingSpecRoots: graph.missingSpecRoots,
-    crossModule, coreToDashboard,
+    crossModule, coreToDashboard, layeringViolations,
   }, null, 2));
   process.exit(pass ? 0 : 1);
 }
@@ -122,6 +128,7 @@ for (const c of cycles) {
   }
 }
 for (const o of failingOrphans) out(`FAIL orphan not in tools/orphan-allowlist.txt: ${o.file}`);
+for (const v of layeringViolations) out(`FAIL layering: ${v.from}:${v.line} imports ${v.to} (core must not import dashboard; only ${ALLOWED_CORE_IMPORTERS.join(', ')} may)`);
 for (const o of orphanResults.filter((x) => x.allowedBy)) out(`orphan (allowlisted): ${o.file}`);
 for (const v of vendored) out(`vendored ${v.status}: ${v.file}${v.status === 'unreferenced' ? ' (no define/require reference found; may be loaded by Cognos/other mechanism)' : ''}`);
 for (const a of staleAllowlist) out(`WARNING stale allowlist entry (matches no file): ${a.pattern}`);
@@ -135,7 +142,7 @@ if (verbose) for (const e of graph.edges.filter((x) => x.dynamic)) out(`  dynami
 out(`cross-module edges: ${crossModule.length} distinct module pairs, ${crossModule.reduce((s, x) => s + x.count, 0)} edges (top ${verbose ? 'all' : 15}):`);
 for (const x of crossModule.slice(0, verbose ? undefined : 15)) out(`  ${String(x.count).padStart(4)}  ${x.edge}`);
 if (coreToDashboard.length) {
-  out(`WARNING core -> dashboard edges (known layering violations): ${coreToDashboard.length} edges in ${coreToDashboardModules.size} module pairs`);
+  out(`core -> dashboard edges (allowed only from ${ALLOWED_CORE_IMPORTERS.join(', ')}): ${coreToDashboard.length} edges in ${coreToDashboardModules.size} module pairs, ${layeringViolations.length} violating`);
   for (const [k, count] of [...coreToDashboardModules].sort((a, b) => b[1] - a[1])) out(`  ${String(count).padStart(4)}  ${k}`);
   if (verbose) for (const e of coreToDashboard) out(`    ${e.from}:${e.line} -> ${e.to}`);
 }

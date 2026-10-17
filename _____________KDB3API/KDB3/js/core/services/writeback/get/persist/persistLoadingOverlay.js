@@ -1,7 +1,7 @@
 define([
   "../../set/state/ensureWritebackRuntime.js",
-  "../../../../../dashboard/tabs/events/eventNames.js"
-], function (_ensureWritebackRuntime, _eventNames) {
+  "../../../../events/tabs.js"
+], function (_ensureWritebackRuntime, _tabsVocabulary) {
   "use strict";
 
   // GET persist overlay per overlay-coverage follow-up §3:
@@ -85,7 +85,7 @@ define([
       const runtime = _ensureWritebackRuntime(_KDB);
       clearPersistLoadingCancelWatch(runtime);
       runtime.subscriptions.persistLoadingCancel = events.subscribe(
-        _eventNames.CHANGED,
+        _tabsVocabulary.EVENTS.CHANGED,
         onPersistLoadingTabChanged.bind(null, _KDB)
       );
     } catch (error) {

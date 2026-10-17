@@ -1,9 +1,9 @@
 define([
   "../../schema/errorCodes.js",
-  "../../../../../dashboard/tabs/config/actionTypes.js",
+  "../../../../events/tabs.js",
   "./buildWidgetObject.js",
   "./collectorSupport.js",
-], function (_errorCodes, _actionTypes, _buildWidgetObject, _support) {
+], function (_errorCodes, _tabsVocabulary, _buildWidgetObject, _support) {
   "use strict";
 
   const TRAVERSE_PAYLOAD = {
@@ -62,7 +62,7 @@ define([
       return;
     }
     try {
-      const ok = await tabsApi.dispatch({ type: _actionTypes.TRAVERSE, payload: TRAVERSE_PAYLOAD });
+      const ok = await tabsApi.dispatch({ type: _tabsVocabulary.ACTIONS.TRAVERSE, payload: TRAVERSE_PAYLOAD });
       if (ok !== true) {
         _diagnostics.push(_errorCodes.makeDiagnostic(
           _errorCodes.codes.WRITEBACK_TABS_NOT_READY, "get",

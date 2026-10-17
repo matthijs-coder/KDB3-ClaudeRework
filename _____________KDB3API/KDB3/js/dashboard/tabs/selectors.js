@@ -1,8 +1,8 @@
 define([
   "./state.js",
   "./slots.js",
-  "../../core/utils/normalizeCognosScopeId.js"
-], function (_state, _slots, _normalizeCognosScopeId) {
+  "../../core/utils/tabSlots.js"
+], function (_state, _slots, _tabSlots) {
   "use strict";
 
   // Read functions for the tabs state; the only file other modules import for reads (state/selectors.js is the
@@ -167,69 +167,9 @@ define([
     return orderedTabs(state).filter(function (tab) { return tab.visible === true && _slots.isDashboardTab(tab); });
   }
 
+  // The matcher lives in core/utils/tabSlots.js (writeback maps scopes through it on the published state).
   function readTabScopeMatch(_KDB, _scopeId, _liveTabTargets) {
-    const requestedScopeId = _scopeId == null ? "" : String(_scopeId);
-    const normalizedScopeId = _normalizeCognosScopeId(requestedScopeId);
-    const missing = { status: "missing", evidence: null, scopeId: requestedScopeId, tab: null, candidates: [] };
-    if (!normalizedScopeId) { return missing; }
-
-    const candidates = indexCandidatesByTabIdx(readRawState(_KDB));
-    const stages = [
-      { evidence: "liveScope", matches: readLiveScopeMatches(candidates, _liveTabTargets, normalizedScopeId) },
-      { evidence: "alias", matches: readAliasMatches(candidates, normalizedScopeId) }
-    ];
-    for (let position = 0; position < stages.length; position += 1) {
-      const matches = stages[position].matches;
-      if (matches.length === 1) {
-        return { status: "ok", evidence: stages[position].evidence, scopeId: requestedScopeId, tab: flatCandidate(matches[0]), candidates: [] };
-      }
-      if (matches.length > 1) {
-        return {
-          status: "ambiguous",
-          evidence: stages[position].evidence,
-          scopeId: requestedScopeId,
-          tab: null,
-          candidates: matches.map(flatCandidate)
-        };
-      }
-    }
-    return missing;
-  }
-
-  function indexCandidatesByTabIdx(tabsState) {
-    const indexed = {};
-    _slots.listDashboardSlots(tabsState || {}).forEach(function (tab, tabIdx) {
-      indexed[String(tabIdx)] = {
-        tabId: tab && tab.tabId ? tab.tabId : null,
-        pageId: tab && tab.pageId ? tab.pageId : null,
-        index: tab && typeof tab.index === "number" ? tab.index : null,
-        tabIdx: tabIdx,
-        visible: !!(tab && tab.visible === true),
-        name: tab && tab.name ? tab.name : null
-      };
-    });
-    return indexed;
-  }
-
-  function readLiveScopeMatches(candidates, liveTabTargets, normalizedScopeId) {
-    const map = liveTabTargets && typeof liveTabTargets === "object" ? liveTabTargets : {};
-    return Object.keys(map).sort(compareNumeric).filter(function (tabIdx) {
-      return _normalizeCognosScopeId((map[tabIdx] || {}).scopeId) === normalizedScopeId && !!candidates[tabIdx];
-    }).map(function (tabIdx) { return candidates[tabIdx]; });
-  }
-
-  function readAliasMatches(candidates, normalizedScopeId) {
-    return Object.keys(candidates).sort(compareNumeric).map(function (tabIdx) { return candidates[tabIdx]; }).filter(function (candidate) {
-      return _normalizeCognosScopeId(candidate.tabId) === normalizedScopeId || _normalizeCognosScopeId(candidate.pageId) === normalizedScopeId;
-    });
-  }
-
-  function flatCandidate(tab) {
-    return { tabId: tab.tabId, pageId: tab.pageId, index: tab.index, tabIdx: tab.tabIdx, visible: tab.visible, name: tab.name };
-  }
-
-  function compareNumeric(left, right) {
-    return Number(left) - Number(right);
+    return _tabSlots.matchTabScope(readRawState(_KDB), _scopeId, _liveTabTargets);
   }
 
   return {
