@@ -218,7 +218,7 @@ _KDB.services.writebackSet.whenUrlShareRestoreSettled() -> Promise<UrlShareStart
 _KDB.services.writebackSet.presentPendingUrlShareMessage() -> undefined
 ```
 
-Public `writebackSet` is `{ restore, destroy, whenUrlShareRestoreSettled, presentPendingUrlShareMessage }`. Named methods; no mixed `dispatch`.
+Public `writebackSet` is `{ restore, allocateRestoreRunId, destroy, whenUrlShareRestoreSettled, presentPendingUrlShareMessage }`. Named methods; no mixed `dispatch`. `allocateRestoreRunId() -> number` bumps `runtime.writeback.parameterSetRestoreRunId` and returns it: widgetBase's duplicate-tab content fill (`slotStock/fillContent.js`) draws its run id from it, so every owner's `parameterSetRunId` guard stays monotone with real restore runs (W11: widgetBase no longer writes `runtime.writeback`).
 
 `options` shape:
 

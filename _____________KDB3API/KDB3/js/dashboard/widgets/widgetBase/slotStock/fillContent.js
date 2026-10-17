@@ -1,9 +1,8 @@
 define([
   "../../widgetSettings/selectors.js",
   "../../widgetText/selectors.js",
-  "../../widgetVis/selectors.js",
-  "../../../../workflows/parameterSet/set/state/ensureWritebackRuntime.js"
-], function (_settingsSelectors, _textSelectors, _visSelectors, _ensureWritebackRuntime) {
+  "../../widgetVis/selectors.js"
+], function (_settingsSelectors, _textSelectors, _visSelectors) {
   "use strict";
 
   var FILL_FAILED = "WRITEBACK_WIDGET_RESTORE_FAILED";
@@ -50,9 +49,12 @@ define([
       });
       if (widgets.length === 0) { return { degraded: degraded }; }
       // Reusing the canonical parameterSet allocator keeps every owner's parameterSetRunId guard monotone with real restore runs.
-      var runtime = _ensureWritebackRuntime(_context._KDB);
-      runtime.parameterSetRestoreRunId += 1;
-      var fillRunId = runtime.parameterSetRestoreRunId;
+      var writebackSet = _context._KDB.services && _context._KDB.services.writebackSet;
+      if (!writebackSet || typeof writebackSet.allocateRestoreRunId !== "function") {
+        degraded.push({ sourceWidgetId: null, code: FILL_FAILED, message: "duplicate content fill skipped: writebackSet service unavailable" });
+        return { degraded: degraded };
+      }
+      var fillRunId = writebackSet.allocateRestoreRunId();
       var batch = { widgets: widgets, widgetCorrelation: widgetCorrelation };
       var settingsResult = await dispatchOwner(_context, "widgetSettings", _settingsSelectors.ACTION_TYPES.PARAMETER_SET_RESTORE_BATCH, batch, fillRunId);
       collectDegraded(degraded, settingsResult, "duplicate widgetSettings restore batch failed");

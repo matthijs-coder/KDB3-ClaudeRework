@@ -89,3 +89,23 @@ test("fillDuplicateWidgetContent without rows touches neither the counter nor th
   assert.equal(world._KDB.runtime.writeback.parameterSetRestoreRunId, 0);
   assert.deepStrictEqual(world.dispatched, []);
 });
+
+test("writebackSet.allocateRestoreRunId bumps the shared counter, also for real restore runs and after destroy", () => {
+  const world = fillWorld();
+  const set = world._KDB.services.writebackSet;
+  assert.equal(set.allocateRestoreRunId(), 1);
+  assert.equal(set.allocateRestoreRunId(), 2);
+  assert.equal(world._KDB.runtime.writeback.parameterSetRestoreRunId, 2);
+  set.destroy();
+  assert.equal(set.allocateRestoreRunId(), 3);
+});
+
+test("fillDuplicateWidgetContent without the writebackSet service degrades instead of throwing", async () => {
+  for (const services of [undefined, {}, { writebackSet: {} }]) {
+    const world = fillWorld();
+    world._KDB.services = services;
+    const result = json(await fillContent.fillDuplicateWidgetContent(world.context, created, rows));
+    assert.deepStrictEqual(result, { degraded: [{ sourceWidgetId: null, code: DIAG, message: "duplicate content fill skipped: writebackSet service unavailable" }] });
+    assert.deepStrictEqual(world.dispatched, []);
+  }
+});

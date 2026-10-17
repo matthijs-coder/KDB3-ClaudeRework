@@ -111,6 +111,14 @@ define([
       }
     }
 
+    // Other owners that replay content outside a restore run (the duplicate-tab fill) draw from the same counter, so
+    // every owner's parameterSetRunId guard stays monotone with real restore runs. Safe after destroy: a counter bump.
+    function allocateRestoreRunId() {
+      const runtime = _ensureWritebackRuntime(_KDB);
+      runtime.parameterSetRestoreRunId += 1;
+      return runtime.parameterSetRestoreRunId;
+    }
+
     function destroy() {
       _guard.dispose();
       if (_activeRun) _activeRun.cancelRequested = true;
@@ -129,6 +137,7 @@ define([
 
     return {
       restore: restore,
+      allocateRestoreRunId: allocateRestoreRunId,
       destroy: destroy,
       whenUrlShareRestoreSettled: whenUrlShareRestoreSettled,
       presentPendingUrlShareMessage: presentPendingUrlShareMessage
