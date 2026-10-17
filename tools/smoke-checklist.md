@@ -712,6 +712,6 @@ Same as baseline: only import paths and the way writeback reads its owners chang
 - [ ] **7. Tab traverse barrier.** Save right after opening with a second visible tab that was never opened: the save first walks the tabs (`tabs/traverse`, same as baseline), then contains that tab's widgets.
 - [ ] **8. Undo/redo around a load.** After loading a set press undo and redo (history controls): same as baseline; the restore does not abort on the generation check (no `WRITEBACK_SINGLESELECT_INVENTORY_STALE` diagnostic in the restore result / notification).
 - [ ] **9. Close and reopen the dashboard 3 times.** After each reopen steps 1 and 4 still work; DevTools shows no leftover `tabs:changed` listener from writeback after a close during a save (open the save popup, close the dashboard, reopen).
-- [ ] **10. Layering gate.** `node tools/check-imports.mjs` prints `core -> dashboard edges ... 24 edges ..., 0 violating` and the only importer is `core/bootstrap/featureManifest.js`; `rg "dashboard/" _____________KDB3API/KDB3/js/core/services/writeback` finds no import.
+- [ ] **10. Layering gate.** `node tools/check-imports.mjs` prints `core -> dashboard edges ... 24 edges ..., 0 violating` and the only importer is `core/bootstrap/featureManifest.js`; `rg "dashboard/" _____________KDB3API/KDB3/js/workflows/parameterSet` finds no import.
 
 Intended deltas: none visible. Unreachable differences: a destroyed tabs/singleSelect owner now reads as absent from writeback (the old selector reads kept the retained state); the tabs state is read once per GET collect.

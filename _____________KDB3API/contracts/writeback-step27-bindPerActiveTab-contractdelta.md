@@ -45,7 +45,7 @@ No step reorder: steps 24-26 and 28-30 unchanged; only step 27's internal sequen
 
 ## 4. Design (PO decisions 2026-10-06: P1 `forceShow` yes, P2 (a), P3 keep)
 
-1. New writeback effect `core/services/writeback/set/effects/bindVisPerActiveTab.js` (≤150 lines); `runWidgetRestore.js` (75) replaces its step-27 block with one call.
+1. New writeback effect `workflows/parameterSet/set/effects/bindVisPerActiveTab.js` (≤150 lines); `runWidgetRestore.js` (75) replaces its step-27 block with one call.
 2. Walk correlation entries in numeric `entryIndex` order; group `kind === "vis"` by `tabIdx`, first-seen order (same as step 23); skip tabs without vis.
 3. Per group: `tabs/parameterSetActivateTabRequested` `{ tabIdx, includeHiddenDashboardTabs: true, restoreActiveTab: false, forceShow: true }` (P1), phase `tabActivateForWidgets`, `required: true`. The live-widget wait (WP-J) runs as usual.
 4. Then `widgetVis/parameterSetBindingRequested` `{ widgetCorrelation: <that tab's entries> }`, phase `widgetVisBinding` (P2 for required / abort).

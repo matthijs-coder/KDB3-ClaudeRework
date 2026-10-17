@@ -32,7 +32,7 @@ De zes kaarten (week één):
 | Filterfamilie-routing | `dashboard/filters/filterDock/ownerRoutes.js` |
 | Tab delete/move/duplicate | `dashboard/tabs/tabMutation/saga.js` |
 | Settings-gevolgen | `dashboard/widgets/widgetSettings/config.js` (`KIND_TABLE`: kind → owner/actie) + `intent/downstream.js` |
-| Opgeslagen dashboard terugzetten | `core/services/writeback/set/effects/runNormalRestore.js` |
+| Opgeslagen dashboard terugzetten | `workflows/parameterSet/set/effects/runNormalRestore.js` |
 | Undo/redo-handlers | `core/bootstrap/registerReplayHandlers.js` (keys per feature in `core/bootstrap/featureManifest.js`) |
 
 Als je X wilt wijzigen, begin in Y, publiek Z:
@@ -41,7 +41,7 @@ Als je X wilt wijzigen, begin in Y, publiek Z:
 |---|---|---|
 | Filterwaarde na dock-confirm | `dashboard/filters/filterDock/` + owner | `_KDB.api.filterDock` observeert; **bezit geen values**. Dispatch `"<owner>/filterDockStateChanged"` |
 | Tab delete/move/duplicate | `dashboard/tabs/tabMutation/saga.js` | `_KDB.api.tabs.dispatch` — tabs schrijft geen filter/widget-state |
-| Parameter set restore | `core/services/writeback/set/` (`runNormalRestore.js` = faselijst) | `_KDB.services.writebackSet` → `"<owner>/parameterSetRestoreRequested"` |
+| Parameter set restore | `workflows/parameterSet/set/` (`runNormalRestore.js` = faselijst) | `_KDB.services.writebackSet` → `"<owner>/parameterSetRestoreRequested"` |
 | Widget drop / launchpad | dragDrop `dropboxes/publish.js` (validated drop) → widgetBase `canvas.js` (`handleDropCreate`) / `launchpadTransfer.js` (`handleTakeFromLaunchpad`) | `_KDB.api.dragDrop` / `_KDB.api.widgetBase`. Launchpad is parkeerplaats, niet de drop-workflow |
 | Vis binding naar Cognos | `widgetVis/binding/pipeline.js` (`runBindingPipeline`) | `_KDB.api.widgetVis` → `_KDB.services.widgetBindingPlan` (puur) + `widgetBindingApply` |
 | Undo/redo | `core/services/historyService` + `<module>/history.js` | `_KDB.services.history`; chrome: `_KDB.api.historyControls`; registry: `core/bootstrap/registerReplayHandlers.js` via `_KDB.services.history.registerReplayHandler` |
@@ -135,12 +135,12 @@ Geen `_KDB.api.filters`, geen `_KDB.api.widgets`, geen `_KDB.api.properties`. `_
 | message | `core/services/messageService/` | `_KDB.services.message` | Toast / alert / confirm / choose. |
 | widgetBindingPlan | `core/services/widgetBindingPlan/` | `_KDB.services.widgetBindingPlan` | Pure spec → plan. Geen destroy in `KDB.js`. |
 | widgetBindingApply | `core/services/widgetBindingApply/` | `_KDB.services.widgetBindingApply` | Plan uitvoeren op Cognos. |
-| dashboardPdf | `core/services/dashboardPdf/` | `_KDB.services.dashboardPdf` | PDF-export **+** filter-appendix-saga. |
+| dashboardPdf | `workflows/pdfExport/` | `_KDB.services.dashboardPdf` | PDF-export **+** filter-appendix-saga. |
 | history | `core/services/historyService/` | `_KDB.services.history` | Undo/redo-stack + writeback-baseline. |
-| writebackGet | `core/services/writeback/get/` | `_KDB.services.writebackGet` | State → compact v3 (collectors). |
-| writebackSet | `core/services/writeback/set/` | `_KDB.services.writebackSet` | **Restore-orchestrator** (v3 → owners). Kaart: `runNormalRestore.js`. |
-| writebackMap | `core/services/writeback/map/` | `_KDB.services.writebackMap` | Legacy → v3 mapping. |
-| writebackBridge | `core/services/writeback/` | `_KDB.services.writebackBridge` | `window.top` WBParameterGet/Set-globals. |
+| writebackGet | `workflows/parameterSet/get/` | `_KDB.services.writebackGet` | State → compact v3 (collectors). |
+| writebackSet | `workflows/parameterSet/set/` | `_KDB.services.writebackSet` | **Restore-orchestrator** (v3 → owners). Kaart: `runNormalRestore.js`. |
+| writebackMap | `workflows/parameterSet/map/` | `_KDB.services.writebackMap` | Legacy → v3 mapping. |
+| writebackBridge | `workflows/parameterSet/` | `_KDB.services.writebackBridge` | `window.top` WBParameterGet/Set-globals. |
 
 Replay-handlers worden **tweemaal** gebonden (`KDB.js` na kdbControl-mount en na nativeMultiSelect-mount).
 

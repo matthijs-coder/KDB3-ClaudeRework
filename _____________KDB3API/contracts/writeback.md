@@ -37,7 +37,7 @@
 Target production path:
 
 ```txt
-_____________KDB3API/KDB3/js/core/services/writeback/
+_____________KDB3API/KDB3/js/workflows/parameterSet/
 ```
 
 Target config path for semantic mapping helpers:
@@ -56,7 +56,7 @@ entry files `validateV3.js` / `normalizeV3.js` compose the per-§4-section modul
 `normalize/`, `set/` splits restore mechanics into `config/`, `state/` and `effects/`):
 
 ```txt
-core/services/writeback/
+workflows/parameterSet/
 ├── __orchestratorWriteback.js         registers writebackGet/Set/Map + writebackBridge, merges German labels
 ├── cognosWritebackBridge.js           guarded host bridge (WBParameterGetFunction / WBParameterSetFunction), install/uninstall
 ├── schema/
@@ -1164,7 +1164,7 @@ Contract:
 - apply tab names and visibility through tabs owner state/effects, not direct writeback DOM mutation;
 - ensure at least one dashboard tab is visible;
 - provide a `tabIdx -> { tabId, pageId, scopeId? }` lookup for filter and widget restore;
-- `tabs/resolveFilterScopeTargets` is the canonical live scopeId↔tabIdx map used by GET (`core/services/writeback/get/collectors/collectFilters.js` (filter target resolution)) and SET (`filterRestoreTargets.js`), complementing the restore-run `tabTargets`;
+- `tabs/resolveFilterScopeTargets` is the canonical live scopeId↔tabIdx map used by GET (`workflows/parameterSet/get/collectors/collectFilters.js` (filter target resolution)) and SET (`filterRestoreTargets.js`), complementing the restore-run `tabTargets`;
 - handle saved tab-count mismatch with diagnostics;
 - support hidden dashboard tabs without making hidden tab buttons permanently visible;
 - expose `tabs/parameterSetActivateTabRequested` for hidden or not-canvas-ready tabs before page-context writes and widget restore;
