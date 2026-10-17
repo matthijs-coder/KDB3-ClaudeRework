@@ -237,6 +237,7 @@ export function buildGraph() {
   const nodes = new Map();
   const edges = [];
   const broken = [];
+  const suffixless = [];
   const nonPathDeps = [];
   const noDefine = [];
   const nonLiteralArrays = [];
@@ -260,6 +261,7 @@ export function buildGraph() {
         broken.push({ from: rel, spec, line, resolved: target });
         return;
       }
+      if (!spec.endsWith('.js')) suffixless.push({ from: rel, spec, line });
       edges.push({ from: rel, to: target, line, dynamic });
       node.deps.push(target);
     };
@@ -292,7 +294,7 @@ export function buildGraph() {
     for (const t of nodes.get(cur).deps) stack.push(t);
   }
 
-  return { files: fileList, nodes, edges, broken, nonPathDeps, noDefine, nonLiteralArrays, roots, specRoots, missingSpecRoots, reachable };
+  return { files: fileList, nodes, edges, broken, suffixless, nonPathDeps, noDefine, nonLiteralArrays, roots, specRoots, missingSpecRoots, reachable };
 }
 
 // Tarjan SCC over the static+dynamic file graph. Returns [{ size, members, path }] for components

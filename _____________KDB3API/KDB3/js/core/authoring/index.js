@@ -1,4 +1,4 @@
-define(["./createAuthoringController"], function (_createAuthoringController) {
+define(["./createAuthoringController.js"], function (_createAuthoringController) {
   "use strict";
 
   function attachDashboardFacet(_KDB) {
