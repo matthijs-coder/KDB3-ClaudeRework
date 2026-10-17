@@ -194,7 +194,6 @@ define([
   function registerFilterDock(_KDB) {
     var runtime;
     _KDB.state.filters = _KDB.state.filters || {};
-    _KDB.elements.selectors = _KDB.elements.selectors || {};
 
     if (!_KDB.state.filters.filterDock) {
       _KDB.state.filters.filterDock = _state.createInitialFilterDockState();

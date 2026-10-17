@@ -9,8 +9,6 @@ define([
 
   function mergeDeveloperModeLabels(_KDB) {
     _KDB.config = _KDB.config || {};
-    _KDB.config.labels = _KDB.config.labels || {};
-    _KDB.config.labels.de = _KDB.config.labels.de || {};
     var existing = _KDB.config.labels.de.developerMode && typeof _KDB.config.labels.de.developerMode === "object"
       ? _KDB.config.labels.de.developerMode
       : {};

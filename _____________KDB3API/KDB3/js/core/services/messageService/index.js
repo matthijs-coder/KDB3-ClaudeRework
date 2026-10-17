@@ -122,8 +122,6 @@ define([
   }
 
   function registerLabels(_KDB) {
-    _KDB.config.labels = _KDB.config.labels || {};
-    _KDB.config.labels.de = _KDB.config.labels.de || {};
     _KDB.config.labels.de.message = Object.assign({}, _config.messageLabels, _KDB.config.labels.de.message || {});
     return _KDB.config.labels.de.message;
   }

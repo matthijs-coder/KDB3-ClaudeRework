@@ -130,7 +130,6 @@ define([
   }
 
   function registerDragDrop(_KDB) {
-    _KDB.elements.selectors = _KDB.elements.selectors || {};
     if (!_KDB.state.dragDrop) {
       _KDB.state.dragDrop = _state.createInitialDragDropState();
     }
