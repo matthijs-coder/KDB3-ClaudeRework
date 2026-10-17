@@ -204,7 +204,7 @@ Framework tranche 1 has no Cognos touchpoints.
 
 ## 9. Folder layout
 
-As built after the Phase 1 module-template rework (33 files). `authoringMode/` no longer exists inside kdbControl: canonical authoring ownership is the `authoring` module (see the CP-1 contractdelta). There are no per-subsystem `__orchestrator*.js` files; only `dashboard/canvas/kdbControl/index.js` (a shim over `index.js`).
+As built after the Phase 1 module-template rework (33 files). `authoringMode/` no longer exists inside kdbControl: canonical authoring ownership is the `authoring` module (see the CP-1 contractdelta). There are no per-subsystem `__orchestrator*.js` files; only `dashboard/canvas/kdbControl/index.js` (the registrar).
 
 ```txt
 KDB3/js/dashboard/canvas/kdbControl/

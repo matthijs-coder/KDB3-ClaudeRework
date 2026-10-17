@@ -634,7 +634,7 @@ Required registration:
 
 - `KDB3/js/bootstrap/registerServices.js` imports and calls `core/services/widgetBindingPlan/index.js`.
 - The orchestrator registers `_KDB.services.widgetBindingPlan`.
-- `KDB3/js/KDB.js` does not need a direct service import if existing service bootstrap already calls `__orchestratorServices`; only the services orchestrator changes.
+- `KDB3/js/KDB.js` does not need a direct service import if existing service bootstrap already calls `bootstrap/registerServices.js`; only the services registrar changes.
 
 This tranche explicitly defers direct `KDB.js` bootstrap registration. Service-orchestrator registration is required during CP-2 implementation unless the implementation is staged as files-only.
 

@@ -227,7 +227,7 @@ Contract:
 - Result data is serializable metadata only. It never includes DOM nodes, jQuery objects, Cognos objects, shell references or functions.
 - It does not claim widgets, move widgets, write widget state, write launchpad state, write history, emit events or call Cognos widget APIs.
 - `includeShells` is intentionally not part of the contract. A consumer that needs a shell resolves it inside its own ownership boundary from the returned `widgetId`.
-- `onlyEligibleWidgetShells` is intentionally not part of the contract. Cognos-content eligibility, host/writeback filtering, helper claimability and widget-type semantics belong to `widgetBase`, `widgetTopN` and `widgetDataTable`, not to launchpad.
+- `onlyEligibleWidgetShells` is intentionally not part of the contract. Cognos-content eligibility, host/writeback filtering, helper claimability and widget-type semantics belong to `widgetBase` and `widgetTopN` (the `widgetDataTable` stub was retired in Phase 2 W12), not to launchpad.
 
 ## 6. Readers / Writers
 

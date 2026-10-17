@@ -1,5 +1,5 @@
 // Golden test for workflows/pdfExport (WS-D task D3). Drives the service through its stable entry
-// (__orchestratorDashboardPdf.js) with a fake _KDB, fake jsPDF/html2canvas and a fake DOM.
+// (workflows/pdfExport/index.js) with a fake _KDB, fake jsPDF/html2canvas and a fake DOM.
 // Run: node --test tools/tests/ws-d3-dashboard-pdf.test.mjs
 // Re-record after an intended behaviour change: RECORD=1 node --test tools/tests/ws-d3-dashboard-pdf.test.mjs
 import { test } from "node:test";

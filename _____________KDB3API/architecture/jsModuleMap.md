@@ -33,7 +33,7 @@ De zes kaarten (week één):
 | Tab delete/move/duplicate | `dashboard/tabs/tabMutation/saga.js` |
 | Settings-gevolgen | `dashboard/widgets/widgetSettings/config.js` (`KIND_TABLE`: kind → owner/actie) + `intent/downstream.js` |
 | Opgeslagen dashboard terugzetten | `workflows/parameterSet/set/effects/runNormalRestore.js` |
-| Undo/redo-handlers | `core/bootstrap/registerReplayHandlers.js` (keys per feature in `bootstrap/featureManifest.js`) |
+| Undo/redo-handlers | each owner registers its own handler (`core/utils/kit/history.js` `registerReplayKeys`, in the owner's `index.js`) |
 
 Als je X wilt wijzigen, begin in Y, publiek Z:
 
@@ -44,7 +44,7 @@ Als je X wilt wijzigen, begin in Y, publiek Z:
 | Parameter set restore | `workflows/parameterSet/set/` (`runNormalRestore.js` = faselijst) | `_KDB.services.writebackSet` → `"<owner>/parameterSetRestoreRequested"` |
 | Widget drop / launchpad | dragDrop `dropboxes/publish.js` (validated drop) → widgetBase `canvas.js` (`handleDropCreate`) / `launchpadTransfer.js` (`handleTakeFromLaunchpad`) | `_KDB.api.dragDrop` / `_KDB.api.widgetBase`. Launchpad is parkeerplaats, niet de drop-workflow |
 | Vis binding naar Cognos | `widgetVis/binding/pipeline.js` (`runBindingPipeline`) | `_KDB.api.widgetVis` → `_KDB.services.widgetBindingPlan` (puur) + `widgetBindingApply` |
-| Undo/redo | `core/services/historyService` + `<module>/history.js` | `_KDB.services.history`; chrome: `_KDB.api.historyControls`; registry: `core/bootstrap/registerReplayHandlers.js` via `_KDB.services.history.registerReplayHandler` |
+| Undo/redo | `core/services/historyService` + `<module>/history.js` | `_KDB.services.history`; chrome: `_KDB.api.historyControls`; replay registry: each owner calls `registerReplayKeys` (kit) -> `_KDB.services.history.registerReplayHandler` |
 | Header/footer | `dashboard/header/`, `dashboard/footer/` | `_KDB.api.header` / `footer` |
 | Control-paneel | `dashboard/canvas/kdbControl/` | `_KDB.api.kdbControl` |
 | Dashboard page size / achtergrond | `dashboard/canvas/pageSurface/` | `_KDB.api.canvas` (niet de groepsmap `canvas/`) |

@@ -545,7 +545,7 @@ No new cognosHost facet for `pathRef`.
 
 ### 13.2 Bootstrap
 
-`KDB3/js/bootstrap/registerServices.js` imports `core/services/drillthrough/index.js` and registers `_KDB.services.drillthrough`. `KDB.js` does not need a direct import if services bootstrap already runs `__orchestratorServices`.
+`KDB3/js/bootstrap/registerServices.js` imports `core/services/drillthrough/index.js` and registers `_KDB.services.drillthrough`. `KDB.js` does not need a direct import if services bootstrap already runs `bootstrap/registerServices.js`.
 
 ---
 

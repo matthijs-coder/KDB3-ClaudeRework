@@ -56,7 +56,7 @@ Production evidence:
 
 - `_____________KDB3API/KDB3/js/core/services/historyService/` does not exist yet.
 - `_____________KDB3API/KDB3/js/bootstrap/registerServices.js` currently registers `tableData` and `loading`; it does not register `history`.
-- `_____________KDB3API/KDB3/js/KDB.js` imports `__orchestratorServices.js` only; no direct history import exists.
+- `_____________KDB3API/KDB3/js/KDB.js` imports `bootstrap/featureManifest.js`; `bootstrap/registerServices.js` registers history, no direct history import exists in `KDB.js`.
 - `architecture/stateOwnership.md`, `projectStructureRules.md`, `state.mdc`, and `module-public-api.mdc` already identify `_KDB.state.history` as owned by `historyService` and `_KDB.services.history` as the canonical public service surface.
 
 ## 2. Purpose
@@ -274,7 +274,7 @@ No `KDB.js` edit is required in this tranche if registration remains inside `boo
 ## 13. Out Of Scope
 
 - Editing `eventSubscribe.md` except for the narrow `history:changed` catalog entry if CP-1 approves that scope.
-- Bootstrap registration in `__orchestratorServices.js` or `KDB.js` unless CP-1 explicitly expands scope.
+- Bootstrap registration in `bootstrap/registerServices.js` or `KDB.js` unless CP-1 explicitly expands scope.
 - Porting legacy dashboard feature replay adapters into `historyService` (except documenting owner replay keys in §10).
 - `widget_removed` replay handler (deferred).
 - Creating or modifying feature modules for filters, widgets, launchpad, tabs, kdbControl, header, footer, or authoring.

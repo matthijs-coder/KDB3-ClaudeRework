@@ -519,7 +519,7 @@ Before using request events such as `tabs:toolRequested`, the contract must docu
 
 ## 18. Module Shape
 
-As built (exports per file; shims keep legacy import paths). `index.js` is the registrar (controller + `registerTabs`).
+As built (exports per file). `index.js` is the registrar (controller + `registerTabs`).
 
 ```txt
 dashboard/tabs/
@@ -535,8 +535,6 @@ dashboard/tabs/
   slots.js                                            isDashboardTab, isVisibleUserTab, isRenamableUserTab, findTabById, listDashboardSlots, resolveDashboardOrderIndex, countVisible, ...
   state.js                                            createInitialTabsState, createEditUiState, cloneByIndex, cloneTab, cloneHelperTab, buildVisibleOrder, phaseToLifecycle, ...
   view.js                                             syncDomFromState, syncKdbControlView
-  actions/
-    guardParameterSetRun.js                           shim over ../restore/guard.js (path kept for external imports)
   config/
     actionTypes.js                                    INITIALIZE, SYNC_FROM_DOM, ACTIVE_TAB_OBSERVED, HYDRATE_DOM, TRAVERSE, ADD, SELECT_EDIT_TARGET, ...
     defaults.js                                       MAX_USER_TABS, HELPER_TAB_INDEX, MIN_VISIBLE_USER_TABS, VISIBLE_CLASS, USER_TAB_BUTTON_CLASS, HELPER_TAB_BUTTON_CLASS, HELPER_TAB_CONTENT_CLASS, ...
@@ -547,8 +545,6 @@ dashboard/tabs/
     reduce.js                                         addVisibleTab, selectEditTarget, setSelectedTool, updateRename, cancelEditSession, recomputeEditUi
     renameActions.js                                  buildPendingRename, applyRenameEffects
     session.js                                        startEditSession, commitOutgoingEditSession, cleanupEditSession
-  effects/
-    hasTabInnerFrame.js                               shim over ../chrome.js (path kept for external imports)
   events/
     eventNames.js                                     CHANGED, ACTIVATION_STARTED, RENAMED, TRAVERSED, ERROR
   restore/
@@ -558,8 +554,6 @@ dashboard/tabs/
     parameterSetLanding.js                            parameterSetAbortLanding, postParameterSetRestoreTraverse, writebackGetPersistLanding
     parameterSetRestore.js                            routeParameterSetAction, isParameterSetAction, disposedResult
     reduce.js                                         reduceParameterSetApply
-  state/
-    selectors.js                                      shim over ../selectors.js (path kept for external imports)
   tabMutation/
     actions.js                                        routeTabMutationAction, isTabMutationAction, disposedResult
     loadingFrame.js                                   startMutationFrame, finishMutationFrame, syncTraverseLine

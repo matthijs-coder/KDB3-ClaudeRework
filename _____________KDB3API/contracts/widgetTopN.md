@@ -37,7 +37,6 @@ No production behavior code may be generated until this CP-1 contract is approve
 | `contracts/widgetBindingApply.md` | Authority for helper `applyBinding`, helper target shape, timeout, abort and diagnostics. |
 | `contracts/widgetVis.md` | Authority for inbound `resolveRequested` caller shape and outbound `widgetVis/topNResolved` payload consumption. |
 | `contracts/widgetSettings.md` | Settings owner and history owner for `topNChoice`; it reaches TopN only through `widgetVis`. |
-| `contracts/widgetDataTable.md` | Context for datatable/List content, but this TopN claim tranche no longer depends on datatable claim validation/release. |
 | `contracts/widgetBase.md` | Frame record authority for `role:"topNHelper"` and `ownerWidgetId`; helper placement is a base-frame concern. |
 | `contracts/tableDataService.md` | Authority for helper-widget row reads through `_KDB.services.tableData.reloadTable([{ widgetId: helperWidgetId }])`. |
 | REDESIGN2 TopN investigation report | Legacy state machine, helper claim/reuse, sequence guard, helper cleanup order, hierarchy rewrite and flat-data extraction. |
@@ -95,7 +94,7 @@ Ownership rules:
 - `resolutionStatus` is a TopN domain status, not a lifecycle term.
 - `widgetTopN` never writes `_KDB.state.widgets.vis`, `_KDB.state.widgets.settings`, `_KDB.state.widgets.base`, `_KDB.state.widgets.dataTable`, `_KDB.state.history`, launchpad state or tableData state.
 - TopN helper claim ownership belongs to `widgetTopN`: it records `helperWidgetId` / `claimToken` in its own state and mirrors the active owner/token on the helper shell DOM.
-- `widgetTopN` does not require `widgetDataTable` claim validation and does not require a `widgetBase` helper-role/owner action for claim. Helper candidates are expected to be pre-routed into the same-tab `topN` launchpad pad.
+- `widgetTopN` does not require any datatable claim validation (the `widgetDataTable` stub was retired in Phase 2 W12) and does not require a `widgetBase` helper-role/owner action for claim. Helper candidates are expected to be pre-routed into the same-tab `topN` launchpad pad.
 - `widgetBase` remains the frame/movement owner. If a helper must be moved between canvas and launchpad, that remains a `widgetBase` action; the TopN claim itself is not a base-frame write.
 - `resultValues` and `excludeItemId` are derived/working TopN state only. They are not settings values and are not history snapshots.
 
@@ -234,7 +233,7 @@ Flow:
 3. If `topNChoice` is default/none, dispatch terminal success with `resultValues: []`, `excludeItemId: null` and no helper work. This is a direct-call/test backstop only; in the normal `widgetVis` production path, default/clear TopN is handled by `widgetVis` through visible binding plus `widgetTopN/cleanup` when an existing helper claim may need clearing. In production, `widgetVis` MUST NOT dispatch `resolveRequested` when dimension is absent (`widgetVis` §7.1.2) or when topN is absent (§7.1).
 4. **Absent input sentinel set (canonical):** `""`, `"default"`, `"none"`. These are not TopN ids. The value `"0"` is deprecated and must not be introduced by new callers; alignment with `normalizeDefaultValue` is required in the implementation tranche.
 5. Adopt envelope `opSeq` when present; otherwise increment/capture the owner runtime `opSeq`. Abort prior same-owner resolution and mark `_KDB.state.widgets.topN.byOwner[ownerVisId].resolutionStatus = "pending"`.
-6. Claim or reuse a helper through the helper claim contract in Section 7. Discovery uses `launchpad/readSlotWidgets` for the owner's same-tab `topN` pad; validation/claim state is owned by `widgetTopN`, not `widgetDataTable` or `widgetBase`.
+6. Claim or reuse a helper through the helper claim contract in Section 7. Discovery uses `launchpad/readSlotWidgets` for the owner's same-tab `topN` pad; validation/claim state is owned by `widgetTopN`, not `widgetDataTable` (retired in Phase 2 W12) or `widgetBase`.
 7. If no helper is available, write owned status `noHelperAvailable`, dispatch terminal `widgetVis/topNResolved` with `status:"noHelperAvailable"`, and return success with `terminalDispatched:true`.
 8. Build a helper-target `BindingPlanSpec` with `targetKind:"topNHelper"`, `widgetId: helperWidgetId`, `ownerWidgetId: ownerVisId`, `opSeq`, `reason:"topN"`, a helper-normalized `dataConfig`, `hierarchySnapshot`, `config`, and no `helperTableResult`.
 9. Call `_KDB.services.widgetBindingPlan.buildPlan(spec)`.
@@ -288,7 +287,7 @@ Flow:
 
 1. Abort in-flight work for `ownerVisId`.
 2. If `clearHelperBinding === true` and a helper exists, run the explicit helper cleanup sequence in Section 8. No direct Cognos wrapper calls are made outside `widgetBindingApply`, and there is no separate cleanup method on `widgetBindingApply`.
-3. If `releaseClaim === true`, clear the `widgetTopN` owned claim state/runtime for `ownerVisId` and remove only the TopN-owned DOM mirror attributes from the helper shell when the mirrored owner/token still match. `widgetTopN` does not call `widgetDataTable/releaseClaim` or a `widgetBase` helper-role action.
+3. If `releaseClaim === true`, clear the `widgetTopN` owned claim state/runtime for `ownerVisId` and remove only the TopN-owned DOM mirror attributes from the helper shell when the mirrored owner/token still match. `widgetTopN` does not call `widgetDataTable (retired in Phase 2 W12)/releaseClaim` or a `widgetBase` helper-role action.
 4. Clear owned TopN state for that owner to `resolutionStatus:"idle"`, `helperWidgetId:null` when the claim is released, `resultValues:[]`, `excludeItemId:null`, clear pending/error when cleanup succeeds.
 5. Cleanup never destroys the helper widget. The helper remains parked in the `topN` launchpad pad unless a separate `widgetBase` action routes it elsewhere.
 
@@ -605,7 +604,7 @@ Forbidden:
 - Direct calls to `_KDB.cognosAPI.widgets.*` from `widgetTopN`.
 - Direct DOM lookup of helper tables, launchpad pads or canvas shells.
 - Direct shell movement or helper destruction.
-- Calling `widgetDataTable/validateClaimable`, `widgetDataTable/releaseClaim` or a `widgetBase` helper-role action for TopN claim.
+- Calling `widgetDataTable (retired in Phase 2 W12)/validateClaimable`, `widgetDataTable/releaseClaim` or a `widgetBase` helper-role action for TopN claim.
 
 ## 14. DOM Boundaries
 
@@ -731,8 +730,8 @@ CP-1 is acceptable when:
 2. Action payloads for `resolveRequested`, `cleanup` and `error` are fully specified.
 3. `_KDB.state.widgets.topN` is the only state subtree written by `widgetTopN`.
 4. `_KDB.runtime.widgetTopN` owns `opSeq`, AbortControllers, pending promises, helper managed-filter runtime and cleanup.
-5. `widgetTopN` never writes `widgetVis`, `widgetSettings`, `widgetBase`, `widgetDataTable`, launchpad, tableData or history state.
-6. Helper claim/release is owned by `widgetTopN`: launchpad supplies ordered ids, `widgetTopN` writes claim state/token and DOM mirror, and neither `widgetDataTable` nor a `widgetBase` helper-role action is required.
+5. `widgetTopN` never writes `widgetVis`, `widgetSettings`, `widgetBase`, `widgetDataTable` (retired in Phase 2 W12), launchpad, tableData or history state.
+6. Helper claim/release is owned by `widgetTopN`: launchpad supplies ordered ids, `widgetTopN` writes claim state/token and DOM mirror, and neither `widgetDataTable` (retired in Phase 2 W12) nor a `widgetBase` helper-role action is required.
 7. Binding pipeline usage uses canonical `BindingPlanSpec`, `BindingPlan`, `ApplyBindingOptions`, and `ApplyBindingResult`.
 8. Helper-target planning uses helper-normalized `dataConfig`, not the visible chart config unchanged.
 9. TopN extraction is owned by `widgetTopN`; helper row reading itself is owned by `tableDataService`.

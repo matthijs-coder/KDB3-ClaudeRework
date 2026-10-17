@@ -664,7 +664,7 @@ Replayability in this tranche means replay within the same Cognos dashboard/spec
 | `remove` | Commit `widget_removed` only for user removal if implemented in this tranche. |
 | rollback/error/destroy/startup route-all | No history. |
 
-`widget_launchpadTransfer` requires an owner replay handler registered under `widgetBase` (`historyReplayHandlerContribution` → `core/bootstrap/registerReplayHandlers.js` → `services.history.registerReplayHandler`). Replay semantics:
+`widget_launchpadTransfer` requires an owner replay handler registered under `widgetBase` (`historyReplayHandlerContribution` → kit `history.registerReplayKeys` in `widgetBase/index.js` → `services.history.registerReplayHandler`). Replay semantics:
 
 - **Undo** of a transfer whose `new.placement === "inLaunchpad"` dispatches `widgetBase/takeFromLaunchpad` with `reason:"historyReplay"` and `isHistoryReplay: true`, using the serializable `old` canvas frame/layout and the stable `widgetId` from `step.old`.
 - **Redo** dispatches `widgetBase/routeToLaunchpad` with `reason:"historyReplay"` and `isHistoryReplay: true`, using the serializable `new` launchpad route from `step.new`.
@@ -683,7 +683,7 @@ The `widgetBase` entry of `bootstrap/featureManifest.js` must list `widget_launc
 - **Undo** dispatches `widgetBase/move` or `widgetBase/resize` via `_KDB.api.widgetBase.dispatch` with `isFinal: true`, `isHistoryReplay: true`, `reason: "historyReplay"`. `toLayout` is derived from `step.old` (undo) or `step.new` (redo); `widgetId` is read from the active frame.
 - Replay must not call `_KDB.services.history.pushCommittedStep`; it applies the existing step only.
 - Replay success means durable `layout`, Cognos `setLayoutPosition`, and reducer state updated via the same path as user move/resize.
-- Handler registration follows the same `historyReplayHandlerContribution` + manifest `replayKeys` pattern as `widget_canvasDrop`.
+- Handler registration follows the same pattern as `widget_canvasDrop`: `widgetBase/index.js` registers the four widget keys with the history service when it stamps `historyReplayHandlerContribution`.
 
 ## 14. Error Taxonomy
 
@@ -810,7 +810,7 @@ CP-1 is acceptable when:
 17. Production files use AMD full-compact form and pass lints.
 18. Settings-delete (reset control) produces exactly one `widget_launchpadTransfer` history step.
 19. Undo of that step returns the shell to canvas, restores settings controls via `widgetSettings/placeControls`, and re-applies committed vis settings via `widgetSettings/restoreCommittedSettings`; redo parks the widget in launchpad and runs `widgetSettings/cleanupWidgetControls`.
-20. `widget_launchpadTransfer` replay is registered through the manifest replay keys (`registerReplayHandlers`) and does not log `handler missing`.
+20. `widget_launchpadTransfer` replay is registered by `widgetBase/index.js` (`registerReplayKeys`) and does not log `handler missing`.
 21. Replay does not push a second history step.
 22. When `requestedBy: "widgetSettings"`, undo must attempt vis rebind through `widgetSettings/restoreCommittedSettings`; acceptance passes when shell, settings UI, and vis binding restore succeed. Documented vis-restore failure after successful UI restore is settings-owned and does not fail the history pointer.
 23. Armed move and resize keep the shell inside the dropbox `clientWidth` / `clientHeight` box with jQuery `containment` off. East, south, and southeast resize do not change `x` or `y`. Drop placement, history replay, and take-from-launchpad do not use that gesture clamp. At canvas scale other than 1, armed move keeps the pointer on the widget and can place the shell on the client edge. Armed resize changes size by the scaled pointer delta. The 2px inset between the drop border-box and the client-box is not part of this item. Before the minimum clamp, west and north keep the opposite edge; after the clamp hits the minimum, the existing west/north overshoot may still shift that edge.

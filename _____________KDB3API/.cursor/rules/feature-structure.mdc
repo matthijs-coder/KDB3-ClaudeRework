@@ -131,7 +131,7 @@ Split by cohesion, not by count. A file holds one concept: a reducer and its act
 | function over about 60 lines | split into named steps |
 
 - Lines over 180 characters count as packing; un-pack them. Never compress code to meet a size target.
-- Do not create a file that only forwards to another file, re-exports it, or wraps it in try/catch .
+- Do not create a file that only forwards to another file, re-exports it, or wraps it in try/catch.
 - Merge tiny files (under about 30 lines with one importer) into their caller or their concept's file.
 - Do not create a folder for fewer than about 4 files unless it is a named sub-domain.
 - No vague names for files or folders: `helpers`, `common`, `misc`, `manager`, `shared`, `stuff`, nor overflow suffixes (`Support`, `Helpers`, `Internals`).

@@ -5,8 +5,8 @@ define([
 ], function (_state, _slots, _tabSlots) {
   "use strict";
 
-  // Read functions for the tabs state; the only file other modules import for reads (state/selectors.js is the
-  // path-preserving shim). Every read returns copies, never the live state.
+  // Read functions for the tabs state; the only file other modules import for reads.
+  // Every read returns copies, never the live state.
 
   function readTabsState(_KDB) {
     return cloneState(readRawState(_KDB) || _state.createInitialTabsState());
