@@ -1,8 +1,7 @@
 define([
   "./config.js",
-  "./state/selectors.js",
-  "../../core/cognosHost/config/rootChromeSelectors.js"
-], function (_config, _selectors, _rootChrome) {
+  "./state/selectors.js"
+], function (_config, _selectors) {
   "use strict";
 
   function createDiv(_id, _className) {
@@ -20,8 +19,8 @@ define([
     return loc.protocol + "//" + loc.host + "/" + parts[3];
   }
 
-  function buildFooterChrome() {
-    var wrapper = createDiv("KDB_bottomFooterWrapper", "KDB_bottomFooterWrapper " + _rootChrome.footer.strings.pageClassNames);
+  function buildFooterChrome(_KDB) {
+    var wrapper = createDiv("KDB_bottomFooterWrapper", "KDB_bottomFooterWrapper " + _KDB.elements.selectors.footer.pageClassNames);
     var emptyLeft = createDiv("KDB_bottomFooter_emptyLeft", null);
     var bar = createDiv("KDB_bottomFooter", "KDB_bottomFooter");
     var leftCol = createDiv("KDB_bottomFooter_leftContainer", "KDB_bottomFooter_column");
@@ -109,7 +108,7 @@ define([
       if (!domRefs.rootEl.parentNode) placeFooter(domRefs.mountTargetEl, domRefs.rootEl);
       return;
     }
-    var built = buildFooterChrome();
+    var built = buildFooterChrome(_KDB);
     domRefs.rootEl = built.root;
     domRefs.barEl = built.barEl;
     domRefs.dashboardTitleEl = built.dashboardTitleEl;

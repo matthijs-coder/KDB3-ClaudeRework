@@ -1,11 +1,10 @@
 define([
-  "../../cognosHost/config/rootChromeSelectors.js",
   "../../utils/kit/runtime.js",
   "./caption.js",
   "./config.js",
   "./state.js",
   "./watchdog.js"
-], function (_rootChrome, _rt, _caption, _config, _state, _watchdog) {
+], function (_rt, _caption, _config, _state, _watchdog) {
   "use strict";
 
   var SPINNER_HTML = [
@@ -55,10 +54,7 @@ define([
   }
 
   function resolveSpinnerSelector(_KDB) {
-    var rootSelectors = _KDB.elements && _KDB.elements.selectors ? _KDB.elements.selectors.root : null;
-    return rootSelectors && rootSelectors.loadingIndicatorSelector
-      ? rootSelectors.loadingIndicatorSelector
-      : _rootChrome.root.strings.loadingIndicatorSelector;
+    return _KDB.elements.selectors.root.loadingIndicatorSelector;
   }
 
   // A static mount needs position: relative for the overlay. The decision is made when an overlay opens

@@ -7,6 +7,7 @@ import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
 const DASHBOARD = path.join(JS_ROOT, "dashboard");
+const ROOT_CHROME = loadAmd(path.join(JS_ROOT, "core/cognosHost/config/rootChromeSelectors.js"));
 
 class FakeElement {
   constructor(tag) {
@@ -79,7 +80,7 @@ function bootModules(config) {
     utils: {},
     events: createEventBus(),
     config: config || {},
-    elements: { selectors: { root: { pageViewContent: ".pageViewContent", footerMountRoot: ".ba-common-tabList__container" } } }
+    elements: { selectors: { root: { pageViewContent: ".pageViewContent", footerMountRoot: ".ba-common-tabList__container" }, footer: ROOT_CHROME.footer.strings } }
   };
   registerHeader(KDB);
   registerFooter(KDB);

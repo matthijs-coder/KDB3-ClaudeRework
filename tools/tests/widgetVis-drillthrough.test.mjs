@@ -375,7 +375,8 @@ function createFocusHarness(options) {
     MutationObserver: options && options.noObserver ? undefined : FakeObserver
   };
   const observer = load(W + "focus/observer.js", { stubs });
-  const _KDB = { runtime: { widgetVis: { enableDrillthrough: false, byId: {}, observers: {}, timers: {} } }, api: {} };
+  const focusMode = load("core/cognosHost/config/widgetChromeSelectors.js").focusMode.strings;
+  const _KDB = { runtime: { widgetVis: { enableDrillthrough: false, byId: {}, observers: {}, timers: {} } }, api: {}, elements: { selectors: { focusMode } } };
   return { observer, timers, observers, containers, body, _KDB };
 }
 
