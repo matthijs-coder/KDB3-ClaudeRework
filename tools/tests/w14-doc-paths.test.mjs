@@ -80,6 +80,18 @@ test("collectStale reads only the living doc set (archive and futureTodo exclude
   ]);
 });
 
+test("the smoke checklist and the images README are scanned too", () => {
+  const root = makeRepo({
+    "_____________KDB3API/KDB3/js/core/a.js": "",
+    "tools/smoke-checklist.md": "see core/a.js and core/gone.js\n",
+    "_____________KDB3API/KDB3/images/README.md": "icons in dashboard/gone/x.js\n"
+  });
+  assert.deepEqual(collectStale(root).map((s) => `${s.doc}:${s.path}`).sort(), [
+    "_____________KDB3API/KDB3/images/README.md:dashboard/gone/x.js",
+    "tools/smoke-checklist.md:core/gone.js"
+  ]);
+});
+
 test("evaluate: allow-listed stale citations pass, unknown ones fail, unused entries are reported", () => {
   const stale = [{ doc: "a.md", line: 1, path: "core/x.js" }, { doc: "a.md", line: 2, path: "core/y.js" }];
   const allowlist = parseAllowlist("# comment\n\na.md | core/x.js  # historical\nb.md | core/z.js  # fixed since\n");

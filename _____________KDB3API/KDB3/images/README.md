@@ -6,7 +6,7 @@ Static icons served from `./v1/ext/KDB3/images/`. All files are kept: none is pr
 
 - Fixed paths in JS config: `js/dashboard/widgets/widgetSettings/config/imagePaths.js`, `controlDefinitions.js`, `options.js`, `js/dashboard/tabs/config/defaults.js`, `js/dashboard/header/config/extAssetPaths.js`, `js/dashboard/canvas/dragDrop/config/defaults.js`, and the controls `iconAssets.js` files (`js/dashboard/controls/*/`).
 - CSS `url()` in `css/widgets/widgetVis.css`.
-- Header icon `<stem>.png`: resolved as `images/<stem>.png` from the Cognos-side `headerWidgetPropObj.icons` catalog (`dashboard/header/config/headerIconKeys.js`, `buildHeaderChrome.js`, `syncHeaderFromState.js`). `Stadt-wien.png` is the default header icon.
+- Header icon `<stem>.png`: resolved as `images/<stem>.png` from the Cognos-side `headerWidgetPropObj.icons` catalog (`dashboard/header/iconKeys.js`; `buildHeaderChrome` and `syncHeaderIcon` in `dashboard/header/view.js`). `Stadt-wien.png` is the default header icon.
 - Option `icon`: widget option icons come from `option.icon` of configured options (`widgetSettings/config/configuredDefaultOptionUtils.js`), so names can come from properties.
 
 ## Images without a by-name reference

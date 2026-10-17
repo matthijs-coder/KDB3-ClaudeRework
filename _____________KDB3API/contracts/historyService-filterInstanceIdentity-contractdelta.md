@@ -231,7 +231,7 @@ Expected responsibilities after contract approval:
 
 ```txt
 dashboard/filters/singleSelect/history.js         (buildCommittedStep)
-dashboard/filters/singleSelect/historyReplay.js   (applySingleSelectHistoryReplay, createSingleSelectHistoryReplayHandler, replayCommittedSelection)
+dashboard/filters/singleSelect/historyReplay.js   (applyHistoryReplay, replayCommittedSelection; the handler is built by `_kitHistory.createReplayHandler`)
 core/services/historyService/state.js             (normalizeHistoryStep)
 ```
 

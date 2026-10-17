@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Living docs must not cite code paths that do not exist. Checked docs: contracts/*.md and architecture/*.md (top level,
-// `_archive/` and `futureTodo/` excluded), .cursor/rules/*.mdc, AGENTS.md, README.md, tools/README.md. JS comments are out of scope.
+// `_archive/` and `futureTodo/` excluded), .cursor/rules/*.mdc, AGENTS.md, README.md, tools/README.md, tools/smoke-checklist.md,
+// KDB3/images/README.md. JS comments are out of scope.
 // Cited path = `[_____________KDB3API/][KDB3/js/](dashboard|core|workflows|bootstrap)/...` or `tools/...`; wildcards truncate to
 // the existing directory prefix. Known historical references live in tools/doc-paths-allowlist.txt (`<doc> | <path>  # reason`);
 // an entry that no longer matches a stale citation fails, so the list only shrinks.
@@ -56,7 +57,8 @@ export function listLivingDocs(repoRoot = REPO_ROOT) {
   addDir(path.join(app, 'contracts'), '.md');
   addDir(path.join(app, 'architecture'), '.md');
   addDir(path.join(app, '.cursor', 'rules'), '.mdc');
-  for (const f of [path.join(app, 'AGENTS.md'), path.join(app, 'README.md'), path.join(repoRoot, 'tools', 'README.md')]) {
+  for (const f of [path.join(app, 'AGENTS.md'), path.join(app, 'README.md'), path.join(repoRoot, 'tools', 'README.md'),
+    path.join(repoRoot, 'tools', 'smoke-checklist.md'), path.join(app, 'KDB3', 'images', 'README.md')]) {
     if (fs.existsSync(f)) docs.push(f);
   }
   return docs.map((abs) => path.relative(repoRoot, abs).split(path.sep).join('/'));

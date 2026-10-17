@@ -64,7 +64,7 @@ Legend: **[CORE]** = part of the quick Core smoke (section 1, about 10 min, run 
 - [ ] **2.4b TopN after a Jahr change**: confirm a different global Jahr. Expected: all TopN charts on the tab rebind, the helper ids recorded in 2.3 are inside `#KDB_topNPad` (check by id; the wave releases the claims, so `helperWidgetId` is `null` afterwards and `lastHelperPlan === null` proves nothing here), no `[widgetTopN.postResolutionCleanup] cleanup failed` warning, the charts do not appear noticeably slower (about 5 s per chart) than baseline, and dragging a metric from the metrics tree onto the canvas still works.
 - [ ] **2.5 Nothing else changed**: compare against the baseline for header/footer/tabs/filters/save/load (run section 1 fully, not only the CORE subset). Expected: no visual difference, same console warnings count.
 - [ ] **2.6 No missing modules after orphan removal**: Network tab, filter `KDB3`. Expected: no 404, no `requirejs` "Script error" (removed orphans were never loaded, so a 404 means a real broken reference).
-- [ ] **2.7 Drag and resize still work**: drag a widget by its handle and resize it. Expected: as baseline (relevant if `core/libraries/jquery-ui.min.js` is removed later).
+- [ ] **2.7 Drag and resize still work**: drag a widget by its handle and resize it. Expected: as baseline (relevant if the host-provided jQuery UI is removed or replaced later).
 - [ ] **2.8 Tooling (agent side, no Cognos)**: `node tools/check-all.mjs` exits 0 on the merged branch (only if the tools PR is merged).
 
 ---
@@ -201,7 +201,7 @@ Run the **Core smoke (section 1)** first, then only the sections of the WS being
 #### G (kdbControl restructure)
 - [ ] Control panel opens with the same layout and texts: header "Dashboard-Steuerung" with settings and info icons, toggles "Kennzahlen"/"Toolbox", sections Kommentar / Tab / Kopfzeile/Fußzeile, and Dashboard / Diagramme / Kommentare / Steuerungspanel (settings icon opens the settings panel; clicking Toolbox twice returns to Kennzahlen).
 - [ ] Collapse arrow: click and Enter/Space collapse and expand the panel; arrow glyph flips.
-- [ ] Settings panel, all 13 inputs: width/height accept `300mm`, `20cm`, `800px`; a value below the minimum (e.g. `1px`) is raised to the minimum with an info message; `abc`, `12` (no unit) and `0mm` show a warning and change nothing. Colour inputs update on typing/picking; palette opens on focus/click, closes on Esc, outside click and focus-out; picking a swatch fills the input and the dashboard/panel colour changes.
+- [ ] Settings panel, all 13 inputs: width/height accept `300mm`, `20cm`, `800px`; a value below the minimum (e.g. `1px`) is raised to the minimum with an info message; `abc`, `12` (no unit) and `0mm` show a warning and change nothing. Colour inputs update on typing/picking; palette opens on focus/click, closes on Esc, outside click and focus-out; picking a swatch fills the input and the dashboard or panel colour changes.
 - [ ] Toolbox, Kopfzeile/Fußzeile: header/footer/subtitle switches follow the real header/footer state (also after a header edit or undo); the "Titel bearbeiten" radios start title/subtitle editing.
 - [ ] Toolbox, Tab: "Tab hinzufügen" adds a tab (blocked message at the maximum); the "Tab 1..5" radios follow the visible tabs and select the tab edit target (one request per click, not two).
 - [ ] Toolbox, Kommentar: click/drag the Kommentar button onto the canvas creates a text widget on the first, a lazily loaded and the last tab.
