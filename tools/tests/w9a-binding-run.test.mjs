@@ -31,7 +31,7 @@ const settle = (promise) => promise.then((value) => ["resolved", json(value)], (
 
 function buildKdb(services, extra) {
   const _KDB = Object.assign({ config: { options: {} }, api: {}, properties: {}, state: {}, runtime: {}, services: services }, extra || {});
-  load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/config/registerConfig.js")(_KDB);
   load("core/services/widgetBinding/index.js")(_KDB);
   return _KDB;
 }

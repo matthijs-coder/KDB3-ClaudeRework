@@ -75,7 +75,7 @@ test("no config: bucket, Cognos id, effective grain and sorting profile are as o
 
 test("no config: the pack of a rule bucket equals the configured answer", () => {
   const withConfig = {};
-  loadAmd(path.join(JS_ROOT, "core/config/__orchestratorConfig.js"), { stubs: { console: QUIET } })(withConfig);
+  loadAmd(path.join(JS_ROOT, "core/config/registerConfig.js"), { stubs: { console: QUIET } })(withConfig);
   for (const type of ["Line", "StackedBar", "StackedColumn", "List"]) {
     for (const grain of GRAINS) {
       assert.equal(visTypes.resolveKennzahlPack(type, grain, {}), visTypes.resolveKennzahlPack(type, grain, withConfig), key(type, grain));

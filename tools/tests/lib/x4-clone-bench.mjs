@@ -54,7 +54,7 @@ export function createFixture(widgetCount, options) {
   const stubs = { console: QUIET, JSON: counter.JSON };
   const load = (rel, extra) => loadAmd(path.join(JS_ROOT, rel), Object.assign({ stubs }, extra || {}));
   const _KDB = { config: { options: {} }, api: {}, properties: {}, state: {}, runtime: {} };
-  load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/config/registerConfig.js")(_KDB);
   _KDB.state.widgets = { vis: { byId: {} }, base: { byId: {} } };
   const ids = [];
   for (let index = 0; index < widgetCount; index += 1) {

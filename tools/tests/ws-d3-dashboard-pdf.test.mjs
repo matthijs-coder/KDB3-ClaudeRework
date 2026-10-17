@@ -13,7 +13,7 @@ import { JS_ROOT } from "../lib/amd-graph.mjs";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const GOLDEN_PATH = path.join(HERE, "ws-d3-dashboard-pdf.golden.json");
 const PDF_ROOT = path.join(JS_ROOT, "workflows/pdfExport");
-const ENTRY = path.join(PDF_ROOT, "__orchestratorDashboardPdf.js");
+const ENTRY = path.join(PDF_ROOT, "index.js");
 const LIBRARIES_ROOT = path.join(JS_ROOT, "core/libraries");
 const realSetTimeout = globalThis.setTimeout;
 const golden = process.env.RECORD ? {} : JSON.parse(fs.readFileSync(GOLDEN_PATH, "utf8"));

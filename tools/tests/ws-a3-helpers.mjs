@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
-export const ORCHESTRATOR = path.join(JS_ROOT, "core/services/cognosHost/__orchestratorCognosHost.js");
+export const ORCHESTRATOR = path.join(JS_ROOT, "core/services/cognosHost/index.js");
 export const FIXTURE_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures");
 
 export function create(cognosAPI) {

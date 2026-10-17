@@ -9,7 +9,7 @@ import { fileURLToPath } from "node:url";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
-const ENTRY = path.join(JS_ROOT, "core/services/drillthrough/__orchestratorDrillthrough.js");
+const ENTRY = path.join(JS_ROOT, "core/services/drillthrough/index.js");
 const EXPECTED_FILE = path.join(path.dirname(fileURLToPath(import.meta.url)), "ws-d-drillthrough-url.expected.json");
 const RECORD = process.argv.includes("--record") || process.env.RECORD === "1";
 

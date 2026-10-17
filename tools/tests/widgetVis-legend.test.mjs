@@ -288,7 +288,7 @@ test("applyPropertyMap treats aborted outcomes as abort and collects failures", 
 
 function buildKdb(facet, metricsTree) {
   const _KDB = { config: { options: {} }, api: metricsTree ? { metricsTree } : {}, properties: {}, runtime: { widgetVis: facet ? { visualizationFacet: facet } : {} } };
-  load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/config/registerConfig.js")(_KDB);
   return _KDB;
 }
 
@@ -732,7 +732,7 @@ test("applyPreRenderTitle maps facet outcomes", async () => {
 test("applyVisualizationProperties maps the phases and records the applied vis type", async () => {
   const { applyVisualizationProperties } = load(W + "render/visProperties.js", { stubs: QUIET });
   const _KDB = { config: { options: {} }, api: {}, properties: {} };
-  load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/config/registerConfig.js")(_KDB);
   const writes = [];
   const facet = {
     getVisType: async () => ({ ok: true, data: "other" }),

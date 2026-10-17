@@ -524,7 +524,7 @@ test("ensureWritebackRuntime provides all seven standard buckets", () => {
 });
 
 function loadOrchestrator(env) {
-  return loadAmd(path.join(WB, "__orchestratorWriteback.js"), { stubs: env.stubs });
+  return loadAmd(path.join(WB, "index.js"), { stubs: env.stubs });
 }
 
 test("writeback orchestrator registers the four services, merges labels and honours installCognosBridge:false", () => {
@@ -617,7 +617,7 @@ const ALL_OBJECT_IDS = {
 };
 
 function loadProps(env) {
-  return loadAmd(path.join(PROPS, "__orchestratorProperties.js"), { stubs: env.stubs });
+  return loadAmd(path.join(PROPS, "index.js"), { stubs: env.stubs });
 }
 
 test("properties: boot maps the 16 object ids and the 4 toggles onto _KDB.properties", () => {

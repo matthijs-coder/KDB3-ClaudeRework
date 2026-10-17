@@ -25,7 +25,7 @@ const RECORDS = {
 
 function createKdb() {
   const _KDB = { config: { options: {} }, api: {}, properties: {}, state: {}, runtime: {} };
-  load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/config/registerConfig.js")(_KDB);
   _KDB.state.widgets = { vis: { byId: {} }, base: { byId: {} } };
   load("dashboard/widgets/widgetSettings/index.js")(_KDB);
   _KDB.api.widgetSettings.mount();
@@ -65,7 +65,7 @@ test("settingsSnapshot after destroy and without a widgetSettings module falls b
   assert.equal(live.visType, "Line");
   assert.deepStrictEqual(afterDestroy, { dimension: null, visType: "Bar", topNChoice: null });
   const bare = { config: { options: {} }, api: {}, state: {}, runtime: {} };
-  load("core/config/__orchestratorConfig.js")(bare);
+  load("core/config/registerConfig.js")(bare);
   assert.deepStrictEqual(json(snapshot.readEffectiveSettingsContext(bare, "full", {}, record)), { dimension: null, visType: "Bar", topNChoice: null });
 });
 

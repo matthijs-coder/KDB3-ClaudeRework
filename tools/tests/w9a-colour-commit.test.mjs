@@ -15,7 +15,7 @@ function createEnv(options) {
   const logs = [];
   const quiet = { error: (...a) => logs.push(["error", ...a]), warn: (...a) => logs.push(["warn", ...a]), log() {} };
   const _KDB = { config: { options: {} }, api: {}, properties: {}, state: {}, runtime: {}, utils: {} };
-  load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/config/registerConfig.js")(_KDB);
   _KDB.state.widgets = { vis: { byId: {} }, base: { byId: {} } };
   _KDB.utils.readableTextColorForHex = load("core/utils/readableTextColorForHex.js");
   const baseCalls = [];

@@ -46,7 +46,7 @@ const json = (value) => (value === undefined ? "<undefined>" : JSON.parse(JSON.s
 
 function buildKdb(extra) {
   const _KDB = Object.assign({ config: { options: {} }, api: {}, properties: {} }, extra || {});
-  load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/config/registerConfig.js")(_KDB);
   return _KDB;
 }
 

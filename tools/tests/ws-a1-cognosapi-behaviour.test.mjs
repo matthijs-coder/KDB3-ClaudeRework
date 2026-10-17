@@ -7,7 +7,7 @@ import path from "node:path";
 import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 
-const ORCHESTRATOR = path.join(JS_ROOT, "core/cognosAPI/__orchestratorCognosAPI.js");
+const ORCHESTRATOR = path.join(JS_ROOT, "core/cognosAPI/index.js");
 
 function build(stubs = {}) {
   const _KDB = {};

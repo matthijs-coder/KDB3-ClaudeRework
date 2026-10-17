@@ -36,7 +36,7 @@ const cell = (type, grain) => `${typeKey(type)}|${grainKey(grain)}`;
 
 function buildKdb() {
   const _KDB = { config: { options: {} }, api: {}, properties: { filterPropObj: {} }, state: { widgets: { settings: { byWidget: {} } } }, runtime: {} };
-  load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/config/registerConfig.js")(_KDB);
   return _KDB;
 }
 

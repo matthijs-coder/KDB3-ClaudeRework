@@ -13,7 +13,7 @@ function setup(counter) {
   const stubs = { console: QUIET, JSON: (counter || createCounter()).JSON };
   const load = (rel) => loadAmd(path.join(JS_ROOT, rel), { stubs });
   const _KDB = { config: { options: {} }, api: {}, properties: {}, state: {}, runtime: {} };
-  load("core/config/__orchestratorConfig.js")(_KDB);
+  load("core/config/registerConfig.js")(_KDB);
   load("dashboard/widgets/widgetSettings/index.js")(_KDB);
   _KDB.api.widgetSettings.mount();
   _KDB.state.widgets.settings.byWidget.a = { pending: { kind: null }, deferred: { grouping: { kind: "grouping" } }, dimension: "D", dimensionMeta: { optionKey: "k", displayValue: "v" }, gone: undefined };

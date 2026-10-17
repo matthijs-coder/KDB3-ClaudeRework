@@ -1,5 +1,5 @@
 // Golden tests for core/services/messageService (WS-D1). They lock the public surface and DOM contract through
-// the stable entry core/services/messageService/__orchestratorMessageService.js.
+// the stable entry core/services/messageService/index.js.
 // Run: node --test tools/tests/ws-d1-message-service.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -8,7 +8,7 @@ import { loadAmd } from "../lib/amd-loader.mjs";
 import { JS_ROOT } from "../lib/amd-graph.mjs";
 import { createEnv, createFakeDocument } from "./ws-d1-fake-dom.mjs";
 
-const ENTRY = path.join(JS_ROOT, "core/services/messageService/__orchestratorMessageService.js");
+const ENTRY = path.join(JS_ROOT, "core/services/messageService/index.js");
 
 function setup(options = {}) {
   const writes = [];

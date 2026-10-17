@@ -58,7 +58,7 @@ test("dashboardPdf readLabels: registered labels override single keys, missing c
 });
 
 test("dashboardPdf registration publishes the labels under config.labels.de.dashboardPdf", () => {
-  const register = loadAmd(path.join(JS_ROOT, "workflows/pdfExport/__orchestratorDashboardPdf.js"));
+  const register = loadAmd(path.join(JS_ROOT, "workflows/pdfExport/index.js"));
   const kdb = { config: { labels: { de: { dashboardPdf: { attachmentTitle: "Appendix" } } } } };
   register(kdb);
   const flat = Object.assign({}, ...Object.values(old.dashboardPdf.files));

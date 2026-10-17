@@ -9,7 +9,7 @@ import { loadManifest, loadBootstrapModule } from './bootstrap-harness.mjs';
 
 const manifest = loadManifest();
 const lifecycle = loadBootstrapModule('core/bootstrap/lifecycle.js');
-const register = loadAmd(path.join(JS_ROOT, 'core/services/drillthrough/__orchestratorDrillthrough.js'), {
+const register = loadAmd(path.join(JS_ROOT, 'core/services/drillthrough/index.js'), {
   stubs: { window: { location: { href: 'https://cognos.example/x' }, open: () => handle }, console: { ...console, error() {} } },
 });
 

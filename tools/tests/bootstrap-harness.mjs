@@ -35,14 +35,14 @@ export const FEATURES = [
 
 export const CORE_STEP_PATHS = {
   cognosHostSelectors: 'core/cognosHost/registerCognosHostSelectors.js',
-  properties: 'core/properties/__orchestratorProperties.js',
-  config: 'core/config/__orchestratorConfig.js',
-  css: 'core/css/__orchestratorCss.js',
-  cognosAPI: 'core/cognosAPI/__orchestratorCognosAPI.js',
-  authoring: 'core/authoring/__orchestratorAuthoring.js',
+  properties: 'core/properties/index.js',
+  config: 'core/config/registerConfig.js',
+  css: 'core/css/index.js',
+  cognosAPI: 'core/cognosAPI/index.js',
+  authoring: 'core/authoring/index.js',
   services: 'bootstrap/registerServices.js',
-  homeDialog: 'core/homeDialog/__orchestratorHomeDialog.js',
-  utils: 'core/utils/__orchestratorUtils.js',
+  homeDialog: 'core/homeDialog/index.js',
+  utils: 'core/utils/registerUtils.js',
 };
 
 // Registration-time stamps of the real owners (header, footer and kdbControl stamp in mount()).
@@ -54,15 +54,15 @@ export const REPLAY_OWNER_BY_FEATURE = { kdbControl: 'kdbControl', header: 'head
 const SERVICE_NAMES = ['cognosHost', 'tableData', 'loading', 'message', 'widgetBindingPlan', 'widgetBindingApply', 'dashboardPdf', 'writebackBridge', 'writebackSet', 'writebackGet', 'writebackMap', 'drillthrough'];
 
 const SERVICE_SUBPATHS = {
-  cognosHost: 'core/services/cognosHost/__orchestratorCognosHost.js',
-  tableData: 'core/services/tableData/__orchestratorTableData.js',
-  loading: 'core/services/loadingService/__orchestratorLoadingService.js',
-  message: 'core/services/messageService/__orchestratorMessageService.js',
-  widgetBindingPlan: 'core/services/widgetBindingPlan/__orchestratorWidgetBindingPlan.js',
-  widgetBindingApply: 'core/services/widgetBindingApply/__orchestratorWidgetBindingApply.js',
-  dashboardPdf: 'workflows/pdfExport/__orchestratorDashboardPdf.js',
-  writeback: 'workflows/parameterSet/__orchestratorWriteback.js',
-  drillthrough: 'core/services/drillthrough/__orchestratorDrillthrough.js',
+  cognosHost: 'core/services/cognosHost/index.js',
+  tableData: 'core/services/tableData/index.js',
+  loading: 'core/services/loadingService/index.js',
+  message: 'core/services/messageService/index.js',
+  widgetBindingPlan: 'core/services/widgetBindingPlan/index.js',
+  widgetBindingApply: 'core/services/widgetBindingApply/index.js',
+  dashboardPdf: 'workflows/pdfExport/index.js',
+  writeback: 'workflows/parameterSet/index.js',
+  drillthrough: 'core/services/drillthrough/index.js',
 };
 
 export function deferred() {

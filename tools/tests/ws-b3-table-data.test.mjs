@@ -14,7 +14,7 @@ const SERVICE_DIR = path.resolve(HERE, "../../_____________KDB3API/KDB3/js/core/
 const SNAPSHOT_FILE = path.join(HERE, "ws-b3-table-data.snapshot.json");
 
 const FILES = {
-  orchestrator: "__orchestratorTableData.js",
+  orchestrator: "index.js",
   eventNames: "events/eventNames.js",
   shapeTableRows: "shapeTableRows.js",
   normalizeTableInputs: "tableInputs.js",

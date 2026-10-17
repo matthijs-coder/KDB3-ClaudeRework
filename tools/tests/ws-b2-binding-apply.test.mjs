@@ -18,7 +18,7 @@ const RUN_GUARD_MS = 2000;
 
 const quiet = { log() {}, info() {}, warn() {}, error() {} };
 const load = (rel) => loadAmd(path.join(JS_ROOT, rel), { stubs: { console: quiet } });
-const registerApply = load(`${APPLY_DIR}/__orchestratorWidgetBindingApply.js`);
+const registerApply = load(`${APPLY_DIR}/index.js`);
 const buildPlan = load("core/services/widgetBindingPlan/buildPlan.js");
 const buildFilterBodyModule = load(FILTER_BODY_PATH);
 const buildKeepexclude = load(KEEPEXCLUDE_PATH);
