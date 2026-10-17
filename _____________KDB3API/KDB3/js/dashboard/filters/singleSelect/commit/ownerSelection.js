@@ -15,7 +15,7 @@ define([
   async function notifySichtOwner(_KDB, _handoff, _selection) {
     try {
       var api = _KDB && _KDB.api && _KDB.api.sicht ? _KDB.api.sicht : null;
-      if (!api || typeof api.dispatch !== "function") {
+      if (!api) {
         return failureResult(codes.OWNER_SELECTION_INVALID, "sicht owner dispatch API unavailable");
       }
       var ack = await api.dispatch({

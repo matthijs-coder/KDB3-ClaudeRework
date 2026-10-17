@@ -33,7 +33,7 @@ define([
     var keys;
     var idx;
     var cell;
-    if (!tableData || typeof tableData.readRows !== "function" || !_defaultTableKey) {
+    if (!tableData || !_defaultTableKey) {
       return null;
     }
     tableInput = _config.buildTableInput(_KDB, _defaultTableKey);
@@ -131,7 +131,7 @@ define([
       console.warn("[dienststelle.notifyEmptyOk] messageService missing");
       return;
     }
-    if (_wrapper && typeof svc.notifyAnchored === "function") {
+    if (_wrapper) {
       svc.notifyAnchored({
         anchor: _wrapper,
         code: "DIENSTSTELLE_EMPTY_OK_DEFAULT",
@@ -141,15 +141,11 @@ define([
       });
       return;
     }
-    if (typeof svc.notify === "function") {
-      svc.notify({
-        code: "DIENSTSTELLE_EMPTY_OK_DEFAULT",
-        message: _message,
-        severity: "info"
-      });
-      return;
-    }
-    console.warn("[dienststelle.notifyEmptyOk] messageService missing");
+    svc.notify({
+      code: "DIENSTSTELLE_EMPTY_OK_DEFAULT",
+      message: _message,
+      severity: "info"
+    });
   }
 
   function notifyEmptyOk(_KDB, _options) {

@@ -8,9 +8,7 @@ define([
   var DRAFT_REVERTED = _ownerNotify.ownerActions.sichtDraftReverted;
 
   function readSichtOwnerApi(_KDB) {
-    return _KDB && _KDB.api && _KDB.api.sicht &&
-      typeof _KDB.api.sicht.dispatch === "function"
-      ? _KDB.api.sicht : null;
+    return _KDB && _KDB.api && _KDB.api.sicht ? _KDB.api.sicht : null;
   }
 
   function buildDraftPayload(_handoffContext, _selection) {

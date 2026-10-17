@@ -22,7 +22,7 @@ define([
   function readTableRows(_KDB, _tableKey) {
     var tableData = _KDB && _KDB.services ? _KDB.services.tableData : null;
     var tableInput;
-    if (!tableData || typeof tableData.readRows !== "function" || !_tableKey) {
+    if (!tableData || !_tableKey) {
       return undefined;
     }
     tableInput = buildTableInput(_KDB, _tableKey);

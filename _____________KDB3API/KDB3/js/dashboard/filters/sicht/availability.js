@@ -87,7 +87,7 @@ define([
     var tableData = _KDB && _KDB.services ? _KDB.services.tableData : null;
     var tableInput;
     var rows;
-    if (!tableData || typeof tableData.readRows !== "function") {
+    if (!tableData) {
       return null;
     }
     tableInput = buildTableInput(_KDB, _tableKey);

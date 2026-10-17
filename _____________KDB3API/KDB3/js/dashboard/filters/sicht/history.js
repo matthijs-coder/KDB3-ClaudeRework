@@ -88,7 +88,7 @@ define([
       if (!dependencies || !dependencies.dienststelle) {
         return true;
       }
-      if (!_KDB.api.dienststelle || typeof _KDB.api.dienststelle.dispatch !== "function") {
+      if (!_KDB.api.dienststelle) {
         console.warn("[sicht.historyReplay] dienststelle API unavailable for dependency replay");
         return false;
       }
@@ -116,7 +116,7 @@ define([
     if (specialSingleSelectApi && typeof specialSingleSelectApi.getState === "function") {
       specialSingleSelect = _kitData.cloneJson(specialSingleSelectApi.getState());
     }
-    if (dienststelleApi && typeof dienststelleApi.getState === "function") {
+    if (dienststelleApi) {
       dienststelle = _kitData.cloneJson(dienststelleApi.getState());
     }
     return {

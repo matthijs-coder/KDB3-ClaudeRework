@@ -45,7 +45,7 @@ define([
     if (root && root.inventory && root.inventory.freshness === "fresh") {
       return { ok: true };
     }
-    if (!api || typeof api.dispatch !== "function") {
+    if (!api) {
       return { ok: false, errorCode: replayCodes.REPLAY_FAILED };
     }
     try {
@@ -157,7 +157,7 @@ define([
 
   function resolveVisibleSpecialFilterId(_KDB, _filterLabel) {
     var api = _KDB && _KDB.api ? _KDB.api.specialSingleSelect : null;
-    if (!api || typeof api.getState !== "function") { return null; }
+    if (!api) { return null; }
     try {
       return findVisibleSpecialFilterId(api.getState(), _filterLabel);
     } catch (error) {
@@ -174,7 +174,7 @@ define([
       return { ok: true, applicable: false };
     }
     api = _KDB.api.specialSingleSelect;
-    if (!api || typeof api.dispatch !== "function") {
+    if (!api) {
       return { ok: false, applicable: true, errorCode: replayCodes.OWNER_NOTIFY_FAILED };
     }
     try {

@@ -46,7 +46,7 @@ define([
       };
     }
     var tabsApi = _KDB && _KDB.api ? _KDB.api.tabs : null;
-    if (!tabsApi || typeof tabsApi.dispatch !== "function") {
+    if (!tabsApi) {
       return { ok: false, code: codes.SCOPE_TARGET_UNVERIFIED, message: "tabs API unavailable for scope verification" };
     }
     return tabsApi.dispatch({

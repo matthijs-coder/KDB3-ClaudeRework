@@ -276,7 +276,7 @@ define([
   async function notifyWritebackDienststelle(_KDB, _selection) {
     try {
       var api = _KDB && _KDB.api ? _KDB.api.dienststelle : null;
-      if (!api || typeof api.dispatch !== "function") {
+      if (!api) {
         return { ok: true, skipped: true };
       }
       await Promise.resolve(api.dispatch({

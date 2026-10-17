@@ -105,7 +105,7 @@ define([
       var api = _KDB && _KDB.api ? _KDB.api.singleSelect : null;
       var dispatchType;
       var result;
-      if (!api || typeof api.dispatch !== "function" || !_mappedHandoff) {
+      if (!api || !_mappedHandoff) {
         return false;
       }
       dispatchType =
@@ -280,9 +280,7 @@ define([
   }
 
   function readSingleSelectDispatch(_KDB) {
-    return _KDB && _KDB.api && _KDB.api.singleSelect &&
-      typeof _KDB.api.singleSelect.dispatch === "function"
-      ? _KDB.api.singleSelect.dispatch : null;
+    return _KDB && _KDB.api && _KDB.api.singleSelect ? _KDB.api.singleSelect.dispatch : null;
   }
 
   function readSingleSelectInventoryGeneration(_KDB) {

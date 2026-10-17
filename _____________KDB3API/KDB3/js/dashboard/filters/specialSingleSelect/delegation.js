@@ -76,7 +76,7 @@ define([
   function delegateToSingleSelect(_KDB, _mappedHandoff, _actionType, _alleAllowed) {
     var api = _KDB && _KDB.api ? _KDB.api.singleSelect : null;
     var dispatchType;
-    if (!api || typeof api.dispatch !== "function" || !_mappedHandoff) {
+    if (!api || !_mappedHandoff) {
       return false;
     }
     dispatchType = _actionType === actions.FILTER_DOCK_POPUP_READY

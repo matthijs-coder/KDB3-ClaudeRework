@@ -36,10 +36,10 @@ define([
     var tableKey = _tableValues.resolveFilterOptionsTableKey(_instance.filterLabel);
     var tableConfig = _KDB && _KDB.config && _KDB.config.tables
       ? _KDB.config.tables[tableKey] : null;
-    if (!tableData || !tableConfig || typeof tableData.readRows !== "function") { return null; }
+    if (!tableData || !tableConfig) { return null; }
     var input = [{ tableName: tableKey, shape: tableConfig.shape, pick: tableConfig.pick }];
     var rows = tableData.readRows(input);
-    if (!Array.isArray(rows) && typeof tableData.waitForRows === "function") {
+    if (!Array.isArray(rows)) {
       try {
         rows = await tableData.waitForRows(input);
       } catch (error) {

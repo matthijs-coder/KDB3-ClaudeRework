@@ -111,7 +111,7 @@ define([
 
   function dispatchWidgetChanged(_KDB, _payload) {
     var widgetVisApi = _KDB && _KDB.api ? _KDB.api.widgetVis : null;
-    if (widgetVisApi && typeof widgetVisApi.dispatch === "function") {
+    if (widgetVisApi) {
       widgetVisApi.dispatch({
         type: _widgetVisSelectors.ACTION_TYPES.DIENSTSTELLE_CHANGED,
         payload: _payload

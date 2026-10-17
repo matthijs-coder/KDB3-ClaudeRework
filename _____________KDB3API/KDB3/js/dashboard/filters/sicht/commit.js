@@ -267,7 +267,7 @@ define([
       var payload = _payload || {};
       var api = _KDB && _KDB.api ? _KDB.api.dienststelle : null;
       if (payload.isHistoryReplay === true ||
-        !api || typeof api.dispatch !== "function") {
+        !api) {
         return { ok: true, skipped: true };
       }
       await Promise.resolve(api.dispatch({
@@ -296,7 +296,7 @@ define([
   async function notifySpecialSingleSelect(_KDB, _selection) {
     try {
       var api = _KDB && _KDB.api ? _KDB.api.specialSingleSelect : null;
-      if (!api || typeof api.dispatch !== "function" || !_selection) {
+      if (!api || !_selection) {
         return { ok: true, skipped: true };
       }
       await Promise.resolve(api.dispatch({

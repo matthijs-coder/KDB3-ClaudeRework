@@ -323,7 +323,7 @@ define([
 
   async function dispatchSpecialPolicy(_KDB, _payload) {
     var api = _KDB && _KDB.api ? _KDB.api.singleSelect : null;
-    if (!api || typeof api.dispatch !== "function") {
+    if (!api) {
       return { ok: false };
     }
     return api.dispatch({

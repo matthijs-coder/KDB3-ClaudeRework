@@ -32,7 +32,7 @@ define([
   async function applyReplay(_KDB, _targetValue, _step, _ctx) {
     var api = _KDB && _KDB.api ? _KDB.api.dienststelle : null;
     var replayResult;
-    if (!api || typeof api.dispatch !== "function") {
+    if (!api) {
       return false;
     }
     replayResult = await api.dispatch({
