@@ -1,7 +1,7 @@
 define([
   "../../../../core/config/writebackErrorCodes.js",
   "../../../../core/events/tabs.js",
-  "./buildWidgetObject.js",
+  "../../../../core/utils/buildWidgetObject.js",
   "./collectorSupport.js",
 ], function (_errorCodes, _tabsVocabulary, _buildWidgetObject, _support) {
   "use strict";

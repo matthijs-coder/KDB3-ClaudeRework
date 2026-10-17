@@ -3,13 +3,6 @@ define([
 ], function (_tabSlots) {
   "use strict";
 
-  function assignOptionalFlag01(target, compactKey, value) {
-    if (typeof value !== "boolean") {
-      return;
-    }
-    target[compactKey] = value ? 1 : 0;
-  }
-
   function trimUseValue(selection) {
     return selection && typeof selection.useValue === "string" ? selection.useValue.trim() : "";
   }
@@ -25,7 +18,6 @@ define([
   }
 
   return Object.freeze({
-    assignOptionalFlag01: assignOptionalFlag01,
     trimUseValue: trimUseValue,
     isKnownUnsupportedKey: isKnownUnsupportedKey,
     isDashboardTab: _tabSlots.isDashboardTab,

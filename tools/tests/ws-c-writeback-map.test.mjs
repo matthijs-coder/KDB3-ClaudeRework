@@ -21,7 +21,7 @@ const errorCodes = loadAmd(path.join(JS_ROOT, "core/config/writebackErrorCodes.j
 const detectSourceFormat = load("schema/detectSourceFormat.js");
 const normalizeBridgeSetInput = load("bridge/normalizeBridgeSetInput.js");
 const createWritebackMapService = load("map/createWritebackMapService.js");
-const buildWidgetObject = loadAmd(path.join(WB, "get/collectors/buildWidgetObject.js"), { stubs: { console: silentConsole } });
+const buildWidgetObject = loadAmd(path.join(JS_ROOT, "core/utils/buildWidgetObject.js"), { stubs: { console: silentConsole } });
 
 function readFilterPropObj() {
   const src = fs.readFileSync(path.join(REPO_ROOT, "_____________KDB3API/__savedProperties/filterPropId.js"), "utf8");

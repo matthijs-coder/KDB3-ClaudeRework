@@ -91,8 +91,7 @@ workflows/parameterSet/
 │   │   ├── materializeSingleSelect.js (pending single-select entries -> persisted entries / inst)
 │   │   ├── collectNativeMultiSelect.js (filt.pcfs via nativeMultiSelect collect dispatch)
 │   │   ├── buildScopeIdToTabIdx.js
-│   │   ├── collectWidgets.js          (wgts; visibleDashboard traverse)
-│   │   └── buildWidgetObject.js       (wgts per-widget object)
+│   │   └── collectWidgets.js          (wgts; visibleDashboard traverse; per-widget object = core/utils/buildWidgetObject.js, also used by widgetBase's duplicate-tab serialiser)
 │   └── persist/                       bridge-only landing after the host "save parameter set" popup
 │       ├── persistLanding.js          applyWritebackGetPersistLanding / cancelWritebackGetPersistLanding (abortControllers.persistLanding)
 │       ├── persistLoadingOverlay.js   loading overlay handle (runtime.getPersistLoadingHandle)

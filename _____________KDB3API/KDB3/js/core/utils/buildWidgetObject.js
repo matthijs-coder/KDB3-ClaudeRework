@@ -1,12 +1,12 @@
 define([
-  "../../../../core/config/writebackErrorCodes.js",
-  "../../../../core/config/dropdownDefaults.js",
-  "../../../../core/config/visualizations/visTypeRules.js",
-  "./collectorSupport.js",
-], function (_errorCodes, _dropdownDefaults, _visTypeRules, _support) {
+  "../config/writebackErrorCodes.js",
+  "../config/dropdownDefaults.js",
+  "../config/visualizations/visTypeRules.js"
+], function (_errorCodes, _dropdownDefaults, _visTypeRules) {
   "use strict";
 
-  // Builds a single v3 `wgts` object per contracts/writeback.md §4.5.1.
+  // Builds a single v3 `wgts` object per contracts/writeback.md §4.5.1. Pure: shared by the writeback collectors and
+  // widgetBase's duplicate-tab serialiser, so it lives in core.
   // Delta encoding: optional keys are omitted when the owner default applies
   // (dim/topn "none", colours "#ffffff", fontSize "automatic", style default).
 
@@ -65,13 +65,13 @@ define([
     common.type = settings.visType != null ? settings.visType : VIS_TYPE_DEFAULT;
     assignOptionalString(common, "dim", settings.dimension, DIMENSION_DEFAULT);
     assignOptionalString(common, "topn", settings.topNChoice, TOP_N_DEFAULT);
-    _support.assignOptionalFlag01(common, "vals", settings.showValues);
+    assignOptionalFlag01(common, "vals", settings.showValues);
     if (_visTypeRules.isAllowedGrain(_visTypeRules.resolveBucket(common.type), settings.grouping)) {
       common.grp = settings.grouping;
     }
-    _support.assignOptionalFlag01(common, "iter", settings.iterator);
-    _support.assignOptionalFlag01(common, "wzbar", settings.zoom);
-    _support.assignOptionalFlag01(common, "vcap", settings.valueCaption);
+    assignOptionalFlag01(common, "iter", settings.iterator);
+    assignOptionalFlag01(common, "wzbar", settings.zoom);
+    assignOptionalFlag01(common, "vcap", settings.valueCaption);
     assignOptionalColour(common, "bgcol", frame.colour);
     assignOptionalColour(common, "ctcol", settings.colour);
     return common;
@@ -89,6 +89,13 @@ define([
     assignOptionalColour(common, "bgcol", shellSource);
     assignOptionalString(common, "style", settings.restyle, RESTYLE_DEFAULT);
     return common;
+  }
+
+  function assignOptionalFlag01(target, compactKey, value) {
+    if (typeof value !== "boolean") {
+      return;
+    }
+    target[compactKey] = value ? 1 : 0;
   }
 
   function assignOptionalString(target, key, value, defaultValue) {
