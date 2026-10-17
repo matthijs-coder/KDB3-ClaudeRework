@@ -1,0 +1,313 @@
+{
+  "restore / failed / current": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_SICHT_RESTORE_FAILED",
+        "message": "sicht restore failed while delegating to singleSelect",
+        "diagnostics": [
+          {
+            "code": "Z",
+            "message": "no"
+          }
+        ]
+      }
+    ]
+  },
+  "restore / failed / superseded": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "restore / failedNoDiagnostics / current": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_SICHT_RESTORE_FAILED",
+        "message": "sicht restore failed while delegating to singleSelect"
+      }
+    ]
+  },
+  "restore / failedNoDiagnostics / superseded": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "restore / nullResult / current": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_SICHT_RESTORE_FAILED",
+        "message": "sicht restore failed while delegating to singleSelect",
+        "diagnostics": null
+      }
+    ]
+  },
+  "restore / nullResult / superseded": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "restore / ok / current": {
+    "ok": true,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "D",
+        "message": "d"
+      }
+    ]
+  },
+  "restore / ok / superseded": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "restore / okDegraded / current": {
+    "ok": true,
+    "degraded": true,
+    "diagnostics": []
+  },
+  "restore / okDegraded / superseded": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "clear / failed / current": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_SICHT_RESTORE_FAILED",
+        "message": "sicht clear failed while delegating to singleSelect",
+        "diagnostics": [
+          {
+            "code": "Z",
+            "message": "no"
+          }
+        ]
+      }
+    ]
+  },
+  "clear / failed / current / newDashboard": {
+    "ok": true,
+    "degraded": true,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_SICHT_RESTORE_FAILED",
+        "message": "sicht clear failed while delegating to singleSelect",
+        "diagnostics": [
+          {
+            "code": "Z",
+            "message": "no"
+          }
+        ]
+      }
+    ]
+  },
+  "clear / failed / superseded": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "clear / failed / superseded / newDashboard": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "clear / failedNoDiagnostics / current": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_SICHT_RESTORE_FAILED",
+        "message": "sicht clear failed while delegating to singleSelect"
+      }
+    ]
+  },
+  "clear / failedNoDiagnostics / current / newDashboard": {
+    "ok": true,
+    "degraded": true,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_SICHT_RESTORE_FAILED",
+        "message": "sicht clear failed while delegating to singleSelect"
+      }
+    ]
+  },
+  "clear / failedNoDiagnostics / superseded": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "clear / failedNoDiagnostics / superseded / newDashboard": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "clear / nullResult / current": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_SICHT_RESTORE_FAILED",
+        "message": "sicht clear failed while delegating to singleSelect",
+        "diagnostics": null
+      }
+    ]
+  },
+  "clear / nullResult / current / newDashboard": {
+    "ok": true,
+    "degraded": true,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_SICHT_RESTORE_FAILED",
+        "message": "sicht clear failed while delegating to singleSelect",
+        "diagnostics": null
+      }
+    ]
+  },
+  "clear / nullResult / superseded": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "clear / nullResult / superseded / newDashboard": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "clear / ok / current": {
+    "ok": true,
+    "degraded": false,
+    "diagnostics": []
+  },
+  "clear / ok / current / newDashboard": {
+    "ok": true,
+    "degraded": false,
+    "diagnostics": []
+  },
+  "clear / ok / superseded": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "clear / ok / superseded / newDashboard": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "clear / okDegraded / current": {
+    "ok": true,
+    "degraded": false,
+    "diagnostics": []
+  },
+  "clear / okDegraded / current / newDashboard": {
+    "ok": true,
+    "degraded": false,
+    "diagnostics": []
+  },
+  "clear / okDegraded / superseded": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  },
+  "clear / okDegraded / superseded / newDashboard": {
+    "ok": false,
+    "degraded": false,
+    "diagnostics": [
+      {
+        "code": "WRITEBACK_RESTORE_CANCELLED",
+        "message": "parameterSet run 1 superseded by 9",
+        "runId": 1
+      }
+    ]
+  }
+}
