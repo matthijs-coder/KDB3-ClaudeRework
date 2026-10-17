@@ -1,14 +1,14 @@
 define([
   "./runtime.js",
-  "./facets/filters/createFiltersAdapter.js",
-  "./facets/widgets/createWidgetsAdapter.js",
-  "./facets/canvas/createCanvasAdapter.js",
-  "./facets/visualization/createVisualizationAdapter.js",
-  "./facets/dataQuery/createDataQueryAdapter.js",
-  "./facets/dashboard/createDashboardAdapter.js",
-  "./facets/dataSources/createDataSourcesAdapter.js",
-  "./facets/messages/createMessagesAdapter.js",
-  "./facets/tabs/createTabsAdapter.js"
+  "./facets/filters/index.js",
+  "./facets/widgets/index.js",
+  "./facets/canvas/index.js",
+  "./facets/visualization/index.js",
+  "./facets/dataQuery/index.js",
+  "./facets/dashboard/index.js",
+  "./facets/dataSources/index.js",
+  "./facets/messages/index.js",
+  "./facets/tabs/index.js"
 ], function (
   _runtime,
   _createFiltersAdapter,
