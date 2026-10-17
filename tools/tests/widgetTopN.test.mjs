@@ -86,7 +86,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const pick = (value, index) => (typeof value === "function" ? value(index) : value);
 
 // applyMs / readMs may be functions of the 1-based call number (cleanup applies are counted separately).
-function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs = 300, readMs = 10, cleanupIgnoresAbort = false } = {}) {
+function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs = 300, readMs = 10, cleanupIgnoresAbort = false, readFails = false, applyFails = false } = {}) {
   const t0 = Date.now();
   const now = () => Date.now() - t0;
   const doc = new FakeDocument();
@@ -166,6 +166,7 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
             misplaced.push({ helperId, owner: options.target.ownerWidgetId, opSeq: options.target.opSeq, t: now() });
           }
           log.push({ ev: kind + (done ? "End" : "Aborted"), helperId, owner: options.target.ownerWidgetId, opSeq: options.target.opSeq, t: now() });
+          if (done && kind === "apply" && applyFails) return { status: "error", diagnostics: { errorCode: "FAKE_APPLY_FAILED" } };
           return done ? { status: "success", diagnostics: {} } : { status: "aborted" };
         }
       },
@@ -173,6 +174,7 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
         reloadTable: async () => {
           counters.read += 1;
           await delay(pick(readMs, counters.read));
+          if (readFails) throw new Error("fake table read failure");
           return [{ c: { d: "A", u: "A" } }, { c: { d: "B", u: "B" } }, { c: { d: "C", u: "C" } }];
         }
       }
@@ -201,12 +203,12 @@ function createEnv({ owners = ["o1"], helpers = ["h1"], applyMs = 20, cleanupMs 
   const api = _KDB.api.widgetTopN;
   return {
     _KDB, api, doc, slot, canvas, log, terminals, overlaps, now, removedOwners, misplaced, signalViolations, signalCalls, cleanupStarts,
-    resolve(owner, opSeq, topNChoice) {
+    resolve(owner, opSeq, topNChoice, config) {
       return api.dispatch({
         type: "widgetTopN/resolveRequested",
         widgetId: owner,
         opSeq,
-        payload: { ownerVisId: owner, topNChoice: topNChoice || "2", dataConfig: DATA_CONFIG, config: {}, tabId: "t1" }
+        payload: { ownerVisId: owner, topNChoice: topNChoice || "2", dataConfig: DATA_CONFIG, config: config || {}, tabId: "t1" }
       }).then((result) => Object.assign({ t: now() }, result));
     },
     release(owner) {
@@ -590,5 +592,123 @@ test("every signal TopN hands to the binding apply service, helper render and he
     assert.deepEqual(env.signalCalls, callsBeforeRelease, "release-only cleanup never reaches the apply service");
     assert.deepEqual(env.signalViolations, []);
     assert.deepEqual(widgetTopNWarnings(messages), []);
+  });
+});
+
+test("the former inspection switches no longer keep the helper binding: cleanup runs and the helper is in its slot", async () => {
+  const switches = [
+    { preserveHelperBindingForInspection: true },
+    { topNOptions: { preserveHelperBindingForInspection: true } },
+    { topNOptions: { skipPostResolutionHelperCleanup: true } }
+  ];
+  for (const config of switches) {
+    await withEnv({ cleanupMs: 20 }, async (env, messages) => {
+      const result = await env.resolve("o1", 1, "2", config);
+      assert.equal(result.status, "success");
+      await waitUntil(() => env.idle());
+      assert.equal(env.log.filter((e) => e.ev === "cleanupEnd").length, 1, JSON.stringify(config));
+      assert.equal(env.ownerRuntime("o1").lastHelperPlan, null);
+      assert.equal(env.helperInSlot("h1"), true);
+      assert.equal(env.ownerRuntime("o1").helperPlacement, null);
+      assert.deepEqual(widgetTopNWarnings(messages), []);
+    });
+  }
+});
+
+test("the helper goes back to its pad slot after a failed table read and after a failed apply", async () => {
+  await withEnv({ cleanupMs: 20, readFails: true }, async (env) => {
+    const result = await env.resolve("o1", 1);
+    assert.equal(result.status, "error");
+    assert.equal(result.errorCode, "WIDGET_TOPN_FLAT_DATA_FAILED");
+    await waitUntil(() => env.idle());
+    assert.equal(env.helperInSlot("h1"), true, "read failure");
+    assert.equal(env.ownerRuntime("o1").helperPlacement, null);
+  });
+  await withEnv({ cleanupMs: 20, applyFails: true }, async (env) => {
+    const result = await env.resolve("o1", 1);
+    assert.equal(result.status, "error");
+    await waitUntil(() => env.idle());
+    assert.equal(env.helperInSlot("h1"), true, "apply failure");
+    assert.equal(env.ownerRuntime("o1").helperPlacement, null);
+  });
+});
+
+test("the helper sits beside the owner only while the op binds and reads, then returns to its slot", async () => {
+  await withEnv({ applyMs: 60, readMs: 60, cleanupMs: 20 }, async (env) => {
+    const pending = env.resolve("o1", 1);
+    await waitUntil(() => env.ownerRuntime("o1") && env.ownerRuntime("o1").helperPlacement);
+    assert.equal(env.helperInSlot("h1"), false, "on loan during the bind");
+    assert.equal(env.doc.getElementById("h1").parentNode, env.canvas);
+    assert.equal(env.ownerRuntime("o1").helperPlacement.slot.padKey, "topN");
+    await pending;
+    assert.equal(env.helperInSlot("h1"), true, "back in the slot when the owner outcome is returned");
+    assert.equal(env.ownerRuntime("o1").helperPlacement, null);
+    await waitUntil(() => env.idle());
+  });
+});
+
+test("an op aborted by release, clear or destroy while the helper is on loan still returns it to its slot", async () => {
+  const aborters = {
+    release: (env) => env.release("o1"),
+    clear: (env) => env.clear("o1", DATA_CONFIG),
+    destroy: (env) => env.api.destroy()
+  };
+  for (const [name, abort] of Object.entries(aborters)) {
+    await withEnv({ applyMs: 100, readMs: 100, cleanupMs: 20 }, async (env) => {
+      const pending = env.resolve("o1", 1);
+      await waitUntil(() => env.ownerRuntime("o1") && env.ownerRuntime("o1").helperPlacement);
+      assert.equal(env.helperInSlot("h1"), false, name + ": on loan");
+      await abort(env);
+      await pending;
+      assert.equal(env.helperInSlot("h1"), true, name + ": back in its slot");
+    });
+  }
+});
+
+test("restore falls back to another slot of the same pad and tab when the original slot is gone", async () => {
+  await withEnv({ applyMs: 60, readMs: 60, cleanupMs: 20 }, async (env, messages) => {
+    const spare = env.doc.create(null, { "data-kdb-launchpad-pad": "topN", cor_page_id: "t1", cor_page_index: "7" }, env.slot.parentNode);
+    const pending = env.resolve("o1", 1);
+    await waitUntil(() => env.ownerRuntime("o1") && env.ownerRuntime("o1").helperPlacement);
+    env.slot.parentNode.children.splice(env.slot.parentNode.children.indexOf(env.slot), 1);
+    env.slot.parentNode = null;
+    await pending;
+    assert.equal(env.doc.getElementById("h1").parentNode, spare);
+    assert.deepEqual(widgetTopNWarnings(messages).filter((m) => m.text.indexOf("restore failed") >= 0), []);
+    await waitUntil(() => env.idle());
+  });
+});
+
+test("a helper that Cognos re-parented to the canvas during the cleanup render is parked again", async () => {
+  await withEnv({ cleanupMs: 120 }, async (env) => {
+    await env.resolve("o1", 1);
+    await waitUntil(() => env.log.some((e) => e.ev === "cleanupStart"));
+    env.canvas.insertBefore(env.doc.getElementById("h1"), null);
+    assert.equal(env.helperInSlot("h1"), false);
+    await waitUntil(() => env.idle() && env.helperInSlot("h1"));
+  });
+});
+
+test("the park after an earlier cleanup does not pull the helper away from the owner's newer op", async () => {
+  await withEnv({ applyMs: (n) => (n === 1 ? 10 : 150), readMs: 10, cleanupMs: 100 }, async (env) => {
+    await env.resolve("o1", 1);
+    const second = env.resolve("o1", 2);
+    const result = await second;
+    assert.equal(result.status, "success");
+    assert.deepEqual(env.misplaced, [], "helper was beside the owner when the second apply finished");
+    await waitUntil(() => env.idle() && env.helperInSlot("h1"));
+  });
+});
+
+test("a stray helper claimed by another owner is not parked away from that owner", async () => {
+  await withEnv({ cleanupMs: 120 }, async (env) => {
+    await env.resolve("o1", 1);
+    await waitUntil(() => env.log.some((e) => e.ev === "cleanupStart"));
+    const helper = env.doc.getElementById("h1");
+    env.canvas.insertBefore(helper, null);
+    helper.setAttribute("data-connected-vis-widget-id", "o2");
+    await waitUntil(() => env.idle());
+    await sleep(10);
+    assert.equal(helper.parentNode, env.canvas);
   });
 });

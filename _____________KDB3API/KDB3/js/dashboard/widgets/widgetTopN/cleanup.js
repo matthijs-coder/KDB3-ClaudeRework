@@ -117,7 +117,7 @@ define([
   function startPostResolutionCleanup(_context, _op, _spec) {
     var request = _op.request;
     var ownerRuntime = _op.ownerRuntime;
-    if (!_spec || _state.isDefaultTopN(request.topNChoice) || _state.shouldSkipPostResolutionCleanup(request.config)) {
+    if (!_spec || _state.isDefaultTopN(request.topNChoice)) {
       return;
     }
     if (_context.isStaleOpSeq(request.ownerVisId, _op.opSeq) || _results.isAborted(_op.signal)) {
@@ -140,7 +140,18 @@ define([
     }).then(
       warnIfCleanupFailed.bind(null, request.ownerVisId, helperWidgetId, _op.opSeq),
       logCleanupError.bind(null, request.ownerVisId, helperWidgetId, _op.opSeq)
-    );
+    ).then(parkStrayAfterCleanup.bind(null, _context._KDB, request, ownerRuntime, helperWidgetId));
+  }
+
+  // Boundary: runs after the dashboard may have been torn down, so a failure is logged and never thrown.
+  function parkStrayAfterCleanup(_KDB, request, ownerRuntime, helperWidgetId) {
+    try {
+      var frame = _widgetBaseSelectors.readFrame(_KDB, request.ownerVisId);
+      var tabId = request.tabId || (frame && frame.tabId) || null;
+      _placement.parkStrayHelper(_KDB, helperWidgetId, request.ownerVisId, ownerRuntime, tabId);
+    } catch (err) {
+      console.error("[widgetTopN.parkStrayAfterCleanup] failed", { helperWidgetId: helperWidgetId }, err);
+    }
   }
 
   function warnIfCleanupFailed(ownerVisId, helperWidgetId, opSeq, cleanup) {

@@ -232,15 +232,6 @@ define(["./results.js", "../../../core/utils/kit/data.js"], function (_results, 
     return config && config.topNOptions ? config.topNOptions : {};
   }
 
-  function shouldSkipPostResolutionCleanup(config) {
-    var options = readTopNOptions(config);
-    return !!(
-      config && config.preserveHelperBindingForInspection === true ||
-      options.skipPostResolutionHelperCleanup === true ||
-      options.preserveHelperBindingForInspection === true
-    );
-  }
-
   return {
     ACTION_TYPES: ACTION_TYPES,
     createInitialState: createInitialState,
@@ -249,7 +240,6 @@ define(["./results.js", "../../../core/utils/kit/data.js"], function (_results, 
     validateResolveRequest: validateResolveRequest,
     validateCleanupRequest: validateCleanupRequest,
     isDefaultTopN: isDefaultTopN,
-    readTopNOptions: readTopNOptions,
-    shouldSkipPostResolutionCleanup: shouldSkipPostResolutionCleanup
+    readTopNOptions: readTopNOptions
   };
 });

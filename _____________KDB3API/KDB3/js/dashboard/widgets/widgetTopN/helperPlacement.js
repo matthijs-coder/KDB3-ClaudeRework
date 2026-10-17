@@ -39,7 +39,7 @@ define([
     }
     releaseLease(ownerRuntime, placement);
     var helperShell = _resolveWidgetShell(_KDB, helperWidgetId);
-    var slotEl = placement && helperShell ? resolveSlotElement(helperShell.ownerDocument, placement.slot) : null;
+    var slotEl = placement && helperShell ? resolveParkingElement(helperShell.ownerDocument, placement.slot) : null;
     if (!slotEl) {
       if (placement && helperShell) {
         console.warn("[widgetTopN.placeHelperAfterOwner] restore failed", { helperWidgetId: helperWidgetId, slot: placement.slot });
@@ -55,6 +55,31 @@ define([
       return false;
     } finally {
       dismissHelperTitleEdit(_KDB, helperWidgetId);
+    }
+  }
+
+  // Safety net for a helper that is on the canvas without an op that holds it out (for example after a failed
+  // restore or when Cognos re-parented the shell during the cleanup render): puts it back into the owner tab's
+  // slot of the topN pad. Does nothing while the helper sits in a slot, is on loan, or is claimed by another owner.
+  function parkStrayHelper(_KDB, helperWidgetId, ownerVisId, ownerRuntime, tabId) {
+    var helperShell = helperWidgetId ? _resolveWidgetShell(_KDB, helperWidgetId) : null;
+    if (!helperShell || !tabId || (ownerRuntime && ownerRuntime.helperPlacement) || readSlotMeta(helperShell.parentNode)) {
+      return false;
+    }
+    var claimOwner = typeof helperShell.getAttribute === "function" ? helperShell.getAttribute(_config.CLAIM_OWNER_ATTR) : null;
+    if (claimOwner && claimOwner !== ownerVisId) {
+      return false;
+    }
+    var slotEl = resolveParkingElement(helperShell.ownerDocument, { padKey: _config.TOPN_PAD_KEY, tabId: tabId, pageIndex: null });
+    if (!slotEl) {
+      return false;
+    }
+    try {
+      slotEl.insertBefore(helperShell, null);
+      return true;
+    } catch (err) {
+      console.warn("[widgetTopN.placeHelperAfterOwner] park failed", { helperWidgetId: helperWidgetId }, err);
+      return false;
     }
   }
 
@@ -82,12 +107,15 @@ define([
     }
   }
 
-  function resolveSlotElement(doc, slot) {
+  // The exact slot the helper came from, else any slot of the same pad and tab.
+  function resolveParkingElement(doc, slot) {
     if (!doc || typeof doc.querySelector !== "function" || !slot) {
       return null;
     }
-    return doc.querySelector("[" + _config.PAD_ATTR + "=\"" + escapeAttribute(slot.padKey) + "\"][cor_page_id=\"" +
-      escapeAttribute(slot.tabId) + "\"][cor_page_index=\"" + escapeAttribute(slot.pageIndex) + "\"]");
+    var padTab = "[" + _config.PAD_ATTR + "=\"" + escapeAttribute(slot.padKey) + "\"][cor_page_id=\"" + escapeAttribute(slot.tabId) + "\"]";
+    var exact = slot.pageIndex === null || slot.pageIndex === undefined ? null :
+      doc.querySelector(padTab + "[cor_page_index=\"" + escapeAttribute(slot.pageIndex) + "\"]");
+    return exact || doc.querySelector(padTab);
   }
 
   function escapeAttribute(value) {
@@ -165,6 +193,7 @@ define([
   return {
     appendHelperAfterOwner: appendHelperAfterOwner,
     restoreHelperPlacement: restoreHelperPlacement,
+    parkStrayHelper: parkStrayHelper,
     isHelperOnLoanToOwner: isHelperOnLoanToOwner,
     dismissHelperTitleEdit: dismissHelperTitleEdit
   };
