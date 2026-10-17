@@ -34,7 +34,7 @@ define([], function () {
     var tableData = _KDB && _KDB.services && _KDB.services.tableData;
     var tableState, widgetId, node, text, badge;
     try {
-      if (!tableData || typeof tableData.waitForRows !== "function" || typeof tableData.readTableState !== "function") {
+      if (!tableData) {
         console.error("[properties.applyPersonalKdbHideDataHint] tableData API missing");
         return;
       }

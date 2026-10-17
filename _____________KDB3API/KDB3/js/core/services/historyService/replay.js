@@ -99,7 +99,7 @@ define(["../../utils/kit/data.js", "./config.js", "./events/eventNames.js"], fun
 
   function notifyReplayFailed(_KDB, direction) {
     const messageService = _KDB && _KDB.services && _KDB.services.message;
-    if (!messageService || typeof messageService.notify !== "function") {
+    if (!messageService) {
       return;
     }
     try {

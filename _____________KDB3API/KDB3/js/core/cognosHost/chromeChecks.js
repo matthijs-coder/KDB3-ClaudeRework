@@ -37,7 +37,7 @@ define(["./config/chromeLabels.js"], function (_chromeLabels) {
       if (_KDB._isDisposed) return;
       if (Object.keys(rt.misses || {}).length === 0) return;
       messageService = _KDB.services && _KDB.services.message;
-      if (!messageService || typeof messageService.showAlert !== "function") return;
+      if (!messageService) return;
       messageService.showAlert({
         title: readLabel(_KDB, "flushTitle"),
         severity: "error",
