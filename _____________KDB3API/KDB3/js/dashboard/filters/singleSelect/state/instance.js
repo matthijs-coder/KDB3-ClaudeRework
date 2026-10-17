@@ -208,7 +208,6 @@ define([
   }
 
   function ensureFilterState(_KDB, _handoff) {
-    _KDB.state = _KDB.state || {};
     _KDB.state.filters = _KDB.state.filters || {};
     _KDB.state.filters.singleSelect = _KDB.state.filters.singleSelect || {};
 

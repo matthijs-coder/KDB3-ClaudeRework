@@ -68,7 +68,6 @@ define([
   }
 
   function ensureVisState(_KDB) {
-    _KDB.state = _KDB.state || {};
     _KDB.state.widgets = _KDB.state.widgets || {};
     if (!_KDB.state.widgets.vis) {
       _KDB.state.widgets.vis = _state.createInitialWidgetVisState();

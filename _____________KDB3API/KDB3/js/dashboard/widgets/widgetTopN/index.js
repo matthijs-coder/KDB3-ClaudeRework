@@ -99,7 +99,6 @@ define([
     }
 
     function ensureState() {
-      _KDB.state = _KDB.state || {};
       _KDB.state.widgets = _KDB.state.widgets || {};
       if (!_KDB.state.widgets.topN) {
         _KDB.state.widgets.topN = _state.createInitialState();
@@ -222,7 +221,6 @@ define([
   function registerWidgetTopN(_KDB) {
     var cognosHost = _KDB.services && _KDB.services.cognosHost ? _KDB.services.cognosHost : null;
     readRuntime(_KDB).widgetsFacet = cognosHost && cognosHost.widgets ? cognosHost.widgets : null;
-    _KDB.api = _KDB.api || {};
     _KDB.api.widgetTopN = createWidgetTopNController(_KDB);
     return _KDB.api.widgetTopN;
   }

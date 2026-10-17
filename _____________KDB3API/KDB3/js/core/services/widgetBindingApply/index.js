@@ -15,7 +15,6 @@ define([
   }
 
   function registerWidgetBindingApply(_KDB) {
-    _KDB.services = _KDB.services || {};
     stampHostFacets(_KDB, _rt.ensureRuntime(_KDB, "widgetBindingApply"));
     var isDisposed = false;
 

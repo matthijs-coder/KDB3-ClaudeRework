@@ -193,10 +193,7 @@ define([
 
   function registerFilterDock(_KDB) {
     var runtime;
-    _KDB.state = _KDB.state || {};
     _KDB.state.filters = _KDB.state.filters || {};
-    _KDB.api = _KDB.api || {};
-    _KDB.elements = _KDB.elements || {};
     _KDB.elements.selectors = _KDB.elements.selectors || {};
 
     if (!_KDB.state.filters.filterDock) {

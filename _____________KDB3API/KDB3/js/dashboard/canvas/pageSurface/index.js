@@ -129,7 +129,6 @@ define([
   function registerPageSurface(_KDB) {
     const cognosHost = _KDB.services ? _KDB.services.cognosHost : null;
 
-    _KDB.api = _KDB.api || {};
     _rt.ensureRuntime(_KDB, "pageSurface", { pending: {} }).canvasFacet = cognosHost && cognosHost.canvas ? cognosHost.canvas : null;
     _KDB.api.canvas = createPageSurfaceController(_KDB);
     return _KDB.api.canvas;

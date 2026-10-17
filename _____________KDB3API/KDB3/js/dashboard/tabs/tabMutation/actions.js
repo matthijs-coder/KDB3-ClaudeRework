@@ -105,7 +105,6 @@ define([
   }
 
   function readRuntime(_KDB) {
-    _KDB.runtime = _KDB.runtime || {};
     _KDB.runtime.tabs = _KDB.runtime.tabs || {};
     _KDB.runtime.tabs.pendingPromises = _KDB.runtime.tabs.pendingPromises || {};
     return _KDB.runtime.tabs;

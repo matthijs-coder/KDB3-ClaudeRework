@@ -41,7 +41,6 @@ define([
   function registerToolbarButton(_KDB, def) {
     var rt = _host.ensureHostRuntime(_KDB);
     var api;
-    _KDB.api = _KDB.api || {};
     if (def.onRegister) def.onRegister(_KDB, rt);
     api = createToolbarController(_KDB, def);
     if (def.extendApi) def.extendApi(_KDB, api);

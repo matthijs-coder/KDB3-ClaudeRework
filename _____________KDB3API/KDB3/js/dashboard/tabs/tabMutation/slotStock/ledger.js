@@ -6,7 +6,6 @@ define([], function () {
   // are opaque to tabs: the widget port writes them through the engine and nothing else reads them.
 
   function ensureLedger(_KDB) {
-    _KDB.runtime = _KDB.runtime || {};
     const runtime = _KDB.runtime.tabs = _KDB.runtime.tabs || {};
     if (!runtime.slotStock) { runtime.slotStock = { snapshots: {}, runId: 0 }; }
     return runtime.slotStock;

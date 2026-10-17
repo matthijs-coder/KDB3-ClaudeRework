@@ -20,7 +20,6 @@ define([
   }
 
   function registerLabels(_KDB) {
-    _KDB.config = _KDB.config || {};
     _KDB.config.labels = _KDB.config.labels || {};
     _KDB.config.labels.de = _KDB.config.labels.de || {};
     const existing = _KDB.config.labels.de.tableData;

@@ -180,7 +180,6 @@ define([
     runtime.tabsFacet = readHostFacet(_KDB, "tabs");
 
     try {
-      _KDB.config = _KDB.config || {};
       _KDB.config.labels = _KDB.config.labels || {};
       _KDB.config.labels.de = _KDB.config.labels.de || {};
       _KDB.config.labels.de.dienststelle = Object.assign({}, _config.LABELS, _KDB.config.labels.de.dienststelle || {});
