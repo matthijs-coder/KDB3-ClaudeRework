@@ -35,8 +35,8 @@ class FakeElement {
   contains() { return false; }
 }
 
-// Registers the real manifest on a fake world and returns { api: {key: [fn names]}, services: {...} }.
-export function probeRegistrars() {
+// A real KDB instance (constructor) on a fake DOM plus the real manifest and lifecycle modules; nothing is registered yet.
+export function createWorld() {
   const doc = {
     createElement: () => new FakeElement(), querySelector: () => null, querySelectorAll: () => [], getElementById: () => null,
     addEventListener() {}, removeEventListener() {}, head: new FakeElement(), body: new FakeElement(),
@@ -49,6 +49,12 @@ export function probeRegistrars() {
   const manifest = loadAmd(path.join(JS_ROOT, "bootstrap/featureManifest.js"), options);
   const lifecycle = loadAmd(path.join(JS_ROOT, "core/bootstrap/lifecycle.js"), options);
   const kdb = new KDB({ parent: new FakeElement(), content: {}, features: {} });
+  return { kdb, manifest, lifecycle };
+}
+
+// Registers the real manifest on that world and returns { surface: { api: {key: [fn names]}, services }, entryByApi }.
+export function probeRegistrars() {
+  const { kdb, manifest, lifecycle } = createWorld();
   lifecycle.registerAll(kdb, manifest);
   const surface = { api: {}, services: {} };
   for (const ns of ["api", "services"]) {
@@ -78,7 +84,7 @@ const BROWSER_ROOT = /^(window|document|CSS|MutationObserver|requestAnimationFra
 const HOST_ROOT = /(Facet|facet|cognosAPI|cognosHost|content|Content|widgetsContent|slot|_item|widget|dashboardApi)\b/;
 const CALLBACK_ROOT = /^(_?options?|opts?|_?opts|_callbacks?|callbacks?|_listener|listener|_callback|callback|cb|handler|_handler|fn|_fn|_handle|handle|_value|value|_ctx|_context|ctx|context|entry|_entry|hooks|_hooks|deps|_deps|adapter|_adapter|result|outcome|pending|_signal|signal|controller|observer|_target|target)\b/;
 
-function classify(expr, aliases, helperOwners, probe) {
+function classify(expr, line, table, probe) {
   const root = expr.replace(/^\(/, "").split(/[.[]/)[0];
   const method = expr.includes(".") ? expr.split(".").pop().replace(/\]$/, "") : null;
   let direct = expr.match(/^_KDB\.(api|services)\.(\w+)\.(\w+)$/);
@@ -86,9 +92,9 @@ function classify(expr, aliases, helperOwners, probe) {
   let owner = null;
   let via = "direct";
   if (direct) { ns = direct[1]; owner = direct[2]; }
-  else if (/^\w+\.\w+$/.test(expr) && aliases[root]) {
-    const alias = aliases[root];
-    ns = alias.ns; owner = alias.owner; via = "alias " + root;
+  else if (/^\w+\.\w+$/.test(expr)) {
+    const alias = resolveAlias(table, root, line);
+    if (alias) { ns = alias.ns; owner = alias.owner; via = "alias " + root + " (line " + alias.line + ")"; }
   }
   if (ns && owner && owner !== "*") {
     const methods = probe.surface[ns][owner];
@@ -102,27 +108,53 @@ function classify(expr, aliases, helperOwners, probe) {
   if (HOST_ROOT.test(root) || /^_KDB\.cognosAPI/.test(expr)) return { cls: 2, reason: "Cognos host facet/content method" };
   if (CALLBACK_ROOT.test(root)) return { cls: 2, reason: "callback/option/handle parameter" };
   if (/^_KDB\.(events|utils)\./.test(expr)) return { cls: 2, reason: "bus/util injected into _KDB (test seam)" };
-  if (/^_KDB\.(api|services)/.test(expr) || aliases[root]) return { cls: 3, reason: "api/service-like but not a direct owner method" };
+  if (/^_KDB\.(api|services)/.test(expr) || table.aliases[root]) return { cls: 3, reason: "api/service-like but not a direct owner method" };
   return { cls: 3, reason: "unclear" };
 }
 
+// Alias assignments per variable name with their line: { name: [{ line, ns, owner }] }. `owner` is "*" for a dynamic
+// key, null for an assignment that is not a plain `_KDB.api.<owner>` / `_KDB.services.<service>` read (then the alias is
+// unresolved at that point). A local helper `function readX(_KDB) { return ..._KDB.api.<owner>... }` resolves calls to it.
 function collectAliases(text) {
+  const lines = text.split("\n");
+  const helpers = {};
+  for (let i = 0; i < lines.length; i += 1) {
+    const fn = lines[i].match(/function\s+([A-Za-z_$][\w$]*)\s*\(/);
+    if (!fn) continue;
+    const body = lines.slice(i, i + 8).join(" ");
+    const ret = body.match(/return\s+[^;]*?\.(api|services)\.([A-Za-z_$][\w$]*)\b/);
+    if (ret && !/\[/.test(ret[0])) helpers[fn[1]] = { ns: ret[1], owner: ret[2] };
+  }
   const aliases = {};
-  const assign = /(?:^|[;\s(])(?:var|let|const)?\s*([A-Za-z_$][\w$]*)\s*=\s*([^;\n]+)/g;
-  let m;
-  while ((m = assign.exec(text))) {
-    const rhs = m[2];
+  const params = {};
+  lines.forEach((line, index) => {
+    const fn = line.match(/function\s*[\w$]*\s*\(([^)]*)\)/);
+    if (fn) fn[1].split(",").map((p) => p.trim()).filter(Boolean).forEach((p) => { (params[p] = params[p] || []).push(index + 1); });
+    const arrow = line.match(/\(([^)]*)\)\s*=>/);
+    if (arrow) arrow[1].split(",").map((p) => p.trim()).filter(Boolean).forEach((p) => { (params[p] = params[p] || []).push(index + 1); });
+    const assign = line.match(/(?:^|[;\s(])(?:var|let|const)?\s*([A-Za-z_$][\w$]*)\s*=\s*([^;]+)/);
+    if (!assign || /^(?:[A-Za-z_$][\w$]*)\s*(===|==)/.test(assign[2])) return;
+    const name = assign[1];
+    let rhs = assign[2];
+    let entry = { line: index + 1, ns: null, owner: null };
     const direct = rhs.match(/\.(api|services)\.([A-Za-z_$][\w$]*)\b/);
     const dynamic = rhs.match(/\.(api|services)\[\s*([^\]]+)\]/);
-    const name = m[1];
-    if (direct && !/\(/.test(rhs.split(direct[0])[0].replace(/_KDB && _KDB|_KDB &&|\|\|/g, ""))) {
-      if (aliases[name] && (aliases[name].owner !== direct[2] || aliases[name].ns !== direct[1])) aliases[name] = { ns: direct[1], owner: "*" };
-      else aliases[name] = { ns: direct[1], owner: direct[2] };
-    } else if (dynamic) {
-      aliases[name] = { ns: dynamic[1], owner: /^["']\w+["']$/.test(dynamic[2].trim()) ? dynamic[2].trim().slice(1, -1) : "*" };
-    }
-  }
-  return aliases;
+    const call = rhs.match(/^\s*([A-Za-z_$][\w$]*)\(/);
+    if (direct && !/\w\(/.test(rhs.slice(0, rhs.indexOf(direct[0])))) entry = { line: index + 1, ns: direct[1], owner: direct[2] };
+    else if (dynamic) entry = { line: index + 1, ns: dynamic[1], owner: /^["']\w+["']$/.test(dynamic[2].trim()) ? dynamic[2].trim().slice(1, -1) : "*" };
+    else if (call && helpers[call[1]]) entry = { line: index + 1, ns: helpers[call[1]].ns, owner: helpers[call[1]].owner };
+    (aliases[name] = aliases[name] || []).push(entry);
+  });
+  return { aliases, params };
+}
+
+function resolveAlias(table, name, line) {
+  const candidates = (table.aliases[name] || []).filter((entry) => entry.line <= line);
+  if (!candidates.length) return null;
+  const nearest = candidates[candidates.length - 1];
+  const shadowing = (table.params[name] || []).some((paramLine) => paramLine > nearest.line && paramLine <= line);
+  if (shadowing || !nearest.ns) return null;
+  return nearest;
 }
 
 export function inventory(probe) {
@@ -130,13 +162,13 @@ export function inventory(probe) {
   for (const file of walk(JS_ROOT, []).sort()) {
     const rel = path.relative(JS_ROOT, file).split(path.sep).join("/");
     const text = fs.readFileSync(file, "utf8");
-    const aliases = collectAliases(text);
+    const table = collectAliases(text);
     const lines = text.split("\n");
     lines.forEach((line, index) => {
       GUARD.lastIndex = 0;
       let m;
       while ((m = GUARD.exec(line))) {
-        const verdict = classify(m[1], aliases, {}, probe);
+        const verdict = classify(m[1], index + 1, table, probe);
         rows.push({ file: rel, line: index + 1, expr: m[1], op: m[2], source: line.trim(), ...verdict });
       }
     });
@@ -205,7 +237,7 @@ function run() {
     const moduleIndex = rest.indexOf("--module");
     const prefix = moduleIndex >= 0 ? rest[moduleIndex + 1] : "";
     const apply = rest.includes("--apply");
-    const picked = rows.filter((row) => row.cls === 1 && row.file.startsWith(prefix) && row.file !== "KDB.js");
+    const picked = rows.filter((row) => row.cls === 1 && row.file.startsWith(prefix) && row.file !== "KDB.js" && !row.file.startsWith("core/bootstrap/"));
     const byFile = new Map();
     for (const row of picked) byFile.set(row.file, [...(byFile.get(row.file) || []), row]);
     let removed = 0;
@@ -227,7 +259,20 @@ function run() {
     console.log((apply ? "applied" : "dry run") + ": " + removed + " removals, " + manual + " manual, prefix '" + prefix + "'");
     return;
   }
-  console.error("usage: w13-guards.mjs inventory [--out f] | remove [--module prefix] [--apply]");
+  if (command === "proof") {
+    const out = rest[rest.indexOf("--out") + 1];
+    const keep = rest.includes("--keep") ? rest[rest.indexOf("--keep") + 1].split(",") : [];
+    const proofs = new Map();
+    for (const row of rows.filter((r) => r.cls === 1 && r.file !== "KDB.js" && !r.file.startsWith("core/bootstrap/") && !keep.includes(r.file))) {
+      const key = row.ns + "." + row.owner + "." + row.method;
+      proofs.set(key, [...(proofs.get(key) || []), row.file]);
+    }
+    const table = [...proofs].map(([key, files]) => ({ guard: key, files: [...new Set(files)].sort() })).sort((a, b) => a.guard.localeCompare(b.guard));
+    fs.writeFileSync(out, JSON.stringify(table, null, 2) + "\n");
+    console.log(table.length + " registered members relied on by removed guards -> " + out);
+    return;
+  }
+  console.error("usage: w13-guards.mjs inventory [--out f] | remove [--module prefix] [--apply] | proof --out f [--keep file,file]");
   process.exit(2);
 }
 
