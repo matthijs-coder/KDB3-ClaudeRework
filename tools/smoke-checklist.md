@@ -861,11 +861,19 @@ Focus-mode dropdowns share the gear panel's undo stack (`widgetSettings_optionSe
 
 ### P3-Line-tooltip
 
-Verberg de geaggregeerde som in Line- en Prognose-tooltips (alleen CSS, geen JS). Dashboard met minstens één Line, één Prognose, één ander type (taart/staaf/tabel) en twee Line-widgets op hetzelfde tabblad.
+Verberg de geaggregeerde som in Line- en Prognose-tooltips (JS: `widgetVis/lineTooltip.js` zet de body-klasse `kdb-hide-aggregate-tooltip`; widgettype via onze stempel `data-kdb-vis-type` op `.KDB_widgetSettings`). Dashboard met minstens één Line, één Prognose, één ander type (taart/staaf/tabel) en twee Line-widgets op hetzelfde tabblad. Tip: console `document.body.classList.contains("kdb-hide-aggregate-tooltip")` laat de status zien.
 
-- [ ] **1. Legenda-hover.** Hover een jaar in de legenda van een Line-widget. Verwacht: tooltip toont reeksnaam/maatnaam; het geaggregeerde getal is weg. Zelfde check op Prognose.
-- [ ] **2. Lijn-hover.** Hover een lijnstuk (niet een punt). Verwacht: geaggregeerde waarde weg (Line en Prognose).
-- [ ] **3. Datapunt-hover.** Hover een individueel datapunt op Line en op Prognose. Verwacht: normale tooltip mét waarde.
-- [ ] **4. Ander diagramtype.** Hover de legenda van taart, staaf of tabel. Verwacht: tooltip ongewijzigd, waarde blijft zichtbaar.
-- [ ] **5. Twee Line-widgets.** Twee Line-widgets op één dashboard. Hover legenda of lijn van A: geaggregeerde waarde van A weg. Hover datapunt van B: waarde van B blijft. Beperking: `body:has` verbergt elke zichtbare tooltip-waarde zolang A in die hover-staat zit.
-- [ ] **6. Na filter/tab.** Filter wijzigen of van tab wisselen en terug. Verwacht: gedrag van 1–3 blijft actief; geen console-fout.
+| # | Actie | Verwacht |
+|---|---|---|
+| 1 | Hover een jaar in de legenda van Line, daarna Prognose | Tooltip toont reeks-/maatnaam; geaggregeerd getal verborgen |
+| 2 | Hover een lijnstuk (niet een punt), Line en Prognose | Geaggregeerde waarde verborgen |
+| 3 | Hover een datapunt, Line en Prognose | Normale tooltip mét juiste waarde |
+| 4 | Lijn → datapunt (**kritiek**), langzaam en snel, op Line en Prognose | De oude geaggregeerde waarde flitst nooit op; de waarde van het punt verschijnt zodra de tooltip is bijgewerkt |
+| 5 | Datapunt → lijn | Waarde weer verborgen |
+| 6 | Legenda → lijn → legenda; snel over meerdere legenda-items; tussen lijnstukken | Geen flikkering, geen misleidende waarde |
+| 7 | Beweeg weg van de grafiek (de verberging blijft ca. 0,8 s) | Geen flits van de waarde aan de grens; daarna normaal gedrag |
+| 8 | Hover legenda/lijn/punt van taart, staaf of tabel | Tooltip ongewijzigd, waarde zichtbaar |
+| 9 | Twee Line-widgets: legenda of lijn van A, daarna datapunt van B | A: waarde verborgen; B: waarde zichtbaar. Beperking: de klasse staat op `body`, dus elke zichtbare tooltip-waarde is verborgen zolang A in die hover-staat zit |
+| 10 | Filter wijzigen; widget opnieuw renderen (visualisatie wisselen Line ↔ Prognose ↔ Taart); van tab wisselen en terug | Gedrag van 1–8 blijft werken zonder handmatige herinitialisatie; geen console-fout |
+| 11 | Dashboard sluiten/heropenen (of tweede `render()`) | Na heropenen geen dubbele werking; na sluiten staat de klasse niet meer op `body` |
+

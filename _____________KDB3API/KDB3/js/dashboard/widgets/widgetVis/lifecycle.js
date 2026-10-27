@@ -10,6 +10,7 @@ define([
   "./focus/focusMode.js",
   "./drillthrough/install.js",
   "./legend/sweep.js",
+  "./lineTooltip.js",
   "../../../core/utils/kit/runtime.js"
 ], function (
   _state,
@@ -23,6 +24,7 @@ define([
   _focusMode,
   _drillthroughInstall,
   _legendSweep,
+  _lineTooltip,
   _kitRuntime
 ) {
   "use strict";
@@ -310,6 +312,7 @@ define([
     Object.keys(runtime.byId || {}).forEach(function (widgetId) {
       disposeWidgetRuntime(_KDB, widgetId, { exitFocus: false });
     });
+    _lineTooltip.uninstall(_KDB);
     var errors = _kitRuntime.disposeRuntimeBuckets(runtime);
     if (errors.length) {
       console.error("[widgetVis.disposeModuleRuntime] cleanup errors", errors);
