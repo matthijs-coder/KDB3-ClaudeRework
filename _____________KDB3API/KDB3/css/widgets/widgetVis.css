@@ -359,6 +359,7 @@
  * Legend is a descendant of the widget content, so legend hover is limited to
  * Line (`com.ibm.vis.rave2line`) and Prognose (`com.ibm.vis.custom.prognoseyearlinechart`).
  * Tooltip nodes (`.labels`) can sit outside the widget, so the hide still uses `body:has`.
+ * Prognose custom-vis source is not in this repo; `path.line-element` / `path.point-element` on Prognose are unconfirmed.
  */
 
 /* Legend hover */

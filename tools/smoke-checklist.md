@@ -865,7 +865,7 @@ Verberg de geaggregeerde som in Line- en Prognose-tooltips (alleen CSS, geen JS)
 
 - [ ] **1. Legenda-hover.** Hover een jaar in de legenda van een Line-widget. Verwacht: tooltip toont reeksnaam/maatnaam; het geaggregeerde getal is weg. Zelfde check op Prognose.
 - [ ] **2. Lijn-hover.** Hover een lijnstuk (niet een punt). Verwacht: geaggregeerde waarde weg (Line en Prognose).
-- [ ] **3. Datapunt-hover.** Hover een individueel datapunt. Verwacht: normale tooltip mét waarde.
+- [ ] **3. Datapunt-hover.** Hover een individueel datapunt op Line en op Prognose. Verwacht: normale tooltip mét waarde.
 - [ ] **4. Ander diagramtype.** Hover de legenda van taart, staaf of tabel. Verwacht: tooltip ongewijzigd, waarde blijft zichtbaar.
 - [ ] **5. Twee Line-widgets.** Twee Line-widgets op één dashboard. Hover legenda of lijn van A: geaggregeerde waarde van A weg. Hover datapunt van B: waarde van B blijft. Beperking: `body:has` verbergt elke zichtbare tooltip-waarde zolang A in die hover-staat zit.
 - [ ] **6. Na filter/tab.** Filter wijzigen of van tab wisselen en terug. Verwacht: gedrag van 1–3 blijft actief; geen console-fout.
