@@ -16,9 +16,12 @@ const RECORD = process.env.WS_B_RECORD === "1";
 
 const quiet = { error() {}, warn() {}, log() {}, info() {}, debug() {} };
 const buildPlan = loadAmd(path.join(JS_ROOT, "core/services/widgetBindingPlan/buildPlan.js"), { stubs: { console: quiet } });
+const parseTopNOption = loadAmd(path.join(JS_ROOT, "core/services/widgetBindingPlan/parseTopNOption.js"));
+const definitions = loadAmd(path.join(JS_ROOT, "core/config/visualizations/definitions.js"));
 const normalizeDefaultValue = loadAmd(path.join(JS_ROOT, "core/utils/normalizeDefaultValue.js"));
 const visTypes = loadAmd(path.join(JS_ROOT, "core/config/visualizations/bindingSpecsVisTypes.js"));
 const topNHelperConfig = loadAmd(path.join(JS_ROOT, "core/config/visualizations/topNHelper.js"));
+const settingsConfig = loadAmd(path.join(JS_ROOT, "dashboard/widgets/widgetSettings/config.js"));
 
 const clone = (value) => structuredClone(value);
 const VIS_TABLE = "Personal_KDB";
@@ -263,6 +266,12 @@ const FIXTURES = {
   }),
   "intent-reset-defaults": () => visSpec("List", { reason: "cleanup", resetIntent: { enabled: true } }),
   "helper-pre-apply-top5": () => helperSpec("topN"),
+  "helper-pre-apply-bottom5": () => helperSpec("topN", {
+    dataConfig: { topN: "bottom-5" },
+    config: Object.assign({}, baseConfig(), {
+      topNOptions: Object.assign({}, baseConfig().topNOptions, { "bottom-5": 5 }),
+    }),
+  }),
   "helper-pre-apply-top10-hierarchy": () => helperSpec("topN", {
     dataConfig: { topN: "top-10" },
     hierarchySnapshot: hierarchySnapshot(true, { hostDisplayValues: ["Host A", "", null] }),
@@ -385,6 +394,22 @@ test("failure results do not share default intents across calls", () => {
   first.resetIntent.clearAllSlots = true;
   assert.equal(buildPlan(null).emptyIntent.enabled, false);
   assert.equal(buildPlan(null).resetIntent.clearAllSlots, false);
+});
+
+test("parseTopNOption resolves bottom-5 via the production definitions map", () => {
+  assert.deepEqual(parseTopNOption("bottom-5", definitions.topNOptions), {
+    kind: "count",
+    n: 5,
+    value: "bottom-5",
+    key: "bottom-5",
+  });
+});
+
+test("OPTIONS.topN order is top-10..top-1 then bottom-10..bottom-1", () => {
+  assert.deepEqual(settingsConfig.options.topN.map((option) => option.key), [
+    "top-10", "top-5", "top-3", "top-2", "top-1",
+    "bottom-10", "bottom-5", "bottom-3", "bottom-2", "bottom-1",
+  ]);
 });
 
 test("normalizeDefaultValue", () => {

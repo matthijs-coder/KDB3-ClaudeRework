@@ -340,6 +340,11 @@ input.svgIcon {
   border-bottom: black 2px dashed;
 }
 
+/* Couples to option key top-1: dashed line between Top-1 and Letzte-10 (same rule as Ohne). Top-1 stays clickable. */
+.KDB_topNContainer .dataWidgetIcon[data-kdb-option-key="top-1"] {
+  border-bottom: black 2px dashed;
+}
+
 .KDB_IconsDropdown .textIcon {
   top: 4px;
   position: relative;

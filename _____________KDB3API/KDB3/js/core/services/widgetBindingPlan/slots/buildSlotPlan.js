@@ -59,7 +59,7 @@ define([
     }
     _slotItem.options = Object.assign({}, _slotItem.options, {
       topBottom: {
-        type: "topcount",
+        type: /^bottom-/.test(String(_parsedTopN.key)) ? "bottomcount" : "topcount",
         value: _parsedTopN.n,
         rank: false,
         valueItemId: valueItemId,

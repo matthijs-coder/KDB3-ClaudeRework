@@ -31,8 +31,13 @@ define([
     if (isDefaultChoice(value)) {
       return "";
     }
-    var match = value.toLowerCase().match(/^top-?(\d+)$/);
-    return match ? "Top-" + match[1] : value;
+    var lower = value.toLowerCase();
+    var topMatch = lower.match(/^top-?(\d+)$/);
+    if (topMatch) {
+      return "Top-" + topMatch[1];
+    }
+    var bottomMatch = lower.match(/^bottom-?(\d+)$/);
+    return bottomMatch ? "Letzte-" + bottomMatch[1] : value;
   }
 
   function buildSuffixRegex(_phrase) {

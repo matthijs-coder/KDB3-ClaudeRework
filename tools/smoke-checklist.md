@@ -806,3 +806,23 @@ Outbound Teilen now builds the native Cognos query (`biBase?perspective=dashboar
   Expected: one alert, title `Teilen nicht möglich`, message `Der Dashboard-Pfad konnte nicht ermittelt werden. Bitte das Dashboard über das Cognos-Menü öffnen und erneut teilen.`; no copy dialog; no `id=` / `objRef=` URL. Reload afterwards so the stamp is restored.
 
 - [ ] **5. Console clean.** Steps 1 to 4: no new red errors, no `getAccountInfo`, no `[shareControls.click]` failure. Network: the share URL is a query (`?perspective=dashboard&pathRef=`), not a hash.
+
+---
+
+## 9) Feature changes after Phase 2
+
+### P3-BottomN
+
+BottomN is TopN with the other direction (`bottomcount`). Same helper, wave, restore and save path. Helper: `const getKDB = window.top.getKDB;`. Keep DevTools open (Console). Use a vis widget with a spare LIST in the `topN` pad.
+
+- [ ] **1. Dropdown order.** Open the TopN gear menu. Expected: **Ohne**, dashed line, **Top-10 … Top-1**, dashed line, **Letzte-10 … Letzte-1**. Ohne, every Top-N and every Letzte-N are clickable (the Top-1 line is CSS only).
+
+- [ ] **2. Letzte-5 members.** Set a grouping dimension, then **Letzte-5**. Expected: the chart lists the 5 lowest members (compare with **Top-5** on the same metric/dimension and with the data). Console diagnostics for the helper bind show `setTopBottom` / `topBottom.type` **`bottomcount`** (value 5). The helper returns to `#KDB_topNPad` after the bind (same check as 2.3).
+
+- [ ] **3. Title suffix.** Expected: chart title ends with **Letzte-5** (not the English key `bottom-5`). Switching to Top-5 shows **Top-5**; Ohne drops the suffix.
+
+- [ ] **4. Jahr filter wave.** Confirm a different global Jahr. Expected: the Letzte-5 chart re-ranks for the new year; helper back in its pad; no leftover helper on the canvas.
+
+- [ ] **5. Undo/redo.** Switch **Top-5 → Letzte-5 → Ohne** (wait for each chart to settle), then Undo and Redo through those steps. Expected: each step restores the same ranking and title as when it was set.
+
+- [ ] **6. Save v3, reload, load.** Save a set with Letzte-5, reload the dashboard, load the set. Expected: Letzte-5 is restored (dropdown, title, 5 lowest members). Load an old v3 set that has **top-5**: still Top-5, not Letzte. Load the v2 sample `oude parameterset.txt`: unchanged vs baseline.
