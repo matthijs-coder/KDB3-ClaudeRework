@@ -3,8 +3,9 @@ define([], function () {
 
   return {
     missingIdTitle: "Speicherstand nicht gefunden",
-    missingIdMessage: "Der in der URL angegebene Dashboard-Speicherstand (Parameterset-ID „{id}“) wurde in der Auswahlliste nicht gefunden. "
-      + "Er wurde möglicherweise gelöscht. Das Dashboard wird ohne Parameterset gestartet.",
+    missingIdMessage: "Der in der URL angegebene Dashboard-Speicherstand (Parameterset „{id}“) wurde in der Auswahlliste nicht gefunden. "
+      + "Es handelt sich möglicherweise um ein privates Parameterset oder es wurde gelöscht. "
+      + "Das Dashboard wird ohne Parameterset gestartet.",
     hostListUnreadyTitle: "Speicherstand konnte nicht geladen werden",
     hostListUnreadyMessage: "Der in der URL angegebene Dashboard-Speicherstand (Parameterset-ID „{id}“) konnte vorübergehend nicht geladen werden. "
       + "Das Dashboard wird ohne diesen Speicherstand gestartet. "
