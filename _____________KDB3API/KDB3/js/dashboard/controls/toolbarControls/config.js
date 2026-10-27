@@ -32,6 +32,8 @@ define(["../../../core/config/assetBase.js"], function (_assetBase) {
       emptyParameterLabel: "leeres Dashboard",
       boardIdMissingTitle: "Teilen nicht möglich",
       boardIdMissingMessage: "Die Dashboard-Kennung konnte nicht ermittelt werden. Bitte das Dashboard schließen und erneut öffnen.",
+      pathRefMissingTitle: "Teilen nicht möglich",
+      pathRefMissingMessage: "Der Dashboard-Pfad konnte nicht ermittelt werden. Bitte das Dashboard über das Cognos-Menü öffnen und erneut teilen.",
       biBaseMissingTitle: "Teilen nicht möglich",
       biBaseMissingMessage: "Die Dashboard-Adresse konnte nicht ermittelt werden. Bitte das Dashboard schließen und erneut öffnen.",
       readOnlyToggleLabel: "Nur Lesen",
@@ -74,7 +76,7 @@ define(["../../../core/config/assetBase.js"], function (_assetBase) {
   };
 
   var SHARE_LINK = {
-    hashKeys: { perspective: "dashboard", action: "view", mode: "dashboard" },
+    hashKeys: { perspective: "dashboard", action: "view", mode: "dashboard", navFilter: "true" },
     readOnlyTokenKey: "readOnly",
     readOnlyTokenValue: "1",
     readOnlyClass: "kdb-share-read-only"

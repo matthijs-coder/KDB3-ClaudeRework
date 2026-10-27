@@ -62,7 +62,7 @@ test("messages.showToast: failures, aborts and disposed", quiet(async () => {
 }));
 
 test("dashboard dynamic getters: every frozen method name is looked up on the host", () => {
-  const names = ["getFileName", "getDashboardVersion", "getEnvironmentSource", "getBoardId", "getDashboardBiBaseUrl", "getLanguage", "getUserName", "getMode"];
+  const names = ["getFileName", "getDashboardVersion", "getEnvironmentSource", "getBoardId", "getPathRef", "getDashboardBiBaseUrl", "getLanguage", "getUserName", "getMode"];
   const host = Object.fromEntries(names.map((n) => [n, () => "v:" + n]));
   const { svc } = create({ dashboard: host });
   for (const name of names) {

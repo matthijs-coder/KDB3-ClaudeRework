@@ -11,21 +11,23 @@ define(["./config.js"], function (_config) {
   function buildShareDashboardLink(input) {
     var params = new URLSearchParams();
     params.set("perspective", LINK.hashKeys.perspective);
+    params.set("pathRef", input.pathRef);
     params.set("action", LINK.hashKeys.action);
     params.set("mode", LINK.hashKeys.mode);
-    params.set("id", input.boardId);
-    params.set("objRef", input.boardId);
+    if (typeof input.subView === "string" && input.subView.length > 0) params.set("subView", input.subView);
+    params.set("nav_filter", LINK.hashKeys.navFilter);
     if (input.id != null) params.set("parameterId", String(input.id));
     params.set("parameterLabel", readNonEmptyLabel(input.label, input.emptyParameterLabel));
     if (input.isKdbReadOnly === true) params.set(LINK.readOnlyTokenKey, LINK.readOnlyTokenValue);
-    return String(input.biBase || "") + "#" + params.toString();
+    return String(input.biBase || "") + "?" + params.toString();
   }
 
   function openShareCopyDialog(_KDB, input) {
     var labels = input.labels || {};
     var linkInput = {
       biBase: input.biBase,
-      boardId: input.boardId,
+      pathRef: input.pathRef,
+      subView: input.subView,
       id: input.id,
       label: input.label,
       emptyParameterLabel: input.emptyParameterLabel

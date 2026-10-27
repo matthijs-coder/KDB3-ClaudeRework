@@ -19,7 +19,7 @@ const FACET_KEYS = {
   ],
   dataQuery: ["peekQueryRows", "readQueryRows", "waitForQueryResult"],
   dashboard: [
-    "getBoardId", "getDashboardBiBaseUrl", "getEnvironmentSource", "getFileName", "getDashboardVersion", "getLanguage", "getMode", "getUserName",
+    "getBoardId", "getDashboardBiBaseUrl", "getEnvironmentSource", "getFileName", "getDashboardVersion", "getLanguage", "getMode", "getPathRef", "getUserName",
     "openAppView", "replaceWithBiHomePerspective", "subscribeUiState"
   ],
   dataSources: ["hasErrorDataSource"],
