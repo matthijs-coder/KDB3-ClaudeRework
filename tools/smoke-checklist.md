@@ -835,7 +835,7 @@ Prognose widgets have no Dimension or TopN. Icons stay in the DOM; CSS hides the
 
 - [ ] **2. Switch back to Line.** From that Prognose widget switch visualization to Line. Expected: Dimension and TopN icons visible again, both Ohne (not the previous dimension / Top-5).
 
-- [ ] **3. Undo after the switch.** From Line + dimension + Top-5, switch to Prognose, then Undo. Expected: vis type is Line, Dimension and TopN stay Ohne. Known limit (by design): undoing further back past the TopN step and then redoing it shows the "could not replay" message, because the dimension is already Ohne; history stays put.
+- [ ] **3. Undo after the switch.** From Line + a grouping dimension + Top-3, switch to Prognose, then Undo. Expected: vis type is Line, Dimension is the previous grouping, TopN is Top-3; the TopN helper claims, binds, resolves and returns to `#KDB_topNPad`; the title suffix is **Top-3**. Redo: Prognose with Dimension and TopN Ohne. Then undo further through the TopN and dimension steps and redo all of them: each step restores, no "could not replay" message. Repeat the same sequence with **Letzte-3** (title suffix **Letzte-3**).
 
 - [ ] **4. Pie and List still show both.** A Pie widget and a List widget still show Dimension and TopN icons. Changing them still binds as before.
 

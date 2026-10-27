@@ -39,7 +39,7 @@ define([
       if (!descriptor) {
         return null;
       }
-      return executeIntent(_KDB, {
+      const intent = {
         widgetId: descriptor.widgetId,
         widgetType: descriptor.widgetType,
         interaction: "dropdownOption",
@@ -48,7 +48,11 @@ define([
         optionValue: descriptor.optionValue,
         isHistoryReplay: options.isHistoryReplay === true,
         source: "widgetSettings"
-      });
+      };
+      if (options.restoreControls) {
+        intent.restoreControls = options.restoreControls;
+      }
+      return executeIntent(_KDB, intent);
     } catch (err) {
       console.error("[widgetSettings.dispatchDropdownOptionIntent] failed", err);
       return null;

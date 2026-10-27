@@ -1,8 +1,9 @@
 define([
   "../config.js",
   "./visSnapshot.js",
-  "../../widgetVis/selectors.js"
-], function (_config, _visSnapshot, _visSelectors) {
+  "../../widgetVis/selectors.js",
+  "../../../../core/config/visualizations/visTypeRules.js"
+], function (_config, _visSnapshot, _visSelectors, _visTypeRules) {
   "use strict";
 
   const warnedMissingApi = {};
@@ -57,8 +58,10 @@ define([
       payload.settingsSnapshot = visPayload.settingsSnapshot;
       if (planned.coupledTopN) {
         payload.nextValue = "none";
-        payload.settingsSnapshot.dimension = "none";
-        payload.settingsSnapshot.topNChoice = "none";
+        overlaySnapshotControls(payload.settingsSnapshot, { dimension: "none", topNChoice: "none" });
+      } else if (planned.restoreControls && _visTypeRules.supportsDimension(payload.nextValue)) {
+        // Overlay only: payload.nextValue stays the vis type (coupledTopN would bind "none").
+        overlaySnapshotControls(payload.settingsSnapshot, planned.restoreControls);
       }
     }
     applyLayoutIntentPayload(payload, planned);
@@ -67,6 +70,18 @@ define([
       widgetId: planned.widgetId,
       payload: payload
     };
+  }
+
+  function overlaySnapshotControls(snapshot, values) {
+    if (!snapshot || !values) {
+      return;
+    }
+    if (values.dimension != null) {
+      snapshot.dimension = values.dimension;
+    }
+    if (values.topNChoice != null) {
+      snapshot.topNChoice = values.topNChoice;
+    }
   }
 
   function applyLayoutIntentPayload(payload, planned) {

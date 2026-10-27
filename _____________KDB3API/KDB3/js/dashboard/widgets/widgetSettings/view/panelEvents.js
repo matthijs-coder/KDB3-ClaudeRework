@@ -25,6 +25,7 @@ define([
   function selectOption(_KDB, panel, option) {
     const dropdown = option.closest(_selectors.dropdownSelector);
     const oldFrame = _history.buildDropdownSelectionFrame(panel, dropdown);
+    _history.maybeAttachRestoreControls(_KDB, oldFrame, option);
     _dropdownOptionSelection.markSelectedOption(option);
     const intentResult = _dispatchIntent.dropdownOption(_KDB, panel, option, { isHistoryReplay: false });
     const newFrame = _history.buildDropdownSelectionFrame(panel, dropdown);

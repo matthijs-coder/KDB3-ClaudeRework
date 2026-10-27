@@ -81,6 +81,7 @@ define([
   }
 
   return {
+    isAbsentSentinel: isAbsentSentinel,
     validateTopNGroupingDimension: validateTopNGroupingDimension
   };
 });

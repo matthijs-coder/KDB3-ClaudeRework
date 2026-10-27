@@ -3,10 +3,24 @@ define([
   "./effects/dispatchWidgetSettingsIntent.js",
   "./state.js",
   "./intent/descriptor.js",
+  "./intent/finalize.js",
+  "./intent/topNGrouping.js",
   "./view/dropdownOptionSelection.js",
   "./view/resolveWidgetPlacementContext.js",
+  "../../../core/config/visualizations/visTypeRules.js",
   "../../../core/utils/kit/history.js"
-], function (_selectors, _dispatchIntent, _state, _descriptor, _dropdownOptionSelection, _placementContext, _kitHistory) {
+], function (
+  _selectors,
+  _dispatchIntent,
+  _state,
+  _descriptor,
+  _finalize,
+  _topNGrouping,
+  _dropdownOptionSelection,
+  _placementContext,
+  _visTypeRules,
+  _kitHistory
+) {
   "use strict";
 
   const STEP_KEY = "widgetSettings_optionSelect";
@@ -55,7 +69,15 @@ define([
         return false;
       }
       _dropdownOptionSelection.markSelectedOption(option);
-      return Promise.resolve(_dispatchIntent.dropdownOption(_KDB, panel, option, { isHistoryReplay: true })).then(isReplaySuccess);
+      return Promise.resolve(_dispatchIntent.dropdownOption(_KDB, panel, option, {
+        isHistoryReplay: true,
+        restoreControls: targetValue.restoreControls
+      })).then(function (result) {
+        if (targetValue.restoreControls) {
+          return _finalize.isVisApplyConfirmed(result) === true;
+        }
+        return isReplaySuccess(result);
+      });
     } catch (err) {
       console.error("[widgetSettings.applyWidgetSettingsOptionHistoryReplay] failed", err);
       return Promise.resolve(false);
@@ -157,6 +179,29 @@ define([
     });
   }
 
+  // Mutate only the old vis frame: undo of a switch onto a type without dimension (Prognose)
+  // must re-bind the committed dimension/TopN, so they are frozen here before the Ohne clear.
+  function maybeAttachRestoreControls(_KDB, oldFrame, option) {
+    if (!oldFrame || !option || typeof option.getAttribute !== "function") {
+      return;
+    }
+    if (String(option.getAttribute(_selectors.dropdownKindAttr) || "") !== "visualization") {
+      return;
+    }
+    const visType = option.getAttribute(_selectors.optionValueAttr) || option.getAttribute(_selectors.optionKeyAttr) || "";
+    if (_visTypeRules.supportsDimension(visType)) {
+      return;
+    }
+    const record = _state.ensureWidgetSettingsByWidget(_KDB, oldFrame.widgetId);
+    if (_topNGrouping.isAbsentSentinel(record.dimension) && _topNGrouping.isAbsentSentinel(record.topNChoice)) {
+      return;
+    }
+    oldFrame.restoreControls = {
+      dimension: record.dimension,
+      topNChoice: record.topNChoice
+    };
+  }
+
   function buildDropdownSelectionFrame(_panel, _dropdown) {
     try {
       const selectedOption = _dropdownOptionSelection.readSelectedOption(_dropdown);
@@ -229,6 +274,7 @@ define([
     createWidgetSettingsHistoryReplayHandler: createWidgetSettingsHistoryReplayHandler,
     pushWidgetSettingsHistoryStep: pushWidgetSettingsHistoryStep,
     pushHistoryAfterConfirmedApply: pushHistoryAfterConfirmedApply,
+    maybeAttachRestoreControls: maybeAttachRestoreControls,
     buildDropdownSelectionFrame: buildDropdownSelectionFrame,
     queueCoupledTopNClearHistory: queueCoupledTopNClearHistory
   };

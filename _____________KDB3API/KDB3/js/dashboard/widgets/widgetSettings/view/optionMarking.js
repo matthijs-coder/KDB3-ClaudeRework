@@ -80,13 +80,15 @@ define([
     }
   }
 
-  function stampMatchingFocusCloneVisType(widgetId, visTypeKey, visTypeRaw) {
+  function stampMatchingFocusCloneVisType(widgetId, visTypeKey, visTypeRaw, record) {
     var id = String(widgetId || "");
     var focusPanel = id ? document.querySelector(_selectors.byAttr(_selectors.focusPanelRootAttr, id)) : null;
-    if (focusPanel) {
-      focusPanel.setAttribute(_selectors.panelVisTypeAttr, visTypeKey);
-      stampDimensionAvailability(focusPanel, visTypeRaw || visTypeKey);
+    if (!focusPanel) {
+      return;
     }
+    focusPanel.setAttribute(_selectors.panelVisTypeAttr, visTypeKey);
+    stampDimensionAvailability(focusPanel, visTypeRaw || visTypeKey);
+    markDimensionAndTopN(focusPanel, record);
   }
 
   function clearIllegalGrouping(record, _KDB) {
@@ -117,7 +119,7 @@ define([
     var visTypeRaw = (record && record.visType) || visTypeKey;
     panel.setAttribute(_selectors.panelVisTypeAttr, visTypeKey);
     stampDimensionAvailability(panel, visTypeRaw);
-    stampMatchingFocusCloneVisType(widgetId, visTypeKey, visTypeRaw);
+    stampMatchingFocusCloneVisType(widgetId, visTypeKey, visTypeRaw, record);
     markPanelOption(panel, "showValues", readFlagKey(record && record.showValues), ".KDB_showValuesContainer");
     markPanelOption(panel, "iterator", readFlagKey(record && record.iterator));
     markPanelOption(panel, "zoom", readFlagKey(record && record.zoom));
