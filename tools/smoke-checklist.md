@@ -809,7 +809,7 @@ Outbound Teilen now builds the native Cognos query (`biBase?perspective=dashboar
 
 ---
 
-## 9) Feature changes after Phase 2
+## 10) Feature changes after Phase 2
 
 ### P3-BottomN
 
