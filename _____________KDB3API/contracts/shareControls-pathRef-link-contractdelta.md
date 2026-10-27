@@ -44,7 +44,7 @@ Target form:
 New file `KDB3/js/dashboard/controls/toolbarControls/readUrlPathRef.js`, one AMD module, no imports, returning `{ readUrlPathRef, readUrlSubView }` (both `() -> string | null`).
 
 - A/B ladder, **forked** (not imported, not shared): candidate A = `performance.getEntriesByType("navigation")[0].name`, candidate B = `document.location.href`; for each candidate in that order: query (`new URL(candidate, location.origin).searchParams.get(key)`), then hash (strip `#`; if the hash holds `?`, the part after it; `URLSearchParams(...).get(key)`). The first non-empty string wins; otherwise `null`.
-- A candidate that is not a parseable URL is skipped (the local `try/catch` around `new URL` converts the throw into "skip"; no log per candidate). Missing `performance` / `document` → that candidate is absent.
+- A candidate that is not a parseable URL is skipped (the local `try/catch` around `new URL` converts the throw into "skip"; no log per candidate; one `console.warn("[shareControls.readUrlPathRef] invalid URL candidates", { count })` when every candidate was unparseable). Missing `performance` / `document` → that candidate is absent.
 - `URLSearchParams.get` decodes once, so the value is unencoded and the builder's single encode round-trips it (a native `%2528` stays `%2528`).
 - Keys: `pathRef`, `subView`. Do **not** import `readUrlParameterId.js` or the read-only token reader; do **not** create a `helpers/`, `common/` or `shared/` parser. The three A/B parsers (writeback `parameterId`, share `readOnly`, share `pathRef`/`subView`) stay separate.
 - After an ID-open the location is query-only (`?id=&objRef=&boardId=`) without `pathRef`: the parse alone cannot serve Teilen there, which is why the facet comes first.

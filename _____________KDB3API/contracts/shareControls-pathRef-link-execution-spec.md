@@ -16,6 +16,11 @@
 | A4 | `shareControls/effects/*`, `config/shareLinkHashKeys.js`, `config/shareLabels.js`, `createShareControlsController.js` | `toolbarControls/shareButton.js` (click + mount check), `shareLink.js` (builder + dialog), `config.js` (`SHARE_LINK.hashKeys`, `LABELS.share`), new `toolbarControls/readUrlPathRef.js` | Share lives inside the flat `toolbarControls/` folder here. Mapping only. |
 | A5 | "Do not change `KDB.js`" | Coordinator bumps the `this.version` line only | Planner order (project version-stamp convention). Not done by the implementer. |
 | A6 | Contract-per-change | New deltas + this spec in `contracts/` and the deltas list in `contracts/README.md` | This copy's README says the per-change workflow is retired; the handover and the planner require it for this slice. |
+| A7 | Source `readUrlPathRef.js`: try/catch in every read helper plus an outer try/catch that warns `[shareControls.readUrlPathRef] failed` and returns `null` | Only the `new URL` value conversion is caught; the `invalid URL candidates` warn (all candidates unparseable) is kept 1:1; no outer catch | `error-handling.mdc`: no try/catch in internal steps called from a boundary. Only effect: an unexpected throw while reading the URL is logged once by the click boundary (`runButtonClick`) and no alert shows, instead of a warn followed by the `pathRefMissing` alert. |
+| A8 | Source `bindShareClick.js` / `openShareCopyDialog.js` each have their own try/catch; module-level warn-once flag | The click boundary is `toolbarButton.js` `runButtonClick`; warn-once is per button instance (`warnOnce`); `openShareCopyDialog` has no own catch (unchanged structure) | Existing `toolbarControls` structure and `error-handling.mdc`. Same observable result: a throw is logged once and no dialog shows. |
+| A9 | Source labels read only from `_KDB.config.labels.de.shareControls` (`shareLabels.js` registered there) | `readButtonLabels` merges `config.js` `LABELS.share` with `_KDB.config.labels.de.shareControls` | Existing `toolbarControls` label path; same German strings. |
+
+Reference implementation: the PO's tested source-copy files (project store `internal/share-pathref/source-copy/`) are the behavioural reference; port 1:1 except for the rows above.
 
 Budgets measured on `main` `108aa73`: `shareButton.js` 122 lines / 5 imports (6 after), `shareLink.js` 118, `config.js` 110, `core/cognosAPI/dashboard.js` 170 (about 215 after), `read.js` 103. All far below 300 code lines.
 
@@ -67,7 +72,7 @@ Add `"getPathRef"` after `"getBoardId"` in `VALUE_GETTER_NAMES`. Nothing else (t
 - `readCandidateValue(href, origin, key)`: `try { url = new URL(href, origin); } catch (_error) { return null; }` (value conversion, no log); query value `url.searchParams.get(key)` if non-empty string, else hash value if non-empty string, else `null`.
 - `readUrlValue(key)`: candidates `[navigationName, location && location.href]` filtered to truthy, in that order; first non-empty string wins; else `null`. Origin = `location && location.origin || undefined`.
 - `readUrlPathRef()` = `readUrlValue("pathRef")`; `readUrlSubView()` = `readUrlValue("subView")`.
-- No console output. No `_KDB`.
+- When at least one candidate exists and every candidate failed `new URL`, `console.warn("[shareControls.readUrlPathRef] invalid URL candidates", { count: attempted })` (source-copy parity); otherwise no console output. No `_KDB`.
 
 ### B4 `toolbarControls/shareLink.js`
 
