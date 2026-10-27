@@ -962,6 +962,7 @@ Title link and tooltip (implemented 2026-07-14, legacy `alterVisTitle`/`addLinkT
 - When `derived.langtext`/`derived.url` are absent (widgets registered before this sync), the descriptor is re-resolved defensively through `_KDB.api.metricsTree.resolveMetricByCode(derived.code || metric.code)`.
 - `cleanupVisualizationContent` (with `clearDomDecorations`) unwraps the anchor and removes the `.widgetTitle` `title` attribute (existing "remove title-link decorations" rule).
 - CSS (`KDB3/css/widgets/widgetVis.css`) guarantees the linked title renders as normal black text: `.kdb_hyperlink { text-decoration: none; color: inherit; }` plus `color: black` on base/hover/focus (legacy `KDBDroppedWidgets.css`/`KDB.css` parity).
+- CSS (`KDB3/css/widgets/widgetVis.css`) hides aggregated Cognos tooltip `.labelValue` on Line and Prognose legend-item and line-segment hover (`body:has`, because the tooltip can sit outside the widget). Data-point hover is unchanged. One matching hover hides every visible `.labelValue` on the page. Prognose uses the same `path.line-element` / `path.point-element` selectors as Line; those classes are not confirmed on the custom vis (source not in this repo).
 
 Legend/tooltip behavior:
 
