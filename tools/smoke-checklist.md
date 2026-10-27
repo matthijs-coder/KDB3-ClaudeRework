@@ -858,3 +858,14 @@ Focus-mode dropdowns share the gear panel's undo stack (`widgetSettings_optionSe
 - [ ] **2. Undo/Redo shows both panels.** After those focus changes, Undo then Redo through the steps. Expected: live gear panel and focus clone both show the committed state; no "could not replay" message.
 
 - [ ] **3. Line + Jahr + dim + Top-3 → Prognose from focus.** Same restore as the gear: Undo brings back all four; Redo is Prognose (Dimension/TopN Ohne, Zeitebene gone). Unmaximize stays without a history step.
+
+### P3-Line-tooltip
+
+Verberg de geaggregeerde som in Line- en Prognose-tooltips (alleen CSS, geen JS). Dashboard met minstens één Line, één Prognose, één ander type (taart/staaf/tabel) en twee Line-widgets op hetzelfde tabblad.
+
+- [ ] **1. Legenda-hover.** Hover een jaar in de legenda van een Line-widget. Verwacht: tooltip toont reeksnaam/maatnaam; het geaggregeerde getal is weg. Zelfde check op Prognose.
+- [ ] **2. Lijn-hover.** Hover een lijnstuk (niet een punt). Verwacht: geaggregeerde waarde weg (Line en Prognose).
+- [ ] **3. Datapunt-hover.** Hover een individueel datapunt. Verwacht: normale tooltip mét waarde.
+- [ ] **4. Ander diagramtype.** Hover de legenda van taart, staaf of tabel. Verwacht: tooltip ongewijzigd, waarde blijft zichtbaar.
+- [ ] **5. Twee Line-widgets.** Twee Line-widgets op één dashboard. Hover legenda of lijn van A: geaggregeerde waarde van A weg. Hover datapunt van B: waarde van B blijft. Beperking: `body:has` verbergt elke zichtbare tooltip-waarde zolang A in die hover-staat zit.
+- [ ] **6. Na filter/tab.** Filter wijzigen of van tab wisselen en terug. Verwacht: gedrag van 1–3 blijft actief; geen console-fout.
