@@ -138,7 +138,7 @@ test("STATUS_TABLE keeps every frozen status spelling", () => {
 test("writeback labels stay byte-identical", () => {
   const labels = load("labels");
   const digest = crypto.createHash("sha256").update(JSON.stringify(labels)).digest("hex");
-  assert.equal(digest, "7cf6d84af4ecaea8c28ad889149d995c6c8a052c65de95af3d470ab3d5600647");
+  assert.equal(digest, "9b3a329bb3cf949d7b03e2f831fe2b6f89c185222b00b010ee336f8773612e3d");
   assert.equal(labels.dienststelleRestoreFallbackMessage, labels.dienststelleRestoreMissingMessage);
 });
 

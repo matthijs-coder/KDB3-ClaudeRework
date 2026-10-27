@@ -1,4 +1,7 @@
-define(["../set/state/ensureWritebackRuntime.js"], function (_ensureWritebackRuntime) {
+define([
+  "../set/state/ensureWritebackRuntime.js",
+  "./decodeParameterSetId.js"
+], function (_ensureWritebackRuntime, _decodeParameterSetId) {
   "use strict";
 
   function readWritebackLabels(_KDB) {
@@ -9,7 +12,7 @@ define(["../set/state/ensureWritebackRuntime.js"], function (_ensureWritebackRun
   }
 
   function formatPendingMessage(_template, _parameterId) {
-    return String(_template || "").split("{id}").join(String(_parameterId));
+    return String(_template || "").split("{id}").join(_decodeParameterSetId(_parameterId));
   }
 
   function readPendingAlertCopy(_pending, _labels) {

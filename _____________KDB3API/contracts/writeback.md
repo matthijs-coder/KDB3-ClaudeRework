@@ -137,6 +137,7 @@ workflows/parameterSet/
 │   ├── whenUrlShareRestoreSettled.js  called from KDB.js; applies the URL id, resets to newDashboard on failure
 │   ├── waitForSingleSelectInventoryQuiet.js
 │   ├── mapUrlShareSelectResult.js
+│   ├── decodeParameterSetId.js        display name from the host option value (UTF-8-safe base64 of NAME; raw id on failure)
 │   └── presentPendingUrlShareMessage.js
 ├── map/
 │   ├── createWritebackMapService.js
@@ -219,6 +220,13 @@ _KDB.services.writebackSet.presentPendingUrlShareMessage() -> undefined
 ```
 
 Public `writebackSet` is `{ restore, allocateRestoreRunId, destroy, whenUrlShareRestoreSettled, presentPendingUrlShareMessage }`. Named methods; no mixed `dispatch`. `allocateRestoreRunId() -> number` bumps `runtime.writeback.parameterSetRestoreRunId` and returns it: widgetBase's duplicate-tab content fill (`slotStock/fillContent.js`) draws its run id from it, so every owner's `parameterSetRunId` guard stays monotone with real restore runs (W11: widgetBase no longer writes `runtime.writeback`).
+
+Missing-id alert (`writebackLabels.missingIdTitle` / `missingIdMessage`, `copy: "missingId"`). `{id}` is the decoded set name (`urlShare/decodeParameterSetId.js`), not the raw URL `parameterId`. Host option values are the UTF-8-safe base64 of the parameter-set NAME (`btoa(unescape(encodeURIComponent(name)))`; KDB3 does not encode). Decode failure keeps the raw id. `{id}` replace is display-only; select matching still uses the raw id.
+
+| key | German |
+|---|---|
+| `missingIdTitle` | `Speicherstand nicht gefunden` |
+| `missingIdMessage` | `Der in der URL angegebene Dashboard-Speicherstand (Parameterset „{id}“) wurde in der Auswahlliste nicht gefunden. Es handelt sich möglicherweise um ein privates Parameterset oder es wurde gelöscht. Das Dashboard wird ohne Parameterset gestartet.` |
 
 `options` shape:
 

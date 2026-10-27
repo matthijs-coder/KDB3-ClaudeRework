@@ -840,3 +840,11 @@ Prognose widgets have no Dimension or TopN. Icons stay in the DOM; CSS hides the
 - [ ] **4. Pie and List still show both.** A Pie widget and a List widget still show Dimension and TopN icons. Changing them still binds as before.
 
 - [ ] **5. Load a v3 set with leftover dim/topn on Prognose.** Load a v3 parameter set whose Prognose widget still carries `dim` and `topn`. Expected: chart Ohne, no `WRITEBACK_*` error. Save: that widget has no `dim` / `topn`.
+
+### P3-URL-SHARE-MISSING-SET
+
+A share URL whose `parameterId` is not in `#selectParameterSet` (deleted, or a private set of another user) still opens the dashboard empty. The alert now shows the decoded set name, not the raw base64 id. Helper: `const k = () => window.top.getKDB();`.
+
+- [ ] **1. Known name, unknown id.** From Teilen copy a URL with a real `parameterId` (e.g. `MjAyNi4xMC4yNyB2MDAx` for a set named `2026.10.27 v001`). Open it as a user who does not see that set, or change the id to that of a deleted set. Expected: title `Speicherstand nicht gefunden`; message `Der in der URL angegebene Dashboard-Speicherstand (Parameterset „2026.10.27 v001“) wurde in der Auswahlliste nicht gefunden. Es handelt sich möglicherweise um ein privates Parameterset oder es wurde gelöscht. Das Dashboard wird ohne Parameterset gestartet.`; no raw `MjAyNi4xMC4yNyB2MDAx` in the text; dashboard starts without a set.
+
+- [ ] **2. Invalid base64 fallback.** Open the same dashboard with `&parameterId=does-not-exist`. Expected: the same title and the same two sentences, with `Parameterset „does-not-exist“` (raw id, decode failed); dashboard starts without a set.
