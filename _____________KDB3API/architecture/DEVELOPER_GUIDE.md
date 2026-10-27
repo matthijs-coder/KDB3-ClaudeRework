@@ -322,7 +322,7 @@ Routing is declared in `filterDock/ownerRoutes.js` (`OWNER_ROUTE_MAP`); `filterD
 
 ### 9.2 Widgets
 
-`widgetBase` owns the **frame** (kind, placement, layout, tab); `widgetSettings` the **committed settings** and gear panel; `widgetVis` the **derived and render state** (title, drill-through, maximize); `widgetTopN` the hidden helper; `widgetText` the text. A **`datatable` frame** (a List widget on the canvas) is a passive shell without a content owner, like `other` and `topN` frames. The `widgetDataTable` module is gone (W12); saved sets with `tbl` widgets still load and those widgets are skipped on restore by design.
+`widgetBase` owns the **frame** (kind, placement, layout, tab); `widgetSettings` the **committed settings** and gear panel; `widgetVis` the **derived and render state** (title, drill-through, maximize); `widgetTopN` the hidden helper; `widgetText` the text. A **`datatable` frame** (a List widget on the canvas) is a passive shell without a content owner, like `other` and `topN` frames. The `widgetDataTable` module is gone (W12); saved sets with `tbl` widgets still load and those widgets are skipped on restore by design. Per-vis-type gear availability is `visTypeRules.supportsDimension` (TopN follows the dimension). Prognose is false; `stampPanelState` then sets `data-kdb-dimension="off"` (`widgetSettings/config/selectors.js` `panelDimensionAttr`) on the live gear and the focus clone so CSS hides Dimension and TopN without naming the vis type. A switch or restore onto Prognose commits both controls to Ohne (`"none"`); undo of that switch restores only the vis type.
 
 **(a) Dropping a Kennzahl creates a bound widget**
 
@@ -475,7 +475,7 @@ All tools live in `tools/` (repository root), need Node 22 or newer, have no npm
 
 ### 12.2 Add a widget type
 
-Add the module under `dashboard/widgets/` (state `state.widgets.<type>`) and register it (12.1). `widgetBase/effects.js` `dispatchContentCreate` maps a kind to `<type>/contentCreate`, so a new kind needs a case there; the gear panel comes from `widgetSettings/config/controlDefinitions.js` and `KIND_TABLE`. A persisted kind also needs v3 schema entries, a collector and a restore handler (12.7). A new **visualization type** needs definitions and binding specs in `core/config/visualizations/` and wiring in `widgetVis/visTypes.js`.
+Add the module under `dashboard/widgets/` (state `state.widgets.<type>`) and register it (12.1). `widgetBase/effects.js` `dispatchContentCreate` maps a kind to `<type>/contentCreate`, so a new kind needs a case there; the gear panel comes from `widgetSettings/config/controlDefinitions.js` and `KIND_TABLE`. A persisted kind also needs v3 schema entries, a collector and a restore handler (12.7). A new **visualization type** needs definitions and binding specs in `core/config/visualizations/` and wiring in `widgetVis/visTypes.js`. Hide or show Dimension/TopN through `visTypeRules.supportsDimension` and the `data-kdb-dimension` stamp (`panelDimensionAttr`); do not add vis-type names to the hide CSS.
 
 ### 12.3 Add a filter
 

@@ -826,3 +826,17 @@ BottomN is TopN with the other direction (`bottomcount`). Same helper, wave, res
 - [ ] **5. Undo/redo.** Switch **Top-5 → Letzte-5 → Ohne** (wait for each chart to settle), then Undo and Redo through those steps. Expected: each step restores the same ranking and title as when it was set.
 
 - [ ] **6. Save v3, reload, load.** Save a set with Letzte-5, reload the dashboard, load the set. Expected: Letzte-5 is restored (dropdown, title, 5 lowest members). Load an old v3 set that has **top-5**: still Top-5, not Letzte. Load the v2 sample `oude parameterset.txt`: unchanged vs baseline.
+
+### P3-Prognose
+
+Prognose widgets have no Dimension or TopN. Icons stay in the DOM; CSS hides them on `data-kdb-dimension="off"`. Helper: `const k = () => window.top.getKDB();`. Keep DevTools open (Console).
+
+- [ ] **1. Switch Line → Prognose.** On a Line chart pick a dimension and Top-5. Switch visualization to Prognose. Expected: Dimension and TopN gear icons gone on the canvas gear **and** the focus-mode panel; the chart has no dimension series; the TopN helper is back in `#KDB_topNPad`.
+
+- [ ] **2. Switch back to Line.** From that Prognose widget switch visualization to Line. Expected: Dimension and TopN icons visible again, both Ohne (not the previous dimension / Top-5).
+
+- [ ] **3. Undo after the switch.** From Line + dimension + Top-5, switch to Prognose, then Undo. Expected: vis type is Line, Dimension and TopN stay Ohne.
+
+- [ ] **4. Pie and List still show both.** A Pie widget and a List widget still show Dimension and TopN icons. Changing them still binds as before.
+
+- [ ] **5. Load a v3 set with leftover dim/topn on Prognose.** Load a v3 parameter set whose Prognose widget still carries `dim` and `topn`. Expected: chart Ohne, no `WRITEBACK_*` error. Save: that widget has no `dim` / `topn`.

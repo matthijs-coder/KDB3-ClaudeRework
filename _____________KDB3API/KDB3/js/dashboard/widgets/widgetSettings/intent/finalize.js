@@ -2,8 +2,9 @@ define([
   "../config.js",
   "../state.js",
   "./downstream.js",
-  "../view/optionMarking.js"
-], function (_config, _state, _downstream, _optionMarking) {
+  "../view/optionMarking.js",
+  "../../../../core/config/visualizations/visTypeRules.js"
+], function (_config, _state, _downstream, _optionMarking, _visTypeRules) {
   "use strict";
 
   const FAILED_STATUSES = ["error", "timeout", "aborted"];
@@ -74,6 +75,11 @@ define([
     return _state.commitWidgetSettingValue(_KDB, _widgetId, "topN", "none", { nextValue: "none" });
   }
 
+  function commitUnavailableDimensionControls(_KDB, _widgetId) {
+    _state.commitWidgetSettingValue(_KDB, _widgetId, "dimension", "none", { nextValue: "none" });
+    return _state.commitWidgetSettingValue(_KDB, _widgetId, "topN", "none", { nextValue: "none" });
+  }
+
   function finalizeVisIntentResult(_KDB, _planned, _dispatchResult) {
     const planned = _planned || {};
     if (planned.source === "startup") {
@@ -140,12 +146,19 @@ define([
       const canonicalOptionValue = _downstream.resolveCanonicalVisOptionValue(planned);
       const report = result.reportToSettings || { nextValue: canonicalOptionValue };
       _state.commitWidgetSettingValue(_KDB, planned.widgetId, planned.kind, canonicalOptionValue, report);
+      // Own flag, not planned.coupledTopN: that path overwrites payload.nextValue and would bind vis type "none".
+      const clearUnavailableControls = _config.normalizeKind(planned.kind) === "visualization"
+        && !_visTypeRules.supportsDimension(canonicalOptionValue);
+      if (clearUnavailableControls) {
+        commitUnavailableDimensionControls(_KDB, planned.widgetId);
+        result.clearUnavailableControlsCommitted = true;
+      }
       clearSafeguardPending(_KDB, planned);
       if (coupled) {
         result.coupledTopNCommitted = true;
       }
       _optionMarking.stampPanelVisType(_KDB, planned.widgetId);
-      if (coupled) {
+      if (coupled || clearUnavailableControls) {
         _optionMarking.markFocusDimensionAndTopNFromRecord(_KDB, planned.widgetId);
       }
     } catch (err) {

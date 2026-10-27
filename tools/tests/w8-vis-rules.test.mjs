@@ -92,7 +92,8 @@ function fakePanel(widgetId, groupingRows) {
     querySelector: (selector) => (selector === ".KDB_groupingContainer" ? groupingDropdown : null),
     querySelectorAll: () => [],
     getAttribute: (name) => (name in attrs ? attrs[name] : null),
-    setAttribute: (name, value) => { attrs[name] = value; }
+    setAttribute: (name, value) => { attrs[name] = value; },
+    removeAttribute: (name) => { delete attrs[name]; }
   };
   return { panel, attrs, rows };
 }
@@ -274,6 +275,8 @@ test("W8 rules: padded and mixed-case types resolve like their canonical spellin
   assert.equal(rules.isAllowedGrain("com.ibm.vis.custom.prognoseyearlinechart", "jahr"), false);
   assert.equal(rules.isAllowedGrain("List", "stichtagProJahrH"), false);
   assert.equal(rules.isGrain("constructor"), false);
+  assert.equal(rules.supportsDimension("prognose"), false);
+  assert.equal(rules.supportsDimension("line"), true);
 });
 
 test("W8 rules: the shared tables cannot be mutated by a consumer", () => {
