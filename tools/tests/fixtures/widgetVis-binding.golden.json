@@ -3416,7 +3416,7 @@
               "metricsTable": "Personal_KDB"
             },
             "settings": {
-              "dimension": "Altersgruppe",
+              "dimension": "none",
               "visType": "Prognose",
               "topNChoice": "none"
             }

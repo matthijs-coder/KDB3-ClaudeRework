@@ -86,12 +86,18 @@ define([
     return canonical ? canonical.toLowerCase() : String(_rawType).trim();
   }
 
+  // Prognose has no user dimension. TopN is ranked by the dimension, so it follows this predicate.
+  function supportsDimension(_rawType) {
+    return resolveBucket(_rawType) !== "com.ibm.vis.custom.prognoseyearlinechart";
+  }
+
   return {
     GRAINS: GRAINS,
     isGrain: isGrain,
     normalizeVisType: normalizeVisType,
     resolveBucket: resolveBucket,
     isAllowedGrain: isAllowedGrain,
-    settingsKey: settingsKey
+    settingsKey: settingsKey,
+    supportsDimension: supportsDimension
   };
 });

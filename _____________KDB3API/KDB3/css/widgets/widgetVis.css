@@ -48,6 +48,12 @@
     display: none;
 }
 
+/* Rule-stamped: visTypeRules.supportsDimension is false. CSS does not name the vis type. */
+.KDB_focusModeSettingsPanel[data-kdb-dimension="off"] .dataWidgetIcon.KDB_dimensionsButton,
+.KDB_focusModeSettingsPanel[data-kdb-dimension="off"] .dataWidgetIcon.KDB_topNButton {
+    display: none;
+}
+
 .expandModeContainer .KDB_widgetSettingsButton {
     display: inline-block !important;
 }

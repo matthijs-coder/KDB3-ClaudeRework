@@ -186,8 +186,13 @@ define([
 
   async function commitVisAndConsequences(_KDB, _widgetId, _entry, _meta, _diagnostics, _entryIndex) {
     commitRequiredSetting(_KDB, _widgetId, "visualization", _entry, "type", VIS_DEFAULTS.visualization);
-    commitRequiredSetting(_KDB, _widgetId, "dimension", _entry, "dim", VIS_DEFAULTS.dimension);
-    commitRequiredSetting(_KDB, _widgetId, "topN", _entry, "topn", VIS_DEFAULTS.topN);
+    if (_visTypeRules.supportsDimension(_entry.type)) {
+      commitRequiredSetting(_KDB, _widgetId, "dimension", _entry, "dim", VIS_DEFAULTS.dimension);
+      commitRequiredSetting(_KDB, _widgetId, "topN", _entry, "topn", VIS_DEFAULTS.topN);
+    } else {
+      commitDirect(_KDB, _widgetId, "dimension", VIS_DEFAULTS.dimension);
+      commitDirect(_KDB, _widgetId, "topN", VIS_DEFAULTS.topN);
+    }
     VIS_FLAG_FIELDS.forEach(function (pair) {
       if (hasField(_entry, pair[0])) {
         commitDirect(_KDB, _widgetId, pair[1], _entry[pair[0]] === 1);

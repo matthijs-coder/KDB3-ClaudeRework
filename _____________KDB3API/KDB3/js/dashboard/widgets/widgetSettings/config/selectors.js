@@ -53,6 +53,7 @@ define(["../../../../core/cognosHost/config/widgetChromeSelectors.js"], function
     focusPanelRootAttr: "data-kdb-focus-mode-settings-root",
     panelWidgetTypeAttr: "data-kdb-widget-type",
     panelVisTypeAttr: "data-kdb-vis-type",
+    panelDimensionAttr: "data-kdb-dimension",
     toolbarClass: "KDB_widgetSettingsButton",
     toolbarSelector: ".KDB_widgetSettingsButton",
     toolbarAttr: "data-kdb-widget-toolbar",

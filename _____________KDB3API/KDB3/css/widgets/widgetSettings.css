@@ -407,6 +407,12 @@ input.svgIcon {
   display: none;
 }
 
+/* Rule-stamped: visTypeRules.supportsDimension is false. CSS does not name the vis type. */
+.liveWidget .KDB_widgetSettings[data-kdb-dimension="off"] .KDB_widgetSettingsHeaderRow .KDB_widgetSettingsIcons > .dataWidgetIcon.KDB_dimensionsButton,
+.liveWidget .KDB_widgetSettings[data-kdb-dimension="off"] .KDB_widgetSettingsHeaderRow .KDB_widgetSettingsIcons > .dataWidgetIcon.KDB_topNButton {
+  display: none;
+}
+
 .textWidget .KDB_widgetSettings .KDB_visualizationsButton,
 .textWidget .KDB_widgetSettings .KDB_dimensionsButton,
 .textWidget .KDB_widgetSettings .KDB_topNButton,

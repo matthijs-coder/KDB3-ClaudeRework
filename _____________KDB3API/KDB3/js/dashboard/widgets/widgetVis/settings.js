@@ -5,8 +5,10 @@ define([
   "./runtime.js",
   "./settingsSnapshot.js",
   "./state.js",
-  "../widgetSettings/selectors.js"
-], function (_pipeline, _config, _results, _visRuntime, _settingsSnapshot, _state, _widgetSettings) {
+  "../widgetSettings/selectors.js",
+  "../../../core/config/visualizations/visTypeRules.js",
+  "../../../core/config/dropdownDefaults.js"
+], function (_pipeline, _config, _results, _visRuntime, _settingsSnapshot, _state, _widgetSettings, _visTypeRules, _dropdownDefaults) {
   "use strict";
 
   var REASON_BY_CONTROL = { dimension: "dimension", visType: "visType", topNChoice: "topN" };
@@ -86,7 +88,19 @@ define([
     if (_payload.control === "grouping" && _payload.nextValue === "inherit") {
       delete settings.grouping;
     }
-    return settings;
+    return applyUnavailableDimensionDefaults(settings);
+  }
+
+  // After nextValue: a dimension click (or its history replay) while vis is Prognose must not leak into the bind.
+  function applyUnavailableDimensionDefaults(_settings) {
+    if (!_settings || _settings.errorCode) {
+      return _settings;
+    }
+    if (!_visTypeRules.supportsDimension(_settings.visType)) {
+      _settings.dimension = _dropdownDefaults.dimension.useValue;
+      _settings.topNChoice = _dropdownDefaults.topN.useValue;
+    }
+    return _settings;
   }
 
   function startApplySettingRenderLoading(_context, _action, _payload) {
@@ -164,7 +178,7 @@ define([
         settings[_key] = _snapshot[_key];
       }
     });
-    return settings;
+    return applyUnavailableDimensionDefaults(settings);
   }
 
   function buildBatchReportToSettings(_changedControls, _diagnostics) {

@@ -72,11 +72,20 @@ define([
     return _visTypeRules.settingsKey(raw);
   }
 
-  function stampMatchingFocusCloneVisType(widgetId, visTypeKey) {
+  function stampDimensionAvailability(panel, visType) {
+    if (_visTypeRules.supportsDimension(visType)) {
+      panel.removeAttribute(_selectors.panelDimensionAttr);
+    } else {
+      panel.setAttribute(_selectors.panelDimensionAttr, "off");
+    }
+  }
+
+  function stampMatchingFocusCloneVisType(widgetId, visTypeKey, visTypeRaw) {
     var id = String(widgetId || "");
     var focusPanel = id ? document.querySelector(_selectors.byAttr(_selectors.focusPanelRootAttr, id)) : null;
     if (focusPanel) {
       focusPanel.setAttribute(_selectors.panelVisTypeAttr, visTypeKey);
+      stampDimensionAvailability(focusPanel, visTypeRaw || visTypeKey);
     }
   }
 
@@ -105,8 +114,10 @@ define([
   function stampPanelState(_KDB, panel, widgetId) {
     var record = widgetId ? _state.ensureWidgetSettingsByWidget(_KDB, widgetId) : null;
     var visTypeKey = resolveStampVisTypeKey(record);
+    var visTypeRaw = (record && record.visType) || visTypeKey;
     panel.setAttribute(_selectors.panelVisTypeAttr, visTypeKey);
-    stampMatchingFocusCloneVisType(widgetId, visTypeKey);
+    stampDimensionAvailability(panel, visTypeRaw);
+    stampMatchingFocusCloneVisType(widgetId, visTypeKey, visTypeRaw);
     markPanelOption(panel, "showValues", readFlagKey(record && record.showValues), ".KDB_showValuesContainer");
     markPanelOption(panel, "iterator", readFlagKey(record && record.iterator));
     markPanelOption(panel, "zoom", readFlagKey(record && record.zoom));
