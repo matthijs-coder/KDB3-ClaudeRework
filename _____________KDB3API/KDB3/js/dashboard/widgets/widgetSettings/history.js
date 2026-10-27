@@ -238,9 +238,7 @@ define([
     const newFrame = buildDropdownSelectionFrame(panel, dropdown);
     if (!newFrame || newFrame.kind !== "backgroundColor") {
       // History is pushed only after a confirmed apply result, so a failed or aborted apply leaves no entry.
-      return pushHistoryAfterConfirmedApply(_KDB, intentResult, oldFrame, newFrame).then(function () {
-        return intentResult;
-      });
+      pushHistoryAfterConfirmedApply(_KDB, intentResult, oldFrame, newFrame);
     }
     return intentResult;
   }
