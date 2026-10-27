@@ -220,8 +220,8 @@ test("stampPanelState sets data-kdb-dimension=off for Prognose and removes it fo
 });
 
 test("CSS hides dimension and TopN on the stamped attribute, not a vis-type name", () => {
-  const settingsCss = fs.readFileSync(path.join(JS_ROOT, "../../css/widgets/widgetSettings.css"), "utf8");
-  const visCss = fs.readFileSync(path.join(JS_ROOT, "../../css/widgets/widgetVis.css"), "utf8");
+  const settingsCss = fs.readFileSync(path.join(JS_ROOT, "../css/widgets/widgetSettings.css"), "utf8");
+  const visCss = fs.readFileSync(path.join(JS_ROOT, "../css/widgets/widgetVis.css"), "utf8");
   assert.match(settingsCss, /\[data-kdb-dimension="off"\][^{]+KDB_dimensionsButton/);
   assert.match(settingsCss, /\[data-kdb-dimension="off"\][^{]+KDB_topNButton/);
   assert.match(visCss, /\[data-kdb-dimension="off"\][^{]+KDB_dimensionsButton/);
