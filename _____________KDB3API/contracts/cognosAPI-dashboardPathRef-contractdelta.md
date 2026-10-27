@@ -41,7 +41,7 @@ There is no `pathRef` field. `type` is `"exploration"`: do **not** filter on `ty
 1. Read only `info.searchPath` (a string, or a number turned into `String`). Do not read `boardId`, `type` or `isDirty`; no `Object.keys`.
 2. Trim. Empty → `null`.
 3. Starts with `.` (already `.public_folders/…`, `.team_folders/…`, `.my_folders/…`) → return it unchanged (trimmed).
-4. Extract the names with `/\[@name='((?:\\'|[^'])*)'\]/g`; in each name replace `\'` with `'`.
+4. Extract the names with `/\[@name='((?:\\'|[^'])*)'\]/g`; in each name replace `\'` with `'`. No names → empty list. Do **not** add `[@name="…"]` double-quote support in this slice.
 5. Root map on the **first** name (that first name is then **skipped**): `Public Folders` / `Öffentliche Ordner` → `.public_folders`; `Team Folders` / `Teamordner` → `.team_folders`; `My Folders` / `Meine Ordner` → `.my_folders`. Look the name up as an own key only (`Object.prototype.hasOwnProperty`), so `constructor` or `toString` is not a root.
 6. Else, if the trimmed path starts with `/content` → root `.public_folders` and keep **all** names.
 7. Else → `null`. An empty remaining name list → `null`.

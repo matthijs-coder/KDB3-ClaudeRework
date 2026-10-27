@@ -45,6 +45,8 @@ The implementer edits **only** these files. Anything else is a stop-and-report.
 | `tools/tests/toolbarControls.test.mjs` | Facet stub `getPathRef` instead of `getBoardId`; share-click regex expects `https://bi.test/?perspective=dashboard&pathRef=…` and no `#`, `id=`, `objRef=` |
 | `tools/smoke-checklist.md` | New block (C3); WS-A line "Share link (board id, BI base URL)" → "Share link (pathRef, BI base URL)" |
 
+**Coordinator-owned (not the implementer):** the contracts in this folder (new deltas, this spec, `README.md`, parents `shareControls.md`, `cognosHostService.md`, the `writeback.md` `readUrlParameterId.js` tree line), `architecture/DEVELOPER_GUIDE.md` §9.4 "Share links", and the `KDB.js` `this.version` line (A5).
+
 **Do not touch:** `KDB.js`; `workflows/**` (including `urlShare/readUrlParameterId.js`); `readShareReadOnlyTokenPresent` / `applyShareReadOnlyChrome` / `hasReadOnlyToken` / `readHashTokenValue` in `shareLink.js`; `getBoardId` and `getDashboardBiBaseUrl` bodies; the `getBoardId` facet getter; `boardIdMissing*` labels; `core/config/dashboardSettings.js`; footer; `.cursor/rules/**`; contracts and architecture docs (coordinator-owned); `tools/lib/**`; any golden JSON.
 
 ---
