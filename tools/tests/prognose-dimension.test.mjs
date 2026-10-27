@@ -109,7 +109,6 @@ test("finalize commits dimension and topN none after a vis-type switch to Progno
       },
       "../view/optionMarking.js": {
         stampPanelVisType: (_KDB, widgetId) => stamps.push(["stamp", widgetId]),
-        markFocusDimensionAndTopNFromRecord: (_KDB, widgetId) => stamps.push(["markFocus", widgetId]),
         markShowValuesPending: () => {},
         markTopNPending: () => {},
         revertShowValuesDropdownFromState: () => {},

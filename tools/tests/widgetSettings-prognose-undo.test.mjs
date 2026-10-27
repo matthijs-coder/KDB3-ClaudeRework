@@ -456,7 +456,6 @@ test("coupled dimension→Ohne path still commits only topN none as the extra wr
       },
       "../view/optionMarking.js": {
         stampPanelVisType: () => {},
-        markFocusDimensionAndTopNFromRecord: () => {},
         markShowValuesPending: () => {},
         markTopNPending: () => {},
         revertShowValuesDropdownFromState: () => {},

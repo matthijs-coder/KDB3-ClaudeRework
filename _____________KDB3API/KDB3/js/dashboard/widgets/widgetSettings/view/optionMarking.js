@@ -45,15 +45,6 @@ define([
     markPanelOption(panel, "topN", readTopNKey(record), ".KDB_topNContainer");
   }
 
-  function markFocusDimensionAndTopNFromRecord(_KDB, widgetId) {
-    const id = String(widgetId || "");
-    const focusPanel = document.querySelector(_selectors.byAttr(_selectors.focusPanelRootAttr, id));
-    if (!focusPanel) {
-      return;
-    }
-    markDimensionAndTopN(focusPanel, id ? _state.ensureWidgetSettingsByWidget(_KDB, id) : null);
-  }
-
   function resolveStampPanel(_KDB, panelOrWidgetId) {
     var runtime = _KDB && _KDB.runtime ? _KDB.runtime.widgetSettings : null;
     var refs = runtime && runtime.domRefs ? runtime.domRefs[String(panelOrWidgetId || "")] : null;
@@ -198,7 +189,6 @@ define([
   }
 
   return {
-    markFocusDimensionAndTopNFromRecord: markFocusDimensionAndTopNFromRecord,
     stampPanelVisType: stampPanelVisType,
     markTopNPending: markTopNPending,
     revertTopNDropdownFromState: revertTopNDropdownFromState,
