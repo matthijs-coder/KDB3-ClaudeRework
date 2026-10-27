@@ -848,3 +848,13 @@ A share URL whose `parameterId` is not in `#selectParameterSet` (deleted, or a p
 - [ ] **1. Known name, unknown id.** From Teilen copy a URL with a real `parameterId` (e.g. `MjAyNi4xMC4yNyB2MDAx` for a set named `2026.10.27 v001`). Open it as a user who does not see that set, or change the id to that of a deleted set. Expected: title `Speicherstand nicht gefunden`; message `Der in der URL angegebene Dashboard-Speicherstand (Parameterset „2026.10.27 v001“) wurde in der Auswahlliste nicht gefunden. Es handelt sich möglicherweise um ein privates Parameterset oder es wurde gelöscht. Das Dashboard wird ohne Parameterset gestartet.`; no raw `MjAyNi4xMC4yNyB2MDAx` in the text; dashboard starts without a set.
 
 - [ ] **2. Invalid base64 fallback.** Open the same dashboard with `&parameterId=does-not-exist`. Expected: the same title and the same two sentences, with `Parameterset „does-not-exist“` (raw id, decode failed); dashboard starts without a set.
+
+### P3-Focus-undo
+
+Focus-mode dropdowns share the gear panel's undo stack (`widgetSettings_optionSelect`). Helper: `const k = () => window.top.getKDB();`. Keep DevTools open (Console).
+
+- [ ] **1. Visualisierung / Dimension / TopN / Zeitebene / Werte.** Open a vis widget in focus mode. Change Visualisierung, Dimension, TopN/Letzte-N, Zeitebene and Werte in the focus panel (wait for each chart to settle). Expected: each change is one Undo step, same result as the same change in the gear panel.
+
+- [ ] **2. Undo/Redo shows both panels.** After those focus changes, Undo then Redo through the steps. Expected: live gear panel and focus clone both show the committed state; no "could not replay" message.
+
+- [ ] **3. Line + Jahr + dim + Top-3 → Prognose from focus.** Same restore as the gear: Undo brings back all four; Redo is Prognose (Dimension/TopN Ohne, Zeitebene gone). Unmaximize stays without a history step.

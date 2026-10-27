@@ -217,16 +217,30 @@ define([
       if (selectedOption) {
         return _descriptor.fromOption(_panel, selectedOption);
       }
-      const context = {
-        widgetId: String(_panel.getAttribute(_selectors.panelRootAttr) || ""),
-        widgetType: _panel.getAttribute(_selectors.panelWidgetTypeAttr) === "text" ? "text" : "live"
-      };
       const kind = _dropdown ? (_dropdown.getAttribute(_selectors.dropdownKindAttr) || "") : "";
-      return _descriptor.fromParts(context, kind, "", "");
+      return _descriptor.fromParts(_descriptor.panelContext(_panel), kind, "", "");
     } catch (err) {
       console.error("[widgetSettings.buildDropdownSelectionFrame] failed", err);
       return null;
     }
+  }
+
+  // Shared gear + focus path. panel/option are runtime DOM (not stored in state or history frames).
+  function selectDropdownOption(_KDB, panel, option) {
+    if (!panel || !option || typeof option.closest !== "function") {
+      return { ok: false, skipped: true, reasonCode: "WIDGET_SETTINGS_OPTION_MISSING" };
+    }
+    const dropdown = option.closest(_selectors.dropdownSelector);
+    const oldFrame = buildDropdownSelectionFrame(panel, dropdown);
+    maybeAttachRestoreControls(_KDB, oldFrame, option);
+    _dropdownOptionSelection.markSelectedOption(option);
+    const intentResult = _dispatchIntent.dropdownOption(_KDB, panel, option, { isHistoryReplay: false });
+    const newFrame = buildDropdownSelectionFrame(panel, dropdown);
+    if (!newFrame || newFrame.kind !== "backgroundColor") {
+      // History is pushed only after a confirmed apply result, so a failed or aborted apply leaves no entry.
+      pushHistoryAfterConfirmedApply(_KDB, intentResult, oldFrame, newFrame);
+    }
+    return intentResult;
   }
 
   return {
@@ -234,6 +248,7 @@ define([
     pushWidgetSettingsHistoryStep: pushWidgetSettingsHistoryStep,
     pushHistoryAfterConfirmedApply: pushHistoryAfterConfirmedApply,
     maybeAttachRestoreControls: maybeAttachRestoreControls,
-    buildDropdownSelectionFrame: buildDropdownSelectionFrame
+    buildDropdownSelectionFrame: buildDropdownSelectionFrame,
+    selectDropdownOption: selectDropdownOption
   };
 });

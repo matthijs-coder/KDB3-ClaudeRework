@@ -269,31 +269,24 @@ test("recording: Line(Ohne, no grain)→Prognose and grain-less Line→Pie attac
   assert.deepEqual(dimOnlyFrame.restoreControls, { dimension: DIM, topNChoice: "none" });
 });
 
-test("selectOption calls maybeAttachRestoreControls on the old frame before dispatch", () => {
+test("selectOption calls selectDropdownOption then closes dropdowns", () => {
   const sel = selectors();
-  const attachCalls = [];
-  const dispatchCalls = [];
-  let oldFrame = visFrame("line", "line");
+  const calls = [];
   const panelEvents = load("dashboard/widgets/widgetSettings/view/panelEvents.js", {
     modules: {
       "../history.js": {
-        buildDropdownSelectionFrame: () => oldFrame,
-        maybeAttachRestoreControls: (_KDB, frame, option) => {
-          attachCalls.push({ frame: frame, optionKey: option.getAttribute(sel.optionKeyAttr), beforeDispatch: dispatchCalls.length === 0 });
-        },
-        pushHistoryAfterConfirmedApply: () => {}
+        selectDropdownOption: (_KDB, panel, option) => {
+          calls.push({ fn: "select", optionKey: option.getAttribute(sel.optionKeyAttr), panel: panel });
+        }
       },
       "../effects/dispatchWidgetSettingsIntent.js": {
-        dropdownOption: () => {
-          dispatchCalls.push(1);
-          return { ok: true, status: "success" };
-        },
+        dropdownOption: () => {},
         icon: () => {}
       },
       "./dropdownUi.js": {
         findOption: (_panel, target) => target,
         findIcon: () => null,
-        closeDropdowns: () => {},
+        closeDropdowns: (panel) => { calls.push({ fn: "close", panel: panel }); },
         toggleDropdown: () => {}
       },
       "./panelOutsidePointerBehavior.js": { ensureDocumentPointerDown: () => {} }
@@ -313,11 +306,12 @@ test("selectOption calls maybeAttachRestoreControls on the old frame before disp
     preventDefault() {},
     stopPropagation() {}
   });
-  assert.equal(attachCalls.length, 1);
-  assert.equal(attachCalls[0].frame, oldFrame);
-  assert.equal(attachCalls[0].optionKey, "prognose");
-  assert.equal(attachCalls[0].beforeDispatch, true);
-  assert.equal(dispatchCalls.length, 1);
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0].fn, "select");
+  assert.equal(calls[0].optionKey, "prognose");
+  assert.equal(calls[0].panel, live.panel);
+  assert.equal(calls[1].fn, "close");
+  assert.equal(calls[1].panel, live.panel);
 });
 
 test("replay undo: applyVisType nextValue is Line and snapshot carries recorded dim+TopN; finalize commits all three", async () => {

@@ -22,8 +22,10 @@ define([
     if (option && panelRoot.contains(option)) {
       ev.preventDefault();
       ev.stopPropagation();
-      _widgetSettings.markSelectedOption(option);
-      _widgetSettings.dispatchDropdownOptionIntent(_KDB, panelRoot, option, { isHistoryReplay: false });
+      _KDB.api.widgetSettings.dispatch({
+        type: _widgetSettings.ACTION_TYPES.SELECT_DROPDOWN_OPTION,
+        payload: { panel: panelRoot, option: option }
+      });
       dropdown = option.closest(_settingsSelectors.dropdownSelector);
       kind = option.getAttribute(_settingsSelectors.dropdownKindAttr) || (dropdown && dropdown.getAttribute(_settingsSelectors.dropdownKindAttr)) || "";
       if (KEEP_DROPDOWN_OPEN_KINDS.indexOf(kind) === -1) {
