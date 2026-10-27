@@ -91,6 +91,15 @@ define([
     return resolveBucket(_rawType) !== "com.ibm.vis.custom.prognoseyearlinechart";
   }
 
+  // Which settings a vis-type switch onto targetRaw deletes. Sentinels stay in widgetSettings.
+  function controlsTargetClears(targetRaw, grouping) {
+    var out = { dimension: !supportsDimension(targetRaw), grouping: false };
+    if (isGrain(grouping) && !isAllowedGrain(resolveBucket(targetRaw), grouping)) {
+      out.grouping = true;
+    }
+    return out;
+  }
+
   return {
     GRAINS: GRAINS,
     isGrain: isGrain,
@@ -98,6 +107,7 @@ define([
     resolveBucket: resolveBucket,
     isAllowedGrain: isAllowedGrain,
     settingsKey: settingsKey,
-    supportsDimension: supportsDimension
+    supportsDimension: supportsDimension,
+    controlsTargetClears: controlsTargetClears
   };
 });

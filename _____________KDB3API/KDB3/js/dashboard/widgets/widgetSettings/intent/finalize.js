@@ -79,6 +79,9 @@ define([
     if (Object.prototype.hasOwnProperty.call(values, "topNChoice")) {
       _state.commitWidgetSettingValue(_KDB, _widgetId, "topN", values.topNChoice, { nextValue: values.topNChoice });
     }
+    if (Object.prototype.hasOwnProperty.call(values, "grouping")) {
+      _state.commitWidgetSettingValue(_KDB, _widgetId, "grouping", values.grouping, { nextValue: values.grouping });
+    }
   }
 
   function finalizeVisIntentResult(_KDB, _planned, _dispatchResult) {
@@ -147,9 +150,11 @@ define([
       const report = result.reportToSettings || { nextValue: canonicalOptionValue };
       _state.commitWidgetSettingValue(_KDB, planned.widgetId, planned.kind, canonicalOptionValue, report);
       // Own flag, not planned.coupledTopN: that path overwrites payload.nextValue and would bind vis type "none".
-      const isVisKind = _config.normalizeKind(planned.kind) === "visualization";
+      const kind = _config.normalizeKind(planned.kind);
+      const isVisKind = kind === "visualization";
+      const isDimensionKind = kind === "dimension";
       const targetSupportsDimension = _visTypeRules.supportsDimension(canonicalOptionValue);
-      const canRestore = isVisKind && planned.restoreControls && targetSupportsDimension;
+      const canRestore = planned.restoreControls && ((isVisKind && targetSupportsDimension) || isDimensionKind);
       const clearUnavailableControls = isVisKind && !targetSupportsDimension;
       if (canRestore) {
         commitControlValues(_KDB, planned.widgetId, planned.restoreControls);

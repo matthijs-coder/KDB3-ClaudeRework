@@ -59,9 +59,9 @@ define([
       if (planned.coupledTopN) {
         payload.nextValue = "none";
         overlaySnapshotControls(payload.settingsSnapshot, { dimension: "none", topNChoice: "none" });
-      } else if (planned.restoreControls && _visTypeRules.supportsDimension(payload.nextValue)) {
-        // Overlay only: payload.nextValue stays the vis type (coupledTopN would bind "none").
-        overlaySnapshotControls(payload.settingsSnapshot, planned.restoreControls);
+      } else if (planned.restoreControls) {
+        // Overlay only: payload.nextValue stays the vis type / dimension (coupledTopN would bind "none").
+        overlayRestoreControls(payload.settingsSnapshot, planned.restoreControls, planned.kind, payload.nextValue);
       }
     }
     applyLayoutIntentPayload(payload, planned);
@@ -82,6 +82,30 @@ define([
     if (values.topNChoice != null) {
       snapshot.topNChoice = values.topNChoice;
     }
+    if (values.grouping != null) {
+      snapshot.grouping = values.grouping;
+    }
+  }
+
+  // Dim/topN overlay is gated per kind: vis undo uses supportsDimension(nextValue); dimension
+  // undo must not, because nextValue is a dimension id. Grouping only when the target bucket allows it.
+  function overlayRestoreControls(snapshot, restore, kind, nextValue) {
+    const restoreValues = restore || {};
+    const normalized = _config.normalizeKind(kind);
+    const overlay = {};
+    if (normalized === "dimension" || (normalized === "visualization" && _visTypeRules.supportsDimension(nextValue))) {
+      if (restoreValues.dimension != null) {
+        overlay.dimension = restoreValues.dimension;
+      }
+      if (restoreValues.topNChoice != null) {
+        overlay.topNChoice = restoreValues.topNChoice;
+      }
+    }
+    if (normalized === "visualization" && restoreValues.grouping
+        && _visTypeRules.isAllowedGrain(_visTypeRules.resolveBucket(nextValue), restoreValues.grouping)) {
+      overlay.grouping = restoreValues.grouping;
+    }
+    overlaySnapshotControls(snapshot, overlay);
   }
 
   function applyLayoutIntentPayload(payload, planned) {

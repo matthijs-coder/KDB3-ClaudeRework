@@ -50,9 +50,9 @@ function addOption(doc, dropdown, sel, kind, key, value, isSelected) {
   return option;
 }
 
-function addDropdown(doc, panel, sel, kind, rows, selectedKeyValue) {
+function addDropdown(doc, panel, sel, kind, rows, selectedKeyValue, extraClass) {
   const dropdown = doc.createElement("div");
-  dropdown.className = "KDB_IconsDropdown";
+  dropdown.className = extraClass ? "KDB_IconsDropdown " + extraClass : "KDB_IconsDropdown";
   dropdown.setAttribute(sel.dropdownKindAttr, kind);
   const options = {};
   rows.forEach((row) => {
@@ -63,7 +63,7 @@ function addDropdown(doc, panel, sel, kind, rows, selectedKeyValue) {
 }
 
 function buildPanel(doc, sel, selected) {
-  const pick = Object.assign({ vis: "prognose", dimension: "none", topN: "none" }, selected || {});
+  const pick = Object.assign({ vis: "prognose", dimension: "none", topN: "none", grouping: "inherit" }, selected || {});
   const panel = doc.createElement("div");
   panel.className = sel.panelRootClass;
   panel.setAttribute(sel.panelRootAttr, WIDGET_ID);
@@ -82,7 +82,12 @@ function buildPanel(doc, sel, selected) {
     { key: "top-3", value: "3" },
     { key: "bottom-3", value: "bottom-3" }
   ], pick.topN);
-  return { panel, vis, dimension, topN };
+  const grouping = addDropdown(doc, panel, sel, "grouping", [
+    { key: "inherit", value: "inherit" },
+    { key: "jahr", value: "jahr" },
+    { key: "stichtag", value: "stichtag" }
+  ], pick.grouping, "KDB_groupingContainer");
+  return { panel, vis, dimension, topN, grouping };
 }
 
 function fakeOption(sel, kind, key, value) {
@@ -106,8 +111,8 @@ function visFrame(key, value, extra) {
   }, extra || {});
 }
 
-function dimFrame(key) {
-  return {
+function dimFrame(key, extra) {
+  return Object.assign({
     widgetId: WIDGET_ID,
     widgetType: "live",
     kind: "dimension",
@@ -115,7 +120,7 @@ function dimFrame(key) {
     optionValue: key,
     target: "widgetVis",
     type: "widgetVis/applyDimension"
-  };
+  }, extra || {});
 }
 
 function topNFrame(key, value) {
@@ -127,6 +132,18 @@ function topNFrame(key, value) {
     optionValue: value,
     target: "widgetVis",
     type: "widgetVis/applyTopNChoice"
+  };
+}
+
+function groupingFrame(key) {
+  return {
+    widgetId: WIDGET_ID,
+    widgetType: "live",
+    kind: "grouping",
+    optionKey: key,
+    optionValue: key,
+    target: "widgetVis",
+    type: "widgetVis/applyGrouping"
   };
 }
 
@@ -218,7 +235,7 @@ test("recording: Line+Berufsfamilie+top-3 → Prognose attaches restoreControls 
   assert.deepEqual(oldFrame.restoreControls, { dimension: DIM, topNChoice: "top-3" });
 });
 
-test("recording: Line(Ohne)→Prognose and Line→Pie attach no restoreControls; dim+none does", () => {
+test("recording: Line(Ohne, no grain)→Prognose and grain-less Line→Pie attach no restoreControls; dim+none does", () => {
   const sel = selectors();
   const historyMod = load("dashboard/widgets/widgetSettings/history.js");
   const prognoseOpt = fakeOption(sel, "visualization", "prognose", PROGNOSE_VALUE);
@@ -264,7 +281,6 @@ test("selectOption calls maybeAttachRestoreControls on the old frame before disp
         maybeAttachRestoreControls: (_KDB, frame, option) => {
           attachCalls.push({ frame: frame, optionKey: option.getAttribute(sel.optionKeyAttr), beforeDispatch: dispatchCalls.length === 0 });
         },
-        queueCoupledTopNClearHistory: () => false,
         pushHistoryAfterConfirmedApply: () => {}
       },
       "../effects/dispatchWidgetSettingsIntent.js": {
@@ -383,6 +399,9 @@ async function runChain(topNKey, topNValue) {
   historyApi.registerReplayHandler(STEP_KEY, handler);
 
   assert.equal(historyApi.pushCommittedStep({
+    key: STEP_KEY, old: groupingFrame("inherit"), new: groupingFrame("jahr")
+  }), true);
+  assert.equal(historyApi.pushCommittedStep({
     key: STEP_KEY, old: dimFrame("none"), new: dimFrame(DIM)
   }), true);
   assert.equal(historyApi.pushCommittedStep({
@@ -390,38 +409,42 @@ async function runChain(topNKey, topNValue) {
   }), true);
   assert.equal(historyApi.pushCommittedStep({
     key: STEP_KEY,
-    old: visFrame("line", "line", { restoreControls: { dimension: DIM, topNChoice: topNKey } }),
+    old: visFrame("line", "line", { restoreControls: { dimension: DIM, topNChoice: topNKey, grouping: "jahr" } }),
     new: visFrame("prognose", PROGNOSE_VALUE)
   }), true);
 
   const snap = () => {
     const rec = readRecord(h._KDB);
-    return [rec.visType, rec.dimension, rec.topNChoice];
+    return [rec.visType, rec.dimension, rec.topNChoice, rec.grouping || "inherit"];
   };
 
   assert.equal(await historyApi.undo(), true);
-  assert.deepEqual(snap(), ["line", DIM, topNKey]);
+  assert.deepEqual(snap(), ["line", DIM, topNKey, "jahr"]);
   assert.equal(await historyApi.undo(), true);
-  assert.deepEqual(snap(), ["line", DIM, "none"]);
+  assert.deepEqual(snap(), ["line", DIM, "none", "jahr"]);
   assert.equal(await historyApi.undo(), true);
-  assert.deepEqual(snap(), ["line", "none", "none"]);
+  assert.deepEqual(snap(), ["line", "none", "none", "jahr"]);
+  assert.equal(await historyApi.undo(), true);
+  assert.deepEqual(snap(), ["line", "none", "none", "inherit"]);
 
   assert.equal(await historyApi.redo(), true);
-  assert.deepEqual(snap(), ["line", DIM, "none"]);
+  assert.deepEqual(snap(), ["line", "none", "none", "jahr"]);
   assert.equal(await historyApi.redo(), true);
-  assert.deepEqual(snap(), ["line", DIM, topNKey]);
+  assert.deepEqual(snap(), ["line", DIM, "none", "jahr"]);
   assert.equal(await historyApi.redo(), true);
-  assert.deepEqual(snap(), [PROGNOSE_VALUE, "none", "none"]);
+  assert.deepEqual(snap(), ["line", DIM, topNKey, "jahr"]);
+  assert.equal(await historyApi.redo(), true);
+  assert.deepEqual(snap(), [PROGNOSE_VALUE, "none", "none", "inherit"]);
 
   assert.equal(await historyApi.undo(), true);
-  assert.deepEqual(snap(), ["line", DIM, topNKey]);
+  assert.deepEqual(snap(), ["line", DIM, topNKey, "jahr"]);
   assert.equal(await historyApi.redo(), true);
-  assert.deepEqual(snap(), [PROGNOSE_VALUE, "none", "none"]);
+  assert.deepEqual(snap(), [PROGNOSE_VALUE, "none", "none", "inherit"]);
   assert.equal(await historyApi.undo(), true);
-  assert.deepEqual(snap(), ["line", DIM, topNKey]);
+  assert.deepEqual(snap(), ["line", DIM, topNKey, "jahr"]);
 }
 
-test("chain: [dim, top-3, vis→Prognose] undo×3 redo×3 and undo/redo/undo of the vis step", async () => {
+test("chain: [grouping jahr, dim, top-3, vis→Prognose] undo×4 redo×4 and undo/redo/undo of the vis step", async () => {
   await runChain("top-3", "3");
 });
 
@@ -429,18 +452,20 @@ test("chain: same sequences with bottom-3", async () => {
   await runChain("bottom-3", "bottom-3");
 });
 
-test("focus clone: after restore, dimension and TopN options are marked", async () => {
+test("focus clone: after restore, dimension, TopN and grouping options are marked", async () => {
   const h = createHarness({
     record: { visType: PROGNOSE_VALUE, dimension: "none", topNChoice: "none" }
   });
   const handler = h.historyMod.createWidgetSettingsHistoryReplayHandler(h._KDB);
-  const oldFrame = visFrame("line", "line", { restoreControls: { dimension: DIM, topNChoice: "top-3" } });
+  const oldFrame = visFrame("line", "line", { restoreControls: { dimension: DIM, topNChoice: "top-3", grouping: "jahr" } });
   const ok = await handler.apply(h._KDB, oldFrame, { key: STEP_KEY, old: oldFrame, new: visFrame("prognose", PROGNOSE_VALUE) }, { direction: "undo" });
   assert.equal(ok, true);
   assert.equal(selectedKey(h.focus.dimension.dropdown, h.sel), DIM);
   assert.equal(selectedKey(h.focus.topN.dropdown, h.sel), "top-3");
+  assert.equal(selectedKey(h.focus.grouping.dropdown, h.sel), "jahr");
   assert.equal(selectedKey(h.live.dimension.dropdown, h.sel), DIM);
   assert.equal(selectedKey(h.live.topN.dropdown, h.sel), "top-3");
+  assert.equal(selectedKey(h.live.grouping.dropdown, h.sel), "jahr");
 });
 
 test("coupled dimension→Ohne path still commits only topN none as the extra write", async () => {
@@ -478,4 +503,196 @@ test("coupled dimension→Ohne path still commits only topN none as the extra wr
     ["topN", "none"],
     ["dimension", "none"]
   ]);
+});
+
+test("rule: controlsTargetClears — Prognose clears dim+grouping; Pie clears stichtag only; List keeps jahr; Line clears nothing", () => {
+  const rules = load("core/config/visualizations/visTypeRules.js");
+  assert.deepEqual(rules.controlsTargetClears("prognose", "jahr"), { dimension: true, grouping: true });
+  assert.deepEqual(rules.controlsTargetClears(PROGNOSE_VALUE, "stichtag"), { dimension: true, grouping: true });
+  assert.deepEqual(rules.controlsTargetClears("pie", "stichtag"), { dimension: false, grouping: true });
+  assert.deepEqual(rules.controlsTargetClears("pie", "jahr"), { dimension: false, grouping: false });
+  assert.deepEqual(rules.controlsTargetClears("list", "jahr"), { dimension: false, grouping: false });
+  assert.deepEqual(rules.controlsTargetClears("line", "jahr"), { dimension: false, grouping: false });
+  assert.deepEqual(rules.controlsTargetClears("line", "stichtag"), { dimension: false, grouping: false });
+  assert.deepEqual(rules.controlsTargetClears("line", "inherit"), { dimension: false, grouping: false });
+});
+
+test("recording: Line+jahr (Ohne dim) → Prognose attaches {grouping} only", () => {
+  const sel = selectors();
+  const historyMod = load("dashboard/widgets/widgetSettings/history.js");
+  const _KDB = {
+    state: { widgets: { settings: { byWidget: {
+      [WIDGET_ID]: { dimension: "none", topNChoice: "none", grouping: "jahr", visType: "line", pending: { kind: null }, deferred: {} }
+    } } } }
+  };
+  const oldFrame = visFrame("line", "line");
+  historyMod.maybeAttachRestoreControls(_KDB, oldFrame, fakeOption(sel, "visualization", "prognose", PROGNOSE_VALUE));
+  assert.deepEqual(oldFrame.restoreControls, { grouping: "jahr" });
+});
+
+test("recording: Line+jahr+dim+top-3 → Prognose attaches {dimension, topNChoice, grouping}", () => {
+  const sel = selectors();
+  const historyMod = load("dashboard/widgets/widgetSettings/history.js");
+  const _KDB = {
+    state: { widgets: { settings: { byWidget: {
+      [WIDGET_ID]: { dimension: DIM, topNChoice: "top-3", grouping: "jahr", visType: "line", pending: { kind: null }, deferred: {} }
+    } } } }
+  };
+  const oldFrame = visFrame("line", "line");
+  historyMod.maybeAttachRestoreControls(_KDB, oldFrame, fakeOption(sel, "visualization", "prognose", PROGNOSE_VALUE));
+  assert.deepEqual(oldFrame.restoreControls, { dimension: DIM, topNChoice: "top-3", grouping: "jahr" });
+});
+
+test("recording: Line+stichtag → Pie attaches {grouping}; Line(no grain, Ohne) → Pie attaches none", () => {
+  const sel = selectors();
+  const historyMod = load("dashboard/widgets/widgetSettings/history.js");
+  const pieOpt = fakeOption(sel, "visualization", "pie", "pie");
+
+  const stichtagKdb = {
+    state: { widgets: { settings: { byWidget: {
+      [WIDGET_ID]: { dimension: "none", topNChoice: "none", grouping: "stichtag", visType: "line", pending: { kind: null }, deferred: {} }
+    } } } }
+  };
+  const stichtagFrame = visFrame("line", "line");
+  historyMod.maybeAttachRestoreControls(stichtagKdb, stichtagFrame, pieOpt);
+  assert.deepEqual(stichtagFrame.restoreControls, { grouping: "stichtag" });
+
+  const noneKdb = {
+    state: { widgets: { settings: { byWidget: {
+      [WIDGET_ID]: { dimension: "none", topNChoice: "none", visType: "line", pending: { kind: null }, deferred: {} }
+    } } } }
+  };
+  const noneFrame = visFrame("line", "line");
+  historyMod.maybeAttachRestoreControls(noneKdb, noneFrame, pieOpt);
+  assert.equal("restoreControls" in noneFrame, false);
+});
+
+test("recording: Dimension X+top-3 → Ohne attaches {topNChoice} on the old dimension frame", () => {
+  const sel = selectors();
+  const historyMod = load("dashboard/widgets/widgetSettings/history.js");
+  const _KDB = {
+    state: { widgets: { settings: { byWidget: {
+      [WIDGET_ID]: { dimension: DIM, topNChoice: "top-3", visType: "line", pending: { kind: null }, deferred: {} }
+    } } } }
+  };
+  const oldFrame = dimFrame(DIM);
+  historyMod.maybeAttachRestoreControls(_KDB, oldFrame, fakeOption(sel, "dimension", "none", "none"));
+  assert.deepEqual(oldFrame.restoreControls, { topNChoice: "top-3" });
+
+  const keepFrame = dimFrame(DIM);
+  historyMod.maybeAttachRestoreControls(_KDB, keepFrame, fakeOption(sel, "dimension", DIM, DIM));
+  assert.equal("restoreControls" in keepFrame, false);
+});
+
+test("replay undo: snapshot + commit include grouping; nextValue stays Line", async () => {
+  const h = createHarness({
+    record: { visType: PROGNOSE_VALUE, dimension: "none", topNChoice: "none" }
+  });
+  const handler = h.historyMod.createWidgetSettingsHistoryReplayHandler(h._KDB);
+  const oldFrame = visFrame("line", "line", {
+    restoreControls: { dimension: DIM, topNChoice: "top-3", grouping: "jahr" }
+  });
+  const ok = await handler.apply(h._KDB, oldFrame, { key: STEP_KEY, old: oldFrame, new: visFrame("prognose", PROGNOSE_VALUE) }, { direction: "undo" });
+  assert.equal(ok, true);
+  const action = h.dispatched[0];
+  assert.equal(action.type, "widgetVis/applyVisType");
+  assert.equal(action.payload.nextValue, "line");
+  assert.equal(action.payload.settingsSnapshot.dimension, DIM);
+  assert.equal(action.payload.settingsSnapshot.topNChoice, "top-3");
+  assert.equal(action.payload.settingsSnapshot.grouping, "jahr");
+  const record = readRecord(h._KDB);
+  assert.equal(record.visType, "line");
+  assert.equal(record.dimension, DIM);
+  assert.equal(record.topNChoice, "top-3");
+  assert.equal(record.grouping, "jahr");
+});
+
+test("Line+stichtag → Pie undo restores stichtag; redo clears it again", async () => {
+  const h = createHarness({
+    record: { visType: "pie", dimension: "none", topNChoice: "none" },
+    selected: { vis: "pie", dimension: "none", topN: "none" }
+  });
+  const handler = h.historyMod.createWidgetSettingsHistoryReplayHandler(h._KDB);
+  const oldFrame = visFrame("line", "line", { restoreControls: { grouping: "stichtag" } });
+  const newFrame = visFrame("pie", "pie");
+  const undone = await handler.apply(h._KDB, oldFrame, { key: STEP_KEY, old: oldFrame, new: newFrame }, { direction: "undo" });
+  assert.equal(undone, true);
+  assert.equal(h.dispatched[0].payload.nextValue, "line");
+  assert.equal(h.dispatched[0].payload.settingsSnapshot.grouping, "stichtag");
+  assert.equal(readRecord(h._KDB).visType, "line");
+  assert.equal(readRecord(h._KDB).grouping, "stichtag");
+
+  const redone = await handler.apply(h._KDB, newFrame, { key: STEP_KEY, old: oldFrame, new: newFrame }, { direction: "redo" });
+  assert.equal(redone, true);
+  assert.equal(h.dispatched[1].payload.nextValue, "pie");
+  assert.equal(readRecord(h._KDB).visType, "pie");
+  assert.equal(readRecord(h._KDB).grouping, undefined);
+});
+
+test("dimension X+top-3 → Ohne is one step: undo restores both (TopN gate snapshot); redo coupled Ohne+Ohne", async () => {
+  const h = createHarness({
+    record: { visType: "line", dimension: "none", topNChoice: "none" },
+    selected: { vis: "line", dimension: "none", topN: "none" }
+  });
+  const handler = h.historyMod.createWidgetSettingsHistoryReplayHandler(h._KDB);
+  const oldFrame = dimFrame(DIM, { restoreControls: { topNChoice: "top-3" } });
+  const newFrame = dimFrame("none");
+
+  const undone = await handler.apply(h._KDB, oldFrame, { key: STEP_KEY, old: oldFrame, new: newFrame }, { direction: "undo" });
+  assert.equal(undone, true);
+  assert.equal(h.dispatched.length, 1);
+  const undoAction = h.dispatched[0];
+  assert.equal(undoAction.type, "widgetVis/applyDimension");
+  assert.equal(undoAction.payload.nextValue, DIM);
+  assert.equal(undoAction.payload.settingsSnapshot.dimension, DIM);
+  assert.equal(undoAction.payload.settingsSnapshot.topNChoice, "top-3");
+  assert.equal(readRecord(h._KDB).dimension, DIM);
+  assert.equal(readRecord(h._KDB).topNChoice, "top-3");
+
+  const redone = await handler.apply(h._KDB, newFrame, { key: STEP_KEY, old: oldFrame, new: newFrame }, { direction: "redo" });
+  assert.equal(redone, true);
+  const redoAction = h.dispatched[1];
+  assert.equal(redoAction.type, "widgetVis/applyDimension");
+  assert.equal(redoAction.payload.nextValue, "none");
+  assert.equal(redoAction.payload.settingsSnapshot.dimension, "none");
+  assert.equal(redoAction.payload.settingsSnapshot.topNChoice, "none");
+  assert.equal(readRecord(h._KDB).dimension, "none");
+  assert.equal(readRecord(h._KDB).topNChoice, "none");
+});
+
+test("fail-closed: vis restore and dimension restore commit nothing on timeout/aborted/ok:false/skipped", async () => {
+  const cases = [
+    { name: "timeout", result: { ok: false, status: "timeout" } },
+    { name: "aborted", result: { ok: false, status: "aborted" } },
+    { name: "ok:false", result: { ok: false } },
+    { name: "skipped", result: { ok: true, skipped: true } }
+  ];
+  for (const item of cases) {
+    const visH = createHarness({
+      record: { visType: PROGNOSE_VALUE, dimension: "none", topNChoice: "none" },
+      visDispatch: () => item.result
+    });
+    const visHandler = visH.historyMod.createWidgetSettingsHistoryReplayHandler(visH._KDB);
+    const visOld = visFrame("line", "line", {
+      restoreControls: { dimension: DIM, topNChoice: "top-3", grouping: "jahr" }
+    });
+    assert.equal(await visHandler.apply(visH._KDB, visOld, { key: STEP_KEY, old: visOld, new: visFrame("prognose", PROGNOSE_VALUE) }, { direction: "undo" }), false, item.name + " vis replay");
+    const visRec = readRecord(visH._KDB);
+    assert.equal(visRec.visType, PROGNOSE_VALUE, item.name + " visType");
+    assert.equal(visRec.dimension, "none", item.name + " vis dimension");
+    assert.equal(visRec.topNChoice, "none", item.name + " vis topN");
+    assert.equal(visRec.grouping, undefined, item.name + " vis grouping");
+
+    const dimH = createHarness({
+      record: { visType: "line", dimension: "none", topNChoice: "none" },
+      selected: { vis: "line", dimension: "none", topN: "none" },
+      visDispatch: () => item.result
+    });
+    const dimHandler = dimH.historyMod.createWidgetSettingsHistoryReplayHandler(dimH._KDB);
+    const dimOld = dimFrame(DIM, { restoreControls: { topNChoice: "top-3" } });
+    assert.equal(await dimHandler.apply(dimH._KDB, dimOld, { key: STEP_KEY, old: dimOld, new: dimFrame("none") }, { direction: "undo" }), false, item.name + " dim replay");
+    const dimRec = readRecord(dimH._KDB);
+    assert.equal(dimRec.dimension, "none", item.name + " dim dimension");
+    assert.equal(dimRec.topNChoice, "none", item.name + " dim topN");
+  }
 });

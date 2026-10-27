@@ -179,27 +179,36 @@ define([
     });
   }
 
-  // Mutate only the old vis frame: undo of a switch onto a type without dimension (Prognose)
-  // must re-bind the committed dimension/TopN, so they are frozen here before the Ohne clear.
+  // Mutate only the old frame: undo re-binds every control the target choice clears.
   function maybeAttachRestoreControls(_KDB, oldFrame, option) {
     if (!oldFrame || !option || typeof option.getAttribute !== "function") {
       return;
     }
-    if (String(option.getAttribute(_selectors.dropdownKindAttr) || "") !== "visualization") {
-      return;
-    }
-    const visType = option.getAttribute(_selectors.optionValueAttr) || option.getAttribute(_selectors.optionKeyAttr) || "";
-    if (_visTypeRules.supportsDimension(visType)) {
+    const kind = String(option.getAttribute(_selectors.dropdownKindAttr) || "");
+    if (kind !== "visualization" && kind !== "dimension") {
       return;
     }
     const record = _state.ensureWidgetSettingsByWidget(_KDB, oldFrame.widgetId);
-    if (_topNGrouping.isAbsentSentinel(record.dimension) && _topNGrouping.isAbsentSentinel(record.topNChoice)) {
+    if (kind === "dimension") {
+      const optionKey = option.getAttribute(_selectors.optionKeyAttr) || "";
+      if (_topNGrouping.isAbsentSentinel(optionKey) && !_topNGrouping.isAbsentSentinel(record.topNChoice)) {
+        oldFrame.restoreControls = { topNChoice: record.topNChoice };
+      }
       return;
     }
-    oldFrame.restoreControls = {
-      dimension: record.dimension,
-      topNChoice: record.topNChoice
-    };
+    const visType = option.getAttribute(_selectors.optionValueAttr) || option.getAttribute(_selectors.optionKeyAttr) || "";
+    const cleared = _visTypeRules.controlsTargetClears(visType, record.grouping);
+    const restore = {};
+    if (cleared.dimension && (!_topNGrouping.isAbsentSentinel(record.dimension) || !_topNGrouping.isAbsentSentinel(record.topNChoice))) {
+      restore.dimension = record.dimension;
+      restore.topNChoice = record.topNChoice;
+    }
+    if (cleared.grouping) {
+      restore.grouping = record.grouping;
+    }
+    if (Object.keys(restore).length > 0) {
+      oldFrame.restoreControls = restore;
+    }
   }
 
   function buildDropdownSelectionFrame(_panel, _dropdown) {
@@ -220,62 +229,11 @@ define([
     }
   }
 
-  function whenCoupledTopNCommitted(_result) {
-    return !!(_result && _result.coupledTopNCommitted === true);
-  }
-
-  function whenDimensionHistoryStep(_result) {
-    if (_result && _result.coupledTopNAttempted === true) {
-      return _result.coupledTopNCommitted === true;
-    }
-    return true;
-  }
-
-  function framesAreEqual(_left, _right) {
-    try {
-      return JSON.stringify(_left) === JSON.stringify(_right);
-    } catch (err) {
-      console.error("[widgetSettings.framesAreEqual] failed", err);
-      return _left === _right;
-    }
-  }
-
-  function registerTopNHistory(_KDB, _panel, _intentResult) {
-    const dropdown = _panel && typeof _panel.querySelector === "function"
-      ? _panel.querySelector(_selectors.dropdownSelector + _selectors.byAttr(_selectors.dropdownKindAttr, "topN"))
-      : null;
-    const noneOption = dropdown ? dropdown.querySelector(_selectors.byAttr(_selectors.optionKeyAttr, "none")) : null;
-    if (!noneOption) {
-      console.warn("[widgetSettings.queueCoupledTopNClearHistory] TopN Ohne row missing");
-      return;
-    }
-    const oldFrame = buildDropdownSelectionFrame(_panel, dropdown);
-    const newFrame = _descriptor.fromOption(_panel, noneOption);
-    if (oldFrame && newFrame) {
-      pushHistoryAfterConfirmedApply(_KDB, _intentResult, oldFrame, newFrame, whenCoupledTopNCommitted);
-    }
-  }
-
-  // A dimension change may clear TopN as well; both steps are queued behind the same apply result.
-  // Returns false when the dropdown is not the dimension dropdown, so the caller pushes the plain step.
-  function queueCoupledTopNClearHistory(_KDB, _panel, _dropdown, _intentResult, _dimensionOldFrame, _dimensionNewFrame) {
-    if (!(_dropdown && _dropdown.getAttribute(_selectors.dropdownKindAttr) === "dimension")) {
-      return false;
-    }
-    if (framesAreEqual(_dimensionOldFrame, _dimensionNewFrame)) {
-      return true;
-    }
-    registerTopNHistory(_KDB, _panel, _intentResult);
-    pushHistoryAfterConfirmedApply(_KDB, _intentResult, _dimensionOldFrame, _dimensionNewFrame, whenDimensionHistoryStep);
-    return true;
-  }
-
   return {
     createWidgetSettingsHistoryReplayHandler: createWidgetSettingsHistoryReplayHandler,
     pushWidgetSettingsHistoryStep: pushWidgetSettingsHistoryStep,
     pushHistoryAfterConfirmedApply: pushHistoryAfterConfirmedApply,
     maybeAttachRestoreControls: maybeAttachRestoreControls,
-    buildDropdownSelectionFrame: buildDropdownSelectionFrame,
-    queueCoupledTopNClearHistory: queueCoupledTopNClearHistory
+    buildDropdownSelectionFrame: buildDropdownSelectionFrame
   };
 });
