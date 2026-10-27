@@ -132,7 +132,7 @@ workflows/parameterSet/
 │           ├── dispatchDienststelleRestore.js
 │           └── dispatchSpecialSingleSelectRestore.js
 ├── urlShare/                          URL parameterId handling around the default restore
-│   ├── readUrlParameterId.js          reads the id from navigation name / document hash
+│   ├── readUrlParameterId.js          reads the id from navigation name, then location.href (query, then hash)
 │   ├── skipDefaultRestoreForUrlParameterId.js
 │   ├── whenUrlShareRestoreSettled.js  called from KDB.js; applies the URL id, resets to newDashboard on failure
 │   ├── waitForSingleSelectInventoryQuiet.js
