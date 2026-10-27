@@ -45,6 +45,9 @@ define([
   ROUTES[_actionTypes.PARAMETER_SET_RESET] = _restore.handleParameterSetReset;
   ROUTES[_actionTypes.PARAMETER_SET_RESTORE_BATCH] = _restore.handleParameterSetRestoreBatch;
   ROUTES[_actionTypes.RESTORE_COMMITTED_SETTINGS] = _restore.restoreCommittedSettingsOnHistoryReplay;
+  ROUTES[_actionTypes.SELECT_DROPDOWN_OPTION] = function (_KDB, payload) {
+    return _history.selectDropdownOption(_KDB, payload && payload.panel, payload && payload.option);
+  };
 
   function registerWidgetSettings(_KDB) {
     ensureNamespaces(_KDB);

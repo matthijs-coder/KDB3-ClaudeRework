@@ -71,15 +71,29 @@ define([
     }
   }
 
-  function stampMatchingFocusCloneVisType(widgetId, visTypeKey, visTypeRaw, record) {
+  function markCommittedOptions(panel, record) {
+    var visTypeKey = resolveStampVisTypeKey(record);
+    markPanelOption(panel, "showValues", readFlagKey(record && record.showValues), ".KDB_showValuesContainer");
+    markPanelOption(panel, "iterator", readFlagKey(record && record.iterator));
+    markPanelOption(panel, "zoom", readFlagKey(record && record.zoom));
+    markPanelOption(panel, "valueCaption", readFlagKey(record && record.valueCaption));
+    markPanelOption(panel, "visualization", visTypeKey, ".KDB_visualizationsContainer");
+    markDimensionAndTopN(panel, record);
+    if (record) {
+      var groupingKey = _visTypeRules.isGrain(record.grouping) ? record.grouping : "inherit";
+      markPanelOption(panel, "grouping", groupingKey, ".KDB_groupingContainer");
+    }
+  }
+
+  function stampMatchingFocusCloneVisType(widgetId, visTypeKey, visTypeRaw) {
     var id = String(widgetId || "");
     var focusPanel = id ? document.querySelector(_selectors.byAttr(_selectors.focusPanelRootAttr, id)) : null;
     if (!focusPanel) {
-      return;
+      return null;
     }
     focusPanel.setAttribute(_selectors.panelVisTypeAttr, visTypeKey);
     stampDimensionAvailability(focusPanel, visTypeRaw || visTypeKey);
-    markDimensionAndTopN(focusPanel, record);
+    return focusPanel;
   }
 
   function clearIllegalGrouping(record, _KDB) {
@@ -110,26 +124,16 @@ define([
     var visTypeRaw = (record && record.visType) || visTypeKey;
     panel.setAttribute(_selectors.panelVisTypeAttr, visTypeKey);
     stampDimensionAvailability(panel, visTypeRaw);
-    stampMatchingFocusCloneVisType(widgetId, visTypeKey, visTypeRaw, record);
-    markPanelOption(panel, "showValues", readFlagKey(record && record.showValues), ".KDB_showValuesContainer");
-    markPanelOption(panel, "iterator", readFlagKey(record && record.iterator));
-    markPanelOption(panel, "zoom", readFlagKey(record && record.zoom));
-    markPanelOption(panel, "valueCaption", readFlagKey(record && record.valueCaption));
-    markPanelOption(panel, "visualization", visTypeKey, ".KDB_visualizationsContainer");
-    markDimensionAndTopN(panel, record);
+    var focusPanel = stampMatchingFocusCloneVisType(widgetId, visTypeKey, visTypeRaw);
     clearIllegalGrouping(record, _KDB);
     var groupingVisType = (record && record.visType) || visTypeKey;
     hideDisallowedGroupingRows(panel, groupingVisType, _KDB);
-    var focusPanel = widgetId ? document.querySelector(_selectors.byAttr(_selectors.focusPanelRootAttr, widgetId)) : null;
     if (focusPanel) {
       hideDisallowedGroupingRows(focusPanel, groupingVisType, _KDB);
     }
-    if (record) {
-      var groupingKey = _visTypeRules.isGrain(record.grouping) ? record.grouping : "inherit";
-      markPanelOption(panel, "grouping", groupingKey, ".KDB_groupingContainer");
-      if (focusPanel) {
-        markPanelOption(focusPanel, "grouping", groupingKey, ".KDB_groupingContainer");
-      }
+    markCommittedOptions(panel, record);
+    if (focusPanel) {
+      markCommittedOptions(focusPanel, record);
     }
   }
 

@@ -3,7 +3,6 @@ define([
   "../config/selectors.js",
   "../effects/dispatchWidgetSettingsIntent.js",
   "../history.js",
-  "./dropdownOptionSelection.js",
   "./dropdownUi.js",
   "./panelOutsidePointerBehavior.js"
 ], function (
@@ -11,7 +10,6 @@ define([
   _selectors,
   _dispatchIntent,
   _history,
-  _dropdownOptionSelection,
   _dropdownUi,
   _panelOutsidePointerBehavior
 ) {
@@ -23,17 +21,9 @@ define([
   }
 
   function selectOption(_KDB, panel, option) {
+    _history.selectDropdownOption(_KDB, panel, option);
     const dropdown = option.closest(_selectors.dropdownSelector);
-    const oldFrame = _history.buildDropdownSelectionFrame(panel, dropdown);
-    _history.maybeAttachRestoreControls(_KDB, oldFrame, option);
-    _dropdownOptionSelection.markSelectedOption(option);
-    const intentResult = _dispatchIntent.dropdownOption(_KDB, panel, option, { isHistoryReplay: false });
-    const newFrame = _history.buildDropdownSelectionFrame(panel, dropdown);
-    if (!newFrame || newFrame.kind !== "backgroundColor") {
-      // History is pushed only after a confirmed apply result, so a failed or aborted apply leaves no entry.
-      _history.pushHistoryAfterConfirmedApply(_KDB, intentResult, oldFrame, newFrame);
-    }
-    if (KEEP_OPEN_KINDS.indexOf(dropdown.getAttribute(_selectors.dropdownKindAttr) || "") < 0) {
+    if (KEEP_OPEN_KINDS.indexOf((dropdown && dropdown.getAttribute(_selectors.dropdownKindAttr)) || "") < 0) {
       _dropdownUi.closeDropdowns(panel);
     }
   }

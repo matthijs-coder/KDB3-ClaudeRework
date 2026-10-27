@@ -7,6 +7,7 @@ define([], function () {
     PARAMETER_SET_RESTORE_BATCH: "widgetSettings/parameterSetRestoreBatchRequested",
     SEED_DEFAULTS: "widgetSettings/seedDefaults",
     RESTORE_COMMITTED_SETTINGS: "widgetSettings/restoreCommittedSettings",
-    COMMIT_COLOUR: "widgetSettings/commitColour"
+    COMMIT_COLOUR: "widgetSettings/commitColour",
+    SELECT_DROPDOWN_OPTION: "widgetSettings/selectDropdownOption"
   };
 });

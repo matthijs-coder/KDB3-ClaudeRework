@@ -393,7 +393,7 @@ Features push **steps** `{ key, old, new }` through the kit (`pushHistoryStep`) 
 
 `widget_removed` is pushed (`widgetBase/canvas.js`) but has **no replay handler** (14.1, item 6).
 
-`widgetSettings_optionSelect` undoes the whole previous settings situation. The old frame's `restoreControls` lists every control the new choice cleared (a vis-type switch, or Dimension Ohne that also clears TopN). That coupled TopN clear is one history step; redo of Ohne re-runs the coupled apply.
+`widgetSettings_optionSelect` undoes the whole previous settings situation. The old frame's `restoreControls` lists every control the new choice cleared (a vis-type switch, or Dimension Ohne that also clears TopN). That coupled TopN clear is one history step; redo of Ohne re-runs the coupled apply. A dropdown change in the focus-mode settings panel uses the same step key and frames as the gear panel.
 
 ### 9.7 Table loading and events
 

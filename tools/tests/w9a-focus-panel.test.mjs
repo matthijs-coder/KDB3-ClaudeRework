@@ -1,6 +1,6 @@
-// P2-W9a: widgetVis focus-mode settings panel (focus/panel.js): which widgetSettings helpers it calls, with what, for
-// pointer input on the cloned panel and on the document. widgetSettings and the DOM query helpers are recording fakes;
-// only the adapter section knows how panel.js reaches them.
+// P2-W9a: widgetVis focus-mode settings panel (focus/panel.js): dropdown clicks dispatch
+// widgetSettings/selectDropdownOption; icons stay on the kit. widgetSettings and the DOM query helpers are recording
+// fakes; only the adapter section knows how panel.js reaches them.
 // Run: node --test tools/tests/w9a-focus-panel.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -74,6 +74,7 @@ function createHarness() {
     shouldKeepDropdownsOpen: (panel, target, iconSelector) => { calls.push(["shouldKeep", "<" + (target && target.name) + ">", iconSelector]); return fakes.keep === true; },
     dropdownOption: (_KDB, panel, option, opts) => { calls.push(["intentOption", "<" + panel.name + ">", "<" + option.name + ">", opts]); },
     icon: (_KDB, panel, icon, opts) => { calls.push(["intentIcon", "<" + panel.name + ">", "<" + icon.name + ">", opts]); },
+    actionTypes: { SELECT_DROPDOWN_OPTION: "widgetSettings/selectDropdownOption" },
     keep: false
   };
   sourcePanel.found[SEL.settingsIconsSelector] = icons;
@@ -93,6 +94,7 @@ function loadPanel(h) {
     "../drillthrough/install.js": h.install,
     "./domQueries.js": h.domQueries,
     "../../widgetSettings/selectors.js": {
+      ACTION_TYPES: h.fakes.actionTypes,
       domSelectors: h.fakes.selectors,
       focusOnlyControls: h.fakes.focusOnly,
       buildSettingsIcon: h.fakes.buildSettingsIcon,
@@ -107,7 +109,16 @@ function loadPanel(h) {
 
 function activate(h, panel) {
   const runtime = { focusMode: { focusPanelEl: null, dispose: null, observedExpanded: false, source: null } };
-  const result = panel.activateFocusModeChrome({}, "w1", runtime, { source: "test" });
+  const _KDB = {
+    api: {
+      widgetSettings: {
+        dispatch: (action) => {
+          h.calls.push(["selectDropdownOption", action.type, "<" + action.payload.panel.name + ">", "<" + action.payload.option.name + ">"]);
+        }
+      }
+    }
+  };
+  const result = panel.activateFocusModeChrome(_KDB, "w1", runtime, { source: "test" });
   return { runtime, result, panelRoot: runtime.focusMode.focusPanelEl };
 }
 
@@ -128,7 +139,7 @@ test("activate builds the focus panel from the source panel and binds pointer ha
   assert.equal(typeof runtime.focusMode.dispose, "function");
 });
 
-test("pointerdown on a dropdown option marks it, dispatches the intent and hides the other dropdowns", () => {
+test("pointerdown on a dropdown option dispatches selectDropdownOption and hides the other dropdowns", () => {
   const h = createHarness();
   const { panelRoot } = activate(h, loadPanel(h));
   const dropdown = new FakeEl("dd", { attrs: { "kind-attr": "topN" } });
@@ -141,13 +152,13 @@ test("pointerdown on a dropdown option marks it, dispatches the intent and hides
   panelRoot.listeners[0].handler(ev);
   assert.equal(ev.p, true);
   assert.equal(ev.s, true);
-  assert.deepStrictEqual(h.calls.map((c) => c[0]), ["markSelectedOption", "intentOption", "hidePanelDropdowns"]);
-  assert.deepStrictEqual(h.calls[1], ["intentOption", "<source-clone>", "<opt>", { isHistoryReplay: false }]);
+  assert.deepStrictEqual(h.calls.map((c) => c[0]), ["selectDropdownOption", "hidePanelDropdowns"]);
+  assert.deepStrictEqual(h.calls[0], ["selectDropdownOption", "widgetSettings/selectDropdownOption", "<source-clone>", "<opt>"]);
   option.attrs["kind-attr"] = "showValues";
   dropdown.attrs["kind-attr"] = "x";
   h.calls.length = 0;
   panelRoot.listeners[0].handler({ target, preventDefault() {}, stopPropagation() {} });
-  assert.deepStrictEqual(h.calls.map((c) => c[0]), ["markSelectedOption", "intentOption"]);
+  assert.deepStrictEqual(h.calls.map((c) => c[0]), ["selectDropdownOption"]);
 });
 
 test("pointerdown on an icon without a dropdown dispatches the icon intent; with a dropdown it toggles it", () => {
