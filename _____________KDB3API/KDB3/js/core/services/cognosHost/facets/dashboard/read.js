@@ -14,6 +14,7 @@ define([
     "getDashboardVersion",
     "getEnvironmentSource",
     "getBoardId",
+    "getPathRef",
     "getDashboardBiBaseUrl",
     "getLanguage",
     "getUserName",

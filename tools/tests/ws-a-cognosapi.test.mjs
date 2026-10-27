@@ -14,7 +14,7 @@ const EXPECTED = {
   ],
   dashboard: [
     "getBoardId", "getCurrentDashboardUiState", "getDashboardBiBaseUrl", "getDashboardState", "getDashboardVersion", "getEnvironmentSource",
-    "getFileName", "getLanguage", "getMode", "getUserInfo", "getUserName", "onDashboardUiStateChange", "openAppView", "resolveCaptureRoot",
+    "getFileName", "getLanguage", "getMode", "getPathRef", "getUserInfo", "getUserName", "onDashboardUiStateChange", "openAppView", "resolveCaptureRoot",
     "setDashboardZoom", "setFullScreen", "setMode"
   ],
   canvas: [
@@ -75,7 +75,7 @@ test("theme -> method key list is frozen", () => {
 
 test("dynamic method names read by ring 1 exist", () => {
   const api = build().cognosAPI;
-  for (const name of ["getFileName", "getDashboardVersion", "getEnvironmentSource", "getBoardId", "getDashboardBiBaseUrl", "getLanguage", "getUserName", "getMode"]) {
+  for (const name of ["getFileName", "getDashboardVersion", "getEnvironmentSource", "getBoardId", "getPathRef", "getDashboardBiBaseUrl", "getLanguage", "getUserName", "getMode"]) {
     assert.equal(typeof api.dashboard[name], "function", `dashboard.${name}`);
   }
   for (const name of ["whenRenderStart", "whenRenderComplete", "getCanvasWhenReady", "getWidgetWhenReady"]) {

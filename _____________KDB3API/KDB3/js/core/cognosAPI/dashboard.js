@@ -50,6 +50,57 @@ define(["./captureRoot.js"], function (_resolveCaptureRoot) {
     return null;
   }
 
+  var PATH_REF_ROOT_BY_FIRST_NAME = {
+    "Public Folders": ".public_folders",
+    "Öffentliche Ordner": ".public_folders",
+    "Team Folders": ".team_folders",
+    "Teamordner": ".team_folders",
+    "My Folders": ".my_folders",
+    "Meine Ordner": ".my_folders"
+  };
+
+  function readSearchPathNames(text) {
+    var names = [];
+    var match;
+    var pattern = /\[@name='((?:\\'|[^'])*)'\]/g;
+    while ((match = pattern.exec(text)) !== null) {
+      names.push(match[1].replace(/\\'/g, "'"));
+    }
+    return names;
+  }
+
+  function convertSearchPathToPathRef(searchPath) {
+    var text;
+    var names;
+    var firstName;
+    var root;
+    var rest;
+    if (typeof searchPath === "number") searchPath = String(searchPath);
+    if (typeof searchPath !== "string") return null;
+    text = searchPath.trim();
+    if (!text) return null;
+    if (text.charAt(0) === ".") return text;
+    names = readSearchPathNames(text);
+    firstName = names.length ? names[0] : "";
+    if (firstName && Object.prototype.hasOwnProperty.call(PATH_REF_ROOT_BY_FIRST_NAME, firstName)) {
+      root = PATH_REF_ROOT_BY_FIRST_NAME[firstName];
+      rest = names.slice(1);
+    } else if (text.indexOf("/content") === 0) {
+      root = ".public_folders";
+      rest = names;
+    } else {
+      return null;
+    }
+    if (!rest.length) return null;
+    return root + "/" + rest.join("/");
+  }
+
+  function getPathRef() {
+    var info = __getDashboardAPI().getDashboardInfo();
+    if (info == null || isThenable(info)) return null;
+    return convertSearchPathToPathRef(info.searchPath);
+  }
+
   function getUserName() {
     var account = __getDashboardAPI().getFeature("UserProfile").getUserAccount();
     var userName;
@@ -138,6 +189,8 @@ define(["./captureRoot.js"], function (_resolveCaptureRoot) {
       },
 
       getBoardId: getBoardId,
+
+      getPathRef: getPathRef,
 
       getDashboardBiBaseUrl: getDashboardBiBaseUrl,
 

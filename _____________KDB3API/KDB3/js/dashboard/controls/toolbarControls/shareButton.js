@@ -3,8 +3,9 @@ define([
   "./config.js",
   "./toolbarButton.js",
   "./toolbarHost.js",
-  "./shareLink.js"
-], function (_index, _config, _button, _host, _shareLink) {
+  "./shareLink.js",
+  "./readUrlPathRef.js"
+], function (_index, _config, _button, _host, _shareLink, _readUrlPathRef) {
   "use strict";
 
   var ID = "share";
@@ -15,7 +16,17 @@ define([
   }
 
   function hasFacetMethods(facet) {
-    return !!(facet && typeof facet.getBoardId === "function" && typeof facet.getDashboardBiBaseUrl === "function");
+    return !!(facet && typeof facet.getPathRef === "function" && typeof facet.getDashboardBiBaseUrl === "function");
+  }
+
+  function isNonEmptyString(value) {
+    return typeof value === "string" && value.length > 0;
+  }
+
+  function resolvePathRef(facet) {
+    var pathOutcome = facet.getPathRef();
+    if (isOutcomePresent(pathOutcome)) return pathOutcome.data;
+    return _readUrlPathRef.readUrlPathRef();
   }
 
   function hasShareDependencies(_KDB) {
@@ -47,9 +58,11 @@ define([
     var facet;
     var labels;
     var selected;
-    var boardOutcome;
+    var pathRef;
     var baseOutcome;
+    var subView;
     var labelText;
+    var dialogInput;
     if (viewModel.serviceAvailable === false || viewModel.disabled === true) return;
     selected = _KDB.services.writebackBridge.readSelectedParameterSet();
     facet = readDashboardFacet(_KDB);
@@ -58,21 +71,24 @@ define([
       return;
     }
     labels = _button.readButtonLabels(_KDB, ID);
-    boardOutcome = facet.getBoardId();
-    if (!isOutcomePresent(boardOutcome)) return showShareUnavailable(_KDB, labels.boardIdMissingTitle, labels.boardIdMissingMessage);
+    pathRef = resolvePathRef(facet);
+    if (!isNonEmptyString(pathRef)) return showShareUnavailable(_KDB, labels.pathRefMissingTitle, labels.pathRefMissingMessage);
     baseOutcome = facet.getDashboardBiBaseUrl();
     if (!isOutcomePresent(baseOutcome)) return showShareUnavailable(_KDB, labels.biBaseMissingTitle, labels.biBaseMissingMessage);
     selected = selected || {};
     labelText = selected.label && String(selected.label).length ? String(selected.label) : labels.emptyParameterLabel;
-    _shareLink.openShareCopyDialog(_KDB, {
+    subView = _readUrlPathRef.readUrlSubView();
+    dialogInput = {
       biBase: baseOutcome.data,
-      boardId: boardOutcome.data,
+      pathRef: pathRef,
       id: selected.id,
       label: selected.label,
       emptyParameterLabel: labels.emptyParameterLabel,
       title: resolveDialogTitle(labels, selected.id, labelText),
       labels: labels
-    });
+    };
+    if (isNonEmptyString(subView)) dialogInput.subView = subView;
+    _shareLink.openShareCopyDialog(_KDB, dialogInput);
   }
 
   function initializeShare(_KDB, inst) {

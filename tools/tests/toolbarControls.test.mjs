@@ -95,7 +95,7 @@ function createHarness(options = {}) {
       writebackBridge: { readSelectedParameterSet: () => ({ id: 7, label: "Set A" }) },
       cognosHost: {
         dashboard: {
-          getBoardId: () => ({ ok: true, data: "B1" }),
+          getPathRef: () => ({ ok: true, data: ".public_folders/X/Y" }),
           getDashboardBiBaseUrl: () => ({ ok: true, data: "https://bi.test/" })
         }
       }
@@ -266,7 +266,11 @@ test("share click opens the copy dialog with the read-only link first; wienKi op
   harness.host.querySelector('[data-kdb-share-button="true"]').click();
   harness.host.querySelector('[data-kdb-wien-ki-button="true"]').click();
   const [shareCall, wienKiCall] = harness.calls;
-  assert.match(shareCall, /^copyable Link zum Dashboard \(Parameterset: "Set A"\)\|https:\/\/bi\.test\/#.*readOnly=1/);
+  assert.match(shareCall, /^copyable Link zum Dashboard \(Parameterset: "Set A"\)\|https:\/\/bi\.test\/\?perspective=dashboard&pathRef=/);
+  assert.equal(shareCall.includes("#"), false);
+  assert.equal(/[?&]id=/.test(shareCall), false);
+  assert.equal(shareCall.includes("objRef="), false);
+  assert.match(shareCall, /readOnly=1/);
   assert.equal(wienKiCall, "copyable Wien-KI|Wien-KI öffnen");
 });
 
