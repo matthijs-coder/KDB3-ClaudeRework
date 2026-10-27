@@ -835,7 +835,7 @@ Prognose widgets have no Dimension or TopN. Icons stay in the DOM; CSS hides the
 
 - [ ] **2. Switch back to Line.** From that Prognose widget switch visualization to Line. Expected: Dimension and TopN icons visible again, both Ohne (not the previous dimension / Top-5).
 
-- [ ] **3. Undo after the switch.** From Line + dimension + Top-5, switch to Prognose, then Undo. Expected: vis type is Line, Dimension and TopN stay Ohne.
+- [ ] **3. Undo after the switch.** From Line + dimension + Top-5, switch to Prognose, then Undo. Expected: vis type is Line, Dimension and TopN stay Ohne. Known limit (by design): undoing further back past the TopN step and then redoing it shows the "could not replay" message, because the dimension is already Ohne; history stays put.
 
 - [ ] **4. Pie and List still show both.** A Pie widget and a List widget still show Dimension and TopN icons. Changing them still binds as before.
 
