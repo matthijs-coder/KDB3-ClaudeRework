@@ -137,6 +137,11 @@ export class FakeElement extends FakeEventTarget {
     if (name === "class" && this.className) return this.className;
     return Object.prototype.hasOwnProperty.call(this.attributes, name) ? this.attributes[name] : null;
   }
+  removeAttribute(name) {
+    if (name === "id") this.id = "";
+    if (name === "class") this.className = "";
+    delete this.attributes[name];
+  }
   hasAttribute(name) { return this.getAttribute(name) !== null; }
   querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
   querySelectorAll(selector) {

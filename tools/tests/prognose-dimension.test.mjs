@@ -109,7 +109,6 @@ test("finalize commits dimension and topN none after a vis-type switch to Progno
       },
       "../view/optionMarking.js": {
         stampPanelVisType: (_KDB, widgetId) => stamps.push(["stamp", widgetId]),
-        markFocusDimensionAndTopNFromRecord: (_KDB, widgetId) => stamps.push(["markFocus", widgetId]),
         markShowValuesPending: () => {},
         markTopNPending: () => {},
         revertShowValuesDropdownFromState: () => {},
@@ -135,7 +134,7 @@ test("finalize commits dimension and topN none after a vis-type switch to Progno
     ["dimension", "none"],
     ["topN", "none"]
   ]);
-  assert.deepEqual(stamps, [["stamp", "w1"], ["markFocus", "w1"]]);
+  assert.deepEqual(stamps, [["stamp", "w1"]]);
 
   commits.length = 0;
   stamps.length = 0;
@@ -185,7 +184,8 @@ test("stampPanelState sets data-kdb-dimension=off for Prognose and removes it fo
   const focusAttrs = {};
   const focusPanel = {
     setAttribute: (name, value) => { focusAttrs[name] = value; },
-    removeAttribute: (name) => { delete focusAttrs[name]; }
+    removeAttribute: (name) => { delete focusAttrs[name]; },
+    querySelector: () => null
   };
   const optionMarking = load("dashboard/widgets/widgetSettings/view/optionMarking.js", {
     stubs: {

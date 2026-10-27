@@ -71,13 +71,14 @@ define([
     return FAILED_STATUSES.indexOf(result.status) < 0;
   }
 
-  function commitCoupledTopNClear(_KDB, _widgetId) {
-    return _state.commitWidgetSettingValue(_KDB, _widgetId, "topN", "none", { nextValue: "none" });
-  }
-
-  function commitUnavailableDimensionControls(_KDB, _widgetId) {
-    _state.commitWidgetSettingValue(_KDB, _widgetId, "dimension", "none", { nextValue: "none" });
-    return _state.commitWidgetSettingValue(_KDB, _widgetId, "topN", "none", { nextValue: "none" });
+  function commitControlValues(_KDB, _widgetId, _values) {
+    const values = _values || {};
+    if (Object.prototype.hasOwnProperty.call(values, "dimension")) {
+      _state.commitWidgetSettingValue(_KDB, _widgetId, "dimension", values.dimension, { nextValue: values.dimension });
+    }
+    if (Object.prototype.hasOwnProperty.call(values, "topNChoice")) {
+      _state.commitWidgetSettingValue(_KDB, _widgetId, "topN", values.topNChoice, { nextValue: values.topNChoice });
+    }
   }
 
   function finalizeVisIntentResult(_KDB, _planned, _dispatchResult) {
@@ -131,9 +132,8 @@ define([
       result.coupledTopNAttempted = true;
     }
     if (!isVisApplyConfirmed(result)) {
-      if (coupled && result.stale !== true) {
+      if ((coupled || planned.restoreControls) && result.stale !== true) {
         _optionMarking.stampPanelVisType(_KDB, planned.widgetId);
-        _optionMarking.markFocusDimensionAndTopNFromRecord(_KDB, planned.widgetId);
         return result;
       }
       revertSafeguardUnlessStale(_KDB, planned, result);
@@ -141,16 +141,20 @@ define([
     }
     try {
       if (coupled) {
-        commitCoupledTopNClear(_KDB, planned.widgetId);
+        commitControlValues(_KDB, planned.widgetId, { topNChoice: "none" });
       }
       const canonicalOptionValue = _downstream.resolveCanonicalVisOptionValue(planned);
       const report = result.reportToSettings || { nextValue: canonicalOptionValue };
       _state.commitWidgetSettingValue(_KDB, planned.widgetId, planned.kind, canonicalOptionValue, report);
       // Own flag, not planned.coupledTopN: that path overwrites payload.nextValue and would bind vis type "none".
-      const clearUnavailableControls = _config.normalizeKind(planned.kind) === "visualization"
-        && !_visTypeRules.supportsDimension(canonicalOptionValue);
-      if (clearUnavailableControls) {
-        commitUnavailableDimensionControls(_KDB, planned.widgetId);
+      const isVisKind = _config.normalizeKind(planned.kind) === "visualization";
+      const targetSupportsDimension = _visTypeRules.supportsDimension(canonicalOptionValue);
+      const canRestore = isVisKind && planned.restoreControls && targetSupportsDimension;
+      const clearUnavailableControls = isVisKind && !targetSupportsDimension;
+      if (canRestore) {
+        commitControlValues(_KDB, planned.widgetId, planned.restoreControls);
+      } else if (clearUnavailableControls) {
+        commitControlValues(_KDB, planned.widgetId, { dimension: "none", topNChoice: "none" });
         result.clearUnavailableControlsCommitted = true;
       }
       clearSafeguardPending(_KDB, planned);
@@ -158,9 +162,6 @@ define([
         result.coupledTopNCommitted = true;
       }
       _optionMarking.stampPanelVisType(_KDB, planned.widgetId);
-      if (coupled || clearUnavailableControls) {
-        _optionMarking.markFocusDimensionAndTopNFromRecord(_KDB, planned.widgetId);
-      }
     } catch (err) {
       console.error("[widgetSettings.handleVisIntentCompletion] commit failed", { widgetId: planned.widgetId, kind: planned.kind }, err);
       revertSafeguardUnlessStale(_KDB, planned, { errorCode: "WIDGET_SETTINGS_VIS_COMMIT_FAILED", errorMessage: String(err.message || err) });
