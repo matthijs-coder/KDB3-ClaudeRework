@@ -791,33 +791,13 @@ Intended deltas: none (file/folder renames, internal DOM attribute names, extrac
 
 Outbound Teilen now builds the native Cognos query (`biBase?perspective=dashboard&pathRef=…`), not the hash `id`/`objRef` form. Helper: `const getKDB = window.top.getKDB;`. Keep DevTools open (Console + Network). Incognito is required for the cold-open step.
 
-- [ ] **1. Probe `getDashboardInfo`.** With the reference dashboard open (also after an ID-open whose location has no `pathRef`), run:
+- [ ] **1. Teilen with a chosen set.** Select Set A, click **Teilen**. Dialog title `Link zum Dashboard (Parameterset: "…")`. Copy text (Nur Lesen ON) is `https://<host>/cognos/bi/?perspective=dashboard&pathRef=…&action=view&mode=dashboard&nav_filter=true&parameterId=<id>&parameterLabel=…&readOnly=1`. Toggle Nur Lesen off: the unchecked URL is the same without `readOnly`. No `#`, no `id=`, no `objRef=`. `nav_filter=true` is always present. `subView` appears only when the current location already has a non-empty `subView`.
 
-  ```js
-  (function kdbPathRefProbe() {
-    var info = null, err = null;
-    try { info = __getDashboardAPI().getDashboardInfo(); }
-    catch (e) { err = String(e && e.message || e); }
-    return {
-      error: err,
-      keys: info && typeof info === "object" ? Object.keys(info) : [],
-      searchPath: info && info.searchPath,
-      boardId: info && info.boardId,
-      type: info && info.type,
-      href: document.location.href
-    };
-  })();
-  ```
+- [ ] **2. Teilen without a set.** Clear the parameter-set selection (or share a dashboard with none chosen). Title `Link zum Dashboard (kein Parameterset: leeres Dashboard)`. URL has no `parameterId`; `parameterLabel=leeres+Dashboard`.
 
-  Expected: `searchPath` is a `/content/folder[@name='…']/…/exploration[@name='…']` string; there is no `pathRef` field; `type` is `"exploration"`. If the keys differ, stop and re-lock the contract; do not guess. `getKDB().cognosAPI.dashboard.getPathRef()` returns the unencoded `.public_folders/…` (or `.team_folders` / `.my_folders`) flattening of that `searchPath`. `getKDB().services.cognosHost.dashboard.getPathRef()` is `{ ok: true, outcome: "ok", data: <same string> }`.
+- [ ] **3. Incognito cold-open.** Copy the Nur Lesen URL from step 1. In a fresh incognito window, without opening that dashboard through the Cognos menu first, paste the URL. Expected: the dashboard loads; no Glass `TypeError: r.getAccountInfo is not a function` / `Failed to get user account`. Nur Lesen chrome is on (`#main` has `kdb-share-read-only`). The chosen set is restored from the query `parameterId`.
 
-- [ ] **2. Teilen with a chosen set.** Select Set A, click **Teilen**. Dialog title `Link zum Dashboard (Parameterset: "…")`. Copy text (Nur Lesen ON) is `https://<host>/cognos/bi/?perspective=dashboard&pathRef=…&action=view&mode=dashboard&nav_filter=true&parameterId=<id>&parameterLabel=…&readOnly=1`. Toggle Nur Lesen off: the unchecked URL is the same without `readOnly`. No `#`, no `id=`, no `objRef=`. `nav_filter=true` is always present. `subView` appears only when the current location already has a non-empty `subView`.
-
-- [ ] **3. Teilen without a set.** Clear the parameter-set selection (or share a dashboard with none chosen). Title `Link zum Dashboard (kein Parameterset: leeres Dashboard)`. URL has no `parameterId`; `parameterLabel=leeres+Dashboard`.
-
-- [ ] **4. Incognito cold-open.** Copy the Nur Lesen URL from step 2. In a fresh incognito window, without opening that dashboard through the Cognos menu first, paste the URL. Expected: the dashboard loads; no Glass `TypeError: r.getAccountInfo is not a function` / `Failed to get user account`. Nur Lesen chrome is on (`#main` has `kdb-share-read-only`). The chosen set is restored from the query `parameterId`.
-
-- [ ] **5. Missing-path alert.** On a location without `pathRef` (for example after an ID-open), force the facet empty and click Teilen:
+- [ ] **4. Missing-path alert.** On a location without `pathRef` (for example after an ID-open), force the facet empty and click Teilen:
 
   ```js
   getKDB().runtime.toolbarControls.dashboardFacet = Object.assign({}, getKDB().services.cognosHost.dashboard, { getPathRef: () => ({ ok: true, outcome: "ok", data: null }) });
@@ -825,4 +805,4 @@ Outbound Teilen now builds the native Cognos query (`biBase?perspective=dashboar
 
   Expected: one alert, title `Teilen nicht möglich`, message `Der Dashboard-Pfad konnte nicht ermittelt werden. Bitte das Dashboard über das Cognos-Menü öffnen und erneut teilen.`; no copy dialog; no `id=` / `objRef=` URL. Reload afterwards so the stamp is restored.
 
-- [ ] **6. Console clean.** Steps 1 to 5: no new red errors, no `getAccountInfo`, no `[shareControls.click]` failure. Network: the share URL is a query (`?perspective=dashboard&pathRef=`), not a hash.
+- [ ] **5. Console clean.** Steps 1 to 4: no new red errors, no `getAccountInfo`, no `[shareControls.click]` failure. Network: the share URL is a query (`?perspective=dashboard&pathRef=`), not a hash.

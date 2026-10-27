@@ -34,7 +34,7 @@ _KDB.cognosAPI.dashboard.getPathRef  // () -> string | null   (unencoded, e.g. "
 }
 ```
 
-There is no `pathRef` field. `type` is `"exploration"`: do **not** filter on `type === "dashboard"`. `searchPath` is the primary source. If the probe in this copy's Cognos shows other keys, implementation stops and the PO re-locks this section.
+There is no `pathRef` field. `type` is `"exploration"`: do **not** filter on `type === "dashboard"`. `searchPath` is the primary source. This shape comes from the PO's probe in the source copy; the PO dropped a separate probe in this copy (2026-10-27) and accepts the slice with the final-version test. If Cognos ever returns other keys, stop and re-lock this section with the PO.
 
 ## 1.2 Conversion `searchPath` → unencoded `pathRef` (locked, copy exactly)
 
@@ -71,3 +71,4 @@ No hardcoded folder or dashboard names (`Spielwiese`, titles, DEV/TEST/PROD stri
 | Date | Status change | Approver | Notes |
 |---|---|---|---|
 | `2026-10-27` | `Approved` | Coordinator per PO handover (product lock §2/§4, source copy Cognos-green) | Mapped to this copy: function in `dashboard.js`, no log-and-rethrow (§2). Merge gated on the PO probe in this copy's Cognos (§1.1). |
+| `2026-10-27` | `Approved` (gate dropped) | PO | Probe gate dropped (solution verified in the source copy); merged; PO tests the final version. |

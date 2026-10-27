@@ -102,7 +102,7 @@ Patch Glass/`bundle.js`; Content Manager REST when `searchPath` exists; scrape t
 
 ## 9. Acceptance (PO, Cognos)
 
-Incognito cold-open of the `pathRef` link built by Teilen, without opening the dashboard through the Cognos menu that day: the dashboard loads, no Glass `getAccountInfo` error; Nur Lesen and a chosen parameter set still apply; without a resolvable path the German alert shows and no ID link is offered. Steps: `tools/smoke-checklist.md` block `P3-SHARE-PATHREF`. **Merge gate:** the PO probe (cognosAPI delta §1.1) in this copy's Cognos shows a `searchPath` key of the same shape.
+Incognito cold-open of the `pathRef` link built by Teilen, without opening the dashboard through the Cognos menu that day: the dashboard loads, no Glass `getAccountInfo` error; Nur Lesen and a chosen parameter set still apply; without a resolvable path the German alert shows and no ID link is offered. Steps: `tools/smoke-checklist.md` block `P3-SHARE-PATHREF`. The PO dropped the separate probe gate (2026-10-27): the solution is verified in the source copy, and he tests the final version.
 
 ## Approval log
 

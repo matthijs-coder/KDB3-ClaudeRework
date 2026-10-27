@@ -137,7 +137,7 @@ Click order (`toolbarControls/index.js` harness like `toolbarControls.test.mjs`,
 
 ### C3 Smoke block (`tools/smoke-checklist.md`)
 
-Append `## 9) Share link with pathRef (2026-10)` with one block `### P3-SHARE-PATHREF` (English, like the rest of the checklist): probe snippet (cognosAPI delta §1.1 console function), Teilen click with and without a set, URL shape (`?perspective=dashboard&pathRef=` …, no `id=`/`objRef=`, no `#`, `nav_filter=true`), incognito cold-open without menu warm-up (no `getAccountInfo`), Nur Lesen chrome, parameter set restore from the query, missing-path alert (force: `getKDB().runtime.toolbarControls.dashboardFacet = Object.assign({}, getKDB().services.cognosHost.dashboard, { getPathRef: () => ({ ok: true, outcome: "ok", data: null }) })` on a location without `pathRef`), console clean.
+Append `## 9) Share link with pathRef (2026-10)` with one block `### P3-SHARE-PATHREF` (English, like the rest of the checklist): Teilen click with and without a set, URL shape (`?perspective=dashboard&pathRef=` …, no `id=`/`objRef=`, no `#`, `nav_filter=true`), incognito cold-open without menu warm-up (no `getAccountInfo`), Nur Lesen chrome, parameter set restore from the query, missing-path alert (force: `getKDB().runtime.toolbarControls.dashboardFacet = Object.assign({}, getKDB().services.cognosHost.dashboard, { getPathRef: () => ({ ok: true, outcome: "ok", data: null }) })` on a location without `pathRef`), console clean.
 
 ### Stop conditions
 
