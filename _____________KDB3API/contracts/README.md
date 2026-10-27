@@ -66,6 +66,13 @@ These stay in place because a JS comment (`KDB3/js/**`) or a living contract/arc
 
 Archived in W14 (no remaining citation): `sicht-filterInstanceIdentity-contractdelta.md`.
 
+Share `pathRef` slice (2026-10-27, PO handover; live law for the outbound share link):
+
+- [`cognosAPI-dashboardPathRef-contractdelta.md`](cognosAPI-dashboardPathRef-contractdelta.md): inner `getPathRef`, `searchPath` conversion.
+- [`cognosHost-dashboardPathRef-contractdelta.md`](cognosHost-dashboardPathRef-contractdelta.md): `dashboard` facet `getPathRef`.
+- [`shareControls-pathRef-link-contractdelta.md`](shareControls-pathRef-link-contractdelta.md): query link with `pathRef`, click order, builder.
+- [`shareControls-pathRef-link-execution-spec.md`](shareControls-pathRef-link-execution-spec.md): allowlist of that slice.
+
 ## Other files kept in place
 
 - `futureTodo/`: open backlog and future-todo notes. Closed or superseded notes (including the Phase 1-obsolete cleanup backlogs in `_archive/futureTodo-cleanup-backlogs/`), hand-off prompts and the retired `_template.md` / `_executionSpecTemplate.md` templates are in `_archive/`.
