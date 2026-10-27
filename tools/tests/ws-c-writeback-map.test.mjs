@@ -463,3 +463,41 @@ test("toV3 does not mutate its input", () => {
   runToV3(input);
   assert.deepStrictEqual(input, snapshot);
 });
+
+test("GET/SET round-trip keeps topNChoice bottom-5 as wgts[].topn", async () => {
+  const settingsRestore = loadAmd(path.join(JS_ROOT, "dashboard/widgets/widgetSettings/restore.js"), {
+    stubs: { console: silentConsole, document: { querySelector: () => null } },
+  });
+  const diagnostics = [];
+  const widget = buildWidgetObject(
+    visFrame({ colour: "#ffffff" }),
+    0,
+    { visType: "line", dimension: "Geschlecht", topNChoice: "bottom-5" },
+    { derived: { code: "M_CODE" } },
+    null,
+    diagnostics
+  );
+  assert.equal(diagnostics.length, 0);
+  assert.equal(widget.topn, "bottom-5");
+
+  const _KDB = { config: { options: {} }, api: {}, properties: { filterPropObj: {} }, state: { widgets: { settings: { byWidget: {} } } }, runtime: {} };
+  const result = await settingsRestore.handleParameterSetRestoreBatch(_KDB, {
+    runId: 1,
+    widgets: [widget],
+    widgetCorrelation: { "0": { widgetId: "wv" } },
+  });
+  assert.equal(result.ok, true);
+  assert.equal(_KDB.state.widgets.settings.byWidget.wv.topNChoice, "bottom-5");
+
+  const restored = [];
+  const again = buildWidgetObject(
+    visFrame({ colour: "#ffffff" }),
+    0,
+    { visType: "line", dimension: "Geschlecht", topNChoice: _KDB.state.widgets.settings.byWidget.wv.topNChoice },
+    { derived: { code: "M_CODE" } },
+    null,
+    restored
+  );
+  assert.equal(restored.length, 0);
+  assert.equal(again.topn, "bottom-5");
+});

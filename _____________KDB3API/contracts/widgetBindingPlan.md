@@ -305,7 +305,7 @@ Failure result rules:
     limit?: number | null,
     keepOnlyFirst?: boolean,
     topBottom?: {
-      type: "topcount",
+      type: "topcount" | "bottomcount",
       value: number,
       rank: false,
       valueItemId: string
@@ -321,7 +321,7 @@ Rules:
 - `columnIds` is the exact ordered list the apply service should add to the slot.
 - `sortSpecs` is preferred for new code. `sortByColumn` may be included only as legacy compatibility material when one sort column is sufficient.
 - Slot limits or "first item only" semantics are declarative `options` and are in scope for v1. `widgetBindingApply` must consume `options.limit` / `options.keepOnlyFirst` or explicitly fail with an apply error when the current Cognos wrapper surface cannot enforce them. The planner does not test Cognos enforcement.
-- For `targetKind:"topNHelper"` and count-style TopN, the helper `grid_cols` slot emits `options.topBottom` so `widgetBindingApply` can apply Cognos `topcount` to the helper metric/value item.
+- For `targetKind:"topNHelper"` and count-style TopN, the helper `grid_cols` slot emits `options.topBottom` so `widgetBindingApply` can apply Cognos `topcount` or `bottomcount` to the helper metric/value item. Direction is `bottomcount` when the parsed option key is `bottom-N` (`bottom-10` … `bottom-1`); otherwise `topcount`.
 - `options.customLabel` is emitted only when `dataConfig.dimension` is a real dimension-dropdown key (not `null` / `""` / `default` / `none`). `columnId` is that dimension’s catalog `itemId`; `label` is that key (same string as the dropdown option). Empty `label` is forbidden. TopN helper and absent dimension omit the field. Apply consumes it via `setCustomLabelInSlot` after add (`contracts/_archive/visualization-dimension-custom-label-contractdelta.md`).
 - When `options.customLabel.columnId` is a non-empty string, the planner appends one `sortSpecs` entry after the Jahr/Monat specs taken from `dataTableConfig.sorting`: `{ columnId, order: "captionAscending", priority }` where `priority` is one higher than the last emitted spec (or `1` when none were emitted). The List `grid_cols` cap of two specs applies only to that `sorting.js` slice; this dimension spec sits outside the cap. If that `columnId` is already among the emitted specs, do not append a second sort for it. When this caption spec is emitted, `sortByColumn` is null. `captionAscending` is not `"ascending"`: the visualization facet sends `{ by: "caption", type: "asc" }` with no `custom.top`, and matches the column with `getColumnId()` then `getId()`. This path does not sort Dienststelle, Kennzahl, or Stichtag. Jahr and Monat stay on the §5.1 arrays in `sorting.js`.
 - Empty optional slots are skipped with a warning. Empty required slots fail with `WIDGET_BINDING_PLAN_SLOT_REQUIRED_EMPTY`.

@@ -130,7 +130,12 @@ define([
       { key: "top-5", label: "Top-5", value: "5" },
       { key: "top-3", label: "Top-3", value: "3" },
       { key: "top-2", label: "Top-2", value: "2" },
-      { key: "top-1", label: "Top-1", value: "1" }
+      { key: "top-1", label: "Top-1", value: "1" },
+      { key: "bottom-10", label: "Letzte-10", value: "bottom-10" },
+      { key: "bottom-5", label: "Letzte-5", value: "bottom-5" },
+      { key: "bottom-3", label: "Letzte-3", value: "bottom-3" },
+      { key: "bottom-2", label: "Letzte-2", value: "bottom-2" },
+      { key: "bottom-1", label: "Letzte-1", value: "bottom-1" }
     ],
     restyle: [
       { key: "default", label: "Default", value: "KDB_widgetHeader_defaultStyle" },

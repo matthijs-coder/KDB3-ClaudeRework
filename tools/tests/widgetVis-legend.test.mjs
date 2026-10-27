@@ -300,6 +300,7 @@ test("buildVisualizationTitleText", () => {
     [{ _KDB, widgetId: "w1", metric: { code: "K1" }, settings: { dimension: "Jahr" } }, null, "K1 nach Jahr"],
     [{ _KDB, widgetId: "w1", metric: { display: "Anzahl MA nach Jahr" }, settings: { dimension: "Jahr" } }, null, "Anzahl MA nach Jahr"],
     [{ _KDB, widgetId: "w1", metric: { display: "Anzahl" }, settings: { dimension: "Jahr", topNChoice: "top10" }, helperTableResult: topN }, null, "Anzahl nach Jahr Top-10"],
+    [{ _KDB, widgetId: "w1", metric: { display: "Anzahl" }, settings: { dimension: "Jahr", topNChoice: "bottom-5" }, helperTableResult: topN }, null, "Anzahl nach Jahr Letzte-5"],
     [{ _KDB, widgetId: "w1", metric: { display: "Anzahl" }, settings: { dimension: "Jahr", topNChoice: "Top-3" }, derived: topN }, null, "Anzahl nach Jahr Top-3"],
     [{ _KDB, widgetId: "w1", metric: { display: "Anzahl" }, settings: { dimension: "Jahr", topNChoice: "Top-3" } }, null, "Anzahl nach Jahr"],
     [{ _KDB, widgetId: "w1", metric: { display: "Anzahl" }, settings: { dimension: "default", topNChoice: "Top-3" }, helperTableResult: topN }, null, "Anzahl"],

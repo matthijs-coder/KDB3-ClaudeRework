@@ -5438,6 +5438,140 @@
       }
     }
   },
+  "helper-pre-apply-bottom5": {
+    "ok": true,
+    "status": "success",
+    "errorCode": null,
+    "errorMessage": null,
+    "reason": "topN",
+    "targetKind": "topNHelper",
+    "widgetId": "helper1",
+    "ownerWidgetId": "w1",
+    "opSeq": 11,
+    "datasource": {
+      "id": "ds1",
+      "name": "Personal_KDB"
+    },
+    "visualization": {
+      "visType": "TopN",
+      "canonicalVisType": null,
+      "cognosVisualizationTypeId": "List"
+    },
+    "slotsChanged": false,
+    "slotsToClear": [],
+    "slots": [
+      {
+        "slotName": "grid_cols",
+        "columnIds": [
+          "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+          "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+        ],
+        "sortSpecs": [],
+        "options": {
+          "source": "default",
+          "topBottom": {
+            "type": "bottomcount",
+            "value": 5,
+            "rank": false,
+            "valueItemId": "[Personal_KDB_TM1].[KDB Kennzahlen].[P_A_MOA_01]"
+          }
+        }
+      }
+    ],
+    "localFilters": [
+      {
+        "kind": "widgetFilter",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+        "values": [
+          "Stichtag"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+        "values": [
+          "2025"
+        ]
+      },
+      {
+        "kind": "widgetFilter",
+        "mode": "include",
+        "itemId": "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+        "values": [
+          "JAN"
+        ]
+      },
+      {
+        "kind": "dimension",
+        "mode": "exclude",
+        "itemId": "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]",
+        "values": [
+          "Gesamt",
+          "ALLE",
+          "^"
+        ]
+      }
+    ],
+    "managedFilterItemIds": [
+      "[Personal_KDB_TM1].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[KDB_Aggregationstyp].[Caption]",
+      "[Personal_KDB_TM1].[Jahr_flach].[Jahr_flach].[Jahr]",
+      "[Personal_KDB_TM1].[Monat_flach].[Monat_flach].[Monat]",
+      "[Personal_KDB_TM1].[Geschlecht].[Geschlecht].[Geschlecht]"
+    ],
+    "emptyIntent": {
+      "enabled": false,
+      "reason": null,
+      "itemId": null,
+      "value": null
+    },
+    "resetIntent": {
+      "enabled": true,
+      "scope": "helperTarget",
+      "clearAllSlots": true,
+      "clearAllLocalFilters": true,
+      "reason": "topNHelperPreApply",
+      "rebuildAfterClear": true
+    },
+    "mirrorPatch": {
+      "visualizationType": "TopN",
+      "dimension": "Geschlecht",
+      "datasourceId": "ds1",
+      "datasourceName": "Personal_KDB",
+      "topN": "bottom-5"
+    },
+    "diagnostics": {
+      "service": "widgetBindingPlan",
+      "operation": "buildPlan",
+      "reason": "topN",
+      "targetKind": "topNHelper",
+      "widgetId": "helper1",
+      "ownerWidgetId": "w1",
+      "opSeq": 11,
+      "emptyIntent": {
+        "enabled": false,
+        "reason": null,
+        "itemId": null,
+        "value": null
+      },
+      "failedStage": null,
+      "warnings": [],
+      "counts": {
+        "slotCount": 1,
+        "localFilterCount": 4,
+        "managedFilterCount": 4
+      },
+      "resetIntent": {
+        "enabled": true,
+        "scope": "helperTarget",
+        "clearAllSlots": true,
+        "clearAllLocalFilters": true,
+        "reason": "topNHelperPreApply",
+        "rebuildAfterClear": true
+      }
+    }
+  },
   "helper-pre-apply-top10-hierarchy": {
     "ok": true,
     "status": "success",

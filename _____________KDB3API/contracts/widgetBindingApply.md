@@ -306,7 +306,7 @@ Required logical Cognos widget-binding surface consumed:
 | `addDataItemsToSlot(widgetId, slotName, columnIds)` | `applySlots` | Plan-driven only; skipped for filter-only updates where slots are unchanged. |
 | `setCustomLabelInSlot(widgetId, slotName, columnId, label)` | `applySlots` | After add, when `slot.options.customLabel` is present. Facet order `(widgetId, …)`. Empty label fails. |
 | `sortDataItemInSlot(slotName, columnId, order, widgetId, priority)` | `applySlots` | Supports `sortSpecs[]` and legacy single `sortByColumn` converted by plan or effect helper. |
-| `setTopBottomOnSlot(widgetId, slotName, topBottom)` | `applyTopBottom` | Applies Cognos `topcount` for TopN helper List widgets to the planned metric/value item. |
+| `setTopBottomOnSlot(widgetId, slotName, topBottom)` | `applyTopBottom` | Applies Cognos `topcount` or `bottomcount` (`topBottom.type`) for TopN helper List widgets to the planned metric/value item. |
 | `removeLocalFilter(widgetId, itemId)` | `removeManagedFilters` | Only for caller-supplied previous managed ids. |
 | `buildKeepexcludeConditionsFilterObj(values, options)` | `applyLocalFilters` | Used for exclude / include-exclude-or bodies. |
 | `addOrReplaceLocalFilter(widgetId, itemId, body)` | `applyLocalFilters` | Body built from descriptor. |

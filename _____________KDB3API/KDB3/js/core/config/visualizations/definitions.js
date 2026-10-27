@@ -121,7 +121,12 @@ define([], function () {
       "top-5": 5,
       "top-3": 3,
       "top-2": 2,
-      "top-1": 1
+      "top-1": 1,
+      "bottom-10": 10,
+      "bottom-5": 5,
+      "bottom-3": 3,
+      "bottom-2": 2,
+      "bottom-1": 1
     }
   };
 });

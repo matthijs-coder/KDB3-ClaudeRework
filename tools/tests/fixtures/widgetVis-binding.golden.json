@@ -1,25 +1,25 @@
 {
   "specs": {
-    "contentCreate": "8d8d57afa5560440",
-    "contentCreateNoSettings": "9959ceddc41006f1",
-    "dimension": "f7df9fa74b2a44e2",
-    "visType": "6e074bf11e269ff8",
-    "visTypePrognose": "f7030e53748f9d3f",
-    "topN": "82511ed68e0d11fe",
-    "startup": "ea3d4dc7eb89283d",
-    "cleanupReset": "f8d1fa423afca6a6",
-    "cleanupForceEmpty": "69efcf8e13ad19d6",
-    "topNHelperResult": "96480311f16f9f21",
-    "hierarchy": "92088bb6dae03b20",
-    "hierarchyNoDownstream": "76e121af5eb69062",
-    "noDimension": "02d8f3c733d64e6b",
-    "noMetricTable": "5d65a3f51afb0745",
-    "invalidGrouping": "0a3963dd1714d4aa",
-    "grouping_stichtag": "cb6328f98a54870e",
-    "grouping_jahr": "8ffb19a91aab2afb",
-    "grouping_jahrStichtag": "e49f322fd8ea9cfe",
-    "grouping_stichtagProJahrH": "e76645870c13a6e4",
-    "grouping_stichtagProJahrV": "a8298decb7162719"
+    "contentCreate": "93e41ec178322a59",
+    "contentCreateNoSettings": "7ba2208b5b30f7b8",
+    "dimension": "d834c10407c1f40b",
+    "visType": "a071167084a9be3a",
+    "visTypePrognose": "edbaec80e67c49f8",
+    "topN": "4270dc489419ac6c",
+    "startup": "eaf2bc4f5b78965b",
+    "cleanupReset": "97298c803aaadc11",
+    "cleanupForceEmpty": "4a55dcf080005ed2",
+    "topNHelperResult": "3a2aa7075e972c8d",
+    "hierarchy": "b29bd4415d49b740",
+    "hierarchyNoDownstream": "23b185cf0c8d66f0",
+    "noDimension": "0c2849d24b18af5d",
+    "noMetricTable": "b9609603def11a0c",
+    "invalidGrouping": "fa453fb6423100b3",
+    "grouping_stichtag": "50de00d3f3ab9767",
+    "grouping_jahr": "6f5ea96efa397d0f",
+    "grouping_jahrStichtag": "7579a2f76a7bed94",
+    "grouping_stichtagProJahrH": "87361a3040c730f8",
+    "grouping_stichtagProJahrV": "cac7bedb098da7f7"
   },
   "specDetails": {
     "noDimension": {
@@ -751,7 +751,7 @@
         "error": null
       }
     },
-    "resolveAction": "c3656a7d915f7ff4",
+    "resolveAction": "1efacb3348462c32",
     "resolveActionShape": {
       "type": "widgetTopN/resolveRequested",
       "widgetId": "w1",
@@ -814,7 +814,7 @@
       }
     },
     "resolveActionDataConfig": "5931de2b3dd8679e",
-    "resolveActionConfig": "2814ebec88cc2162",
+    "resolveActionConfig": "a643072b11c0a017",
     "dispatchRejectsCoded": {
       "prerequisiteFailed": true,
       "kind": "topN",
@@ -1579,7 +1579,7 @@
         [
           "buildPlan",
           {
-            "spec": "d5c71376046c488f",
+            "spec": "87455a22207820fa",
             "reason": "dimension",
             "helperTableResult": null
           }
@@ -1729,7 +1729,7 @@
         [
           "buildPlan",
           {
-            "spec": "d5c71376046c488f",
+            "spec": "87455a22207820fa",
             "reason": "dimension",
             "helperTableResult": null
           }
@@ -1883,7 +1883,7 @@
         [
           "buildPlan",
           {
-            "spec": "56736ad5cda08c6b",
+            "spec": "f6b9e102d2530648",
             "reason": "startup",
             "helperTableResult": null
           }
@@ -2033,7 +2033,7 @@
         [
           "buildPlan",
           {
-            "spec": "22f9e4bc4bd03aa5",
+            "spec": "338f91e90d4d5988",
             "reason": "topN",
             "helperTableResult": {
               "ok": true,
@@ -2142,7 +2142,7 @@
         [
           "buildPlan",
           {
-            "spec": "f9b79cf40d02d50c",
+            "spec": "dbb5b363ec8be67c",
             "reason": "cleanup",
             "helperTableResult": null
           }
@@ -2198,7 +2198,7 @@
         [
           "buildPlan",
           {
-            "spec": "c7b44fe02effc17e",
+            "spec": "0f605cb0fa34a850",
             "reason": "cleanup",
             "helperTableResult": null
           }
@@ -2326,7 +2326,7 @@
         [
           "buildPlan",
           {
-            "spec": "28e52c39f0073d50",
+            "spec": "d8db4ac89e7e969b",
             "reason": "dimension",
             "helperTableResult": null
           }
@@ -2384,7 +2384,7 @@
         [
           "buildPlan",
           {
-            "spec": "28e52c39f0073d50",
+            "spec": "d8db4ac89e7e969b",
             "reason": "dimension",
             "helperTableResult": null
           }
@@ -2425,9 +2425,9 @@
     "applyAborts": {
       "result": {
         "ok": false,
-        "stale": true,
         "widgetId": "w1",
         "opSeq": 1,
+        "stale": true,
         "status": "aborted"
       },
       "log": [
@@ -2465,7 +2465,7 @@
         [
           "buildPlan",
           {
-            "spec": "28e52c39f0073d50",
+            "spec": "d8db4ac89e7e969b",
             "reason": "dimension",
             "helperTableResult": null
           }
@@ -2547,7 +2547,7 @@
         [
           "buildPlan",
           {
-            "spec": "28e52c39f0073d50",
+            "spec": "d8db4ac89e7e969b",
             "reason": "dimension",
             "helperTableResult": null
           }
@@ -2598,7 +2598,7 @@
         [
           "buildPlan",
           {
-            "spec": "09297ac29813d3da",
+            "spec": "d0cc192c3791ffc7",
             "reason": "cleanup",
             "helperTableResult": null
           }
@@ -2676,7 +2676,7 @@
         [
           "buildPlan",
           {
-            "spec": "28e52c39f0073d50",
+            "spec": "d8db4ac89e7e969b",
             "reason": "dimension",
             "helperTableResult": null
           }
@@ -2703,7 +2703,7 @@
         [
           "buildPlan",
           {
-            "spec": "09297ac29813d3da",
+            "spec": "d0cc192c3791ffc7",
             "reason": "cleanup",
             "helperTableResult": null
           }
