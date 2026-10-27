@@ -100,13 +100,18 @@ define([
     return settingsButton.removeEventListener.bind(settingsButton, "click", handler, true);
   }
 
-  function stampFocusPanelVisType(_panelRoot, _sourcePanel) {
-    var visType = _sourcePanel.getAttribute(PANEL_VIS_TYPE_ATTR);
-    if (visType) {
-      _panelRoot.setAttribute(PANEL_VIS_TYPE_ATTR, visType);
+  function copyPanelAttribute(_panelRoot, _sourcePanel, _attr) {
+    var value = _sourcePanel.getAttribute(_attr);
+    if (value) {
+      _panelRoot.setAttribute(_attr, value);
     } else {
-      _panelRoot.removeAttribute(PANEL_VIS_TYPE_ATTR);
+      _panelRoot.removeAttribute(_attr);
     }
+  }
+
+  function stampFocusPanelVisType(_panelRoot, _sourcePanel) {
+    copyPanelAttribute(_panelRoot, _sourcePanel, PANEL_VIS_TYPE_ATTR);
+    copyPanelAttribute(_panelRoot, _sourcePanel, _settingsSelectors.panelDimensionAttr);
   }
 
   function appendFocusUnmaximizeButton(_KDB, panelRoot) {
