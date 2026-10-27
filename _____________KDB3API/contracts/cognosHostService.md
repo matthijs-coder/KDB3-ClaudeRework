@@ -231,7 +231,8 @@ _KDB.services.cognosHost.dashboard = {
   getFileName: getFileName,                       // () -> Outcome<string|null>
   getDashboardVersion: getDashboardVersion,       // () -> Outcome<string|null>
   getEnvironmentSource: getEnvironmentSource,     // () -> Outcome<string|null>
-  getBoardId: getBoardId,                         // () -> Outcome<string|null>
+  getBoardId: getBoardId,                         // () -> Outcome<string|null>  (no share caller since 2026-10-27; kept)
+  getPathRef: getPathRef,                         // () -> Outcome<string|null>  (unencoded content path for the share link)
   getDashboardBiBaseUrl: getDashboardBiBaseUrl,   // () -> Outcome<string|null>
   getLanguage: getLanguage,                       // () -> Outcome<string|null>
   getUserName: getUserName,                       // () -> Outcome<string|null>
@@ -371,7 +372,7 @@ Inner ring `core/cognosAPI/` is the allowed and required caller of `__getDashboa
 - F1c (2026-08-30) ring 1 additionally uses `resolveWidgetsHostApi` / `_KDB.cognosAPI.widgets.getContent`, then host `getSelections` / `on`, from the **visualization** facet. It does **not** call the widgets facet and does **not** add `_KDB.cognosAPI.visualization.getSelections`. Flattened DTOs only; live content/event handles never leave ring 1.
 - Slice 4 ring 1 additionally calls `_KDB.cognosAPI.dataQuery` from `facets/dataQuery/` (`hostAccess.js` `resolveHostApi`). Flattening (`core/services/cognosHost/facets/dataQuery/rows.js` (`flattenQueryRows`)) lives in ring 1. Owners no longer call `getDataQueryResult`.
 - Slice 5 ring 1 additionally calls `_KDB.cognosAPI.dashboard` (metadata + uiState subscribe; not `resolveCaptureRoot`), `_KDB.cognosAPI.glassMessages` (`messagesApi`), and `_KDB.cognosAPI.tabs` from the tabs facet. Live handles, spec arrays and DOM nodes never leave ring 1.
-- Dashboard share primitives: ring 1 additionally calls `_KDB.cognosAPI.dashboard.getBoardId` and `.getDashboardBiBaseUrl`. The host `getDashboardInfo` object stays inside the inner wrapper. Empty/missing **boardId** and unavailable **bi-base** (`document.location` missing) are `ok` + `data: null`.
+- Dashboard share primitives: ring 1 additionally calls `_KDB.cognosAPI.dashboard.getPathRef` (live caller: the share click), `.getDashboardBiBaseUrl` and `.getBoardId` (kept, no share caller). The host `getDashboardInfo` object stays inside the inner wrapper; the `searchPath` → `pathRef` conversion is inner-ring (`cognosAPI-dashboardPathRef-contractdelta.md`). An unresolvable path, empty/missing **boardId** and unavailable **bi-base** (`document.location` missing) are `ok` + `data: null`; an inner throw is `failed` / `DASHBOARD_READ_FAILED`.
 - No new `window.top` globals. If one is ever needed it must follow the existing stamp pattern (`__kdbOwner` + restorable previous), like `installGetKDB` and the frozen writeback bridge.
 
 ## 9. Folder Layout
@@ -471,5 +472,6 @@ core/services/cognosHost/
 | `2026-09-08` | `Implementing` (WP6 home dialog) | PO KEEP + implement captain | New `dataSources.hasErrorDataSource`. Dashboard `replaceWithBiHomePerspective` + `openAppView`. D4 caller: `core/homeDialog/`. Layer-1 `dataSources.js` unchanged. |
 | `2026-09-08` | `Approved` (WP6 settlement + Cognos green) | Captain after dual review + PO | `hasErrorDataSource` is a settlement poll (150ms/15s; first error wins). PROGRAM **6** green. |
 | `2026-10-06` | `Implementing` (pageSurface page size after canvas-ready) | PO live green | `setCanvasPageSize` names `pageSizeWidth` / `pageSizeHeight` only; numeric/px skip-if-equal. pageSurface D4 caller of existing `whenCanvasReady` (unbounded). No new facet/op. |
+| `2026-10-27` | `Implementing` (dashboard `getPathRef`) | Coordinator per PO handover | `getPathRef` on the **existing** `dashboard` facet (one name in `VALUE_GETTER_NAMES`). D4 live caller: share click. Authority: `cognosHost-dashboardPathRef-contractdelta.md`. `getBoardId` stays. |
 
 > When implementation diverges from this contract, stop, present the deviation, update the contract, and resume per the synchronisation clause in `feature-structure.mdc`.

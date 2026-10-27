@@ -3,7 +3,7 @@
 > Compact chrome module for dashboard sharing (legacy `exportShareFunctions`).
 > No production code until this contract is **Approved**.
 > Incoming URL restore is **not** this module — see `writeback-urlParameterId-contractdelta.md`.
-> Host `boardId` / `/cognos/bi/` base — see `cognosAPI-dashboardShare-contractdelta.md` and `cognosHost-dashboardShare-contractdelta.md`.
+> Outbound link (live law since 2026-10-27): native query with the live `pathRef` — see [`shareControls-pathRef-link-contractdelta.md`](shareControls-pathRef-link-contractdelta.md), [`cognosAPI-dashboardPathRef-contractdelta.md`](cognosAPI-dashboardPathRef-contractdelta.md), [`cognosHost-dashboardPathRef-contractdelta.md`](cognosHost-dashboardPathRef-contractdelta.md). The `/cognos/bi/` base is still `getDashboardBiBaseUrl` (`_archive/cognosAPI-dashboardShare-contractdelta.md`); the hash link with `id`/`objRef` in the archived share deltas is history.
 
 ---
 
@@ -13,7 +13,7 @@
 **Authoring AI:** Cursor Grok 4.6, 2026-08-28
 **Reviewed by:** PO-by-proxy 2026-08-29 (fresh army green = PO ok)
 **Related rules:** `kdb-object.mdc`, `state.mdc`, `runtime.mdc`, `module-public-api.mdc`, `events.mdc`, `feature-structure.mdc`, `naming.mdc`, `error-handling.mdc`, `dom.mdc`, `amd.mdc`.
-**Related contracts:** `pdfExportControls.md`, `wienKiControls.md`, `messageService.md`, `writeback.md`, `writeback-urlParameterId-contractdelta.md`, `cognosHostService.md`, `cognosHost-dashboardShare-contractdelta.md`, `cognosAPI-dashboardShare-contractdelta.md`.
+**Related contracts:** `pdfExportControls.md`, `wienKiControls.md`, `messageService.md`, `writeback.md`, `writeback-urlParameterId-contractdelta.md`, `cognosHostService.md`, `shareControls-pathRef-link-contractdelta.md`, `cognosHost-dashboardPathRef-contractdelta.md`, `cognosAPI-dashboardPathRef-contractdelta.md` (history: `cognosHost-dashboardShare-contractdelta.md`, `cognosAPI-dashboardShare-contractdelta.md`).
 
 ---
 
@@ -31,9 +31,9 @@
 | Dialog | `_KDB.services.message.showCopyable` **plus optional declarative `toggle`** (messageService). No Glass, no custom share portal, no clipboard reimplementation. |
 | Toolbar host | Cognos action bar `.leading` (same as PDF/history). Not `sharePluginContainer`. |
 | User-facing copy | German only, under `_KDB.config.labels.de.shareControls`. |
-| Implementation gate | Same slice as the three Draft deltas below. Click against today's bridge/facet is a hard break. |
+| Open family | Native Cognos query (`biBase?perspective=dashboard&pathRef=…`) with the live content path; never `id`/`objRef`, never `#` (`shareControls-pathRef-link-contractdelta.md` §2) |
 
-`readSelectedParameterSet`, `getBoardId` and `getDashboardBiBaseUrl` are **not** in production today. Implementation of this module starts only when these drafts are **Approved** and their methods exist in `KDB3/js/**` in the **same slice**: `writeback-urlParameterId-contractdelta.md`, `cognosHost-dashboardShare-contractdelta.md`, `cognosAPI-dashboardShare-contractdelta.md` (D4: do not publish the facet ops with zero callers).
+History: the module was built in 2026-08 with `readSelectedParameterSet`, `getBoardId` and `getDashboardBiBaseUrl` in one slice (`writeback-urlParameterId-contractdelta.md`, archived `cognosHost-dashboardShare-contractdelta.md` / `cognosAPI-dashboardShare-contractdelta.md`). Since 2026-10-27 the click reads `getPathRef` instead of `getBoardId`; the `getBoardId` facet getter stays published but has no share caller.
 
 ---
 
@@ -93,7 +93,8 @@ _KDB.api.shareControls = {
 - No internal `_KDB.state` writers.
 - Cross-module reads this module **consumes** (after the implementation gate):
   - `_KDB.services.writebackBridge.readSelectedParameterSet()` → `{ id: string|null, label: string|null }` **as-is**. Sentinels, missing `#selectParameterSet`, and `::`-sanitize are **bridge-owned** (`writeback-urlParameterId-contractdelta.md` §5.2). This module does not reimplement them.
-  - stamped `dashboardFacet.getBoardId()` / `getDashboardBiBaseUrl()` → `Outcome<string|null>`
+  - stamped `dashboardFacet.getPathRef()` / `getDashboardBiBaseUrl()` → `Outcome<string|null>`
+  - URL fallback `toolbarControls/readUrlPathRef.js` (`readUrlPathRef`, `readUrlSubView`; navigation name then `location.href`, query then hash)
 
 ---
 
@@ -125,8 +126,8 @@ If `writebackBridge.readSelectedParameterSet`, `message.showCopyable` / `showAle
 
 - Toolbar host query: `_KDB.elements.selectors.toolbar.actionBarLeadingSelector` (document-root wait is an approved `dom.mdc` exception, same as PDF; record it here).
 - Second document-root exception: inbound chrome uses `document.querySelector(_KDB.elements.selectors.root.dashboardClassHost)` (`#main`). Not `getElementById("main")`. `document.location.href` parse is URL, not a DOM exception.
-- `_KDB.runtime.shareControls.dashboardFacet.getBoardId()`
-- `_KDB.runtime.shareControls.dashboardFacet.getDashboardBiBaseUrl()`
+- `_KDB.runtime.toolbarControls.dashboardFacet.getPathRef()` (live content path; `getDashboardInfo().searchPath` stays in the inner ring)
+- `_KDB.runtime.toolbarControls.dashboardFacet.getDashboardBiBaseUrl()`
 - No mirror writes. No `__getDashboardAPI`. No `_KDB.cognosAPI.*`.
 - Native Cognos `#com.ibm.ca.collaboration.sharePluginContainer` stays hidden by `cognosButtons.css` when it is an action-bar `.pluginContainer` (2026-09-03: `[id="com.ibm.bi.dashboard.toolbars.actionBar"] .pluginContainer`, not `[id$="PluginContainer"]` — [cognosButtons-allowlist-invert-contractdelta.md](./_archive/cognosButtons-allowlist-invert-contractdelta.md) §3.2). This button must **not** reuse that id or the `com.ibm.kdb.share*` legacy ids. **Do not wait for or insert into** that container. Host is **only** `toolbar.actionBarLeadingSelector`.
 - Use `data-kdb-share-controls="true"` / `data-kdb-share-button="true"` and class `.kdb-share-controls` (PDF/history `="true"` pattern; presence selectors still match, but do not invent a second attribute style).
@@ -146,6 +147,7 @@ KDB3/js/dashboard/controls/
     iconHref.js       # toolbar luminance -> icon href (same formula as pdf)
     shareButton.js    # share definition: dashboardFacet stamp (onRegister), click handler, applyReadOnlyChrome API
     shareLink.js      # buildShareDashboardLink, openShareCopyDialog, read-only token read, applyShareReadOnlyChrome
+    readUrlPathRef.js # readUrlPathRef, readUrlSubView: outbound fallback from the current URL (own A/B ladder)
 ```
 
 CSS: disk file `KDB3/css/customButtons/toolbarControls.css` (button chrome plus the `#main.kdb-share-read-only` hide-set); `cssHrefList.js` entry **`./v1/ext/KDB3/css/customButtons/toolbarControls.css`** (do not copy the repo-relative disk path into the href list).
@@ -176,8 +178,8 @@ Bootstrap (`KDB.js`, allowed 500-line wiring exception):
 ### 10.2 Click (outbound share)
 
 1. Call `_KDB.services.writebackBridge.readSelectedParameterSet()` and use `{ id, label }` as-is. `id == null` → URL without `parameterId` (not an error). Do not re-apply sentinels or `::` sanitize here.
-2. `getBoardId` / `getDashboardBiBaseUrl`. Treat both primitives with the **same** predicate: `ok === true` and non-empty string `data`. Facet `ok` + `data: null` (inner `null`, e.g. location unavailable) is **missing**, not success — a `!ok`-only check would skip the alert and concatenate a broken URL. If **boardId** fails that predicate: `showAlert({ title: boardIdMissingTitle, message: boardIdMissingMessage, severity: "error" })`; no dialog. If boardId is present and **bi-base** fails that predicate: `showAlert({ title: biBaseMissingTitle, message: biBaseMissingMessage, severity: "error" })`; no dialog. Pass an options object, not a string (live PDF/tabs).
-3. Build **two** URLs: concatenate **`biBase + "#" + params.toString()`**. Hash payload is the raw `URLSearchParams` string. **No** `{` `}` around the hash. Keys: `perspective=dashboard`, `action=view`, `mode=dashboard`, `id=<boardId>`, `objRef=<boardId>`, optional `parameterId` **only** when `id != null`, `parameterLabel` **always** (`URLSearchParams`; spaces as `+`). `parameterLabel` value is bridge `label` when non-empty, else `emptyParameterLabel`. When `isKdbReadOnly === true`, **after** `parameterLabel` set readable `readOnly=1` (~12 extra characters). Off = no extra key.
+2. Resolve the live path, then the base (`shareControls-pathRef-link-contractdelta.md` §4). Present = `ok === true` and non-empty string `data` for every facet primitive; facet `ok` + `data: null` is **missing**, not success. Path: `getPathRef()`; if not present, `readUrlPathRef()` (non-empty string wins); still empty → `showAlert({ title: pathRefMissingTitle, message: pathRefMissingMessage, severity: "error" })`, no dialog, no `getBoardId`, no ID link. Then `getDashboardBiBaseUrl()`; not present → `showAlert({ title: biBaseMissingTitle, message: biBaseMissingMessage, severity: "error" })`, no dialog. `subView` = `readUrlSubView()` only when a non-empty string. Pass an options object to `showAlert`, not a string (live PDF/tabs).
+3. Build **two** URLs: **`biBase + "?" + params.toString()`** (one `URLSearchParams` encode; no `#`). Set order: `perspective=dashboard`, `pathRef=<live path>`, `action=view`, `mode=dashboard`, `subView` only when non-empty, `nav_filter=true`, `parameterId` **only** when `id != null`, `parameterLabel` **always** (spaces as `+`), and when `isKdbReadOnly === true`, **after** `parameterLabel`, `readOnly=1`. `parameterLabel` value is bridge `label` when non-empty, else `emptyParameterLabel`. **Never** `id` or `objRef`.
 4. Dialog title from §10.3 keys (do not hardcode German here): with id → `dialogTitleWithSet` replacing `{label}` (if `id != null` and `label` is empty, still `dialogTitleWithSet` and substitute `emptyParameterLabel`; do not print `"undefined"`); without id → `dialogTitleWithoutSet`.
 5. `_KDB.services.message.showCopyable({ title, message: "", copyText: readOnlyUrl, toggle: { label: readOnlyToggleLabel, title: readOnlyToggleTitle, isChecked: true, copyTextChecked: readOnlyUrl, copyTextUnchecked: editUrl } })` via `openShareCopyDialog` (not the controller). Copy/close labels use messageService German defaults.
 
@@ -197,7 +199,9 @@ No mutation of `location` / `history`. The URL is a string for the dialog only.
 `dialogTitleWithoutSet` embeds the same German as `emptyParameterLabel`. Changing only one of those two keys would desync the without-set title; keep them in lockstep (or later compose the title from `emptyParameterLabel` — not required this slice).
 | `emptyParameterLabel` | `leeres Dashboard` |
 | `boardIdMissingTitle` | `Teilen nicht möglich` |
-| `boardIdMissingMessage` | `Die Dashboard-Kennung konnte nicht ermittelt werden. Bitte das Dashboard schließen und erneut öffnen.` |
+| `boardIdMissingMessage` | `Die Dashboard-Kennung konnte nicht ermittelt werden. Bitte das Dashboard schließen und erneut öffnen.` (kept; unused by the click since 2026-10-27) |
+| `pathRefMissingTitle` | `Teilen nicht möglich` |
+| `pathRefMissingMessage` | `Der Dashboard-Pfad konnte nicht ermittelt werden. Bitte das Dashboard über das Cognos-Menü öffnen und erneut teilen.` |
 | `biBaseMissingTitle` | `Teilen nicht möglich` |
 | `biBaseMissingMessage` | `Die Dashboard-Adresse konnte nicht ermittelt werden. Bitte das Dashboard schließen und erneut öffnen.` |
 | `readOnlyToggleLabel` | `Nur Lesen` |
@@ -227,7 +231,7 @@ Do not invent Dutch or English UI strings. `{label}` in `dialogTitleWithSet` is 
 
 None for PO. Remaining **implementation blocker** (not a product question):
 
-- Same-slice production of `readSelectedParameterSet`, `getBoardId`, `getDashboardBiBaseUrl`. Icon policy is closed: `share.png` + luminance invert or tiny derived ARGB copies; do not ship the AI pair.
+- None. (Closed: same-slice production of `readSelectedParameterSet`, `getBoardId`, `getDashboardBiBaseUrl`, 2026-08; `getPathRef` replaced `getBoardId` in the click, 2026-10-27.) Icon policy is closed: `share.png` + luminance invert or tiny derived ARGB copies; do not ship the AI pair.
 
 ---
 
@@ -243,3 +247,4 @@ None for PO. Remaining **implementation blocker** (not a product question):
 | `2026-08-29` | `Approved` | PO-by-proxy (captain; handoff: fresh army green = PO ok) | [shareControls third pass](e625ba9e-1768-4eae-9527-1b7212638ec6) merge-ready. Package green with writeback + Cognos. |
 | `2026-09-04` | `Approved` (read-only link) | Captain after dual review | One-liners from `shareControls-read-only-link-contractdelta.md` §9: pad A toggle, dual URL + token, inbound add/remove class. |
 | `2026-09-13` | `Approved` (WienKI sibling) | PO vastenburg / coordinator | Leftmost set += WienKI; visual Share \| WienKI \| PDF \| History; mount after WienKI. |
+| `2026-10-27` | `Approved` (pathRef link) | Coordinator per PO handover | §0/§5/§8/§9/§10.2/§10.3 patched from `shareControls-pathRef-link-contractdelta.md`: native query with live `pathRef`, `nav_filter=true`, optional `subView`; no `id`/`objRef`/`#`; German `pathRefMissing*` alert. |
