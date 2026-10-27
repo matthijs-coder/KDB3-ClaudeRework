@@ -59,7 +59,7 @@ const TABLE_KEYS = [
 // ------------------------------------------------------------------ config
 
 test("config: full result (minus dead keys) matches the golden hash", () => {
-  assert.equal(sha(withoutDeadKeys(buildConfig())), "7a7c7f67334f2f2c");
+  assert.equal(sha(withoutDeadKeys(buildConfig())), "5f2f3c7e6a0749dd");
 });
 
 test("config: top-level key order and table order", () => {

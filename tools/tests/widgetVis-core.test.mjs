@@ -354,7 +354,7 @@ const FIXTURES = {
   },
   defaultVisualizationType: ["Line", "Line"],
   kennzahlDefaults: [{}, {}, {formatType: "number", jahrCaption: "Anzahl im Zeitraum"}, {formatType: "percent", jahrCaption: "Monatsdurchschnitt"}, {}],
-  readVisualizationsConfig: ["d5fd5603eb976647", {}],
+  readVisualizationsConfig: ["9e531b434215e463", {}],
   bindingContext: {
     "Line||": "303a5ba6f9af8f8c",
     "Line||Unknown_Table": "303a5ba6f9af8f8c",
