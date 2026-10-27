@@ -11,6 +11,7 @@ define([
   "./binding/dienststelleChanged.js",
   "./topN/gate.js",
   "./topN/filtersConfirmed.js",
+  "./lineTooltip.js",
   "./render/displayOptions.js",
   "./focus/maximizeToggle.js",
   "../../../core/utils/kit/data.js",
@@ -29,6 +30,7 @@ define([
   _dienststelleChanged,
   _topNGate,
   _filtersConfirmed,
+  _lineTooltip,
   _displayOptions,
   _maximizeToggle,
   _data,
@@ -108,6 +110,7 @@ define([
         _visContext.ensureVisState(_KDB);
         _visRuntime.initializeRuntime(_KDB).enableDrillthrough = (_mountOptions || {}).enableDrillthrough !== false;
         _filtersConfirmed.subscribe(_KDB);
+        _lineTooltip.install(_KDB);
         instance.dispatchInternal({ type: TYPES.MOUNT_STARTED });
         instance.dispatchInternal({ type: TYPES.MOUNT_SUCCEEDED });
         return true;

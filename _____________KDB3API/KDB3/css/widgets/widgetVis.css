@@ -352,34 +352,11 @@
     justify-content: flex-start;
 }
 
-/*
- * Hide aggregated values in Cognos line/Prognose tooltips.
- * Applies to: hover over legend items; hover over line segments.
- * Preserves: tooltips on individual data points; legend labels and measure names.
- * Legend is a descendant of the widget content, so legend hover is limited to
- * Line (`com.ibm.vis.rave2line`) and Prognose (`com.ibm.vis.custom.prognoseyearlinechart`).
- * Tooltip nodes (`.labels`) can sit outside the widget, so the hide still uses `body:has`.
- * Prognose custom-vis source is not in this repo; `path.line-element` / `path.point-element` on Prognose are unconfirmed.
- */
-
-/* Legend hover */
-body:has(.liveWidgetContent[walkme-data-id="com.ibm.vis.rave2line"] .Legend .Swatch li:hover)
-.labels .labelEntry .labelValue,
-body:has(.liveWidgetContent[walkme-data-id="com.ibm.vis.custom.prognoseyearlinechart"] .Legend .Swatch li:hover)
-.labels .labelEntry .labelValue,
-
-/* Line hover, excluding data-point hover */
-body:has(
-    .liveWidgetContent[walkme-data-id="com.ibm.vis.rave2line"]
-    path.line-element:hover
-):not(:has(path.point-element:hover))
-.labels .labelEntry .labelValue,
-body:has(
-    .liveWidgetContent[walkme-data-id="com.ibm.vis.custom.prognoseyearlinechart"]
-    path.line-element:hover
-):not(:has(path.point-element:hover))
-.labels .labelEntry .labelValue {
-    display: none !important;
+/* Aggregated Cognos tooltip values on Line/Prognose; class toggled by widgetVis/lineTooltip.js */
+body.kdb-hide-aggregate-tooltip .popover-content .labels .labelValue {
+    visibility: hidden !important;
+    transition: none !important;
+    animation: none !important;
 }
 
 
