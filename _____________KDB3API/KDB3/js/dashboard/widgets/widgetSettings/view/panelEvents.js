@@ -31,9 +31,7 @@ define([
     const newFrame = _history.buildDropdownSelectionFrame(panel, dropdown);
     if (!newFrame || newFrame.kind !== "backgroundColor") {
       // History is pushed only after a confirmed apply result, so a failed or aborted apply leaves no entry.
-      if (!_history.queueCoupledTopNClearHistory(_KDB, panel, dropdown, intentResult, oldFrame, newFrame)) {
-        _history.pushHistoryAfterConfirmedApply(_KDB, intentResult, oldFrame, newFrame);
-      }
+      _history.pushHistoryAfterConfirmedApply(_KDB, intentResult, oldFrame, newFrame);
     }
     if (KEEP_OPEN_KINDS.indexOf(dropdown.getAttribute(_selectors.dropdownKindAttr) || "") < 0) {
       _dropdownUi.closeDropdowns(panel);

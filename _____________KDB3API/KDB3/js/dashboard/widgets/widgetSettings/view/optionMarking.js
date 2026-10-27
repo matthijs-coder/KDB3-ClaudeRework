@@ -118,9 +118,18 @@ define([
     markPanelOption(panel, "visualization", visTypeKey, ".KDB_visualizationsContainer");
     markDimensionAndTopN(panel, record);
     clearIllegalGrouping(record, _KDB);
-    hideDisallowedGroupingRows(panel, (record && record.visType) || visTypeKey, _KDB);
+    var groupingVisType = (record && record.visType) || visTypeKey;
+    hideDisallowedGroupingRows(panel, groupingVisType, _KDB);
+    var focusPanel = widgetId ? document.querySelector(_selectors.byAttr(_selectors.focusPanelRootAttr, widgetId)) : null;
+    if (focusPanel) {
+      hideDisallowedGroupingRows(focusPanel, groupingVisType, _KDB);
+    }
     if (record) {
-      markPanelOption(panel, "grouping", _visTypeRules.isGrain(record.grouping) ? record.grouping : "inherit", ".KDB_groupingContainer");
+      var groupingKey = _visTypeRules.isGrain(record.grouping) ? record.grouping : "inherit";
+      markPanelOption(panel, "grouping", groupingKey, ".KDB_groupingContainer");
+      if (focusPanel) {
+        markPanelOption(focusPanel, "grouping", groupingKey, ".KDB_groupingContainer");
+      }
     }
   }
 
