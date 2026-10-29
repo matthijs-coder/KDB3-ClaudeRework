@@ -70,6 +70,17 @@ test("readLoadedProperty and isDeveloperModeEnabled read _KDB.properties without
   assert.equal(selectors.isDeveloperModeEnabled(null), false);
 });
 
+test("isMultiStelleDefaultEnabled is true only for the boolean true on _KDB.properties", () => {
+  const selectors = load(consoleSpy());
+  assert.equal(selectors.isMultiStelleDefaultEnabled({ properties: { KDBMultiStelleDefaultToggle: true } }), true);
+  for (const value of [false, "true", 1, undefined, null]) {
+    assert.equal(selectors.isMultiStelleDefaultEnabled({ properties: { KDBMultiStelleDefaultToggle: value } }), false, String(value));
+  }
+  assert.equal(selectors.isMultiStelleDefaultEnabled({ properties: { KDBHideWidgetsToggle: true } }), false);
+  assert.equal(selectors.isMultiStelleDefaultEnabled({}), false);
+  assert.equal(selectors.isMultiStelleDefaultEnabled(null), false);
+});
+
 test("subscribePropertyChange registers on the content adapter and returns the matching off()", () => {
   const spy = consoleSpy();
   const selectors = load(spy);

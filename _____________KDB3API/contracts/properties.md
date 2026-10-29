@@ -106,7 +106,8 @@ _KDB.properties = {
   KDBReadyToggle: false,
   KDBPlayLoadingImageToggle: false,
   KDBLoadingImageTransparentToggle: false,
-  KDBHideWidgetsToggle: false
+  KDBHideWidgetsToggle: false,
+  KDBMultiStelleDefaultToggle: false
 };
 ```
 
@@ -167,7 +168,7 @@ Post-disposal behavior is root-owned. The bootstrap-local controller should stil
 
 **For core bootstrap module:**
 
-- Deliberate public read methods: none.
+- Published read facet: `selectors.js` (`readPropertyValue`, `readToggleProperty`, `readLoadedProperty`, `isDeveloperModeEnabled`, `isMultiStelleDefaultEnabled`, `subscribePropertyChange`). `KDBMultiStelleDefaultToggle` is read by dienststelle through `isMultiStelleDefaultEnabled` (see `contracts/dienststelle.md` §10).
 - Consumers read `_KDB.properties.<key>` after bootstrap registration has run.
 
 **Internal writers / loaders:**
@@ -255,6 +256,7 @@ KDB3/js/core/properties/
   index.js                # registerProperties: label merge, controller { loadProperties, subscribePropertyChanges, applyDeveloperMode, destroy }, _KDB.api.properties.applyDeveloperMode
   propertyDefinitions.js  # object and toggle property id -> _KDB.properties runtime key tables, developer-mode labels
   loadProperties.js       # read + parse + normalise property values into _KDB.properties
+  selectors.js            # read facet: readPropertyValue, readToggleProperty, readLoadedProperty, isDeveloperModeEnabled, isMultiStelleDefaultEnabled, subscribePropertyChange
   developerMode.js        # developer-mode class, KDBHideWidgetsToggle handling, property-change subscription
   hideDataHint.js         # personal "hide data" hint badge
 ```
@@ -303,5 +305,6 @@ Rationale:
 | 2026-05-16 | `Draft` created | GPT-5.5 | Direct-port CP-1 draft; Q1-Q10 awaiting user decision. |
 | 2026-05-16 | `Draft` updated | GPT-5.5 | Added property-change host listener scope; Q1-Q13 awaiting user decision. |
 | 2026-09-10 | Entwicklermodus HideData hint | PO vastenburg | `applyDeveloperMode` sync-calls `applyPersonalKdbHideDataHint` on leftover `personal_kdb`. Authoring untouched. Delta: `properties-personal-kdb-hidedata-hint-contractdelta.md`. |
+| 2026-10-29 | Toggle `KDBMultiStelleDefaultToggle` | PO vastenburg | New ToggleButton in spec.json (additive, unset => false); TOGGLES entry; selector `isMultiStelleDefaultEnabled`. Consumer: dienststelle defaults. |
 
 > When implementation diverges from the contract, stop, present the deviation, update this contract, and resume per the synchronisation clause in `feature-structure.mdc`.

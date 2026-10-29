@@ -34,7 +34,7 @@ KDB3 does not replace Cognos: it drives Cognos through the dashboard API, and Co
 
 ### 2.1 `spec.json`
 
-`KDB3/spec.json` is the extension manifest. It declares one dashboard content type: `collectionItems[0]` with `id` and `name` `KDB3` (menu entry and `.zip` name) and `type` `KDB3Widget` (the CSS class on the widget element); `renderer.class` `v1/ext/KDB3/js/KDB` (AMD id of `KDB3/js/KDB.js`); `renderer.dependencies` `Dashboard.Canvas`, `UserProfile`, `Properties`, `Dashboard.API` (host features injected as `options.features[...]`); `renderer.runtimeDependencies` `DataQueryExecution` (to read query results); and a `propertyList` of 16 text inputs and 4 toggles (2.4).
+`KDB3/spec.json` is the extension manifest. It declares one dashboard content type: `collectionItems[0]` with `id` and `name` `KDB3` (menu entry and `.zip` name) and `type` `KDB3Widget` (the CSS class on the widget element); `renderer.class` `v1/ext/KDB3/js/KDB` (AMD id of `KDB3/js/KDB.js`); `renderer.dependencies` `Dashboard.Canvas`, `UserProfile`, `Properties`, `Dashboard.API` (host features injected as `options.features[...]`); `renderer.runtimeDependencies` `DataQueryExecution` (to read query results); and a `propertyList` of 16 text inputs and 5 toggles (2.4).
 
 `spec.json` is part of the **frozen external contract**: change it only with a written note and review, and re-upload the extension afterwards.
 
@@ -70,6 +70,7 @@ The author pastes configuration into the widget's property fields (paste sources
 | `KDBReadyToggle` | same; boot gate: when off, boot stops before `startModules` (registration, including authoring and CSS, already ran) |
 | `KDBLoadingImageToggle`, `KDBLoadingImageTransparentToggle` | `KDBPlayLoadingImageToggle`, `KDBLoadingImageTransparentToggle` (boot overlay) |
 | `KDBHideWidgetsToggle` | same; developer mode, the only live-subscribed property |
+| `KDBMultiStelleDefaultToggle` | same; read per default apply by dienststelle via `core/properties/selectors.js` (`isMultiStelleDefaultEnabled`); not subscribed. |
 
 The id-to-key table is `core/properties/propertyDefinitions.js` (`OBJECTS`, `TOGGLES`, `SUBSCRIPTIONS`). The package-bound KID/itemId map that replaces `parameterMappingId` is `core/config/mapping/parameterMap.js`; edit it when the Cognos package changes.
 
@@ -556,7 +557,7 @@ Groups: **S** Cognos smoke run needed, **P** product question for Matthijs, **T*
 | 11 T | **Frozen-contract drift** | `parameterMappingId` declared but not loaded (the real map is `core/config/mapping/parameterMap.js`); `headerWidgetPropId` loaded but not declared; duplicate `"comment"` keys in `spec.json` |
 | 12 T | **Cross-module coupling left** | Reads of `runtime.cognosHost.chromeChecks` (header, footer, toolbarHost, tabs, filterDock; `services.chrome` is the facade), `runtime.tabs.pendingPromises` and `runtime.core.domRefs`; deep imports from `widgetBase` into `tabs`; tab-scope matching duplicated in writeback, the TopN wave and singleSelect restore |
 | 13 T | **Developer mode, `readCurrentTab`** | The developer-mode toggle is not one-way (that would change the synchronous kdbControl echo); `_KDB.utils.readCurrentTab` compat versus `api.tabs.readCurrentTab` |
-| 14 T | **Hygiene leftovers** | 542 `typeof ... === "function"` guards; 74 functions over 60 lines; caller-less `cognosAPI` wrappers; per-frame `getState()` clones; facet stamps kept; `core/properties/selectors.js` and `core/utils/readHostFacet.js` are allowlisted orphans |
+| 14 T | **Hygiene leftovers** | 542 `typeof ... === "function"` guards; 74 functions over 60 lines; caller-less `cognosAPI` wrappers; per-frame `getState()` clones; facet stamps kept; `core/utils/readHostFacet.js` is an allowlisted orphan |
 | 15 T | **Behavioural limits** | `tabs/reorder` unsupported; visible tabs must be a contiguous prefix; duplicate-undo with partial widgets (`contracts/futureTodo/tab-duplicate-undo-redo-partial-widgets-2026-10-06.md`); TopN wave is best-effort; `dataSourceContext` is an unregistered stub; prototype-key hierarchy cells crash `core/utils/orgTree/` |
 | 16 T | **Other parked items** | `spec.json` drift, jsPDF 2.5 and PNG to JPEG, `jquery-ui.css` trim, unused images, a Jahr "Gesamt" CSS rule, `comments/startCreate` double dispatch (click and mousedown listeners), filterDock F-P3; `contracts/futureTodo/` holds 12 memos |
 | 17 D | **Stale lines** | `README.md` "Checks" lists only syntax, imports and kit tests; `core.mdc` PR line omits doc paths and layering; `architecture/projectStructureRules.md` still says writeback violates `core -> dashboard` (false since W11); `module-public-api.mdc`, `runtime.mdc` and `cognos-adapter.mdc` speak of Phase 2 follow-ups (those reads and stamps stay). `AGENTS.md` is current |

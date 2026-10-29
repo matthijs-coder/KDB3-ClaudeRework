@@ -1,6 +1,8 @@
 // Golden tests for dashboard/filters/dienststelle/effects (WS-I Task B).
 // Run: node --test tools/tests/dienststelle-effects.test.mjs
 // Expected literals were captured from the pre-restructure modules on main.
+// File size (>800 lines): one shared fake-host harness (makeFlowHost / runFlow) serves all dienststelle effect flows,
+// so the flow and Multi-Stelle default tests stay together instead of duplicating that harness per file.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import path from 'node:path';
@@ -420,17 +422,23 @@ test('T10 view sync: non-deferred sources sync immediately', () => {
 });
 
 const PAGE_SCOPES = ['tab0_tabpanel', 'tab1_tabpanel'];
-const ITEM_ID = '[Org_Source].[Dienststelle].[Dienststelle].[Dienststelle_BW]';
+const itemIdOf = (filterKey) => '[Org_Source].[Dienststelle].[Dienststelle].[' + filterKey + ']';
 const DEFAULT_ROW = [{ dienststelle: { d: 'Default Org', u: '[Org_Source].[Dienststelle].&[0]' } }];
 
 const ok = (data) => ({ ok: true, data });
+const startupContext = (sicht) => ({ activeSichtValue: sicht, source: 'startup', observedAt: 1 });
+const userClearContext = (sicht) => ({
+  activeSichtValue: sicht, source: 'user', commitFromUser: true, allowDefaulting: true,
+  commitSourceScope: 'global', commitSourceWasClear: true, filterScope: 'global', observedAt: 3
+});
 
-function makeFlowHost({ global = null, pages = {}, readyLifecycle = 'ready' } = {}) {
+function makeFlowHost(options = {}) {
+  const { global = null, pages = {}, readyLifecycle = 'ready', properties, readRows, filterKey = 'Dienststelle_BW', failWrite } = options;
   const store = { global, pages: Object.assign({}, pages) };
   const writes = [];
   const messages = [];
   const widgetEvents = [];
-  const descriptor = (rawScopeId) => ({ itemName: 'Dienststelle_BW', itemId: ITEM_ID, rawScopeId });
+  const descriptor = (rawScopeId) => ({ itemName: filterKey, itemId: itemIdOf(filterKey), rawScopeId });
   const filters = {
     listFilterItems(input) {
       if (input.scopeId === 'global') return ok([descriptor('global')]);
@@ -450,7 +458,7 @@ function makeFlowHost({ global = null, pages = {}, readyLifecycle = 'ready' } = 
       writes.push({ scope: ref.scopeId, values });
       if (ref.scopeId === 'global') store.global = values;
       else store.pages[ref.scopeId] = values;
-      return Promise.resolve({ ok: true });
+      return Promise.resolve({ ok: !(failWrite && failWrite(ref)) });
     },
     clearFilter(ref) {
       writes.push({ scope: ref.scopeId, cleared: true });
@@ -469,19 +477,29 @@ function makeFlowHost({ global = null, pages = {}, readyLifecycle = 'ready' } = 
     config: {
       tables: {
         dienststelle_bw_default: { shape: 'row', pick: 'x' },
-        dienststelle_bw_hierarchy: { shape: 'row', pick: 'y' }
+        dienststelle_bw_hierarchy: { shape: 'row', pick: 'y' },
+        dienststelle_dezpv_default: { shape: 'row', pick: 'x' },
+        dienststelle_dezpv_hierarchy: { shape: 'row', pick: 'y' }
       },
       tabs: { 0: { role: 'dashboard' }, 1: { role: 'dashboard' }, 2: { role: 'info' } },
       dataSources: { metrics: { default: { prefix: 'metrics' } } },
-      labels: { de: { dienststelle: { emptyOkDefaultRequired: 'Auswahl fuer {filterName} noetig' } } }
+      labels: {
+        de: {
+          dienststelle: {
+            emptyOkDefaultRequired: 'Auswahl fuer {filterName} noetig',
+            emptyOkDefaultRequiredMembers: 'Auswahl (Mitglieder) fuer {filterName} noetig'
+          }
+        }
+      }
     },
+    properties,
     state: { filters: { dienststelle: { byFilter: {}, resolution: {} } } },
     runtime: { dienststelle: { tabsFacet, timers: {}, pendingPromises: {} } },
     services: {
       cognosHost: { filters },
       tableData: {
         readTableState: () => ({ lifecycle: readyLifecycle }),
-        readRows: () => DEFAULT_ROW,
+        readRows: readRows || (() => DEFAULT_ROW),
         waitForRows: () => Promise.resolve()
       },
       message: { notify: (m) => messages.push(m) }
@@ -528,20 +546,7 @@ test('T12 reconcile flow: tableData sync observes host values without writes', a
 });
 
 test('T12 reconcile flow: user confirm after clear applies defaults and shows the empty-OK message', async () => {
-  const { host, log, result } = await runFlow(
-    {},
-    {
-      activeSichtValue: 'BW',
-      source: 'user',
-      commitFromUser: true,
-      allowDefaulting: true,
-      commitSourceScope: 'global',
-      commitSourceWasClear: true,
-      filterScope: 'global',
-      observedAt: 3
-    },
-    700
-  );
+  const { host, log, result } = await runFlow({}, userClearContext('BW'), 700);
   golden(
     { writes: host.writes, log, result, widget: host.widgetEvents, messages: host.messages },
     USER_CLEAR_EXPECTED
@@ -554,6 +559,241 @@ test('T12 reconcile flow: table data not ready reports an error and stops', asyn
     { activeSichtValue: 'BW', source: 'tableData', observedAt: 4 }
   );
   golden({ writes: host.writes, log, result }, NOT_READY_EXPECTED);
+});
+
+// ---- Multi-Stelle default toggle: member default from column index 1 (count rule 1..3), BW and DEZPV ----
+const mun = (n) => '[Org_Source].[Dienststelle].&[' + n + ']';
+const cell = (n) => ({ d: 'Org ' + n, u: mun(n) });
+const COLUMN_TWO = [1, 2, 3].map(cell);
+const SINGLE_CELL = { d: 'Default Org', u: mun(0) };
+// Default table rows as the shaper returns them: every row carries both columns, empty cells are `{}`.
+function defaultRows(column1, column2) {
+  const count = Math.max(column1.length, column2.length);
+  return Array.from({ length: count }, (_, i) => ({ stelle: column1[i] || {}, members: column2[i] || {} }));
+}
+const TOGGLE_ON = { KDBMultiStelleDefaultToggle: true };
+const SICHTS = ['BW', 'DEZPV'];
+const useValues = (writes) => writes.map((w) => w.values.map((v) => v.u));
+const SINGLE_WRITE = [{ scope: 'global', values: [SINGLE_CELL] }];
+const perTabWrites = (members) => PAGE_SCOPES.map((scope) => ({ scope, values: members }));
+const perTabValues = (log) => {
+  const byScope = log.find((a) => a.type === 'dienststelle/syncRequested').payload.pageContextValuesByScope;
+  return Object.fromEntries(Object.entries(byScope).map(([scope, values]) => [scope, values.map((v) => v.useValue)]));
+};
+const memberWarns = (warn) => warn.filter((w) => w.includes('[dienststelle.readMemberDefaults]'));
+const appliedSelections = (log) =>
+  log.filter((a) => a.type === 'dienststelle/defaultApplied').map((a) => a.payload.selection);
+const appliedUseValues = (log) => appliedSelections(log).map((sel) => [].concat(sel).map((m) => m.useValue));
+const MEMBERS_TOAST = ['Auswahl (Mitglieder) fuer Dienststelle noetig'];
+const SINGLE_TOAST = ['Auswahl fuer Dienststelle noetig'];
+
+async function runMulti({ sicht = 'BW', rows, properties = TOGGLE_ON, userCommit = false, failWrite }) {
+  const warn = [];
+  const original = console.warn;
+  console.warn = (...args) => warn.push(args.join(' '));
+  try {
+    const context = userCommit ? userClearContext(sicht) : startupContext(sicht);
+    const hostOptions = { properties, readRows: () => rows, filterKey: 'Dienststelle_' + sicht, failWrite };
+    const out = await runFlow(hostOptions, context, userCommit ? 700 : 0);
+    return Object.assign(out, { warn });
+  } finally {
+    console.warn = original;
+  }
+}
+
+test('Multi-Stelle default: toggle unset, off or "true"-string keeps the single default (both variants)', async () => {
+  const rows = defaultRows([SINGLE_CELL], COLUMN_TWO);
+  for (const sicht of SICHTS) {
+    for (const properties of [null, {}, { KDBMultiStelleDefaultToggle: false }, { KDBMultiStelleDefaultToggle: 'true' }]) {
+      const { host, log, warn } = await runMulti({ sicht, rows, properties });
+      golden(host.writes, SINGLE_WRITE);
+      golden(appliedSelections(log), [{ displayValue: 'Default Org', useValue: mun(0), source: 'default' }]);
+      golden(warn, []);
+    }
+  }
+});
+
+test('Multi-Stelle default: toggle on with 1, 2 or 3 values in column index 1 writes one member write (both variants)', async () => {
+  for (const sicht of SICHTS) {
+    for (const count of [1, 2, 3]) {
+      const members = COLUMN_TWO.slice(0, count);
+      const { host, log, warn } = await runMulti({ sicht, rows: defaultRows([SINGLE_CELL], members) });
+      golden(host.writes, [{ scope: 'global', values: members }]);
+      golden(appliedSelections(log).map((sel) => sel.map((m) => m.useValue)), [members.map((m) => m.u)]);
+      golden(warn, []);
+    }
+  }
+});
+
+test('Multi-Stelle default: toggle on with more than 3 values falls back to the single default and warns once', async () => {
+  const rows = defaultRows([SINGLE_CELL], [1, 2, 3, 4].map(cell));
+  for (const sicht of SICHTS) {
+    const { host, log, warn } = await runMulti({ sicht, rows });
+    golden(host.writes, SINGLE_WRITE);
+    assert.ok(!Array.isArray(appliedSelections(log)[0]));
+    assert.equal(warn.length, 1);
+    assert.match(warn[0], /column 2 has 4 usable value\(s\) \(allowed 1\.\.3\): falling back to the single default/);
+  }
+});
+
+test('Multi-Stelle default: toggle on with 0 / blank / missing column falls back to the single default and warns', async () => {
+  const cases = {
+    'column blank': defaultRows([SINGLE_CELL], []),
+    'column half-filled cells only': defaultRows([SINGLE_CELL], [{ d: 'x' }, { u: 'y' }]),
+    'column absent (single-column table)': [{ stelle: SINGLE_CELL }]
+  };
+  for (const sicht of SICHTS) {
+    for (const [name, rows] of Object.entries(cases)) {
+      const { host, warn } = await runMulti({ sicht, rows });
+      assert.deepEqual(host.writes, SINGLE_WRITE, name);
+      assert.equal(warn.length, 1, name);
+      assert.match(warn[0], /has 0 usable value\(s\)/, name);
+    }
+  }
+});
+
+test('Multi-Stelle default: empty table is silent for members; a null first row warns like a column without usable cells', async () => {
+  const abortWarn = (sicht) => '[dienststelle.applyDefault] abort: no defaultValue dienststelle_' + sicht.toLowerCase() + '_default';
+  const memberWarn = (sicht) => '[dienststelle.readMemberDefaults] column 2 has 0 usable value(s) (allowed 1..3): ' +
+    'falling back to the single default dienststelle_' + sicht.toLowerCase() + '_default';
+  const defaultWrites = 1 + PAGE_SCOPES.length; // startup: the global scope, then each empty tab
+  for (const sicht of SICHTS) {
+    const empty = await runMulti({ sicht, rows: [] });
+    assert.deepEqual(empty.host.writes, [], sicht);
+    assert.deepEqual(empty.warn, Array(defaultWrites).fill(abortWarn(sicht)), sicht);
+    const nullRow = await runMulti({ sicht, rows: [null] });
+    assert.deepEqual(nullRow.host.writes, [], sicht);
+    assert.deepEqual(nullRow.warn, Array(defaultWrites).fill([memberWarn(sicht), abortWarn(sicht)]).flat(), sicht);
+  }
+});
+
+test('Multi-Stelle default: a table that is not readable yet stays silent (no member warning)', async () => {
+  for (const sicht of SICHTS) {
+    const { host, warn } = await runMulti({ sicht, rows: null });
+    golden(host.writes, []);
+    assert.ok(!warn.some((w) => w.includes('usable value(s)')));
+  }
+});
+
+test('Multi-Stelle default: the count is over distinct usable values: duplicates and blanks are dropped first', async () => {
+  const duplicates = await runMulti({ rows: defaultRows([SINGLE_CELL], [cell(1), cell(1), cell(2), cell(2)]) });
+  golden(useValues(duplicates.host.writes), [[mun(1), mun(2)]]);
+  const blanks = await runMulti({
+    rows: defaultRows([SINGLE_CELL], [cell(1), {}, { d: 'x' }, { u: 'y' }, cell(3), {}])
+  });
+  golden(useValues(blanks.host.writes), [[mun(1), mun(3)]]);
+  const otherColumnIgnored = await runMulti({ rows: defaultRows([1, 2, 3, 4, 5].map(cell), [cell(7)]) });
+  golden(useValues(otherColumnIgnored.host.writes), [[mun(7)]]);
+});
+
+test('Multi-Stelle default: startup member default writes once to the global scope and skips the tabs', async () => {
+  const members = COLUMN_TWO.slice(0, 2);
+  for (const sicht of SICHTS) {
+    const { host, log } = await runMulti({ sicht, rows: defaultRows([SINGLE_CELL], members) });
+    assert.deepEqual(host.writes, [{ scope: 'global', values: members }], sicht);
+    assert.deepEqual(appliedSelections(log).length, 1, sicht);
+    assert.deepEqual(Object.keys(perTabValues(log)), [], sicht);
+    assert.deepEqual(host.messages, [], sicht);
+  }
+});
+
+test('Multi-Stelle default: S1 per-tab defaults write the members to each empty tab (flat) and use the members toast', async () => {
+  const members = COLUMN_TWO.slice(0, 2);
+  for (const sicht of SICHTS) {
+    const { host, log, warn } = await runMulti({ sicht, rows: defaultRows([SINGLE_CELL], members), userCommit: true });
+    golden(host.writes, perTabWrites(members));
+    golden(perTabValues(log), { tab0_tabpanel: members.map((m) => m.u), tab1_tabpanel: members.map((m) => m.u) });
+    for (const selection of appliedSelections(log)) {
+      assert.ok(selection.every((m) => !Array.isArray(m) && m.source === 'default'));
+    }
+    golden(host.messages.map((m) => m.message), MEMBERS_TOAST);
+    golden(host.messages.map((m) => m.code), ['DIENSTSTELLE_EMPTY_OK_DEFAULT']);
+    golden(warn, []);
+  }
+});
+
+test('Multi-Stelle default: S1 with toggle off or fallback keeps one single value per tab and the old toast', async () => {
+  const memberRows = defaultRows([SINGLE_CELL], COLUMN_TWO);
+  const tooManyRows = defaultRows([SINGLE_CELL], [1, 2, 3, 4].map(cell));
+  const scenarios = [
+    { rows: memberRows, properties: {}, memberWarns: 0 },
+    { rows: memberRows, properties: null, memberWarns: 0 },
+    { rows: tooManyRows, properties: TOGGLE_ON, memberWarns: PAGE_SCOPES.length },
+    { rows: [{ stelle: SINGLE_CELL }], properties: TOGGLE_ON, memberWarns: PAGE_SCOPES.length }
+  ];
+  for (const sicht of SICHTS) {
+    for (const { memberWarns: expectedWarns, ...scenario } of scenarios) {
+      const { host, log, warn } = await runMulti({ sicht, userCommit: true, ...scenario });
+      golden(useValues(host.writes), [[mun(0)], [mun(0)]]);
+      golden(perTabValues(log), { tab0_tabpanel: [mun(0)], tab1_tabpanel: [mun(0)] });
+      assert.ok(appliedSelections(log).every((selection) => !Array.isArray(selection)));
+      golden(host.messages.map((m) => m.message), SINGLE_TOAST);
+      assert.equal(memberWarns(warn).length, expectedWarns, 'one member warn per tab write');
+    }
+  }
+});
+
+test('Multi-Stelle default: a 1-value member set still uses the members toast label', async () => {
+  const members = COLUMN_TWO.slice(0, 1);
+  for (const sicht of SICHTS) {
+    const { host, log } = await runMulti({ sicht, rows: defaultRows([SINGLE_CELL], members), userCommit: true });
+    assert.deepEqual(useValues(host.writes), [[mun(1)], [mun(1)]], sicht);
+    assert.deepEqual(appliedUseValues(log), [[mun(1)], [mun(1)]], sicht);
+    assert.deepEqual(host.messages.map((m) => m.message), MEMBERS_TOAST, sicht);
+  }
+});
+
+test('Multi-Stelle default: failed member writes are not reported as applied; one applied tab still shows the members toast', async () => {
+  const members = COLUMN_TWO.slice(0, 2);
+  const memberUses = members.map((m) => m.u);
+  const cases = {
+    'all tab writes fail': { failWrite: () => true, applied: [], tabs: [], toast: [] },
+    'tab0 write fails': {
+      failWrite: (ref) => ref.scopeId === 'tab0_tabpanel', applied: [memberUses], tabs: ['tab1_tabpanel'], toast: MEMBERS_TOAST
+    }
+  };
+  for (const sicht of SICHTS) {
+    for (const [name, { failWrite, applied, tabs, toast }] of Object.entries(cases)) {
+      const { host, log, warn } = await runMulti({ sicht, rows: defaultRows([SINGLE_CELL], members), userCommit: true, failWrite });
+      const label = sicht + ': ' + name;
+      assert.deepEqual(host.writes, perTabWrites(members), label);
+      assert.deepEqual(appliedUseValues(log), applied, label);
+      assert.deepEqual(Object.keys(perTabValues(log)), tabs, label);
+      assert.deepEqual(host.messages.map((m) => m.message), toast, label);
+      assert.equal(warn.filter((w) => w.includes('host write not applied')).length, tabs.length ? 1 : PAGE_SCOPES.length, label);
+    }
+  }
+});
+
+// Not covered here: Sicht BW -> DEZPV -> BW through sichtSync.syncFromSicht. It needs a harness with the sicht api,
+// clear.deactivateInactiveVariants, the view sync and dock-name DOM; applyDefault reads the definition handed to
+// reconcile, which the per-variant tests above already exercise for both BW and DEZPV.
+
+test('Multi-Stelle default: restore fallbackToDefault keeps the single default with the toggle on (both variants)', async () => {
+  const restore = load('restore/parameterSet.js');
+  for (const sicht of SICHTS) {
+    const host = makeFlowHost({
+      properties: TOGGLE_ON,
+      readRows: () => defaultRows([SINGLE_CELL], COLUMN_TWO),
+      filterKey: 'Dienststelle_' + sicht
+    });
+    host.KDB.services.tableData.abortTable = () => Promise.resolve(); // restore switches Sicht via sichtSync
+    const payload = {
+      runId: 1,
+      activeSichtValue: sicht,
+      dienststelle: { key: 'Dienststelle_' + sicht, glob: ['nonexistent'], byTab: {} },
+      options: { fallbackToDefault: true }
+    };
+    const { dispatch } = makeDispatchLog();
+    const controller = { _KDB: host.KDB, filtersFacet: host.KDB.services.cognosHost.filters };
+    const ctx = restore.createParameterSetContext(controller, dispatch, dispatch);
+    const result = await restore.routeParameterSetAction(ctx, {
+      type: 'dienststelle/parameterSetRestoreRequested',
+      payload
+    });
+    assert.deepEqual(result.fallbackScopes, ['global'], sicht);
+    assert.deepEqual(host.writes, SINGLE_WRITE, sicht);
+  }
 });
 
 const STARTUP_EXPECTED = {

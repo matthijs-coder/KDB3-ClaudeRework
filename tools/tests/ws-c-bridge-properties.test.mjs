@@ -620,11 +620,17 @@ function loadProps(env) {
   return loadAmd(path.join(PROPS, "index.js"), { stubs: env.stubs });
 }
 
-test("properties: boot maps the 16 object ids and the 4 toggles onto _KDB.properties", () => {
+test("properties: boot maps the 16 object ids and the 5 toggles onto _KDB.properties", () => {
   const env = makeEnv();
   const values = {};
   Object.keys(ALL_OBJECT_IDS).forEach((id, index) => { values[id] = JSON.stringify({ [id]: { n: index } }); });
-  Object.assign(values, { KDBReadyToggle: "yes", KDBLoadingImageToggle: "1", KDBLoadingImageTransparentToggle: "0", KDBHideWidgetsToggle: false });
+  Object.assign(values, {
+    KDBReadyToggle: "yes",
+    KDBLoadingImageToggle: "1",
+    KDBLoadingImageTransparentToggle: "0",
+    KDBHideWidgetsToggle: false,
+    KDBMultiStelleDefaultToggle: "true"
+  });
   const kdb = makePropsKdb(env, values);
   const controller = loadProps(env)(kdb);
   Object.entries(ALL_OBJECT_IDS).forEach(([id, key], index) => assert.deepEqual(kdb.properties[key], { n: index }, key));
@@ -632,7 +638,8 @@ test("properties: boot maps the 16 object ids and the 4 toggles onto _KDB.proper
   assert.equal(kdb.properties.KDBPlayLoadingImageToggle, true);
   assert.equal(kdb.properties.KDBLoadingImageTransparentToggle, false);
   assert.equal(kdb.properties.KDBHideWidgetsToggle, false);
-  assert.equal(Object.keys(kdb.properties).length, 20);
+  assert.equal(kdb.properties.KDBMultiStelleDefaultToggle, true);
+  assert.equal(Object.keys(kdb.properties).length, 21);
   assert.equal(kdb.runtime.properties.controller, controller);
   assert.equal(typeof controller.loadProperties, "function");
   assert.equal(typeof controller.subscribePropertyChanges, "function");

@@ -97,7 +97,7 @@ define([
     return Promise.resolve(
       _defaults.applyDefault(_KDB, {
         filterRef: _ref,
-        defaultTableKey: _definition.defaultTableKey,
+        definition: _definition,
         activeFilterKey: _activeFilterKey,
         filterScope: _filterScope,
         scopeId: _scopeId
@@ -143,6 +143,7 @@ define([
     var targetScopes = resolved ? resolved.targetScopes : _filterRef.listPageContextScopes(_KDB, _activeFilterKey);
     var existingByScope = resolved ? resolved.existingValuesByScope : null;
     var appliedCount = 0;
+    var hasAppliedMembers = false;
     var scopeApplySteps = Promise.resolve();
     var scopeIds;
     var idx;
@@ -181,8 +182,9 @@ define([
         pageRef
       ).then(function (appliedDefault) {
         if (appliedDefault) {
-          _pageContextValuesByScope[_currentScopeId] = [appliedDefault];
+          _pageContextValuesByScope[_currentScopeId] = [].concat(appliedDefault);
           appliedCount += 1;
+          hasAppliedMembers = hasAppliedMembers || Array.isArray(appliedDefault);
         }
       });
     }
@@ -205,7 +207,7 @@ define([
       scopeApplySteps = scopeApplySteps.then(applyScopeStep.bind(null, targetScopes[idx]));
     }
     return scopeApplySteps.then(function () {
-      return { appliedCount: appliedCount };
+      return { appliedCount: appliedCount, hasAppliedMembers: hasAppliedMembers };
     });
   }
 

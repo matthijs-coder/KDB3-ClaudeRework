@@ -25,7 +25,8 @@ define([], function () {
     { propertyId: "KDBReadyToggle", runtimeKey: "KDBReadyToggle" },
     { propertyId: "KDBLoadingImageToggle", runtimeKey: "KDBPlayLoadingImageToggle" },
     { propertyId: "KDBLoadingImageTransparentToggle", runtimeKey: "KDBLoadingImageTransparentToggle" },
-    { propertyId: "KDBHideWidgetsToggle", runtimeKey: "KDBHideWidgetsToggle" }
+    { propertyId: "KDBHideWidgetsToggle", runtimeKey: "KDBHideWidgetsToggle" },
+    { propertyId: "KDBMultiStelleDefaultToggle", runtimeKey: "KDBMultiStelleDefaultToggle" }
   ]);
 
   var SUBSCRIPTIONS = Object.freeze([

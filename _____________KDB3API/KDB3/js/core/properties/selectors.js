@@ -7,6 +7,7 @@
  *   readToggleProperty(_KDB, propertyId)              -> boolean (true/"true"/"1"/"yes" are true; null, "", "false", "0", "no" false)
  *   readLoadedProperty(_KDB, runtimeKey)              -> value loaded into `_KDB.properties[runtimeKey]` | undefined
  *   isDeveloperModeEnabled(_KDB)                      -> boolean, `_KDB.properties.KDBHideWidgetsToggle === true`
+ *   isMultiStelleDefaultEnabled(_KDB)                 -> boolean, `_KDB.properties.KDBMultiStelleDefaultToggle === true`
  *   subscribePropertyChange(_KDB, eventName, handler) -> unsubscribe function | null (null and a console.error when the
  *                                                        content adapter has no on/off)
  *
@@ -17,6 +18,7 @@ define(["./loadProperties.js"], function (_loadProperties) {
   "use strict";
 
   var HIDE_WIDGETS_TOGGLE_ID = "KDBHideWidgetsToggle";
+  var MULTI_STELLE_DEFAULT_TOGGLE_ID = "KDBMultiStelleDefaultToggle";
 
   function readContent(_KDB) {
     return _KDB && _KDB.runtime && _KDB.runtime.core && _KDB.runtime.core.adapters && _KDB.runtime.core.adapters.content || null;
@@ -28,6 +30,10 @@ define(["./loadProperties.js"], function (_loadProperties) {
 
   function isDeveloperModeEnabled(_KDB) {
     return readLoadedProperty(_KDB, HIDE_WIDGETS_TOGGLE_ID) === true;
+  }
+
+  function isMultiStelleDefaultEnabled(_KDB) {
+    return readLoadedProperty(_KDB, MULTI_STELLE_DEFAULT_TOGGLE_ID) === true;
   }
 
   function subscribePropertyChange(_KDB, _eventName, _handler) {
@@ -45,6 +51,7 @@ define(["./loadProperties.js"], function (_loadProperties) {
     readToggleProperty: _loadProperties.readToggleProperty,
     readLoadedProperty: readLoadedProperty,
     isDeveloperModeEnabled: isDeveloperModeEnabled,
+    isMultiStelleDefaultEnabled: isMultiStelleDefaultEnabled,
     subscribePropertyChange: subscribePropertyChange
   };
 });

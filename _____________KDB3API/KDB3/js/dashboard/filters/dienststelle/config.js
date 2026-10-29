@@ -9,12 +9,17 @@ define([
 
   var FILTER_KEYS = ["Dienststelle_BW", "Dienststelle_DEZPV"];
 
+  // Per-variant switch for KDBMultiStelleDefaultToggle: with the toggle on, 1..maxMembers distinct usable values of this
+  // column of the default table are the default members; removing `memberDefault` from a variant disables it there.
+  var MEMBER_DEFAULT = Object.freeze({ columnIndex: 1, maxMembers: 3 });
+
   var DEFINITIONS = {
     BW: {
       activeSichtValue: "BW",
       activeFilterKey: "Dienststelle_BW",
       visibleFilterLabel: "Dienststelle",
       defaultTableKey: "dienststelle_bw_default",
+      memberDefault: MEMBER_DEFAULT,
       hierarchyTableKey: _hierarchyTable.HIERARCHY_TABLE_KEYS.BW,
       shouldSanitizeOptionDisplay: false
     },
@@ -23,6 +28,7 @@ define([
       activeFilterKey: "Dienststelle_DEZPV",
       visibleFilterLabel: "Dienststelle",
       defaultTableKey: "dienststelle_dezpv_default",
+      memberDefault: MEMBER_DEFAULT,
       hierarchyTableKey: _hierarchyTable.HIERARCHY_TABLE_KEYS.DEZPV,
       shouldSanitizeOptionDisplay: true
     }
@@ -30,7 +36,9 @@ define([
 
   var LABELS = {
     emptyOkDefaultRequired: "Für den {filterName}-Filter ist mindestens eine Auswahl erforderlich. " +
-      "Ohne Auswahl wird automatisch der voreingestellte Standardwert für die (aktuellen) Reiter gesetzt."
+      "Ohne Auswahl wird automatisch der voreingestellte Standardwert für die (aktuellen) Reiter gesetzt.",
+    emptyOkDefaultRequiredMembers: "Für den {filterName}-Filter ist mindestens eine Auswahl erforderlich. " +
+      "Ohne Auswahl wird/werden automatisch der/die voreingestellte(n) Standardwert(e) für die (aktuellen) Reiter gesetzt."
   };
 
   var PARAMETER_SET_CODES = Object.freeze({

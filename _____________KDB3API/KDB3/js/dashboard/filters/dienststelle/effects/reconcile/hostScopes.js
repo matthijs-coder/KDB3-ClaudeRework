@@ -182,6 +182,7 @@ define([
     ).then(function (walkResult) {
       _defaults.notifyEmptyOk(KDB, {
         appliedCount: walkResult && walkResult.appliedCount,
+        hasAppliedMembers: walkResult && walkResult.hasAppliedMembers,
         commitFromUser: true,
         isHistoryReplay: context.isHistoryReplay === true,
         activeFilterKey: _run.activeFilterKey,

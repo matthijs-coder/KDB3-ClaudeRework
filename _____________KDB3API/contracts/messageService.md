@@ -150,7 +150,7 @@ All option objects are declarative. They must not contain render functions, even
 | `code?` | Stable diagnostic/message code for logging and optional default deduplication. |
 | `title?` | Caller-owned German title. |
 | `message` | Caller-owned German body text. Required unless a method documents otherwise. |
-| `severity?` | `"info"`, `"success"`, `"warning"` or `"error"`; default `"info"`. Caller-owned. Domain mapping: `toast-severity-content-rule-contractdelta.md`. Dienststelle empty-OK is a caller of `notify` / `notifyAnchored` (`dienststelle-empty-ok-toast-contractdelta.md`). |
+| `severity?` | `"info"`, `"success"`, `"warning"` or `"error"`; default `"info"`. Caller-owned. Domain mapping: `toast-severity-content-rule-contractdelta.md`. Dienststelle empty-OK is a caller of `notify` / `notifyAnchored` (`_archive/dienststelle-empty-ok-toast-contractdelta.md`). |
 | `dismissible?` | Whether close/Escape is permitted; defaults per method. |
 | `dedupeKey?` | Suppresses a duplicate active notification; defaults to `code` when present. |
 

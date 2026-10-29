@@ -154,7 +154,7 @@ Replay-handlers worden **tweemaal** gebonden (`KDB.js` na kdbControl-mount en na
 | `core/config/` | `_KDB.config` | Config + frozen `parameterMap`-dump. |
 | `core/css/` | injecteert `KDB3/css/` | Href-injectie. |
 | `core/events/` | `_KDB.events` | Bus in de constructor. `authoringMode.js` = twee event-naamconstanten (live imports, geen dode leftover). |
-| `core/properties/` | `_KDB.properties` | Report-properties (`index.js`, `loadProperties.js`, `propertyDefinitions.js`, `developerMode.js`, `hideDataHint.js`). Destroy: `runtime.properties.controller`. |
+| `core/properties/` | `_KDB.properties` | Report-properties (`index.js`, `loadProperties.js`, `propertyDefinitions.js`, `developerMode.js`, `hideDataHint.js`). Destroy: `runtime.properties.controller`. `selectors.js` (read facet; used by dienststelle defaults). |
 | `core/utils/` | `_KDB.utils` | sleep/throttle/wait + helpers. `core/utils/filters/tabMutationRun/` (`guardTabMutationRun.js`, `listAffectedPlanSlots.js`, `tabMutationSnapshots.js`) woont op schijf maar staat **niet** op `_KDB.utils`. |
 
 ---

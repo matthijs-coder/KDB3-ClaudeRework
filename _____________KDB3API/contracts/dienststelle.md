@@ -67,10 +67,10 @@ Mapped REDESIGN2 files:
 | `restoreHierarchyPopupSelection.js` | DOM-only popup checkbox restore on cancel/close. | `view/syncView.js` (`syncViewFromState`). |
 | `dashboard/filters/dienststelle/history.js` (`buildCommittedStep`) | History step payload for hierarchy commits. | `dashboard/filters/dienststelle/history.js` (`buildCommittedStep`) with `filter_dienststelle`. |
 | `__stelleHierarchyHistoryAdapter.js` | Replay of direct hierarchy history steps. | `history.js` (`applyReplay`) and `effects/historyReplay.js`. |
-| `dashboard/filters/dienststelle/effects/reconcile/defaults.js` (`readDefaultValue`) | Reads default table row from `{filterName}Default`. | `effects/reconcile/defaults.js` (`readDefaultValue`) using `tableDataService` / configured table keys. |
+| `dashboard/filters/dienststelle/effects/reconcile/defaults.js` (`readDefaultValue`) | Reads default table row from `{filterName}Default` (single default; the member default per §10 is selected in `applyDefault`). | `effects/reconcile/defaults.js` (`readDefaultValue`) using `tableDataService` / configured table keys. |
 | `awaitHierarchyDataReady.js` | Polls hierarchy semantics readiness. | `effects/reconcile/runReconcile.js` (`awaitDataReady`). |
 | `resolveHierarchyDataKey.js` | Maps active filter to hierarchy data key. | `config.js` (`DEFINITIONS`, `resolveDefinition`). |
-| `isValueAvailableInHierarchyData.js` | Validates default/restored value against hierarchy semantics. | Folded into `effects/reconcile/defaults.js` (default apply) and `restore/hierarchyIndex.js` (`hasUseValue`, restore). |
+| `isValueAvailableInHierarchyData.js` | Validates default/restored value against hierarchy semantics. | Folded into `restore/hierarchyIndex.js` (`hasUseValue`, restore). Default apply does not validate against the hierarchy. |
 | `applyWidgetDownstreamEffects.js`, `applyWidgetDownstreamEffect.js`, `applySingleWidgetDownstreamEffect.js`, `resolveRelevantVisualizationWidgetTarget.js` | REDESIGN2 widget propagation logic. | Deferred to future visual widget owner API boundary; no direct widget state/runtime writes in this contract. |
 | `setupHierarchyVisibleLabelSanitizing.js`, `sanitizeVisibleHierarchyLabel.js`, `sanitizeWidgetDownstreamDisplayValues.js` | Label sanitizing rules. | Pure sanitizer functions owned by `dienststelle`; lifecycle trigger owned by `filterDock` unless CP-1 later approves another route. |
 
@@ -488,6 +488,10 @@ Approved filterDock-owned `popupDisplayResync` behavior:
 
 Contract decision: a targeted `filterDock`-owned `popupDisplayResync` observer/re-dispatch path is approved for display sanitizing. Dienststelle opts in through the filterDock route-map capability `needsPopupDisplayResync: true`. A Dienststelle-owned `MutationObserver` remains forbidden unless the user explicitly approves a later contract delta.
 
+> A DEZPV member default (§10) goes through the existing committed-display / leftover-overlay path (default entries carry no `hostDisplay`,
+> as for the single default today). No count-specific display logic is added. The DEZPV closed chip with 2..3 default members is a manual
+> smoke gate (`tools/smoke-checklist.md`, `P3-MULTI-STELLE-DEFAULT`).
+
 ## 9. Boundary With `sicht`
 
 `sicht` owns `_KDB.state.filters.sicht` and confirmed active Sicht value. Dienststelle consumes confirmed Sicht changes through direct API dispatch.
@@ -534,12 +538,14 @@ Draft shape:
   BW: {
     sichtDisplayValue: "BW",
     defaultTableKey: "dienststelle_bw_default",
+    memberDefault: MEMBER_DEFAULT,   // member default, see below
     hierarchyTableKey: "dienststelle_bw_hierarchy",
     shouldSanitizeOptionDisplay: false
   },
   DEZPV: {
     sichtDisplayValue: "DEZPV",
     defaultTableKey: "dienststelle_dezpv_default",
+    memberDefault: MEMBER_DEFAULT,   // member default, see below
     hierarchyTableKey: "dienststelle_dezpv_hierarchy",
     shouldSanitizeOptionDisplay: true
   }
@@ -554,6 +560,19 @@ Known table keys from `core/config/tables.js`:
 | `dienststelle_dezpv_default` | DEZPV default Dienststelle value. |
 | `dienststelle_bw_hierarchy` | BW hierarchy semantics / rows. |
 | `dienststelle_dezpv_hierarchy` | DEZPV hierarchy semantics / rows. |
+
+> **Member default (Multi-Stelle).** When the Cognos property toggle `KDBMultiStelleDefaultToggle` (`spec.json`) is on and the active
+> definition has `memberDefault`, the default is the set of distinct usable cells of column `memberDefault.columnIndex` (0-based over the
+> keys of row 0, so `1` = the second column; shaped rows carry every column in report column order, which holds for the non-numeric Cognos column labels) across all rows of the variant's default table (`{display,use}` / `{d,u}` both non-empty after trim, deduped by `useValue`, first-seen order).
+> 1..`maxMembers` values -> that set is the default. Rows present but 0 usable values / missing column / more than `maxMembers` values -> the
+> single default (unchanged reader `readDefaultValue`) plus one `console.warn` per default write (per scope). Table not ready or without rows
+> -> no member warning; the single-default path behaves as today (S6).
+> Both `BW` and `DEZPV` carry `memberDefault`; the rule is variant-agnostic. Toggle off -> both variants behave exactly as before.
+> Table names resolve through `defaultTableKey` -> `core/config/tables.js`; nothing is hardcoded. The default tables are evaluated per user
+> (Cognos report), so the count is per user. The toggle is loaded at boot into `_KDB.properties` and read per default apply through
+> `isMultiStelleDefaultEnabled`; no change subscription, so a flip in the property panel needs a dashboard reload.
+> Removing `memberDefault` from one variant's definition switches the member default off for that variant only (rollback lever).
+> `MEMBER_DEFAULT` = `Object.freeze({ columnIndex: 1, maxMembers: 3 })`, shared by both variants.
 
 Read discipline:
 
@@ -586,7 +605,10 @@ Investigation evidence:
 Minimum-selection invariant:
 
 - An active Dienststelle filter must not remain with zero committed values on an eligible pageContext scope after a successful user commit path.
-- User empty-OK that applies the active default also notifies via `_KDB.services.message` (`dienststelle-empty-ok-toast-contractdelta.md`). Startup / restore / history stay silent for that copy.
+- User empty-OK that applies the active default also notifies via `_KDB.services.message` (`_archive/dienststelle-empty-ok-toast-contractdelta.md`). Startup / restore / history stay silent for that copy.
+- The toast uses `labels.de.dienststelle.emptyOkDefaultRequired` (unchanged text). When at least one default applied by that user commit was a
+  member set (§10; any 1..`maxMembers` set, including a single column-2 value), it uses `emptyOkDefaultRequiredMembers` (plural ending in
+  parentheses, `config.js` `LABELS`). Message `code` stays `DIENSTSTELLE_EMPTY_OK_DEFAULT`.
 - Default-on-empty is a behavior-completion tranche, not a full re-port of the legacy hierarchy popup.
 - The invariant is enforced only for the active Dienststelle variant (`Dienststelle_BW` or `Dienststelle_DEZPV`) resolved from the confirmed Sicht context.
 
@@ -594,12 +616,12 @@ Approved scenario rules for this tranche:
 
 | Scenario | Contract behavior |
 |---|---|
-| S1 — Global clear, empty pageContext tabs | User deselects all global Dienststelle options and confirms; every eligible visible pageContext scope that is host-empty receives the active default. The global scope itself does not receive a default from the user-clear path. After S1 host defaults, the planner snapshot contains that default `useValue` once, even when every empty tab received it. After S1, a later `TABLE_DATA_CHANGED` (including late hierarchy `LOAD_FINISHED`) must carry `source: "tableData"` and must not default global. Tab defaults from the user-clear path stay. |
+| S1 — Global clear, empty pageContext tabs | User deselects all global Dienststelle options and confirms; every eligible visible pageContext scope that is host-empty receives the active default. The global scope itself does not receive a default from the user-clear path. After S1 host defaults, the planner snapshot contains each default `useValue` once, even when every empty tab received it. After S1, a later `TABLE_DATA_CHANGED` (including late hierarchy `LOAD_FINISHED`) must carry `source: "tableData"` and must not default global. Tab defaults from the user-clear path stay. |
 | S2 — Single tab clear, no global value | User clears one pageContext tab while global is empty; only that tab receives the active default. |
 | S3 — Global has member-set, one tab cleared | No default is applied; global remains dominant and the cleared pageContext scope may stay empty because global supplies the effective member-set. |
 | S4 — Tab has value, global cleared | Existing pageContext tab values remain leading after global clear; Dienststelle synchronizes to Cognos-native pageContext restore and must not force a REDESIGN2-style KDB sticky restore into Cognos. |
 | S5 — Multiple tabs mixed | Tabs/scopes with committed values keep their values; only eligible visible pageContext scopes that are confirmed empty receive the active default. Values are never copied between tabs. |
-| S6 — Default unavailable | If tableData is not ready, the default row is missing, or the default cannot be read from the configured active default table, Dienststelle does not invent a fallback; it records/logs according to existing error discipline and leaves behavior unresolved for reviewer evidence. |
+| S6 — Default unavailable | If tableData is not ready, the default row is missing, or the default cannot be read from the configured active default table, Dienststelle does not invent a fallback; it records/logs according to existing error discipline and leaves behavior unresolved for reviewer evidence. With the member default active, an unusable column (0 values / missing) or more than `maxMembers` values falls back to the single default; S6 applies only when that single default is unavailable too. |
 
 Scope-empty decision:
 
@@ -611,8 +633,9 @@ Scope-empty decision:
 
 Default source:
 
-- Default values come from `effects/reconcile/defaults.js` (`readDefaultValue`) through `_KDB.services.tableData` and the active `config.js` (`DEFINITIONS`) default table key.
+- Default values come from `effects/reconcile/defaults.js` (single default via `readDefaultValue`, or the member default per §10, both selected inside `applyDefault`) through `_KDB.services.tableData` and the active `config.js` (`DEFINITIONS`) default table key.
 - The active table keys remain `dienststelle_bw_default` / `dienststelle_dezpv_default` for defaults and `dienststelle_bw_hierarchy` / `dienststelle_dezpv_hierarchy` for hierarchy data.
+- Parameter-set restore `fallbackToDefault` keeps the single default (`readDefaultValue`); the member default is not used there (non-goal, PO 2026-10-29).
 - The empty-commit path may read the default on demand through the existing production helper; it must not reintroduce legacy `_KDB.dienststelleHierarchyData`, `_KDB.data.tables.byName`, or `{filterName}Default` string construction.
 
 History decision:
@@ -633,7 +656,7 @@ Explicit non-goals for this tranche:
 > NL: Bevestigde hiërarchie is een lid-set (0|N), geen `values[0]`-collapse.
 > Host-leeg is `null` (nooit `[]`); vis bindt `hierarchySnapshot` `useValue[]`.
 
-**Status:** approved 2026-08-27. Producer cardinality lock only. S3, default apply, events, and `widgetVis` ownership unchanged.
+**Status:** approved 2026-08-27. Producer cardinality lock only. S3, events, and `widgetVis` ownership unchanged; default apply unchanged except the 2026-10-29 member-default amendment below.
 
 #### Invariants
 
@@ -645,7 +668,7 @@ Explicit non-goals for this tranche:
 - **`waitForStable*` compares the full `useValue` set**, order-insensitive, not `[0]`. Empty expected ↔ observed `null`.
 - **History / writeback / restore already persist sets** (`valuesByScope` object-arrays; v3 `filt.dstl.glob` / `byTab` string[]). Option A must **not nest** those sets inside another singleton slot.
 - **S3 unchanged:** non-empty global member-set dominates; a cleared pageContext scope may stay host-empty when global supplies the effective set.
-- **Default apply remains one default-object** (one default-table row) per eligible empty scope. Do not expand default into N invented members.
+- **Default apply writes one default selection per eligible empty scope:** the single default object or the member set per §10, in one write. Members are only read from the default table, never invented or copied from other scopes or tabs. `DEFAULT_APPLIED` carries an object (single) or an array (member set); owner state, `dominantValues` and `pageContextValuesByScope` stay flat `{ displayValue, useValue, source }[]`.
 - **No new events. No `visualizationWidget` retarget.** Downstream remains `widgetVis/dienststelleChanged`.
 
 No-empty Dienststelle invariant:
@@ -813,6 +836,7 @@ This event is not introduced in this contract. If future widget or other indepen
 - `_KDB.api.filterDock` only through handoff payloads; no runtime reads.
 - `_KDB.api.sicht.getState()` or direct `dienststelle/sichtChanged` dispatch payload for current Sicht.
 - `_KDB.services.tableData` public methods for default and hierarchy data.
+- `core/properties/selectors.js` (`isMultiStelleDefaultEnabled`) for the member-default gate.
 - `_KDB.services.history` for committed steps and replay handler integration, when available.
 - `_KDB.cognosAPI.filters` for approved filter value reads/writes/replacements.
 - Future `_KDB.api.visWidget` for downstream widget effects.
@@ -968,7 +992,7 @@ Startup dispatch rule:
 | Inactive variant after Sicht switch | Normal path is clear empty values + UI hide + handoff guard, not Cognos remove/recreate. Hidden empty shells may remain to preserve filterDock position. |
 | Multi-scan | Do not copy pageContext values across tabs; use defaults for missing tabs. |
 | REDESIGN2 sticky/scan | Reject `scanNonEmptyPageContexts`, `pageContextStickyByScopeId`, and `pageRestoredAfterGlobalClear` Cognos forcing for this tranche. |
-| Default/tableData contract | Default source is `effects/reconcile/defaults.js` (`readDefaultValue`) through `_KDB.services.tableData` and active `config.js` (`DEFINITIONS`) table keys. No legacy `_KDB.data.tables.byName` or `_KDB.dienststelleHierarchyData`. |
+| Default/tableData contract | Default source is `effects/reconcile/defaults.js` (single default via `readDefaultValue`, or member default per §10) through `_KDB.services.tableData` and active `config.js` (`DEFINITIONS`) table keys. No legacy `_KDB.data.tables.byName` or `_KDB.dienststelleHierarchyData`. |
 | DEZPV display sanitizing | Variant-gated by `shouldSanitizeOptionDisplay`; DEZPV popup options use the legacy `#` / `|` / `" - "` display transform on wrapper chrome. DEZPV leftover closed-chip chrome may use this-scope `hostDisplay` as strip source. BW remains unchanged. |
 | Manual commit display sync | After Dienststelle OK/confirm, committed display sync uses the handoff scope and may defer with bounded `requestAnimationFrame`. Leftover closed chip on `#filterDock__other` may then take current-host `hostDisplay`. Popup observer does not own closed-display correction. Empty global leftover caption is not success and must not receive the tab caption. |
 | Widget downstream | After successful user OK, Sicht-driven default/reconcile, or history replay, send the serializable Dienststelle change payload to `_KDB.api.widgetVis.dispatch` when available; until then log `[dienststelle.widgetVis.dispatch]`. No direct widget state/runtime writes. Downstream stays `widgetVis` + `hierarchySnapshot`; do not retarget to `visualizationWidget`. |
@@ -1015,3 +1039,4 @@ The execution spec must include the mapping table, per-file `Rules to apply` che
 | 2026-06-03 | `filterdock header name delta -> filterdock filters-ready delta` | user | Startup header-name sync may be triggered by a generic filterDock one-shot readiness notification once at least one `.filterItemWrapper` exists. |
 | 2026-06-03 | `filterdock filters-ready delta -> minimum-selection CP-1 draft` | pending user CP-1 | Drafted default-on-empty-commit completion: S1-S6, host-read emptiness via current architecture, no legacy OK polling, history option A. |
 | 2026-09-10 | SET restore chrome realign | PO vastenburg + dual grok 4.6 | `parameterSetRestore` awaits existing `deactivateInactiveDienststelleVariants` via `restoreSupport.realignInactiveVariants` before apply. No public `sichtChanged`. Delta: `dienststelle-parameterSet-restore-chrome-contractdelta.md`. |
+| 2026-10-29 | Multi-Stelle default toggle | PO vastenburg | `KDBMultiStelleDefaultToggle` (spec.json, default off). On: for BW and DEZPV the default = 1..3 distinct usable values of column index 1 of the variant default table; 0 / missing column / >3 -> single default + warn. §11.2 one-default-object rule amended; empty-OK toast gets a member-set wording. Toggle off unchanged. Restore fallback stays single. |

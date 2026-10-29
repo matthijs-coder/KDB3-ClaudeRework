@@ -275,6 +275,16 @@
                       "label": "Developers modus (visibility widgets and buttons)"
                     }
                   }
+                },
+                {
+                  "id": "KDBMultiStelleDefaultToggle",
+                  "editor": {
+                    "sectionId": "general.my_settings",
+                    "uiControl": {
+                      "type": "ToggleButton",
+                      "label": "Multi-Stelle as default"
+                    }
+                  }
                 }
               ],
               "renderer": {

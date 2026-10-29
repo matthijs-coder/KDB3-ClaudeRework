@@ -7,8 +7,6 @@
 # Shared helper kit; imported by Phase 1 workstreams.
 _____________KDB3API/KDB3/js/core/utils/kit/** # keep: filled by the kit workstream
 
-# Phase 2 W3 published APIs: no importer until the consumer waves migrate (properties selectors: loadProperties and
-# developerMode still resolve the content adapter themselves, see w12-followups; readHostFacet W13). Remove each entry
+# Phase 2 W3 published APIs: no importer until the consumer waves migrate (readHostFacet W13). Remove each entry
 # when its first consumer lands.
-_____________KDB3API/KDB3/js/core/properties/selectors.js
 _____________KDB3API/KDB3/js/core/utils/readHostFacet.js

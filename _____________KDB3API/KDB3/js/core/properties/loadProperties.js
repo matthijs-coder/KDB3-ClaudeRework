@@ -80,7 +80,7 @@ define(["./propertyDefinitions.js"], function (_definitions) {
     return normalizeToggleValue(readPropertyValue(_KDB, _propertyId));
   }
 
-  // Rebuilds `_KDB.properties` from the 16 object and 4 toggle definitions.
+  // Rebuilds `_KDB.properties` from the 16 object and 5 toggle definitions.
   function loadProperties(_KDB) {
     var properties = {};
     _KDB.properties = properties;
