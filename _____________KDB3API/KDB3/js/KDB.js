@@ -33,7 +33,7 @@ define([
       this._teardownComplete = false;
       this._renderPromise = null;
       this._renderParent = undefined;
-      this.version = "2026.10.27 HH22.02";
+      this.version = "2026.10.30 HH11.30";
     }
 
     // Host contract (verified 2026-08-19; spec.json "renderer" + runtime measurement M1):
