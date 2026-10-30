@@ -489,7 +489,7 @@ Approved filterDock-owned `popupDisplayResync` behavior:
 Contract decision: a targeted `filterDock`-owned `popupDisplayResync` observer/re-dispatch path is approved for display sanitizing. Dienststelle opts in through the filterDock route-map capability `needsPopupDisplayResync: true`. A Dienststelle-owned `MutationObserver` remains forbidden unless the user explicitly approves a later contract delta.
 
 > A DEZPV member default (§10) goes through the existing committed-display / leftover-overlay path (default entries carry no `hostDisplay`,
-> as for the single default today). No count-specific display logic is added. The DEZPV closed chip with 2..3 default members is a manual
+> as for the single default today). No count-specific display logic is added. The DEZPV closed chip with 2..5 default members is a manual
 > smoke gate (`tools/smoke-checklist.md`, `P3-MULTI-STELLE-DEFAULT`).
 
 ## 9. Boundary With `sicht`
@@ -572,7 +572,7 @@ Known table keys from `core/config/tables.js`:
 > (Cognos report), so the count is per user. The toggle is loaded at boot into `_KDB.properties` and read per default apply through
 > `isMultiStelleDefaultEnabled`; no change subscription, so a flip in the property panel needs a dashboard reload.
 > Removing `memberDefault` from one variant's definition switches the member default off for that variant only (rollback lever).
-> `MEMBER_DEFAULT` = `Object.freeze({ columnIndex: 1, maxMembers: 3 })`, shared by both variants.
+> `MEMBER_DEFAULT` = `Object.freeze({ columnIndex: 1, maxMembers: 5 })`, shared by both variants.
 
 Read discipline:
 
@@ -1040,3 +1040,4 @@ The execution spec must include the mapping table, per-file `Rules to apply` che
 | 2026-06-03 | `filterdock filters-ready delta -> minimum-selection CP-1 draft` | pending user CP-1 | Drafted default-on-empty-commit completion: S1-S6, host-read emptiness via current architecture, no legacy OK polling, history option A. |
 | 2026-09-10 | SET restore chrome realign | PO vastenburg + dual grok 4.6 | `parameterSetRestore` awaits existing `deactivateInactiveDienststelleVariants` via `restoreSupport.realignInactiveVariants` before apply. No public `sichtChanged`. Delta: `dienststelle-parameterSet-restore-chrome-contractdelta.md`. |
 | 2026-10-29 | Multi-Stelle default toggle | PO vastenburg | `KDBMultiStelleDefaultToggle` (spec.json, default off). On: for BW and DEZPV the default = 1..3 distinct usable values of column index 1 of the variant default table; 0 / missing column / >3 -> single default + warn. §11.2 one-default-object rule amended; empty-OK toast gets a member-set wording. Toggle off unchanged. Restore fallback stays single. |
+| 2026-10-30 | Multi-Stelle default maximum | PO vastenburg | `MEMBER_DEFAULT.maxMembers` 3 -> 5: with the toggle on, 1..5 distinct usable column-2 values are the default member set; 0 / missing column / >5 -> single default + warn. |

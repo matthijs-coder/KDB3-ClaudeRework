@@ -561,10 +561,11 @@ test('T12 reconcile flow: table data not ready reports an error and stops', asyn
   golden({ writes: host.writes, log, result }, NOT_READY_EXPECTED);
 });
 
-// ---- Multi-Stelle default toggle: member default from column index 1 (count rule 1..3), BW and DEZPV ----
+// ---- Multi-Stelle default toggle: member default from column index 1 (count rule 1..5), BW and DEZPV ----
 const mun = (n) => '[Org_Source].[Dienststelle].&[' + n + ']';
 const cell = (n) => ({ d: 'Org ' + n, u: mun(n) });
-const COLUMN_TWO = [1, 2, 3].map(cell);
+const MAX_MEMBERS = 5;
+const COLUMN_TWO = [1, 2, 3, 4, 5, 6].map(cell); // one more than MAX_MEMBERS: slice for a valid set, use whole for 'too many'
 const SINGLE_CELL = { d: 'Default Org', u: mun(0) };
 // Default table rows as the shaper returns them: every row carries both columns, empty cells are `{}`.
 function defaultRows(column1, column2) {
@@ -613,9 +614,9 @@ test('Multi-Stelle default: toggle unset, off or "true"-string keeps the single 
   }
 });
 
-test('Multi-Stelle default: toggle on with 1, 2 or 3 values in column index 1 writes one member write (both variants)', async () => {
+test('Multi-Stelle default: toggle on with 1 to 5 values in column index 1 writes one member write (both variants)', async () => {
   for (const sicht of SICHTS) {
-    for (const count of [1, 2, 3]) {
+    for (let count = 1; count <= MAX_MEMBERS; count++) {
       const members = COLUMN_TWO.slice(0, count);
       const { host, log, warn } = await runMulti({ sicht, rows: defaultRows([SINGLE_CELL], members) });
       golden(host.writes, [{ scope: 'global', values: members }]);
@@ -625,14 +626,14 @@ test('Multi-Stelle default: toggle on with 1, 2 or 3 values in column index 1 wr
   }
 });
 
-test('Multi-Stelle default: toggle on with more than 3 values falls back to the single default and warns once', async () => {
-  const rows = defaultRows([SINGLE_CELL], [1, 2, 3, 4].map(cell));
+test('Multi-Stelle default: toggle on with more than 5 values (6) falls back to the single default and warns once', async () => {
+  const rows = defaultRows([SINGLE_CELL], COLUMN_TWO);
   for (const sicht of SICHTS) {
     const { host, log, warn } = await runMulti({ sicht, rows });
     golden(host.writes, SINGLE_WRITE);
     assert.ok(!Array.isArray(appliedSelections(log)[0]));
     assert.equal(warn.length, 1);
-    assert.match(warn[0], /column 2 has 4 usable value\(s\) \(allowed 1\.\.3\): falling back to the single default/);
+    assert.match(warn[0], /column 2 has 6 usable value\(s\) \(allowed 1\.\.5\): falling back to the single default/);
   }
 });
 
@@ -654,7 +655,7 @@ test('Multi-Stelle default: toggle on with 0 / blank / missing column falls back
 
 test('Multi-Stelle default: empty table is silent for members; a null first row warns like a column without usable cells', async () => {
   const abortWarn = (sicht) => '[dienststelle.applyDefault] abort: no defaultValue dienststelle_' + sicht.toLowerCase() + '_default';
-  const memberWarn = (sicht) => '[dienststelle.readMemberDefaults] column 2 has 0 usable value(s) (allowed 1..3): ' +
+  const memberWarn = (sicht) => '[dienststelle.readMemberDefaults] column 2 has 0 usable value(s) (allowed 1..5): ' +
     'falling back to the single default dienststelle_' + sicht.toLowerCase() + '_default';
   const defaultWrites = 1 + PAGE_SCOPES.length; // startup: the global scope, then each empty tab
   for (const sicht of SICHTS) {
@@ -713,12 +714,11 @@ test('Multi-Stelle default: S1 per-tab defaults write the members to each empty 
 });
 
 test('Multi-Stelle default: S1 with toggle off or fallback keeps one single value per tab and the old toast', async () => {
-  const memberRows = defaultRows([SINGLE_CELL], COLUMN_TWO);
-  const tooManyRows = defaultRows([SINGLE_CELL], [1, 2, 3, 4].map(cell));
+  const sixValueRows = defaultRows([SINGLE_CELL], COLUMN_TWO); // 6 values: valid with the toggle off, over the maximum with it on
   const scenarios = [
-    { rows: memberRows, properties: {}, memberWarns: 0 },
-    { rows: memberRows, properties: null, memberWarns: 0 },
-    { rows: tooManyRows, properties: TOGGLE_ON, memberWarns: PAGE_SCOPES.length },
+    { rows: sixValueRows, properties: {}, memberWarns: 0 },
+    { rows: sixValueRows, properties: null, memberWarns: 0 },
+    { rows: sixValueRows, properties: TOGGLE_ON, memberWarns: PAGE_SCOPES.length },
     { rows: [{ stelle: SINGLE_CELL }], properties: TOGGLE_ON, memberWarns: PAGE_SCOPES.length }
   ];
   for (const sicht of SICHTS) {

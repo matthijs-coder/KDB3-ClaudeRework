@@ -11,7 +11,7 @@ define([
 
   // Per-variant switch for KDBMultiStelleDefaultToggle: with the toggle on, 1..maxMembers distinct usable values of this
   // column of the default table are the default members; removing `memberDefault` from a variant disables it there.
-  var MEMBER_DEFAULT = Object.freeze({ columnIndex: 1, maxMembers: 3 });
+  var MEMBER_DEFAULT = Object.freeze({ columnIndex: 1, maxMembers: 5 });
 
   var DEFINITIONS = {
     BW: {
